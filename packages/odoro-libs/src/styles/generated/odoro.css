@@ -373,6 +373,7 @@
   --o-color-warning-border: oklch(92.4% 0.12 95.746);
   --o-color-on-warning: oklch(27.9% 0.077 45.635);
   --o-color-danger: oklch(57.7% 0.245 27.325);
+  --o-color-danger-hover: oklch(50.5% 0.213 27.518);
   --o-color-danger-soft: oklch(97.1% 0.013 17.38);
   --o-color-danger-border: oklch(88.5% 0.062 18.334);
   --o-color-on-danger: #fff;
@@ -510,6 +511,7 @@
   --o-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --o-ease-out: cubic-bezier(0, 0, 0.2, 1);
   --o-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --o-ease-linear: linear;
   --o-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --o-ease-entrance: cubic-bezier(0, 0, 0, 1);
   --o-ease-exit: cubic-bezier(0.3, 0, 1, 1);
@@ -587,6 +589,7 @@
     --o-color-warning-border: oklch(47.3% 0.137 46.201);
     --o-color-on-warning: oklch(27.9% 0.077 45.635);
     --o-color-danger: oklch(70.4% 0.191 22.216);
+    --o-color-danger-hover: oklch(80.8% 0.114 19.571);
     --o-color-danger-soft: oklch(25.8% 0.092 26.042);
     --o-color-danger-border: oklch(44.4% 0.177 26.899);
     --o-color-on-danger: oklch(14.1% 0.005 285.823);
@@ -635,6 +638,7 @@
   --o-color-warning-border: oklch(47.3% 0.137 46.201);
   --o-color-on-warning: oklch(27.9% 0.077 45.635);
   --o-color-danger: oklch(70.4% 0.191 22.216);
+  --o-color-danger-hover: oklch(80.8% 0.114 19.571);
   --o-color-danger-soft: oklch(25.8% 0.092 26.042);
   --o-color-danger-border: oklch(44.4% 0.177 26.899);
   --o-color-on-danger: oklch(14.1% 0.005 285.823);
@@ -663,6 +667,11 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 ::selection{background-color:var(--o-color-selection)}
 :where(:focus-visible){outline:2px solid var(--o-color-ring);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
+
+/* Images-cles. */
+@keyframes o-spin{to{transform:rotate(360deg)}}
+@keyframes o-pulse{50%{opacity:0.5}}
+@keyframes o-fade-in{from{opacity:0}}
 
 /* Affichage. */
 .o-block{display:block}
@@ -3054,6 +3063,11 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .o-border-danger{border-color:var(--o-color-danger)}
 .o-ring-danger{outline-color:var(--o-color-danger)}
 .o-decoration-danger{text-decoration-color:var(--o-color-danger)}
+.o-text-danger-hover{color:var(--o-color-danger-hover)}
+.o-bg-danger-hover{background-color:var(--o-color-danger-hover)}
+.o-border-danger-hover{border-color:var(--o-color-danger-hover)}
+.o-ring-danger-hover{outline-color:var(--o-color-danger-hover)}
+.o-decoration-danger-hover{text-decoration-color:var(--o-color-danger-hover)}
 .o-text-danger-soft{color:var(--o-color-danger-soft)}
 .o-bg-danger-soft{background-color:var(--o-color-danger-soft)}
 .o-border-danger-soft{border-color:var(--o-color-danger-soft)}
@@ -3270,6 +3284,11 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .hover\:o-border-danger:hover{border-color:var(--o-color-danger)}
 .hover\:o-ring-danger:hover{outline-color:var(--o-color-danger)}
 .hover\:o-decoration-danger:hover{text-decoration-color:var(--o-color-danger)}
+.hover\:o-text-danger-hover:hover{color:var(--o-color-danger-hover)}
+.hover\:o-bg-danger-hover:hover{background-color:var(--o-color-danger-hover)}
+.hover\:o-border-danger-hover:hover{border-color:var(--o-color-danger-hover)}
+.hover\:o-ring-danger-hover:hover{outline-color:var(--o-color-danger-hover)}
+.hover\:o-decoration-danger-hover:hover{text-decoration-color:var(--o-color-danger-hover)}
 .hover\:o-text-danger-soft:hover{color:var(--o-color-danger-soft)}
 .hover\:o-bg-danger-soft:hover{background-color:var(--o-color-danger-soft)}
 .hover\:o-border-danger-soft:hover{border-color:var(--o-color-danger-soft)}
@@ -3486,6 +3505,11 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .focus\:o-border-danger:focus-visible{border-color:var(--o-color-danger)}
 .focus\:o-ring-danger:focus-visible{outline-color:var(--o-color-danger)}
 .focus\:o-decoration-danger:focus-visible{text-decoration-color:var(--o-color-danger)}
+.focus\:o-text-danger-hover:focus-visible{color:var(--o-color-danger-hover)}
+.focus\:o-bg-danger-hover:focus-visible{background-color:var(--o-color-danger-hover)}
+.focus\:o-border-danger-hover:focus-visible{border-color:var(--o-color-danger-hover)}
+.focus\:o-ring-danger-hover:focus-visible{outline-color:var(--o-color-danger-hover)}
+.focus\:o-decoration-danger-hover:focus-visible{text-decoration-color:var(--o-color-danger-hover)}
 .focus\:o-text-danger-soft:focus-visible{color:var(--o-color-danger-soft)}
 .focus\:o-bg-danger-soft:focus-visible{background-color:var(--o-color-danger-soft)}
 .focus\:o-border-danger-soft:focus-visible{border-color:var(--o-color-danger-soft)}
@@ -3702,6 +3726,11 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .active\:o-border-danger:active{border-color:var(--o-color-danger)}
 .active\:o-ring-danger:active{outline-color:var(--o-color-danger)}
 .active\:o-decoration-danger:active{text-decoration-color:var(--o-color-danger)}
+.active\:o-text-danger-hover:active{color:var(--o-color-danger-hover)}
+.active\:o-bg-danger-hover:active{background-color:var(--o-color-danger-hover)}
+.active\:o-border-danger-hover:active{border-color:var(--o-color-danger-hover)}
+.active\:o-ring-danger-hover:active{outline-color:var(--o-color-danger-hover)}
+.active\:o-decoration-danger-hover:active{text-decoration-color:var(--o-color-danger-hover)}
 .active\:o-text-danger-soft:active{color:var(--o-color-danger-soft)}
 .active\:o-bg-danger-soft:active{background-color:var(--o-color-danger-soft)}
 .active\:o-border-danger-soft:active{border-color:var(--o-color-danger-soft)}
@@ -4088,6 +4117,16 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-ring-danger{outline-color:var(--o-color-danger)}}
 :root[data-theme="dark"] .dark\:o-decoration-danger{text-decoration-color:var(--o-color-danger)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-decoration-danger{text-decoration-color:var(--o-color-danger)}}
+:root[data-theme="dark"] .dark\:o-text-danger-hover{color:var(--o-color-danger-hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-text-danger-hover{color:var(--o-color-danger-hover)}}
+:root[data-theme="dark"] .dark\:o-bg-danger-hover{background-color:var(--o-color-danger-hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-bg-danger-hover{background-color:var(--o-color-danger-hover)}}
+:root[data-theme="dark"] .dark\:o-border-danger-hover{border-color:var(--o-color-danger-hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-border-danger-hover{border-color:var(--o-color-danger-hover)}}
+:root[data-theme="dark"] .dark\:o-ring-danger-hover{outline-color:var(--o-color-danger-hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-ring-danger-hover{outline-color:var(--o-color-danger-hover)}}
+:root[data-theme="dark"] .dark\:o-decoration-danger-hover{text-decoration-color:var(--o-color-danger-hover)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-decoration-danger-hover{text-decoration-color:var(--o-color-danger-hover)}}
 :root[data-theme="dark"] .dark\:o-text-danger-soft{color:var(--o-color-danger-soft)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dark\:o-text-danger-soft{color:var(--o-color-danger-soft)}}
 :root[data-theme="dark"] .dark\:o-bg-danger-soft{background-color:var(--o-color-danger-soft)}
@@ -4883,6 +4922,7 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .o-ease-in{transition-timing-function:var(--o-ease-in)}
 .o-ease-out{transition-timing-function:var(--o-ease-out)}
 .o-ease-in-out{transition-timing-function:var(--o-ease-in-out)}
+.o-ease-linear{transition-timing-function:var(--o-ease-linear)}
 .o-ease-standard{transition-timing-function:var(--o-ease-standard)}
 .o-ease-entrance{transition-timing-function:var(--o-ease-entrance)}
 .o-ease-exit{transition-timing-function:var(--o-ease-exit)}
@@ -4905,3 +4945,9 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .o-ring-none{outline:none}
 .o-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .o-not-sr-only{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip-path:none;white-space:normal}
+
+/* Animations nommees. */
+.o-animate-spin{animation:o-spin 1s var(--o-ease-linear) infinite}
+.o-animate-pulse{animation:o-pulse 2s var(--o-ease-in-out) infinite}
+.o-animate-fade-in{animation:o-fade-in var(--o-duration-base) var(--o-ease-entrance) both}
+.o-animate-none{animation:none}

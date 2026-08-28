@@ -168,6 +168,7 @@ export const colorLight = {
   'warning-border': palette['amber-200'],
   'on-warning': palette['amber-950'],
   danger: palette['red-600'],
+  'danger-hover': palette['red-700'],
   'danger-soft': palette['red-50'],
   'danger-border': palette['red-200'],
   'on-danger': palette.white,
@@ -219,6 +220,7 @@ export const colorDark: Readonly<Record<keyof typeof colorLight, string>> = {
   'warning-border': palette['amber-800'],
   'on-warning': palette['amber-950'],
   danger: palette['red-400'],
+  'danger-hover': palette['red-300'],
   'danger-soft': palette['red-950'],
   'danger-border': palette['red-800'],
   'on-danger': palette['zinc-950'],
@@ -295,6 +297,7 @@ export const duration = {
  */
 export const easing = {
   ...baseEase,
+  linear: 'linear',
   standard: 'cubic-bezier(0.2, 0, 0, 1)',
   entrance: 'cubic-bezier(0, 0, 0, 1)',
   exit: 'cubic-bezier(0.3, 0, 1, 1)',

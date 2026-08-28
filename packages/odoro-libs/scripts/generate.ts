@@ -536,6 +536,17 @@ const FAMILIES: readonly Family[] = [
     ),
   },
   {
+    title: 'Animations nommees',
+    tier: 'core',
+    variants: [],
+    rules: {
+      'animate-spin': `animation:o-spin 1s ${v('ease', 'linear')} infinite`,
+      'animate-pulse': `animation:o-pulse 2s ${v('ease', 'in-out')} infinite`,
+      'animate-fade-in': `animation:o-fade-in ${v('duration', 'base')} ${v('ease', 'entrance')} both`,
+      'animate-none': 'animation:none',
+    },
+  },
+  {
     title: 'Palette complete — couleur de texte',
     tier: 'extended',
     variants: THEMED,
@@ -614,6 +625,14 @@ code,kbd,samp,pre{font-family:${v('font', 'mono')};font-size:1em}
 :where(:focus-visible){outline:2px solid ${v('color', 'ring')};outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}`
 
+/**
+ * Images-cles nommees. Elles sont emises une fois, en tete de feuille : une
+ * `@keyframes` ne peut pas etre generee par famille sans etre dupliquee.
+ */
+const KEYFRAMES = `@keyframes o-spin{to{transform:rotate(360deg)}}
+@keyframes o-pulse{50%{opacity:0.5}}
+@keyframes o-fade-in{from{opacity:0}}`
+
 /** Bloc des variables de tokens, commun aux deux feuilles. */
 function variableBlock(): string[] {
   return [
@@ -662,6 +681,9 @@ function variableBlock(): string[] {
     '',
     '/* Preflight. */',
     PREFLIGHT,
+    '',
+    '/* Images-cles. */',
+    KEYFRAMES,
     '',
   ]
 }
