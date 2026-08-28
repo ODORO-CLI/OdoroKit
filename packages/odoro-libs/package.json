@@ -36,7 +36,8 @@
       "import": "./dist/styles.js"
     },
     "./styles.css": "./dist/styles.css",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./styles.full.css": "./dist/styles.full.css"
   },
   "scripts": {
     "build:css": "tsx scripts/build-css.ts",

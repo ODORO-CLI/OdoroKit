@@ -5,9 +5,13 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { generate, renderClassNamesModule, renderCss } from '../../scripts/generate.js'
-import { ODORO_CLASS_NAMES } from './generated/classNames.js'
+import {
+  ODORO_CLASS_NAMES,
+  ODORO_CORE_CLASS_NAMES,
+  ODORO_EXTENDED_CLASS_NAMES,
+} from './generated/classNames.js'
 import { cx, variants } from './cx.js'
-import { colorDark, colorLight, space, tokens } from './tokens.js'
+import { colorDark, colorLight, palette, space, tokens } from './tokens.js'
 
 const GENERATED_DIR = join(dirname(fileURLToPath(import.meta.url)), 'generated')
 
@@ -73,10 +77,15 @@ describe('variants', () => {
 })
 
 describe('artefacts generes', () => {
-  it('le CSS sur disque correspond aux tokens courants', () => {
+  it('la feuille de base sur disque correspond aux tokens courants', () => {
     const onDisk = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
     // Si ce test echoue, relancer `pnpm --filter odoro-libs build:css`.
-    expect(onDisk).toBe(renderCss())
+    expect(onDisk).toBe(renderCss('core'))
+  })
+
+  it('la feuille complete sur disque correspond aux tokens courants', () => {
+    const onDisk = readFileSync(join(GENERATED_DIR, 'odoro.full.css'), 'utf8')
+    expect(onDisk).toBe(renderCss('full'))
   })
 
   it('la liste des classes sur disque correspond aux tokens courants', () => {
@@ -88,16 +97,26 @@ describe('artefacts generes', () => {
     expect(new Set(ODORO_CLASS_NAMES).size).toBe(ODORO_CLASS_NAMES.length)
   })
 
-  it('reste dans un ordre de grandeur maitrise', () => {
-    const base = ODORO_CLASS_NAMES.filter((name) => !name.includes(':'))
-    // Le budget annonce est d'environ 150 utilitaires de base : ce test sert
-    // de garde-fou contre une derive silencieuse vers un framework complet.
-    expect(base.length).toBeLessThanOrEqual(180)
+  it('separe strictement les deux paliers', () => {
+    const core = new Set<string>(ODORO_CORE_CLASS_NAMES)
+    for (const name of ODORO_EXTENDED_CLASS_NAMES) {
+      expect(core.has(name)).toBe(false)
+    }
+    expect(ODORO_CLASS_NAMES.length).toBe(
+      ODORO_CORE_CLASS_NAMES.length + ODORO_EXTENDED_CLASS_NAMES.length,
+    )
+  })
+
+  it('garde la feuille de base sous le seuil de derive', () => {
+    // Garde-fou : la feuille de base ne doit pas absorber la palette brute,
+    // sans quoi la separation en deux paliers perdrait tout son sens.
+    const onDisk = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
+    expect(onDisk.length).toBeLessThan(400_000)
   })
 })
 
 describe('feuille de style produite', () => {
-  const { css } = generate()
+  const { css } = generate('full')
 
   it('declare une variable pour chaque espacement', () => {
     for (const key of Object.keys(space)) {
@@ -140,14 +159,21 @@ describe('feuille de style produite', () => {
   })
 
   it('ne laisse aucune valeur codee en dur dans les utilitaires de couleur', () => {
-    const utility = css.slice(css.indexOf('/* Couleur de texte. */'))
-    expect(utility).not.toMatch(/color:#[0-9a-f]{6}/i)
+    const utility = css.slice(css.indexOf('/* Couleurs semantiques. */'))
+    expect(utility).not.toMatch(/color:(#|oklch|rgb)/i)
   })
 })
 
 describe('tokens', () => {
   it('regroupe les echelles sous les prefixes de variables CSS', () => {
-    expect(tokens.space[4]).toBe('1rem')
     expect(tokens.color.primary).toBe(colorLight.primary)
+    expect(tokens.palette['sky-500']).toBe(palette['sky-500'])
+  })
+
+  it('exprime l echelle d espacement en multiples du pas de base', () => {
+    expect(tokens.spacing).toBe('0.25rem')
+    expect(space[0]).toBe('0')
+    expect(space['px']).toBe('1px')
+    expect(space[4]).toBe('calc(var(--o-spacing) * 4)')
   })
 })

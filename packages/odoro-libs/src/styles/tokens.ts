@@ -1,225 +1,326 @@
 /**
  * Design tokens d'Odoro — source de verite unique du systeme visuel.
  *
- * Rien d'autre dans la librairie ne doit contenir de valeur brute : les
- * variables CSS, les utilitaires atomiques et les composants UI sont tous
- * derives de ce fichier par `scripts/build-css.ts`.
+ * La fondation numerique du design system vit dans
+ * `src/styles/generated/baseTokens.ts` : 288 couleurs en OKLCH, 18 tailles de
+ * texte, rayons, ombres, flous, conteneurs, perspectives et courbes. C'est un
+ * artefact fige, versionne, que ce module habille.
  *
- * Convention de nommage des variables generees : `--o-<groupe>-<cle>`.
+ * Ce que ce fichier ajoute par-dessus :
+ *
+ * 1. une **teinte de marque** Odoro, sur les 11 nuances habituelles ;
+ * 2. une **couche semantique** clair/sombre (`bg`, `surface`, `fg`, `primary`,
+ *    `danger`...), absente de la fondation brute ;
+ * 3. une **echelle d'espacement enumeree**, exprimee en `calc()` sur un pas de
+ *    base unique ;
+ * 4. des echelles de **duree**, d'**opacite** et de **plan** (`z-index`), et
+ *    des **courbes d'entree/sortie** utilisees par le moteur d'animation.
+ *
+ * Rien d'autre dans la librairie ne contient de valeur brute : variables CSS,
+ * utilitaires atomiques et composants UI en derivent tous.
+ *
+ * Convention des variables generees : `--o-<groupe>-<cle>`.
  *
  * @module
  */
 
+export {
+  baseAspect,
+  baseBlur,
+  baseBreakpoint,
+  basePalette,
+  baseContainer,
+  baseDropShadow,
+  baseEase,
+  baseFontFamily,
+  baseFontSize,
+  baseFontSizeLeading,
+  baseFontWeight,
+  baseInsetShadow,
+  baseLeading,
+  basePerspective,
+  baseRadius,
+  baseShadow,
+  baseSpacingUnit,
+  baseTracking,
+} from './generated/baseTokens.js'
+
+import {
+  baseAspect,
+  baseBlur,
+  baseBreakpoint,
+  basePalette,
+  baseContainer,
+  baseDropShadow,
+  baseEase,
+  baseFontFamily,
+  baseFontSize,
+  baseFontSizeLeading,
+  baseFontWeight,
+  baseInsetShadow,
+  baseLeading,
+  basePerspective,
+  baseRadius,
+  baseShadow,
+  baseSpacingUnit,
+  baseTracking,
+} from './generated/baseTokens.js'
+
 /**
- * Echelle d'espacement, en `rem`. Les cles sont des multiples de 4 px a
- * 16 px de base, avec deux demi-pas pour les ajustements fins.
+ * Teinte de marque d'Odoro, declinee sur les memes 11 nuances que le reste de
+ * la palette pour rester interchangeable avec n'importe quelle autre teinte.
  */
-export const space = {
-  0: '0',
-  px: '1px',
-  0.5: '0.125rem',
-  1: '0.25rem',
-  1.5: '0.375rem',
-  2: '0.5rem',
-  3: '0.75rem',
-  4: '1rem',
-  5: '1.25rem',
-  6: '1.5rem',
-  8: '2rem',
-  10: '2.5rem',
-  12: '3rem',
-  16: '4rem',
-  20: '5rem',
-  24: '6rem',
+export const brand = {
+  'brand-50': 'oklch(97.0% 0.014 275)',
+  'brand-100': 'oklch(93.6% 0.032 275)',
+  'brand-200': 'oklch(87.4% 0.060 275)',
+  'brand-300': 'oklch(79.0% 0.101 275)',
+  'brand-400': 'oklch(69.2% 0.152 275)',
+  'brand-500': 'oklch(59.8% 0.198 275)',
+  'brand-600': 'oklch(52.4% 0.212 275)',
+  'brand-700': 'oklch(44.6% 0.190 275)',
+  'brand-800': 'oklch(37.4% 0.156 275)',
+  'brand-900': 'oklch(31.6% 0.124 275)',
+  'brand-950': 'oklch(22.0% 0.088 275)',
 } as const
 
 /**
- * Palette brute. Elle n'est pas destinee a etre utilisee directement dans les
- * composants : les utilitaires s'appuient sur les couleurs semantiques.
+ * Palette brute complete : la fondation, plus la teinte de marque.
+ *
+ * Elle n'est pas destinee a etre utilisee directement dans les composants de
+ * la librairie — ceux-ci passent par la couche semantique — mais reste
+ * entierement disponible cote application.
  */
 export const palette = {
-  'neutral-0': '#ffffff',
-  'neutral-50': '#f7f7f8',
-  'neutral-100': '#eeeef1',
-  'neutral-200': '#d9dae0',
-  'neutral-300': '#b9bbc6',
-  'neutral-400': '#8b8e9e',
-  'neutral-500': '#6b6e7f',
-  'neutral-600': '#535565',
-  'neutral-700': '#414252',
-  'neutral-800': '#2a2b38',
-  'neutral-900': '#1a1b25',
-  'neutral-950': '#101018',
-  'brand-100': '#e5e7ff',
-  'brand-300': '#a9aeff',
-  'brand-500': '#5b62f4',
-  'brand-600': '#4a4fdb',
-  'brand-700': '#3a3eb0',
-  'success-100': '#d9f6e6',
-  'success-500': '#18a058',
-  'success-700': '#11703e',
-  'warning-100': '#fdf0d5',
-  'warning-500': '#d98e04',
-  'warning-700': '#9a6503',
-  'danger-100': '#fde3e3',
-  'danger-500': '#d93a3a',
-  'danger-700': '#a12626',
+  ...basePalette,
+  ...brand,
+  transparent: 'transparent',
+  current: 'currentColor',
 } as const
 
+/** Nom d'une couleur de la palette brute. */
+export type PaletteToken = keyof typeof palette
+
 /**
- * Couleurs semantiques en theme clair. Ce sont ces noms — et eux seuls — que
- * les utilitaires et les composants manipulent.
+ * Pas de l'echelle d'espacement. Chaque valeur vaut `pas x --o-spacing`,
+ * exception faite de `0` et `px`.
+ */
+const SPACING_STEPS = [
+  0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36,
+  40, 44, 48, 52, 56, 60, 64, 72, 80, 96,
+] as const
+
+/**
+ * Echelle d'espacement enumeree. Les valeurs sont exprimees en `calc()` sur
+ * `--o-spacing` : changer le pas de base redimensionne tout le systeme d'un
+ * seul reglage.
+ */
+export const space: Readonly<Record<string, string>> = Object.freeze({
+  0: '0',
+  px: '1px',
+  ...Object.fromEntries(
+    SPACING_STEPS.map((step) => [String(step), `calc(var(--o-spacing) * ${step})`]),
+  ),
+})
+
+/** Pas d'espacement de base : toute l'echelle en est un multiple. */
+export const spacingBase = baseSpacingUnit
+
+/**
+ * Couleurs semantiques en theme clair.
+ *
+ * Ce sont ces noms — et eux seuls — que les composants d'`odoro-libs/ui`
+ * manipulent : une application peut retheme integralement la librairie en
+ * surchargeant ces seules variables.
  */
 export const colorLight = {
-  bg: palette['neutral-0'],
-  surface: palette['neutral-50'],
-  'surface-raised': palette['neutral-0'],
-  border: palette['neutral-200'],
-  'border-strong': palette['neutral-300'],
-  fg: palette['neutral-900'],
-  'fg-muted': palette['neutral-500'],
-  'fg-inverted': palette['neutral-0'],
-  primary: palette['brand-500'],
-  'primary-hover': palette['brand-600'],
-  'primary-soft': palette['brand-100'],
-  success: palette['success-500'],
-  'success-soft': palette['success-100'],
-  warning: palette['warning-500'],
-  'warning-soft': palette['warning-100'],
-  danger: palette['danger-500'],
-  'danger-soft': palette['danger-100'],
+  bg: palette.white,
+  'bg-subtle': palette['zinc-50'],
+  surface: palette.white,
+  'surface-raised': palette.white,
+  'surface-sunken': palette['zinc-100'],
+  'surface-hover': palette['zinc-50'],
+  overlay: 'oklch(0% 0 0 / 0.45)',
+  border: palette['zinc-200'],
+  'border-subtle': palette['zinc-100'],
+  'border-strong': palette['zinc-300'],
+  fg: palette['zinc-900'],
+  'fg-muted': palette['zinc-500'],
+  'fg-subtle': palette['zinc-400'],
+  'fg-inverted': palette.white,
+  link: palette['brand-600'],
+  'link-hover': palette['brand-700'],
+  primary: palette['brand-600'],
+  'primary-hover': palette['brand-700'],
+  'primary-active': palette['brand-800'],
+  'primary-soft': palette['brand-50'],
+  'primary-border': palette['brand-200'],
+  'on-primary': palette.white,
+  accent: palette['fuchsia-600'],
+  'accent-soft': palette['fuchsia-50'],
+  'on-accent': palette.white,
+  success: palette['emerald-600'],
+  'success-soft': palette['emerald-50'],
+  'success-border': palette['emerald-200'],
+  'on-success': palette.white,
+  warning: palette['amber-600'],
+  'warning-soft': palette['amber-50'],
+  'warning-border': palette['amber-200'],
+  'on-warning': palette['amber-950'],
+  danger: palette['red-600'],
+  'danger-soft': palette['red-50'],
+  'danger-border': palette['red-200'],
+  'on-danger': palette.white,
+  info: palette['sky-600'],
+  'info-soft': palette['sky-50'],
+  'info-border': palette['sky-200'],
+  'on-info': palette.white,
   ring: palette['brand-500'],
+  selection: palette['brand-100'],
 } as const
 
 /**
  * Couleurs semantiques en theme sombre. Les cles sont exactement celles de
- * {@link colorLight} : le type l'impose, ce qui interdit d'oublier une
- * couleur lors d'un ajout.
+ * {@link colorLight} : le type l'impose, ce qui interdit d'oublier une couleur
+ * lors d'un ajout.
  */
-export const colorDark: Record<keyof typeof colorLight, string> = {
-  bg: palette['neutral-950'],
-  surface: palette['neutral-900'],
-  'surface-raised': palette['neutral-800'],
-  border: palette['neutral-800'],
-  'border-strong': palette['neutral-700'],
-  fg: palette['neutral-50'],
-  'fg-muted': palette['neutral-400'],
-  'fg-inverted': palette['neutral-950'],
-  primary: palette['brand-300'],
-  'primary-hover': palette['brand-100'],
-  'primary-soft': palette['brand-700'],
-  success: palette['success-500'],
-  'success-soft': palette['success-700'],
-  warning: palette['warning-500'],
-  'warning-soft': palette['warning-700'],
-  danger: palette['danger-500'],
-  'danger-soft': palette['danger-700'],
-  ring: palette['brand-300'],
+export const colorDark: Readonly<Record<keyof typeof colorLight, string>> = {
+  bg: palette['zinc-950'],
+  'bg-subtle': palette['zinc-900'],
+  surface: palette['zinc-900'],
+  'surface-raised': palette['zinc-800'],
+  'surface-sunken': palette['zinc-950'],
+  'surface-hover': palette['zinc-800'],
+  overlay: 'oklch(0% 0 0 / 0.65)',
+  border: palette['zinc-800'],
+  'border-subtle': palette['zinc-900'],
+  'border-strong': palette['zinc-700'],
+  fg: palette['zinc-50'],
+  'fg-muted': palette['zinc-400'],
+  'fg-subtle': palette['zinc-500'],
+  'fg-inverted': palette['zinc-950'],
+  link: palette['brand-300'],
+  'link-hover': palette['brand-200'],
+  primary: palette['brand-400'],
+  'primary-hover': palette['brand-300'],
+  'primary-active': palette['brand-200'],
+  'primary-soft': palette['brand-950'],
+  'primary-border': palette['brand-800'],
+  'on-primary': palette['zinc-950'],
+  accent: palette['fuchsia-400'],
+  'accent-soft': palette['fuchsia-950'],
+  'on-accent': palette['zinc-950'],
+  success: palette['emerald-400'],
+  'success-soft': palette['emerald-950'],
+  'success-border': palette['emerald-800'],
+  'on-success': palette['zinc-950'],
+  warning: palette['amber-400'],
+  'warning-soft': palette['amber-950'],
+  'warning-border': palette['amber-800'],
+  'on-warning': palette['amber-950'],
+  danger: palette['red-400'],
+  'danger-soft': palette['red-950'],
+  'danger-border': palette['red-800'],
+  'on-danger': palette['zinc-950'],
+  info: palette['sky-400'],
+  'info-soft': palette['sky-950'],
+  'info-border': palette['sky-800'],
+  'on-info': palette['zinc-950'],
+  ring: palette['brand-400'],
+  selection: palette['brand-900'],
 } as const
 
 /** Familles de police. */
-export const fontFamily = {
-  sans: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-  mono: "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace",
-} as const
-
+export const fontFamily = baseFontFamily
 /** Echelle typographique. */
-export const fontSize = {
-  xs: '0.75rem',
-  sm: '0.875rem',
-  base: '1rem',
-  lg: '1.125rem',
-  xl: '1.25rem',
-  '2xl': '1.5rem',
-  '3xl': '1.875rem',
-  '4xl': '2.25rem',
-} as const
-
+export const fontSize = baseFontSize
+/** Hauteur de ligne par defaut associee a chaque taille de texte. */
+export const fontSizeLeading = baseFontSizeLeading
 /** Graisses. */
-export const fontWeight = {
-  normal: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-} as const
-
-/** Hauteurs de ligne. */
-export const lineHeight = {
-  none: '1',
-  tight: '1.25',
-  normal: '1.5',
-  relaxed: '1.75',
-} as const
-
-/** Interlettrage. */
-export const letterSpacing = {
-  tight: '-0.015em',
-  normal: '0',
-  wide: '0.05em',
-} as const
-
+export const fontWeight = baseFontWeight
+/** Hauteurs de ligne nommees. */
+export const lineHeight = baseLeading
+/** Interlettrages. */
+export const letterSpacing = baseTracking
 /** Rayons de bordure. */
-export const radius = {
-  none: '0',
-  sm: '0.25rem',
-  md: '0.5rem',
-  lg: '0.75rem',
-  xl: '1rem',
-  full: '9999px',
-} as const
-
+export const radius = baseRadius
 /** Ombres portees. */
-export const shadow = {
-  none: 'none',
-  sm: '0 1px 2px rgb(16 16 24 / 0.06)',
-  md: '0 2px 8px rgb(16 16 24 / 0.08), 0 1px 2px rgb(16 16 24 / 0.06)',
-  lg: '0 8px 24px rgb(16 16 24 / 0.12), 0 2px 6px rgb(16 16 24 / 0.08)',
-} as const
+export const shadow = baseShadow
+/** Ombres internes. */
+export const insetShadow = baseInsetShadow
+/** Ombres de filtre. */
+export const dropShadow = baseDropShadow
+/** Flous. */
+export const blur = baseBlur
+/** Points de rupture. */
+export const breakpoint = baseBreakpoint
+/** Largeurs de conteneur. */
+export const container = baseContainer
+/** Distances de perspective. */
+export const perspective = basePerspective
+/** Rapports de forme. */
+export const aspect = baseAspect
 
 /** Epaisseurs de bordure. */
 export const borderWidth = {
   0: '0',
   1: '1px',
   2: '2px',
+  4: '4px',
+  8: '8px',
 } as const
 
 /**
- * Points de rupture. Seuls `md` et `lg` sont exposes en variants : deux
- * paliers couvrent l'essentiel des besoins sans faire exploser le CSS.
+ * Durees d'animation. La fondation n'expose qu'une duree de transition par
+ * defaut ; le moteur d'animation d'Odoro a besoin d'une echelle nommee.
  */
-export const breakpoint = {
-  md: '48rem',
-  lg: '64rem',
-} as const
-
-/** Durees d'animation. */
 export const duration = {
   instant: '0ms',
-  fast: '120ms',
+  fastest: '75ms',
+  faster: '120ms',
+  fast: '150ms',
   base: '200ms',
   slow: '320ms',
   slower: '480ms',
+  slowest: '700ms',
 } as const
 
 /**
- * Courbes de Bezier. Volontairement limitees : le moteur d'animation
- * n'implemente pas de ressorts physiques dans cette version (voir
- * `src/motion/README` dans la documentation).
+ * Courbes de Bezier : les courbes de la fondation, completees par celles
+ * qu'Odoro ajoute — une entree decelerante, une sortie accelerante et une
+ * courbe a depassement leger.
+ *
+ * Le moteur d'animation n'implemente pas de ressorts physiques dans cette
+ * version — voir `docs/motion.md` pour le raisonnement.
  */
 export const easing = {
-  linear: 'linear',
+  ...baseEase,
   standard: 'cubic-bezier(0.2, 0, 0, 1)',
   entrance: 'cubic-bezier(0, 0, 0, 1)',
   exit: 'cubic-bezier(0.3, 0, 1, 1)',
   emphasized: 'cubic-bezier(0.2, 0, 0, 1.2)',
 } as const
 
+/** Echelle d'opacite, par pas de 5 %. */
+export const opacity: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(
+    Array.from({ length: 21 }, (_, index) => [String(index * 5), String(index * 0.05)]),
+  ),
+)
+
 /** Plans de superposition. */
 export const zIndex = {
-  base: '0',
-  raised: '10',
+  auto: 'auto',
+  0: '0',
+  10: '10',
+  20: '20',
+  30: '30',
+  40: '40',
+  50: '50',
   sticky: '100',
+  dropdown: '900',
   overlay: '1000',
+  modal: '1010',
   toast: '1100',
 } as const
 
@@ -227,10 +328,13 @@ export const zIndex = {
  * Ensemble des tokens, regroupes par prefixe de variable CSS.
  *
  * @example
- * tokens.space[4] // '1rem' -> --o-space-4
+ * tokens.color.primary // couleur semantique -> --o-color-primary
+ * tokens.palette['sky-500'] // couleur brute  -> --o-palette-sky-500
  */
 export const tokens = {
+  spacing: spacingBase,
   space,
+  palette,
   color: colorLight,
   font: fontFamily,
   text: fontSize,
@@ -239,9 +343,16 @@ export const tokens = {
   tracking: letterSpacing,
   radius,
   shadow,
+  'inset-shadow': insetShadow,
+  'drop-shadow': dropShadow,
+  blur,
+  container,
+  perspective,
+  aspect,
   border: borderWidth,
   duration,
   ease: easing,
+  opacity,
   z: zIndex,
 } as const
 
