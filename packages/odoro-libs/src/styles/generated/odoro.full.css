@@ -672,6 +672,17 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 @keyframes o-spin{to{transform:rotate(360deg)}}
 @keyframes o-pulse{50%{opacity:0.5}}
 @keyframes o-fade-in{from{opacity:0}}
+@keyframes o-vt-out{to{opacity:0}}
+@keyframes o-vt-in{from{opacity:0}}
+@keyframes o-vt-page-out{to{opacity:0;transform:translateY(-0.5rem)}}
+@keyframes o-vt-page-in{from{opacity:0;transform:translateY(0.75rem)}}
+
+/* Transitions de page. */
+::view-transition-old(root){animation:o-vt-out var(--o-duration-faster) var(--o-ease-exit) both}
+::view-transition-new(root){animation:o-vt-in var(--o-duration-fast) var(--o-ease-entrance) both}
+::view-transition-old(o-page){animation:o-vt-page-out var(--o-duration-fast) var(--o-ease-exit) both}
+::view-transition-new(o-page){animation:o-vt-page-in var(--o-duration-base) var(--o-ease-entrance) both}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root),::view-transition-old(o-page),::view-transition-new(o-page){animation:none}}
 
 /* Affichage. */
 .o-block{display:block}
@@ -4945,6 +4956,10 @@ code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
 .o-ring-none{outline:none}
 .o-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .o-not-sr-only{position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;clip-path:none;white-space:normal}
+
+/* Transitions de page. */
+.o-view-transition-page{view-transition-name:o-page}
+.o-view-transition-none{view-transition-name:none}
 
 /* Animations nommees. */
 .o-animate-spin{animation:o-spin 1s var(--o-ease-linear) infinite}

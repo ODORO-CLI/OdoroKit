@@ -536,6 +536,18 @@ const FAMILIES: readonly Family[] = [
     ),
   },
   {
+    title: 'Transitions de page',
+    tier: 'core',
+    variants: [],
+    rules: {
+      // `view-transition-name` doit etre unique dans le document : un seul
+      // element par page peut porter cette classe, sinon le navigateur
+      // abandonne la transition entiere.
+      'view-transition-page': 'view-transition-name:o-page',
+      'view-transition-none': 'view-transition-name:none',
+    },
+  },
+  {
     title: 'Animations nommees',
     tier: 'core',
     variants: [],
@@ -631,7 +643,30 @@ code,kbd,samp,pre{font-family:${v('font', 'mono')};font-size:1em}
  */
 const KEYFRAMES = `@keyframes o-spin{to{transform:rotate(360deg)}}
 @keyframes o-pulse{50%{opacity:0.5}}
-@keyframes o-fade-in{from{opacity:0}}`
+@keyframes o-fade-in{from{opacity:0}}
+@keyframes o-vt-out{to{opacity:0}}
+@keyframes o-vt-in{from{opacity:0}}
+@keyframes o-vt-page-out{to{opacity:0;transform:translateY(-0.5rem)}}
+@keyframes o-vt-page-in{from{opacity:0;transform:translateY(0.75rem)}}`
+
+/**
+ * Transitions de page par defaut.
+ *
+ * Sans ces regles, le navigateur applique son fondu de 90 ms : techniquement
+ * present, visuellement nul. Le routeur declenche bien la transition — c'est
+ * son apparence qui manquait.
+ *
+ * La racine se contente d'un fondu, jamais d'un deplacement. Une application
+ * qui nomme une zone (`o-view-transition-page`) sort cette zone de la racine :
+ * tout le reste — en-tete, navigation, pied de page — reste dans le groupe
+ * racine, et le voir glisser alors qu'il n'a pas change serait un defaut.
+ * Le deplacement est donc reserve a la zone nommee.
+ */
+const VIEW_TRANSITIONS = `::view-transition-old(root){animation:o-vt-out ${v('duration', 'faster')} ${v('ease', 'exit')} both}
+::view-transition-new(root){animation:o-vt-in ${v('duration', 'fast')} ${v('ease', 'entrance')} both}
+::view-transition-old(o-page){animation:o-vt-page-out ${v('duration', 'fast')} ${v('ease', 'exit')} both}
+::view-transition-new(o-page){animation:o-vt-page-in ${v('duration', 'base')} ${v('ease', 'entrance')} both}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root),::view-transition-old(o-page),::view-transition-new(o-page){animation:none}}`
 
 /** Bloc des variables de tokens, commun aux deux feuilles. */
 function variableBlock(): string[] {
@@ -684,6 +719,9 @@ function variableBlock(): string[] {
     '',
     '/* Images-cles. */',
     KEYFRAMES,
+    '',
+    '/* Transitions de page. */',
+    VIEW_TRANSITIONS,
     '',
   ]
 }

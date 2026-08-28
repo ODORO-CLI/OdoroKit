@@ -158,6 +158,31 @@ describe('feuille de style produite', () => {
     expect(css).toContain('@media (prefers-reduced-motion:reduce)')
   })
 
+  it('habille les transitions de page, que le routeur declenche', () => {
+    // Sans ces regles, le navigateur applique son fondu par defaut de 90 ms :
+    // la transition a bien lieu, mais elle ne se voit pas.
+    expect(css).toContain('::view-transition-old(root)')
+    expect(css).toContain('::view-transition-new(root)')
+    expect(css).toContain('::view-transition-old(o-page)')
+    expect(css).toContain('::view-transition-new(o-page)')
+  })
+
+  it('reserve le deplacement a la zone nommee, jamais a la racine', () => {
+    // L'en-tete et le pied de page restent dans le groupe racine : les voir
+    // glisser alors qu'ils n'ont pas change serait un defaut.
+    const root = /::view-transition-(?:old|new)\(root\)\{animation:([a-z-]+)/g
+    for (const match of css.matchAll(root)) {
+      expect(match[1]).not.toContain('page')
+    }
+  })
+
+  it('neutralise aussi les transitions de page sous mouvement reduit', () => {
+    const reduced = css.slice(css.indexOf('::view-transition-old(root)'))
+    expect(reduced).toMatch(
+      /@media \(prefers-reduced-motion:reduce\)\{[^}]*::view-transition-old\(root\)/,
+    )
+  })
+
   it('ne laisse aucune valeur codee en dur dans les utilitaires de couleur', () => {
     const utility = css.slice(css.indexOf('/* Couleurs semantiques. */'))
     expect(utility).not.toMatch(/color:(#|oklch|rgb)/i)

@@ -37,7 +37,7 @@ function Layout() {
           ))}
         </nav>
       </header>
-      <main className="o-mx-auto o-w-full o-max-w-4xl o-px-6 o-py-10">
+      <main className="o-view-transition-page o-mx-auto o-w-full o-max-w-4xl o-px-6 o-py-10">
         <Outlet />
       </main>
     </div>

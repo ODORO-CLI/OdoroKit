@@ -3988,6 +3988,8 @@ export const ODORO_CORE_CLASS_NAMES = [
   'o-ring-none',
   'o-sr-only',
   'o-not-sr-only',
+  'o-view-transition-page',
+  'o-view-transition-none',
   'o-animate-spin',
   'o-animate-pulse',
   'o-animate-fade-in',

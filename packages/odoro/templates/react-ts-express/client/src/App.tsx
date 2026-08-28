@@ -38,7 +38,7 @@ function Layout() {
   return (
     <div className="app-shell">
       <Nav />
-      <main className="o-mx-auto o-w-full o-max-w-3xl o-px-6 o-py-12">
+      <main className="o-view-transition-page o-mx-auto o-w-full o-max-w-3xl o-px-6 o-py-12">
         <Outlet />
       </main>
       <footer className="o-px-6 o-py-6 o-text-sm o-text-fg-muted o-border-t o-border-border">
