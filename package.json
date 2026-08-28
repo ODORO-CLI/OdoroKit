@@ -21,7 +21,9 @@
     "format:check": "prettier --check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "playground": "pnpm --filter odoro-playground dev",
+    "try:create": "node scripts/try-create.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
