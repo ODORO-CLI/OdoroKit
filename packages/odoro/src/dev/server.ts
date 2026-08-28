@@ -35,6 +35,7 @@ import {
   DEPS_PREFIX,
   INTERNAL_PREFIX,
   STYLE_EXTENSIONS,
+  depFileName,
   fileToUrl,
   hasExtension,
   transformModule,
@@ -289,9 +290,11 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
 
         if (path.startsWith(DEPS_PREFIX)) {
           const specifier = path.slice(DEPS_PREFIX.length)
-          const name = specifier.endsWith('.js')
-            ? specifier
-            : `${specifier.replace(/^@/, '').split('/').join('_')}.js`
+          // Les noms servis sont plats et les fragments partages vivent a la
+          // racine du cache : ne retenir que le dernier segment suffit, et
+          // interdit du meme coup toute remontee hors du dossier.
+          const last = specifier.split('/').pop() ?? specifier
+          const name = last.endsWith('.js') ? last : depFileName(last)
           const file = join(deps.directory, name)
           if (existsSync(file)) {
             serveFile(response, file)

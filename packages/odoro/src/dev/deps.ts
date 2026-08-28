@@ -26,13 +26,17 @@ import { join } from 'node:path'
 import { type Plugin, build } from 'esbuild'
 
 import type { ResolvedConfig } from '../config.js'
+import { inspectDependency, renderInteropProxy } from './interop.js'
 import {
   ASSET_EXTENSIONS,
   STYLE_EXTENSIONS,
   applyAlias,
+  depFileName,
   hasExtension,
   isBareSpecifier,
 } from './transform.js'
+
+export { depFileName }
 
 /** Nom du fichier decrivant l'etat du cache. */
 const MANIFEST = 'manifest.json'
@@ -53,17 +57,6 @@ export interface OptimizedDeps {
   readonly specifiers: readonly string[]
   /** `true` si une compilation a reellement eu lieu. */
   readonly rebuilt: boolean
-}
-
-/**
- * Nom de fichier compile correspondant a un specificateur de dependance.
- *
- * @example
- * depFileName('react-dom/client') // 'react-dom_client.js'
- * depFileName('@scope/paquet')    // 'scope_paquet.js'
- */
-export function depFileName(specifier: string): string {
-  return `${specifier.replace(/^@/, '').split('/').join('_')}.js`
 }
 
 /** Plugin qui enregistre les specificateurs nus sans les suivre. */
@@ -123,6 +116,10 @@ export async function scanDependencies(
     logLevel: 'silent',
     absWorkingDir: config.root,
     jsx: 'automatic',
+    // Le serveur compile en JSX de developpement : sans ce reglage, le
+    // parcours chercherait `react/jsx-runtime` la ou le navigateur demandera
+    // `react/jsx-dev-runtime`, et la dependance manquerait a l'appel.
+    jsxDev: true,
     plugins: [collectBareImports(config, found)],
   })
 
@@ -166,14 +163,32 @@ export async function optimizeDeps(
   await mkdir(directory, { recursive: true })
 
   if (sorted.length > 0) {
+    // Les paquets CommonJS passent par un module intermediaire qui declare
+    // leurs exports nommes ; les modules natifs sont compiles directement.
+    const proxies = join(directory, 'proxies')
+    await mkdir(proxies, { recursive: true })
+
+    const entryPoints: { in: string; out: string }[] = []
+
+    for (const specifier of sorted) {
+      const out = depFileName(specifier).replace(/\.js$/, '')
+      const info = inspectDependency(specifier, config.root)
+
+      if (!info.needsInterop) {
+        entryPoints.push({ in: specifier, out })
+        continue
+      }
+
+      const proxy = join(proxies, `${out}.js`)
+      await writeFile(proxy, renderInteropProxy(info), 'utf8')
+      entryPoints.push({ in: proxy, out })
+    }
+
     await build({
       // Les noms de sortie sont imposes : un specificateur a sous-chemin
       // produirait sinon une arborescence, et deux paquets differents
       // pourraient se disputer le meme nom de fichier.
-      entryPoints: sorted.map((specifier) => ({
-        in: specifier,
-        out: depFileName(specifier).replace(/\.js$/, ''),
-      })),
+      entryPoints,
       bundle: true,
       format: 'esm',
       platform: 'browser',
@@ -185,6 +200,8 @@ export async function optimizeDeps(
       define: { 'process.env.NODE_ENV': JSON.stringify('development') },
       loader: { '.woff': 'file', '.woff2': 'file', '.svg': 'dataurl' },
     })
+
+    await rm(proxies, { recursive: true, force: true })
   }
 
   const manifest: DepsManifest = { hash, specifiers: sorted }

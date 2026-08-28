@@ -47,6 +47,22 @@ export const ASSET_EXTENSIONS = [
   '.webm',
 ] as const
 
+/**
+ * Nom de fichier compile correspondant a un specificateur de dependance.
+ *
+ * Le nom est **aplati** : c'est ce qui rend l'URL servie exempte de segment de
+ * dossier. Un module servi sous `/@deps/react-dom/client` resoudrait son propre
+ * `import './chunk-X.js'` en `/@deps/react-dom/chunk-X.js`, alors que le
+ * fragment est depose a la racine du cache.
+ *
+ * @example
+ * depFileName('react-dom/client') // 'react-dom_client.js'
+ * depFileName('@scope/paquet')    // 'scope_paquet.js'
+ */
+export function depFileName(specifier: string): string {
+  return `${specifier.replace(/^@/, '').split('/').join('_')}.js`
+}
+
 /** Indique si un specificateur designe un paquet plutot qu'un fichier. */
 export function isBareSpecifier(specifier: string): boolean {
   return (
@@ -144,7 +160,7 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
           hasExtension(aliased, ASSET_EXTENSIONS)
 
         if (isBareSpecifier(aliased) && !isFileLike) {
-          return { path: `${DEPS_PREFIX}${aliased}`, external: true }
+          return { path: `${DEPS_PREFIX}${depFileName(aliased)}`, external: true }
         }
 
         const resolved = await builder.resolve(aliased, {

@@ -3,11 +3,11 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import type { ResolvedConfig } from '../config.js'
-import { depFileName } from './deps.js'
 import { ModuleGraph, detectSelfAccepting } from './graph.js'
 import { extractEntries, injectClient } from './server.js'
 import {
   applyAlias,
+  depFileName,
   fileToUrl,
   hasExtension,
   isBareSpecifier,
