@@ -178,6 +178,9 @@ export const colorLight = {
   'on-info': palette.white,
   ring: palette['brand-500'],
   selection: palette['brand-100'],
+  // Translucide : le surlignage doit laisser lire le texte qu'il recouvre,
+  // quel que soit le fond sur lequel il est pose.
+  highlight: 'oklch(90.5% 0.182 98.111 / 0.55)',
 } as const
 
 /**
@@ -230,12 +233,34 @@ export const colorDark: Readonly<Record<keyof typeof colorLight, string>> = {
   'on-info': palette['zinc-950'],
   ring: palette['brand-400'],
   selection: palette['brand-900'],
+  highlight: 'oklch(82.8% 0.189 84.429 / 0.35)',
 } as const
 
 /** Familles de police. */
 export const fontFamily = baseFontFamily
-/** Echelle typographique. */
-export const fontSize = baseFontSize
+
+/**
+ * Echelle typographique.
+ *
+ * La fondation range ses ombres de texte sous les cles `shadow-*` de la meme
+ * echelle ; on les en extrait ici — une taille de texte et une ombre portee ne
+ * sont pas la meme grandeur, et les meler produirait des classes absurdes.
+ */
+export const fontSize: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(
+    Object.entries(baseFontSize).filter(([key]) => !key.startsWith('shadow-')),
+  ),
+)
+
+/** Ombres de texte, extraites de la fondation (voir {@link fontSize}). */
+export const textShadow: Readonly<Record<string, string>> = Object.freeze({
+  ...Object.fromEntries(
+    Object.entries(baseFontSize)
+      .filter(([key]) => key.startsWith('shadow-'))
+      .map(([key, value]) => [key.replace(/^shadow-/, ''), value]),
+  ),
+  none: 'none',
+})
 /** Hauteur de ligne par defaut associee a chaque taille de texte. */
 export const fontSizeLeading = baseFontSizeLeading
 /** Graisses. */
@@ -348,6 +373,7 @@ export const tokens = {
   shadow,
   'inset-shadow': insetShadow,
   'drop-shadow': dropShadow,
+  'text-shadow': textShadow,
   blur,
   container,
   perspective,

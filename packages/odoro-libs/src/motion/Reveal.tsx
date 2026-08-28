@@ -23,6 +23,7 @@ import {
   applyStyles,
   clearStyles,
 } from './keyframes.js'
+import { type RevealPresetName, revealPresets } from './presets.js'
 import {
   type DurationInput,
   type EasingInput,
@@ -50,6 +51,11 @@ export interface RevealProps extends RevealTiming, ComponentPropsWithoutRef<'div
   as?: ElementType
   /** Contenu revele. */
   children?: ReactNode
+  /**
+   * Etat de depart nomme, choisi dans {@link revealPresets}. Un `from`
+   * explicite reste prioritaire.
+   */
+  preset?: RevealPresetName
   /**
    * Proportion de l'element devant etre visible pour declencher.
    * @defaultValue 0.15
@@ -82,10 +88,11 @@ export interface RevealProps extends RevealTiming, ComponentPropsWithoutRef<'div
 export function Reveal({
   as = 'div',
   children,
+  preset,
   duration = 'slow',
   easing = 'entrance',
   delay = 0,
-  from = REVEAL_FROM,
+  from = preset === undefined ? REVEAL_FROM : revealPresets[preset],
   to = VISIBLE,
   threshold = 0.15,
   rootMargin = '0px',

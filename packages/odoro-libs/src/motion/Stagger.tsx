@@ -13,6 +13,7 @@ import {
   createElement,
 } from 'react'
 
+import { type RevealPresetName } from './presets.js'
 import { Reveal, type RevealTiming } from './Reveal.jsx'
 
 /** Proprietes de {@link Stagger}. */
@@ -21,6 +22,8 @@ export interface StaggerProps extends RevealTiming, ComponentPropsWithoutRef<'di
   as?: ElementType
   /** Element enveloppant chaque enfant. @defaultValue 'div' */
   itemAs?: ElementType
+  /** Etat de depart nomme, transmis a chaque {@link Reveal}. */
+  preset?: RevealPresetName
   /** Enfants a reveler l'un apres l'autre. */
   children?: ReactNode
   /** Ecart entre deux enfants, en millisecondes. @defaultValue 60 */
@@ -58,6 +61,7 @@ export function Stagger({
   as = 'div',
   itemAs = 'div',
   children,
+  preset,
   step = 60,
   maxDelay = 600,
   delay = 0,
@@ -82,6 +86,7 @@ export function Stagger({
         // les cles d'origine sur les enfants, et ce wrapper n'a pas d'etat.
         key={index}
         as={itemAs}
+        preset={preset}
         delay={Math.min(delay + index * step, delay + maxDelay)}
         duration={duration}
         easing={easing}

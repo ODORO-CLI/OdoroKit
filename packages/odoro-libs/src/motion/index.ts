@@ -34,8 +34,24 @@
 export { Animate, type AnimateProps } from './Animate.jsx'
 export { Reveal, type RevealProps, type RevealTiming } from './Reveal.jsx'
 export { Stagger, type StaggerProps } from './Stagger.jsx'
+export { TextReveal, type TextRevealProps } from './TextReveal.jsx'
+
+export {
+  getMotionPreset,
+  motionPresets,
+  revealPresets,
+  type MotionPreset,
+  type MotionPresetName,
+  type RevealPresetName,
+} from './presets.js'
 
 export { useAnimate, type AnimateControls, type MotionOptions } from './useAnimate.js'
+export { useInView, type InViewOptions } from './useInView.js'
+export {
+  useElementScrollProgress,
+  useScrollProgress,
+  type ScrollProgressOptions,
+} from './useScrollProgress.js'
 export {
   usePresence,
   type Presence,

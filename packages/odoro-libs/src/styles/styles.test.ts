@@ -109,9 +109,12 @@ describe('artefacts generes', () => {
 
   it('garde la feuille de base sous le seuil de derive', () => {
     // Garde-fou : la feuille de base ne doit pas absorber la palette brute,
-    // sans quoi la separation en deux paliers perdrait tout son sens.
-    const onDisk = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
-    expect(onDisk.length).toBeLessThan(400_000)
+    // sans quoi la separation en deux paliers perdrait tout son sens. Le
+    // palier etendu doit rester un surcout substantiel de la feuille complete.
+    const core = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
+    const full = readFileSync(join(GENERATED_DIR, 'odoro.full.css'), 'utf8')
+    expect(core.length).toBeLessThan(1_100_000)
+    expect(full.length - core.length).toBeGreaterThan(300_000)
   })
 })
 

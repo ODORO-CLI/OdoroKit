@@ -1,0 +1,190 @@
+/**
+ * Coquille du site de documentation : barre superieure fixe en verre depoli,
+ * navigation laterale collante, panneau mobile et palette de recherche.
+ *
+ * @module
+ */
+
+import { type ReactElement, type ReactNode, useEffect, useState } from 'react'
+import { Link, useLocation } from 'odoro-libs/router'
+
+import { DOC_SECTIONS } from '../registry.js'
+import { SearchDialog } from './SearchDialog.jsx'
+import { ThemeToggle } from './ThemeToggle.jsx'
+
+/** Hauteur de la barre superieure : 4rem, partagee par les calages `top`. */
+const HEADER_OFFSET = '4rem'
+
+/** Logo Odoro, en degrade de la teinte de marque vers l'accent. */
+function Logo(): ReactElement {
+  return (
+    <Link
+      to="/"
+      className="o-inline-flex o-items-baseline o-gap-1 o-no-underline o-shrink-0"
+    >
+      <span className="o-text-xl o-font-extrabold o-tracking-tight o-text-gradient o-bg-gradient-to-r o-from-primary o-to-accent">
+        Odoro
+      </span>
+      <span className="o-text-xs o-font-mono o-text-fg-subtle">docs</span>
+    </Link>
+  )
+}
+
+/** Liens d'une section de navigation. */
+function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement {
+  const { pathname } = useLocation()
+
+  return (
+    <nav aria-label="Documentation" className="o-flex o-flex-col o-gap-6">
+      {DOC_SECTIONS.map((section) => (
+        <div key={section.title} className="o-flex o-flex-col o-gap-1">
+          <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-fg-subtle o-px-3 o-mb-1">
+            {section.title}
+          </p>
+          {section.pages.map((page) => {
+            const active = pathname === page.path
+            return (
+              <Link
+                key={page.path}
+                to={page.path}
+                aria-current={active ? 'page' : undefined}
+                onClick={onNavigate}
+                className={`o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-transition-colors ${
+                  active
+                    ? 'o-bg-primary-soft o-text-primary o-font-medium'
+                    : 'o-text-fg-muted hover:o-text-fg hover:o-bg-surface-hover'
+                }`}
+              >
+                {page.title}
+              </Link>
+            )
+          })}
+        </div>
+      ))}
+    </nav>
+  )
+}
+
+/** Coquille commune a toutes les pages. */
+export function Shell({ children }: { children?: ReactNode }): ReactElement {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
+
+  // Ctrl+K / Cmd+K ouvre la recherche depuis n'importe ou.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen((open) => !open)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  // Changer de page ferme le panneau mobile et remonte en haut.
+  useEffect(() => {
+    setMenuOpen(false)
+    window.scrollTo({ top: 0 })
+  }, [pathname])
+
+  return (
+    <div className="o-min-h-screen o-bg-bg o-text-fg">
+      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky o-glass o-border-b o-border-border">
+        <div className="o-mx-auto o-max-w-7xl o-h-16 o-flex o-items-center o-gap-4 o-px-4 md:o-px-6">
+          <button
+            type="button"
+            aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+            className="lg:o-hidden o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-fg-muted hover:o-text-fg hover:o-bg-surface-hover o-transition-colors o-cursor-pointer"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              {menuOpen ? (
+                <path d="M6 6l12 12M18 6L6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
+            </svg>
+          </button>
+
+          <Logo />
+
+          <div className="o-flex-1" />
+
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="o-inline-flex o-items-center o-gap-2 o-h-9 o-rounded-md o-border-w-1 o-border-border o-bg-surface o-px-3 o-text-sm o-text-fg-subtle hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <span className="max-md:o-hidden">Rechercher...</span>
+            <kbd className="max-md:o-hidden o-text-xs o-font-mono o-border-w-1 o-border-border o-rounded-sm o-px-1.5 o-py-0.5 o-bg-surface-sunken">
+              Ctrl K
+            </kbd>
+          </button>
+
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <div
+        className="o-mx-auto o-max-w-7xl o-flex o-px-4 md:o-px-6"
+        style={{ paddingTop: HEADER_OFFSET }}
+      >
+        <aside
+          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-py-8 o-pr-6 o-border-r o-border-border-subtle"
+          style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
+        >
+          <SectionLinks />
+        </aside>
+
+        <main className="o-flex-1 o-min-w-0 o-py-10 lg:o-pl-10 o-view-transition-page">
+          {children}
+        </main>
+      </div>
+
+      {menuOpen ? (
+        <div
+          className="lg:o-hidden o-fixed o-inset-0 o-z-overlay"
+          style={{ paddingTop: HEADER_OFFSET }}
+        >
+          <div
+            className="o-absolute o-inset-0 o-bg-overlay"
+            onClick={() => setMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-surface o-shadow-xl o-overflow-y-auto o-p-4 o-animate-slide-in-left o-animate-duration-fast">
+            <SectionLinks onNavigate={() => setMenuOpen(false)} />
+          </div>
+        </div>
+      ) : null}
+
+      <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </div>
+  )
+}

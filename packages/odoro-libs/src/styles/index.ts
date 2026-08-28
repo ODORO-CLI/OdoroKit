@@ -24,4 +24,5 @@ export type {
   OdoroExtendedClassName,
 } from './generated/classNames.js'
 export * from './cx.js'
+export * from './fonts.js'
 export * from './tokens.js'

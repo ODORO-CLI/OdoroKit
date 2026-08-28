@@ -1,62 +1,125 @@
-import { Link, Outlet, Route, Router, Routes, useLocation } from 'odoro-libs/router'
+/**
+ * Racine du site de documentation : coquille commune et table des routes.
+ *
+ * @module
+ */
 
-import { Composants } from './routes/Composants.jsx'
-import { Mouvement } from './routes/Mouvement.jsx'
-import { Palette } from './routes/Palette.jsx'
-import { Routage } from './routes/Routage.jsx'
+import { type ReactElement } from 'react'
+import { Route, Router, Routes } from 'odoro-libs/router'
+import { ToastProvider } from 'odoro-libs/ui'
+import { Link } from 'odoro-libs/router'
 
-/** Sections du bac a sable. */
-const SECTIONS = [
-  { to: '/', label: 'Composants' },
-  { to: '/mouvement', label: 'Mouvement' },
-  { to: '/palette', label: 'Palette' },
-  { to: '/routage/42', label: 'Routage' },
-]
+import { Shell } from './docs/components/Shell.jsx'
+import { Accueil } from './docs/pages/Accueil.jsx'
+import { Installation } from './docs/pages/Installation.jsx'
+import { StylesOverview } from './docs/pages/StylesOverview.jsx'
+import { Couleurs } from './docs/pages/Couleurs.jsx'
+import { Typographie } from './docs/pages/Typographie.jsx'
+import { Responsive } from './docs/pages/Responsive.jsx'
+import { Fonts } from './docs/pages/Fonts.jsx'
+import { Utilitaires } from './docs/pages/Utilitaires.jsx'
+import { MotionOverview } from './docs/pages/MotionOverview.jsx'
+import { MotionPresets } from './docs/pages/MotionPresets.jsx'
+import { MotionComposants } from './docs/pages/MotionComposants.jsx'
+import { MotionHooks } from './docs/pages/MotionHooks.jsx'
+import { RouterGuide } from './docs/pages/RouterGuide.jsx'
 
-/** Enveloppe commune : navigation et zone de contenu. */
-function Layout() {
-  const { pathname } = useLocation()
+import { ButtonDoc } from './docs/pages/composants/ButtonDoc.jsx'
+import { InputDoc } from './docs/pages/composants/InputDoc.jsx'
+import { TextareaDoc } from './docs/pages/composants/TextareaDoc.jsx'
+import { SelectDoc } from './docs/pages/composants/SelectDoc.jsx'
+import { CheckboxDoc } from './docs/pages/composants/CheckboxDoc.jsx'
+import { RadioDoc } from './docs/pages/composants/RadioDoc.jsx'
+import { SwitchDoc } from './docs/pages/composants/SwitchDoc.jsx'
+import { SliderDoc } from './docs/pages/composants/SliderDoc.jsx'
+import { CardDoc } from './docs/pages/composants/CardDoc.jsx'
+import { BadgeDoc } from './docs/pages/composants/BadgeDoc.jsx'
+import { AvatarDoc } from './docs/pages/composants/AvatarDoc.jsx'
+import { AlertDoc } from './docs/pages/composants/AlertDoc.jsx'
+import { SeparatorDoc } from './docs/pages/composants/SeparatorDoc.jsx'
+import { SkeletonDoc } from './docs/pages/composants/SkeletonDoc.jsx'
+import { SpinnerDoc } from './docs/pages/composants/SpinnerDoc.jsx'
+import { ProgressDoc } from './docs/pages/composants/ProgressDoc.jsx'
+import { KbdDoc } from './docs/pages/composants/KbdDoc.jsx'
+import { TabsDoc } from './docs/pages/composants/TabsDoc.jsx'
+import { AccordionDoc } from './docs/pages/composants/AccordionDoc.jsx'
+import { TooltipDoc } from './docs/pages/composants/TooltipDoc.jsx'
+import { PopoverDoc } from './docs/pages/composants/PopoverDoc.jsx'
+import { DropdownMenuDoc } from './docs/pages/composants/DropdownMenuDoc.jsx'
+import { DialogDoc } from './docs/pages/composants/DialogDoc.jsx'
+import { DrawerDoc } from './docs/pages/composants/DrawerDoc.jsx'
+import { ToastDoc } from './docs/pages/composants/ToastDoc.jsx'
+import { BreadcrumbDoc } from './docs/pages/composants/BreadcrumbDoc.jsx'
+import { PaginationDoc } from './docs/pages/composants/PaginationDoc.jsx'
+import { TableDoc } from './docs/pages/composants/TableDoc.jsx'
 
+/** Page introuvable. */
+function Introuvable(): ReactElement {
   return (
-    <div className="o-flex o-flex-col o-gap-0">
-      <header className="o-flex o-items-center o-gap-4 o-px-6 o-py-4 o-border-b o-border-border">
-        <span className="o-font-semibold o-text-primary">odoro-libs</span>
-        <nav className="o-flex o-gap-3">
-          {SECTIONS.map((section) => (
-            <Link
-              key={section.to}
-              to={section.to}
-              className={
-                pathname === section.to
-                  ? 'o-text-fg o-font-medium o-no-underline'
-                  : 'o-text-fg-muted o-no-underline hover:o-text-fg o-transition'
-              }
-            >
-              {section.label}
-            </Link>
-          ))}
-        </nav>
-      </header>
-      <main className="o-view-transition-page o-mx-auto o-w-full o-max-w-4xl o-px-6 o-py-10">
-        <Outlet />
-      </main>
+    <div className="o-flex o-flex-col o-items-center o-gap-4 o-py-24 o-text-center">
+      <p className="o-text-6xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-primary o-to-accent">
+        404
+      </p>
+      <p className="o-text-fg-muted">Cette page n'existe pas.</p>
+      <Link to="/" className="o-text-link hover:o-text-link-hover o-underline">
+        Retour a l'accueil
+      </Link>
     </div>
   )
 }
 
-/** Racine du bac a sable. */
-export function App() {
+/** Racine de l'application. */
+export function App(): ReactElement {
   return (
     <Router>
-      <Routes fallback={<p className="o-text-fg-muted">Chargement...</p>}>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Composants />} />
-          <Route path="mouvement" element={<Mouvement />} />
-          <Route path="palette" element={<Palette />} />
-          <Route path="routage/:id" element={<Routage />} />
-          <Route path="*" element={<p>Route inconnue.</p>} />
-        </Route>
-      </Routes>
+      <ToastProvider>
+        <Shell>
+          <Routes fallback={<p className="o-text-fg-muted">Chargement...</p>}>
+            <Route index element={<Accueil />} />
+            <Route path="docs/installation" element={<Installation />} />
+            <Route path="docs/styles" element={<StylesOverview />} />
+            <Route path="docs/styles/couleurs" element={<Couleurs />} />
+            <Route path="docs/styles/typographie" element={<Typographie />} />
+            <Route path="docs/styles/responsive" element={<Responsive />} />
+            <Route path="docs/styles/fonts" element={<Fonts />} />
+            <Route path="docs/styles/utilitaires" element={<Utilitaires />} />
+            <Route path="docs/motion" element={<MotionOverview />} />
+            <Route path="docs/motion/presets" element={<MotionPresets />} />
+            <Route path="docs/motion/composants" element={<MotionComposants />} />
+            <Route path="docs/motion/hooks" element={<MotionHooks />} />
+            <Route path="docs/router" element={<RouterGuide />} />
+            <Route path="docs/composants/button" element={<ButtonDoc />} />
+            <Route path="docs/composants/input" element={<InputDoc />} />
+            <Route path="docs/composants/textarea" element={<TextareaDoc />} />
+            <Route path="docs/composants/select" element={<SelectDoc />} />
+            <Route path="docs/composants/checkbox" element={<CheckboxDoc />} />
+            <Route path="docs/composants/radio" element={<RadioDoc />} />
+            <Route path="docs/composants/switch" element={<SwitchDoc />} />
+            <Route path="docs/composants/slider" element={<SliderDoc />} />
+            <Route path="docs/composants/card" element={<CardDoc />} />
+            <Route path="docs/composants/badge" element={<BadgeDoc />} />
+            <Route path="docs/composants/avatar" element={<AvatarDoc />} />
+            <Route path="docs/composants/alert" element={<AlertDoc />} />
+            <Route path="docs/composants/separator" element={<SeparatorDoc />} />
+            <Route path="docs/composants/skeleton" element={<SkeletonDoc />} />
+            <Route path="docs/composants/spinner" element={<SpinnerDoc />} />
+            <Route path="docs/composants/progress" element={<ProgressDoc />} />
+            <Route path="docs/composants/kbd" element={<KbdDoc />} />
+            <Route path="docs/composants/tabs" element={<TabsDoc />} />
+            <Route path="docs/composants/accordion" element={<AccordionDoc />} />
+            <Route path="docs/composants/tooltip" element={<TooltipDoc />} />
+            <Route path="docs/composants/popover" element={<PopoverDoc />} />
+            <Route path="docs/composants/dropdown-menu" element={<DropdownMenuDoc />} />
+            <Route path="docs/composants/dialog" element={<DialogDoc />} />
+            <Route path="docs/composants/drawer" element={<DrawerDoc />} />
+            <Route path="docs/composants/toast" element={<ToastDoc />} />
+            <Route path="docs/composants/breadcrumb" element={<BreadcrumbDoc />} />
+            <Route path="docs/composants/pagination" element={<PaginationDoc />} />
+            <Route path="docs/composants/table" element={<TableDoc />} />
+            <Route path="*" element={<Introuvable />} />
+          </Routes>
+        </Shell>
+      </ToastProvider>
     </Router>
   )
 }
