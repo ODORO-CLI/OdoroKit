@@ -44,6 +44,9 @@ Importer l'une **ou** l'autre, jamais les deux.
 
 ## Rechargement a chaud
 
-Une feuille de style modifiee est remplacee sans rechargement : l'etat de
-l'application est conserve. Un module JavaScript modifie recharge la page,
-sauf s'il declare `import.meta.hot.accept()`.
+Modifier un composant remplace son code sans demonter l'arbre : la valeur d'un
+compteur, le texte saisi dans un champ, l'onglet ouvert survivent a l'edition.
+Une feuille de style est echangee sans rechargement.
+
+Un module qui n'exporte pas que des composants recharge la page, et c'est
+correct : rien ne permettrait d'en propager le changement sans risque.

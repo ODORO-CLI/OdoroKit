@@ -31,6 +31,16 @@ import {
 import { optimizeDeps, scanDependencies } from './deps.js'
 import { ModuleGraph, detectSelfAccepting } from './graph.js'
 import {
+  REFRESH_HTML_TAG,
+  REFRESH_RUNTIME_PATH,
+  applyReactRefresh,
+  bundleRefreshRuntime,
+  hasRegisteredComponent,
+  isRefreshCandidate,
+  refreshEpilogue,
+  refreshPreamble,
+} from './refresh.js'
+import {
   ASSET_EXTENSIONS,
   DEPS_PREFIX,
   INTERNAL_PREFIX,
@@ -121,9 +131,15 @@ export function extractEntries(html: string, root: string): string[] {
  * injectClient('<html><head></head></html>')
  */
 export function injectClient(html: string): string {
-  const tag = `<script type="module" src="${HMR_CLIENT_PATH}"></script>`
-  if (html.includes('</head>')) return html.replace('</head>', `  ${tag}\n</head>`)
-  return `${tag}\n${html}`
+  // L'ordre compte : le crochet de rechargement doit etre installe avant que
+  // React ne soit charge, donc avant tout module de l'application.
+  const tags = [
+    REFRESH_HTML_TAG,
+    `<script type="module" src="${HMR_CLIENT_PATH}"></script>`,
+  ].join('\n    ')
+
+  if (html.includes('</head>')) return html.replace('</head>', `  ${tags}\n</head>`)
+  return `${tags}\n${html}`
 }
 
 /**
@@ -145,6 +161,8 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
   if (!existsSync(indexFile)) {
     throw new Error(`[odoro] Aucun "index.html" a la racine du projet (${config.root}).`)
   }
+
+  const refreshRuntime = await bundleRefreshRuntime()
 
   const entries = extractEntries(await readFile(indexFile, 'utf8'), config.root)
   const specifiers = await scanDependencies(config, entries)
@@ -190,7 +208,19 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
       for (const dependency of dependencies) {
         graph.ensure(dependency, fileToUrl(dependency, config.root)).importers.add(file)
       }
-      node.code = hotPreamble(url) + code
+
+      let body = code
+      if (isRefreshCandidate(file)) {
+        const instrumented = await applyReactRefresh(code, file)
+        if (hasRegisteredComponent(instrumented)) {
+          // Le module declare au moins un composant : il devient une frontiere
+          // de rechargement, et son etat sera preserve a l'edition.
+          body = refreshPreamble(url) + instrumented + refreshEpilogue(url)
+          node.selfAccepting = true
+        }
+      }
+
+      node.code = hotPreamble(url) + body
     }
 
     send(response, node.code, MIME['.js'] ?? 'text/javascript')
@@ -269,6 +299,11 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
             forward(incoming, response, target)
             return
           }
+        }
+
+        if (path === REFRESH_RUNTIME_PATH) {
+          send(response, refreshRuntime, MIME['.js'] ?? 'text/javascript')
+          return
         }
 
         if (path === HMR_CLIENT_PATH) {

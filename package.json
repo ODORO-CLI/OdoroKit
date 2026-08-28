@@ -23,7 +23,9 @@
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
     "playground": "pnpm --filter odoro-playground dev",
-    "try:create": "node scripts/try-create.mjs"
+    "try:create": "node scripts/try-create.mjs",
+    "check:smoke": "node scripts/smoke.mjs",
+    "check:hmr": "node scripts/hmr-check.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

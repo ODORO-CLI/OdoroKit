@@ -79,12 +79,39 @@ sans configuration.
 qui remonte la chaîne des importateurs jusqu'à une frontière qui accepte, API
 `import.meta.hot` complète, surcouche d'erreur de compilation.
 
-**Ce qui fonctionne sans rechargement** : les feuilles de style. Une feuille
-modifiée est remplacée à chaud, l'état de l'application est intégralement
-conservé. C'est le gain le plus immédiat du développement à chaud.
+**Les feuilles de style** sont échangées à chaud, sans rechargement.
 
-**Ce qui recharge la page** : un module JavaScript modifié, sauf s'il déclare
-`import.meta.hot.accept()`.
+**Les composants React** conservent leur état. Modifier un composant remplace
+son code sans démonter l'arbre : la valeur d'un compteur, le texte d'un champ,
+l'onglet ouvert survivent à l'édition.
+
+Cela demande une transformation du code, et il vaut la peine de comprendre
+pourquoi. Remplacer un module ne suffit pas : React doit savoir qu'un composant
+est _le même_ qu'avant. Deux informations lui manquent, que seule une
+transformation peut fournir.
+
+D'abord **l'enregistrement** de chaque composant sous une identité stable, pour
+relier l'ancienne version à la nouvelle. Ensuite **une signature des hooks**
+utilisés. Si cette signature change — un `useState` ajouté —, l'état ne _peut
+pas_ être conservé : l'ordre des hooks ne correspond plus. React doit alors
+remonter le composant. Sans signature, il tenterait de réutiliser l'ancien état
+et l'application planterait sur « Rendered more hooks than during the previous
+render ».
+
+C'est la raison pour laquelle le moteur s'appuie ici sur la transformation de
+référence plutôt que d'écrire la sienne : calculer ces signatures demande une
+analyse syntaxique complète, et une erreur subtile ne se manifeste qu'en
+plantage à l'édition. La transformation ne s'applique qu'au code du projet, et
+seuls les modules ayant réellement enregistré un composant deviennent des
+frontières.
+
+**Ce qui recharge encore la page** : un module qui n'exporte pas que des
+composants. C'est correct — rien ne permettrait de propager son changement sans
+risque. Le moteur le détecte à l'exécution : si la liste des exports a changé,
+ou si un export non-composant a été modifié, il renonce au remplacement et
+recharge.
+
+L'API reste disponible pour prendre la main :
 
 ```ts
 if (import.meta.hot) {
@@ -97,13 +124,8 @@ if (import.meta.hot) {
 }
 ```
 
-**Ce qui n'est pas là** : la préservation de l'état des composants React. Elle
-exige une transformation dédiée, qui injecte une signature à chaque composant à
-la compilation. C'est un chantier à part entière ; il se branchera sur l'API de
-rechargement déjà en place, sans la changer.
-
-La détection de l'acceptation est textuelle. Une analyse syntaxique complète
-serait plus sûre, mais `import.meta.hot.accept` est une formule trop
+La détection de l'acceptation manuelle est textuelle. Une analyse syntaxique
+complète serait plus sûre, mais `import.meta.hot.accept` est une formule trop
 distinctive pour apparaître par accident, et le coût d'un faux positif se
 limite à une mise à jour là où un rechargement aurait suffi.
 

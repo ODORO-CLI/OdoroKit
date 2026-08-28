@@ -66,11 +66,11 @@ production reposent sur un compilateur bas niveau, traité comme une primitive
 minifieur et un secoueur d'arbre représente plusieurs années-hommes ; le
 prétendre produirait un jouet.
 
-**Ce qu'il ne fait pas encore** : le rechargement à chaud préserve l'état pour
-les feuilles de style, mais un module JavaScript modifié recharge la page —
-sauf s'il déclare `import.meta.hot.accept()`. Préserver l'état des composants
-React exige une transformation dédiée, qui viendra se brancher sur l'API de
-rechargement déjà en place, sans la changer.
+**Le rechargement à chaud préserve l'état.** Modifier un composant remplace son
+code sans démonter l'arbre : la valeur d'un compteur, le texte saisi dans un
+champ, l'onglet ouvert — tout survit. Une feuille de style est échangée sans
+rechargement. Un module qui n'exporte pas que des composants recharge la page,
+et c'est correct : rien ne permettrait d'en propager le changement sans risque.
 
 ## La librairie
 
