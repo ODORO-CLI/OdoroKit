@@ -20,6 +20,10 @@
  * @module
  */
 
+import { prefersReducedMotion } from '../shared/motionPreference.js'
+
+export { prefersReducedMotion }
+
 /**
  * Indique si le document courant expose l'API View Transitions.
  *
@@ -28,21 +32,6 @@
  */
 export function supportsViewTransitions(): boolean {
   return typeof document !== 'undefined' && 'startViewTransition' in document
-}
-
-/**
- * Indique si l'utilisateur a demande a reduire les animations.
- *
- * Toute la librairie consulte ce predicat : le developpeur n'a jamais a y
- * penser lui-meme.
- *
- * @example
- * const duration = prefersReducedMotion() ? 0 : 300
- */
-export function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function')
-    return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
 /**

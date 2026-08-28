@@ -6,5 +6,5 @@
     "types": ["vitest/globals"],
     "rootDir": "."
   },
-  "include": ["src", "scripts", "tsup.config.ts", "vitest.config.ts"]
+  "include": ["src", "scripts", "test", "tsup.config.ts", "vitest.config.ts"]
 }
