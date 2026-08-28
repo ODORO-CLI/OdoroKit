@@ -59,7 +59,11 @@ export default tseslint.config(
   },
   {
     // Le CLI ecrit sur stdout : c'est sa raison d'etre.
-    files: ['packages/create-odoro/**/*.ts', '**/scripts/**/*.ts'],
+    files: [
+      'packages/create-odoro/**/*.ts',
+      'packages/odoro/**/*.ts',
+      '**/scripts/**/*.ts',
+    ],
     rules: { 'no-console': 'off' },
   },
   prettier,

@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    name: Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installer les dependances
+        run: pnpm install --frozen-lockfile
+
+      - name: Formatage
+        run: pnpm run format:check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Types
+        run: pnpm run typecheck
+
+      - name: Tests
+        run: pnpm run test
+
+      - name: Compilation
+        run: pnpm run build
+
+      - name: Verification du packaging
+        run: pnpm --filter odoro-libs run check:exports
+
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
+    # La chaine complete installe un arbre de dependances reel : on la reserve
+    # a la branche principale pour ne pas ralentir chaque proposition.
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Installer les dependances
+        run: pnpm install --frozen-lockfile
+
+      - name: Echafaudage, installation et compilation reels
+        run: pnpm --filter odoro run test
+        env:
+          ODORO_INTEGRATION: '1'

@@ -41,9 +41,28 @@ importers:
 
   packages/create-odoro:
     dependencies:
+      odoro:
+        specifier: workspace:*
+        version: link:../odoro
+    devDependencies:
+      '@types/node':
+        specifier: ^22.18.8
+        version: 22.20.1
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(postcss@8.5.26)(tsx@4.23.12)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/odoro:
+    dependencies:
       '@clack/prompts':
         specifier: ^0.11.0
         version: 0.11.0
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -102,6 +121,31 @@ importers:
       vitest:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@22.20.1)(jsdom@27.4.0)(tsx@4.23.12)
+
+  playground:
+    dependencies:
+      odoro-libs:
+        specifier: workspace:*
+        version: link:../packages/odoro-libs
+      react:
+        specifier: ^19.2.0
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.8(react@19.2.8)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.2
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.1
+        version: 19.2.5(@types/react@19.2.18)
+      odoro:
+        specifier: workspace:*
+        version: link:../packages/odoro
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
 packages:
 

@@ -4,7 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
-  "description": "Scaffolder officiel Odoro : npm create odoro@latest",
+  "description": "Echafaudage officiel Odoro : npm create odoro@latest",
   "engines": {
     "node": ">=20"
   },
@@ -12,24 +12,20 @@
     "create-odoro": "./dist/index.js"
   },
   "files": [
-    "dist",
-    "templates"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@clack/prompts": "^0.11.0",
-    "picocolors": "^1.1.1"
+    "odoro": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.8",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3"
   }
 }

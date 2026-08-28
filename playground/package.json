@@ -1,0 +1,24 @@
+{
+  "name": "odoro-playground",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Application de test liee a odoro-libs, pour developper la librairie avec rechargement a chaud.",
+  "scripts": {
+    "dev": "odoro dev",
+    "build": "odoro build",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "odoro-libs": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "odoro": "workspace:*",
+    "typescript": "^5.9.3"
+  }
+}

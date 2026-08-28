@@ -1,0 +1,52 @@
+name: Publication
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: publication-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  publier:
+    name: Version et publication
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # changesets a besoin de l'historique pour calculer les versions.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Installer les dependances
+        run: pnpm install --frozen-lockfile
+
+      - name: Compiler
+        run: pnpm run build
+
+      # Ouvre une proposition de version tant qu'il reste des changesets en
+      # attente, et publie des qu'elle est fusionnee.
+      - name: Version ou publication
+        uses: changesets/action@v1
+        with:
+          version: pnpm run version-packages
+          publish: pnpm run release
+          commit: 'chore: version des paquets'
+          title: 'chore: version des paquets'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

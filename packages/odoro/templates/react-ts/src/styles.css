@@ -1,0 +1,13 @@
+/* Styles propres a l'application.
+   Tout le reste vient des tokens Odoro : surcharger une variable ci-dessous
+   suffit a rethemer l'ensemble, composants de la librairie compris. */
+
+:root {
+  --o-color-primary: oklch(52.4% 0.212 275);
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}

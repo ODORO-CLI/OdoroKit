@@ -1,0 +1,30 @@
+{
+  "name": "odoro-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:client": "odoro dev",
+    "dev:server": "tsx watch server/src/index.ts",
+    "build": "odoro build && tsc -p server/tsconfig.json",
+    "start": "node dist/server/index.js",
+    "preview": "odoro preview",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p server/tsconfig.json"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "odoro-libs": "^0.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.18.8",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "odoro": "^0.0.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

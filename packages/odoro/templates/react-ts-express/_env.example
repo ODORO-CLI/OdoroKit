@@ -1,0 +1,13 @@
+# Copier ce fichier en `.env` et ajuster les valeurs.
+# Toute variable manquante ou invalide arrete le serveur au demarrage, avec un
+# message explicite : mieux vaut un echec immediat qu'une panne a la centieme
+# requete.
+
+# Port d'ecoute du serveur.
+PORT=3001
+
+# Environnement d'execution : development | production | test
+NODE_ENV=development
+
+# Origines autorisees, separees par des virgules. Vide = toutes.
+ALLOWED_ORIGINS=
