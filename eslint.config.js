@@ -62,7 +62,7 @@ export default tseslint.config(
     files: [
       'packages/create-odoro/**/*.ts',
       'packages/odoro/**/*.ts',
-      '**/scripts/**/*.ts',
+      '**/scripts/**/*.{ts,mjs,js}',
     ],
     rules: { 'no-console': 'off' },
   },

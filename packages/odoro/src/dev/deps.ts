@@ -19,9 +19,10 @@
  */
 
 import { createHash } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { type Plugin, build } from 'esbuild'
 
@@ -147,6 +148,10 @@ export async function optimizeDeps(
   const hash = createHash('sha256')
     .update(JSON.stringify(sorted))
     .update(await lockfileFingerprint(config.root))
+    // La version du moteur fait partie de la cle : une correction de la
+    // pre-compilation elle-meme doit perimer le cache, sans quoi un projet
+    // continue de servir des fichiers produits par la version precedente.
+    .update(engineVersion())
     .digest('hex')
     .slice(0, 16)
 
@@ -208,6 +213,38 @@ export async function optimizeDeps(
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
 
   return { directory, specifiers: sorted, rebuilt: true }
+}
+
+/** Version du moteur, lue une seule fois dans son propre manifeste. */
+let cachedVersion: string | undefined
+
+function engineVersion(): string {
+  if (cachedVersion !== undefined) return cachedVersion
+
+  let directory = dirname(fileURLToPath(import.meta.url))
+  for (let depth = 0; depth < 6; depth += 1) {
+    const manifest = join(directory, 'package.json')
+    if (existsSync(manifest)) {
+      try {
+        const parsed = JSON.parse(readFileSync(manifest, 'utf8')) as {
+          name?: string
+          version?: string
+        }
+        if (parsed.name === 'odoro') {
+          cachedVersion = parsed.version ?? 'inconnue'
+          return cachedVersion
+        }
+      } catch {
+        break
+      }
+    }
+    const parent = dirname(directory)
+    if (parent === directory) break
+    directory = parent
+  }
+
+  cachedVersion = 'inconnue'
+  return cachedVersion
 }
 
 /**
