@@ -1,0 +1,235 @@
+import gsap from 'gsap'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { CLOCK_PRIORITY, clock } from './clock.js'
+
+/**
+ * Declenche une image manuellement.
+ *
+ * `gsap.ticker.tick()` distribue immediatement, sans attendre le prochain
+ * rafraichissement : les tests restent deterministes et ne dependent pas du
+ * temps reel.
+ */
+function tick(): void {
+  gsap.ticker.tick()
+}
+
+/**
+ * Nombre d'appels enregistres par une doublure.
+ *
+ * Les assertions portent sur des **ecarts**, jamais sur des totaux : la boucle
+ * sous-jacente tourne aussi d'elle-meme, et une image automatique peut
+ * s'intercaler entre deux images declenchees a la main. Compter en absolu
+ * rendrait ces tests intermittents.
+ */
+function calls(spy: ReturnType<typeof vi.fn>): number {
+  return spy.mock.calls.length
+}
+
+afterEach(() => {
+  clock.dispose()
+})
+
+describe('abonnement', () => {
+  it('distribue une image aux abonnes', () => {
+    const seen = vi.fn()
+    clock.subscribe(seen, { name: 'test' })
+
+    const before = calls(seen)
+    tick()
+
+    expect(calls(seen)).toBeGreaterThan(before)
+    const frame = seen.mock.calls[0]?.[0] as { frame: number; time: number }
+    expect(typeof frame.frame).toBe('number')
+    expect(typeof frame.time).toBe('number')
+  })
+
+  it('cesse de distribuer apres desabonnement', () => {
+    const seen = vi.fn()
+    const subscription = clock.subscribe(seen)
+
+    tick()
+    subscription.unsubscribe()
+    const after = calls(seen)
+    tick()
+
+    expect(calls(seen)).toBe(after)
+  })
+
+  it('compte les abonnes, actifs ou non', () => {
+    expect(clock.size).toBe(0)
+    const first = clock.subscribe(vi.fn())
+    clock.subscribe(vi.fn())
+    expect(clock.size).toBe(2)
+    first.unsubscribe()
+    expect(clock.size).toBe(1)
+  })
+})
+
+describe('ordre dans la frame', () => {
+  it('execute la priorite haute avant la priorite basse', () => {
+    const order: string[] = []
+    // Le rendu graphique doit voir l'etat final de la frame : il porte donc la
+    // priorite la plus basse et s'execute en dernier.
+    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('mise en page'), { priority: CLOCK_PRIORITY.layout })
+    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+
+    tick()
+
+    expect(order).toEqual(['entree', 'mise en page', 'rendu'])
+  })
+
+  it('replace un abonne ajoute apres coup', () => {
+    const order: string[] = []
+    clock.subscribe(() => order.push('defaut'))
+    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+
+    tick()
+
+    expect(order).toEqual(['entree', 'defaut', 'rendu'])
+  })
+
+  it('expose l inventaire des abonnes, trie', () => {
+    clock.subscribe(vi.fn(), { name: 'rendu', priority: CLOCK_PRIORITY.render })
+    clock.subscribe(vi.fn(), { name: 'entree', priority: CLOCK_PRIORITY.input })
+
+    expect(clock.inspect().map((entry) => entry.name)).toEqual(['entree', 'rendu'])
+  })
+})
+
+describe('suspension', () => {
+  it('suspend un abonne sans le retirer', () => {
+    const seen = vi.fn()
+    const subscription = clock.subscribe(seen)
+
+    subscription.setActive(false)
+    const suspended = calls(seen)
+    tick()
+    expect(calls(seen)).toBe(suspended)
+    expect(clock.size).toBe(1)
+
+    subscription.setActive(true)
+    tick()
+    expect(calls(seen)).toBeGreaterThan(suspended)
+  })
+
+  it('conserve la place de l abonne suspendu', () => {
+    const order: string[] = []
+    const suspendu = clock.subscribe(() => order.push('milieu'))
+    clock.subscribe(() => order.push('rendu'), { priority: CLOCK_PRIORITY.render })
+    clock.subscribe(() => order.push('entree'), { priority: CLOCK_PRIORITY.input })
+
+    suspendu.setActive(false)
+    tick()
+    expect(order).toEqual(['entree', 'rendu'])
+
+    order.length = 0
+    suspendu.setActive(true)
+    tick()
+    expect(order).toEqual(['entree', 'milieu', 'rendu'])
+  })
+
+  it('reflete l etat actif dans l abonnement', () => {
+    const subscription = clock.subscribe(vi.fn())
+    expect(subscription.active).toBe(true)
+    subscription.setActive(false)
+    expect(subscription.active).toBe(false)
+  })
+})
+
+describe('pause globale', () => {
+  it('suspend la distribution a tous les abonnes', () => {
+    const seen = vi.fn()
+    clock.subscribe(seen)
+
+    clock.pause()
+    const paused = calls(seen)
+    tick()
+    expect(calls(seen)).toBe(paused)
+    expect(clock.isPaused).toBe(true)
+
+    clock.resume()
+    tick()
+    expect(calls(seen)).toBeGreaterThan(paused)
+    expect(clock.isPaused).toBe(false)
+  })
+
+  it('continue de compter les images pendant la pause', () => {
+    clock.subscribe(vi.fn())
+    clock.pause()
+    const before = clock.frame
+    tick()
+    // La boucle sous-jacente n'est pas arretee : seules les distributions le
+    // sont. Une pause qui figerait la boucle figerait aussi les animations
+    // d'interface sans rapport avec cette horloge.
+    expect(clock.frame).not.toBe(before)
+  })
+})
+
+describe('robustesse', () => {
+  it('isole un abonne qui echoue', () => {
+    const suivant = vi.fn()
+    const erreur = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    clock.subscribe(
+      () => {
+        throw new Error('abonne fautif')
+      },
+      { priority: CLOCK_PRIORITY.input, name: 'fautif' },
+    )
+    clock.subscribe(suivant, { priority: CLOCK_PRIORITY.render })
+
+    const before = calls(suivant)
+    tick()
+
+    expect(calls(suivant)).toBeGreaterThan(before)
+    expect(erreur).toHaveBeenCalled()
+  })
+
+  it('supporte un desabonnement pendant la distribution', () => {
+    const suivant = vi.fn()
+    const subscription = clock.subscribe(() => subscription.unsubscribe(), {
+      priority: CLOCK_PRIORITY.input,
+    })
+    clock.subscribe(suivant, { priority: CLOCK_PRIORITY.render })
+
+    const before = calls(suivant)
+    expect(() => tick()).not.toThrow()
+    expect(calls(suivant)).toBeGreaterThan(before)
+  })
+})
+
+describe('mesure de charge', () => {
+  it('ne rapporte aucune cadence avant la premiere image', () => {
+    expect(clock.fps).toBe(0)
+  })
+
+  it('rapporte une cadence apres quelques images', () => {
+    clock.subscribe(vi.fn())
+    for (let i = 0; i < 5; i += 1) tick()
+    expect(clock.fps).toBeGreaterThan(0)
+  })
+})
+
+describe('liberation', () => {
+  it('retire tous les abonnes', () => {
+    clock.subscribe(vi.fn())
+    clock.subscribe(vi.fn())
+
+    clock.dispose()
+
+    expect(clock.size).toBe(0)
+    expect(clock.fps).toBe(0)
+  })
+
+  it('endort la boucle sous-jacente', () => {
+    // Sans cela, la boucle maintient le processus en vie indefiniment : une
+    // suite de tests ne se termine jamais.
+    const sleep = vi.spyOn(gsap.ticker, 'sleep')
+    clock.subscribe(vi.fn())
+    clock.dispose()
+    expect(sleep).toHaveBeenCalled()
+  })
+})

@@ -37,3 +37,31 @@ d'utilitaires d'Odoro est une implementation independante.
 > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
+
+## GSAP
+
+`odoro-engine` s'appuie sur GSAP pour l'orchestration temporelle et pour sa
+boucle de rendu. GSAP est declare en dependance explicite et **jamais
+vendore** : sa licence interdit de retirer ou d'alterer ses notices de
+propriete, ce qui exclut de l'inliner dans un bundle publie.
+
+> Copyright (c) Webflow, Inc.
+>
+> Distribue sous la « Standard no charge license » de GSAP :
+> <https://gsap.com/standard-license>
+
+### Une clause a garder en tete
+
+La licence autorise l'usage commercial sans frais, plugins historiquement
+reserves aux membres compris. Elle interdit en revanche l'emploi de GSAP dans
+« _tools that allow users to build visual animations **without code**_ »
+concurrencant les capacites de construction d'animations de Webflow.
+
+Odoro s'adresse a des developpeurs qui ecrivent du code, et son site de
+documentation restitue du code a copier : nous sommes hors du champ de
+l'interdiction.
+
+**La ligne rouge est nette** : le jour ou Odoro permettrait de composer une
+timeline arbitraire sur un canevas visuel et de l'exporter sans ecrire une
+ligne de code, cet usage basculerait dans l'interdit. Le panneau de diagnostic
+du moteur est volontairement en lecture seule pour cette raison.
