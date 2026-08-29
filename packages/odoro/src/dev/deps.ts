@@ -19,10 +19,11 @@
  */
 
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { type Plugin, build } from 'esbuild'
 
@@ -148,6 +149,7 @@ export async function optimizeDeps(
   const hash = createHash('sha256')
     .update(JSON.stringify(sorted))
     .update(await lockfileFingerprint(config.root))
+    .update(entriesFingerprint(config.root, sorted))
     // La version du moteur fait partie de la cle : une correction de la
     // pre-compilation elle-meme doit perimer le cache, sans quoi un projet
     // continue de servir des fichiers produits par la version precedente.
@@ -245,6 +247,46 @@ function engineVersion(): string {
 
   cachedVersion = 'inconnue'
   return cachedVersion
+}
+
+/**
+ * Empreinte des fichiers d'entree des dependances.
+ *
+ * ## Pourquoi le verrou ne suffit pas
+ *
+ * Un fichier de verrouillage change quand une **version** change. Une
+ * dependance liee depuis le meme depot — le cas de tout monorepo qui developpe
+ * sa propre librairie — garde la meme version d'un bout a l'autre du travail,
+ * pendant que son `dist/` est recompile dix fois par jour.
+ *
+ * Sans cette empreinte, le serveur continue de servir la pre-compilation
+ * precedente, et le navigateur reclame un export qui n'existait pas encore.
+ * L'erreur ne dit rien de sa cause — elle parle d'un module qui « ne fournit
+ * pas » un export que le code source, lui, exporte bel et bien.
+ *
+ * La date de modification et la taille suffisent : lire le contenu de chaque
+ * entree a chaque demarrage couterait plus cher que la pre-compilation
+ * elle-meme.
+ *
+ * Un specificateur qui ne se resout pas est ignore : ce n'est pas ici qu'on
+ * signale une dependance manquante, et echouer au calcul d'une cle de cache
+ * empecherait le serveur de demarrer pour une raison sans rapport.
+ */
+function entriesFingerprint(root: string, specifiers: readonly string[]): string {
+  const resolver = createRequire(pathToFileURL(join(root, 'package.json')))
+  const parts: string[] = []
+
+  for (const specifier of specifiers) {
+    try {
+      const entry = resolver.resolve(specifier)
+      const stats = statSync(entry)
+      parts.push(`${specifier}:${String(stats.mtimeMs)}:${String(stats.size)}`)
+    } catch {
+      parts.push(`${specifier}:absent`)
+    }
+  }
+
+  return parts.join('|')
 }
 
 /**

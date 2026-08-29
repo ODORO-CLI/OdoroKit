@@ -251,3 +251,87 @@ annoncé avant, pas découvert après coup dans le suivi de version.
 question. Hors terminal — intégration continue, sortie redirigée — la commande
 refuse et indique `--yes`, plutôt que de bloquer une chaîne de compilation sur
 un curseur que personne ne voit.
+
+## Le contrat de personnalisation
+
+Un composant copié peut être édité — c'est la raison d'être de la copie. Mais
+chaque retouche est une retouche à refaire : `odoro diff` la signalera, et il
+faudra la reporter à la main quand l'entrée amont évoluera.
+
+Les cinq niveaux ci-dessous, eux, survivent à une réinstallation. Ils sont
+ordonnés par la distance à parcourir pour les atteindre, et l'on ne descend
+d'un cran que lorsque le précédent ne suffit pas.
+
+| Niveau | Moyen            | Quand                                                 |
+| ------ | ---------------- | ----------------------------------------------------- |
+| 1      | Les tokens       | Changer une variable CSS modifie tous les composants. |
+| 2      | Les props        | L'API documentée.                                     |
+| 3      | Le passe-plat    | Poser le composant dans une mise en page.             |
+| 4      | Le slot de rendu | Remplacer l'affichage, garder la mécanique.           |
+| 5      | `onReady`        | L'objet impératif, pour ce que l'API n'a pas prévu.   |
+
+### Pourquoi le niveau 5 existe
+
+Sans échappatoire, chaque besoin non prévu devient une propriété de plus. Au
+bout d'un an, le composant en a trente, personne ne sait plus laquelle fait
+quoi, et la moitié ne sert qu'à un seul projet. `onReady` absorbe ces cas sans
+élargir la surface documentée.
+
+```tsx
+<ScrollProgress
+  onReady={({ handle, motion }) => {
+    if (motion.reduced) return
+    const timer = setInterval(() => console.log(handle.read()), 250)
+    return () => clearInterval(timer) // appelé au démontage
+  }}
+/>
+```
+
+Le rappel est écrit en ligne, donc c'est une valeur neuve à chaque rendu du
+parent. Il n'est pourtant appelé **qu'une fois** : `useOnReady` le garde dans
+une référence, et l'effet ne dépend que de l'objet et de l'élément. Sans cela,
+un survol ailleurs dans la page rejouerait l'échappatoire — et poserait un
+intervalle de plus à chaque fois. On ne demande pas à l'appelant de mémoriser
+son rappel : il l'oublierait, et le défaut resterait invisible jusqu'au profil
+mémoire.
+
+### Ce que le niveau 3 ne fait pas
+
+`mergePresentation` concatène les classes, jamais ne les remplace. Mais la
+concaténation **ne garantit pas** que l'appelant l'emporte : l'ordre des
+classes dans l'attribut n'a aucun effet sur la cascade. Entre deux règles de
+même spécificité, c'est celle qui vient en dernier _dans la feuille_ qui gagne.
+
+D'où la place du niveau 3 dans l'échelle : il sert à **poser** le composant —
+marges, position, largeur, `z-index` — plutôt qu'à le repeindre. Pour repeindre
+avec certitude, il y a un token au-dessus et `style` en dessous, qui, lui,
+l'emporte toujours.
+
+### Ce que la validation vérifie
+
+Trois règles sur cinq niveaux. Les deux autres — qu'une propriété soit bien
+nommée, qu'un slot reçoive ce qu'il faut — se lisent, elles ne se mesurent pas.
+Prétendre le contraire produirait des refus arbitraires sur du code correct, ce
+qui est pire que pas de vérification : on apprend à contourner l'outil.
+
+**Les tokens déclarés et employés coïncident**, dans les deux sens. L'écart est
+invisible à la relecture — il faut avoir les deux fichiers sous les yeux — et
+il trompe exactement la personne qui cherche quelle variable régler.
+
+**Un composant qui rend un élément mentionne `className`.** La règle porte sur
+la présence du nom, pas sur la correction de la fusion : celle-ci vient de
+`mergePresentation`. Elle attrape l'oubli, pas la maladresse.
+
+**Aucune couleur écrite en dur.** Une couleur en dur échappe au niveau 1 : le
+composant restera seul de son espèce dans une page qui a changé de thème.
+
+```
+$ pnpm --filter odoro-bits registry:validate
+Registre invalide — 1 probleme(s) :
+
+  · hooks/use-poster : le token --o-duration-slow est declare mais n'est
+    employe nulle part.
+```
+
+Cet exemple n'est pas inventé : c'est ce que la règle a signalé la première
+fois qu'elle a tourné, sur une entrée de ce registre.

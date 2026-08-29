@@ -201,3 +201,45 @@ export function defaultAliases(guess: AliasGuess | null): {
     directory: posix.join(guess.directory, 'odoro'),
   }
 }
+
+/**
+ * Lit tous les alias generiques d'un `tsconfig.json`, sous la forme attendue
+ * par la configuration du moteur.
+ *
+ * `guessAlias` cherche **le** prefixe des sources, pour ecrire dedans.
+ * Celle-ci les rend **tous**, pour les resoudre. Un projet qui declare a la
+ * fois `@/*` et `@ui/*` a besoin des deux au moment de l'import, alors qu'il
+ * n'a qu'une destination d'ecriture.
+ *
+ * @param root Racine du projet.
+ * @returns Prefixe sans barre finale vers dossier relatif. Vide si le projet
+ * ne declare rien, ou si son `tsconfig.json` est illisible : un alias est un
+ * confort, pas une condition de demarrage.
+ *
+ * @example
+ * await guessAliasPaths('.') // { '@': 'src' }
+ */
+export async function guessAliasPaths(root: string): Promise<Record<string, string>> {
+  let raw: string
+  try {
+    raw = await readFile(join(root, 'tsconfig.json'), 'utf8')
+  } catch {
+    return {}
+  }
+
+  let parsed: TsConfigShape
+  try {
+    parsed = JSON.parse(stripJsonComments(raw)) as TsConfigShape
+  } catch {
+    return {}
+  }
+
+  const aliases: Record<string, string> = {}
+  for (const [pattern, targets] of Object.entries(parsed.compilerOptions?.paths ?? {})) {
+    if (!pattern.endsWith('/*')) continue
+    const target = targets[0]
+    if (target === undefined) continue
+    aliases[pattern.slice(0, -2)] = toDirectory(target, parsed.compilerOptions?.baseUrl)
+  }
+  return aliases
+}

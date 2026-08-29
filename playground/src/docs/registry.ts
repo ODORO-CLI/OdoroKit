@@ -353,6 +353,20 @@ export const DOC_SECTIONS: readonly DocSection[] = [
         description: 'init, add, list, diff, doctor.',
         keywords: ['cli', 'add', 'diff', 'doctor', 'init', 'copie', 'shadcn'],
       },
+      {
+        path: '/docs/registre/contrat',
+        title: 'Personnalisation',
+        description: 'Les cinq niveaux, sur un composant reellement installe.',
+        keywords: [
+          'contrat',
+          'tokens',
+          'props',
+          'className',
+          'slot',
+          'onready',
+          'echappatoire',
+        ],
+      },
     ],
   },
   {

@@ -30,6 +30,15 @@ afterEach(async () => {
   await rm(join(root, '..'), { recursive: true, force: true })
 })
 
+/**
+ * Source d'un composant conforme au contrat de personnalisation.
+ *
+ * Elle accepte `className` : la validation l'exige de toute entree qui rend un
+ * element, et une fixture qui ne le ferait pas testerait un cas que le
+ * registre refuse.
+ */
+const SOURCE = 'export const Demo = ({ className }) => <div className={className} />\n'
+
 /** Entree minimale valide, a deriver dans chaque test. */
 function meta(overrides: Partial<RegistryMetaInput> = {}): RegistryMetaInput {
   return {
@@ -48,7 +57,7 @@ async function writeEntry(
   category: string,
   name: string,
   value: unknown,
-  files: Record<string, string> = { 'component.tsx': 'export const Demo = () => null\n' },
+  files: Record<string, string> = { 'component.tsx': SOURCE },
 ): Promise<void> {
   const directory = join(root, category, name)
   await mkdir(directory, { recursive: true })
@@ -236,7 +245,7 @@ describe('compilation des artefacts', () => {
     )
     expect(published).toMatchObject({
       id: 'text/demo',
-      sources: { 'component.tsx': 'export const Demo = () => null\n' },
+      sources: { 'component.tsx': SOURCE },
     })
   })
 

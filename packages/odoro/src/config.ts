@@ -15,6 +15,8 @@ import { pathToFileURL } from 'node:url'
 
 import { build } from 'esbuild'
 
+import { guessAliasPaths } from './add/aliases.js'
+
 /** Reglages du serveur de developpement. */
 export interface ServerConfig {
   /** Port d'ecoute. @defaultValue 5180 */
@@ -211,7 +213,15 @@ export async function loadConfig(
       sourcemap: merged.build?.sourcemap ?? true,
       target: merged.build?.target ?? 'es2022',
     },
-    alias: merged.alias ?? {},
+    // Les alias declares dans `tsconfig.json` sont repris d'office. Sans
+    // cela, un projet qui suit `odoro init` — lequel deduit son prefixe du
+    // tsconfig — aurait a redeclarer le meme alias ici pour que le serveur
+    // sache le resoudre. Deux endroits pour la meme verite, et une erreur
+    // qui n'apparait qu'au premier import.
+    //
+    // La configuration l'emporte : c'est elle qu'on ecrit pour corriger un
+    // cas que la deduction n'attrape pas.
+    alias: { ...(await guessAliasPaths(projectRoot)), ...merged.alias },
     define: merged.define ?? {},
     envPrefix: merged.envPrefix ?? 'ODORO_',
     configFile: file,

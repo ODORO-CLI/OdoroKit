@@ -18,6 +18,7 @@
 import { describeProblem, toCatalogue, validateCatalogue } from 'odoro/registry'
 
 import { collectRegistry, displayPath, isMainModule } from './collect.js'
+import { checkContract } from './contract.js'
 
 /** Ce que rend une validation. */
 export interface ValidationReport {
@@ -44,10 +45,19 @@ export async function validateRegistry(root: string): Promise<ValidationReport> 
   // introuvables qui ne seraient que la consequence de la premiere erreur.
   if (!collected.ok) return { problems: collected.problems, count: 0 }
 
-  return {
-    problems: validateCatalogue(toCatalogue(collected.entries)).map(describeProblem),
-    count: collected.entries.length,
+  const problems = validateCatalogue(toCatalogue(collected.entries)).map(describeProblem)
+
+  // Le contrat de personnalisation est verifie apres le graphe : une entree
+  // dont la dependance manque a de bonnes chances d'etre incomplete, et les
+  // manquements au contrat qu'elle produirait seraient du bruit par-dessus la
+  // vraie erreur.
+  if (problems.length === 0) {
+    for (const entry of collected.entries) {
+      problems.push(...checkContract(entry, entry.sources).map((issue) => issue.message))
+    }
   }
+
+  return { problems, count: collected.entries.length }
 }
 
 /** Point d'entree du script. */

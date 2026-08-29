@@ -31,6 +31,7 @@ const PAGES = [
   '/docs/moteur/diagnostic',
   '/docs/registre',
   '/docs/registre/cli',
+  '/docs/registre/contrat',
 ]
 
 const failures = []
@@ -93,6 +94,17 @@ for (const path of PAGES) {
     for (let offset = 0; offset < shot.length; offset += 97) unique.add(shot[offset])
     if (unique.size < 8) {
       failures.push(`${path} : le canevas semble uniforme (${unique.size} valeurs)`)
+    }
+  }
+
+  // La page du contrat rend un composant installe par la CLI, importe par
+  // l'alias du projet : si la chaine casse quelque part, elle est vide.
+  if (path === '/docs/registre/contrat') {
+    const bars = await page.evaluate(
+      () => document.querySelectorAll('[role="progressbar"]').length,
+    )
+    if (bars !== 2) {
+      failures.push(`${path} : ${bars} barres de progression au lieu de 2`)
     }
   }
 

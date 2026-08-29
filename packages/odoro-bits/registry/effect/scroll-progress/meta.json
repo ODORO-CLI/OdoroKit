@@ -1,0 +1,46 @@
+{
+  "name": "scroll-progress",
+  "category": "effect",
+  "title": "Progression de lecture",
+  "description": "Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.",
+  "engine": { "gsap": ["ScrollTrigger"], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "effect/ScrollProgress.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-color-primary", "--o-duration-fast"],
+  "props": [
+    {
+      "name": "target",
+      "type": "RefObject<HTMLElement | null>",
+      "description": "Element dont on suit la lecture. Par defaut, la page entiere."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur de la barre."
+    },
+    {
+      "name": "position",
+      "type": "'top' | 'bottom'",
+      "default": "top",
+      "description": "Bord auquel la barre est ancree."
+    },
+    {
+      "name": "children",
+      "type": "(state: { progress: number }) => ReactNode",
+      "description": "Slot de rendu. Remplace la barre en gardant la mesure."
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<ScrollProgressControls>) => void | (() => void)",
+      "description": "Echappatoire : donne la lecture imperative de la progression."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement au defilement, une ecriture de transform par image. Aucun rendu React en cours de defilement."
+  }
+}

@@ -88,22 +88,36 @@ export function weighEntries(entries: readonly PublishedEntry[]): WeightWarning[
 }
 
 /**
- * Paquets npm que les entrees reclament, en plus de leurs `dependencies`.
+ * Paquets npm qu'un projet doit declarer pour accueillir ces entrees.
  *
- * Les backends graphiques ne figurent pas dans `dependencies` : ils sont
- * reclames par `engine.gl`, parce que c'est le moteur qui les charge, pas le
- * composant. La CLI doit malgre tout les proposer a l'installation.
+ * ## Ce qui n'y figure pas
+ *
+ * Ni `gsap`, ni `ogl`, ni `three`. Ce sont des dependances d'`odoro-engine` :
+ * elles arrivent avec lui, et les reclamer une seconde fois au projet
+ * d'accueil produirait un avertissement que rien ne resout — la personne
+ * installerait un paquet qu'elle avait deja, ou apprendrait a ignorer le
+ * message.
+ *
+ * Ce qui est reclame, c'est le moteur lui-meme des qu'une entree s'en sert, et
+ * ce que l'entree declare de son cote.
+ *
+ * Le poids, lui, se compte separement : `weighEntries` parle de ce qui sera
+ * telecharge par le navigateur, ce qui ne depend pas de qui declare quoi.
  *
  * @example
- * requiredPackages(entries) // ['gsap', 'three']
+ * requiredPackages(entries) // ['clsx', 'odoro-engine']
  */
 export function requiredPackages(entries: readonly PublishedEntry[]): string[] {
   const packages = new Set<string>()
 
   for (const entry of entries) {
     for (const dependency of entry.dependencies) packages.add(dependency)
-    if (entry.engine.gl !== false) packages.add(entry.engine.gl)
-    if (entry.engine.gsap.length > 0) packages.add('gsap')
+
+    // Un backend graphique ou un plugin d'orchestration signifie que l'entree
+    // passe par le moteur. C'est lui, et lui seul, que le projet installe.
+    if (entry.engine.gl !== false || entry.engine.gsap.length > 0) {
+      packages.add('odoro-engine')
+    }
   }
 
   return [...packages].sort()

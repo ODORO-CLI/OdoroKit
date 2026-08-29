@@ -77,6 +77,16 @@ export {
 } from './core/debug.jsx'
 
 export {
+  mergePresentation,
+  type Customisable,
+  type Presentation,
+} from './contract/customisation.js'
+
+export { fromSlot, type Slot } from './contract/slot.js'
+
+export { useOnReady, type ReadyCallback, type ReadyContext } from './contract/ready.js'
+
+export {
   ensurePlugin,
   ensurePlugins,
   isPluginRegistered,

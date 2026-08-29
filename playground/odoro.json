@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "registry": "../packages/odoro-bits/dist/registry",
+  "aliases": {
+    "import": "@/odoro",
+    "directory": "src/odoro"
+  },
+  "installed": {
+    "effect/scroll-progress": {
+      "installedAt": "2026-08-29T01:25:25.284Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/ScrollProgress.tsx",
+          "hash": "e550f9af8ebfe42b"
+        }
+      ]
+    }
+  }
+}

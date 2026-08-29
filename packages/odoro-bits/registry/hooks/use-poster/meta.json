@@ -3,11 +3,19 @@
   "category": "hooks",
   "title": "Repli visuel",
   "description": "Maintient un repli affiche jusqu a ce que la scene soit prete, puis le fond en douceur.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "hook.ts", "target": "hooks/usePoster.ts" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/usePoster.ts"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "tokens": ["--o-ease-entrance"],
   "props": [
     {
       "name": "ready",

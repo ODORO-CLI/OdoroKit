@@ -397,11 +397,17 @@ describe('poids annonce', () => {
     expect(weighEntries([entry()])).toEqual([])
   })
 
-  it('reclame le backend et gsap en plus des dependances declarees', () => {
+  it('reclame le moteur, pas ses propres dependances', () => {
+    // gsap, ogl et three arrivent avec `odoro-engine`. Les reclamer une
+    // seconde fois produirait un avertissement que rien ne resout.
     const packages = requiredPackages([
       entry({ engine: { gsap: ['ScrollTrigger'], gl: 'three' }, dependencies: ['clsx'] }),
     ])
-    expect(packages).toEqual(['clsx', 'gsap', 'three'])
+    expect(packages).toEqual(['clsx', 'odoro-engine'])
+  })
+
+  it('ne reclame rien d une entree qui ne touche pas au moteur', () => {
+    expect(requiredPackages([entry()])).toEqual([])
   })
 })
 
