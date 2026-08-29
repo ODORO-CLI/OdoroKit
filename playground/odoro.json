@@ -259,11 +259,11 @@
       ]
     },
     "effect/scroll-progress": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-08-29T14:01:24.329Z",
       "files": [
         {
           "path": "src/odoro/effect/ScrollProgress.tsx",
-          "hash": "ed44079c41d78bef"
+          "hash": "407f8f5219be01eb"
         }
       ]
     },

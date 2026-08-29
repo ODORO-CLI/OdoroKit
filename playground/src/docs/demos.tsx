@@ -16,7 +16,7 @@
  * @module
  */
 
-import { type ReactElement, type ReactNode } from 'react'
+import { useRef, type ReactElement, type ReactNode } from 'react'
 
 import { Aurora } from '@/odoro/background/Aurora.jsx'
 import { Bubbles } from '@/odoro/background/Bubbles.jsx'
@@ -45,6 +45,8 @@ import { Carousel } from '@/odoro/effect/Carousel.jsx'
 import { Deform } from '@/odoro/effect/Deform.jsx'
 import { Magnetic } from '@/odoro/effect/Magnetic.jsx'
 import { Marquee } from '@/odoro/effect/Marquee.jsx'
+import { Parallax } from '@/odoro/effect/Parallax.jsx'
+import { ScrollProgress } from '@/odoro/effect/ScrollProgress.jsx'
 import { Spotlight } from '@/odoro/effect/Spotlight.jsx'
 import { Molten } from '@/odoro/hero/Molten.jsx'
 import { Compare } from '@/odoro/image/Compare.jsx'
@@ -54,10 +56,13 @@ import { Video } from '@/odoro/image/Video.jsx'
 import { Faq } from '@/odoro/section/Faq.jsx'
 import { LogoBand } from '@/odoro/section/LogoBand.jsx'
 import { RevealGrid } from '@/odoro/section/RevealGrid.jsx'
+import { ScrollSteps } from '@/odoro/section/ScrollSteps.jsx'
+import { StickyStack } from '@/odoro/section/StickyStack.jsx'
 import { DecodeText } from '@/odoro/text/DecodeText.jsx'
 import { ShineText } from '@/odoro/text/ShineText.jsx'
 import { SplitReveal } from '@/odoro/text/SplitReveal.jsx'
 import { Typewriter } from '@/odoro/text/Typewriter.jsx'
+import { PointerDampedDemo, PosterDemo } from './demos-hooks.jsx'
 import type {
   AtelierControl,
   AtelierFrame,
@@ -145,6 +150,78 @@ const CLIP = '/demo/apercu.mp4'
 
 /** L'affiche du meme clip, sa premiere image. */
 const CLIP_POSTER = '/demo/apercu.jpg'
+
+/**
+ * Un cadre qui defile, pour ce qui se juge au defilement.
+ *
+ * Quatre composants ne se montrent qu'en defilant : la parallaxe, la barre de
+ * progression, les etapes et les cartes empilees. Les hooks du moteur
+ * remontent jusqu'au premier ancetre qui defile reellement, si bien qu'un
+ * conteneur suffit — il n'y a rien a leur dire.
+ */
+function Scroller({
+  children,
+  hauteur,
+}: {
+  children: ReactNode
+  hauteur?: string
+}): ReactNode {
+  return (
+    <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
+      {/*
+        La hauteur est en pourcentage du cadre, ce qu'aucune classe generee
+        n'exprime : l'echelle des utilitaires est en unites d'espacement, et
+        inventer `o-h-[220%]` produirait une classe qui n'existe pas — le
+        conteneur ne defilerait alors pas du tout, et la demonstration
+        resterait inerte sans rien signaler.
+      */}
+      <div style={hauteur === undefined ? undefined : { height: hauteur }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * La barre de progression, posee sur un contenu qui defile dans le cadre.
+ *
+ * Elle a besoin d'une **cible** : sans elle, elle mesure le document entier,
+ * ce qui, dans un apercu, ne bouge pas. C'est le reglage le plus important du
+ * composant, et celui qu'on oublie — l'apercu le montre donc explicitement.
+ *
+ * Elle est aussi ramenee de `fixed` a `sticky` : ancree a la fenetre, elle se
+ * poserait en haut de la page, hors du cadre.
+ */
+function ProgressDemo({
+  thickness,
+  position,
+}: {
+  thickness: number
+  position: 'top' | 'bottom'
+}): ReactElement {
+  const contenu = useRef<HTMLDivElement | null>(null)
+
+  return (
+    <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
+      <ScrollProgress
+        target={contenu}
+        thickness={thickness}
+        position={position}
+        className="o-z-10"
+        style={{ position: 'sticky' }}
+      />
+      <div ref={contenu} className="o-space-y-6 o-p-8">
+        {Array.from({ length: 9 }, (_, index) => (
+          <p key={index} className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
+            Paragraphe {index + 1}. La mesure passe par la boucle unique du moteur : deux
+            lectures du defilement sur une meme page produiraient le tremblement que cette
+            boucle existe precisement pour supprimer.
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 /** Un fond qui occupe tout le cadre. */
 const fill = (node: ReactNode): ReactNode => (
@@ -829,5 +906,123 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         />
       </div>
     ),
+  },
+
+  'effect/parallax': {
+    height: 'o-h-96',
+    lead: 'Faites defiler dans le cadre : le contenu se deplace moins vite que lui.',
+    render: (v) => (
+      <Scroller hauteur="220%">
+        <div className="o-flex o-h-full o-flex-col o-justify-center o-gap-6 o-p-8">
+          <p className="o-text-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+            Defilez vers le bas
+          </p>
+          <div className="o-relative o-h-48 o-overflow-hidden o-rounded-xl">
+            <Parallax
+              key={JSON.stringify(v)}
+              distance={num(v, 'distance', 80)}
+              axis={str(v, 'axis', 'y') === 'x' ? 'x' : 'y'}
+              scale={num(v, 'scale', 0)}
+              className="o-absolute o-inset-0"
+            >
+              <img src={SAMPLE} alt="" className="o-size-full o-object-cover" />
+            </Parallax>
+          </div>
+          <p className="o-text-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+            et remontez : l image revient a sa place au centre du champ.
+          </p>
+        </div>
+      </Scroller>
+    ),
+  },
+  'effect/scroll-progress': {
+    height: 'o-h-96',
+    lead: 'Lue dans la boucle du moteur, et non par un rendu React par image. La cible est le contenu, jamais la barre.',
+    render: (v) => (
+      <ProgressDemo
+        thickness={num(v, 'thickness', 3)}
+        position={str(v, 'position', 'top') === 'bottom' ? 'bottom' : 'top'}
+      />
+    ),
+  },
+  'section/sticky-stack': {
+    height: 'o-h-96',
+    lead: 'Chaque carte se fige, puis se reduit quand la suivante la recouvre.',
+    render: (v) => (
+      <Scroller>
+        <div className="o-p-6">
+          <StickyStack
+            key={JSON.stringify(v)}
+            offset={num(v, 'offset', 24)}
+            gap={num(v, 'gap', 24)}
+            shrink={num(v, 'shrink', 0.05)}
+          >
+            {['Ecrire', 'Valider', 'Compiler', 'Installer'].map((titre, index) => (
+              <div
+                key={titre}
+                className="o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-8 o-shadow-md"
+              >
+                <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400">
+                  Etape {index + 1}
+                </p>
+                <p className="o-text-lg o-font-semibold o-text-zinc-900 dark:o-text-zinc-50">
+                  {titre}
+                </p>
+              </div>
+            ))}
+          </StickyStack>
+        </div>
+      </Scroller>
+    ),
+  },
+  'section/scroll-steps': {
+    height: 'o-h-96',
+    lead: 'Le media reste colle et suit l etape que le defilement a atteinte.',
+    render: () => (
+      <Scroller>
+        <div className="o-p-6">
+          <ScrollSteps
+            label="Comment une entree arrive dans un projet"
+            steps={[
+              {
+                title: 'Ecrire',
+                body: <p>Un dossier, un composant, un meta qui le decrit.</p>,
+              },
+              {
+                title: 'Valider',
+                body: <p>Le schema refuse ce qui ne pourrait pas s installer.</p>,
+              },
+              {
+                title: 'Compiler',
+                body: <p>Un fichier par entree, source inline, plus un index.</p>,
+              },
+              {
+                title: 'Installer',
+                body: (
+                  <p>Les fichiers sont copies, jamais lies : ils vous appartiennent.</p>
+                ),
+              },
+            ]}
+            render={(index) => (
+              <div className="o-flex o-aspect-square o-items-center o-justify-center o-rounded-xl o-bg-gradient-to-br o-from-brand-600 o-to-fuchsia-600 o-text-6xl o-font-bold o-text-white">
+                {index + 1}
+              </div>
+            )}
+          />
+        </div>
+      </Scroller>
+    ),
+  },
+
+  // ----- Hooks ---------------------------------------------------------------
+  'hooks/use-pointer-damped': {
+    height: 'o-h-96',
+    lead: 'Promenez le pointeur dans le cadre : le petit cercle est la position brute, le disque la rattrape.',
+    render: (v) => <PointerDampedDemo speed={num(v, 'speed', 3)} />,
+  },
+  'hooks/use-poster': {
+    height: 'o-h-96',
+    lead: 'Le repli couvre l attente, se fond quand la scene arrive, et reste quand elle ne viendra jamais.',
+    render: (v) => <PosterDemo fade={num(v, 'fade', 320)} />,
   },
 }

@@ -13,6 +13,19 @@
  * Le rafraichissement apres changement de page est donc differe jusqu'a ce que
  * les images **et** les polices soient reglees. Voir {@link onRouteChange}.
  *
+ * ## Le conteneur qui defile n'est pas toujours la page
+ *
+ * Un declencheur mesure par rapport a un « scroller », et celui par defaut est
+ * la fenetre. Pose dans un panneau a defilement propre — une colonne laterale,
+ * une fenetre modale, un cadre de documentation —, il mesure alors un
+ * defilement qui ne bouge pas, et l'animation ne se declenche jamais. Le
+ * defaut n'echoue pas : il ne se passe simplement rien.
+ *
+ * Les deux hooks remontent donc la chaine des ancetres jusqu'au premier qui
+ * defile reellement. C'est une detection, pas une devinette : l'ancetre doit
+ * a la fois declarer un debordement traite et avoir un contenu plus haut que
+ * sa boite. `scroller` permet de la court-circuiter.
+ *
  * ## Mouvement reduit
  *
  * Une animation liee au defilement est pilotee par l'utilisateur : elle ne
@@ -31,6 +44,31 @@ import { registry } from '../core/registry.js'
 import { loadScrollTrigger } from './setup.js'
 
 /**
+ * Premier ancetre qui defile reellement, ou `undefined` pour la fenetre.
+ *
+ * Les deux conditions comptent. Un `overflow: auto` sur un conteneur qui tient
+ * dans sa boite ne defile pas, et le prendre pour scroller figerait la
+ * progression a zero — exactement le defaut qu'on cherche a eviter.
+ */
+export function scrollingAncestor(element: Element): Element | undefined {
+  let node = element.parentElement
+
+  while (node !== null && node !== document.body) {
+    const style = getComputedStyle(node)
+    const traite = /auto|scroll|overlay/.test(`${style.overflowY} ${style.overflowX}`)
+    if (
+      traite &&
+      (node.scrollHeight > node.clientHeight || node.scrollWidth > node.clientWidth)
+    ) {
+      return node
+    }
+    node = node.parentElement
+  }
+
+  return undefined
+}
+
+/**
  * Reglages d'un declencheur, sans son element ni son animation : le premier
  * vient de la ref, la seconde est construite dans le contexte du composant
  * pour etre revoquee avec lui.
@@ -41,6 +79,13 @@ export type ScrollTriggerConfig = Omit<ScrollTrigger.StaticVars, 'trigger' | 'an
 export interface ScrollTriggerOptions extends ScrollTriggerConfig {
   /** Nom affiche dans le panneau de diagnostic. */
   name?: string
+  /**
+   * Conteneur dont on suit le defilement.
+   *
+   * Par defaut, le premier ancetre qui defile reellement, ou la fenetre s'il
+   * n'y en a pas. `null` force la fenetre.
+   */
+  scroller?: Element | null
   /**
    * Construit l'animation attachee au declencheur. Elle est creee dans le
    * contexte du composant et revoquee avec lui.
@@ -85,13 +130,17 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
     void loadScrollTrigger().then((ScrollTriggerClass) => {
       if (ScrollTriggerClass === null || cancelled || ref.current === null) return
 
-      const { name: _name, animation, ...config } = optionsRef.current
+      const { name: _name, animation, scroller, ...config } = optionsRef.current
+      const conteneur = scroller === undefined ? scrollingAncestor(element) : scroller
 
       context = gsap.context(() => {
         const created = animation?.(element)
         ScrollTriggerClass.create({
           ...config,
           trigger: element,
+          ...(conteneur === undefined || conteneur === null
+            ? {}
+            : { scroller: conteneur }),
           ...(created === undefined ? {} : { animation: created }),
         })
       }, element)
@@ -127,12 +176,35 @@ export interface ScrollProgressHandle<T extends Element> {
 
 /** Options de {@link useScrollProgress}. */
 export interface ScrollProgressOptions {
+  /**
+   * Element observe, quand il ne peut pas venir de la ref rendue.
+   *
+   * ## Pourquoi cette porte existe
+   *
+   * La ref est lue une fois, au montage. Cela suffit tant que l'element
+   * observe est celui sur lequel la ref est posee. Ce n'est plus le cas quand
+   * l'observateur designe un element **place plus loin dans l'arbre** : React
+   * attache les refs au fil du parcours, si bien que la ref d'un frere suivant
+   * est encore vide quand l'effet s'execute. L'element est alors nul, aucun
+   * declencheur n'est cree, et il ne se passe rien — sans erreur.
+   *
+   * Passer l'element ici le fait entrer dans les dependances de l'effet : le
+   * declencheur est cree des qu'il apparait.
+   */
+  element?: Element | null
   /** Debut de la plage observee. @defaultValue 'top bottom' */
   start?: string
   /** Fin de la plage observee. @defaultValue 'bottom top' */
   end?: string
   /** Nom affiche dans le panneau de diagnostic. */
   name?: string
+  /**
+   * Conteneur dont on suit le defilement.
+   *
+   * Par defaut, le premier ancetre qui defile reellement, ou la fenetre s'il
+   * n'y en a pas. `null` force la fenetre.
+   */
+  scroller?: Element | null
 }
 
 /**
@@ -160,10 +232,18 @@ export function useScrollProgress<T extends Element = HTMLElement>(
   const callback = useRef(onProgress)
   callback.current = onProgress
 
-  const { start = 'top bottom', end = 'bottom top', name = 'progression' } = options
+  const {
+    start = 'top bottom',
+    end = 'bottom top',
+    name = 'progression',
+    scroller,
+    element: given,
+  } = options
 
   useEffect(() => {
-    const element = ref.current
+    // `undefined` signifie « rien de fourni » : on retombe sur la ref. `null`
+    // signifie « fourni, mais pas encore la » : on attend.
+    const element = given === undefined ? ref.current : given
     if (element === null) return
 
     if (motionPolicy.state.reduced) {
@@ -177,13 +257,18 @@ export function useScrollProgress<T extends Element = HTMLElement>(
     let cancelled = false
 
     void loadScrollTrigger().then((ScrollTriggerClass) => {
-      if (ScrollTriggerClass === null || cancelled || ref.current === null) return
+      if (ScrollTriggerClass === null || cancelled) return
+
+      const conteneur = scroller === undefined ? scrollingAncestor(element) : scroller
 
       context = gsap.context(() => {
         ScrollTriggerClass.create({
           trigger: element,
           start,
           end,
+          ...(conteneur === undefined || conteneur === null
+            ? {}
+            : { scroller: conteneur }),
           onUpdate: (self) => callback.current(self.progress),
         })
       }, element)
@@ -200,7 +285,7 @@ export function useScrollProgress<T extends Element = HTMLElement>(
       handle?.release()
       context?.revert()
     }
-  }, [start, end, name])
+  }, [start, end, name, scroller, given])
 
   return { ref }
 }

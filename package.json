@@ -15,6 +15,7 @@
     "changeset": "changeset",
     "check:catalogue": "node scripts/check-catalogue.mjs http://localhost:5190",
     "check:classes": "node scripts/check-classes.mjs http://localhost:5190",
+    "check:demos": "node scripts/check-demos.mjs http://localhost:5190",
     "check:fonds": "node scripts/check-fonds.mjs http://localhost:5190",
     "check:galerie": "node scripts/check-galerie.mjs http://localhost:5190",
     "check:hmr": "node scripts/hmr-check.mjs",

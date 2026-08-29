@@ -1,12 +1,16 @@
 import { render, waitFor } from '@testing-library/react'
-import { type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { clock } from '../core/clock.js'
 import { motionPolicy } from '../core/motion-policy.js'
 import { registry } from '../core/registry.js'
 import { resetPluginRegistry } from './setup.js'
-import { useScrollTrigger } from './use-scroll-trigger.js'
+import {
+  scrollingAncestor,
+  useScrollProgress,
+  useScrollTrigger,
+} from './use-scroll-trigger.js'
 import { useSplitText } from './use-split-text.js'
 import { useTimeline, useTween } from './use-timeline.js'
 
@@ -147,6 +151,88 @@ describe('useTween', () => {
       unmount()
     }
     expect(registry.count()).toBe(0)
+  })
+})
+
+describe('useScrollProgress', () => {
+  /**
+   * Une cible qui n'existe pas encore au premier rendu.
+   *
+   * C'est le cas ordinaire d'une barre de progression : elle se pose en tete,
+   * et observe un contenu place plus loin dans l'arbre. React attache les refs
+   * au fil du parcours, donc celle du frere suivant est encore vide quand les
+   * effets s'executent — aucun declencheur n'etait cree, et il ne se passait
+   * rien, sans erreur.
+   */
+  function Tardive(): ReactElement {
+    const [cible, setCible] = useState<HTMLElement | null>(null)
+    useScrollProgress(() => undefined, { element: cible, name: 'tardive' })
+    return <div ref={setCible} data-testid="cible" />
+  }
+
+  it('cree le declencheur quand la cible arrive apres le premier rendu', async () => {
+    render(<Tardive />)
+    await waitFor(() => expect(registry.count('scroll-trigger')).toBe(1))
+  })
+
+  it('n en cree aucun tant que la cible est absente', async () => {
+    function Jamais(): ReactElement {
+      useScrollProgress(() => undefined, { element: null, name: 'jamais' })
+      return <div />
+    }
+
+    render(<Jamais />)
+    await waitFor(() => expect(registry.count()).toBe(0))
+  })
+})
+
+describe('scrollingAncestor', () => {
+  /** jsdom ne calcule aucune mise en page : les dimensions sont posees. */
+  function taille(node: HTMLElement, contenu: number, boite: number): void {
+    Object.defineProperty(node, 'scrollHeight', { value: contenu, configurable: true })
+    Object.defineProperty(node, 'clientHeight', { value: boite, configurable: true })
+  }
+
+  it('remonte jusqu au premier ancetre qui defile', () => {
+    const dehors = document.createElement('div')
+    const panneau = document.createElement('div')
+    const contenu = document.createElement('div')
+    const cible = document.createElement('div')
+
+    panneau.style.overflowY = 'auto'
+    taille(panneau, 900, 300)
+
+    dehors.append(panneau)
+    panneau.append(contenu)
+    contenu.append(cible)
+    document.body.append(dehors)
+
+    expect(scrollingAncestor(cible)).toBe(panneau)
+    dehors.remove()
+  })
+
+  it('ignore un conteneur qui declare un debordement sans defiler', () => {
+    const panneau = document.createElement('div')
+    const cible = document.createElement('div')
+
+    // Le piege : `overflow: auto` sur une boite qui contient tout. Le prendre
+    // pour scroller figerait la progression a zero.
+    panneau.style.overflowY = 'auto'
+    taille(panneau, 300, 300)
+
+    panneau.append(cible)
+    document.body.append(panneau)
+
+    expect(scrollingAncestor(cible)).toBeUndefined()
+    panneau.remove()
+  })
+
+  it('rend la fenetre quand rien ne defile autour', () => {
+    const cible = document.createElement('div')
+    document.body.append(cible)
+
+    expect(scrollingAncestor(cible)).toBeUndefined()
+    cible.remove()
   })
 })
 

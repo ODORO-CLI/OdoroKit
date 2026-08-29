@@ -40,7 +40,7 @@ import {
 } from 'odoro-engine'
 import {
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useRef,
   useState,
   type ReactElement,
@@ -140,7 +140,27 @@ export function ScrollProgress({
     [hasSlot],
   )
 
-  const { ref } = useScrollProgress<HTMLElement>(onProgress, {
+  // L'element observe est resolu a chaque rendu plutot que lu une fois au
+  // montage. Une cible placee **plus loin dans l'arbre** que cette barre — le
+  // cas naturel, puisqu'une barre se pose en tete — a sa ref encore vide quand
+  // les effets s'executent : la progression restait alors a zero, sans erreur
+  // et sans declencheur enregistre.
+  const [observed, setObserved] = useState<HTMLElement | null>(null)
+  // Sans liste de dependances, volontairement : `target.current` se remplit
+  // apres le commit sans que `target` change, donc aucune dependance ne
+  // signalerait son arrivee. La regle craint une chaine de mises a jour ;
+  // elle ne peut pas se produire ici, `setState` avec la meme valeur ne
+  // provoquant aucun rendu.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const next = target === undefined ? document.documentElement : target.current
+    // `setState` avec la meme valeur ne provoque aucun rendu : la resolution a
+    // chaque rendu ne coute donc rien une fois la cible trouvee.
+    setObserved(next)
+  })
+
+  useScrollProgress<HTMLElement>(onProgress, {
+    element: observed,
     // Bornes d'une lecture, pas d'une traversee : la progression commence
     // quand le haut du contenu atteint le haut de la fenetre, et s'acheve
     // quand son bas atteint le bas. Les bornes par defaut mesureraient le
@@ -149,17 +169,6 @@ export function ScrollProgress({
     end: 'bottom bottom',
     name: 'progression de lecture',
   })
-
-  // L'element observe est le **contenu**, jamais la barre : celle-ci fait
-  // quatre pixels de haut et ne bouge pas, mesurer son defilement ne dirait
-  // rien. Sans cible, c'est le document entier.
-  //
-  // L'affectation passe par un effet de mise en page : ceux-ci s'executent
-  // avant les effets passifs, donc avant que `useScrollProgress` ne lise la
-  // reference pour poser son declencheur.
-  useLayoutEffect(() => {
-    ref.current = target === undefined ? document.documentElement : target.current
-  }, [ref, target])
 
   const [host, setHost] = useState<HTMLElement | null>(null)
   const controls = useRef<ScrollProgressControls>({
