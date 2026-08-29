@@ -15,10 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-palette-sky-950",
-    "--o-palette-sky-200"
-  ],
+  "tokens": ["--o-palette-sky-950", "--o-palette-sky-200"],
   "props": [
     {
       "name": "speed",

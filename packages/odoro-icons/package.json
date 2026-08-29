@@ -1,0 +1,64 @@
+{
+  "name": "odoro-icons",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "UNLICENSED",
+  "author": "BouBouw",
+  "description": "Module d'icones Odoro : plusieurs jeux normalises sur un meme contrat, un export par icone pour que l'elagage fonctionne.",
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./filaire": {
+      "types": "./dist/filaire.d.ts",
+      "import": "./dist/filaire.js"
+    },
+    "./compact": {
+      "types": "./dist/compact.d.ts",
+      "import": "./dist/compact.js"
+    },
+    "./classique": {
+      "types": "./dist/classique.d.ts",
+      "import": "./dist/classique.js"
+    },
+    "./etendu": {
+      "types": "./dist/etendu.d.ts",
+      "import": "./dist/etendu.js"
+    },
+    "./marques": {
+      "types": "./dist/marques.d.ts",
+      "import": "./dist/marques.js"
+    },
+    "./catalogue.json": "./dist/catalogue.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "icons:import": "tsx scripts/import-icons.ts",
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "@material-symbols/svg-400": "^0.47.0",
+    "@types/react": "^19.2.2",
+    "bootstrap-icons": "^1.13.1",
+    "lucide-static": "^1.37.0",
+    "react": "^19.2.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

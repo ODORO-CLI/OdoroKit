@@ -464,6 +464,48 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     title: 'Composants',
     groups: COMPONENT_GROUPS,
   },
+  {
+    title: 'Icones',
+    pages: [
+      {
+        path: '/docs/icones',
+        title: 'Vue d’ensemble',
+        description: 'Cinq jeux, un contrat, et comment on en choisit un.',
+        keywords: ['icone', 'icon', 'svg', 'pictogramme', 'glyphe'],
+      },
+      {
+        path: '/docs/icones/filaire',
+        title: 'Filaire',
+        description: 'Trace au trait de deux unites sur une grille de vingt-quatre.',
+        keywords: ['icone', 'trait', 'contour', 'outline', 'stroke'],
+      },
+      {
+        path: '/docs/icones/compact',
+        title: 'Compact',
+        description: 'Glyphes pleins sur une grille de seize, lisibles a petite taille.',
+        keywords: ['icone', 'plein', 'solid', 'petit'],
+      },
+      {
+        path: '/docs/icones/classique',
+        title: 'Classique',
+        description: 'Glyphes pleins sur une grille de cinq cent douze.',
+        keywords: ['icone', 'plein', 'solid', 'classique'],
+      },
+      {
+        path: '/docs/icones/etendu',
+        title: 'Etendu',
+        description:
+          'Le plus vaste des jeux : contour fin sur une grille de neuf cent soixante.',
+        keywords: ['icone', 'contour', 'vaste', 'symbole'],
+      },
+      {
+        path: '/docs/icones/marques',
+        title: 'Marques',
+        description: 'Logos de services et de plateformes. Des marques deposees.',
+        keywords: ['icone', 'logo', 'marque', 'brand', 'social'],
+      },
+    ],
+  },
   ...REGISTRY_DOC_SECTIONS,
   {
     title: 'Motions',

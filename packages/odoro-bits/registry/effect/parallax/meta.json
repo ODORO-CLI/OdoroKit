@@ -4,9 +4,7 @@
   "title": "Parallaxe",
   "description": "Un element qui se deplace plus lentement que le defilement de la page.",
   "engine": {
-    "gsap": [
-      "ScrollTrigger"
-    ],
+    "gsap": ["ScrollTrigger"],
     "gl": false
   },
   "files": [
@@ -34,10 +32,7 @@
       "type": "'y' | 'x'",
       "default": "y",
       "description": "Axe du deplacement.",
-      "options": [
-        "y",
-        "x"
-      ]
+      "options": ["y", "x"]
     },
     {
       "name": "scale",

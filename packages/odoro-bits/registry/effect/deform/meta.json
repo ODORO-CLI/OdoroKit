@@ -59,10 +59,7 @@
       "type": "'clean' | 'organic'",
       "default": "clean",
       "description": "clean redecoupe le resultat sur la forme d origine ; organic laisse la silhouette se deformer.",
-      "options": [
-        "clean",
-        "organic"
-      ]
+      "options": ["clean", "organic"]
     },
     {
       "name": "onHover",

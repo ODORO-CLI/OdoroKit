@@ -95,8 +95,7 @@ export function Silk({
     // En qualite basse, le reglage qui pese est borne : le motif reste
     // reconnaissable une fois reduit.
     degrade: (quality) => ({
-      uOctaves:
-        quality === 'low' ? Math.min(octaves, 2) : octaves,
+      uOctaves: quality === 'low' ? Math.min(octaves, 2) : octaves,
     }),
   })
 

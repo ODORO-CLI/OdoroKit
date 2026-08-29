@@ -60,10 +60,7 @@ export interface RippleGridOwnProps {
 export type RippleGridProps = Customisable<RippleGridOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
-  '--o-palette-sky-400',
-] as const
+const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-sky-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-950'

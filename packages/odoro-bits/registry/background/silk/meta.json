@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-palette-zinc-950",
-    "--o-palette-brand-500",
-    "--o-palette-sky-300"
-  ],
+  "tokens": ["--o-palette-zinc-950", "--o-palette-brand-500", "--o-palette-sky-300"],
   "props": [
     {
       "name": "speed",

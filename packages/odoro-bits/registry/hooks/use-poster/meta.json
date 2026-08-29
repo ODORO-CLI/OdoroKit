@@ -15,9 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-ease-entrance"
-  ],
+  "tokens": ["--o-ease-entrance"],
   "props": [
     {
       "name": "ready",

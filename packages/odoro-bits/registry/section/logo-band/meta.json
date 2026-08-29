@@ -14,9 +14,7 @@
     }
   ],
   "dependencies": [],
-  "registryDependencies": [
-    "effect/marquee"
-  ],
+  "registryDependencies": ["effect/marquee"],
   "tokens": [],
   "props": [
     {

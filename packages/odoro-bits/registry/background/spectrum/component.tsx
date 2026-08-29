@@ -60,10 +60,7 @@ export interface SpectrumOwnProps {
 export type SpectrumProps = Customisable<SpectrumOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
-  '--o-palette-brand-400',
-] as const
+const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-brand-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-950 o-to-brand-950'

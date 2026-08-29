@@ -15,10 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-duration-slow",
-    "--o-ease-entrance"
-  ],
+  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
   "props": [
     {
       "name": "children",

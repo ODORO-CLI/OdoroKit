@@ -60,10 +60,7 @@ export interface BubblesOwnProps {
 export type BubblesProps = Customisable<BubblesOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
-  '--o-palette-fuchsia-600',
-] as const
+const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-fuchsia-600'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-gradient-to-t o-from-fuchsia-950 o-to-zinc-950'
@@ -94,8 +91,7 @@ export function Bubbles({
     // En qualite basse, le reglage qui pese est borne : le motif reste
     // reconnaissable une fois reduit.
     degrade: (quality) => ({
-      uScale:
-        quality === 'low' ? Math.min(count, 6) : count,
+      uScale: quality === 'low' ? Math.min(count, 6) : count,
     }),
   })
 

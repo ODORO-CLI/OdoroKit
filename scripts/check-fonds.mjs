@@ -96,9 +96,12 @@ for (const nom of fonds) {
   if (!monte) probleme.push('aucune surface montee')
   else {
     if (premiere.length < POIDS_MINIMAL) {
-      probleme.push(`capture plate (${String(premiere.length)} octets) : rien n a ete peint`)
+      probleme.push(
+        `capture plate (${String(premiere.length)} octets) : rien n a ete peint`,
+      )
     }
-    if (premiere.equals(seconde)) probleme.push('deux captures identiques : rien ne bouge')
+    if (premiere.equals(seconde))
+      probleme.push('deux captures identiques : rien ne bouge')
   }
 
   const verdict = probleme.length === 0 ? 'ok' : probleme.join(' ; ')

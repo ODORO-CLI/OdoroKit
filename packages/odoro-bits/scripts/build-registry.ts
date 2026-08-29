@@ -76,9 +76,26 @@ function encode(value: unknown): string {
  * Le dossier est efface avant d'etre reecrit : sans cela, une entree supprimee
  * du depot resterait servie indefiniment.
  *
+ * ## La depose dans le playground est un effet du script, pas de la fonction
+ *
+ * Compiler un registre ecrit dans le dossier de sortie qu'on lui donne, et
+ * nulle part ailleurs. Les deux depots dans le playground sont des chemins
+ * **relatifs au dossier courant** : declenches depuis un test, ils ecrasent le
+ * catalogue du site avec le contenu d'un registre d'essai — deux entrees
+ * factices, ou aucune.
+ *
+ * C'est arrive. Le site s'est retrouve avec un catalogue vide, sans qu'aucun
+ * test n'echoue : le registre compile, lui, etait parfaitement correct.
+ *
+ * La depose est donc conditionnee, et seul le point d'entree du script
+ * l'active.
+ *
  * @param root Racine du registre.
  * @param outDir Dossier de sortie.
- * @param now Date de generation. Injectee pour que les tests soient stables.
+ * @param options.now Date de generation. Injectee pour que les tests soient
+ *   stables.
+ * @param options.publish Depose aussi l'index et le catalogue dans le
+ *   playground. Faux par defaut.
  *
  * @example
  * const result = await buildRegistry('registry', 'dist/registry')
@@ -86,8 +103,9 @@ function encode(value: unknown): string {
 export async function buildRegistry(
   root: string,
   outDir: string,
-  now: Date = new Date(),
+  options: { readonly now?: Date; readonly publish?: boolean } = {},
 ): Promise<BuildResult> {
+  const { now = new Date(), publish = false } = options
   const collected = await collectRegistry(root)
   if (!collected.ok) return { ok: false, problems: collected.problems }
 
@@ -121,8 +139,10 @@ export async function buildRegistry(
   await writeFile(join(outDir, 'index.json'), encode(index), 'utf8')
   written.push('index.json')
 
-  await publishCatalogue(index)
-  await publishCatalogueModule(entries)
+  if (publish) {
+    await publishCatalogue(index)
+    await publishCatalogueModule(entries)
+  }
 
   return { ok: true, report: { written, count: entries.length } }
 }
@@ -169,13 +189,12 @@ async function publishCatalogue(index: RegistryIndex): Promise<void> {
 async function publishCatalogueModule(
   entries: readonly (PublishedEntry & { directory: string })[],
 ): Promise<void> {
-  // L'identifiant complet est ce par quoi la documentation retrouve une
-  // entree ; il vaut la peine d'etre porte par la donnee plutot que recompose
-  // a chaque lecture, ou une categorie renommee le laisserait faux.
-  const metas = entries.map(({ sources: _sources, directory: _directory, ...meta }) => ({
-    id: `${meta.category}/${meta.name}`,
-    ...meta,
-  }))
+  // L'identifiant complet reste dans la donnee : la documentation retrouve une
+  // entree par lui, et le recomposer a chaque lecture le laisserait faux le
+  // jour ou une categorie serait renommee.
+  const metas = entries.map(
+    ({ sources: _sources, directory: _directory, ...meta }) => meta,
+  )
 
   const source = [
     '/* Genere par scripts/build-registry.ts. Ne pas editer a la main. */',
@@ -211,7 +230,7 @@ async function main(): Promise<void> {
   const root = process.argv[2] ?? 'registry'
   const outDir = process.argv[3] ?? join('dist', 'registry')
 
-  const result = await buildRegistry(root, outDir)
+  const result = await buildRegistry(root, outDir, { publish: true })
 
   if (!result.ok) {
     console.error(`Compilation impossible — ${result.problems.length} probleme(s) :\n`)

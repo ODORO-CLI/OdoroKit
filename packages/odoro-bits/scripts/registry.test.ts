@@ -219,12 +219,24 @@ describe('validation complete', () => {
   })
 })
 
+/** Le catalogue que le site lit : une compilation d'essai ne doit pas y toucher. */
+const CATALOGUE_DU_SITE = join(
+  '..',
+  '..',
+  'playground',
+  'src',
+  'docs',
+  'catalogue.generated.ts',
+)
+
 describe('compilation des artefacts', () => {
   it('ecrit un fichier par entree et un index', async () => {
     await writeEntry('hooks', 'use-base', meta({ name: 'use-base', category: 'hooks' }))
     await writeEntry('text', 'demo', meta({ registryDependencies: ['hooks/use-base'] }))
 
-    const result = await buildRegistry(root, out, new Date('2026-01-01T00:00:00.000Z'))
+    const result = await buildRegistry(root, out, {
+      now: new Date('2026-01-01T00:00:00.000Z'),
+    })
 
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -233,6 +245,20 @@ describe('compilation des artefacts', () => {
       'text/demo.json',
       'index.json',
     ])
+  })
+
+  it('n ecrit rien hors du dossier de sortie sans qu on le demande', async () => {
+    await writeEntry('text', 'demo', meta())
+
+    // La depose dans le playground emprunte des chemins relatifs au dossier
+    // courant. Declenchee depuis un test, elle a deja ecrase le catalogue du
+    // site avec le contenu d'un registre d'essai — sans qu'aucun test
+    // n'echoue, puisque le registre compile, lui, etait correct.
+    const avant = await readFile(CATALOGUE_DU_SITE, 'utf8')
+
+    await buildRegistry(root, out)
+
+    expect(await readFile(CATALOGUE_DU_SITE, 'utf8')).toBe(avant)
   })
 
   it('inline le source dans le fichier de l entree', async () => {
@@ -265,7 +291,7 @@ describe('compilation des artefacts', () => {
     // reponse qui n'en a pas l'usage.
     await writeEntry('text', 'demo', meta())
 
-    await buildRegistry(root, out, new Date('2026-01-01T00:00:00.000Z'))
+    await buildRegistry(root, out, { now: new Date('2026-01-01T00:00:00.000Z') })
 
     const index = JSON.parse(
       await readFile(join(out, 'index.json'), 'utf8'),

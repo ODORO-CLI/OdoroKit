@@ -34,6 +34,7 @@ import { RegistreCli } from './docs/pages/RegistreCli.jsx'
 import { RegistreContrat } from './docs/pages/RegistreContrat.jsx'
 import { RegistreGalerie } from './docs/pages/RegistreGalerie.jsx'
 import { Backgrounds } from './docs/pages/Backgrounds.jsx'
+import { IconesOverview } from './docs/pages/IconesOverview.jsx'
 import { TextAnimations } from './docs/pages/TextAnimations.jsx'
 import { MotionsLibrairie } from './docs/pages/MotionsLibrairie.jsx'
 import { Images } from './docs/pages/Images.jsx'
@@ -125,6 +126,27 @@ export function App(): ReactElement {
               <Route path="docs/registre/cli" element={<RegistreCli />} />
               <Route path="docs/registre/contrat" element={<RegistreContrat />} />
               <Route path="docs/registre/galerie" element={<RegistreGalerie />} />
+              <Route path="docs/icones" element={<IconesOverview />} />
+              <Route
+                path="docs/icones/filaire"
+                lazy={() => import('./docs/pages/icones/filaire.jsx')}
+              />
+              <Route
+                path="docs/icones/compact"
+                lazy={() => import('./docs/pages/icones/compact.jsx')}
+              />
+              <Route
+                path="docs/icones/classique"
+                lazy={() => import('./docs/pages/icones/classique.jsx')}
+              />
+              <Route
+                path="docs/icones/etendu"
+                lazy={() => import('./docs/pages/icones/etendu.jsx')}
+              />
+              <Route
+                path="docs/icones/marques"
+                lazy={() => import('./docs/pages/icones/marques.jsx')}
+              />
               <Route path="docs/backgrounds" element={<Backgrounds />} />
               <Route
                 path="docs/backgrounds/:name"

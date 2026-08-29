@@ -43,11 +43,7 @@
       "type": "'mount' | 'view' | 'hover'",
       "default": "view",
       "description": "Ce qui declenche la sequence.",
-      "options": [
-        "view",
-        "mount",
-        "hover"
-      ]
+      "options": ["view", "mount", "hover"]
     },
     {
       "name": "onReady",

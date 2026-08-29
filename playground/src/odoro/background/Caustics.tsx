@@ -60,10 +60,7 @@ export interface CausticsOwnProps {
 export type CausticsProps = Customisable<CausticsOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = [
-  '--o-palette-sky-950',
-  '--o-palette-sky-200',
-] as const
+const DEFAULT_TOKENS = ['--o-palette-sky-950', '--o-palette-sky-200'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-sky-950 o-to-sky-800'

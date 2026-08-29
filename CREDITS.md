@@ -128,3 +128,82 @@ entre deux implementations d'une meme technique rend l'origine difficile a
 etablir apres coup. La mathematique sous-jacente est de toute facon plus courte
 a redemontrer qu'a verifier juridiquement — et chaque fonction porte
 l'explication de ce qu'elle fait et pourquoi.
+
+## Jeux d'icones
+
+`odoro-icons` ne dessine aucune icone. Il **importe** cinq jeux tiers, les
+normalise sur un contrat commun — une boite, un mode, une liste de noeuds — et
+en publie un module par jeu. Les traces sont ceux de leurs auteurs.
+
+Les paquets sources restent des `devDependencies` : ils ne sont lus que par
+`packages/odoro-icons/scripts/import-icons.ts`, et rien de leur code n'est
+distribue. Ce qui l'est, ce sont les donnees de trace, sous les licences
+ci-dessous.
+
+Conformement a la regle de nommage du projet, les modules portent le caractere
+du dessin et non sa provenance. La correspondance est ici, et nulle part
+ailleurs.
+
+| Module                  | Jeu d'origine                    | Licence         | Icones |
+| ----------------------- | -------------------------------- | --------------- | ------ |
+| `odoro-icons/filaire`   | Lucide                           | ISC             | 2048   |
+| `odoro-icons/compact`   | Bootstrap Icons                  | MIT             | 2078   |
+| `odoro-icons/classique` | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |
+| `odoro-icons/etendu`    | Material Symbols (outlined, 400) | Apache-2.0      | 3903   |
+| `odoro-icons/marques`   | Font Awesome Free (brands)       | voir ci-dessous | 609    |
+
+### Lucide
+
+Derive de Feather Icons, sous licence ISC.
+
+> Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part
+> of Feather (MIT). All other copyright (c) for Lucide are held by Lucide
+> Contributors 2022.
+>
+> Permission to use, copy, modify, and/or distribute this software for any
+> purpose with or without fee is hereby granted, provided that the above
+> copyright notice and this permission notice appear in all copies.
+
+### Bootstrap Icons
+
+> Copyright (c) 2019-2024 The Bootstrap Authors — licence MIT
+
+### Font Awesome Free
+
+Les icones du jeu gratuit sont sous **CC BY 4.0**, qui exige une attribution.
+C'est l'objet de cette section. Seul le jeu gratuit est employe : aucun contenu
+Pro n'est lu, importe ni distribue.
+
+> Copyright 2026 Fonticons, Inc.
+>
+> Icones : CC BY 4.0 — <https://creativecommons.org/licenses/by/4.0/>
+> Polices : SIL OFL 1.1 — Code : MIT
+> <https://fontawesome.com/license/free>
+
+Les polices ne sont pas employees : seuls les traces SVG le sont.
+
+### Material Symbols
+
+> Copyright Google LLC — licence Apache 2.0
+> <https://www.apache.org/licenses/LICENSE-2.0>
+
+### Marques : une question de droit des marques, pas de licence
+
+`odoro-icons/marques` contient 609 logos de services et de plateformes. Ils
+sont distribues par Font Awesome au sein du jeu gratuit, mais la licence CC BY
+**ne les couvre pas** : ce sont des marques deposees, et leur emploi releve des
+regles de chaque proprietaire, pas de celles de Font Awesome.
+
+Ce que cela veut dire en pratique :
+
+- afficher le logo d'un service pour designer ce service — un bouton
+  « se connecter avec », un lien vers un profil — est l'usage nominatif
+  ordinaire, et ne pose pas de difficulte ;
+- s'en servir pour suggerer une affiliation, un partenariat ou un soutien qui
+  n'existe pas ne devient pas licite parce que le fichier etait dans un paquet
+  libre ;
+- modifier un logo — couleur imposee, proportions, recadrage — est
+  generalement interdit par les chartes de marque, alors que le composant le
+  permet techniquement.
+
+Ce jeu est donc separe des autres, et son module le rappelle a l'import.

@@ -4,10 +4,7 @@
   "title": "Revelation par fragments",
   "description": "Un titre qui se compose caractere par caractere quand il entre dans le champ.",
   "engine": {
-    "gsap": [
-      "SplitText",
-      "ScrollTrigger"
-    ],
+    "gsap": ["SplitText", "ScrollTrigger"],
     "gl": false
   },
   "files": [
@@ -31,11 +28,7 @@
       "type": "'chars' | 'words' | 'lines'",
       "default": "chars",
       "description": "Granularite du decoupage.",
-      "options": [
-        "chars",
-        "words",
-        "lines"
-      ]
+      "options": ["chars", "words", "lines"]
     },
     {
       "name": "stagger",

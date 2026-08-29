@@ -95,8 +95,7 @@ export function Cells({
     // En qualite basse, le reglage qui pese est borne : le motif reste
     // reconnaissable une fois reduit.
     degrade: (quality) => ({
-      uScale:
-        quality === 'low' ? Math.min(density, 5) : density,
+      uScale: quality === 'low' ? Math.min(density, 5) : density,
     }),
   })
 

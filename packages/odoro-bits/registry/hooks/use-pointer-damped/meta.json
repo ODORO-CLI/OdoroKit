@@ -4,9 +4,7 @@
   "title": "Pointeur amorti",
   "description": "Position du pointeur, normalisee et lissee, mise a jour dans la boucle du moteur.",
   "engine": {
-    "gsap": [
-      "core"
-    ],
+    "gsap": ["core"],
     "gl": false
   },
   "files": [
