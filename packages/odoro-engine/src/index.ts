@@ -141,6 +141,15 @@ export {
   type UniformValue,
 } from './gl/ogl/use-shader-surface.js'
 
+export { NOISE_FUNCTIONS_3D } from './gl/noise-3d.js'
+
+export {
+  oklchToRgb,
+  parseColour,
+  readTokenColour,
+  type ShaderColour,
+} from './gl/colour.js'
+
 export {
   AURORA_FRAGMENT,
   FULLSCREEN_VERTEX,

@@ -26,7 +26,8 @@
     "try:create": "node scripts/try-create.mjs",
     "check:smoke": "node scripts/smoke.mjs",
     "check:hmr": "node scripts/hmr-check.mjs",
-    "check:moteur": "node scripts/check-moteur.mjs http://localhost:5190"
+    "check:moteur": "node scripts/check-moteur.mjs http://localhost:5190",
+    "check:galerie": "node scripts/check-galerie.mjs http://localhost:5190"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",

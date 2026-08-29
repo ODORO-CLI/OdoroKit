@@ -6,12 +6,61 @@
     "directory": "src/odoro"
   },
   "installed": {
+    "background/aurora": {
+      "installedAt": "2026-08-29T01:56:30.731Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Aurora.tsx",
+          "hash": "57e9ca224085a947"
+        }
+      ]
+    },
     "effect/scroll-progress": {
-      "installedAt": "2026-08-29T01:25:25.284Z",
+      "installedAt": "2026-08-29T01:56:30.731Z",
       "files": [
         {
           "path": "src/odoro/effect/ScrollProgress.tsx",
-          "hash": "e550f9af8ebfe42b"
+          "hash": "a90b806138dcd3da"
+        }
+      ]
+    },
+    "hero/molten": {
+      "installedAt": "2026-08-29T01:56:30.731Z",
+      "files": [
+        {
+          "path": "src/odoro/hero/molten.shader.ts",
+          "hash": "933996a7050e6882"
+        },
+        {
+          "path": "src/odoro/hero/Molten.tsx",
+          "hash": "e5e8381ca633f074"
+        }
+      ]
+    },
+    "hooks/use-pointer-damped": {
+      "installedAt": "2026-08-29T01:56:30.731Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/usePointerDamped.ts",
+          "hash": "4ef31645e5b315ef"
+        }
+      ]
+    },
+    "hooks/use-poster": {
+      "installedAt": "2026-08-29T01:56:30.731Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/usePoster.ts",
+          "hash": "950601a2da34019f"
+        }
+      ]
+    },
+    "text/split-reveal": {
+      "installedAt": "2026-08-29T01:56:30.731Z",
+      "files": [
+        {
+          "path": "src/odoro/text/SplitReveal.tsx",
+          "hash": "c6d257a0649230bf"
         }
       ]
     }

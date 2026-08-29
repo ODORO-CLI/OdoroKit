@@ -123,7 +123,11 @@ async function collectEntry(
   const sources: Record<string, string> = {}
   for (const file of meta.files) {
     try {
-      sources[file.path] = await readFile(join(root, directory, file.path), 'utf8')
+      const raw = await readFile(join(root, directory, file.path), 'utf8')
+      // Les fins de ligne sont normalisees : l'artefact est servi a toutes les
+      // plateformes, et il n'y a aucune raison qu'un composant publie depuis
+      // une machine Windows arrive different de la version publiee ailleurs.
+      sources[file.path] = raw.replaceAll('\r\n', '\n')
     } catch {
       problems.push(`${origin} : le fichier declare "${file.path}" est introuvable.`)
     }

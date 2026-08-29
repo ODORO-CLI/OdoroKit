@@ -1,0 +1,72 @@
+{
+  "name": "molten",
+  "category": "hero",
+  "title": "Molten",
+  "description": "Une masse en fusion qui respire, deformee par un bruit fractal et coloree par la palette.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "molten.shader.ts",
+      "target": "hero/molten.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "hero/Molten.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-color-primary", "--o-color-accent"],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 0.28,
+      "description": "Profondeur de la deformation, en rayons."
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "default": 1.6,
+      "description": "Echelle du bruit. Plus haut, plus tourmente."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.25,
+      "description": "Vitesse de la respiration."
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 0.8,
+      "description": "Intensite du halo de bord."
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 0.25,
+      "description": "Amplitude du suivi du pointeur. Zero pour l immobiliser."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-color-primary, --o-color-accent",
+      "description": "Tokens du coeur et de la croute."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage, contre 13 pour le backend leger. Le nombre d octaves et la subdivision suivent la qualite retenue."
+  }
+}

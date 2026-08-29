@@ -1,0 +1,64 @@
+{
+  "name": "split-reveal",
+  "category": "text",
+  "title": "Revelation par fragments",
+  "description": "Un titre qui se compose caractere par caractere quand il entre dans le champ.",
+  "engine": {
+    "gsap": ["SplitText", "ScrollTrigger"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitReveal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "h2",
+      "description": "Balise rendue. Un titre reste un titre."
+    },
+    {
+      "name": "by",
+      "type": "'chars' | 'words' | 'lines'",
+      "default": "chars",
+      "description": "Granularite du decoupage."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 24,
+      "unit": "ms",
+      "description": "Decalage entre deux fragments."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree d entree d un fragment."
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Hauteur de la montee. Zero pour un simple fondu."
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<SplitRevealControls>) => void | (() => void)",
+      "description": "Echappatoire : donne la timeline et les fragments."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le decoupage a lieu une fois. L animation est jouee par l orchestrateur, sans rendu React."
+  }
+}

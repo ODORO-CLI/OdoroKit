@@ -38,7 +38,14 @@ import {
   type ReadyCallback,
   type Slot,
 } from 'odoro-engine'
-import { useCallback, useRef, useState, type ReactElement, type RefObject } from 'react'
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type RefObject,
+} from 'react'
 
 /** Lecture imperative offerte a l'echappatoire. */
 export interface ScrollProgressControls {
@@ -134,12 +141,25 @@ export function ScrollProgress({
   )
 
   const { ref } = useScrollProgress<HTMLElement>(onProgress, {
+    // Bornes d'une lecture, pas d'une traversee : la progression commence
+    // quand le haut du contenu atteint le haut de la fenetre, et s'acheve
+    // quand son bas atteint le bas. Les bornes par defaut mesureraient le
+    // passage de l'element dans le champ, ce qui n'est pas la meme chose.
+    start: 'top top',
+    end: 'bottom bottom',
     name: 'progression de lecture',
   })
 
-  // La page entiere est l'element observe par defaut. `useScrollProgress`
-  // attend une ref : celle du composant, ou celle qu'on lui donne.
-  const observed = target ?? ref
+  // L'element observe est le **contenu**, jamais la barre : celle-ci fait
+  // quatre pixels de haut et ne bouge pas, mesurer son defilement ne dirait
+  // rien. Sans cible, c'est le document entier.
+  //
+  // L'affectation passe par un effet de mise en page : ceux-ci s'executent
+  // avant les effets passifs, donc avant que `useScrollProgress` ne lise la
+  // reference pour poser son declencheur.
+  useLayoutEffect(() => {
+    ref.current = target === undefined ? document.documentElement : target.current
+  }, [ref, target])
 
   const [host, setHost] = useState<HTMLElement | null>(null)
   const controls = useRef<ScrollProgressControls>({
@@ -158,10 +178,7 @@ export function ScrollProgress({
   return (
     <div
       {...rest}
-      ref={(element) => {
-        setHost(element)
-        if (target === undefined) observed.current = element
-      }}
+      ref={setHost}
       className={className}
       style={{ [position]: 0, ...style }}
       role="progressbar"

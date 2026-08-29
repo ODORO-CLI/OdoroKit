@@ -367,6 +367,22 @@ export const DOC_SECTIONS: readonly DocSection[] = [
           'echappatoire',
         ],
       },
+      {
+        path: '/docs/registre/galerie',
+        title: 'La tranche verticale',
+        description: 'Un composant par categorie, installes par la CLI.',
+        keywords: [
+          'molten',
+          'aurora',
+          'split-reveal',
+          'hero',
+          'fond',
+          'texte',
+          'three',
+          'shader',
+          'galerie',
+        ],
+      },
     ],
   },
   {

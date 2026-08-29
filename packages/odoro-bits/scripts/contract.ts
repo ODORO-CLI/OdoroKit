@@ -22,8 +22,19 @@ import type { RegistryMeta } from 'odoro/registry'
 /** Categories dont les entrees rendent un element du document. */
 const RENDERING = new Set(['text', 'background', 'effect', 'hero', 'ui', 'section'])
 
-/** Un token consomme directement dans une source. */
-const TOKEN_USE = /var\(\s*(--o-[a-z0-9-]+)/g
+/**
+ * Un token consomme directement dans une source.
+ *
+ * Deux formes, parce qu'il y a deux facons legitimes de lire un token.
+ * En CSS, `var(--o-x)`. En JavaScript — un shader qui a besoin de trois
+ * flottants, une duree passee a une timeline — le nom est une chaine, remise a
+ * `readTokenColour` ou a `getPropertyValue`.
+ *
+ * La seconde forme a ete ajoutee apres coup : la premiere version de cette
+ * regle refusait un fond anime qui lisait pourtant ses couleurs dans la
+ * palette, faute de les lire en CSS.
+ */
+const TOKEN_USE = /var\(\s*(--o-[a-z0-9-]+)|['"`](--o-[a-z0-9-]+)['"`]/g
 
 /**
  * Couleur ecrite en dur.
@@ -42,11 +53,94 @@ export interface ContractProblem {
   readonly message: string
 }
 
-/** Extrait les tokens qu'une source consomme directement. */
+/**
+ * Retire les commentaires d'une source, en laissant les chaines intactes.
+ *
+ * ## Pourquoi c'est necessaire
+ *
+ * Un exemple de documentation cite des tokens que le composant n'emploie pas —
+ * c'est meme l'interet d'un exemple, montrer autre chose que le defaut. Sans
+ * ce nettoyage, la regle de coherence les compterait comme employes et
+ * reclamerait leur declaration.
+ *
+ * Le premier jet de cette regle a bute exactement la-dessus, sur un fond dont
+ * le docblock montrait trois tokens de rechange.
+ *
+ * ## Ce qui est preserve
+ *
+ * Les chaines et les gabarits. Un shader vit dans un gabarit, et une lecture
+ * de token vit dans une chaine : les traverser en les retirant reviendrait a
+ * ne plus rien voir du tout.
+ */
+export function stripComments(source: string): string {
+  let output = ''
+  let quote: string | null = null
+  let inLine = false
+  let inBlock = false
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index] ?? ''
+    const next = source[index + 1] ?? ''
+
+    if (inLine) {
+      if (char === '\n') {
+        inLine = false
+        output += char
+      }
+      continue
+    }
+
+    if (inBlock) {
+      if (char === '*' && next === '/') {
+        inBlock = false
+        index += 1
+      }
+      continue
+    }
+
+    if (quote !== null) {
+      output += char
+      if (char === '\\') {
+        output += next
+        index += 1
+      } else if (char === quote) {
+        quote = null
+      }
+      continue
+    }
+
+    if (char === '"' || char === "'" || char === '`') {
+      quote = char
+      output += char
+      continue
+    }
+    if (char === '/' && next === '/') {
+      inLine = true
+      index += 1
+      continue
+    }
+    if (char === '/' && next === '*') {
+      inBlock = true
+      index += 1
+      continue
+    }
+
+    output += char
+  }
+
+  return output
+}
+
+/**
+ * Extrait les tokens qu'une source consomme directement.
+ *
+ * Les commentaires sont retires d'abord : un token cite dans un exemple est de
+ * la documentation, pas une consommation.
+ */
 export function usedTokens(source: string): Set<string> {
   const found = new Set<string>()
-  for (const match of source.matchAll(TOKEN_USE)) {
-    const token = match[1]
+  for (const match of stripComments(source).matchAll(TOKEN_USE)) {
+    const token = match[1] ?? match[2]
     if (token !== undefined) found.add(token)
   }
   return found

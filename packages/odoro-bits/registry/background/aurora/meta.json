@@ -1,0 +1,48 @@
+{
+  "name": "aurora",
+  "category": "background",
+  "title": "Aurore",
+  "description": "Un fond de bruit fractal a deplacement de domaine, colore par la palette du projet.",
+  "engine": { "gsap": [], "gl": "ogl" },
+  "files": [{ "path": "component.tsx", "target": "background/Aurora.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-color-primary", "--o-color-accent", "--o-bg"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.12,
+      "description": "Vitesse de derive du motif."
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 2.4,
+      "description": "Echelle du bruit. Plus haut, plus fin."
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre d octaves. Retrograde a 2 en qualite basse."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-color-primary, --o-color-accent, --o-bg",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Un triangle plein ecran et un shader de fragment. Treize kilo-octets compresses ; le rendu se suspend hors du champ."
+  }
+}

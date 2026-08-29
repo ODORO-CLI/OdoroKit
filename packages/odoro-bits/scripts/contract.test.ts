@@ -1,7 +1,7 @@
 import type { RegistryMeta } from 'odoro/registry'
 import { describe, expect, it } from 'vitest'
 
-import { checkContract, usedTokens } from './contract.js'
+import { checkContract, stripComments, usedTokens } from './contract.js'
 
 /** Entree validee minimale, a deriver dans chaque test. */
 function meta(overrides: Partial<RegistryMeta> = {}): RegistryMeta & { id: string } {
@@ -40,8 +40,53 @@ describe('lecture des tokens', () => {
     ])
   })
 
+  it('releve un token lu depuis JavaScript', () => {
+    // Un shader a besoin de trois flottants : il lit le token par son nom,
+    // pas par une declaration CSS. La premiere version de la regle refusait
+    // pourtant ce cas.
+    expect([...usedTokens("readTokenColour('--o-color-primary', host)")]).toEqual([
+      '--o-color-primary',
+    ])
+  })
+
+  it('accepte les trois sortes de guillemets', () => {
+    expect(usedTokens('a("--o-a") b(`--o-b`)').size).toBe(2)
+  })
+
   it('ne compte pas deux fois le meme token', () => {
-    expect(usedTokens('var(--o-fg) var(--o-fg)').size).toBe(1)
+    expect(usedTokens("var(--o-fg) '--o-fg'").size).toBe(1)
+  })
+})
+
+describe('retrait des commentaires', () => {
+  it('retire une ligne de commentaire', () => {
+    expect(stripComments('const a = 1 // var(--o-fg)')).not.toMatch(/--o-fg/)
+  })
+
+  it('retire un bloc de documentation', () => {
+    expect(stripComments('/** exemple : --o-accent */ const a = 1')).not.toMatch(
+      /--o-accent/,
+    )
+  })
+
+  it('laisse les chaines intactes', () => {
+    // Une lecture de token vit dans une chaine, un shader dans un gabarit :
+    // les traverser reviendrait a ne plus rien voir.
+    expect(stripComments("read('--o-fg')")).toBe("read('--o-fg')")
+    expect(stripComments('const s = `var(--o-bg)`')).toMatch(/--o-bg/)
+  })
+
+  it('ne prend pas une barre oblique de chaine pour un commentaire', () => {
+    expect(stripComments("const u = 'https://exemple.fr'")).toBe(
+      "const u = 'https://exemple.fr'",
+    )
+  })
+
+  it('respecte un guillemet echappe', () => {
+    // Sans la prise en compte de l'echappement, la chaine paraitrait fermee
+    // trop tot et la suite de la ligne serait lue comme du code.
+    const source = String.raw`const s = 'a\'b' // x`
+    expect(stripComments(source)).toBe(String.raw`const s = 'a\'b' `)
   })
 })
 
@@ -61,6 +106,19 @@ describe('regle 1 — coherence des tokens', () => {
     })
     expect(problems).toHaveLength(1)
     expect(problems[0]?.message).toMatch(/--o-duration-slow est declare/)
+  })
+
+  it('ne compte pas un token cite dans un exemple', () => {
+    // Un exemple montre autre chose que le defaut : c'est son interet. Le
+    // premier jet de cette regle butait exactement la-dessus.
+    const problems = checkContract(meta({ tokens: ['--o-fg'] }), {
+      'component.tsx': `/**
+ * @example
+ * <Fond colors={['--o-color-danger', '--o-bg-subtle']} />
+ */
+${CONFORME}`,
+    })
+    expect(problems).toEqual([])
   })
 
   it('refuse un token employe mais non declare', () => {

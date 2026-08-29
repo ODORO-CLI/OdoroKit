@@ -335,3 +335,59 @@ Registre invalide — 1 probleme(s) :
 
 Cet exemple n'est pas inventé : c'est ce que la règle a signalé la première
 fois qu'elle a tourné, sur une entrée de ce registre.
+
+## Le catalogue
+
+Six entrées, choisies pour couvrir toute la chaîne plutôt que pour faire
+nombre.
+
+| Entrée                     | Coût  | Backend      | Ce qu'elle prouve                           |
+| -------------------------- | ----- | ------------ | ------------------------------------------- |
+| `hooks/use-poster`         | léger | —            | Le repli comme partie du composant.         |
+| `hooks/use-pointer-damped` | léger | —            | Un abonnement à la boucle unique.           |
+| `text/split-reveal`        | léger | —            | Une animation orchestrée, sans rendu React. |
+| `effect/scroll-progress`   | léger | —            | Les cinq niveaux du contrat.                |
+| `background/aurora`        | moyen | léger, 13 Ko | Les tokens jusque dans un shader.           |
+| `hero/molten`              | élevé | 3D, 130 Ko   | Le graphe, le poids annoncé, le repli.      |
+
+`hero/molten` dépend des deux hooks : l'installer les apporte, et la CLI le dit
+avant d'écrire.
+
+### Les couleurs jusque dans le shader
+
+Un fond dont les couleurs sont écrites en dur reste seul de son espèce le jour
+où la charte change. Mais la palette est en OKLCH, un shader veut trois
+flottants, et aucune API du navigateur ne fait le pont : `getComputedStyle`
+d'une valeur OKLCH rend une chaîne OKLCH, et le détour par un canevas donne un
+résultat qui dépend de la version du navigateur.
+
+`readTokenColour` fait la conversion — c'est le chaînon qui manquait entre le
+niveau 1 du contrat et WebGL.
+
+```tsx
+<Aurora colors={['--o-color-primary', '--o-color-accent', '--o-bg']} />
+```
+
+### Ce que la qualité change sur un héros
+
+La subdivision de la sphère et le nombre d'octaves du bruit : 24 et 2 en
+qualité basse, 96 et 4 en haute. Ce sont les deux réglages qui pèsent, et les
+deux qui se dégradent le mieux — la silhouette reste, seul le détail s'efface.
+Baisser la définition du rendu à la place aurait donné une image floue, ce qui
+se remarque bien davantage.
+
+### Un shader n'est qu'une chaîne
+
+Pour TypeScript, oui. Il compile sans broncher, puis échoue à l'exécution avec
+un canevas noir et une ligne dans la console. `pnpm check:galerie` charge les
+pages dans un vrai navigateur et vérifie que les canevas peignent réellement
+autre chose qu'un aplat.
+
+Il a déjà servi deux fois sur cette tranche : un mot réservé du langage employé
+comme nom de variable, et un accent grave à l'intérieur du gabarit, qui le
+refermait.
+
+Sa dernière passe est la plus importante : sous mouvement réduit, aucune scène
+ne se monte, aucun canevas n'existe, et le titre doit rester **visible**. Une
+animation neutralisée qui emporte son état final est le pire défaut possible,
+et il ne se voit pas en développement.

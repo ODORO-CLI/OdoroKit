@@ -4,7 +4,11 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "types": ["node"],
-    "rootDir": "."
+    "rootDir": ".",
+    "paths": {
+      "@registre/hooks/usePoster": ["./registry/hooks/use-poster/hook.ts"],
+      "@registre/hooks/usePointerDamped": ["./registry/hooks/use-pointer-damped/hook.ts"]
+    }
   },
   "include": ["scripts", "registry", "vitest.config.ts"]
 }

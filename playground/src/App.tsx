@@ -32,6 +32,7 @@ import { MoteurDiagnostic } from './docs/pages/MoteurDiagnostic.jsx'
 import { RegistreFormat } from './docs/pages/RegistreFormat.jsx'
 import { RegistreCli } from './docs/pages/RegistreCli.jsx'
 import { RegistreContrat } from './docs/pages/RegistreContrat.jsx'
+import { RegistreGalerie } from './docs/pages/RegistreGalerie.jsx'
 
 import { ButtonDoc } from './docs/pages/composants/ButtonDoc.jsx'
 import { InputDoc } from './docs/pages/composants/InputDoc.jsx'
@@ -108,6 +109,7 @@ export function App(): ReactElement {
               <Route path="docs/registre" element={<RegistreFormat />} />
               <Route path="docs/registre/cli" element={<RegistreCli />} />
               <Route path="docs/registre/contrat" element={<RegistreContrat />} />
+              <Route path="docs/registre/galerie" element={<RegistreGalerie />} />
               <Route path="docs/composants/button" element={<ButtonDoc />} />
               <Route path="docs/composants/input" element={<InputDoc />} />
               <Route path="docs/composants/textarea" element={<TextareaDoc />} />
