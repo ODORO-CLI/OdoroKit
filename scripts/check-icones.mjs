@@ -106,6 +106,24 @@ for (const { module, cherche, regle } of JEUX) {
   if (probleme.length > 0) echecs.push(`${module} : ${verdict}`)
 }
 
+// Le site est le premier consommateur du module : ses propres icones viennent
+// du jeu filaire. Une categorie ajoutee a la colonne laterale sans entree dans
+// la table tombe sur un rond — visible, mais que personne ne remarque.
+await page.goto(`${base}/`, { waitUntil: 'networkidle' })
+const ronds = await page.evaluate(
+  () =>
+    [...document.querySelectorAll('aside svg')].filter(
+      (svg) => svg.children.length === 1 && svg.firstElementChild?.tagName === 'circle',
+    ).length,
+)
+console.log(`
+colonne laterale : ${String(ronds)} categorie(s) sans icone propre`)
+if (ronds > 0) {
+  echecs.push(
+    `${String(ronds)} categorie(s) de la colonne laterale tombent sur le rond par defaut`,
+  )
+}
+
 // La page d'ensemble ne montre qu'une poignee d'icones, mais elle est la seule
 // a en importer sans passer par une route paresseuse.
 await page.goto(`${base}/docs/icones`, { waitUntil: 'networkidle' })

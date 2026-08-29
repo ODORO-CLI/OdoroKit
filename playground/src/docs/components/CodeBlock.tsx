@@ -7,6 +7,8 @@
  * @module
  */
 
+import { Icon } from 'odoro-icons'
+import { Check, Copy } from 'odoro-icons/filaire'
 import { type ReactElement, type ReactNode, useState } from 'react'
 
 /** Un lexeme colore. */
@@ -115,36 +117,9 @@ function CopyButton({ code }: { code: string }): ReactElement {
           : 'o-text-zinc-500 dark:o-text-zinc-400'
       }`}
     >
-      {copied ? (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path d="M20 6 9 17l-5-5" />
-        </svg>
-      ) : (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-          <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-        </svg>
-      )}
+      {/* La coche est epaissie : a quatorze pixels, un trait de deux se lit
+          mal contre le fond, et c'est le seul retour que le clic donne. */}
+      <Icon icon={copied ? Check : Copy} size={14} strokeWidth={copied ? 2.5 : 2} />
       {copied ? 'Copie' : 'Copier'}
     </button>
   )

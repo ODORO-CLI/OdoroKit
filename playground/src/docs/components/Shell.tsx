@@ -18,6 +18,25 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { Icon, type IconData } from 'odoro-icons'
+import {
+  Anchor,
+  Circle,
+  Cpu,
+  Image as ImageIcon,
+  LayoutGrid,
+  LayoutTemplate,
+  Layers,
+  Package,
+  Rocket,
+  Route,
+  Shapes,
+  Sparkles,
+  Type,
+  Wand,
+  Waves,
+  Zap,
+} from 'odoro-icons/filaire'
 import { Link, useLocation } from 'odoro-libs/router'
 import { useScrollProgress } from 'odoro-libs/motion'
 
@@ -35,109 +54,40 @@ const ASIDE_STORAGE_KEY = 'odoro-docs-aside'
 /* Icones                                                                     */
 /* -------------------------------------------------------------------------- */
 
-const ICON_PROPS = {
-  width: 15,
-  height: 15,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 1.8,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  'aria-hidden': true,
-  focusable: false,
-} as const
+/**
+ * Icone de chaque categorie de la colonne laterale.
+ *
+ * Ces traces etaient ecrits a la main, un `<svg>` par categorie, dans un
+ * `switch` de quatre-vingts lignes. Chaque nouvelle section du registre — et
+ * il s'en est ajoute cinq — tombait sur le cas par defaut : un rond.
+ *
+ * Le site emploie desormais son propre module d'icones. C'est aussi la seule
+ * facon honnete de savoir s'il tient : le premier consommateur de `odoro-icons`
+ * doit etre nous.
+ */
+const SECTION_ICONS: Readonly<Record<string, IconData>> = {
+  Demarrage: Rocket,
+  Fondations: Layers,
+  Routeur: Route,
+  Composants: LayoutGrid,
+  Icones: Shapes,
+  Backgrounds: Waves,
+  Heros: Sparkles,
+  'Text Animations': Type,
+  Effets: Wand,
+  Images: ImageIcon,
+  Sections: LayoutTemplate,
+  Hooks: Anchor,
+  Motions: Zap,
+  Moteur: Cpu,
+  Registre: Package,
+}
 
-/** Icone d'une categorie de la colonne laterale. */
+/** Icone d'une categorie, ou un rond pour celle qu'on aurait oubliee. */
 function SectionIcon({ title }: { title: string }): ReactElement {
-  switch (title) {
-    case 'Demarrage':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="M5 3v18l7-5 7 5V3" />
-        </svg>
-      )
-    case 'Fondations':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="m12 2 9 5-9 5-9-5 9-5Z" />
-          <path d="m3 12 9 5 9-5" />
-          <path d="m3 17 9 5 9-5" />
-        </svg>
-      )
-    case 'Routeur':
-      return (
-        <svg {...ICON_PROPS}>
-          <circle cx="6" cy="19" r="2.5" />
-          <circle cx="18" cy="5" r="2.5" />
-          <path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5" />
-        </svg>
-      )
-    case 'Composants':
-      return (
-        <svg {...ICON_PROPS}>
-          <rect x="3" y="3" width="7.5" height="7.5" rx="1.5" />
-          <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" />
-          <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" />
-          <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" />
-        </svg>
-      )
-    case 'Backgrounds':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="M3 14c3-6 6 2 9-3s6 1 9-4" />
-          <path d="M3 20c3-6 6 2 9-3s6 1 9-4" />
-        </svg>
-      )
-    case 'Text Animations':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="M4 7V5h16v2M12 5v14m-3 0h6" />
-        </svg>
-      )
-    case 'Images':
-      return (
-        <svg {...ICON_PROPS}>
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <circle cx="9" cy="10" r="1.5" />
-          <path d="m5 19 6-6 4 4 2-2 4 4" />
-        </svg>
-      )
-    case 'Sections':
-      return (
-        <svg {...ICON_PROPS}>
-          <rect x="3" y="3" width="18" height="6" rx="1.5" />
-          <rect x="3" y="12" width="8" height="9" rx="1.5" />
-          <rect x="14" y="12" width="7" height="9" rx="1.5" />
-        </svg>
-      )
-    case 'Motions':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
-        </svg>
-      )
-    case 'Moteur':
-      return (
-        <svg {...ICON_PROPS}>
-          <rect x="6" y="6" width="12" height="12" rx="2" />
-          <path d="M9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3m14-6h3m-3 6h3" />
-        </svg>
-      )
-    case 'Registre':
-      return (
-        <svg {...ICON_PROPS}>
-          <path d="m12 2 8 4.5v9L12 20l-8-4.5v-9L12 2Z" />
-          <path d="M12 11 4 6.5M12 11l8-4.5M12 11v9" />
-        </svg>
-      )
-    default:
-      return (
-        <svg {...ICON_PROPS}>
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      )
-  }
+  // 1.8 plutot que le 2 du jeu : a quinze pixels, le trait nominal empate les
+  // traces les plus denses.
+  return <Icon icon={SECTION_ICONS[title] ?? Circle} size={15} strokeWidth={1.8} />
 }
 
 /* -------------------------------------------------------------------------- */

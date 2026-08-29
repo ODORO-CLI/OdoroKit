@@ -131,6 +131,21 @@ function detailed(): string {
 /** Le sujet de toutes les demonstrations d'image. */
 export const SAMPLE = detailed()
 
+/**
+ * Une video reelle, et non une source vide.
+ *
+ * Un `src=""` fait retelecharger la page entiere au navigateur — le langage
+ * de balisage le dit explicitement, et React en avertit. Surtout, une
+ * demonstration de lecteur video sans video ne demontre rien : ni la lecture,
+ * ni le deplacement, ni la coupure du son.
+ *
+ * Le fichier fait quatre-vingt-dix kilo-octets et vit dans le dossier public.
+ */
+const CLIP = '/demo/apercu.mp4'
+
+/** L'affiche du meme clip, sa premiere image. */
+const CLIP_POSTER = '/demo/apercu.jpg'
+
 /** Un fond qui occupe tout le cadre. */
 const fill = (node: ReactNode): ReactNode => (
   <div className="o-absolute o-inset-0">{node}</div>
@@ -716,8 +731,10 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     render: (v) => (
       <Stage>
         <Video
-          src=""
-          poster={SAMPLE}
+          src={CLIP}
+          poster={CLIP_POSTER}
+          description="Un degrade anime, avec un carre qui derive"
+
           ratio={num(v, 'ratio', 1.777)}
           className="o-w-full o-max-w-md o-rounded-lg"
         />
@@ -730,8 +747,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     render: (v) => (
       <Stage>
         <Player
-          src=""
-          poster={SAMPLE}
+          src={CLIP}
+          poster={CLIP_POSTER}
           label="Video de demonstration"
           ratio={num(v, 'ratio', 1.777)}
           className="o-w-full o-max-w-md o-rounded-lg"

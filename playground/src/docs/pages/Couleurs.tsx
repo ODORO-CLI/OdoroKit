@@ -4,6 +4,8 @@
  * @module
  */
 
+import { Icon } from 'odoro-icons'
+import { Check } from 'odoro-icons/filaire'
 import { type ReactElement, useState } from 'react'
 import { palette } from 'odoro-libs/styles'
 
@@ -63,20 +65,9 @@ function PaletteSwatch({ name, value }: { name: string; value: string }): ReactE
     >
       {copied ? (
         <span className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-text-white o-text-xs">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="M20 6 9 17l-5-5" />
-          </svg>
+          {/* Trait de trois : la coche est posee sur la couleur elle-meme,
+              qui peut etre claire, et c'est le seul retour du clic. */}
+          <Icon icon={Check} size={12} strokeWidth={3} />
         </span>
       ) : null}
     </button>

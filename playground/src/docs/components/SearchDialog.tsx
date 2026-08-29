@@ -7,6 +7,8 @@
  * @module
  */
 
+import { Icon } from 'odoro-icons'
+import { Search } from 'odoro-icons/filaire'
 import {
   type ReactElement,
   useCallback,
@@ -87,21 +89,11 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
       style={{ marginInline: 'auto' }}
     >
       <div className="o-flex o-items-center o-gap-2 o-px-4 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          aria-hidden="true"
-          focusable="false"
+        <Icon
+          icon={Search}
+          size={16}
           className="o-text-zinc-400 dark:o-text-zinc-500 o-shrink-0"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
+        />
         <input
           type="text"
           value={query}

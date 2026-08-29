@@ -13,7 +13,7 @@
       "target": "image/Player.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": ["odoro-icons"],
   "registryDependencies": [],
   "tokens": [],
   "props": [
@@ -52,6 +52,6 @@
   "perf": {
     "tier": "light",
     "backend": false,
-    "notes": "Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media."
+    "notes": "Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media. Les six icones des commandes viennent de odoro-icons : l elagage ne retient qu elles."
   }
 }

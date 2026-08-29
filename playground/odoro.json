@@ -326,11 +326,11 @@
       ]
     },
     "image/player": {
-      "installedAt": "2026-08-29T11:48:48.056Z",
+      "installedAt": "2026-08-29T13:29:42.955Z",
       "files": [
         {
           "path": "src/odoro/image/Player.tsx",
-          "hash": "c9da370a119038d4"
+          "hash": "0607a66bd82103d0"
         }
       ]
     },

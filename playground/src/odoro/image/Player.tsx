@@ -20,6 +20,18 @@
  * de verite : les commandes lui demandent, et l'affichage suit ce qu'il
  * annonce.
  *
+ * ## Les commandes sont des icones, pas des caracteres
+ *
+ * Les triangles et les barres du repertoire Unicode donnent un lecteur qui
+ * fonctionne sans rien installer. Ils donnent aussi un lecteur different sur
+ * chaque plateforme — l'emoji de volume est en couleurs sur l'un, un trait sur
+ * l'autre —, qui ne suit ni la couleur du texte ni sa taille, et qu'aucune
+ * classe ne rattrape.
+ *
+ * Le lecteur emploie donc six icones du jeu filaire. L'elagage ne retient
+ * qu'elles : le cout est de quelques centaines d'octets, pour des commandes
+ * qui se colorent et se dimensionnent comme le reste.
+ *
  * ## La barre de progression est un curseur
  *
  * Pas une barre cliquable. Elle porte son role, ses bornes et sa valeur en
@@ -30,6 +42,8 @@
  */
 
 import { mergePresentation, type Customisable } from 'odoro-engine'
+import { Icon, type IconData } from 'odoro-icons'
+import { Maximize, Pause, Play, Volume_2, VolumeX } from 'odoro-icons/filaire'
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 
 /** Une piste de sous-titres. */
@@ -73,12 +87,12 @@ function clock(seconds: number): string {
 /** Un bouton de commande. */
 function Control({
   label,
+  icon,
   onClick,
-  children,
 }: {
   label: string
+  icon: IconData
   onClick: () => void
-  children: ReactElement | string
 }): ReactElement {
   return (
     <button
@@ -87,7 +101,7 @@ function Control({
       onClick={onClick}
       className="o-inline-flex o-size-9 o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-white hover:o-bg-white-20 focus:o-ring o-cursor-pointer o-transition-colors"
     >
-      {children}
+      <Icon icon={icon} size={18} />
     </button>
   )
 }
@@ -233,22 +247,20 @@ export function Player({
         <div className="o-flex o-items-center o-gap-1">
           <Control
             label={playing ? 'Mettre en pause' : 'Lire'}
+            icon={playing ? Pause : Play}
             onClick={() =>
               playing ? video.current?.pause() : void video.current?.play()
             }
-          >
-            {playing ? '❚❚' : '▶'}
-          </Control>
+          />
 
           <Control
             label={muted ? 'Retablir le son' : 'Couper le son'}
+            icon={muted ? VolumeX : Volume_2}
             onClick={() => {
               const node = video.current
               if (node !== null) node.muted = !node.muted
             }}
-          >
-            {muted ? '🔇' : '🔊'}
-          </Control>
+          />
 
           <span className="o-ml-1 o-font-mono o-text-xs o-tabular-nums o-text-white">
             {clock(time)} / {clock(duration)}
@@ -262,10 +274,9 @@ export function Player({
           */}
           <Control
             label="Plein ecran"
+            icon={Maximize}
             onClick={() => void shell.current?.requestFullscreen().catch(() => undefined)}
-          >
-            ⛶
-          </Control>
+          />
         </div>
       </div>
     </div>

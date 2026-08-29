@@ -5,6 +5,8 @@
  * @module
  */
 
+import { Icon } from 'odoro-icons'
+import { ChevronRight } from 'odoro-icons/filaire'
 import { type ReactElement, type ReactNode, useMemo, useState } from 'react'
 
 import { CodeBlock } from './CodeBlock.jsx'
@@ -192,21 +194,11 @@ export function PlaygroundBlock({
           aria-expanded={showCode}
           className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-cursor-pointer o-transition-colors o-inline-flex o-items-center o-gap-1"
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            focusable="false"
+          <Icon
+            icon={ChevronRight}
+            size={14}
             className={`o-transition-transform ${showCode ? 'o-rotate-90' : ''}`}
-          >
-            <path d="m9 18 6-6-6-6" />
-          </svg>
+          />
           Code
         </button>
       </div>

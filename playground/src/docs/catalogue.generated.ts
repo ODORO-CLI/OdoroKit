@@ -2437,7 +2437,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         target: 'image/Player.tsx',
       },
     ],
-    dependencies: [],
+    dependencies: ['odoro-icons'],
     registryDependencies: [],
     tokens: [],
     props: [
@@ -2480,7 +2480,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       tier: 'light',
       backend: false,
       notes:
-        'Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media.',
+        'Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media. Les six icones des commandes viennent de odoro-icons : l elagage ne retient qu elles.',
     },
     id: 'image/player',
   },
