@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Accordion, Button, type AccordionItem } from '@odoro/libs/ui'
+import { Accordion, Button, type AccordionItem } from '@odoro-cli/libs/ui'
 
 import {
   DemoBlock,
@@ -87,7 +87,7 @@ export function AccordionDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Accordion"
         lead="Accordeon a sections repliables, suivant le motif APG : en-tetes boutons relies a leur region, ouverture animee en hauteur."
       />
@@ -116,7 +116,7 @@ export function AccordionDoc(): ReactElement {
               className="o-w-full o-max-w-md"
             />
           )}
-          code={(values) => `import { Accordion } from '@odoro/libs/ui'
+          code={(values) => `import { Accordion } from '@odoro-cli/libs/ui'
 
 <Accordion${jsxProps(values, DEFAULTS)}
   defaultValue="installation"

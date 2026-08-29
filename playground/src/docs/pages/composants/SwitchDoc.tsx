@@ -2,7 +2,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Switch } from '@odoro/libs/ui'
+import { Switch } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -46,7 +46,7 @@ export function SwitchDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Switch"
         lead="Interrupteur a deux etats. Un <button role='switch'> plutot qu'une case a cocher : l'effet est immediat, sans notion de formulaire a soumettre. L'etat est porte par aria-checked, la bascule repond au clic comme a Espace ou Entree."
       />

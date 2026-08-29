@@ -14,7 +14,7 @@ export function RouterGuide(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/router"
+        module="@odoro-cli/libs/router"
         title="Le routeur"
         lead="Un routeur client complet : routes imbriquees, parametres, routes paresseuses, defilement restaure et transitions de page natives. Ce site entier est rendu avec."
       />
@@ -25,7 +25,7 @@ export function RouterGuide(): ReactElement {
       >
         <CodeBlock
           lang="tsx"
-          code={`import { Router, Routes, Route, Outlet, Link } from '@odoro/libs/router'
+          code={`import { Router, Routes, Route, Outlet, Link } from '@odoro-cli/libs/router'
 
 function Layout() {
   return (
@@ -58,7 +58,7 @@ function Layout() {
       >
         <CodeBlock
           lang="tsx"
-          code={`import { useLocation, useParams, useNavigate, useSearchParams } from '@odoro/libs/router'
+          code={`import { useLocation, useParams, useNavigate, useSearchParams } from '@odoro-cli/libs/router'
 
 function Projet() {
   const { id } = useParams()                 // '/projets/:id' -> { id: '42' }

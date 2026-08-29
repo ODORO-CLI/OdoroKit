@@ -13,8 +13,8 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p server/tsconfig.json"
   },
   "dependencies": {
-    "@odoro/libs": "^0.0.0",
-    "@odoro/server": "^0.0.0",
+    "@odoro-cli/libs": "^0.0.0",
+    "@odoro-cli/server": "^0.0.0",
     "express": "^5.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

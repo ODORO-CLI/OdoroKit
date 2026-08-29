@@ -8,7 +8,7 @@
  * de grandeur au-dessus du backend leger.
  *
  * Il n'entre donc **jamais** dans le bundle initial. L'entree
- * `@odoro/engine/three` est un point de rupture, et le moteur lui-meme n'est
+ * `@odoro-cli/engine/three` est un point de rupture, et le moteur lui-meme n'est
  * charge qu'a l'interieur de ce hook, par import dynamique. Un site qui
  * n'affiche qu'une animation de texte n'en telecharge pas une ligne. Ce n'est
  * pas une optimisation a faire plus tard : c'est ce qui dicte l'architecture

@@ -22,7 +22,7 @@
  * @module
  */
 
-import { mergePresentation, type Customisable } from '@odoro/engine'
+import { mergePresentation, type Customisable } from '@odoro-cli/engine'
 import {
   useCallback,
   useRef,

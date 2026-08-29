@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Button, buttonClasses } from '@odoro/libs/ui'
+import { Button, buttonClasses } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -70,7 +70,7 @@ export function ButtonDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Button"
         lead="Bouton d'action. Le libelle reste visible pendant le chargement ; l'etat est annonce par aria-busy et l'activation est bloquee par aria-disabled, ce qui garde le bouton focusable et donc annoncable."
       />
@@ -143,7 +143,7 @@ export function ButtonDoc(): ReactElement {
         lead="buttonClasses expose la table de variantes : un <a> ou un <Link> prend l'apparence exacte du bouton sans en dupliquer les classes."
       >
         <DemoBlock
-          code={`import { buttonClasses } from '@odoro/libs/ui'
+          code={`import { buttonClasses } from '@odoro-cli/libs/ui'
 
 <Link to="/docs" className={buttonClasses({ tone: 'secondary' })}>
   Lire la documentation

@@ -1,7 +1,7 @@
 # Odoro — application monopage
 
 Projet genere par `odoro create`. Le routeur, le moteur d'animation, le systeme
-de style et les composants d'interface viennent tous de `@odoro/libs` ; le
+de style et les composants d'interface viennent tous de `@odoro-cli/libs` ; le
 serveur de developpement et la compilation viennent du moteur `odoro`.
 
 ## Structure
@@ -36,8 +36,8 @@ composants de la librairie, sans toucher a leur code.
 
 Deux feuilles de style sont disponibles :
 
-- `@odoro/libs/styles.css` — structure et couleurs semantiques ;
-- `@odoro/libs/styles.full.css` — la meme, plus les utilitaires de couleur sur
+- `@odoro-cli/libs/styles.css` — structure et couleurs semantiques ;
+- `@odoro-cli/libs/styles.full.css` — la meme, plus les utilitaires de couleur sur
   la palette complete.
 
 Importer l'une **ou** l'autre, jamais les deux.

@@ -6,7 +6,7 @@
  */
 
 import { type ReactElement } from 'react'
-import { Link } from '@odoro/libs/router'
+import { Link } from '@odoro-cli/libs/router'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -50,7 +50,7 @@ export function MoteurOverview(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/engine"
+        module="@odoro-cli/engine"
         title="Le moteur"
         lead="Une couche separee pour ce qui travaille a chaque image : defilement, pointeur, WebGL. Le reste appartient a la librairie."
       />
@@ -62,7 +62,7 @@ export function MoteurOverview(): ReactElement {
         <div className="o-grid o-grid-cols-1 md:o-grid-cols-2 o-gap-4">
           <Side
             tone="libs"
-            title="@odoro/libs/motion"
+            title="@odoro-cli/libs/motion"
             lead="Non. L'animation est decrite une fois, puis confiee au compositeur du navigateur. Aucun JavaScript ne s'execute par image."
             items={[
               'une revelation au defilement',
@@ -73,7 +73,7 @@ export function MoteurOverview(): ReactElement {
           />
           <Side
             tone="engine"
-            title="@odoro/engine"
+            title="@odoro-cli/engine"
             lead="Oui. Une valeur est recalculee a chaque image, et quelque chose la lit."
             items={[
               'un defilement horizontal pilote par le scroll',
@@ -96,7 +96,7 @@ export function MoteurOverview(): ReactElement {
         lead="Chaque bibliotheque d'animation apporte sa propre boucle, et trois boucles concurrentes rendent le profilage illisible : on ne sait plus laquelle depasse son budget. Le moteur n'en expose qu'une, et tout s'y abonne."
       >
         <CodeBlock
-          code={`import { OdoroEngine } from '@odoro/engine'
+          code={`import { OdoroEngine } from '@odoro-cli/engine'
 
 createRoot(document.getElementById('root')!).render(
   <OdoroEngine quality="auto">

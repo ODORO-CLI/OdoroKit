@@ -9,7 +9,7 @@
  */
 
 import { type ReactElement } from 'react'
-import { Link } from '@odoro/libs/router'
+import { Link } from '@odoro-cli/libs/router'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, PropsTable, Section } from '../components/DocBlocks.jsx'

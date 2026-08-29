@@ -2,7 +2,7 @@
  * Module de sante — et exemple de ce a quoi ressemble un module.
  *
  * C'est le seul module de ce template, et il est ecrit ici plutot que fourni
- * par `@odoro/server` pour une raison : ecrire un module est la premiere chose
+ * par `@odoro-cli/server` pour une raison : ecrire un module est la premiere chose
  * qu'on fait sur ce socle, et un exemple qu'on peut ouvrir vaut mieux qu'une
  * page de documentation.
  *
@@ -44,7 +44,7 @@ import {
   defineModule,
   route,
   type KernelConfig,
-} from '@odoro/server'
+} from '@odoro-cli/server'
 import { z } from 'zod'
 
 /** Ce que rend le controle de vie. */

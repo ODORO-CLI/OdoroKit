@@ -3,7 +3,7 @@
  *
  * ## Ce module n'est plus qu'une redirection
  *
- * La decision a ete extraite dans `@odoro/libs/motion-policy`, pour qu'un seul
+ * La decision a ete extraite dans `@odoro-cli/libs/motion-policy`, pour qu'un seul
  * endroit reponde a la question « faut-il animer ? », quel que soit le systeme
  * qui anime — la librairie, ou le moteur quand il est present.
  *

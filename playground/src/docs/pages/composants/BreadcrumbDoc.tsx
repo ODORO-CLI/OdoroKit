@@ -6,7 +6,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Breadcrumb } from '@odoro/libs/ui'
+import { Breadcrumb } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -21,7 +21,7 @@ export function BreadcrumbDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Breadcrumb"
         lead="Fil d'Ariane semantique : la derniere etape represente la page courante, porte aria-current et n'est jamais un lien. Les separateurs sont hors du flux accessible."
       />
@@ -31,7 +31,7 @@ export function BreadcrumbDoc(): ReactElement {
         lead="Quatre niveaux, de la racine a la page courante. Les etapes intermediaires sont des liens."
       >
         <DemoBlock
-          code={`import { Breadcrumb } from '@odoro/libs/ui'
+          code={`import { Breadcrumb } from '@odoro-cli/libs/ui'
 
 <Breadcrumb
   items={[

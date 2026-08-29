@@ -57,7 +57,7 @@ import {
   mergePresentation,
   useMotionState,
   type Customisable,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import { useEffect, useId, useRef, type ReactElement, type ReactNode } from 'react'
 
 /** Proprietes propres au composant. */

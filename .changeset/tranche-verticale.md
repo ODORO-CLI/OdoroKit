@@ -1,5 +1,5 @@
 ---
-'@odoro/engine': minor
+'@odoro-cli/engine': minor
 ---
 
 `readTokenColour` et `NOISE_FUNCTIONS_3D`.

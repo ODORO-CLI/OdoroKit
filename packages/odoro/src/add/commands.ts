@@ -26,7 +26,7 @@ import { requiredPackages, weighEntries } from './weight.js'
 import { applyPlan } from './writer.js'
 
 /** Registre public par defaut. */
-export const DEFAULT_REGISTRY = 'https://registre.odoro.dev'
+export const DEFAULT_REGISTRY = 'https://register.odoro.dev'
 
 /** Options communes a toutes les commandes de registre. */
 export interface RegistryOptions {

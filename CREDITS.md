@@ -40,7 +40,7 @@ d'utilitaires d'Odoro est une implementation independante.
 
 ## GSAP
 
-`@odoro/engine` s'appuie sur GSAP pour l'orchestration temporelle et pour sa
+`@odoro-cli/engine` s'appuie sur GSAP pour l'orchestration temporelle et pour sa
 boucle de rendu. GSAP est declare en dependance explicite et **jamais
 vendore** : sa licence interdit de retirer ou d'alterer ses notices de
 propriete, ce qui exclut de l'inliner dans un bundle publie.
@@ -80,7 +80,7 @@ un travail dont on se sert merite d'etre nomme, licence ou pas.
 
 Backend graphique du moteur pour les scenes 3D veritables — camera, eclairage,
 materiaux, profondeur. Charge exclusivement par import dynamique, depuis
-l'entree `@odoro/engine/three`.
+l'entree `@odoro-cli/engine/three`.
 
 > Copyright (c) 2010 three.js authors — licence MIT
 
@@ -131,7 +131,7 @@ l'explication de ce qu'elle fait et pourquoi.
 
 ## Jeux d'icones
 
-`@odoro/icons` ne dessine aucune icone. Il **importe** cinq jeux tiers, les
+`@odoro-cli/icons` ne dessine aucune icone. Il **importe** cinq jeux tiers, les
 normalise sur un contrat commun — une boite, un mode, une liste de noeuds — et
 en publie un module par jeu. Les traces sont ceux de leurs auteurs.
 
@@ -146,11 +146,11 @@ ailleurs.
 
 | Module                   | Jeu d'origine                    | Licence         | Icones |
 | ------------------------ | -------------------------------- | --------------- | ------ |
-| `@odoro/icons/filaire`   | Lucide                           | ISC             | 2048   |
-| `@odoro/icons/compact`   | Bootstrap Icons                  | MIT             | 2078   |
-| `@odoro/icons/classique` | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |
-| `@odoro/icons/etendu`    | Material Symbols (outlined, 400) | Apache-2.0      | 3903   |
-| `@odoro/icons/marques`   | Font Awesome Free (brands)       | voir ci-dessous | 609    |
+| `@odoro-cli/icons/filaire`   | Lucide                           | ISC             | 2048   |
+| `@odoro-cli/icons/compact`   | Bootstrap Icons                  | MIT             | 2078   |
+| `@odoro-cli/icons/classique` | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |
+| `@odoro-cli/icons/etendu`    | Material Symbols (outlined, 400) | Apache-2.0      | 3903   |
+| `@odoro-cli/icons/marques`   | Font Awesome Free (brands)       | voir ci-dessous | 609    |
 
 ### Lucide
 
@@ -189,7 +189,7 @@ Les polices ne sont pas employees : seuls les traces SVG le sont.
 
 ### Marques : une question de droit des marques, pas de licence
 
-`@odoro/icons/marques` contient 609 logos de services et de plateformes. Ils
+`@odoro-cli/icons/marques` contient 609 logos de services et de plateformes. Ils
 sont distribues par Font Awesome au sein du jeu gratuit, mais la licence CC BY
 **ne les couvre pas** : ce sont des marques deposees, et leur emploi releve des
 regles de chaque proprietaire, pas de celles de Font Awesome.

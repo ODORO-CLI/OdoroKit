@@ -35,7 +35,7 @@ import {
   type Customisable,
   type ReadyCallback,
   type ShaderColour,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import { useEffect, useMemo, useState, type ReactElement } from 'react'
 
 /** Ce que l'echappatoire recoit. */

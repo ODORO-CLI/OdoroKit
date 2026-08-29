@@ -1,6 +1,6 @@
 # Application Odoro — client et serveur
 
-Une application monopage React et une API bâtie sur `@odoro/server`, dans le
+Une application monopage React et une API bâtie sur `@odoro-cli/server`, dans le
 même dépôt.
 
 ```

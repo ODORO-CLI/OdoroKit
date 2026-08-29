@@ -41,9 +41,9 @@
  * @module
  */
 
-import { mergePresentation, type Customisable } from '@odoro/engine'
-import { Icon, type IconData } from '@odoro/icons'
-import { Maximize, Pause, Play, Volume_2, VolumeX } from '@odoro/icons/filaire'
+import { mergePresentation, type Customisable } from '@odoro-cli/engine'
+import { Icon, type IconData } from '@odoro-cli/icons'
+import { Maximize, Pause, Play, Volume_2, VolumeX } from '@odoro-cli/icons/filaire'
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 
 /** Une piste de sous-titres. */

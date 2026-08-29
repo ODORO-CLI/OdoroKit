@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Select } from '@odoro/libs/ui'
+import { Select } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -36,7 +36,7 @@ export function SelectDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Select"
         lead="Liste deroulante native habillee comme un champ de saisie. Le panneau d'options garde le comportement du systeme (clavier, tactile, lecteurs d'ecran) ; seule la boite fermee est habillee, avec le chevron redessine par-dessus."
       />

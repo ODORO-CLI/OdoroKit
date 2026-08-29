@@ -24,7 +24,7 @@
  * @module
  */
 
-import { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro/engine'
+import { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro-cli/engine'
 import { type RefObject, useEffect, useRef } from 'react'
 
 /** Position normalisee, origine au centre, bornee a [-1, 1]. */

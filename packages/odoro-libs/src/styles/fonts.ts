@@ -13,7 +13,7 @@
  * du catalogue Google Fonts reste acceptee en chaine libre.
  *
  * @example
- * import { loadGoogleFonts, applyFontFamily } from '@odoro/libs/styles'
+ * import { loadGoogleFonts, applyFontFamily } from '@odoro-cli/libs/styles'
  *
  * loadGoogleFonts([
  *   { family: 'Inter', weights: [400, 500, 700] },

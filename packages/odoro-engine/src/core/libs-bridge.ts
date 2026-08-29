@@ -1,5 +1,5 @@
 /**
- * Le pont vers `@odoro/libs`, quand il est present.
+ * Le pont vers `@odoro-cli/libs`, quand il est present.
  *
  * ## Pourquoi un pont plutot qu'une dependance
  *
@@ -11,7 +11,7 @@
  *
  * ## La boucle
  *
- * `@odoro/libs/motion` ouvre une boucle a un seul endroit : la mesure de
+ * `@odoro-cli/libs/motion` ouvre une boucle a un seul endroit : la mesure de
  * progression du defilement, qui se lit a l'image et non a l'evenement. Le
  * moteur en a une aussi — celle de GSAP, qui pilote tout le reste.
  *
@@ -30,7 +30,7 @@
  *
  * ## L'import est dynamique, et son echec est normal
  *
- * `@odoro/libs` est une dependance optionnelle. Son absence n'est pas une
+ * `@odoro-cli/libs` est une dependance optionnelle. Son absence n'est pas une
  * erreur : c'est le cas d'un projet qui n'emploie que le moteur. Le pont se
  * contente alors de ne rien faire.
  *
@@ -66,7 +66,7 @@ export async function bridgeToLibs(
 ): Promise<BridgeTeardown> {
   let libs: LibsMotionPolicy
   try {
-    libs = (await import('@odoro/libs/motion-policy')) as unknown as LibsMotionPolicy
+    libs = (await import('@odoro-cli/libs/motion-policy')) as unknown as LibsMotionPolicy
   } catch {
     // La librairie n'est pas installee : c'est un cas ordinaire, pas un echec.
     return () => undefined

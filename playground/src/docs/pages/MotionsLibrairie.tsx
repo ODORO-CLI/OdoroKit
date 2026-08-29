@@ -33,7 +33,7 @@ export function MotionsLibrairie(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/bits"
+        module="@odoro-cli/bits"
         title="Bibliotheque d animations"
         lead="Les effets transverses — pointeur, bordures, defilement, glissement, carrousel. Ceux qui servent dans tous les projets."
       />

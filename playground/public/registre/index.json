@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-29T17:58:21.180Z",
+  "generatedAt": "2026-08-29T23:37:11.509Z",
   "entries": [
     {
       "id": "background/aurora",
@@ -310,7 +310,10 @@
       "description": "Une masse en fusion qui respire, deformee par un bruit fractal et coloree par la palette.",
       "tier": "heavy",
       "backend": "three",
-      "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"]
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
     },
     {
       "id": "hooks/use-pointer-damped",
@@ -390,7 +393,9 @@
       "description": "Une rangee de logos qui defile sans fin, avec fondus aux extremites.",
       "tier": "light",
       "backend": false,
-      "registryDependencies": ["effect/marquee"]
+      "registryDependencies": [
+        "effect/marquee"
+      ]
     },
     {
       "id": "section/reveal-grid",

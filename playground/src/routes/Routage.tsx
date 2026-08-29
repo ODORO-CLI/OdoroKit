@@ -1,5 +1,5 @@
-import { Link, useNavigate, useParams, useSearchParams } from '@odoro/libs/router'
-import { Button } from '@odoro/libs/ui'
+import { Link, useNavigate, useParams, useSearchParams } from '@odoro-cli/libs/router'
+import { Button } from '@odoro-cli/libs/ui'
 
 /** Page demontrant les parametres de route et la chaine de requete. */
 export function Routage() {

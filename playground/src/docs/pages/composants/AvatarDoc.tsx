@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Avatar, AvatarGroup, type AvatarSize } from '@odoro/libs/ui'
+import { Avatar, AvatarGroup, type AvatarSize } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -28,7 +28,7 @@ export function AvatarDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Avatar"
         lead="Avatar avec repli automatique en initiales quand l'image manque ou echoue, et groupe superpose pour les equipes."
       />

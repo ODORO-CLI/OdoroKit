@@ -4,10 +4,10 @@
  * @module
  */
 
-import { Icon } from '@odoro/icons'
-import { Check } from '@odoro/icons/filaire'
+import { Icon } from '@odoro-cli/icons'
+import { Check } from '@odoro-cli/icons/filaire'
 import { type ReactElement, useState } from 'react'
-import { palette } from '@odoro/libs/styles'
+import { palette } from '@odoro-cli/libs/styles'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -79,7 +79,7 @@ export function Couleurs(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/styles"
+        module="@odoro-cli/libs/styles"
         title="Couleurs"
         lead="Une seule couche : 290 nuances OKLCH, designees par leur place dans l'echelle. Aucun nom de role."
       />
@@ -166,7 +166,7 @@ export function Couleurs(): ReactElement {
 <div style={{ backgroundColor: 'var(--o-palette-sky-500)' }} />
 
 // Et en JavaScript, la valeur brute
-import { palette } from '@odoro/libs/styles'
+import { palette } from '@odoro-cli/libs/styles'
 palette['sky-500'] // 'oklch(68.5% 0.169 237.323)'`}
         />
       </Section>

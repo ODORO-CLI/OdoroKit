@@ -84,7 +84,7 @@ describe('variants', () => {
 describe('artefacts generes', () => {
   it('la feuille de base sur disque correspond aux tokens courants', () => {
     const onDisk = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
-    // Si ce test echoue, relancer `pnpm --filter @odoro/libs build:css`.
+    // Si ce test echoue, relancer `pnpm --filter @odoro-cli/libs build:css`.
     expect(onDisk).toBe(renderCss('core'))
   })
 

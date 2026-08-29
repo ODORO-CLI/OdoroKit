@@ -17,7 +17,7 @@
  * @module
  */
 
-import { tokens } from '@odoro/libs/styles'
+import { tokens } from '@odoro-cli/libs/styles'
 import type { RegistryMeta } from 'odoro/registry'
 
 /**

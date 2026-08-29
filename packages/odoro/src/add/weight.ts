@@ -92,7 +92,7 @@ export function weighEntries(entries: readonly PublishedEntry[]): WeightWarning[
  *
  * ## Ce qui n'y figure pas
  *
- * Ni `gsap`, ni `ogl`, ni `three`. Ce sont des dependances d'`@odoro/engine` :
+ * Ni `gsap`, ni `ogl`, ni `three`. Ce sont des dependances d'`@odoro-cli/engine` :
  * elles arrivent avec lui, et les reclamer une seconde fois au projet
  * d'accueil produirait un avertissement que rien ne resout — la personne
  * installerait un paquet qu'elle avait deja, ou apprendrait a ignorer le
@@ -105,7 +105,7 @@ export function weighEntries(entries: readonly PublishedEntry[]): WeightWarning[
  * telecharge par le navigateur, ce qui ne depend pas de qui declare quoi.
  *
  * @example
- * requiredPackages(entries) // ['clsx', '@odoro/engine']
+ * requiredPackages(entries) // ['clsx', '@odoro-cli/engine']
  */
 export function requiredPackages(entries: readonly PublishedEntry[]): string[] {
   const packages = new Set<string>()
@@ -116,7 +116,7 @@ export function requiredPackages(entries: readonly PublishedEntry[]): string[] {
     // Un backend graphique ou un plugin d'orchestration signifie que l'entree
     // passe par le moteur. C'est lui, et lui seul, que le projet installe.
     if (entry.engine.gl !== false || entry.engine.gsap.length > 0) {
-      packages.add('@odoro/engine')
+      packages.add('@odoro-cli/engine')
     }
   }
 

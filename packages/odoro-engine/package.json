@@ -1,5 +1,5 @@
 {
-  "name": "@odoro/engine",
+  "name": "@odoro-cli/engine",
   "version": "0.0.0",
   "type": "module",
   "license": "UNLICENSED",
@@ -32,7 +32,7 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
-    "@odoro/libs": ">=0.0.0"
+    "@odoro-cli/libs": ">=0.0.0"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -45,7 +45,7 @@
     "@types/react-dom": "^19.2.1",
     "@types/three": "^0.185.4",
     "jsdom": "^27.0.0",
-    "@odoro/libs": "workspace:*",
+    "@odoro-cli/libs": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",
@@ -53,7 +53,7 @@
     "vitest": "^3.2.4"
   },
   "peerDependenciesMeta": {
-    "@odoro/libs": {
+    "@odoro-cli/libs": {
       "optional": true
     }
   }

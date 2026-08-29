@@ -1,4 +1,4 @@
-import { Link, Outlet, Route, Router, Routes, useLocation } from '@odoro/libs/router'
+import { Link, Outlet, Route, Router, Routes, useLocation } from '@odoro-cli/libs/router'
 
 import { About } from '@/routes/About'
 import { Home } from '@/routes/Home'

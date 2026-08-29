@@ -20,7 +20,7 @@ describe('depFileName', () => {
   })
 
   it('ne laisse aucun separateur dans le nom produit', () => {
-    for (const specifier of ['react', '@scope/paquet', 'a/b/c', '@odoro/libs/router']) {
+    for (const specifier of ['react', '@scope/paquet', 'a/b/c', '@odoro-cli/libs/router']) {
       expect(depFileName(specifier)).not.toContain('/')
     }
   })
@@ -39,7 +39,7 @@ describe('inspectDependency', () => {
   })
 
   it('n exige aucun intermediaire pour un module natif', () => {
-    const info = inspectDependency('@odoro/libs/router', MONOREPO)
+    const info = inspectDependency('@odoro-cli/libs/router', MONOREPO)
     expect(info.needsInterop).toBe(false)
     expect(info.namedExports).toEqual([])
   })

@@ -21,7 +21,7 @@
  * @module
  */
 
-import { palette } from '@odoro/libs/styles'
+import { palette } from '@odoro-cli/libs/styles'
 import {
   useMemo,
   useState,

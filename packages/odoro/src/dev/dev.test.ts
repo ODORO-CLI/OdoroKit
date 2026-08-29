@@ -88,10 +88,11 @@ describe('depFileName', () => {
     ['react', 'react.js'],
     ['react-dom/client', 'react-dom_client.js'],
     ['@scope/paquet', 'scope_paquet.js'],
-    // Le scope perd son arobase et son slash devient un tiret bas :
-    // `@odoro/libs/router` et `odoro/libs/router` ne peuvent pas collisionner,
-    // puisque le premier segment differe.
-    ['@odoro/libs/router', 'odoro_libs_router.js'],
+    // Le scope perd son arobase et ses slashs deviennent des tirets bas. Le
+    // tiret du scope, lui, reste : `@odoro-cli/libs/router` et
+    // `odoro/cli/libs/router` produisent des noms differents, donc rien ne
+    // collisionne.
+    ['@odoro-cli/libs/router', 'odoro-cli_libs_router.js'],
   ])('%j devient %j', (specifier, expected) => {
     expect(depFileName(specifier)).toBe(expected)
   })

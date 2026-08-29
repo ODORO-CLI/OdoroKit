@@ -31,7 +31,7 @@ import {
   createContainer,
   createLogger,
   loadConfig,
-} from '@odoro/server'
+} from '@odoro-cli/server'
 import express from 'express'
 
 import { createHealthModule } from './modules/health/index.js'

@@ -300,7 +300,7 @@ class SurfaceManager {
  * Arbitre de la page.
  *
  * @example
- * import { surfaceManager } from '@odoro/engine'
+ * import { surfaceManager } from '@odoro-cli/engine'
  *
  * const result = surfaceManager.acquire({ backend: 'ogl', name: 'aurora', host })
  * if (result.ok) renderer.canvas = result.surface.canvas

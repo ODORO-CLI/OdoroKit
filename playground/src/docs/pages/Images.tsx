@@ -108,7 +108,7 @@ export function Images(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/bits"
+        module="@odoro-cli/bits"
         title="Images"
         lead="Un cadre qui ne fait pas sauter la page, une comparaison qui marche au clavier, et une deformation qui s'applique a n'importe quel contenu."
       />

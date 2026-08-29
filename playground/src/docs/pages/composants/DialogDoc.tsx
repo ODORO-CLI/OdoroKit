@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Button, Dialog, Input } from '@odoro/libs/ui'
+import { Button, Dialog, Input } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -98,7 +98,7 @@ export function DialogDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Dialog"
         lead="Boite de dialogue modale batie sur l'element <dialog> natif ouvert en mode modal : piegeage du focus, fermeture par Echap, inertie du reste de la page et couche superieure sont fournis par le navigateur."
       />
@@ -108,7 +108,7 @@ export function DialogDoc(): ReactElement {
         lead="Un bouton ouvre une boite de confirmation : titre, description et pied d'actions Annuler / Confirmer."
       >
         <DemoBlock
-          code={`import { Button, Dialog } from '@odoro/libs/ui'
+          code={`import { Button, Dialog } from '@odoro-cli/libs/ui'
 
 const [open, setOpen] = useState(false)
 

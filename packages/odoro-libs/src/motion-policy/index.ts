@@ -10,7 +10,7 @@
  * une page precise.
  *
  * La decision vit donc ici, dans un module qui ne depend de rien : ni React,
- * ni le moteur. `@odoro/libs/motion` le consulte, et `@odoro/engine` peut le
+ * ni le moteur. `@odoro-cli/libs/motion` le consulte, et `@odoro-cli/engine` peut le
  * consulter aussi, sans qu'aucun des deux ne depende de l'autre.
  *
  * ## La boucle est cedable
@@ -22,7 +22,7 @@
  * par seconde.
  *
  * Cette boucle-la est **cedable**. Par defaut elle emploie
- * `requestAnimationFrame` ; quand `@odoro/engine` est present, il installe son
+ * `requestAnimationFrame` ; quand `@odoro-cli/engine` est present, il installe son
  * propre ordonnanceur et tout passe par le ticker unique de GSAP.
  *
  * Deux boucles concurrentes produisent un tremblement qu'on n'attribue jamais
@@ -157,7 +157,7 @@ let scheduler: FrameScheduler = rafScheduler
 /**
  * Remplace l'ordonnanceur de la librairie.
  *
- * Appele par `@odoro/engine` a son montage, pour que les mesures de la
+ * Appele par `@odoro-cli/engine` a son montage, pour que les mesures de la
  * librairie passent par le meme ticker que les animations du moteur. Sans
  * cela, deux boucles lisent et ecrivent la mise en page dans un ordre que
  * l'autre ignore.

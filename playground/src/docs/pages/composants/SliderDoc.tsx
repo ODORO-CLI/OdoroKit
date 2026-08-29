@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Slider } from '@odoro/libs/ui'
+import { Slider } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -31,7 +31,7 @@ export function SliderDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Slider"
         lead="Curseur de valeur numerique sur une plage. S'appuie sur l'input natif type='range' : clavier, tactile et lecteurs d'ecran sont pris en charge par le navigateur ; la couleur vient de accent-color."
       />

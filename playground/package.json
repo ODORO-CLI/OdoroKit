@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@odoro/engine": "workspace:*",
-    "@odoro/icons": "workspace:*",
-    "@odoro/libs": "workspace:*",
+    "@odoro-cli/engine": "workspace:*",
+    "@odoro-cli/icons": "workspace:*",
+    "@odoro-cli/libs": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

@@ -2,7 +2,7 @@
 
 import { type ReactElement, useEffect, useState } from 'react'
 
-import { Progress } from '@odoro/libs/ui'
+import { Progress } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -49,7 +49,7 @@ export function ProgressDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Progress"
         lead="Barre de progression determinee ou indeterminee, en quatre registres de couleur et trois hauteurs."
       />

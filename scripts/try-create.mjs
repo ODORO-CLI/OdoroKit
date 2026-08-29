@@ -2,7 +2,7 @@
  * Cree un vrai projet a partir des paquets du depot, sans rien publier.
  *
  * Les paquets ne sont pas encore sur npm : un projet echafaude ne peut donc
- * pas resoudre `odoro` ni `@odoro/libs`. Ce script fait le detour complet —
+ * pas resoudre `odoro` ni `@odoro-cli/libs`. Ce script fait le detour complet —
  * compilation, empaquetage, echafaudage, reecriture des dependances vers les
  * archives locales, installation — pour qu'un essai reel tienne en une
  * commande.
@@ -57,14 +57,14 @@ mkdirSync(archives, { recursive: true })
  * Les paquets a empaqueter, par template.
  *
  * Le nom publie et le dossier different depuis le passage au scope : `npm pack`
- * nomme l'archive d'apres le premier — `@odoro/libs` donne
+ * nomme l'archive d'apres le premier — `@odoro-cli/libs` donne
  * `odoro-libs-0.0.0.tgz` — mais le dossier, lui, n'a pas bouge.
  */
 const PACKAGES = [
-  { name: '@odoro/libs', folder: 'odoro-libs', field: 'dependencies' },
+  { name: '@odoro-cli/libs', folder: 'odoro-libs', field: 'dependencies' },
   { name: 'odoro', folder: 'odoro', field: 'devDependencies' },
   ...(template === 'react-ts-server'
-    ? [{ name: '@odoro/server', folder: 'odoro-server', field: 'dependencies' }]
+    ? [{ name: '@odoro-cli/server', folder: 'odoro-server', field: 'dependencies' }]
     : []),
 ]
 

@@ -12,7 +12,7 @@ import {
   Stagger,
   TextReveal,
   revealPresets,
-} from '@odoro/libs/motion'
+} from '@odoro-cli/libs/motion'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -173,7 +173,7 @@ export function MotionComposants(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/motion"
+        module="@odoro-cli/libs/motion"
         title="Composants"
         lead="Quatre composants declaratifs : Reveal et Stagger pour les entrees a l'ecran, TextReveal pour le texte, Animate pour tout le reste."
       />
@@ -185,7 +185,7 @@ export function MotionComposants(): ReactElement {
         <RevealDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { Reveal } from '@odoro/libs/motion'
+          code={`import { Reveal } from '@odoro-cli/libs/motion'
 
 <Reveal preset="fade-up" duration="slow" threshold={0.3} once>
   <Carte />
@@ -200,7 +200,7 @@ export function MotionComposants(): ReactElement {
         <StaggerDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { Stagger } from '@odoro/libs/motion'
+          code={`import { Stagger } from '@odoro-cli/libs/motion'
 
 <Stagger step={80} className="o-grid o-grid-cols-3 o-gap-3">
   {items.map((item) => (
@@ -217,7 +217,7 @@ export function MotionComposants(): ReactElement {
         <TextRevealDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { TextReveal } from '@odoro/libs/motion'
+          code={`import { TextReveal } from '@odoro-cli/libs/motion'
 
 <h1 className="o-text-5xl o-font-bold">
   <TextReveal by="word" step={60}>
@@ -234,7 +234,7 @@ export function MotionComposants(): ReactElement {
         <AnimateDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { Animate } from '@odoro/libs/motion'
+          code={`import { Animate } from '@odoro-cli/libs/motion'
 
 const [count, setCount] = useState(0)
 

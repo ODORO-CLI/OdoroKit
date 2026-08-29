@@ -56,7 +56,7 @@ import {
 const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
   'react-ts': 'Application monopage — React, TypeScript, routeur et animations Odoro',
   'react-ts-server':
-    'Client et serveur — la meme application, plus un socle @odoro/server modulaire et un Dockerfile',
+    'Client et serveur — la meme application, plus un socle @odoro-cli/server modulaire et un Dockerfile',
 }
 
 /**

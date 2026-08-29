@@ -12,7 +12,7 @@ import {
   readDebugSnapshot,
   registry,
   type DebugSnapshot,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import { type ReactElement, useEffect, useState } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -166,7 +166,7 @@ export function MoteurDiagnostic(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/engine"
+        module="@odoro-cli/engine"
         title="Diagnostic"
         lead="Ce que le moteur tient, a tout instant : qui s'abonne a la boucle, et quelles ressources graphiques sont vivantes."
       />
@@ -183,7 +183,7 @@ export function MoteurDiagnostic(): ReactElement {
         lead="Tout ce qui doit etre libere a la main s'enregistre. La contrepartie est une poignee, dont l'appel de liberation retire l'entree."
       >
         <CodeBlock
-          code={`import { registry } from '@odoro/engine'
+          code={`import { registry } from '@odoro-cli/engine'
 
 const handle = registry.register({
   kind: 'timeline',
@@ -203,7 +203,7 @@ handle.release()`}
         lead="Le meme releve, en surcouche, active par un parametre d'URL plutot que par une variable de compilation : on l'ouvre sur la page qui pose probleme, sans recompiler."
       >
         <CodeBlock
-          code={`import { OdoroDebugPanel, isDebugRequested } from '@odoro/engine'
+          code={`import { OdoroDebugPanel, isDebugRequested } from '@odoro-cli/engine'
 
 // Ajoutez ?${DEBUG_PARAM} a l URL pour l afficher.
 {isDebugRequested() ? <OdoroDebugPanel /> : null}`}

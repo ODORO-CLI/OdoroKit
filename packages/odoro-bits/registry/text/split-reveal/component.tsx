@@ -39,7 +39,7 @@ import {
   type Customisable,
   type ReadyCallback,
   type SplitBy,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import {
   useEffect,
   useState,

@@ -1,5 +1,5 @@
 ---
-'@odoro/libs': minor
+'@odoro-cli/libs': minor
 'odoro': minor
 ---
 

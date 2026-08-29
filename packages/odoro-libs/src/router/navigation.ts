@@ -3,7 +3,7 @@
  *
  * ## Pourquoi le router expose un evenement plutot qu'une integration
  *
- * `@odoro/engine` doit detruire les declencheurs de defilement de la page qui
+ * `@odoro-cli/engine` doit detruire les declencheurs de defilement de la page qui
  * part, et rafraichir les positions **apres** que la nouvelle page a rendu.
  * Sans cela, les declencheurs gardent les positions de l'ancienne page : les
  * animations liees au defilement se declenchent trop tot ou trop tard, et le
@@ -28,7 +28,7 @@
  * Il est emis apres le rendu, pas apres le chargement des images et des
  * polices. Une image qui arrive ensuite deplace la mise en page et invalide
  * les positions mesurees. C'est a l'abonne d'attendre ce qu'il doit attendre —
- * `@odoro/engine` le fait dans `onRouteChange`, et c'est pour cela que cette
+ * `@odoro-cli/engine` le fait dans `onRouteChange`, et c'est pour cela que cette
  * fonction existe de son cote plutot qu'ici.
  *
  * @module

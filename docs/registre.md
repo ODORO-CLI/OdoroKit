@@ -75,7 +75,7 @@ voisine en millisecondes produisent une erreur qu'on ne voit qu'à l'exécution.
 
 ## Ce que la validation refuse
 
-`pnpm --filter @odoro/bits registry:validate` échoue dans six cas.
+`pnpm --filter @odoro-cli/bits registry:validate` échoue dans six cas.
 
 **Un `meta.json` mal formé.** Le message cite le chemin du champ fautif —
 `hero/molten → perf.tier : …` — plutôt que de dire « invalide » et laisser
@@ -112,7 +112,7 @@ quarante allers-retours.
 
 ## Les artefacts servis
 
-`pnpm --filter @odoro/bits registry:build` compile le registre en JSON statiques :
+`pnpm --filter @odoro-cli/bits registry:build` compile le registre en JSON statiques :
 
 ```
 dist/registry/
@@ -167,7 +167,7 @@ composants pour lui.
 ```json
 {
   "version": 1,
-  "registry": "https://registre.odoro.dev",
+  "registry": "https://register.odoro.dev",
   "aliases": { "import": "@/odoro", "directory": "src/odoro" },
   "installed": {
     "hooks/use-poster": {
@@ -216,7 +216,7 @@ destination dépend du projet d'accueil. Les sources du registre écrivent donc
 jeton ne résout nulle part, ce qui est voulu : un composant qui l'aurait gardé
 par accident échoue à la compilation au lieu d'aller chercher sur npm.
 
-Tout le reste est laissé intact. `@odoro/engine`, `react`, `gsap`, `three` sont
+Tout le reste est laissé intact. `@odoro-cli/engine`, `react`, `gsap`, `three` sont
 de vrais paquets : ils s'installent, ils ne se copient pas.
 
 ### L'écriture est transactionnelle
@@ -326,7 +326,7 @@ la présence du nom, pas sur la correction de la fusion : celle-ci vient de
 composant restera seul de son espèce dans une page qui a changé de thème.
 
 ```
-$ pnpm --filter @odoro/bits registry:validate
+$ pnpm --filter @odoro-cli/bits registry:validate
 Registre invalide — 1 probleme(s) :
 
   · hooks/use-poster : le token --o-duration-slow est declare mais n'est

@@ -2,7 +2,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Checkbox } from '@odoro/libs/ui'
+import { Checkbox } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -85,7 +85,7 @@ export function CheckboxDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Checkbox"
         lead="Case a cocher dessinee au-dessus de l'input natif. L'input reste dans la page (masque par o-sr-only) : clavier, formulaires et lecteurs d'ecran passent par lui ; la boite visible n'est qu'un dessin aria-hidden."
       />

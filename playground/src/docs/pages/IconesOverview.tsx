@@ -4,8 +4,8 @@
  * @module
  */
 
-import { Icon, type IconData } from '@odoro/icons'
-import { ArrowRight, Bell, Check, Heart, Search, Star } from '@odoro/icons/filaire'
+import { Icon, type IconData } from '@odoro-cli/icons'
+import { ArrowRight, Bell, Check, Heart, Search, Star } from '@odoro-cli/icons/filaire'
 import { type ReactElement } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -70,7 +70,7 @@ export function IconesOverview(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/icons"
+        module="@odoro-cli/icons"
         title="Icones"
         lead="Cinq jeux, dix mille six cent trente-neuf icones, un seul composant pour les rendre."
       />
@@ -94,8 +94,8 @@ export function IconesOverview(): ReactElement {
 
         <CodeBlock
           lang="tsx"
-          code={`import { Icon } from '@odoro/icons'
-import { Download, Search } from '@odoro/icons/filaire'
+          code={`import { Icon } from '@odoro-cli/icons'
+import { Download, Search } from '@odoro-cli/icons/filaire'
 
 // Decorative, a cote d'un mot : elle grandit avec lui.
 <button className="o-inline-flex o-items-center o-gap-2 o-text-brand-600">

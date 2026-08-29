@@ -2,11 +2,11 @@
  * Composants d'interface d'Odoro.
  *
  * Tous s'appuient exclusivement sur la couche semantique du systeme de style :
- * ils fonctionnent avec `@odoro/libs/styles.css` seul, et se retheme
+ * ils fonctionnent avec `@odoro-cli/libs/styles.css` seul, et se retheme
  * integralement en surchargeant les variables `--o-color-*`.
  *
  * @example
- * import { Button, Card, Dialog, Tabs, useToast } from '@odoro/libs/ui'
+ * import { Button, Card, Dialog, Tabs, useToast } from '@odoro-cli/libs/ui'
  *
  * @module
  */

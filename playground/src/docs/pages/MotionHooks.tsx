@@ -12,7 +12,7 @@ import {
   useInView,
   usePresence,
   useScrollProgress,
-} from '@odoro/libs/motion'
+} from '@odoro-cli/libs/motion'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -150,7 +150,7 @@ export function MotionHooks(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/motion"
+        module="@odoro-cli/libs/motion"
         title="Hooks"
         lead="Quatre hooks pour piloter le mouvement a la main : jouer une animation, retarder un demontage, observer le viewport, suivre le defilement."
       />
@@ -162,7 +162,7 @@ export function MotionHooks(): ReactElement {
         <UseAnimateDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { getMotionPreset, useAnimate } from '@odoro/libs/motion'
+          code={`import { getMotionPreset, useAnimate } from '@odoro-cli/libs/motion'
 
 const [ref, controls] = useAnimate<HTMLSpanElement>()
 
@@ -182,7 +182,7 @@ return <span ref={ref} className="o-badge">3 erreurs</span>`}
         <UsePresenceDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { usePresence } from '@odoro/libs/motion'
+          code={`import { usePresence } from '@odoro-cli/libs/motion'
 
 const { ref, isMounted, status } = usePresence<HTMLDivElement>(open, {
   exit: { opacity: 0, transform: 'scale(0.96)' },
@@ -201,7 +201,7 @@ return <div ref={ref}>...</div>`}
         <UseInViewDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { useInView } from '@odoro/libs/motion'
+          code={`import { useInView } from '@odoro-cli/libs/motion'
 
 const [ref, inView] = useInView<HTMLDivElement>({ threshold: 0.6 })
 
@@ -216,7 +216,7 @@ return <div ref={ref} className={inView ? 'o-animate-fade-in-up' : 'o-invisible'
         <UseScrollProgressDemo />
         <CodeBlock
           lang="tsx"
-          code={`import { useScrollProgress } from '@odoro/libs/motion'
+          code={`import { useScrollProgress } from '@odoro-cli/libs/motion'
 
 const progress = useScrollProgress()
 

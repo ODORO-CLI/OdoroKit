@@ -14,7 +14,7 @@ import {
   GRID_FRAGMENT,
   surfaceManager,
   useShaderSurface,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import { type ReactElement, useRef, useState } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -194,7 +194,7 @@ export function MoteurWebgl(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/engine"
+        module="@odoro-cli/engine"
         title="Surfaces WebGL"
         lead="Deux backends, un arbitre qui compte les contextes, et un repli obligatoire pour tout ce qui coute cher."
       />
@@ -213,7 +213,7 @@ export function MoteurWebgl(): ReactElement {
         </Callout>
 
         <CodeBlock
-          code={`import { AURORA_FRAGMENT, useShaderSurface } from '@odoro/engine'
+          code={`import { AURORA_FRAGMENT, useShaderSurface } from '@odoro-cli/engine'
 
 function Aurore(): ReactElement {
   const { ref, ready, refused } = useShaderSurface<HTMLDivElement>({

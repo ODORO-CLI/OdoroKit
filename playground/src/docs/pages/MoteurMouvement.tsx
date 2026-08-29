@@ -8,7 +8,7 @@
  * @module
  */
 
-import { motionPolicy, useMotionState, type QualitySetting } from '@odoro/engine'
+import { motionPolicy, useMotionState, type QualitySetting } from '@odoro-cli/engine'
 import { type ReactElement, useEffect } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -119,7 +119,7 @@ export function MoteurMouvement(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/engine"
+        module="@odoro-cli/engine"
         title="Politique de mouvement"
         lead="Une decision unique, prise a un seul endroit : faut-il animer, et jusqu'ou pousser le rendu."
       />
@@ -130,7 +130,7 @@ export function MoteurMouvement(): ReactElement {
       >
         <PolitiqueDemo />
         <CodeBlock
-          code={`import { useMotionState } from '@odoro/engine'
+          code={`import { useMotionState } from '@odoro-cli/engine'
 
 function Fond(): ReactElement {
   const { reduced, quality } = useMotionState()

@@ -210,7 +210,7 @@ export interface ScrollScrubOptions {
 /**
  * Progression du defilement d'un element, de 0 a 1.
  *
- * ## La frontiere avec `@odoro/libs/motion`
+ * ## La frontiere avec `@odoro-cli/libs/motion`
  *
  * Les deux paquets touchent au defilement, et ne font pas la meme chose.
  *

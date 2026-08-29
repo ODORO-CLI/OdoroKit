@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Button, Card } from '@odoro/libs/ui'
+import { Button, Card } from '@odoro-cli/libs/ui'
 
 import {
   DemoBlock,
@@ -28,7 +28,7 @@ export function CardDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Card"
         lead="Carte de contenu composable : media, titre, description, contenu et pied optionnels, en trois registres visuels."
       />

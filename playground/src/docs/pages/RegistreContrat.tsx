@@ -15,7 +15,7 @@
  */
 
 import { type ReactElement, useRef, useState } from 'react'
-import { Link } from '@odoro/libs/router'
+import { Link } from '@odoro-cli/libs/router'
 
 import { ScrollProgress } from '@/odoro/effect/ScrollProgress.jsx'
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -81,7 +81,7 @@ export function RegistreContrat(): ReactElement {
       </ScrollProgress>
 
       <PageHeader
-        module="@odoro/engine"
+        module="@odoro-cli/engine"
         title="Le contrat de personnalisation"
         lead="Cinq facons d'adapter un composant sans en editer la source — et donc sans avoir a reporter la retouche a chaque mise a jour."
       />
@@ -263,7 +263,7 @@ export function RegistreContrat(): ReactElement {
         </div>
 
         <CodeBlock
-          code={`$ pnpm --filter @odoro/bits registry:validate
+          code={`$ pnpm --filter @odoro-cli/bits registry:validate
 Registre invalide — 1 probleme(s) :
 
   · hooks/use-poster : le token --o-duration-slow est declare mais n'est

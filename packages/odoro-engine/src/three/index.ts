@@ -20,7 +20,7 @@
  * kilo-octets.
  *
  * @example
- * import { useScene, useCameraRig } from '@odoro/engine/three'
+ * import { useScene, useCameraRig } from '@odoro-cli/engine/three'
  *
  * @module
  */

@@ -10,11 +10,11 @@ import {
   useToast,
   buttonClasses,
   inputClasses,
-} from '@odoro/libs/ui'
+} from '@odoro-cli/libs/ui'
 ```
 
 Tous les composants s'appuient **uniquement** sur la couche sémantique du
-système de style. Ils fonctionnent donc avec `@odoro/libs/styles.css` seule, et
+système de style. Ils fonctionnent donc avec `@odoro-cli/libs/styles.css` seule, et
 se rethèment intégralement en surchargeant les variables `--o-color-*`, sans
 toucher à leur code.
 

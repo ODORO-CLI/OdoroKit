@@ -27,7 +27,7 @@ import {
   useMotionState,
   useScrollScrub,
   type Customisable,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import { useCallback, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 /** Une etape. */

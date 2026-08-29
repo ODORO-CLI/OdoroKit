@@ -1,4 +1,4 @@
-import { Link } from '@odoro/libs/router'
+import { Link } from '@odoro-cli/libs/router'
 
 /** Page affichee pour toute route inconnue. */
 export function NotFound() {

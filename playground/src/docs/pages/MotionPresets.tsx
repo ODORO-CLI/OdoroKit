@@ -5,7 +5,7 @@
  */
 
 import { type ReactElement, useState } from 'react'
-import { Animate, type MotionPresetName, motionPresets } from '@odoro/libs/motion'
+import { Animate, type MotionPresetName, motionPresets } from '@odoro-cli/libs/motion'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -58,7 +58,7 @@ export function MotionPresets(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/motion"
+        module="@odoro-cli/libs/motion"
         title="Presets"
         lead="Chaque preset embarque ses images-cles, sa duree et sa courbe par defaut. Cliquez sur une carte pour rejouer son animation."
       />
@@ -90,7 +90,7 @@ export function MotionPresets(): ReactElement {
       >
         <CodeBlock
           lang="tsx"
-          code={`import { Animate, getMotionPreset, useAnimate } from '@odoro/libs/motion'
+          code={`import { Animate, getMotionPreset, useAnimate } from '@odoro-cli/libs/motion'
 
 // Declaratif : rejoue a chaque changement de trigger
 <Animate preset="tada" trigger={errorCount}>

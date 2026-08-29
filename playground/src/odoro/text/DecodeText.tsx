@@ -30,7 +30,7 @@ import {
   useOnReady,
   type Customisable,
   type ReadyCallback,
-} from '@odoro/engine'
+} from '@odoro-cli/engine'
 import {
   useCallback,
   useEffect,

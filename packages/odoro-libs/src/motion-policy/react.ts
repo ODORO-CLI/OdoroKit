@@ -1,7 +1,7 @@
 /**
  * Le pont React de la politique de mouvement.
  *
- * Il vit a part du module de politique, qui ne depend de rien : `@odoro/engine`
+ * Il vit a part du module de politique, qui ne depend de rien : `@odoro-cli/engine`
  * consulte la politique sans passer par React, et un projet qui n'anime rien
  * n'a pas a charger un hook pour connaitre une preference systeme.
  *

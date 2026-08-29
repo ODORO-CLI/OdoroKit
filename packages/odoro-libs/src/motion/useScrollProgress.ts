@@ -7,10 +7,10 @@
  * navigateur emet des dizaines d'evenements de defilement par seconde, et
  * mesurer a chacun recalcule la mise en page autant de fois.
  *
- * C'est la seule chose dans `@odoro/libs/motion` qui ouvre une boucle — tout
+ * C'est la seule chose dans `@odoro-cli/libs/motion` qui ouvre une boucle — tout
  * le reste passe par la Web Animations API, pilotee par le compositeur. Elle
  * passe donc par `onFrame`, l'ordonnanceur cedable de
- * `@odoro/libs/motion-policy` : quand `@odoro/engine` est present, il
+ * `@odoro-cli/libs/motion-policy` : quand `@odoro-cli/engine` est present, il
  * l'installe sur son ticker et il n'y a plus qu'une boucle sur la page.
  *
  * @module

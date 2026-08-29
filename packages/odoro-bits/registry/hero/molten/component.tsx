@@ -38,8 +38,8 @@ import {
   type Customisable,
   type QualityLevel,
   type ReadyCallback,
-} from '@odoro/engine'
-import { useScene, type SceneContext } from '@odoro/engine/three'
+} from '@odoro-cli/engine'
+import { useScene, type SceneContext } from '@odoro-cli/engine/three'
 import { useMemo, useRef, useState, type ReactElement } from 'react'
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'

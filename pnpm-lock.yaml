@@ -94,13 +94,13 @@ importers:
 
   packages/odoro-bits:
     devDependencies:
-      '@odoro/engine':
+      '@odoro-cli/engine':
         specifier: workspace:*
         version: link:../odoro-engine
-      '@odoro/icons':
+      '@odoro-cli/icons':
         specifier: workspace:*
         version: link:../odoro-icons
-      '@odoro/libs':
+      '@odoro-cli/libs':
         specifier: workspace:*
         version: link:../odoro-libs
       '@types/node':
@@ -137,7 +137,7 @@ importers:
         specifier: ^0.185.1
         version: 0.185.1
     devDependencies:
-      '@odoro/libs':
+      '@odoro-cli/libs':
         specifier: workspace:*
         version: link:../odoro-libs
       '@testing-library/react':
@@ -285,13 +285,13 @@ importers:
 
   playground:
     dependencies:
-      '@odoro/engine':
+      '@odoro-cli/engine':
         specifier: workspace:*
         version: link:../packages/odoro-engine
-      '@odoro/icons':
+      '@odoro-cli/icons':
         specifier: workspace:*
         version: link:../packages/odoro-icons
-      '@odoro/libs':
+      '@odoro-cli/libs':
         specifier: workspace:*
         version: link:../packages/odoro-libs
       react:

@@ -5,7 +5,7 @@
  */
 
 import { type ReactElement } from 'react'
-import { Link } from '@odoro/libs/router'
+import { Link } from '@odoro-cli/libs/router'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, DemoBlock, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -15,7 +15,7 @@ export function StylesOverview(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/styles"
+        module="@odoro-cli/libs/styles"
         title="Le systeme de style"
         lead="Une seule source de verite — les design tokens — dont tout derive : variables CSS, utilitaires atomiques et composants. Pas de moteur JIT, pas de scan du code : la feuille est statique, importable telle quelle."
       />
@@ -44,8 +44,8 @@ export function StylesOverview(): ReactElement {
       >
         <CodeBlock
           lang="ts"
-          code={`import '@odoro/libs/styles.css'      // ~12 000 classes : structure + semantique
-import '@odoro/libs/styles.full.css' // ~17 500 classes : + o-bg-sky-500, o-text-rose-300...`}
+          code={`import '@odoro-cli/libs/styles.css'      // ~12 000 classes : structure + semantique
+import '@odoro-cli/libs/styles.full.css' // ~17 500 classes : + o-bg-sky-500, o-text-rose-300...`}
         />
         <Callout>
           Les composants d'<code className="o-font-mono o-text-sm">odoro-libs/ui</code>{' '}
@@ -61,7 +61,7 @@ import '@odoro/libs/styles.full.css' // ~17 500 classes : + o-bg-sky-500, o-text
       >
         <CodeBlock
           lang="tsx"
-          code={`import { cx, variants } from '@odoro/libs/styles'
+          code={`import { cx, variants } from '@odoro-cli/libs/styles'
 
 cx('o-flex', condition && 'o-hidden', { 'o-p-4': padded })
 // 'o-flex o-p-4'
@@ -85,7 +85,7 @@ card({ tone: 'brand' }) // 'o-rounded-lg ... o-bg-brand-50 dark:o-bg-brand-950 o
       >
         <CodeBlock
           lang="ts"
-          code={`import { tokens } from '@odoro/libs/styles'
+          code={`import { tokens } from '@odoro-cli/libs/styles'
 
 tokens.color.primary        // 'oklch(52.4% 0.212 275)'
 tokens.palette['sky-500']   // 'oklch(68.5% 0.169 237.323)'

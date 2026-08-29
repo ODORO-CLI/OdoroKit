@@ -6,7 +6,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Button, Tooltip, type TooltipPlacement } from '@odoro/libs/ui'
+import { Button, Tooltip, type TooltipPlacement } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -51,7 +51,7 @@ export function TooltipDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Tooltip"
         lead="Infobulle accessible : apparait au survol comme au focus clavier, disparait a la sortie, au blur et sur Echap. Le declencheur est decrit par aria-describedby tant qu'elle est visible."
       />
@@ -92,7 +92,7 @@ export function TooltipDoc(): ReactElement {
               <Button tone="secondary">Survolez-moi</Button>
             </Tooltip>
           )}
-          code={(values) => `import { Tooltip } from '@odoro/libs/ui'
+          code={(values) => `import { Tooltip } from '@odoro-cli/libs/ui'
 
 <Tooltip content="${String(values['content'])}"${jsxProps(
             { placement: values['placement'] ?? 'top', delay: values['delay'] ?? 300 },

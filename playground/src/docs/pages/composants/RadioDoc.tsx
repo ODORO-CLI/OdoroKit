@@ -2,7 +2,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { RadioGroup } from '@odoro/libs/ui'
+import { RadioGroup } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -53,7 +53,7 @@ export function RadioDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="RadioGroup"
         lead="Groupe de boutons radio dessines au-dessus des inputs natifs. Le fieldset et sa legend donnent le nom de groupe aux lecteurs d'ecran ; les inputs natifs portent la navigation clavier (fleches, un seul arret de tabulation). Le name commun est genere : deux groupes sur la meme page ne se volent jamais la selection."
       />

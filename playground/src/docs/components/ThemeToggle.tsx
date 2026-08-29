@@ -8,8 +8,8 @@
  * @module
  */
 
-import { Icon, type IconData } from '@odoro/icons'
-import { Monitor, Moon, Sun } from '@odoro/icons/filaire'
+import { Icon, type IconData } from '@odoro-cli/icons'
+import { Monitor, Moon, Sun } from '@odoro-cli/icons/filaire'
 import { type ReactElement, useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'odoro-docs-theme'

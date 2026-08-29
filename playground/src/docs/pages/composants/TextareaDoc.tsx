@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Textarea } from '@odoro/libs/ui'
+import { Textarea } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -29,7 +29,7 @@ export function TextareaDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Textarea"
         lead="Zone de saisie multiligne. Reprend l'habillage d'Input, mais remplace la hauteur fixe des tailles par une hauteur minimale : un texte long doit pouvoir grandir, a la poignee de redimensionnement ou via autoResize."
       />

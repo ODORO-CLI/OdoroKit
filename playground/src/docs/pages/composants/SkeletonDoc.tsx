@@ -2,7 +2,7 @@
 
 import { type ReactElement, useEffect, useState } from 'react'
 
-import { Button, Card, Skeleton } from '@odoro/libs/ui'
+import { Button, Card, Skeleton } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -53,7 +53,7 @@ export function SkeletonDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Skeleton"
         lead="Silhouette animee affichee pendant un chargement : lignes de texte, cercle ou rectangle."
       />

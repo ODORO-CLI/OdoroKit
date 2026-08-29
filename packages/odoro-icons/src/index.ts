@@ -3,7 +3,7 @@
  *
  * ## Cinq jeux, un contrat
  *
- * Chaque jeu vit dans son propre sous-module : `@odoro/icons/filaire`,
+ * Chaque jeu vit dans son propre sous-module : `@odoro-cli/icons/filaire`,
  * `/compact`, `/classique`, `/etendu`, `/marques`. Aucun n'est reexporte ici —
  * un index qui les rassemblerait tous ferait entrer onze mille exports dans le
  * graphe du bundler pour en afficher trois.
@@ -19,8 +19,8 @@
  * les logos n'ont de toute facon aucun style commun avec le reste.
  *
  * @example
- * import { Icon } from '@odoro/icons'
- * import { Download, Search } from '@odoro/icons/filaire'
+ * import { Icon } from '@odoro-cli/icons'
+ * import { Download, Search } from '@odoro-cli/icons/filaire'
  *
  * <Icon icon={Download} />
  * <Icon icon={Search} size={20} label="Rechercher" />

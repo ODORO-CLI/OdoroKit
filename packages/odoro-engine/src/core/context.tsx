@@ -118,7 +118,7 @@ export function OdoroEngine({
     motionPolicy.configure({ quality, reducedMotion })
   }, [quality, reducedMotion])
 
-  // Quand `@odoro/libs` est installe, sa boucle de mesure passe sur le ticker
+  // Quand `@odoro-cli/libs` est installe, sa boucle de mesure passe sur le ticker
   // de GSAP et sa politique suit celle du moteur. Son absence est un cas
   // ordinaire : le moteur s'emploie aussi sans elle.
   useEffect(() => {

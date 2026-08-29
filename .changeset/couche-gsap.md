@@ -1,5 +1,5 @@
 ---
-'@odoro/engine': minor
+'@odoro-cli/engine': minor
 ---
 
 Couche d'orchestration temporelle : enregistrement idempotent des plugins,

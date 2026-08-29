@@ -8,7 +8,7 @@
  * @module
  */
 
-import { useParams } from '@odoro/libs/router'
+import { useParams } from '@odoro-cli/libs/router'
 import { type ReactElement } from 'react'
 
 import { EntryPage } from '../components/EntryPage.jsx'

@@ -1,5 +1,5 @@
-import { Reveal } from '@odoro/libs/motion'
-import { Link } from '@odoro/libs/router'
+import { Reveal } from '@odoro-cli/libs/motion'
+import { Link } from '@odoro-cli/libs/router'
 
 /** Page « a propos », qui demontre la navigation entre routes. */
 export function About() {

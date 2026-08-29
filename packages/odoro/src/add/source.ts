@@ -148,7 +148,7 @@ function asEntry(value: unknown, id: string): FetchResult<PublishedEntry> {
  * `odoro.json` et doit rester juste quand la commande est lancee ailleurs.
  *
  * @example
- * const registry = openRegistry('https://registre.odoro.dev', process.cwd())
+ * const registry = openRegistry('https://register.odoro.dev', process.cwd())
  */
 export function openRegistry(location: string, root: string): RegistrySource {
   const resolved = isRemote(location)

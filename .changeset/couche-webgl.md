@@ -1,5 +1,5 @@
 ---
-'@odoro/engine': minor
+'@odoro-cli/engine': minor
 ---
 
 Couche graphique : arbitrage des contextes, backend leger pour les effets plein

@@ -187,7 +187,7 @@ export function Backgrounds(): ReactElement {
   return (
     <>
       <PageHeader
-        module="@odoro/bits"
+        module="@odoro-cli/bits"
         title="Backgrounds"
         lead="Des fonds animes sur notre moteur. Reglables ici meme, et poses sous un contenu de demonstration — un fond se juge a ce qu'il laisse lire."
       />

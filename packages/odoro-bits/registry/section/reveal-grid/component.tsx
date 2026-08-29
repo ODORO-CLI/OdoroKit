@@ -27,7 +27,7 @@
  * @module
  */
 
-import { mergePresentation, useMotionState, type Customisable } from '@odoro/engine'
+import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import {
   Children,
   useEffect,

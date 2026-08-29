@@ -26,7 +26,7 @@
  * reste visible, un element sortant est bien demonte.
  *
  * @example
- * import { Reveal, Stagger, useAnimate, usePresence } from '@odoro/libs/motion'
+ * import { Reveal, Stagger, useAnimate, usePresence } from '@odoro-cli/libs/motion'
  *
  * @module
  */

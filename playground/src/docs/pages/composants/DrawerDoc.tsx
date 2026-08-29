@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Button, Checkbox, Drawer, Input, Select, type DrawerSide } from '@odoro/libs/ui'
+import { Button, Checkbox, Drawer, Input, Select, type DrawerSide } from '@odoro-cli/libs/ui'
 
 import {
   Callout,
@@ -116,7 +116,7 @@ export function DrawerDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="@odoro/libs/ui"
+        module="@odoro-cli/libs/ui"
         title="Drawer"
         lead="Panneau lateral modal, meme fondation que Dialog : le <dialog> natif fournit piegeage du focus, Echap, inertie et couche superieure. Seule change la geometrie — le panneau est cale a un bord et glisse depuis celui-ci."
       />
@@ -126,7 +126,7 @@ export function DrawerDoc(): ReactElement {
         lead="Choisissez le bord et la taille, puis ouvrez le panneau."
       >
         <DemoBlock
-          code={`import { Button, Drawer } from '@odoro/libs/ui'
+          code={`import { Button, Drawer } from '@odoro-cli/libs/ui'
 
 const [open, setOpen] = useState(false)
 

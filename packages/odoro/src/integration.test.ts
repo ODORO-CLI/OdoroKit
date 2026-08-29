@@ -87,7 +87,7 @@ describe.runIf(ENABLED)('chaine complete : empaquetage, echafaudage, compilation
       dependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
-    manifest.dependencies['@odoro/libs'] = `file:../odoro-libs-${version}.tgz`
+    manifest.dependencies['@odoro-cli/libs'] = `file:../odoro-libs-${version}.tgz`
     manifest.devDependencies['odoro'] = `file:../odoro-${version}.tgz`
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 

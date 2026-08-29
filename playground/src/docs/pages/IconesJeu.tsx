@@ -46,7 +46,7 @@ export function IconesJeu({ jeu }: { jeu: JeuModule }): ReactElement {
   return (
     <>
       <PageHeader
-        module={`@odoro/icons/${INFO.module}`}
+        module={`@odoro-cli/icons/${INFO.module}`}
         title={INFO.title}
         lead={INFO.summary}
       />
@@ -81,8 +81,8 @@ export function IconesJeu({ jeu }: { jeu: JeuModule }): ReactElement {
       <Section title="Employer">
         <CodeBlock
           lang="tsx"
-          code={`import { Icon } from '@odoro/icons'
-import { Search } from '@odoro/icons/${INFO.module}'
+          code={`import { Icon } from '@odoro-cli/icons'
+import { Search } from '@odoro-cli/icons/${INFO.module}'
 
 <Icon icon={Search} size={20} label="Rechercher" />`}
         />
