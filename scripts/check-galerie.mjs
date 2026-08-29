@@ -119,7 +119,54 @@ for (const name of ['aurore', 'ondes', 'points', 'faisceaux', 'nappe']) {
 }
 await fonds.close()
 
-// 6. Sous mouvement reduit : aucune scene, aucun canevas, les replis seuls.
+// 6. Les cinq sections rendent, et l'ouverture unique de la FAQ tient.
+const sec = await browser.newPage()
+sec.on('pageerror', (e) => failures.push('sections : ' + String(e)))
+sec.on('console', (m) => {
+  if (m.type() === 'error') failures.push('sections : ' + m.text().slice(0, 160))
+})
+await sec.goto(`${base}/docs/sections`, { waitUntil: 'networkidle' })
+await sec.waitForTimeout(2000)
+
+const etat = await sec.evaluate(() => {
+  const grid = document.querySelector('[data-o-reveal-grid]')
+  const details = [...document.querySelectorAll('details')]
+  return {
+    grilleRevelee: grid?.hasAttribute('data-o-reveal-grid-shown') ?? false,
+    grilleOpacite: grid?.firstElementChild
+      ? getComputedStyle(grid.firstElementChild).opacity
+      : null,
+    colles: [...document.querySelectorAll('.o-sticky')].length,
+    etapes: document.querySelectorAll('[aria-current="step"]').length,
+    questions: details.length,
+    nomsPartages: new Set(details.map((d) => d.getAttribute('name'))).size,
+    logos: document.querySelectorAll('[data-o-marquee]').length,
+  }
+})
+console.log(JSON.stringify(etat))
+if (!etat.grilleRevelee) failures.push('grille : jamais revelee')
+if (etat.grilleOpacite === '0') failures.push('grille : reste invisible')
+if (etat.colles < 4) failures.push(`empilement : ${etat.colles} cartes collees`)
+if (etat.etapes !== 1) failures.push(`etapes : ${etat.etapes} etape active`)
+if (etat.questions < 3) failures.push('faq : questions absentes')
+if (etat.nomsPartages !== 1)
+  failures.push('faq : le name partage manque, l ouverture unique ne marchera pas')
+if (etat.logos !== 1) failures.push('logos : le bandeau manque')
+
+// Une seule question ouverte a la fois.
+await sec.locator('summary').nth(0).click()
+await sec.waitForTimeout(200)
+await sec.locator('summary').nth(1).click()
+await sec.waitForTimeout(200)
+const ouvertes = await sec.evaluate(
+  () => document.querySelectorAll('details[open]').length,
+)
+console.log('questions ouvertes apres deux clics :', ouvertes)
+if (ouvertes !== 1) failures.push(`faq : ${ouvertes} questions ouvertes au lieu d une`)
+
+await sec.close()
+
+// 7. Sous mouvement reduit : aucune scene, aucun canevas, les replis seuls.
 const sobre = await browser.newPage()
 sobre.on('pageerror', (e) => failures.push(`mouvement reduit : ${String(e)}`))
 await sobre.emulateMedia({ reducedMotion: 'reduce' })

@@ -1,0 +1,52 @@
+{
+  "name": "sticky-stack",
+  "category": "section",
+  "title": "Cartes empilees",
+  "description": "Des cartes qui se figent et s empilent a mesure que le defilement avance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/StickyStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes."
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Distance au haut de la fenetre."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Decalage visible entre deux cartes empilees."
+    },
+    {
+      "name": "shrink",
+      "type": "number",
+      "default": 0.05,
+      "description": "Reduction de la carte quand la suivante arrive."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le collage est natif. Seule l echelle est ecrite par la boucle, une fois par carte et par image."
+  }
+}

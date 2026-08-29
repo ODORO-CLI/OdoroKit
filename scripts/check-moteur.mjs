@@ -38,6 +38,7 @@ const PAGES = [
   '/docs/motion/librairie',
   '/docs/images',
   '/docs/composants/select-menu',
+  '/docs/sections',
 ]
 
 const failures = []

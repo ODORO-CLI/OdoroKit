@@ -1,0 +1,44 @@
+{
+  "name": "scroll-steps",
+  "category": "section",
+  "title": "Etapes au defilement",
+  "description": "Un media colle a gauche, des etapes qui defilent a droite, et le media qui suit l etape active.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/ScrollSteps.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "steps",
+      "type": "readonly { title: string; body: ReactNode }[]",
+      "required": true,
+      "description": "Les etapes."
+    },
+    {
+      "name": "render",
+      "type": "(index: number) => ReactNode",
+      "required": true,
+      "description": "Rend le media pour l etape active."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de defilement dans la boucle unique, et un index qui ne change qu au passage d une etape."
+  }
+}

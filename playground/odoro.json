@@ -97,7 +97,7 @@
       ]
     },
     "effect/marquee": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-08-29T09:05:21.378Z",
       "files": [
         {
           "path": "src/odoro/effect/Marquee.tsx",
@@ -178,6 +178,51 @@
         {
           "path": "src/odoro/image/Frame.tsx",
           "hash": "1de4a28fd33852de"
+        }
+      ]
+    },
+    "section/faq": {
+      "installedAt": "2026-08-29T09:05:21.378Z",
+      "files": [
+        {
+          "path": "src/odoro/section/Faq.tsx",
+          "hash": "33437ef5aeb9d757"
+        }
+      ]
+    },
+    "section/logo-band": {
+      "installedAt": "2026-08-29T09:05:21.378Z",
+      "files": [
+        {
+          "path": "src/odoro/section/LogoBand.tsx",
+          "hash": "6b2bbd5445fcfbea"
+        }
+      ]
+    },
+    "section/reveal-grid": {
+      "installedAt": "2026-08-29T09:05:21.378Z",
+      "files": [
+        {
+          "path": "src/odoro/section/RevealGrid.tsx",
+          "hash": "4104ac0d66ff5e74"
+        }
+      ]
+    },
+    "section/scroll-steps": {
+      "installedAt": "2026-08-29T09:05:21.378Z",
+      "files": [
+        {
+          "path": "src/odoro/section/ScrollSteps.tsx",
+          "hash": "a0b8a0a96abecf60"
+        }
+      ]
+    },
+    "section/sticky-stack": {
+      "installedAt": "2026-08-29T09:05:21.378Z",
+      "files": [
+        {
+          "path": "src/odoro/section/StickyStack.tsx",
+          "hash": "ca5ed78a39bf840b"
         }
       ]
     },

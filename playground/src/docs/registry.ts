@@ -250,6 +250,26 @@ export const IMAGE_PAGES: readonly DocPage[] = [
   },
 ]
 
+/** Pages de la categorie Sections. */
+export const SECTION_PAGES = [
+  {
+    path: '/docs/sections',
+    title: 'Compositions de page',
+    description:
+      'Grille revelee, cartes empilees, etapes au defilement, bandeau, questions.',
+    keywords: [
+      'section',
+      'grille',
+      'sticky',
+      'empilement',
+      'etapes',
+      'scrollytelling',
+      'logos',
+      'faq',
+    ],
+  },
+] as const satisfies readonly DocPage[]
+
 /** Pages de la categorie Text Animations. */
 export const TEXT_PAGES: readonly DocPage[] = [
   {
@@ -416,6 +436,10 @@ export const DOC_SECTIONS: readonly DocSection[] = [
   {
     title: 'Images',
     pages: IMAGE_PAGES,
+  },
+  {
+    title: 'Sections',
+    pages: SECTION_PAGES,
   },
   {
     title: 'Motions',

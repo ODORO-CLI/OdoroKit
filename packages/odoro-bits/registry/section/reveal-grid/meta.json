@@ -1,0 +1,58 @@
+{
+  "name": "reveal-grid",
+  "category": "section",
+  "title": "Grille revelee",
+  "description": "Une grille dont les elements arrivent en cascade quand la section entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/RevealGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les elements de la grille."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 3,
+      "description": "Colonnes au-dela du palier moyen."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 70,
+      "unit": "ms",
+      "description": "Decalage entre deux elements."
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Hauteur de la montee."
+    },
+    {
+      "name": "once",
+      "type": "boolean",
+      "default": true,
+      "description": "Ne rejoue pas quand la section repasse."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis des transitions CSS decalees. Aucun JavaScript par image."
+  }
+}

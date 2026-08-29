@@ -1,0 +1,43 @@
+{
+  "name": "logo-band",
+  "category": "section",
+  "title": "Bandeau de logos",
+  "description": "Une rangee de logos qui defile sans fin, avec fondus aux extremites.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/LogoBand.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["effect/marquee"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les logos."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule affiche au-dessus."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 40,
+      "description": "Vitesse du defilement."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le defilement vient du bandeau ; cette section n ajoute qu une mise en page et un intitule."
+  }
+}

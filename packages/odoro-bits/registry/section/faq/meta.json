@@ -1,0 +1,43 @@
+{
+  "name": "faq",
+  "category": "section",
+  "title": "Questions frequentes",
+  "description": "Une liste de questions repliables, une seule ouverte a la fois ou plusieurs.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/Faq.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-fast", "--o-ease-standard"],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { question: string; answer: ReactNode }[]",
+      "required": true,
+      "description": "Les questions."
+    },
+    {
+      "name": "single",
+      "type": "boolean",
+      "default": false,
+      "description": "N ouvre qu une question a la fois."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule de la section."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le repliage passe par les elements natifs : le clavier et la recherche dans la page fonctionnent sans code."
+  }
+}
