@@ -89,6 +89,8 @@ Une documentation par sous-module, avec des exemples exécutables :
 - [Styles](docs/styles.md) — tokens, utilitaires, thèmes.
 - [Interface](docs/ui.md) — les cinq composants et leurs contrats.
 - [Moteur](docs/engine.md) — configuration, rechargement à chaud, compilation.
+- [Registre](docs/registre.md) — format des composants copiés, validation,
+  artefacts servis.
 
 ## Décisions structurantes
 

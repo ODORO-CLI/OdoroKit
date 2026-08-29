@@ -1,0 +1,146 @@
+# Le registre
+
+Les composants animés d'Odoro ne sont pas installés depuis npm. Ils sont
+**copiés dans le projet**, fichier par fichier, et deviennent du code que
+l'équipe possède : elle le lit, le modifie, le supprime.
+
+Ce choix a un coût — pas de mise à jour automatique — et une contrepartie qui
+le justifie : un composant d'animation est presque toujours retouché. Un
+dégradé change, une durée ne convient pas, un easing doit suivre la charte.
+Livré en dépendance, chacune de ces retouches passerait par une propriété
+supplémentaire, jusqu'à ce que le composant ait trente propriétés et que
+personne ne sache plus laquelle fait quoi. Livré en source, la retouche est une
+ligne modifiée.
+
+Le registre est donc le catalogue de ce qui peut être copié, et le format
+ci-dessous en est le contrat.
+
+## L'arborescence
+
+```
+packages/odoro-bits/registry/
+  <catégorie>/
+    <nom>/
+      meta.json
+      <fichiers sources>
+```
+
+Le dossier **est** l'identifiant : `hooks/use-poster` se trouve dans
+`registry/hooks/use-poster/`. Le `meta.json` répète le nom et la catégorie, et
+la validation refuse tout écart entre les deux — un composant déclaré sous un
+nom différent de son dossier serait introuvable à l'adresse où tout le monde le
+cherche.
+
+Les catégories sont closes : `text`, `background`, `effect`, `hero`, `ui`,
+`section`, `hooks`.
+
+## `meta.json`
+
+```json
+{
+  "name": "use-poster",
+  "category": "hooks",
+  "title": "Repli visuel",
+  "description": "Maintient un repli affiché jusqu'à ce que la scène soit prête.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "hook.ts", "target": "hooks/usePoster.ts" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-slow"],
+  "props": [{ "name": "fade", "type": "number", "default": 320, "unit": "ms" }],
+  "perf": { "tier": "light", "backend": false }
+}
+```
+
+| Champ                  | Rôle                                                                    |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `name`                 | Minuscules et tirets. Unique dans sa catégorie.                         |
+| `category`             | Une des sept catégories.                                                |
+| `title`, `description` | Ce qu'affiche `odoro list` et le site.                                  |
+| `engine.gsap`          | Plugins d'orchestration requis. `core` est toujours présent.            |
+| `engine.gl`            | `false`, `"ogl"` ou `"three"`.                                          |
+| `files[].path`         | Chemin dans le dossier du composant.                                    |
+| `files[].target`       | Destination dans le projet, relative à l'alias de composants.           |
+| `dependencies`         | Paquets npm que la CLI proposera d'installer.                           |
+| `registryDependencies` | Autres entrées, sous la forme `catégorie/nom`.                          |
+| `tokens`               | Variables CSS consommées. Toutes commencent par `--o-`.                 |
+| `props`                | Table des propriétés, telle qu'elle sera documentée.                    |
+| `perf.tier`            | `light`, `medium` ou `heavy`.                                           |
+| `perf.backend`         | Doit correspondre à `engine.gl`.                                        |
+| `perf.fallback`        | `poster`, `gradient`, `static` ou `none`. Obligatoire si `tier: heavy`. |
+
+Les durées exposées en propriété sont **toujours en millisecondes**. C'est une
+règle du registre, pas une convention locale : une entrée en secondes et sa
+voisine en millisecondes produisent une erreur qu'on ne voit qu'à l'exécution.
+
+## Ce que la validation refuse
+
+`pnpm --filter odoro-bits registry:validate` échoue dans six cas.
+
+**Un `meta.json` mal formé.** Le message cite le chemin du champ fautif —
+`hero/molten → perf.tier : …` — plutôt que de dire « invalide » et laisser
+chercher.
+
+**Un fichier déclaré qui n'existe pas.** Le schéma ne connaît pas le disque ;
+cette vérification-là est faite à la lecture.
+
+**Une dépendance de registre qui pointe dans le vide.** Elle serait découverte
+par le premier utilisateur qui installe le composant, sur sa machine, au
+moment le moins opportun.
+
+**Un cycle dans le graphe.** L'erreur donne le chemin complet du cycle : une
+erreur qui dit seulement « cycle détecté » oblige à le chercher à la main dans
+tout le registre.
+
+**Une destination absolue ou remontante.** La CLI écrit chez l'utilisateur ;
+un `target` en `/etc/…` ou en `../..` y serait une porte ouverte. Deux fichiers
+visant la même destination sont refusés pour une raison voisine : le second
+effacerait le premier sans que rien ne le signale.
+
+**Une incohérence de coût.** Trois règles se croisent ici, et elles ont toutes
+la même origine — la CLI et l'arbitre de surfaces se fient à ces champs pour
+décider :
+
+- un composant `heavy` doit déclarer un repli, affiché pendant le chargement,
+  sans WebGL et en mouvement réduit ;
+- `perf.backend` doit être le même que `engine.gl` ;
+- une scène `three` est nécessairement `heavy`.
+
+Tous les problèmes sont rassemblés avant d'échouer. Sur un registre de quarante
+entrées, après un changement de format, s'arrêter au premier imposerait
+quarante allers-retours.
+
+## Les artefacts servis
+
+`pnpm --filter odoro-bits registry:build` compile le registre en JSON statiques :
+
+```
+dist/registry/
+  index.json
+  <catégorie>/<nom>.json
+```
+
+Chaque fichier d'entrée contient son `meta.json` validé **plus le code source
+inline**. L'alternative — servir les fichiers séparément et les désigner par
+URL — multiplierait les allers-retours et rendrait possible qu'une entrée
+arrive à moitié : le méta à jour, les sources encore anciennes. Une entrée est
+une unité ; elle est servie comme telle.
+
+L'`index.json` ne porte que de quoi choisir : identifiant, titre, description,
+niveau de coût, backend, dépendances de registre. Il est demandé par
+`odoro list` et par la recherche du site ; y inliner le code ferait grossir une
+réponse consultée souvent avec un contenu dont elle n'a pas l'usage.
+
+Le dossier de sortie est effacé avant d'être réécrit. Sans cela, une entrée
+retirée du dépôt resterait servie indéfiniment.
+
+## Le même schéma aux deux bouts
+
+Le schéma vit dans `odoro/registry`, côté client, et non dans le paquet du
+registre. Ce n'est pas arbitraire : le registre valide ce qu'il produit avant
+de le publier, mais le client valide ce qu'il **reçoit** — d'un serveur qu'il
+ne contrôle pas, juste avant d'écrire des fichiers dans le projet de
+quelqu'un. C'est là que la validation compte le plus.
+
+Un registre tiers qui réutiliserait ce schéma subit donc les mêmes règles, y
+compris celles qui croisent plusieurs champs.

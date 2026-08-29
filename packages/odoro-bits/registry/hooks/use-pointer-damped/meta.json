@@ -1,0 +1,29 @@
+{
+  "name": "use-pointer-damped",
+  "category": "hooks",
+  "title": "Pointeur amorti",
+  "description": "Position du pointeur, normalisee et lissee, mise a jour dans la boucle du moteur.",
+  "engine": { "gsap": ["core"], "gl": false },
+  "files": [{ "path": "hook.ts", "target": "hooks/usePointerDamped.ts" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec."
+    },
+    {
+      "name": "host",
+      "type": "HTMLElement | null",
+      "description": "Zone observee. Par defaut, la fenetre entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, aucune allocation par image."
+  }
+}

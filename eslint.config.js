@@ -53,6 +53,10 @@ export default tseslint.config(
     files: [
       'packages/odoro-libs/**/*.{ts,tsx}',
       'packages/odoro-engine/**/*.{ts,tsx}',
+      // Le code du registre est copie tel quel chez l'utilisateur : c'est
+      // celui qui a le plus besoin de ces regles, puisque personne ne le
+      // relira apres coup.
+      'packages/odoro-bits/registry/**/*.{ts,tsx}',
       'playground/**/*.{ts,tsx}',
     ],
     plugins: { 'react-hooks': reactHooks },

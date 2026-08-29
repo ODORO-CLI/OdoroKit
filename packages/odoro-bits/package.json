@@ -1,0 +1,29 @@
+{
+  "name": "odoro-bits",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "author": "BouBouw",
+  "description": "Registre de composants animes Odoro : source de verite et generation des artefacts servis.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "registry:validate": "tsx scripts/validate.ts",
+    "registry:build": "tsx scripts/build-registry.ts",
+    "build": "pnpm run registry:build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.8",
+    "@types/react": "^19.2.2",
+    "odoro": "workspace:*",
+    "odoro-engine": "workspace:*",
+    "react": "^19.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

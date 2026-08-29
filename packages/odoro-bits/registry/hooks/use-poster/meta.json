@@ -1,0 +1,31 @@
+{
+  "name": "use-poster",
+  "category": "hooks",
+  "title": "Repli visuel",
+  "description": "Maintient un repli affiche jusqu a ce que la scene soit prete, puis le fond en douceur.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "hook.ts", "target": "hooks/usePoster.ts" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "props": [
+    {
+      "name": "ready",
+      "type": "boolean",
+      "required": true,
+      "description": "Passe a vrai quand la scene a rendu sa premiere image."
+    },
+    {
+      "name": "fade",
+      "type": "number",
+      "default": 320,
+      "unit": "ms",
+      "description": "Duree du fondu du repli."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun rendu : le repli est un element du DOM."
+  }
+}

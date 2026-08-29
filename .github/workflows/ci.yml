@@ -32,14 +32,17 @@ jobs:
       - name: Lint
         run: pnpm run lint
 
+      # La compilation passe avant les types et les tests : le registre
+      # consomme le schema depuis le paquet `odoro` compile, comme le fera un
+      # registre tiers. Sur une copie fraiche, ce dossier n'existe pas encore.
+      - name: Compilation
+        run: pnpm run build
+
       - name: Types
         run: pnpm run typecheck
 
       - name: Tests
         run: pnpm run test
-
-      - name: Compilation
-        run: pnpm run build
 
       - name: Verification du packaging
         run: pnpm --filter odoro-libs run check:exports
