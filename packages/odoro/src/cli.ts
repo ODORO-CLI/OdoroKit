@@ -97,6 +97,17 @@ ${colors.bold('Commandes')}
   build            Compile le projet pour la production
   preview          Sert le resultat de la compilation
 
+${colors.bold('Registre de composants')}
+  init             Prepare le projet a recevoir des composants
+  add <nom...>     Copie un composant et ses dependances
+  list             Affiche le catalogue
+  diff             Compare l'installe a ce que le registre sert
+  doctor           Verifie que le projet est en etat
+
+${colors.bold('Options du registre')}
+  --registry <src>   URL ou dossier local, au lieu de celui du projet
+  --yes              N'attend aucune confirmation
+
 ${colors.bold('Options de create')}
   --template <nom>   Template a utiliser
   --pm <nom>         Gestionnaire de paquets (pnpm, npm, yarn, bun)
@@ -214,6 +225,27 @@ export async function run(argv: readonly string[]): Promise<number> {
       const port = numberFlag(flags, 'port')
       await startPreviewServer(config, port)
       return new Promise<number>(() => undefined)
+    }
+
+    case 'init':
+    case 'add':
+    case 'list':
+    case 'diff':
+    case 'doctor': {
+      const registry = await import('./add/commands.js')
+      // La racine vient de `--root` seulement : les positionnels d'`add` sont
+      // les noms de composants, pas un chemin.
+      const options = {
+        root: typeof flags['root'] === 'string' ? flags['root'] : process.cwd(),
+        registry: typeof flags['registry'] === 'string' ? flags['registry'] : undefined,
+        yes: flags['yes'] === true,
+      }
+
+      if (command === 'add') return registry.addCommand(options, positional)
+      if (command === 'init') return registry.initCommand(options)
+      if (command === 'list') return registry.listCommand(options)
+      if (command === 'diff') return registry.diffCommand(options)
+      return registry.doctorCommand(options)
     }
 
     default:

@@ -144,3 +144,110 @@ quelqu'un. C'est là que la validation compte le plus.
 
 Un registre tiers qui réutiliserait ce schéma subit donc les mêmes règles, y
 compris celles qui croisent plusieurs champs.
+
+## Installer un composant
+
+Le registre se consomme avec quatre commandes et un fichier.
+
+```bash
+odoro init                     # écrit odoro.json
+odoro list                     # le catalogue
+odoro add molten               # copie le composant et ses dépendances
+odoro diff                     # ce qui a bougé depuis
+odoro doctor                   # ce qui ne va pas
+```
+
+`--registry <url|dossier>` remplace ponctuellement la source, et `--yes`
+supprime toute question. Un dossier local n'est pas un mode dégradé : c'est
+comme cela qu'on développe le registre, et comme cela qu'un studio garde ses
+composants pour lui.
+
+### `odoro.json`
+
+```json
+{
+  "version": 1,
+  "registry": "https://registre.odoro.dev",
+  "aliases": { "import": "@/odoro", "directory": "src/odoro" },
+  "installed": {
+    "hooks/use-poster": {
+      "installedAt": "2026-08-29T00:59:11.402Z",
+      "files": [{ "path": "src/odoro/hooks/usePoster.ts", "hash": "3f1a…" }]
+    }
+  }
+}
+```
+
+`odoro init` lit le `tsconfig.json` du projet pour en déduire le préfixe
+d'import — `@/*` vers `src/*` donne `@/odoro`. Les commentaires et les virgules
+finales que TypeScript autorise y sont gérés ; `JSON.parse` seul les refuse.
+Quand aucun alias n'est déclaré, la commande le dit et retombe sur un chemin
+nu.
+
+### Pourquoi les empreintes
+
+Chaque fichier livré est noté avec l'empreinte de **ce qui a été écrit**. Sans
+ce troisième point de référence, comparer le fichier local à celui du registre
+ne dirait rien d'utile : on ne saurait pas si l'écart vient d'une retouche
+locale ou d'une évolution amont. Ce sont pourtant deux situations opposées — la
+première se garde, la seconde se récupère.
+
+Avec l'empreinte, `odoro diff` tranche :
+
+```
+hooks/use-pointer-damped src/odoro/hooks/usePointerDamped.ts
+  une mise a jour existe
+  - const { host, speed = 3, name = 'pointeur' } = options
+  + const { host, speed = 5, name = 'pointeur-amorti' } = options
+
+hooks/use-poster src/odoro/hooks/usePoster.ts
+  retouche localement
+```
+
+Le quatrième cas — retouché **et** modifié en amont — est le seul qui demande
+un arbitrage humain, et c'est exactement celui qu'une comparaison à deux termes
+aurait noyé dans les autres.
+
+### Le jeton `@registre`
+
+Un composant qui importe son voisin ne peut pas écrire le chemin en dur : la
+destination dépend du projet d'accueil. Les sources du registre écrivent donc
+`@registre/hooks/usePoster`, et la CLI substitue le préfixe à l'écriture. Le
+jeton ne résout nulle part, ce qui est voulu : un composant qui l'aurait gardé
+par accident échoue à la compilation au lieu d'aller chercher sur npm.
+
+Tout le reste est laissé intact. `odoro-engine`, `react`, `gsap`, `three` sont
+de vrais paquets : ils s'installent, ils ne se copient pas.
+
+### L'écriture est transactionnelle
+
+Une installation écrit plusieurs fichiers. Si la troisième écriture échoue,
+une approche naïve laisse un projet à moitié servi — et l'utilisateur ne sait
+pas ce qui a été touché.
+
+Les fichiers sont donc d'abord écrits **à côté** de leur destination, sous un
+nom temporaire ; rien d'observable n'a changé à ce stade. Ils ne sont mis en
+place qu'ensuite. Un échec avant la mise en place laisse le projet exactement
+dans l'état où on l'a trouvé.
+
+La mise en place elle-même n'est pas atomique entre plusieurs fichiers — le
+système n'offre rien de tel. Les contenus précédents sont gardés et remis en
+place, ce qui reste une réparation. Le compromis est nommé plutôt que
+sous-entendu : la phase risquée, celle qui remplit le disque et rencontre les
+permissions, est intégralement couverte.
+
+### Ce que la CLI dit avant d'écrire
+
+**Le poids.** Un composant qui charge une scène 3D ajoute environ 130 Ko
+compressés au premier affichage — contre 13 Ko pour le backend léger. Ces
+chiffres sont mesurés sur une scène minimale compilée, pas estimés. Un backend
+n'est compté qu'une fois, même réclamé par cinq composants : un avertissement
+qu'on apprend à ignorer ne sert plus à rien.
+
+**Les dépendances implicites.** Ce qui arrive sans avoir été demandé est
+annoncé avant, pas découvert après coup dans le suivi de version.
+
+**Les remplacements.** Un fichier existant qui serait écrasé fait poser une
+question. Hors terminal — intégration continue, sortie redirigée — la commande
+refuse et indique `--yes`, plutôt que de bloquer une chaîne de compilation sur
+un curseur que personne ne voit.
