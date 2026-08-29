@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "odoro-engine": "workspace:*",
     "odoro-libs": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

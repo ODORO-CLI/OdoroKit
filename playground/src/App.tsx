@@ -8,6 +8,7 @@ import { type ReactElement } from 'react'
 import { Route, Router, Routes } from 'odoro-libs/router'
 import { ToastProvider } from 'odoro-libs/ui'
 import { Link } from 'odoro-libs/router'
+import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from 'odoro-engine'
 
 import { Shell } from './docs/components/Shell.jsx'
 import { Accueil } from './docs/pages/Accueil.jsx'
@@ -23,6 +24,13 @@ import { MotionPresets } from './docs/pages/MotionPresets.jsx'
 import { MotionComposants } from './docs/pages/MotionComposants.jsx'
 import { MotionHooks } from './docs/pages/MotionHooks.jsx'
 import { RouterGuide } from './docs/pages/RouterGuide.jsx'
+import { MoteurOverview } from './docs/pages/MoteurOverview.jsx'
+import { MoteurBoucle } from './docs/pages/MoteurBoucle.jsx'
+import { MoteurMouvement } from './docs/pages/MoteurMouvement.jsx'
+import { MoteurWebgl } from './docs/pages/MoteurWebgl.jsx'
+import { MoteurDiagnostic } from './docs/pages/MoteurDiagnostic.jsx'
+import { RegistreFormat } from './docs/pages/RegistreFormat.jsx'
+import { RegistreCli } from './docs/pages/RegistreCli.jsx'
 
 import { ButtonDoc } from './docs/pages/composants/ButtonDoc.jsx'
 import { InputDoc } from './docs/pages/composants/InputDoc.jsx'
@@ -71,55 +79,67 @@ function Introuvable(): ReactElement {
 /** Racine de l'application. */
 export function App(): ReactElement {
   return (
-    <Router>
-      <ToastProvider>
-        <Shell>
-          <Routes fallback={<p className="o-text-fg-muted">Chargement...</p>}>
-            <Route index element={<Accueil />} />
-            <Route path="docs/installation" element={<Installation />} />
-            <Route path="docs/styles" element={<StylesOverview />} />
-            <Route path="docs/styles/couleurs" element={<Couleurs />} />
-            <Route path="docs/styles/typographie" element={<Typographie />} />
-            <Route path="docs/styles/responsive" element={<Responsive />} />
-            <Route path="docs/styles/fonts" element={<Fonts />} />
-            <Route path="docs/styles/utilitaires" element={<Utilitaires />} />
-            <Route path="docs/motion" element={<MotionOverview />} />
-            <Route path="docs/motion/presets" element={<MotionPresets />} />
-            <Route path="docs/motion/composants" element={<MotionComposants />} />
-            <Route path="docs/motion/hooks" element={<MotionHooks />} />
-            <Route path="docs/router" element={<RouterGuide />} />
-            <Route path="docs/composants/button" element={<ButtonDoc />} />
-            <Route path="docs/composants/input" element={<InputDoc />} />
-            <Route path="docs/composants/textarea" element={<TextareaDoc />} />
-            <Route path="docs/composants/select" element={<SelectDoc />} />
-            <Route path="docs/composants/checkbox" element={<CheckboxDoc />} />
-            <Route path="docs/composants/radio" element={<RadioDoc />} />
-            <Route path="docs/composants/switch" element={<SwitchDoc />} />
-            <Route path="docs/composants/slider" element={<SliderDoc />} />
-            <Route path="docs/composants/card" element={<CardDoc />} />
-            <Route path="docs/composants/badge" element={<BadgeDoc />} />
-            <Route path="docs/composants/avatar" element={<AvatarDoc />} />
-            <Route path="docs/composants/alert" element={<AlertDoc />} />
-            <Route path="docs/composants/separator" element={<SeparatorDoc />} />
-            <Route path="docs/composants/skeleton" element={<SkeletonDoc />} />
-            <Route path="docs/composants/spinner" element={<SpinnerDoc />} />
-            <Route path="docs/composants/progress" element={<ProgressDoc />} />
-            <Route path="docs/composants/kbd" element={<KbdDoc />} />
-            <Route path="docs/composants/tabs" element={<TabsDoc />} />
-            <Route path="docs/composants/accordion" element={<AccordionDoc />} />
-            <Route path="docs/composants/tooltip" element={<TooltipDoc />} />
-            <Route path="docs/composants/popover" element={<PopoverDoc />} />
-            <Route path="docs/composants/dropdown-menu" element={<DropdownMenuDoc />} />
-            <Route path="docs/composants/dialog" element={<DialogDoc />} />
-            <Route path="docs/composants/drawer" element={<DrawerDoc />} />
-            <Route path="docs/composants/toast" element={<ToastDoc />} />
-            <Route path="docs/composants/breadcrumb" element={<BreadcrumbDoc />} />
-            <Route path="docs/composants/pagination" element={<PaginationDoc />} />
-            <Route path="docs/composants/table" element={<TableDoc />} />
-            <Route path="*" element={<Introuvable />} />
-          </Routes>
-        </Shell>
-      </ToastProvider>
-    </Router>
+    // Le moteur enveloppe le site entier : les pages qui le documentent
+    // s'abonnent a la boucle reelle plutot qu'a une simulation.
+    <OdoroEngine quality="auto" reducedMotion="respect" maxSurfaces={2}>
+      <Router>
+        <ToastProvider>
+          <Shell>
+            <Routes fallback={<p className="o-text-fg-muted">Chargement...</p>}>
+              <Route index element={<Accueil />} />
+              <Route path="docs/installation" element={<Installation />} />
+              <Route path="docs/styles" element={<StylesOverview />} />
+              <Route path="docs/styles/couleurs" element={<Couleurs />} />
+              <Route path="docs/styles/typographie" element={<Typographie />} />
+              <Route path="docs/styles/responsive" element={<Responsive />} />
+              <Route path="docs/styles/fonts" element={<Fonts />} />
+              <Route path="docs/styles/utilitaires" element={<Utilitaires />} />
+              <Route path="docs/motion" element={<MotionOverview />} />
+              <Route path="docs/motion/presets" element={<MotionPresets />} />
+              <Route path="docs/motion/composants" element={<MotionComposants />} />
+              <Route path="docs/motion/hooks" element={<MotionHooks />} />
+              <Route path="docs/router" element={<RouterGuide />} />
+              <Route path="docs/moteur" element={<MoteurOverview />} />
+              <Route path="docs/moteur/boucle" element={<MoteurBoucle />} />
+              <Route path="docs/moteur/mouvement" element={<MoteurMouvement />} />
+              <Route path="docs/moteur/webgl" element={<MoteurWebgl />} />
+              <Route path="docs/moteur/diagnostic" element={<MoteurDiagnostic />} />
+              <Route path="docs/registre" element={<RegistreFormat />} />
+              <Route path="docs/registre/cli" element={<RegistreCli />} />
+              <Route path="docs/composants/button" element={<ButtonDoc />} />
+              <Route path="docs/composants/input" element={<InputDoc />} />
+              <Route path="docs/composants/textarea" element={<TextareaDoc />} />
+              <Route path="docs/composants/select" element={<SelectDoc />} />
+              <Route path="docs/composants/checkbox" element={<CheckboxDoc />} />
+              <Route path="docs/composants/radio" element={<RadioDoc />} />
+              <Route path="docs/composants/switch" element={<SwitchDoc />} />
+              <Route path="docs/composants/slider" element={<SliderDoc />} />
+              <Route path="docs/composants/card" element={<CardDoc />} />
+              <Route path="docs/composants/badge" element={<BadgeDoc />} />
+              <Route path="docs/composants/avatar" element={<AvatarDoc />} />
+              <Route path="docs/composants/alert" element={<AlertDoc />} />
+              <Route path="docs/composants/separator" element={<SeparatorDoc />} />
+              <Route path="docs/composants/skeleton" element={<SkeletonDoc />} />
+              <Route path="docs/composants/spinner" element={<SpinnerDoc />} />
+              <Route path="docs/composants/progress" element={<ProgressDoc />} />
+              <Route path="docs/composants/kbd" element={<KbdDoc />} />
+              <Route path="docs/composants/tabs" element={<TabsDoc />} />
+              <Route path="docs/composants/accordion" element={<AccordionDoc />} />
+              <Route path="docs/composants/tooltip" element={<TooltipDoc />} />
+              <Route path="docs/composants/popover" element={<PopoverDoc />} />
+              <Route path="docs/composants/dropdown-menu" element={<DropdownMenuDoc />} />
+              <Route path="docs/composants/dialog" element={<DialogDoc />} />
+              <Route path="docs/composants/drawer" element={<DrawerDoc />} />
+              <Route path="docs/composants/toast" element={<ToastDoc />} />
+              <Route path="docs/composants/breadcrumb" element={<BreadcrumbDoc />} />
+              <Route path="docs/composants/pagination" element={<PaginationDoc />} />
+              <Route path="docs/composants/table" element={<TableDoc />} />
+              <Route path="*" element={<Introuvable />} />
+            </Routes>
+          </Shell>
+          {isDebugRequested() ? <OdoroDebugPanel /> : null}
+        </ToastProvider>
+      </Router>
+    </OdoroEngine>
   )
 }

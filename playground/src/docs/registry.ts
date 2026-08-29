@@ -304,6 +304,58 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     ],
   },
   {
+    title: 'Moteur',
+    pages: [
+      {
+        path: '/docs/moteur',
+        title: 'Vue d’ensemble',
+        description: 'Ou passe la frontiere avec la librairie, et pourquoi.',
+        keywords: ['engine', 'moteur', 'frame', 'gsap', 'boucle'],
+      },
+      {
+        path: '/docs/moteur/boucle',
+        title: 'La boucle',
+        description: 'Abonnement, priorites, delta lisse contre delta mesure.',
+        keywords: ['clock', 'ticker', 'fps', 'delta', 'priorite', 'raf'],
+      },
+      {
+        path: '/docs/moteur/mouvement',
+        title: 'Politique de mouvement',
+        description: 'Preference systeme, qualite, degradation automatique.',
+        keywords: ['reduced motion', 'accessibilite', 'qualite', 'performance'],
+      },
+      {
+        path: '/docs/moteur/webgl',
+        title: 'Surfaces WebGL',
+        description: 'Arbitrage des contextes, backend leger, replis obligatoires.',
+        keywords: ['webgl', 'ogl', 'three', 'shader', 'canvas', 'surface'],
+      },
+      {
+        path: '/docs/moteur/diagnostic',
+        title: 'Diagnostic',
+        description: 'Inventaire des abonnes et des ressources, panneau de releve.',
+        keywords: ['debug', 'inventaire', 'fuite', 'ressource', 'panneau'],
+      },
+    ],
+  },
+  {
+    title: 'Registre',
+    pages: [
+      {
+        path: '/docs/registre',
+        title: 'Le format',
+        description: 'Arborescence, meta.json, ce que la validation refuse.',
+        keywords: ['registry', 'meta', 'schema', 'validation', 'composants'],
+      },
+      {
+        path: '/docs/registre/cli',
+        title: 'Installer un composant',
+        description: 'init, add, list, diff, doctor.',
+        keywords: ['cli', 'add', 'diff', 'doctor', 'init', 'copie', 'shadcn'],
+      },
+    ],
+  },
+  {
     title: 'Composants',
     pages: COMPONENT_PAGES,
   },

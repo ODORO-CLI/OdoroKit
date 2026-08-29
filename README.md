@@ -11,12 +11,14 @@ npm install odoro-libs       # la librairie, embarquée par défaut
 
 ## Ce que contient le dépôt
 
-| Paquet                                  | Rôle                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------- |
-| [`odoro-libs`](packages/odoro-libs)     | Routeur, moteur d'animation, système de style et composants d'interface.      |
-| [`odoro`](packages/odoro)               | Moteur de développement et de compilation, plus l'échafaudage `odoro create`. |
-| [`create-odoro`](packages/create-odoro) | Point d'entrée de `npm create odoro@latest`. Délègue entièrement au moteur.   |
-| [`playground`](playground)              | Application de test liée à la librairie, pour la développer à chaud.          |
+| Paquet                                  | Rôle                                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------- |
+| [`odoro-libs`](packages/odoro-libs)     | Routeur, moteur d'animation, système de style et composants d'interface.        |
+| [`odoro`](packages/odoro)               | Moteur de développement et de compilation, plus l'échafaudage `odoro create`.   |
+| [`create-odoro`](packages/create-odoro) | Point d'entrée de `npm create odoro@latest`. Délègue entièrement au moteur.     |
+| [`odoro-engine`](packages/odoro-engine) | Ce qui travaille à chaque image : boucle unique, politique de mouvement, WebGL. |
+| [`odoro-bits`](packages/odoro-bits)     | Le registre de composants animés : source de vérité et artefacts servis.        |
+| [`playground`](playground)              | Application de test liée à la librairie, pour la développer à chaud.            |
 
 ## Démarrer
 
@@ -41,6 +43,12 @@ sans réinstallation.
 | `pnpm lint`      | ESLint sur l'ensemble du dépôt.                         |
 | `pnpm format`    | Prettier en écriture.                                   |
 | `pnpm changeset` | Décrit une modification en vue de la prochaine version. |
+
+Trois vérifications passent par un vrai navigateur, le serveur du playground
+étant démarré : `pnpm check:smoke` (réseau, exécution, navigation),
+`pnpm check:moteur` (les pages du moteur et du registre : contenu réel,
+compteur d'images qui avance, canevas WebGL qui peint) et `pnpm check:hmr`
+(sur un projet échafaudé).
 
 ## Le moteur
 
@@ -90,7 +98,7 @@ Une documentation par sous-module, avec des exemples exécutables :
 - [Interface](docs/ui.md) — les cinq composants et leurs contrats.
 - [Moteur](docs/engine.md) — configuration, rechargement à chaud, compilation.
 - [Registre](docs/registre.md) — format des composants copiés, validation,
-  artefacts servis.
+  artefacts servis, commandes `init` / `add` / `diff` / `doctor`.
 
 ## Décisions structurantes
 

@@ -209,6 +209,9 @@ importers:
 
   playground:
     dependencies:
+      odoro-engine:
+        specifier: workspace:*
+        version: link:../packages/odoro-engine
       odoro-libs:
         specifier: workspace:*
         version: link:../packages/odoro-libs
