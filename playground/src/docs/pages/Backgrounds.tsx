@@ -1,20 +1,174 @@
 /**
  * Backgrounds : la categorie des fonds animes, chacun dans un atelier.
  *
- * Les composants viennent du registre, installes par la CLI. Le contenu de
- * demonstration est affiche par defaut : un fond se juge a ce qu'il laisse
- * lire, pas a ce qu'il montre seul.
+ * ## Pourquoi un selecteur plutot que cinq cadres
+ *
+ * L'arbitre du moteur n'accorde qu'un contexte graphique par backend. Cinq
+ * fonds en shader affiches ensemble donneraient donc un fond et quatre replis
+ * — une page qui contredit ce qu'elle explique.
+ *
+ * Les fonds en shader partagent un seul atelier, et l'on choisit celui qu'on
+ * regarde. Le quadrillage, qui n'emploie aucun contexte, a le sien.
  *
  * @module
  */
 
-import { type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 
 import { Aurora } from '@/odoro/background/Aurora.jsx'
+import { Beams } from '@/odoro/background/Beams.jsx'
+import { Dots } from '@/odoro/background/Dots.jsx'
+import { GridLines } from '@/odoro/background/GridLines.jsx'
+import { Mesh } from '@/odoro/background/Mesh.jsx'
+import { Waves } from '@/odoro/background/Waves.jsx'
 import { Molten } from '@/odoro/hero/Molten.jsx'
-import { Atelier } from '../components/Atelier.jsx'
+import { Atelier, type AtelierControl } from '../components/Atelier.jsx'
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
+
+/** Un reglage a curseur, ecrit une fois plutot que quinze. */
+function range(
+  name: string,
+  label: string,
+  min: number,
+  max: number,
+  step: number,
+  value: number,
+): AtelierControl {
+  return { kind: 'range', name, label, min, max, step, value }
+}
+
+/** Ce qu'un fond en shader apporte a l'atelier partage. */
+interface ShaderEntry {
+  readonly controls: readonly AtelierControl[]
+  readonly render: (values: Record<string, unknown>) => ReactElement
+  readonly note: string
+}
+
+/** Les cinq fonds en shader. */
+const SHADERS: Readonly<Record<string, ShaderEntry>> = {
+  aurore: {
+    controls: [
+      range('speed', 'Vitesse', 0, 0.6, 0.01, 0.12),
+      range('scale', 'Echelle', 0.5, 8, 0.1, 2.4),
+      range('octaves', 'Octaves', 1, 6, 1, 4),
+    ],
+    render: (v) => (
+      <Aurora
+        className="o-absolute o-inset-0"
+        speed={v['speed'] as number}
+        scale={v['scale'] as number}
+        octaves={v['octaves'] as number}
+      />
+    ),
+    note: 'Bruit fractal a deplacement de domaine. Le plus dense des cinq.',
+  },
+  ondes: {
+    controls: [
+      range('speed', 'Vitesse', 0, 1.5, 0.05, 0.25),
+      range('bands', 'Bandes', 1, 8, 1, 5),
+      range('amplitude', 'Amplitude', 0, 0.4, 0.01, 0.12),
+    ],
+    render: (v) => (
+      <Waves
+        className="o-absolute o-inset-0"
+        speed={v['speed'] as number}
+        bands={v['bands'] as number}
+        amplitude={v['amplitude'] as number}
+      />
+    ),
+    note: 'Trois sinus de frequences non multiples : le motif ne se repete jamais a l oeil.',
+  },
+  points: {
+    controls: [
+      range('speed', 'Vitesse', 0, 4, 0.1, 1.2),
+      range('density', 'Densite', 4, 40, 1, 14),
+      range('radius', 'Rayon', 0.05, 0.45, 0.01, 0.18),
+    ],
+    render: (v) => (
+      <Dots
+        className="o-absolute o-inset-0"
+        speed={v['speed'] as number}
+        density={v['density'] as number}
+        radius={v['radius'] as number}
+      />
+    ),
+    note: 'L espace est replie sur lui-meme : le cout ne depend pas du nombre de points.',
+  },
+  faisceaux: {
+    controls: [
+      range('speed', 'Vitesse', 0, 2, 0.05, 0.35),
+      range('count', 'Rais', 2, 30, 1, 9),
+      range('angle', 'Inclinaison', -1.5, 1.5, 0.05, 0.35),
+    ],
+    render: (v) => (
+      <Beams
+        className="o-absolute o-inset-0"
+        speed={v['speed'] as number}
+        count={v['count'] as number}
+        angle={v['angle'] as number}
+      />
+    ),
+    note: 'C est l espace qui tourne, pas les rais : deux multiplications au lieu d une geometrie.',
+  },
+  nappe: {
+    controls: [
+      range('speed', 'Vitesse', 0, 1.2, 0.05, 0.2),
+      range('spread', 'Etendue', 0.2, 1.2, 0.05, 0.55),
+    ],
+    render: (v) => (
+      <Mesh
+        className="o-absolute o-inset-0"
+        speed={v['speed'] as number}
+        spread={v['spread'] as number}
+      />
+    ),
+    note: 'Trois taches suffisent : au-dela, elles se recouvrent et le motif se perd.',
+  },
+}
+
+/** Noms des fonds, dans l'ordre de declaration. */
+const SHADER_NAMES = Object.keys(SHADERS)
+
+/** L'atelier partage par les cinq fonds en shader. */
+function ShaderAtelier(): ReactElement {
+  const [choice, setChoice] = useState(SHADER_NAMES[0] ?? 'aurore')
+  const shader = SHADERS[choice] ?? SHADERS['aurore']
+  if (shader === undefined) return <p>Aucun fond declare.</p>
+
+  return (
+    <div className="o-flex o-flex-col o-gap-3">
+      <div className="o-flex o-flex-wrap o-gap-2">
+        {SHADER_NAMES.map((name) => (
+          <button
+            key={name}
+            type="button"
+            aria-pressed={choice === name}
+            onClick={() => setChoice(name)}
+            className={`o-h-8 o-px-3 o-rounded-md o-border-w-1 o-text-sm o-font-mono o-cursor-pointer o-transition-colors ${
+              choice === name
+                ? 'o-border-brand-500 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400'
+                : 'o-border-zinc-300 dark:o-border-zinc-700 o-text-zinc-500 dark:o-text-zinc-400 hover:o-border-zinc-400 dark:hover:o-border-zinc-600'
+            }`}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+
+      {/*
+        La cle force un remontage au changement de fond : l'ancienne surface
+        est liberee avant que la nouvelle ne soit demandee, sans quoi l'arbitre
+        refuserait la seconde faute de contexte disponible.
+      */}
+      <Atelier key={choice} height="o-h-96" controls={shader.controls}>
+        {(values) => shader.render(values as Record<string, unknown>)}
+      </Atelier>
+
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{shader.note}</p>
+    </div>
+  )
+}
 
 /** Page de la categorie Backgrounds. */
 export function Backgrounds(): ReactElement {
@@ -33,55 +187,53 @@ export function Backgrounds(): ReactElement {
       </Callout>
 
       <Section
-        title="Aurore"
-        lead="Bruit fractal a deplacement de domaine, dans un triangle plein cadre. Treize kilo-octets compresses, et les couleurs viennent de la palette."
+        title="Cinq fonds en shader"
+        lead="Un triangle plein cadre et un shader de fragment. Treize kilo-octets compresses pour le backend, quel que soit le fond choisi — et les couleurs viennent de la palette, pas du shader."
+      >
+        <ShaderAtelier />
+
+        <Callout tone="warning">
+          Il n y a <strong>qu un</strong> cadre pour les cinq, et ce n est pas une
+          economie de place : l arbitre n accorde qu un contexte graphique par backend.
+          Cinq fonds cote a cote donneraient un fond et quatre replis.
+        </Callout>
+
+        <CodeBlock
+          code={`// Les couleurs sont des tokens, pas des valeurs.
+<Waves colors={['--o-palette-zinc-950', '--o-palette-brand-500']} bands={6} />`}
+        />
+      </Section>
+
+      <Section
+        title="Un fond sans contexte graphique"
+        lead="Un quadrillage est une repetition reguliere : deux degrades le decrivent exactement, et le compositeur le dessine seul."
       >
         <Atelier
-          height="o-h-96"
+          height="o-h-80"
           controls={[
-            {
-              kind: 'range',
-              name: 'speed',
-              label: 'Vitesse',
-              min: 0,
-              max: 0.6,
-              step: 0.01,
-              value: 0.12,
-            },
-            {
-              kind: 'range',
-              name: 'scale',
-              label: 'Echelle',
-              min: 0.5,
-              max: 8,
-              step: 0.1,
-              value: 2.4,
-            },
-            {
-              kind: 'range',
-              name: 'octaves',
-              label: 'Octaves',
-              min: 1,
-              max: 6,
-              step: 1,
-              value: 4,
-            },
+            range('size', 'Pas', 16, 120, 4, 48),
+            range('thickness', 'Epaisseur', 1, 4, 1, 1),
+            range('speed', 'Derive', 0, 60, 2, 0),
           ]}
         >
-          {(values) => (
-            <Aurora
+          {(values, frame) => (
+            <GridLines
               className="o-absolute o-inset-0"
+              size={values['size'] as number}
+              thickness={values['thickness'] as number}
               speed={values['speed'] as number}
-              scale={values['scale'] as number}
-              octaves={values['octaves'] as number}
+              color={frame.color}
             />
           )}
         </Atelier>
 
-        <CodeBlock
-          code={`// Trois tokens, pas trois valeurs : changer le theme change le fond.
-<Aurora colors={['--o-palette-brand-600', '--o-palette-fuchsia-600', '--o-palette-zinc-50']} />`}
-        />
+        <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
+          La consequence pratique compte autant que le principe : celui-ci se pose autant
+          de fois qu on veut sur une page, et il ne coute aucun kilo-octet de backend.
+          Prendre une surface graphique pour un quadrillage reviendrait a depenser un
+          contexte — dont le navigateur ne distribue qu un nombre limite — pour un
+          resultat identique.
+        </p>
       </Section>
 
       <Section
@@ -95,33 +247,9 @@ export function Backgrounds(): ReactElement {
             hint: 'Cette scene telecharge environ 130 Ko compresses. L interrupteur « Scene » du panneau la monte quand vous le decidez.',
           }}
           controls={[
-            {
-              kind: 'range',
-              name: 'amplitude',
-              label: 'Deformation',
-              min: 0,
-              max: 0.7,
-              step: 0.01,
-              value: 0.28,
-            },
-            {
-              kind: 'range',
-              name: 'glow',
-              label: 'Halo',
-              min: 0,
-              max: 3,
-              step: 0.1,
-              value: 0.8,
-            },
-            {
-              kind: 'range',
-              name: 'parallax',
-              label: 'Pointeur',
-              min: 0,
-              max: 1,
-              step: 0.05,
-              value: 0.25,
-            },
+            range('amplitude', 'Deformation', 0, 0.7, 0.01, 0.28),
+            range('glow', 'Halo', 0, 3, 0.1, 0.8),
+            range('parallax', 'Pointeur', 0, 1, 0.05, 0.25),
           ]}
         >
           {(values) => (
@@ -137,19 +265,9 @@ export function Backgrounds(): ReactElement {
         <Callout tone="warning">
           Environ 130 Ko compresses au premier affichage, contre 13 pour le backend leger.
           Si l effet recherche n a besoin ni de camera, ni de profondeur, ni de
-          silhouette, l aurore fait le meme travail pour un dixieme du poids.
+          silhouette, l un des cinq fonds ci-dessus fait le meme travail pour un dixieme
+          du poids.
         </Callout>
-      </Section>
-
-      <Section
-        title="Ce qui vient ensuite"
-        lead="Cette categorie s'etoffe : maillages, vagues, champs de points, motifs CSS sans WebGL, et d'autres heros 3D."
-      >
-        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Chacun passera par le meme atelier et le meme contrat : couleurs prises dans la
-          palette, repli obligatoire des que le cout est eleve, et rien qui se monte sous
-          mouvement reduit.
-        </p>
       </Section>
     </>
   )

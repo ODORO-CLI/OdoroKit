@@ -15,6 +15,51 @@
         }
       ]
     },
+    "background/beams": {
+      "installedAt": "2026-08-29T03:15:27.669Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Beams.tsx",
+          "hash": "00b7f5e5a5befed3"
+        }
+      ]
+    },
+    "background/dots": {
+      "installedAt": "2026-08-29T03:15:27.669Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Dots.tsx",
+          "hash": "9393855654f41fd5"
+        }
+      ]
+    },
+    "background/grid-lines": {
+      "installedAt": "2026-08-29T03:15:27.669Z",
+      "files": [
+        {
+          "path": "src/odoro/background/GridLines.tsx",
+          "hash": "d84708fb2a905d7c"
+        }
+      ]
+    },
+    "background/mesh": {
+      "installedAt": "2026-08-29T03:15:27.669Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Mesh.tsx",
+          "hash": "f7b68ddbb8c61023"
+        }
+      ]
+    },
+    "background/waves": {
+      "installedAt": "2026-08-29T03:15:27.669Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Waves.tsx",
+          "hash": "1dbc01aa7a2d5517"
+        }
+      ]
+    },
     "effect/border-beam": {
       "installedAt": "2026-08-29T02:52:09.485Z",
       "files": [

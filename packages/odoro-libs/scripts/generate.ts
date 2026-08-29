@@ -59,6 +59,7 @@ export type VariantName =
   | 'hover'
   | 'focus'
   | 'active'
+  | 'disabled'
   | 'dark'
   | 'sm'
   | 'md'
@@ -187,6 +188,7 @@ const COLOURED: readonly AnyVariant[] = [
   'hover',
   'focus',
   'active',
+  'disabled',
   'dark',
   'dark:hover',
   'dark:focus',
@@ -1179,7 +1181,7 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Opacite',
     tier: 'core',
-    variants: STATEFUL,
+    variants: [...STATEFUL, 'disabled'],
     rules: fromScale('opacity', opacity, (token, key) => ({
       [`opacity-${key}`]: `opacity:${token}`,
     })),
@@ -1228,7 +1230,9 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Interaction',
     tier: 'core',
-    variants: [],
+    // Le curseur change quand un controle est desactive : c'est le seul
+    // variant dont cette famille ait besoin.
+    variants: ['disabled'],
     rules: merge(
       fromScale('duration', duration, (token, key) => ({
         [`duration-${key}`]: `transition-duration:${token}`,
@@ -1447,6 +1451,9 @@ const STATE_PSEUDO: Readonly<Record<string, string>> = {
   hover: ':hover',
   focus: ':focus-visible',
   active: ':active',
+  // Un controle desactive doit pouvoir se distinguer sans qu'on ait a lui
+  // poser une classe conditionnelle : c'est un etat du DOM, pas du composant.
+  disabled: ':disabled',
 }
 
 /**

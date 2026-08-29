@@ -90,7 +90,36 @@ const glErrors = errors.filter((e) => /shader|GL_|WebGL|glsl/i.test(e))
 if (glErrors.length > 0) failures.push(`erreurs graphiques : ${glErrors.join(' | ')}`)
 for (const error of errors) failures.push(`console : ${error}`)
 
-// 5. Sous mouvement reduit : aucune scene, aucun canevas, les replis seuls.
+// 5. Les cinq fonds en shader compilent et peignent.
+//
+// Un shader n'est qu'une chaine pour TypeScript : il faut le compiler pour
+// savoir. Ils sont essayes un par un, l'arbitre n'accordant qu'un contexte.
+const fonds = await browser.newPage()
+fonds.on('pageerror', (e) => failures.push(`fonds : ${String(e)}`))
+fonds.on('console', (m) => {
+  if (m.type() === 'error') failures.push(`fonds : ${m.text().slice(0, 160)}`)
+})
+await fonds.goto(`${base}/docs/backgrounds`, { waitUntil: 'networkidle' })
+await fonds.waitForTimeout(2000)
+
+for (const name of ['aurore', 'ondes', 'points', 'faisceaux', 'nappe']) {
+  await fonds.getByRole('button', { name, exact: true }).click()
+  await fonds.waitForTimeout(1500)
+
+  const canevas = await fonds.evaluate(() => document.querySelectorAll('canvas').length)
+  const shot = await fonds.locator('canvas').first().screenshot()
+  const values = new Set()
+  for (let i = 0; i < shot.length; i += 89) values.add(shot[i])
+
+  console.log(
+    `fond ${name.padEnd(11)} canevas ${String(canevas)}, ${String(values.size)} valeurs`,
+  )
+  if (canevas !== 1) failures.push(`${name} : ${String(canevas)} canevas au lieu de 1`)
+  if (values.size < 8) failures.push(`${name} : canevas uniforme, shader muet ?`)
+}
+await fonds.close()
+
+// 6. Sous mouvement reduit : aucune scene, aucun canevas, les replis seuls.
 const sobre = await browser.newPage()
 sobre.on('pageerror', (e) => failures.push(`mouvement reduit : ${String(e)}`))
 await sobre.emulateMedia({ reducedMotion: 'reduce' })

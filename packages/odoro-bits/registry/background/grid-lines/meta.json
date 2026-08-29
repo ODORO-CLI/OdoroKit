@@ -1,0 +1,58 @@
+{
+  "name": "grid-lines",
+  "category": "background",
+  "title": "Grille",
+  "description": "Un quadrillage qui derive, en degrades repetes. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/GridLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Pas du quadrillage."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 1,
+      "unit": "px",
+      "description": "Epaisseur des traits."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0,
+      "unit": "s",
+      "description": "Duree d un cycle de derive. Zero pour l immobiliser."
+    },
+    {
+      "name": "fade",
+      "type": "boolean",
+      "default": true,
+      "description": "Attenue la grille vers les bords."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux degrades repetes et un masque. Aucun contexte graphique, aucun plafond a partager."
+  }
+}

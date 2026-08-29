@@ -9,8 +9,8 @@ import 'odoro-libs/styles.css'
 
 | Feuille                      | Contenu                                                                  | Poids                   |
 | ---------------------------- | ------------------------------------------------------------------------ | ----------------------- |
-| `odoro-libs/styles.css`      | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 664 Ko — 56 Ko brotli |
-| `odoro-libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances             | 2 758 Ko — 82 Ko brotli |
+| `odoro-libs/styles.css`      | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 715 Ko — 59 Ko brotli |
+| `odoro-libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances             | 2 858 Ko — 88 Ko brotli |
 
 La feuille complète est un sur-ensemble de la feuille de base : on importe
 l'une **ou** l'autre.
@@ -102,6 +102,7 @@ comme dans les conventions habituelles :
 | `active:`         | Couleurs                                          |
 | `dark:`           | Couleurs                                          |
 | `dark:hover:`     | Couleurs — le thème croisé avec un état           |
+| `disabled:`       | Couleurs, opacité, curseur                        |
 
 Les variantes sont déclarées **par famille**, pas appliquées à tout : générer
 chaque variante pour chaque utilitaire multiplierait la feuille par cinq sans

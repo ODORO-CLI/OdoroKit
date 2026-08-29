@@ -135,6 +135,12 @@ export {
 } from './gl/surface-manager.js'
 
 export {
+  useTokenShader,
+  type TokenShaderHandle,
+  type TokenShaderOptions,
+} from './gl/ogl/use-token-shader.js'
+
+export {
   useShaderSurface,
   type ShaderSurfaceHandle,
   type ShaderSurfaceOptions,
@@ -149,6 +155,13 @@ export {
   readTokenColour,
   type ShaderColour,
 } from './gl/colour.js'
+
+export {
+  BEAMS_FRAGMENT,
+  DOTS_FRAGMENT,
+  MESH_FRAGMENT,
+  WAVES_FRAGMENT,
+} from './gl/ogl/backgrounds.js'
 
 export {
   AURORA_FRAGMENT,

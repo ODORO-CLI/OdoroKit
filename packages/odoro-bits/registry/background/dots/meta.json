@@ -1,0 +1,55 @@
+{
+  "name": "dots",
+  "category": "background",
+  "title": "Champ de points",
+  "description": "Une grille de disques qui respirent, chacun a son rythme.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Dots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-zinc-950", "--o-palette-brand-500", "--o-palette-fuchsia-500"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1.2,
+      "description": "Vitesse de la respiration."
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 14,
+      "description": "Nombre de points par largeur."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 0.18,
+      "description": "Taille des points, en fraction de la cellule."
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "L espace est replie sur lui-meme : le cout ne depend pas du nombre de points."
+  }
+}

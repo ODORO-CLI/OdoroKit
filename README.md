@@ -108,8 +108,8 @@ Une documentation par sous-module, avec des exemples exécutables :
 
 **Pas de moteur JIT pour les styles.** Les tokens sont la source de vérité ; un
 script en dérive une feuille statique. Aucune analyse du code applicatif,
-aucune étape à l'exécution. Le prix est un fichier de taille fixe : 56 Ko
-compressés (brotli) pour la feuille de base, 82 Ko pour celle qui expose les
+aucune étape à l'exécution. Le prix est un fichier de taille fixe : 59 Ko
+compressés (brotli) pour la feuille de base, 88 Ko pour celle qui expose les
 290 nuances. On importe l'une **ou** l'autre.
 
 **Pas de couche sémantique.** Une couleur se désigne par sa place dans la
