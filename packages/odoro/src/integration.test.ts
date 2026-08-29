@@ -87,8 +87,19 @@ describe.runIf(ENABLED)('chaine complete : empaquetage, echafaudage, compilation
       dependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
-    manifest.dependencies['@odoro-cli/libs'] = `file:../odoro-libs-${version}.tgz`
-    manifest.devDependencies['odoro'] = `file:../odoro-${version}.tgz`
+    // Le nom de l'archive se **derive** du nom publie : `npm pack` fait tomber
+    // l'arobase et remplace la barre oblique par un tiret. L'ecrire en dur
+    // marchait jusqu'au changement de scope, ou `@odoro/libs` est devenu
+    // `@odoro-cli/libs` — et l'archive `odoro-cli-libs-…tgz` que personne ne
+    // cherchait plus.
+    //
+    // `scripts/try-create.mjs` deduisait deja ce nom. La lecon avait ete
+    // apprise la, et pas ici.
+    const archiveDe = (nom: string): string =>
+      `file:../${nom.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
+
+    manifest.dependencies['@odoro-cli/libs'] = archiveDe('@odoro-cli/libs')
+    manifest.devDependencies['odoro'] = archiveDe('odoro')
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
     exec('npm', ['install', '--no-audit', '--no-fund'], project)
