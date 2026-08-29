@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Badge, type BadgeTone, Card } from 'odoro-libs/ui'
+import { Badge, type BadgeTone, Card } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -41,7 +41,7 @@ export function BadgeDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Badge"
         lead="Pastille de statut ou d'etiquetage, en sept registres de couleur et trois rendus."
       />

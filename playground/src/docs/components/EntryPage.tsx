@@ -117,7 +117,7 @@ export function EntryPage({ id }: { id: string }): ReactElement {
         Aucune entree ne porte l identifiant{' '}
         <code className="o-font-mono o-text-xs">{id}</code>. Le catalogue est produit par{' '}
         <code className="o-font-mono o-text-xs">
-          pnpm --filter odoro-bits registry:build
+          pnpm --filter @odoro/bits registry:build
         </code>
         .
       </Callout>

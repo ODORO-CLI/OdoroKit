@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Button, Dialog, Input, Tabs, ToastProvider, useToast } from 'odoro-libs/ui'
+import { Button, Dialog, Input, Tabs, ToastProvider, useToast } from '@odoro/libs/ui'
 
 /** Declencheur de notifications, a l'interieur du fournisseur. */
 function Notifications() {

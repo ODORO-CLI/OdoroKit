@@ -37,7 +37,7 @@ import {
   type Customisable,
   type ReadyCallback,
   type Slot,
-} from 'odoro-engine'
+} from '@odoro/engine'
 import {
   useCallback,
   useEffect,

@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Badge, type BadgeTone, Table, type TableColumn } from 'odoro-libs/ui'
+import { Badge, type BadgeTone, Table, type TableColumn } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -70,7 +70,7 @@ export function TableDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Table"
         lead="Tableau de donnees generique et accessible : colonnes declaratives, rendu de cellule personnalise, alignements, en-tete collant."
       />

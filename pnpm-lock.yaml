@@ -94,6 +94,15 @@ importers:
 
   packages/odoro-bits:
     devDependencies:
+      '@odoro/engine':
+        specifier: workspace:*
+        version: link:../odoro-engine
+      '@odoro/icons':
+        specifier: workspace:*
+        version: link:../odoro-icons
+      '@odoro/libs':
+        specifier: workspace:*
+        version: link:../odoro-libs
       '@types/node':
         specifier: ^22.18.8
         version: 22.20.1
@@ -103,15 +112,6 @@ importers:
       odoro:
         specifier: workspace:*
         version: link:../odoro
-      odoro-engine:
-        specifier: workspace:*
-        version: link:../odoro-engine
-      odoro-icons:
-        specifier: workspace:*
-        version: link:../odoro-icons
-      odoro-libs:
-        specifier: workspace:*
-        version: link:../odoro-libs
       react:
         specifier: ^19.2.0
         version: 19.2.8
@@ -137,6 +137,9 @@ importers:
         specifier: ^0.185.1
         version: 0.185.1
     devDependencies:
+      '@odoro/libs':
+        specifier: workspace:*
+        version: link:../odoro-libs
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -152,9 +155,6 @@ importers:
       jsdom:
         specifier: ^27.0.0
         version: 27.4.0(@noble/hashes@1.8.0)
-      odoro-libs:
-        specifier: workspace:*
-        version: link:../odoro-libs
       react:
         specifier: ^19.2.0
         version: 19.2.8
@@ -285,13 +285,13 @@ importers:
 
   playground:
     dependencies:
-      odoro-engine:
+      '@odoro/engine':
         specifier: workspace:*
         version: link:../packages/odoro-engine
-      odoro-icons:
+      '@odoro/icons':
         specifier: workspace:*
         version: link:../packages/odoro-icons
-      odoro-libs:
+      '@odoro/libs':
         specifier: workspace:*
         version: link:../packages/odoro-libs
       react:

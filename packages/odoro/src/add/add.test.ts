@@ -146,7 +146,7 @@ describe('reecriture des imports', () => {
   })
 
   it('ne touche pas aux vrais paquets', () => {
-    const source = "import { clock } from 'odoro-engine'\nimport gsap from 'gsap'"
+    const source = "import { clock } from '@odoro/engine'\nimport gsap from 'gsap'"
     expect(rewriteImports(source, '@/odoro')).toBe(source)
   })
 
@@ -398,12 +398,14 @@ describe('poids annonce', () => {
   })
 
   it('reclame le moteur, pas ses propres dependances', () => {
-    // gsap, ogl et three arrivent avec `odoro-engine`. Les reclamer une
+    // gsap, ogl et three arrivent avec `@odoro/engine`. Les reclamer une
     // seconde fois produirait un avertissement que rien ne resout.
     const packages = requiredPackages([
       entry({ engine: { gsap: ['ScrollTrigger'], gl: 'three' }, dependencies: ['clsx'] }),
     ])
-    expect(packages).toEqual(['clsx', 'odoro-engine'])
+    // Le tri place `@odoro/engine` avant `clsx` : l'arobase precede les
+    // lettres. Le passage au scope a donc change l'ordre annonce.
+    expect(packages).toEqual(['@odoro/engine', 'clsx'])
   })
 
   it('ne reclame rien d une entree qui ne touche pas au moteur', () => {

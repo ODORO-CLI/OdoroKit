@@ -11,7 +11,7 @@ import {
   useNavigate,
   useLocation,
   useSearchParams,
-} from 'odoro-libs/router'
+} from '@odoro/libs/router'
 ```
 
 ## Mise en place
@@ -20,7 +20,7 @@ import {
 confronte le chemin à l'arbre déclaré et rend la chaîne correspondante.
 
 ```tsx
-import { Link, Outlet, Route, Router, Routes } from 'odoro-libs/router'
+import { Link, Outlet, Route, Router, Routes } from '@odoro/libs/router'
 
 function Layout() {
   return (
@@ -173,7 +173,7 @@ navigate('/liste?page=2', { preventScrollReset: true })
 `createMemoryHistory` fournit un historique sans DOM.
 
 ```tsx
-import { createMemoryHistory, Router } from 'odoro-libs/router'
+import { createMemoryHistory, Router } from '@odoro/libs/router'
 
 render(
   <Router history={createMemoryHistory(['/users/42'])}>

@@ -210,7 +210,7 @@ export interface ScrollProgressOptions {
 /**
  * Progression du defilement d'un element, de 0 a 1.
  *
- * Cette lecture passe par la boucle unique du moteur. `odoro-libs/motion`
+ * Cette lecture passe par la boucle unique du moteur. `@odoro/libs/motion`
  * expose une progression comparable, autonome, pour les projets sans moteur :
  * **ne pas melanger les deux sur une meme page**, ce serait lire le defilement
  * deux fois, et le decalage entre les deux lectures est precisement le

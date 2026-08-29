@@ -21,7 +21,7 @@
  * @module
  */
 
-import { mergePresentation, type Customisable } from 'odoro-engine'
+import { mergePresentation, type Customisable } from '@odoro/engine'
 import { Children, type ReactElement, type ReactNode } from 'react'
 
 import { Marquee } from '@/odoro/effect/Marquee'

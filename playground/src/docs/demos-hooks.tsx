@@ -22,9 +22,9 @@
  * @module
  */
 
-import { CLOCK_PRIORITY, clock } from 'odoro-engine'
-import { Icon } from 'odoro-icons'
-import { MousePointer } from 'odoro-icons/filaire'
+import { CLOCK_PRIORITY, clock } from '@odoro/engine'
+import { Icon } from '@odoro/icons'
+import { MousePointer } from '@odoro/icons/filaire'
 import { useEffect, useRef, useState, type ReactElement } from 'react'
 
 import { usePointerDamped } from '@/odoro/hooks/usePointerDamped.js'

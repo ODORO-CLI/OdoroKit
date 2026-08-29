@@ -7,7 +7,7 @@
  * @module
  */
 
-import * as jeu from 'odoro-icons/etendu'
+import * as jeu from '@odoro/icons/etendu'
 import { type ReactElement } from 'react'
 
 import { IconesJeu, type JeuModule } from '../IconesJeu.jsx'

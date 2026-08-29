@@ -30,6 +30,8 @@ const ENABLED = process.env['ODORO_INTEGRATION'] === '1'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ENGINE = resolve(HERE, '..')
+// Le dossier, pas le nom publie : le passage au scope n'a deplace
+// aucun fichier.
 const LIBS = resolve(ENGINE, '..', 'odoro-libs')
 
 /** Execute une commande en echouant bruyamment si elle sort en erreur. */
@@ -85,7 +87,7 @@ describe.runIf(ENABLED)('chaine complete : empaquetage, echafaudage, compilation
       dependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
-    manifest.dependencies['odoro-libs'] = `file:../odoro-libs-${version}.tgz`
+    manifest.dependencies['@odoro/libs'] = `file:../odoro-libs-${version}.tgz`
     manifest.devDependencies['odoro'] = `file:../odoro-${version}.tgz`
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 

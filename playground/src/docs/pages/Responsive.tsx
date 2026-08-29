@@ -5,7 +5,7 @@
  */
 
 import { type ReactElement } from 'react'
-import { breakpoint } from 'odoro-libs/styles'
+import { breakpoint } from '@odoro/libs/styles'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, DemoBlock, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -24,7 +24,7 @@ export function Responsive(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/styles"
+        module="@odoro/libs/styles"
         title="Responsive"
         lead="Cinq points de rupture, exprimes en rem pour suivre la taille de police de l'utilisateur. Chaque utilitaire existe en variant d'ecran : sm: a 2xl: vers le haut, max-sm: a max-lg: vers le bas."
       />

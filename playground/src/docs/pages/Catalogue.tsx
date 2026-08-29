@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useMemo, useState, type ReactElement } from 'react'
-import { Link } from 'odoro-libs/router'
+import { Link } from '@odoro/libs/router'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -106,7 +106,7 @@ export function Catalogue(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-bits"
+        module="@odoro/bits"
         title="Catalogue"
         lead="Tout ce que le registre publie. Cette page interroge l index — le meme fichier que la CLI telecharge — et ne peut donc ni en omettre ni en inventer."
       />
@@ -115,7 +115,7 @@ export function Catalogue(): ReactElement {
         <Callout tone="warning">
           L index n a pas pu etre lu. Il est produit par{' '}
           <code className="o-font-mono o-text-xs">
-            pnpm --filter odoro-bits registry:build
+            pnpm --filter @odoro/bits registry:build
           </code>{' '}
           : lancez-le, puis rechargez.
         </Callout>
@@ -204,7 +204,7 @@ export function Catalogue(): ReactElement {
           lang="sh"
           code={`# L index est produit par la compilation du registre,
 # et c est ce meme fichier que la CLI telecharge.
-pnpm --filter odoro-bits registry:build
+pnpm --filter @odoro/bits registry:build
 odoro list`}
         />
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">

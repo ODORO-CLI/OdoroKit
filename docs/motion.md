@@ -8,7 +8,7 @@ import {
   useAnimate,
   usePresence,
   usePrefersReducedMotion,
-} from 'odoro-libs/motion'
+} from '@odoro/libs/motion'
 ```
 
 ## Le principe

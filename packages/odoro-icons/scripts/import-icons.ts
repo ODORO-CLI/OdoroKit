@@ -9,7 +9,7 @@
  * reportees dans `CREDITS.md` a la racine.
  *
  * Il tourne a la main, pas a chaque build. Les modules qu'il produit sont
- * versionnes : un projet qui installe `odoro-icons` ne doit pas avoir a
+ * versionnes : un projet qui installe `@odoro/icons` ne doit pas avoir a
  * installer quinze mille fichiers SVG pour en afficher trois.
  *
  * ## Pourquoi une representation et pas du markup
@@ -44,7 +44,7 @@
  *
  * Usage :
  *
- *   pnpm --filter odoro-icons icons:import
+ *   pnpm --filter @odoro/icons icons:import
  *
  * @module
  */

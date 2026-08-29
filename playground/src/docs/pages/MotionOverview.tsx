@@ -5,8 +5,8 @@
  */
 
 import { type ReactElement } from 'react'
-import { motionDuration, motionEasing, useAnimate } from 'odoro-libs/motion'
-import { Link } from 'odoro-libs/router'
+import { motionDuration, motionEasing, useAnimate } from '@odoro/libs/motion'
+import { Link } from '@odoro/libs/router'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -47,7 +47,7 @@ export function MotionOverview(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/motion"
+        module="@odoro/libs/motion"
         title="Le moteur d'animation"
         lead="Des presets, des composants de revelation et des hooks de pilotage, tous poses sur l'API d'animation du navigateur — pas sur une boucle JavaScript."
       />
@@ -159,7 +159,7 @@ export function MotionOverview(): ReactElement {
         </div>
         <CodeBlock
           lang="tsx"
-          code={`import { useAnimate } from 'odoro-libs/motion'
+          code={`import { useAnimate } from '@odoro/libs/motion'
 
 const [ref, controls] = useAnimate<HTMLSpanElement>()
 

@@ -60,9 +60,9 @@ export default defineConfig({
         <CodeBlock
           lang="ts"
           code={`// main.tsx
-import 'odoro-libs/styles.css'      // structure + couleurs semantiques (recommande)
+import '@odoro/libs/styles.css'      // structure + couleurs semantiques (recommande)
 // ou :
-import 'odoro-libs/styles.full.css' // + utilitaires sur les 290 nuances de la palette`}
+import '@odoro/libs/styles.full.css' // + utilitaires sur les 290 nuances de la palette`}
         />
       </Section>
 
@@ -72,10 +72,10 @@ import 'odoro-libs/styles.full.css' // + utilitaires sur les 290 nuances de la p
       >
         <CodeBlock
           lang="ts"
-          code={`import { Button, Dialog, useToast } from 'odoro-libs/ui'       // composants
-import { Reveal, useAnimate, motionPresets } from 'odoro-libs/motion' // animations
-import { Router, Routes, Route, Link } from 'odoro-libs/router'   // routeur
-import { cx, variants, tokens, loadGoogleFonts } from 'odoro-libs/styles' // systeme de style`}
+          code={`import { Button, Dialog, useToast } from '@odoro/libs/ui'       // composants
+import { Reveal, useAnimate, motionPresets } from '@odoro/libs/motion' // animations
+import { Router, Routes, Route, Link } from '@odoro/libs/router'   // routeur
+import { cx, variants, tokens, loadGoogleFonts } from '@odoro/libs/styles' // systeme de style`}
         />
         <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
@@ -104,13 +104,13 @@ import { cx, variants, tokens, loadGoogleFonts } from 'odoro-libs/styles' // sys
             <tbody>
               {[
                 [
-                  'odoro-libs/styles',
+                  '@odoro/libs/styles',
                   'cx, variants, tokens, Google Fonts',
                   'feuille styles.css importee',
                 ],
-                ['odoro-libs/ui', 'composants d’interface', 'styles.css + react'],
-                ['odoro-libs/motion', 'presets, Reveal, Stagger, hooks', 'react'],
-                ['odoro-libs/router', 'Router, Routes, Link, hooks', 'react'],
+                ['@odoro/libs/ui', 'composants d’interface', 'styles.css + react'],
+                ['@odoro/libs/motion', 'presets, Reveal, Stagger, hooks', 'react'],
+                ['@odoro/libs/router', 'Router, Routes, Link, hooks', 'react'],
               ].map(([name, content, needs]) => (
                 <tr
                   key={name}
@@ -139,11 +139,11 @@ import { cx, variants, tokens, loadGoogleFonts } from 'odoro-libs/styles' // sys
         <CodeBlock
           lang="tsx"
           code={`import { createRoot } from 'react-dom/client'
-import { Router, Routes, Route } from 'odoro-libs/router'
-import { Reveal } from 'odoro-libs/motion'
-import { Button, ToastProvider, useToast } from 'odoro-libs/ui'
+import { Router, Routes, Route } from '@odoro/libs/router'
+import { Reveal } from '@odoro/libs/motion'
+import { Button, ToastProvider, useToast } from '@odoro/libs/ui'
 
-import 'odoro-libs/styles.css'
+import '@odoro/libs/styles.css'
 
 function Accueil() {
   const { toast } = useToast()

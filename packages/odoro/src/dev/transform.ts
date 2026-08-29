@@ -152,7 +152,7 @@ function externalizeImports(config: ResolvedConfig, dependencies: Set<string>): 
         const aliased = applyAlias(args.path, config)
 
         // Une feuille de style ou une ressource importee depuis un paquet
-        // (`odoro-libs/styles.css`) doit etre servie comme un fichier, pas
+        // (`@odoro/libs/styles.css`) doit etre servie comme un fichier, pas
         // cherchee dans le cache de dependances, qui ne contient que du
         // JavaScript.
         const isFileLike =

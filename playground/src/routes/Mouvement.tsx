@@ -7,8 +7,8 @@ import {
   useAnimate,
   usePrefersReducedMotion,
   usePresence,
-} from 'odoro-libs/motion'
-import { Button } from 'odoro-libs/ui'
+} from '@odoro/libs/motion'
+import { Button } from '@odoro/libs/ui'
 
 /** Demonstration de `usePresence`, qui retarde le demontage. */
 function Presence() {

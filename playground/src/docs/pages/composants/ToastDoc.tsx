@@ -6,7 +6,7 @@
 
 import { type ReactElement, useRef } from 'react'
 
-import { Button, useToast, type ToastTone } from 'odoro-libs/ui'
+import { Button, useToast, type ToastTone } from '@odoro/libs/ui'
 
 import { CodeBlock } from '../../components/CodeBlock.jsx'
 import {
@@ -85,7 +85,7 @@ export function ToastDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Toast"
         lead="Notifications empilables. ToastProvider fournit la file et la region d'affichage ; useToast expose l'API pour empiler, fermer et vider."
       />
@@ -95,7 +95,7 @@ export function ToastDoc(): ReactElement {
         lead="Enveloppez l'application une seule fois ; chaque composant accede ensuite a la file via useToast."
       >
         <CodeBlock
-          code={`import { ToastProvider, useToast } from 'odoro-libs/ui'
+          code={`import { ToastProvider, useToast } from '@odoro/libs/ui'
 
 // A la racine :
 <ToastProvider>

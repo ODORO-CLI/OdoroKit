@@ -14,7 +14,7 @@ export function Utilitaires(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/styles"
+        module="@odoro/libs/styles"
         title="Utilitaires"
         lead="Le tour des familles visuelles : chaque demo est rendue avec les classes exactes de son extrait. Les utilitaires de couleur sur la palette brute demandent la feuille complete."
       />

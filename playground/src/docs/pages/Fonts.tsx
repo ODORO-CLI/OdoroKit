@@ -5,7 +5,7 @@
  */
 
 import { type ReactElement, useEffect, useState } from 'react'
-import { GOOGLE_FONTS, fontStack, loadGoogleFonts } from 'odoro-libs/styles'
+import { GOOGLE_FONTS, fontStack, loadGoogleFonts } from '@odoro/libs/styles'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -24,7 +24,7 @@ export function Fonts(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/styles"
+        module="@odoro/libs/styles"
         title="Google Fonts"
         lead="Aucun fichier de police dans le bundle : le module construit l'URL css2 officielle et injecte les balises link — preconnexions comprises. Le navigateur telecharge du WOFF2 decoupe par plages Unicode, depuis le cache partage du CDN."
       />
@@ -35,7 +35,7 @@ export function Fonts(): ReactElement {
       >
         <CodeBlock
           lang="ts"
-          code={`import { loadGoogleFonts, applyFontFamily } from 'odoro-libs/styles'
+          code={`import { loadGoogleFonts, applyFontFamily } from '@odoro/libs/styles'
 
 // Injecte les balises et retourne une fonction de retrait
 const cleanup = loadGoogleFonts([
@@ -102,7 +102,7 @@ applyFontFamily('sans', 'Inter')`}
       >
         <CodeBlock
           lang="ts"
-          code={`import { googleFontsUrl } from 'odoro-libs/styles'
+          code={`import { googleFontsUrl } from '@odoro/libs/styles'
 
 googleFontsUrl(['Inter', { family: 'Lora', weights: [400], italics: true }])
 // 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:ital,wght@0,400;1,400&display=swap'`}

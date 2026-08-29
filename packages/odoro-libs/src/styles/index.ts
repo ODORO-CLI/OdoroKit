@@ -5,8 +5,8 @@
  * de l'application. Deux paliers sont disponibles :
  *
  * ```ts
- * import 'odoro-libs/styles.css'      // structure + couleurs semantiques
- * import 'odoro-libs/styles.full.css' // + utilitaires sur les 290 nuances
+ * import '@odoro/libs/styles.css'      // structure + couleurs semantiques
+ * import '@odoro/libs/styles.full.css' // + utilitaires sur les 290 nuances
  * ```
  *
  * La feuille complete est un sur-ensemble de la feuille de base : on importe

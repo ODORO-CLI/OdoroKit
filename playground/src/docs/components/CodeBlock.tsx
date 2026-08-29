@@ -7,8 +7,8 @@
  * @module
  */
 
-import { Icon } from 'odoro-icons'
-import { Check, Copy } from 'odoro-icons/filaire'
+import { Icon } from '@odoro/icons'
+import { Check, Copy } from '@odoro/icons/filaire'
 import { type ReactElement, type ReactNode, useState } from 'react'
 
 /** Un lexeme colore. */

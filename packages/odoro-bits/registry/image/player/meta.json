@@ -13,7 +13,7 @@
       "target": "image/Player.tsx"
     }
   ],
-  "dependencies": ["odoro-icons"],
+  "dependencies": ["@odoro/icons"],
   "registryDependencies": [],
   "tokens": [],
   "props": [

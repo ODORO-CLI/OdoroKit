@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Button, Card, Spinner } from 'odoro-libs/ui'
+import { Button, Card, Spinner } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -28,7 +28,7 @@ export function SpinnerDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Spinner"
         lead="Indicateur d'activite circulaire, teinte par la couleur de texte courante et annonce aux lecteurs d'ecran."
       />

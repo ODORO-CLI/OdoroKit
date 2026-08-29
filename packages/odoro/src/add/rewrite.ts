@@ -17,7 +17,7 @@
  *
  * ## Ce qui n'est pas reecrit
  *
- * Tout le reste. `odoro-engine`, `react`, `gsap`, `three` sont de vrais
+ * Tout le reste. `@odoro/engine`, `react`, `gsap`, `three` sont de vrais
  * paquets : ils s'installent, ils ne se copient pas. Le seul chemin reecrit
  * est celui qui pointe vers un autre fichier copie.
  *

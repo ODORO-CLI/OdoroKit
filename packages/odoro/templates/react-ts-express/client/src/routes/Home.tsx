@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import { Reveal, Stagger } from 'odoro-libs/motion'
-import { Link } from 'odoro-libs/router'
-import { Button } from 'odoro-libs/ui'
+import { Reveal, Stagger } from '@odoro/libs/motion'
+import { Link } from '@odoro/libs/router'
+import { Button } from '@odoro/libs/ui'
 
 /** Reponse de la route de sante du serveur. */
 interface Health {

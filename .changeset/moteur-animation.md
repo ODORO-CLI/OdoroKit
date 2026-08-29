@@ -1,5 +1,5 @@
 ---
-'odoro-engine': minor
+'@odoro/engine': minor
 ---
 
 Premiere version du moteur d'animation : boucle de rendu unique, politique de

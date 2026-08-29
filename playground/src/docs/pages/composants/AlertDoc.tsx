@@ -2,7 +2,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Alert, type AlertTone, Button } from 'odoro-libs/ui'
+import { Alert, type AlertTone, Button } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -46,7 +46,7 @@ export function AlertDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Alert"
         lead="Encart de message contextuel en quatre registres, avec icone assortie, titre optionnel et fermeture animee."
       />

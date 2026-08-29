@@ -1,5 +1,5 @@
 ---
-'odoro-libs': major
+'@odoro/libs': major
 ---
 
 Retrait de la couche semantique. Une couleur se designe desormais par sa place

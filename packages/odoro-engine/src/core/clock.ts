@@ -298,7 +298,7 @@ class Clock {
  * garantie que ce module apporte, et deux instances la reduiraient a neant.
  *
  * @example
- * import { clock, CLOCK_PRIORITY } from 'odoro-engine'
+ * import { clock, CLOCK_PRIORITY } from '@odoro/engine'
  *
  * const subscription = clock.subscribe(({ time }) => {
  *   mesh.rotation.y = time * 0.2

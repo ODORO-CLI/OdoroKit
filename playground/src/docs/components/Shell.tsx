@@ -18,7 +18,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { Icon, type IconData } from 'odoro-icons'
+import { Icon, type IconData } from '@odoro/icons'
 import {
   Anchor,
   Circle,
@@ -36,9 +36,9 @@ import {
   Wand,
   Waves,
   Zap,
-} from 'odoro-icons/filaire'
-import { Link, useLocation } from 'odoro-libs/router'
-import { useScrollProgress } from 'odoro-libs/motion'
+} from '@odoro/icons/filaire'
+import { Link, useLocation } from '@odoro/libs/router'
+import { useScrollProgress } from '@odoro/libs/motion'
 
 import { DOC_SECTIONS, type DocPage, type DocSection, sectionPages } from '../registry.js'
 import { SearchDialog } from './SearchDialog.jsx'
@@ -62,7 +62,7 @@ const ASIDE_STORAGE_KEY = 'odoro-docs-aside'
  * il s'en est ajoute cinq — tombait sur le cas par defaut : un rond.
  *
  * Le site emploie desormais son propre module d'icones. C'est aussi la seule
- * facon honnete de savoir s'il tient : le premier consommateur de `odoro-icons`
+ * facon honnete de savoir s'il tient : le premier consommateur de `@odoro/icons`
  * doit etre nous.
  */
 const SECTION_ICONS: Readonly<Record<string, IconData>> = {

@@ -7,8 +7,8 @@
  * @module
  */
 
-import { Icon } from 'odoro-icons'
-import { Search } from 'odoro-icons/filaire'
+import { Icon } from '@odoro/icons'
+import { Search } from '@odoro/icons/filaire'
 import {
   type ReactElement,
   useCallback,
@@ -17,7 +17,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useNavigate } from 'odoro-libs/router'
+import { useNavigate } from '@odoro/libs/router'
 
 import { ALL_PAGES } from '../registry.js'
 

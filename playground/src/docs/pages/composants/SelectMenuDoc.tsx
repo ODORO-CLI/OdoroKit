@@ -4,7 +4,7 @@
  * @module
  */
 
-import { SelectMenu } from 'odoro-libs/ui'
+import { SelectMenu } from '@odoro/libs/ui'
 import { useState, type ReactElement } from 'react'
 
 import { CodeBlock } from '../../components/CodeBlock.jsx'
@@ -47,7 +47,7 @@ export function SelectMenuDoc(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="SelectMenu"
         lead="Une liste deroulante riche : icones, descriptions, recherche. Pour ce que le select natif ne permet pas — et seulement pour cela."
       />

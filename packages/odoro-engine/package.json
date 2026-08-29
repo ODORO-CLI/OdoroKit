@@ -1,5 +1,5 @@
 {
-  "name": "odoro-engine",
+  "name": "@odoro/engine",
   "version": "0.0.0",
   "type": "module",
   "license": "UNLICENSED",
@@ -44,7 +44,7 @@
     "@types/react-dom": "^19.2.1",
     "@types/three": "^0.185.4",
     "jsdom": "^27.0.0",
-    "odoro-libs": "workspace:*",
+    "@odoro/libs": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tsup": "^8.5.0",

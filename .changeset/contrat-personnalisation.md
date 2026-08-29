@@ -1,5 +1,5 @@
 ---
-'odoro-engine': minor
+'@odoro/engine': minor
 'odoro': patch
 ---
 
@@ -17,7 +17,7 @@ concatenation ne fait pas : l'ordre des classes dans l'attribut n'a aucun effet
 sur la cascade.
 
 Cote CLI, `requiredPackages` ne reclame plus `gsap`, `ogl` ni `three` : ce sont
-des dependances d'`odoro-engine`, et les demander une seconde fois au projet
+des dependances d'`@odoro/engine`, et les demander une seconde fois au projet
 d'accueil produisait un avertissement que rien ne resolvait.
 
 La cle du cache de pre-compilation tient desormais compte de la date et de la

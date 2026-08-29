@@ -27,7 +27,7 @@
  * @module
  */
 
-import { mergePresentation, type Customisable } from 'odoro-engine'
+import { mergePresentation, type Customisable } from '@odoro/engine'
 import { useId, type ReactElement, type ReactNode } from 'react'
 
 /** Une question et sa reponse. */

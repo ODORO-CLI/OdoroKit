@@ -1,4 +1,4 @@
-import { palette, space } from 'odoro-libs'
+import { palette, space } from '@odoro/libs'
 
 /** Teintes de la palette brute, dans leur ordre de declaration. */
 const HUES = [

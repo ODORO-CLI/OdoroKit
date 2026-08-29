@@ -3,7 +3,7 @@
  *
  * Equivalent minimal de `clsx` + `cva`, sans dependance. Les variantes
  * composees (`compoundVariants`) sont volontairement absentes : elles ne sont
- * pas necessaires aux composants d'`odoro-libs/ui`, et leur absence garde ce
+ * pas necessaires aux composants d'`@odoro/libs/ui`, et leur absence garde ce
  * module lisible d'un seul coup d'oeil.
  *
  * @module

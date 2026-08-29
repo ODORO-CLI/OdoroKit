@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { DropdownMenu, type DropdownMenuItem } from 'odoro-libs/ui'
+import { DropdownMenu, type DropdownMenuItem } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -161,7 +161,7 @@ export function DropdownMenuDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="DropdownMenu"
         lead="Menu d'actions deroulant suivant le motif APG menu button : declencheur aria-haspopup, panneau role=menu navigable aux fleches avec focus rovant."
       />
@@ -171,7 +171,7 @@ export function DropdownMenuDoc(): ReactElement {
         lead="Un menu complet : icones, raccourcis indicatifs, separateur, action desactivee et action destructrice. L'action choisie s'affiche sous le menu."
       >
         <DemoBlock
-          code={`import { DropdownMenu } from 'odoro-libs/ui'
+          code={`import { DropdownMenu } from '@odoro/libs/ui'
 
 const [lastAction, setLastAction] = useState<string | null>(null)
 

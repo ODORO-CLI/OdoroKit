@@ -5,10 +5,10 @@
  */
 
 import { type ReactElement } from 'react'
-import { Route, Router, Routes } from 'odoro-libs/router'
-import { ToastProvider } from 'odoro-libs/ui'
-import { Link } from 'odoro-libs/router'
-import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from 'odoro-engine'
+import { Route, Router, Routes } from '@odoro/libs/router'
+import { ToastProvider } from '@odoro/libs/ui'
+import { Link } from '@odoro/libs/router'
+import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from '@odoro/engine'
 
 import { Shell } from './docs/components/Shell.jsx'
 import { Accueil } from './docs/pages/Accueil.jsx'

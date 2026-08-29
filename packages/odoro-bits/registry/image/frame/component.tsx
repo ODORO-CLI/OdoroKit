@@ -24,7 +24,7 @@
  * @module
  */
 
-import { mergePresentation, useMotionState, type Customisable } from 'odoro-engine'
+import { mergePresentation, useMotionState, type Customisable } from '@odoro/engine'
 import { useState, type CSSProperties, type ReactElement } from 'react'
 
 /** Identifiant de la feuille injectee. */

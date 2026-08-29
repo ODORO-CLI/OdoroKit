@@ -28,7 +28,7 @@ import {
   mergePresentation,
   motionPolicy,
   type Customisable,
-} from 'odoro-engine'
+} from '@odoro/engine'
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 /** Proprietes propres au composant. */

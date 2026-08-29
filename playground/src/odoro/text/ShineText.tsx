@@ -26,7 +26,7 @@
  * @module
  */
 
-import { mergePresentation, useMotionState, type Customisable } from 'odoro-engine'
+import { mergePresentation, useMotionState, type Customisable } from '@odoro/engine'
 import { useId, type CSSProperties, type ElementType, type ReactElement } from 'react'
 
 /** Proprietes propres au composant. */

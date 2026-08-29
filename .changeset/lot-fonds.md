@@ -1,6 +1,6 @@
 ---
-'odoro-engine': minor
-'odoro-libs': minor
+'@odoro/engine': minor
+'@odoro/libs': minor
 ---
 
 Quatre shaders de fond nouveaux — ondes, points, faisceaux, nappe — et

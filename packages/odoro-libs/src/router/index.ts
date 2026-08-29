@@ -2,7 +2,7 @@
  * Routeur client d'Odoro.
  *
  * @example
- * import { Router, Routes, Route, Link, Outlet } from 'odoro-libs/router'
+ * import { Router, Routes, Route, Link, Outlet } from '@odoro/libs/router'
  *
  * <Router>
  *   <Routes>

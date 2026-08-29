@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Input, inputClasses } from 'odoro-libs/ui'
+import { Input, inputClasses } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -30,7 +30,7 @@ export function InputDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Input"
         lead="Champ de saisie avec libelle, aide et message d'erreur. Le libelle, l'aide et l'erreur sont relies au champ par id / aria-describedby : rien a cabler cote appelant."
       />
@@ -130,7 +130,7 @@ export function InputDoc(): ReactElement {
         lead="inputClasses expose l'habillage du champ pour styler un element non couvert par les composants, sans dupliquer la table de variantes."
       >
         <DemoBlock
-          code={`import { inputClasses } from 'odoro-libs/ui'
+          code={`import { inputClasses } from '@odoro/libs/ui'
 
 <input
   type="search"

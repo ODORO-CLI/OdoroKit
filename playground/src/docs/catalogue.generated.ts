@@ -2477,7 +2477,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       }
     ],
     "dependencies": [
-      "odoro-icons"
+      "@odoro/icons"
     ],
     "registryDependencies": [],
     "tokens": [],

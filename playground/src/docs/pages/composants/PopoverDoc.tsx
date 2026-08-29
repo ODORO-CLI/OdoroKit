@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Button, Input, Popover, buttonClasses } from 'odoro-libs/ui'
+import { Button, Input, Popover, buttonClasses } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -71,7 +71,7 @@ export function PopoverDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Popover"
         lead="Panneau riche ancre a un declencheur. Contrairement a l'infobulle, il est interactif : il recoit le focus, se ferme au clic exterieur et sur Echap, puis rend le focus au declencheur."
       />
@@ -106,7 +106,7 @@ export function PopoverDoc(): ReactElement {
               <SizeForm />
             </Popover>
           )}
-          code={(values) => `import { Popover, buttonClasses } from 'odoro-libs/ui'
+          code={(values) => `import { Popover, buttonClasses } from '@odoro/libs/ui'
 
 <Popover
   trigger="Dimensions"

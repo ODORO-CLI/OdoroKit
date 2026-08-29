@@ -1783,14 +1783,14 @@ export function renderClassNamesModule(): string {
 
   return `${BANNER}
 
-/** Classes presentes dans \`odoro-libs/styles.css\`. */
+/** Classes presentes dans \`@odoro/libs/styles.css\`. */
 export const ODORO_CORE_CLASS_NAMES = [
 ${list(core)}
 ] as const
 
 /**
  * Classes supplementaires presentes uniquement dans
- * \`odoro-libs/styles.full.css\` : utilitaires de couleur sur la palette brute.
+ * \`@odoro/libs/styles.full.css\` : utilitaires de couleur sur la palette brute.
  */
 export const ODORO_EXTENDED_CLASS_NAMES = [
 ${list(extended)}
@@ -1806,7 +1806,7 @@ export type OdoroExtendedClassName = (typeof ODORO_EXTENDED_CLASS_NAMES)[number]
  * Union de toutes les classes utilitaires valides.
  *
  * Une classe de type {@link OdoroExtendedClassName} n'a d'effet que si
- * l'application importe \`odoro-libs/styles.full.css\`.
+ * l'application importe \`@odoro/libs/styles.full.css\`.
  */
 export type OdoroClassName = OdoroCoreClassName | OdoroExtendedClassName
 

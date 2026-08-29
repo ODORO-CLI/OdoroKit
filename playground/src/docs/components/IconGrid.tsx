@@ -23,8 +23,8 @@
  * @module
  */
 
-import { cx } from 'odoro-libs'
-import { Icon, type IconData } from 'odoro-icons'
+import { cx } from '@odoro/libs'
+import { Icon, type IconData } from '@odoro/icons'
 import { useDeferredValue, useMemo, useState, type ReactElement } from 'react'
 
 /** Ce qu'un jeu fournit a la grille. */
@@ -64,7 +64,7 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
 
   const copier = (id: string): void => {
     void navigator.clipboard
-      .writeText(`import { ${id} } from 'odoro-icons/${module}'`)
+      .writeText(`import { ${id} } from '@odoro/icons/${module}'`)
       .then(() => {
         setCopied(id)
         window.setTimeout(() => setCopied(undefined), 1400)

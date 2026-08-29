@@ -115,7 +115,7 @@ export function RegistreGalerie(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-bits"
+        module="@odoro/bits"
         title="La tranche verticale"
         lead="Un composant par categorie, du plus leger au plus cher. Tous installes par la CLI dans ce projet, aucun importe du registre."
       />

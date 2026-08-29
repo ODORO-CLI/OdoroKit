@@ -45,7 +45,7 @@ jobs:
         run: pnpm run test
 
       - name: Verification du packaging
-        run: pnpm --filter odoro-libs run check:exports
+        run: pnpm --filter @odoro/libs run check:exports
 
   integration:
     name: Integration

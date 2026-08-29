@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Pagination } from 'odoro-libs/ui'
+import { Pagination } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -52,7 +52,7 @@ export function PaginationDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Pagination"
         lead="Pagination a fenetre glissante : la premiere et la derniere page sont toujours presentes, une fenetre entoure la page courante, une ellipse marque chaque saut."
       />
@@ -75,7 +75,7 @@ export function PaginationDoc(): ReactElement {
           render={(values) => (
             <WindowPreview siblingCount={Number(values['siblingCount'])} />
           )}
-          code={(values) => `import { Pagination } from 'odoro-libs/ui'
+          code={(values) => `import { Pagination } from '@odoro/libs/ui'
 
 const [page, setPage] = useState(6)
 

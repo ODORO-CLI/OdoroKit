@@ -6,7 +6,7 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Button, Tabs, type TabItem } from 'odoro-libs/ui'
+import { Button, Tabs, type TabItem } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -78,7 +78,7 @@ export function TabsDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Tabs"
         lead="Onglets accessibles avec indicateur glissant. La navigation clavier suit le motif ARIA : fleches pour changer d'onglet, un seul onglet dans l'ordre de tabulation."
       />
@@ -88,7 +88,7 @@ export function TabsDoc(): ReactElement {
         lead="Trois onglets dont un desactive. Cliquez, ou naviguez aux fleches une fois le focus pose sur un onglet."
       >
         <DemoBlock
-          code={`import { Tabs } from 'odoro-libs/ui'
+          code={`import { Tabs } from '@odoro/libs/ui'
 
 <Tabs
   label="Sections du projet"

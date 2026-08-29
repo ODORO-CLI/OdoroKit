@@ -154,7 +154,7 @@ class ResourceRegistry {
  * Inventaire de la page.
  *
  * @example
- * import { registry } from 'odoro-engine'
+ * import { registry } from '@odoro/engine'
  *
  * // Dans un test de fuite :
  * expect(registry.count('surface')).toBe(0)

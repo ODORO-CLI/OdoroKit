@@ -13,11 +13,11 @@ npm install odoro-libs       # la librairie, embarquée par défaut
 
 | Paquet                                  | Rôle                                                                            |
 | --------------------------------------- | ------------------------------------------------------------------------------- |
-| [`odoro-libs`](packages/odoro-libs)     | Routeur, moteur d'animation, système de style et composants d'interface.        |
+| [`@odoro/libs`](packages/odoro-libs)     | Routeur, moteur d'animation, système de style et composants d'interface.        |
 | [`odoro`](packages/odoro)               | Moteur de développement et de compilation, plus l'échafaudage `odoro create`.   |
 | [`create-odoro`](packages/create-odoro) | Point d'entrée de `npm create odoro@latest`. Délègue entièrement au moteur.     |
-| [`odoro-engine`](packages/odoro-engine) | Ce qui travaille à chaque image : boucle unique, politique de mouvement, WebGL. |
-| [`odoro-bits`](packages/odoro-bits)     | Le registre de composants animés : source de vérité et artefacts servis.        |
+| [`@odoro/engine`](packages/odoro-engine) | Ce qui travaille à chaque image : boucle unique, politique de mouvement, WebGL. |
+| [`@odoro/bits`](packages/odoro-bits)     | Le registre de composants animés : source de vérité et artefacts servis.        |
 | [`playground`](playground)              | Application de test liée à la librairie, pour la développer à chaud.            |
 
 ## Démarrer
@@ -88,11 +88,11 @@ et c'est correct : rien ne permettrait d'en propager le changement sans risque.
 ## La librairie
 
 ```ts
-import { cx, tokens } from 'odoro-libs'
-import { Router, Routes, Route, Link, Outlet } from 'odoro-libs/router'
-import { Reveal, Stagger, useAnimate, usePresence } from 'odoro-libs/motion'
-import { Button, Dialog, Input, Tabs, ToastProvider } from 'odoro-libs/ui'
-import 'odoro-libs/styles.css'
+import { cx, tokens } from '@odoro/libs'
+import { Router, Routes, Route, Link, Outlet } from '@odoro/libs/router'
+import { Reveal, Stagger, useAnimate, usePresence } from '@odoro/libs/motion'
+import { Button, Dialog, Input, Tabs, ToastProvider } from '@odoro/libs/ui'
+import '@odoro/libs/styles.css'
 ```
 
 Une documentation par sous-module, avec des exemples exécutables :

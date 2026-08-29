@@ -8,7 +8,7 @@
  * @module
  */
 
-import { CLOCK_PRIORITY, clock, type FrameInfo } from 'odoro-engine'
+import { CLOCK_PRIORITY, clock, type FrameInfo } from '@odoro/engine'
 import { type ReactElement, useEffect, useRef, useState } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
@@ -162,7 +162,7 @@ export function MoteurBoucle(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-engine"
+        module="@odoro/engine"
         title="La boucle"
         lead="Une seule boucle pour toute la page, ordonnee par priorites, avec deux deltas qui ne disent pas la meme chose."
       />
@@ -172,7 +172,7 @@ export function MoteurBoucle(): ReactElement {
         lead="Un abonnement rend une souscription qu'il faut liberer. Le nom n'est pas decoratif : c'est lui qui apparait au diagnostic quand quelque chose ne se libere pas."
       >
         <CodeBlock
-          code={`import { CLOCK_PRIORITY, clock } from 'odoro-engine'
+          code={`import { CLOCK_PRIORITY, clock } from '@odoro/engine'
 
 useEffect(() => {
   const subscription = clock.subscribe(

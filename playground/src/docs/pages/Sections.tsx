@@ -39,7 +39,7 @@ export function Sections(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-bits"
+        module="@odoro/bits"
         title="Sections"
         lead="Cinq compositions de page. Pas de tarifs, pas de temoignages, pas d equipe : ce sont des structures de contenu, et une version generique y est plus longue a plier qu a reecrire."
       />

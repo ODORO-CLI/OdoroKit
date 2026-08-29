@@ -4,7 +4,7 @@
  * @module
  */
 
-import { Icon, type IconData } from 'odoro-icons'
+import { Icon, type IconData } from '@odoro/icons'
 import {
   LayoutGrid,
   MonitorSmartphone,
@@ -13,11 +13,11 @@ import {
   Shapes,
   Type,
   Zap,
-} from 'odoro-icons/filaire'
+} from '@odoro/icons/filaire'
 import { type ReactElement, type ReactNode } from 'react'
-import { Link } from 'odoro-libs/router'
-import { Reveal, Stagger, TextReveal } from 'odoro-libs/motion'
-import { buttonClasses } from 'odoro-libs/ui'
+import { Link } from '@odoro/libs/router'
+import { Reveal, Stagger, TextReveal } from '@odoro/libs/motion'
+import { buttonClasses } from '@odoro/libs/ui'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 

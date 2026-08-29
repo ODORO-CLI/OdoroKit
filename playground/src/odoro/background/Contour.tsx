@@ -29,7 +29,7 @@ import {
   type Customisable,
   type ReadyCallback,
   type ShaderColour,
-} from 'odoro-engine'
+} from '@odoro/engine'
 import { type ReactElement } from 'react'
 
 /** Ce que l'echappatoire recoit. */

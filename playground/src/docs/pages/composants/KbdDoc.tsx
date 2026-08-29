@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Kbd } from 'odoro-libs/ui'
+import { Kbd } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -26,7 +26,7 @@ export function KbdDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Kbd"
         lead="Touche de clavier, seule ou en combinaison : chaque touche est rendue dans son propre kbd, separee par un +."
       />

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-import { Reveal, Stagger, useAnimate } from 'odoro-libs/motion'
-import { Link } from 'odoro-libs/router'
-import { Button } from 'odoro-libs/ui'
+import { Reveal, Stagger, useAnimate } from '@odoro/libs/motion'
+import { Link } from '@odoro/libs/router'
+import { Button } from '@odoro/libs/ui'
 
 /** Trois arguments mis en avant sur la page d'accueil. */
 const FEATURES = [

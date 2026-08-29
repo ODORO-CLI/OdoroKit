@@ -343,7 +343,7 @@ class MotionPolicy {
  * Politique de la page.
  *
  * @example
- * import { motionPolicy } from 'odoro-engine'
+ * import { motionPolicy } from '@odoro/engine'
  *
  * if (motionPolicy.state.reduced) {
  *   element.style.opacity = '1' // etat final, immediatement

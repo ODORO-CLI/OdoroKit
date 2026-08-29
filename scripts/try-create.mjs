@@ -2,7 +2,7 @@
  * Cree un vrai projet a partir des paquets du depot, sans rien publier.
  *
  * Les paquets ne sont pas encore sur npm : un projet echafaude ne peut donc
- * pas resoudre `odoro` ni `odoro-libs`. Ce script fait le detour complet —
+ * pas resoudre `odoro` ni `@odoro/libs`. Ce script fait le detour complet —
  * compilation, empaquetage, echafaudage, reecriture des dependances vers les
  * archives locales, installation — pour qu'un essai reel tienne en une
  * commande.
@@ -54,7 +54,7 @@ const archives = join(ROOT, 'node_modules', '.odoro-archives')
 mkdirSync(archives, { recursive: true })
 
 step('Compilation des paquets')
-run('pnpm', ['--filter', 'odoro-libs', 'run', 'build'], ROOT)
+run('pnpm', ['--filter', '@odoro/libs', 'run', 'build'], ROOT)
 run('pnpm', ['--filter', 'odoro', 'run', 'build'], ROOT)
 
 step('Empaquetage, comme a la publication')
@@ -82,7 +82,7 @@ run(
 step('Substitution des dependances par les archives locales')
 const manifestPath = join(target, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-manifest.dependencies['odoro-libs'] =
+manifest.dependencies['@odoro/libs'] =
   `file:${join(archives, `odoro-libs-${version}.tgz`)}`
 manifest.devDependencies['odoro'] = `file:${join(archives, `odoro-${version}.tgz`)}`
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')

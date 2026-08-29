@@ -5,8 +5,8 @@
  * @module
  */
 
-import { Icon } from 'odoro-icons'
-import { ChevronRight } from 'odoro-icons/filaire'
+import { Icon } from '@odoro/icons'
+import { ChevronRight } from '@odoro/icons/filaire'
 import { type ReactElement, type ReactNode, useMemo, useState } from 'react'
 
 import { CodeBlock } from './CodeBlock.jsx'

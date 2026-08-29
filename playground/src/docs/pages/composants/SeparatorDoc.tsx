@@ -2,7 +2,7 @@
 
 import { type ReactElement } from 'react'
 
-import { Button, Separator } from 'odoro-libs/ui'
+import { Button, Separator } from '@odoro/libs/ui'
 
 import {
   Callout,
@@ -27,7 +27,7 @@ export function SeparatorDoc(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/ui"
+        module="@odoro/libs/ui"
         title="Separator"
         lead="Filet de separation horizontal ou vertical, avec libelle centre optionnel."
       />

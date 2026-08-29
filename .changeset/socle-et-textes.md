@@ -1,5 +1,5 @@
 ---
-'odoro-engine': patch
+'@odoro/engine': patch
 ---
 
 Correction du verre depoli apres le retrait de la couche semantique :

@@ -29,7 +29,7 @@ export function Typographie(): ReactElement {
   return (
     <article>
       <PageHeader
-        module="odoro-libs/styles"
+        module="@odoro/libs/styles"
         title="Typographie"
         lead="Une echelle de tailles avec hauteur de ligne associee, neuf graisses, et tout l'attirail : decorations, surlignage, troncature, ombres et texte en degrade."
       />

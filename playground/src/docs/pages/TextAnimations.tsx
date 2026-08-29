@@ -155,7 +155,7 @@ export function TextAnimations(): ReactElement {
   return (
     <>
       <PageHeader
-        module="odoro-bits"
+        module="@odoro/bits"
         title="Text Animations"
         lead="Des effets de texte installes dans ce projet par la CLI. Chacun est reglable ici meme : fond, couleur, et ses propres parametres."
       />

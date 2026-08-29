@@ -1,7 +1,7 @@
 /* Genere par scripts/build-css.ts a partir de src/styles/tokens.ts.
    Ne pas editer a la main : toute modification sera ecrasee. */
 
-/** Classes presentes dans `odoro-libs/styles.css`. */
+/** Classes presentes dans `@odoro/libs/styles.css`. */
 export const ODORO_CORE_CLASS_NAMES = [
   'o-block',
   'o-inline',
@@ -17534,7 +17534,7 @@ export const ODORO_CORE_CLASS_NAMES = [
 
 /**
  * Classes supplementaires presentes uniquement dans
- * `odoro-libs/styles.full.css` : utilitaires de couleur sur la palette brute.
+ * `@odoro/libs/styles.full.css` : utilitaires de couleur sur la palette brute.
  */
 export const ODORO_EXTENDED_CLASS_NAMES = [
   'o-text-orange-50',
@@ -24809,7 +24809,7 @@ export type OdoroExtendedClassName = (typeof ODORO_EXTENDED_CLASS_NAMES)[number]
  * Union de toutes les classes utilitaires valides.
  *
  * Une classe de type {@link OdoroExtendedClassName} n'a d'effet que si
- * l'application importe `odoro-libs/styles.full.css`.
+ * l'application importe `@odoro/libs/styles.full.css`.
  */
 export type OdoroClassName = OdoroCoreClassName | OdoroExtendedClassName
 
