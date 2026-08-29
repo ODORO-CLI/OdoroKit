@@ -20,7 +20,12 @@ describe('depFileName', () => {
   })
 
   it('ne laisse aucun separateur dans le nom produit', () => {
-    for (const specifier of ['react', '@scope/paquet', 'a/b/c', '@odoro-cli/libs/router']) {
+    for (const specifier of [
+      'react',
+      '@scope/paquet',
+      'a/b/c',
+      '@odoro-cli/libs/router',
+    ]) {
       expect(depFileName(specifier)).not.toContain('/')
     }
   })

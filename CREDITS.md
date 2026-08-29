@@ -144,8 +144,8 @@ Conformement a la regle de nommage du projet, les modules portent le caractere
 du dessin et non sa provenance. La correspondance est ici, et nulle part
 ailleurs.
 
-| Module                   | Jeu d'origine                    | Licence         | Icones |
-| ------------------------ | -------------------------------- | --------------- | ------ |
+| Module                       | Jeu d'origine                    | Licence         | Icones |
+| ---------------------------- | -------------------------------- | --------------- | ------ |
 | `@odoro-cli/icons/filaire`   | Lucide                           | ISC             | 2048   |
 | `@odoro-cli/icons/compact`   | Bootstrap Icons                  | MIT             | 2078   |
 | `@odoro-cli/icons/classique` | Font Awesome Free (solid)        | CC BY 4.0       | 2001   |

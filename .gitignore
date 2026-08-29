@@ -1,7 +1,17 @@
 node_modules/
 dist/
-build/
 coverage/
+
+# Les sorties de compilation, ancrees a la racine.
+#
+# `build/` sans barre oblique initiale correspond a **n'importe quel** dossier
+# de ce nom, a n'importe quelle profondeur. Il a ainsi exclu
+# `packages/odoro/src/build/`, qui est du code source : les commandes `build`
+# et `preview` de la CLI n'ont jamais ete versionnees, et la compilation
+# echouait sur tout depot fraichement clone.
+#
+# Localement, les fichiers etaient la : personne ne pouvait le voir.
+/build/
 .turbo/
 *.tsbuildinfo
 .DS_Store

@@ -6,7 +6,14 @@
 
 import { type ReactElement, useState } from 'react'
 
-import { Button, Checkbox, Drawer, Input, Select, type DrawerSide } from '@odoro-cli/libs/ui'
+import {
+  Button,
+  Checkbox,
+  Drawer,
+  Input,
+  Select,
+  type DrawerSide,
+} from '@odoro-cli/libs/ui'
 
 import {
   Callout,
