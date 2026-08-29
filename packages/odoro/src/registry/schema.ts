@@ -99,6 +99,18 @@ const propSchema = z.object({
   unit: z.optional(z.string()),
   /** Explication affichee dans la table des proprietes. */
   description: z.optional(z.string()),
+  /**
+   * Bornes d'un reglage numerique.
+   *
+   * Elles servent a la documentation, qui en fabrique un curseur. Sans elles,
+   * la page devrait redeclarer ce que le meta sait deja — et les deux
+   * divergeraient au premier changement de valeur par defaut.
+   */
+  min: z.optional(z.number()),
+  max: z.optional(z.number()),
+  step: z.optional(z.number()),
+  /** Valeurs possibles d'un reglage a choix. */
+  options: z.optional(z.array(z.string())),
 })
 
 /** Cout du composant. */

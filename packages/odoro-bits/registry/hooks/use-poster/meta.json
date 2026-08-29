@@ -15,7 +15,9 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-ease-entrance"],
+  "tokens": [
+    "--o-ease-entrance"
+  ],
   "props": [
     {
       "name": "ready",
@@ -28,7 +30,10 @@
       "type": "number",
       "default": 320,
       "unit": "ms",
-      "description": "Duree du fondu du repli."
+      "description": "Duree du fondu du repli.",
+      "min": 0,
+      "max": 960,
+      "step": 100
     }
   ],
   "perf": {

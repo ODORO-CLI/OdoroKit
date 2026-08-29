@@ -1,0 +1,65 @@
+{
+  "name": "video",
+  "category": "image",
+  "title": "Video de fond",
+  "description": "Une video au rapport fige, avec affiche de chargement et respect du mouvement reduit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Video.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Image affichee avant la premiere trame."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "fit",
+      "type": "'cover' | 'contain'",
+      "default": "cover",
+      "description": "Ajustement dans le cadre.",
+      "options": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "description": "Ce que la video montre, pour qui ne la voit pas."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "fallback": "poster",
+    "notes": "La lecture ne demarre qu une fois la video dans le champ, et jamais sous mouvement reduit."
+  }
+}

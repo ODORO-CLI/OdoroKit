@@ -4,7 +4,9 @@
   "title": "Progression de lecture",
   "description": "Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.",
   "engine": {
-    "gsap": ["ScrollTrigger"],
+    "gsap": [
+      "ScrollTrigger"
+    ],
     "gl": false
   },
   "files": [
@@ -15,7 +17,10 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-palette-brand-600", "--o-duration-fast"],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-duration-fast"
+  ],
   "props": [
     {
       "name": "target",
@@ -27,13 +32,20 @@
       "type": "number",
       "default": 3,
       "unit": "px",
-      "description": "Epaisseur de la barre."
+      "description": "Epaisseur de la barre.",
+      "min": 0,
+      "max": 9,
+      "step": 1
     },
     {
       "name": "position",
       "type": "'top' | 'bottom'",
       "default": "top",
-      "description": "Bord auquel la barre est ancree."
+      "description": "Bord auquel la barre est ancree.",
+      "options": [
+        "top",
+        "bottom"
+      ]
     },
     {
       "name": "children",

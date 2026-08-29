@@ -22,14 +22,20 @@
       "type": "number",
       "default": 48,
       "unit": "px",
-      "description": "Pas du quadrillage."
+      "description": "Pas du quadrillage.",
+      "min": 0,
+      "max": 140,
+      "step": 100
     },
     {
       "name": "thickness",
       "type": "number",
       "default": 1,
       "unit": "px",
-      "description": "Epaisseur des traits."
+      "description": "Epaisseur des traits.",
+      "min": 0,
+      "max": 3,
+      "step": 1
     },
     {
       "name": "color",
@@ -41,7 +47,10 @@
       "type": "number",
       "default": 0,
       "unit": "s",
-      "description": "Duree d un cycle de derive. Zero pour l immobiliser."
+      "description": "Duree d un cycle de derive. Zero pour l immobiliser.",
+      "min": 0,
+      "max": 10,
+      "step": 1
     },
     {
       "name": "fade",

@@ -18,38 +18,59 @@
     }
   ],
   "dependencies": [],
-  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
-  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600"],
+  "registryDependencies": [
+    "hooks/use-poster",
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-fuchsia-600"
+  ],
   "props": [
     {
       "name": "amplitude",
       "type": "number",
       "default": 0.28,
-      "description": "Profondeur de la deformation, en rayons."
+      "description": "Profondeur de la deformation, en rayons.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
     },
     {
       "name": "frequency",
       "type": "number",
       "default": 1.6,
-      "description": "Echelle du bruit. Plus haut, plus tourmente."
+      "description": "Echelle du bruit. Plus haut, plus tourmente.",
+      "min": 0.002,
+      "max": 0.06,
+      "step": 0.001
     },
     {
       "name": "speed",
       "type": "number",
       "default": 0.25,
-      "description": "Vitesse de la respiration."
+      "description": "Vitesse de la respiration.",
+      "min": 0,
+      "max": 0.75,
+      "step": 0.05
     },
     {
       "name": "glow",
       "type": "number",
       "default": 0.8,
-      "description": "Intensite du halo de bord."
+      "description": "Intensite du halo de bord.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
     },
     {
       "name": "parallax",
       "type": "number",
       "default": 0.25,
-      "description": "Amplitude du suivi du pointeur. Zero pour l immobiliser."
+      "description": "Amplitude du suivi du pointeur. Zero pour l immobiliser.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
     },
     {
       "name": "colors",

@@ -164,6 +164,34 @@ export {
 } from './gl/ogl/backgrounds.js'
 
 export {
+  CAUSTICS_FRAGMENT,
+  PLASMA_FRAGMENT,
+  SILK_FRAGMENT,
+  VORTEX_FRAGMENT,
+} from './gl/ogl/backgrounds-flow.js'
+
+export {
+  CELLS_FRAGMENT,
+  HALFTONE_FRAGMENT,
+  HEX_FRAGMENT,
+  MOSAIC_FRAGMENT,
+} from './gl/ogl/backgrounds-cells.js'
+
+export {
+  BUBBLES_FRAGMENT,
+  RAIN_FRAGMENT,
+  STARS_FRAGMENT,
+  THREADS_FRAGMENT,
+} from './gl/ogl/backgrounds-particles.js'
+
+export {
+  CONTOUR_FRAGMENT,
+  RIPPLE_GRID_FRAGMENT,
+  SPECTRUM_FRAGMENT,
+  TUNNEL_FRAGMENT,
+} from './gl/ogl/backgrounds-geometry.js'
+
+export {
   AURORA_FRAGMENT,
   FULLSCREEN_VERTEX,
   GRID_FRAGMENT,

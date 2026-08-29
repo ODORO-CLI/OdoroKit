@@ -3,8 +3,16 @@
   "category": "effect",
   "title": "Trait de bordure",
   "description": "Un trait lumineux parcourt le contour d un element, en boucle.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/BorderBeam.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BorderBeam.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -14,21 +22,34 @@
       "type": "number",
       "default": 4000,
       "unit": "ms",
-      "description": "Duree d un tour complet."
+      "description": "Duree d un tour complet.",
+      "min": 0,
+      "max": 12000,
+      "step": 100
     },
     {
       "name": "width",
       "type": "number",
       "default": 2,
       "unit": "px",
-      "description": "Epaisseur du trait."
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 60,
+      "step": 1
     },
-    { "name": "color", "type": "string", "description": "Couleur du trait." },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du trait."
+    },
     {
       "name": "trail",
       "type": "number",
       "default": 25,
-      "description": "Longueur de la trainee, en pourcentage du contour."
+      "description": "Longueur de la trainee, en pourcentage du contour.",
+      "min": 5,
+      "max": 50,
+      "step": 1
     }
   ],
   "perf": {

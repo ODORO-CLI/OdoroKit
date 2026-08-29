@@ -28,20 +28,29 @@
       "type": "number",
       "default": 96,
       "unit": "px",
-      "description": "Distance au haut de la fenetre."
+      "description": "Distance au haut de la fenetre.",
+      "min": 0,
+      "max": 290,
+      "step": 100
     },
     {
       "name": "gap",
       "type": "number",
       "default": 24,
       "unit": "px",
-      "description": "Decalage visible entre deux cartes empilees."
+      "description": "Decalage visible entre deux cartes empilees.",
+      "min": 0,
+      "max": 72,
+      "step": 100
     },
     {
       "name": "shrink",
       "type": "number",
       "default": 0.05,
-      "description": "Reduction de la carte quand la suivante arrive."
+      "description": "Reduction de la carte quand la suivante arrive.",
+      "min": 0,
+      "max": 0.15,
+      "step": 0.05
     }
   ],
   "perf": {

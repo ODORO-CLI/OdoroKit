@@ -211,6 +211,7 @@ export function Atelier({
   return (
     <div className="o-flex o-flex-col o-gap-3">
       <div
+        data-o-atelier-frame=""
         className={`o-relative o-w-full o-overflow-hidden o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 ${height}`}
         style={surface}
       >

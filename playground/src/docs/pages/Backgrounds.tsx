@@ -40,6 +40,8 @@ function range(
 
 /** Ce qu'un fond en shader apporte a l'atelier partage. */
 interface ShaderEntry {
+  /** Titre publie de l'entree, celui du registre. */
+  readonly title: string
   readonly controls: readonly AtelierControl[]
   readonly render: (values: Record<string, unknown>) => ReactElement
   readonly note: string
@@ -48,6 +50,7 @@ interface ShaderEntry {
 /** Les cinq fonds en shader. */
 const SHADERS: Readonly<Record<string, ShaderEntry>> = {
   aurore: {
+    title: 'Aurore',
     controls: [
       range('speed', 'Vitesse', 0, 0.6, 0.01, 0.12),
       range('scale', 'Echelle', 0.5, 8, 0.1, 2.4),
@@ -64,6 +67,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
     note: 'Bruit fractal a deplacement de domaine. Le plus dense des cinq.',
   },
   ondes: {
+    title: 'Ondes',
     controls: [
       range('speed', 'Vitesse', 0, 1.5, 0.05, 0.25),
       range('bands', 'Bandes', 1, 8, 1, 5),
@@ -80,6 +84,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
     note: 'Trois sinus de frequences non multiples : le motif ne se repete jamais a l oeil.',
   },
   points: {
+    title: 'Champ de points',
     controls: [
       range('speed', 'Vitesse', 0, 4, 0.1, 1.2),
       range('density', 'Densite', 4, 40, 1, 14),
@@ -96,6 +101,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
     note: 'L espace est replie sur lui-meme : le cout ne depend pas du nombre de points.',
   },
   faisceaux: {
+    title: 'Faisceaux',
     controls: [
       range('speed', 'Vitesse', 0, 2, 0.05, 0.35),
       range('count', 'Rais', 2, 30, 1, 9),
@@ -112,6 +118,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
     note: 'C est l espace qui tourne, pas les rais : deux multiplications au lieu d une geometrie.',
   },
   nappe: {
+    title: 'Nappe',
     controls: [
       range('speed', 'Vitesse', 0, 1.2, 0.05, 0.2),
       range('spread', 'Etendue', 0.2, 1.2, 0.05, 0.55),
@@ -165,7 +172,12 @@ function ShaderAtelier(): ReactElement {
         {(values) => shader.render(values as Record<string, unknown>)}
       </Atelier>
 
-      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{shader.note}</p>
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+        <span className="o-font-medium o-text-zinc-900 dark:o-text-zinc-50">
+          {shader.title}
+        </span>{' '}
+        — {shader.note}
+      </p>
     </div>
   )
 }

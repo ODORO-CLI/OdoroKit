@@ -15,7 +15,10 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
   "props": [
     {
       "name": "src",
@@ -33,19 +36,29 @@
       "name": "ratio",
       "type": "number",
       "default": 1.777,
-      "description": "Rapport largeur sur hauteur."
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
     },
     {
       "name": "fit",
       "type": "'cover' | 'contain'",
       "default": "cover",
-      "description": "Ajustement dans le cadre."
+      "description": "Ajustement dans le cadre.",
+      "options": [
+        "cover",
+        "contain"
+      ]
     },
     {
       "name": "zoom",
       "type": "number",
       "default": 0,
-      "description": "Agrandissement au survol, de 0 a 0.3."
+      "description": "Agrandissement au survol, de 0 a 0.3.",
+      "min": 0,
+      "max": 0.3,
+      "step": 0.01
     }
   ],
   "perf": {

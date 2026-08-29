@@ -121,7 +121,89 @@ export async function buildRegistry(
   await writeFile(join(outDir, 'index.json'), encode(index), 'utf8')
   written.push('index.json')
 
+  await publishCatalogue(index)
+  await publishCatalogueModule(entries)
+
   return { ok: true, report: { written, count: entries.length } }
+}
+
+/**
+ * Depose l'index la ou le site de documentation peut le lire.
+ *
+ * ## Pourquoi le site ne lit pas les sources
+ *
+ * Le catalogue doit lister ce qui est **publie**, pas ce qui traine dans
+ * l'arborescence. Lire les sources laisserait passer une entree ecrite mais
+ * jamais compilee, et le site annoncerait un composant que la CLI ne saurait
+ * pas installer.
+ *
+ * Il consomme donc l'artefact, par la meme URL qu'un client — c'est la seule
+ * facon que la page ne puisse pas mentir.
+ *
+ * L'ecriture est silencieuse quand le dossier n'existe pas : un registre tiers
+ * qui reprendrait ce script n'a pas de playground.
+ */
+async function publishCatalogue(index: RegistryIndex): Promise<void> {
+  const target = join('..', '..', 'playground', 'public', 'registre')
+
+  try {
+    await mkdir(target, { recursive: true })
+    await writeFile(join(target, 'index.json'), encode(index), 'utf8')
+  } catch {
+    // Voir la note ci-dessus.
+  }
+}
+
+/**
+ * Depose les metadonnees completes sous forme de module TypeScript.
+ *
+ * ## Pourquoi un module plutot qu'un fichier a telecharger
+ *
+ * La navigation laterale liste une entree par composant. Elle doit donc
+ * connaitre le catalogue **au premier rendu** : le telecharger ferait
+ * apparaitre une colonne vide, puis se remplir.
+ *
+ * Le code source est retire — il pese dix fois le reste, et une page de
+ * documentation n'en a pas l'usage.
+ */
+async function publishCatalogueModule(
+  entries: readonly (PublishedEntry & { directory: string })[],
+): Promise<void> {
+  // L'identifiant complet est ce par quoi la documentation retrouve une
+  // entree ; il vaut la peine d'etre porte par la donnee plutot que recompose
+  // a chaque lecture, ou une categorie renommee le laisserait faux.
+  const metas = entries.map(({ sources: _sources, directory: _directory, ...meta }) => ({
+    id: `${meta.category}/${meta.name}`,
+    ...meta,
+  }))
+
+  const source = [
+    '/* Genere par scripts/build-registry.ts. Ne pas editer a la main. */',
+    '',
+    "import type { RegistryMeta } from 'odoro/registry'",
+    '',
+    '/** Une entree du registre, sans son code source. */',
+    'export type CatalogueEntry = RegistryMeta & { readonly id: string }',
+    '',
+    '/** Tout ce que le registre publie, dans l ordre alphabetique.',
+    ' *',
+    ' * La documentation en derive sa navigation, ses pages et ses reglages : une',
+    ' * liste ecrite a cote deriverait au premier ajout, sans que rien ne casse.',
+    ' */',
+    'export const CATALOGUE: readonly CatalogueEntry[] = ' +
+      JSON.stringify(metas, null, 2),
+    '',
+  ].join('\n')
+
+  try {
+    await writeFile(
+      join('..', '..', 'playground', 'src', 'docs', 'catalogue.generated.ts'),
+      source,
+      'utf8',
+    )
+  } catch {
+    // Un registre tiers n'a pas de playground.
+  }
 }
 
 /** Point d'entree du script. */

@@ -1,0 +1,67 @@
+{
+  "name": "tunnel",
+  "category": "background",
+  "title": "Tunnel",
+  "description": "Une perspective obtenue en posant z = 1/r, sans camera ni matrice.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Tunnel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.25,
+      "description": "Vitesse d avancee.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "default": 0.6,
+      "description": "Espacement des anneaux.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "segments",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de secteurs.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Une division, un arc tangente, deux repliements. Rien ne depend des reglages."
+  }
+}

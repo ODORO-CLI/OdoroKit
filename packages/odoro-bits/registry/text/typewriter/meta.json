@@ -3,8 +3,16 @@
   "category": "text",
   "title": "Machine a ecrire",
   "description": "Une suite de phrases frappees puis effacees, avec un curseur clignotant.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "text/Typewriter.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/Typewriter.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -20,21 +28,30 @@
       "type": "number",
       "default": 55,
       "unit": "ms",
-      "description": "Delai entre deux caracteres frappes."
+      "description": "Delai entre deux caracteres frappes.",
+      "min": 0,
+      "max": 170,
+      "step": 100
     },
     {
       "name": "deleteSpeed",
       "type": "number",
       "default": 28,
       "unit": "ms",
-      "description": "Delai entre deux caracteres effaces."
+      "description": "Delai entre deux caracteres effaces.",
+      "min": 0,
+      "max": 84,
+      "step": 100
     },
     {
       "name": "hold",
       "type": "number",
       "default": 1400,
       "unit": "ms",
-      "description": "Temps d attente une fois la phrase complete."
+      "description": "Temps d attente une fois la phrase complete.",
+      "min": 0,
+      "max": 4200,
+      "step": 100
     },
     {
       "name": "cursor",

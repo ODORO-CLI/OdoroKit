@@ -4,7 +4,10 @@
   "title": "Revelation par fragments",
   "description": "Un titre qui se compose caractere par caractere quand il entre dans le champ.",
   "engine": {
-    "gsap": ["SplitText", "ScrollTrigger"],
+    "gsap": [
+      "SplitText",
+      "ScrollTrigger"
+    ],
     "gl": false
   },
   "files": [
@@ -27,28 +30,42 @@
       "name": "by",
       "type": "'chars' | 'words' | 'lines'",
       "default": "chars",
-      "description": "Granularite du decoupage."
+      "description": "Granularite du decoupage.",
+      "options": [
+        "chars",
+        "words",
+        "lines"
+      ]
     },
     {
       "name": "stagger",
       "type": "number",
       "default": 24,
       "unit": "ms",
-      "description": "Decalage entre deux fragments."
+      "description": "Decalage entre deux fragments.",
+      "min": 0,
+      "max": 72,
+      "step": 100
     },
     {
       "name": "duration",
       "type": "number",
       "default": 600,
       "unit": "ms",
-      "description": "Duree d entree d un fragment."
+      "description": "Duree d entree d un fragment.",
+      "min": 0,
+      "max": 1800,
+      "step": 100
     },
     {
       "name": "distance",
       "type": "number",
       "default": 24,
       "unit": "px",
-      "description": "Hauteur de la montee. Zero pour un simple fondu."
+      "description": "Hauteur de la montee. Zero pour un simple fondu.",
+      "min": 0,
+      "max": 72,
+      "step": 100
     },
     {
       "name": "onReady",

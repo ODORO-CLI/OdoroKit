@@ -15,7 +15,10 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
   "props": [
     {
       "name": "children",
@@ -27,21 +30,30 @@
       "name": "columns",
       "type": "number",
       "default": 3,
-      "description": "Colonnes au-dela du palier moyen."
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 1,
+      "max": 5,
+      "step": 1
     },
     {
       "name": "stagger",
       "type": "number",
       "default": 70,
       "unit": "ms",
-      "description": "Decalage entre deux elements."
+      "description": "Decalage entre deux elements.",
+      "min": 0,
+      "max": 210,
+      "step": 100
     },
     {
       "name": "distance",
       "type": "number",
       "default": 24,
       "unit": "px",
-      "description": "Hauteur de la montee."
+      "description": "Hauteur de la montee.",
+      "min": 0,
+      "max": 72,
+      "step": 100
     },
     {
       "name": "once",

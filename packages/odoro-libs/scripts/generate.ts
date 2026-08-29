@@ -771,7 +771,12 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Voiles',
     tier: 'core',
-    variants: [],
+    /*
+     * Le survol est le seul etat qui compte ici : un voile sert de surface
+     * cliquable par-dessus une image ou une video, ou aucune couleur de la
+     * palette ne tiendrait — elle masquerait ce qu'elle recouvre.
+     */
+    variants: ['hover'],
     /*
      * Noir et blanc translucides.
      *

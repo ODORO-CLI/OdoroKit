@@ -3,8 +3,16 @@
   "category": "effect",
   "title": "Carrousel",
   "description": "Un rail d images ou de cartes, au clavier, au pointeur et au geste.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/Carousel.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Carousel.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -19,14 +27,20 @@
       "name": "perView",
       "type": "number",
       "default": 1,
-      "description": "Diapositives visibles a la fois."
+      "description": "Diapositives visibles a la fois.",
+      "min": 1,
+      "max": 4,
+      "step": 1
     },
     {
       "name": "gap",
       "type": "number",
       "default": 16,
       "unit": "px",
-      "description": "Ecart entre deux diapositives."
+      "description": "Ecart entre deux diapositives.",
+      "min": 0,
+      "max": 48,
+      "step": 1
     },
     {
       "name": "loop",

@@ -3,8 +3,16 @@
   "category": "effect",
   "title": "Halo de pointeur",
   "description": "Un halo suit le curseur sur une carte, et s eteint quand il la quitte.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/Spotlight.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Spotlight.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -14,7 +22,10 @@
       "type": "number",
       "default": 320,
       "unit": "px",
-      "description": "Diametre du halo."
+      "description": "Diametre du halo.",
+      "min": 0,
+      "max": 960,
+      "step": 100
     },
     {
       "name": "color",

@@ -15,6 +15,22 @@
  * pixel selon un champ de bruit. Aucune capture, aucune dependance, et cela
  * s'applique indifferemment a un fond, a du texte ou a une image.
  *
+ * ## Les bords, et pourquoi ils sont recolles par defaut
+ *
+ * Un deplacement va chercher chaque pixel ailleurs. Au bord de l'element, cet
+ * ailleurs est en dehors : le filtre y trouve du vide, et la silhouette part
+ * en lambeaux. C'est correct au sens du calcul, et illisible a l'oeil — cela
+ * ressemble a un defaut d'affichage, pas a un effet.
+ *
+ * Le resultat est donc redecoupe sur l'opacite d'origine : la forme reste
+ * exactement celle qu'elle etait, et seul l'interieur ondule. C'est ce que
+ * `edges: 'clean'` fait, et c'est le defaut.
+ *
+ * `edges: 'organic'` laisse la silhouette se deformer. C'est le bon choix pour
+ * une tache de couleur ou un fond, ou il n'y a pas de forme a respecter — et
+ * le mauvais pour une carte, dont les angles droits sont precisement ce qu'on
+ * remarque.
+ *
  * ## Ce que ce choix coute
  *
  * Trois limites, qu'il vaut mieux connaitre avant de poser le composant.
@@ -54,8 +70,23 @@ export interface DeformOwnProps {
   frequency?: number
   /** Vitesse de derive du champ. Zero pour figer. @defaultValue 0.15 */
   speed?: number
-  /** Nombre d'octaves du bruit. @defaultValue 2 */
+  /**
+   * Nombre d'octaves du bruit. Une seule donne une ondulation lisse ; au-dela,
+   * le detail fin hache le deplacement.
+   *
+   * @defaultValue 1
+   */
   octaves?: number
+  /**
+   * Traitement des bords.
+   *
+   * - `clean` redecoupe le resultat sur la forme d'origine : elle est
+   *   preservee, seul l'interieur ondule.
+   * - `organic` laisse la silhouette se deformer.
+   *
+   * @defaultValue 'clean'
+   */
+  edges?: 'clean' | 'organic'
   /** Amplifie la deformation au survol. @defaultValue false */
   onHover?: boolean
 }
@@ -85,7 +116,8 @@ export function Deform({
   amount = 12,
   frequency = 0.012,
   speed = 0.15,
-  octaves = 2,
+  octaves = 1,
+  edges = 'clean',
   onHover = false,
   ...rest
 }: DeformProps): ReactElement {
@@ -157,7 +189,13 @@ export function Deform({
             scale={onHover ? 0 : amount}
             xChannelSelector="R"
             yChannelSelector="G"
+            result="deplace"
           />
+          {edges === 'clean' ? (
+            // Le resultat est redecoupe sur l'opacite d'origine : la forme
+            // reste intacte, seul son interieur ondule.
+            <feComposite in="deplace" in2="SourceAlpha" operator="in" />
+          ) : null}
         </filter>
       </svg>
 

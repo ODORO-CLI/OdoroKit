@@ -1,0 +1,67 @@
+{
+  "name": "hex",
+  "category": "background",
+  "title": "Alveoles",
+  "description": "Un pavage hexagonal dont chaque alveole pulse a son rythme.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Hex.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.6,
+      "description": "Vitesse de la pulsation.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 9,
+      "description": "Nombre d alveoles par cote.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "edge",
+      "type": "number",
+      "default": 0.04,
+      "description": "Adoucissement du bord.",
+      "min": 0.005,
+      "max": 0.2,
+      "step": 0.005
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Deux repliements et une comparaison. La densite ne change pas le cout."
+  }
+}

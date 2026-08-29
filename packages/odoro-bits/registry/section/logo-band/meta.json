@@ -14,7 +14,9 @@
     }
   ],
   "dependencies": [],
-  "registryDependencies": ["effect/marquee"],
+  "registryDependencies": [
+    "effect/marquee"
+  ],
   "tokens": [],
   "props": [
     {
@@ -32,7 +34,10 @@
       "name": "speed",
       "type": "number",
       "default": 40,
-      "description": "Vitesse du defilement."
+      "description": "Vitesse du defilement.",
+      "min": 0,
+      "max": 120,
+      "step": 100
     }
   ],
   "perf": {

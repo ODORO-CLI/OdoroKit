@@ -38,6 +38,8 @@ import { TextAnimations } from './docs/pages/TextAnimations.jsx'
 import { MotionsLibrairie } from './docs/pages/MotionsLibrairie.jsx'
 import { Images } from './docs/pages/Images.jsx'
 import { Sections } from './docs/pages/Sections.jsx'
+import { Catalogue } from './docs/pages/Catalogue.jsx'
+import { RegistryEntryRoute } from './docs/pages/RegistryEntryRoute.jsx'
 import { SelectMenuDoc } from './docs/pages/composants/SelectMenuDoc.jsx'
 
 import { ButtonDoc } from './docs/pages/composants/ButtonDoc.jsx'
@@ -124,10 +126,39 @@ export function App(): ReactElement {
               <Route path="docs/registre/contrat" element={<RegistreContrat />} />
               <Route path="docs/registre/galerie" element={<RegistreGalerie />} />
               <Route path="docs/backgrounds" element={<Backgrounds />} />
+              <Route
+                path="docs/backgrounds/:name"
+                element={<RegistryEntryRoute category="background" />}
+              />
+              <Route
+                path="docs/heros/:name"
+                element={<RegistryEntryRoute category="hero" />}
+              />
+              <Route
+                path="docs/text/:name"
+                element={<RegistryEntryRoute category="text" />}
+              />
+              <Route
+                path="docs/effects/:name"
+                element={<RegistryEntryRoute category="effect" />}
+              />
+              <Route
+                path="docs/images/:name"
+                element={<RegistryEntryRoute category="image" />}
+              />
+              <Route
+                path="docs/sections/:name"
+                element={<RegistryEntryRoute category="section" />}
+              />
+              <Route
+                path="docs/hooks/:name"
+                element={<RegistryEntryRoute category="hooks" />}
+              />
               <Route path="docs/text" element={<TextAnimations />} />
               <Route path="docs/motion/librairie" element={<MotionsLibrairie />} />
               <Route path="docs/images" element={<Images />} />
               <Route path="docs/sections" element={<Sections />} />
+              <Route path="docs/registre/catalogue" element={<Catalogue />} />
               <Route path="docs/composants/select-menu" element={<SelectMenuDoc />} />
               <Route path="docs/composants/button" element={<ButtonDoc />} />
               <Route path="docs/composants/input" element={<InputDoc />} />

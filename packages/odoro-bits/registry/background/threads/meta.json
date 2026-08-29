@@ -1,0 +1,67 @@
+{
+  "name": "threads",
+  "category": "background",
+  "title": "Fils",
+  "description": "Un faisceau de courbes fines, d epaisseur constante sur toute leur longueur.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Threads.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-emerald-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse de l ondulation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 7,
+      "description": "Nombre de fils. Borne a douze par le shader.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 0.004,
+      "description": "Epaisseur des fils.",
+      "min": 0.001,
+      "max": 0.02,
+      "step": 0.001
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Un passage par fil, borne a douze. En qualite basse, le faisceau est ramene a quatre."
+  }
+}

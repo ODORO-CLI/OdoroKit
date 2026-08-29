@@ -1,0 +1,57 @@
+{
+  "name": "player",
+  "category": "image",
+  "title": "Lecteur video",
+  "description": "Un lecteur complet : lecture, barre de progression, volume, plein ecran, au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Player.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Image affichee avant la lecture."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Titre de la video, annonce aux technologies d assistance."
+    },
+    {
+      "name": "tracks",
+      "type": "readonly { src: string; srcLang: string; label: string }[]",
+      "description": "Pistes de sous-titres."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media."
+  }
+}

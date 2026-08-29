@@ -3,8 +3,16 @@
   "category": "effect",
   "title": "Bandeau defilant",
   "description": "Un contenu qui defile sans fin, avec fondus aux extremites.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/Marquee.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Marquee.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -13,7 +21,10 @@
       "name": "speed",
       "type": "number",
       "default": 40,
-      "description": "Duree d un cycle, en secondes pour cent pour cent de largeur."
+      "description": "Duree d un cycle, en secondes pour cent pour cent de largeur.",
+      "min": 0,
+      "max": 120,
+      "step": 100
     },
     {
       "name": "reverse",
@@ -31,7 +42,10 @@
       "name": "fade",
       "type": "number",
       "default": 12,
-      "description": "Largeur des fondus, en pourcentage."
+      "description": "Largeur des fondus, en pourcentage.",
+      "min": 0,
+      "max": 36,
+      "step": 1
     }
   ],
   "perf": {

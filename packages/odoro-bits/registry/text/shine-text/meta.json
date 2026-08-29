@@ -3,8 +3,16 @@
   "category": "text",
   "title": "Reflet",
   "description": "Un reflet traverse le texte en boucle, sans aucun JavaScript a l execution.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "text/ShineText.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/ShineText.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -15,20 +23,34 @@
       "default": "span",
       "description": "Balise rendue."
     },
-    { "name": "from", "type": "string", "description": "Couleur du texte au repos." },
-    { "name": "shine", "type": "string", "description": "Couleur du reflet." },
+    {
+      "name": "from",
+      "type": "string",
+      "description": "Couleur du texte au repos."
+    },
+    {
+      "name": "shine",
+      "type": "string",
+      "description": "Couleur du reflet."
+    },
     {
       "name": "duration",
       "type": "number",
       "default": 3000,
       "unit": "ms",
-      "description": "Duree d un passage."
+      "description": "Duree d un passage.",
+      "min": 0,
+      "max": 9000,
+      "step": 100
     },
     {
       "name": "width",
       "type": "number",
       "default": 30,
-      "description": "Largeur du reflet, en pourcentage de la largeur du texte."
+      "description": "Largeur du reflet, en pourcentage de la largeur du texte.",
+      "min": 1,
+      "max": 60,
+      "step": 1
     }
   ],
   "perf": {

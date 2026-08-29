@@ -14,6 +14,8 @@ import { type ReactElement } from 'react'
 import { Deform } from '@/odoro/effect/Deform.jsx'
 import { Compare } from '@/odoro/image/Compare.jsx'
 import { Frame } from '@/odoro/image/Frame.jsx'
+import { Player } from '@/odoro/image/Player.jsx'
+import { Video } from '@/odoro/image/Video.jsx'
 import { Atelier, type AtelierControl } from '../components/Atelier.jsx'
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -51,6 +53,52 @@ function sample(from: string, to: string, seed: number): string {
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
+
+/**
+ * Image a structure fine.
+ *
+ * Une deformation ne se voit pas sur un degrade lisse : deplacer un degrade
+ * rend un degrade. Il faut des aretes — une grille, des rayures — pour que le
+ * deplacement se lise.
+ */
+function grid(from: string, to: string): string {
+  const lines: string[] = []
+  for (let x = 0; x <= 320; x += 20) {
+    lines.push(
+      `<line x1="${String(x)}" y1="0" x2="${String(x)}" y2="180" stroke="white" stroke-opacity="0.45"/>`,
+    )
+  }
+  for (let y = 0; y <= 180; y += 20) {
+    lines.push(
+      `<line x1="0" y1="${String(y)}" x2="320" y2="${String(y)}" stroke="white" stroke-opacity="0.45"/>`,
+    )
+  }
+
+  const svg = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">',
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>`,
+    '<rect width="320" height="180" fill="url(#g)"/>',
+    lines.join(''),
+    '<circle cx="160" cy="90" r="52" fill="none" stroke="white" stroke-width="3"/>',
+    '<circle cx="160" cy="90" r="26" fill="white" fill-opacity="0.9"/>',
+    '</svg>',
+  ].join('')
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+}
+
+/**
+ * Une video minuscule, encodee dans la page.
+ *
+ * Faire venir un fichier d'un service tiers rendrait ces previews dependantes
+ * du reseau. Cette sequence de quelques images suffit a montrer le cadrage,
+ * les commandes et le comportement au clavier.
+ */
+const VIDEO =
+  'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAr1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1NSByMjkxNyAwYTg0ZDk4IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxOCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbAAAAAAAAAAA'
+
+/** Sujet des demonstrations de deformation. */
+const DETAILLEE = grid('#1e1b4b', '#a21caf')
 
 const BEFORE = sample('#1e1b4b', '#4338ca', 0)
 const AFTER = sample('#3b0764', '#c026d3', 1)
@@ -141,62 +189,95 @@ export function Images(): ReactElement {
         title="Deformation"
         lead="Un filtre de deplacement natif, applicable a un fond, a du texte ou a une image — indifferemment."
       >
+        <Callout>
+          La grille et le cercle ne sont pas decoratifs : une deformation ne se voit que
+          sur du detail. Deplacer un degrade lisse rend un degrade lisse — c est pour cela
+          que la premiere version de cette page semblait ne rien faire.
+        </Callout>
+
+        <Callout>
+          A quoi cela sert : donner de la matiere a une surface plate. Un fond qui ondule
+          lentement, une image qui fremit au survol, une tache de couleur qui n a pas l
+          air decoupee au compas. A forte amplitude, c est un parti pris graphique ; a
+          faible amplitude, on ne le remarque pas et c est le but.
+        </Callout>
+
         <Atelier
           demoByDefault={false}
           height="o-h-96"
           controls={[
-            range('amount', 'Amplitude', 0, 40, 1, 12),
-            range('frequency', 'Finesse', 0.002, 0.05, 0.001, 0.012),
+            range('amount', 'Amplitude', 0, 60, 1, 22),
+            range('frequency', 'Finesse', 0.002, 0.06, 0.001, 0.014),
             range('speed', 'Vitesse', 0, 1, 0.05, 0.15),
+            {
+              kind: 'choice',
+              name: 'edges',
+              label: 'Bords',
+              options: ['clean', 'organic'],
+              value: 'clean',
+            },
           ]}
         >
-          {(values, frame) => (
-            <div className="o-absolute o-inset-0 o-flex o-flex-col o-items-center o-justify-center o-gap-6 o-p-6">
-              <Deform
-                amount={values['amount'] as number}
-                frequency={values['frequency'] as number}
-                speed={values['speed'] as number}
-              >
-                <div
-                  className="o-flex o-w-64 o-flex-col o-gap-2 o-p-6"
-                  style={{
-                    borderRadius: `${String(frame.radius)}px`,
-                    background:
-                      'linear-gradient(135deg, var(--o-palette-brand-600), var(--o-palette-fuchsia-600))',
-                  }}
-                >
-                  <span className="o-text-xl o-font-bold o-text-white">Un conteneur</span>
-                  <span className="o-text-sm o-text-white o-opacity-80">
-                    Fond et texte, deformes ensemble.
-                  </span>
-                </div>
-              </Deform>
-
-              <Deform
-                amount={values['amount'] as number}
-                frequency={values['frequency'] as number}
-                speed={values['speed'] as number}
-              >
+          {(values) => (
+            <div className="o-absolute o-inset-0 o-grid o-grid-cols-2 o-items-center o-gap-6 o-p-6">
+              {/* Le temoin : la meme image, sans filtre. */}
+              <div className="o-flex o-flex-col o-items-center o-gap-2">
+                <span className="o-text-xs o-uppercase o-tracking-wide o-opacity-50">
+                  sans
+                </span>
                 <Frame
-                  src={AFTER}
+                  src={DETAILLEE}
                   alt=""
                   ratio={16 / 9}
-                  className="o-w-64 o-rounded-lg"
+                  className="o-w-full o-rounded-lg"
                 />
-              </Deform>
+              </div>
+
+              <div className="o-flex o-flex-col o-items-center o-gap-2">
+                <span className="o-text-xs o-uppercase o-tracking-wide o-opacity-50">
+                  deforme
+                </span>
+                <Deform
+                  className="o-w-full"
+                  amount={values['amount'] as number}
+                  frequency={values['frequency'] as number}
+                  speed={values['speed'] as number}
+                  edges={values['edges'] as 'clean' | 'organic'}
+                >
+                  <Frame
+                    src={DETAILLEE}
+                    alt=""
+                    ratio={16 / 9}
+                    className="o-w-full o-rounded-lg"
+                  />
+                </Deform>
+              </div>
             </div>
           )}
         </Atelier>
 
         <Callout tone="warning">
-          Trois limites qu il vaut mieux connaitre avant de poser ce composant. Le texte
-          est <strong>rasterise</strong> : au-dela d une dizaine de pixels d amplitude,
-          les lettres perdent leur nettete. Le filtre cree un{' '}
-          <strong>contexte d empilement</strong>, donc un enfant en position fixe s y
-          ancrera. Et la turbulence est calculee <strong>une fois</strong> : le mouvement
-          translate le champ plutot que de le regenerer, ce qui est moins riche et cent
-          fois moins cher.
+          Le reglage <strong>Bords</strong> merite un mot, parce que c est lui qui decide
+          si l effet se lit ou pas. Un deplacement va chercher chaque pixel ailleurs ; au
+          bord de l element, cet ailleurs est en dehors, et la silhouette part en
+          lambeaux.
+          <code className="o-font-mono o-text-xs"> clean</code> redecoupe donc le resultat
+          sur la forme d origine — elle reste intacte, seul l interieur ondule.
+          <code className="o-font-mono o-text-xs"> organic</code> laisse la silhouette se
+          deformer : c est ce qu on veut pour une tache de couleur, et rarement pour une
+          carte, dont les angles sont precisement ce qu on remarque.
         </Callout>
+
+        <Section
+          title="Sur une image, au survol"
+          lead="Amplitude nulle au repos, montee en douceur quand le pointeur entre. C'est l'emploi le plus courant."
+        >
+          <div className="o-flex o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
+            <Deform amount={14} onHover speed={0.2} className="o-w-64">
+              <Frame src={AFTER} alt="" ratio={16 / 9} className="o-rounded-lg" />
+            </Deform>
+          </div>
+        </Section>
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
           La voie evidente aurait ete de rendre le contenu dans une texture puis de la
@@ -206,18 +287,89 @@ export function Images(): ReactElement {
           image vient d une autre origine. Le filtre, lui, est natif.
         </p>
 
+        <Callout tone="warning">
+          Deux autres limites. Le texte est <strong>rasterise</strong> : au-dela d une
+          dizaine de pixels d amplitude, les lettres perdent leur nettete. Et la
+          turbulence est calculee <strong>une fois</strong> — le mouvement translate le
+          champ plutot que de le regenerer, ce qui est moins riche et cent fois moins
+          cher.
+        </Callout>
+
         <CodeBlock
-          code={`// N importe quel contenu, y compris du texte.
+          code={`// Le defaut preserve la forme : seul l interieur ondule.
 <Deform amount={8}>
   <section className="o-rounded-xl o-bg-brand-600 o-p-8">
     <h2>Un titre</h2>
   </section>
 </Deform>
 
-// Ou seulement au survol.
-<Deform amount={0} onHover>
-  <img src="/photo.jpg" alt="" />
+// Pour une tache de couleur, on laisse la silhouette bouger.
+<Deform amount={20} edges="organic">
+  <div className="o-size-64 o-rounded-full o-bg-fuchsia-500" />
 </Deform>`}
+        />
+      </Section>
+      <Section
+        title="Video de fond"
+        lead="Le pendant du cadre, pour une video : rapport fige, affiche pendant le decodage, et lecture qui n'a lieu que dans le champ."
+      >
+        <div className="o-flex o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
+          <Video
+            src={VIDEO}
+            poster={DETAILLEE}
+            ratio={16 / 9}
+            className="o-w-80 o-rounded-lg"
+          />
+        </div>
+
+        <Callout tone="warning">
+          Sous <strong>mouvement reduit</strong>, elle ne demarre pas du tout et l affiche
+          reste. C est le seul cas ou une image fixe est le rendu final plutot qu une
+          attente : une video d ambiance n apporte rien d autre que son mouvement.
+        </Callout>
+
+        <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
+          La lecture attend l entree dans le champ et s arrete a la sortie. Une video qui
+          se decode hors de l ecran consomme processeur et batterie sans que personne ne
+          la voie.
+        </p>
+      </Section>
+
+      <Section
+        title="Lecteur video"
+        lead="Un lecteur habillable. Ce qui reste au natif reste au natif : decodage, mise en tampon, sous-titres, plein ecran."
+      >
+        <div className="o-flex o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
+          <Player
+            src={VIDEO}
+            poster={DETAILLEE}
+            label="Video de demonstration"
+            ratio={16 / 9}
+            className="o-w-96 o-rounded-lg"
+          />
+        </div>
+
+        <Callout>
+          Les commandes natives fonctionnent parfaitement, et n ont aucune raison d etre
+          remplacees si leur apparence convient. Ce lecteur existe pour une seule raison :
+          elles ne sont pas habillables — ni couleur, ni forme, ni rayon, ni position.
+        </Callout>
+
+        <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
+          L etat vient du media, jamais l inverse. Un lecteur qui tiendrait son propre
+          etat de lecture se desynchroniserait au premier evenement exterieur — une touche
+          media du clavier, une mise en pause par le systeme. Et la barre de progression
+          est un <strong>curseur</strong> : role, bornes, valeur en secondes, fleches de
+          cinq secondes.
+        </p>
+
+        <CodeBlock
+          code={`<Player
+  src="/presentation.mp4"
+  poster="/presentation.jpg"
+  label="Presentation du produit"
+  tracks={[{ src: '/fr.vtt', srcLang: 'fr', label: 'Francais' }]}
+/>`}
         />
       </Section>
     </>

@@ -1,0 +1,68 @@
+{
+  "name": "vortex",
+  "category": "background",
+  "title": "Vortex",
+  "description": "Une spirale obtenue en ajoutant a l angle une quantite qui decroit avec le rayon.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Vortex.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-600",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.25,
+      "description": "Vitesse de rotation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "arms",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de bras.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "default": 2.5,
+      "description": "Force de l enroulement.",
+      "min": 0,
+      "max": 8,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Un arc tangente et un sinus par fragment. Le nombre de bras ne coute rien."
+  }
+}

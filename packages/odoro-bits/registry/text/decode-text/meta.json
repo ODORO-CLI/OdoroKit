@@ -3,8 +3,16 @@
   "category": "text",
   "title": "Decodage",
   "description": "Le texte se stabilise depuis un brouillage de caracteres, lettre par lettre.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "text/DecodeText.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/DecodeText.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -20,14 +28,26 @@
       "type": "number",
       "default": 1200,
       "unit": "ms",
-      "description": "Duree totale de la stabilisation."
+      "description": "Duree totale de la stabilisation.",
+      "min": 0,
+      "max": 3600,
+      "step": 100
     },
-    { "name": "alphabet", "type": "string", "description": "Caracteres du brouillage." },
+    {
+      "name": "alphabet",
+      "type": "string",
+      "description": "Caracteres du brouillage."
+    },
     {
       "name": "trigger",
       "type": "'mount' | 'view' | 'hover'",
       "default": "view",
-      "description": "Ce qui declenche la sequence."
+      "description": "Ce qui declenche la sequence.",
+      "options": [
+        "view",
+        "mount",
+        "hover"
+      ]
     },
     {
       "name": "onReady",

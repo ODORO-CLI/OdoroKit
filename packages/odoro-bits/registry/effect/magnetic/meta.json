@@ -3,8 +3,16 @@
   "category": "effect",
   "title": "Attraction",
   "description": "Un element attire par le pointeur, qui revient a sa place des qu il s eloigne.",
-  "engine": { "gsap": [], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/Magnetic.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Magnetic.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
   "tokens": [],
@@ -13,20 +21,29 @@
       "name": "strength",
       "type": "number",
       "default": 0.35,
-      "description": "Fraction de la distance parcourue vers le pointeur."
+      "description": "Fraction de la distance parcourue vers le pointeur.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
     },
     {
       "name": "radius",
       "type": "number",
       "default": 120,
       "unit": "px",
-      "description": "Distance au-dela de laquelle l attraction cesse."
+      "description": "Distance au-dela de laquelle l attraction cesse.",
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01
     },
     {
       "name": "ease",
       "type": "number",
       "default": 8,
-      "description": "Vitesse de rattrapage. Plus haut, plus sec."
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 0,
+      "max": 24,
+      "step": 1
     }
   ],
   "perf": {

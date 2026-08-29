@@ -5,6 +5,8 @@
  * @module
  */
 
+import { CATALOGUE } from './catalogue.generated.js'
+
 /** Une page de documentation. */
 export interface DocPage {
   /** Chemin de route, absolu. */
@@ -220,74 +222,111 @@ export const COMPONENT_PAGES: readonly DocPage[] = [
   },
 ]
 
-/** Pages de la categorie Backgrounds. */
-export const BACKGROUND_PAGES: readonly DocPage[] = [
-  {
-    path: '/docs/backgrounds',
-    title: 'Fonds animes',
-    description: 'Aurore, Molten — regles en direct, sous contenu de demonstration.',
-    keywords: ['fond', 'background', 'shader', 'webgl', 'aurora', 'molten', 'three'],
-  },
+/** Segment d'URL et intitule de chaque categorie du registre. */
+const REGISTRY_SECTIONS: readonly (readonly [string, string, string])[] = [
+  ['background', 'backgrounds', 'Backgrounds'],
+  ['hero', 'heros', 'Heros'],
+  ['text', 'text', 'Text Animations'],
+  ['effect', 'effects', 'Effets'],
+  ['image', 'images', 'Images'],
+  ['section', 'sections', 'Sections'],
+  ['hooks', 'hooks', 'Hooks'],
 ]
 
-/** Pages de la categorie Images. */
-export const IMAGE_PAGES: readonly DocPage[] = [
-  {
-    path: '/docs/images',
-    title: 'Cadre, comparaison, deformation',
-    description:
-      'Un cadre qui ne fait pas sauter la page, et une deformation applicable a tout contenu.',
-    keywords: [
-      'image',
-      'photo',
-      'cadre',
-      'frame',
-      'avant apres',
-      'compare',
-      'deform',
-      'filtre',
+/**
+ * Sous-groupes, par categorie.
+ *
+ * Une categorie de vingt entrees se parcourt mal : l'oeil n'y trouve rien sans
+ * lire chaque ligne. Le regroupement suit ici la **technique**, pas
+ * l'apparence — c'est ce qui permet de deviner le cout d'une entree avant de
+ * l'ouvrir, et de trouver la voisine de celle qui ne convient pas tout a fait.
+ *
+ * Une categorie absente de cette table reste a plat. Une entree absente des
+ * familles de sa categorie tombe dans un groupe « Divers » : elle reste donc
+ * visible, et l'oubli se voit au lieu de faire disparaitre la page.
+ */
+const REGISTRY_FAMILIES: Readonly<
+  Record<string, readonly (readonly [string, readonly string[]])[]>
+> = {
+  background: [
+    ['Ecoulements', ['aurora', 'silk', 'mesh', 'plasma', 'caustics', 'vortex']],
+    ['Pavages', ['dots', 'cells', 'hex', 'mosaic', 'halftone']],
+    ['Semis', ['stars', 'rain', 'threads', 'bubbles']],
+    [
+      'Traits et perspectives',
+      ['waves', 'beams', 'tunnel', 'spectrum', 'contour', 'ripple-grid'],
     ],
-  },
-]
+    ['Sans WebGL', ['grid-lines']],
+  ],
+  effect: [
+    ['Pointeur', ['magnetic', 'spotlight']],
+    ['Defilement', ['scroll-progress', 'parallax']],
+    ['Bordures et bandeaux', ['border-beam', 'marquee']],
+    ['Contenu', ['carousel', 'deform']],
+  ],
+  image: [
+    ['Images', ['frame', 'compare']],
+    ['Videos', ['video', 'player']],
+  ],
+}
 
-/** Pages de la categorie Sections. */
-export const SECTION_PAGES = [
-  {
-    path: '/docs/sections',
-    title: 'Compositions de page',
-    description:
-      'Grille revelee, cartes empilees, etapes au defilement, bandeau, questions.',
-    keywords: [
-      'section',
-      'grille',
-      'sticky',
-      'empilement',
-      'etapes',
-      'scrollytelling',
-      'logos',
-      'faq',
-    ],
-  },
-] as const satisfies readonly DocPage[]
+/**
+ * Une page par entree de registre, derivee du catalogue.
+ *
+ * La navigation ne peut donc ni oublier une entree ni en inventer : elle liste
+ * exactement ce que la compilation du registre a produit.
+ */
+function entryPages(category: string, segment: string): readonly DocPage[] {
+  return CATALOGUE.filter((entry) => entry.category === category).map((entry) => ({
+    path: `/docs/${segment}/${entry.name}`,
+    title: entry.title,
+    description: entry.description,
+    keywords: [entry.name, entry.id, entry.perf.tier],
+  }))
+}
 
-/** Pages de la categorie Text Animations. */
-export const TEXT_PAGES: readonly DocPage[] = [
-  {
-    path: '/docs/text',
-    title: 'Effets de texte',
-    description: 'Revelation, decodage, machine a ecrire, reflet.',
-    keywords: [
-      'texte',
-      'split',
-      'decode',
-      'scramble',
-      'typewriter',
-      'machine a ecrire',
-      'shine',
-      'reflet',
-    ],
+/** Repartit les pages d'une categorie dans ses familles. */
+function entryGroups(
+  category: string,
+  segment: string,
+  families: readonly (readonly [string, readonly string[]])[],
+): readonly DocGroup[] {
+  const pages = entryPages(category, segment)
+  const place = new Map(
+    pages.map((page) => [page.path.slice(page.path.lastIndexOf('/') + 1), page]),
+  )
+
+  const groups: DocGroup[] = []
+  for (const [title, names] of families) {
+    const kept = names.flatMap((name) => {
+      const page = place.get(name)
+      if (page === undefined) return []
+      place.delete(name)
+      return [page]
+    })
+    if (kept.length > 0) groups.push({ title, pages: kept })
+  }
+
+  // Ce qui n'a ete range nulle part reste visible : un oubli doit se voir,
+  // pas faire disparaitre une page.
+  if (place.size > 0) groups.push({ title: 'Divers', pages: [...place.values()] })
+
+  return groups
+}
+
+/** Sections du registre, une par categorie, sous-groupees quand il le faut. */
+export const REGISTRY_DOC_SECTIONS: readonly DocSection[] = REGISTRY_SECTIONS.flatMap(
+  ([category, segment, title]) => {
+    const families = REGISTRY_FAMILIES[category]
+    const section: DocSection =
+      families === undefined
+        ? { title, pages: entryPages(category, segment) }
+        : { title, groups: entryGroups(category, segment, families) }
+
+    const count = section.pages?.length ?? section.groups?.length ?? 0
+    return count === 0 ? [] : [section]
   },
-]
+)
 
 /** Selectionne des pages de composants par leur identifiant, dans l'ordre donne. */
 function pick(names: readonly string[]): readonly DocPage[] {
@@ -425,22 +464,7 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     title: 'Composants',
     groups: COMPONENT_GROUPS,
   },
-  {
-    title: 'Backgrounds',
-    pages: BACKGROUND_PAGES,
-  },
-  {
-    title: 'Text Animations',
-    pages: TEXT_PAGES,
-  },
-  {
-    title: 'Images',
-    pages: IMAGE_PAGES,
-  },
-  {
-    title: 'Sections',
-    pages: SECTION_PAGES,
-  },
+  ...REGISTRY_DOC_SECTIONS,
   {
     title: 'Motions',
     pages: [
@@ -528,6 +552,12 @@ export const DOC_SECTIONS: readonly DocSection[] = [
   {
     title: 'Registre',
     pages: [
+      {
+        path: '/docs/registre/catalogue',
+        title: 'Catalogue',
+        description: 'Tout ce que le registre publie, lu dans l index.',
+        keywords: ['catalogue', 'liste', 'inventaire', 'tout', 'index', 'entrees'],
+      },
       {
         path: '/docs/registre',
         title: 'Le format',

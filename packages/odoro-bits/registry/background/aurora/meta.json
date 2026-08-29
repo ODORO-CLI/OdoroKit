@@ -15,25 +15,38 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600", "--o-palette-zinc-50"],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-fuchsia-600",
+    "--o-palette-zinc-50"
+  ],
   "props": [
     {
       "name": "speed",
       "type": "number",
       "default": 0.12,
-      "description": "Vitesse de derive du motif."
+      "description": "Vitesse de derive du motif.",
+      "min": 0,
+      "max": 0.36,
+      "step": 0.05
     },
     {
       "name": "scale",
       "type": "number",
       "default": 2.4,
-      "description": "Echelle du bruit. Plus haut, plus fin."
+      "description": "Echelle du bruit. Plus haut, plus fin.",
+      "min": 0,
+      "max": 7.2,
+      "step": 1
     },
     {
       "name": "octaves",
       "type": "number",
       "default": 4,
-      "description": "Nombre d octaves. Retrograde a 2 en qualite basse."
+      "description": "Nombre d octaves. Retrograde a 2 en qualite basse.",
+      "min": 1,
+      "max": 6,
+      "step": 1
     },
     {
       "name": "colors",
