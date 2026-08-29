@@ -27,6 +27,14 @@
       "types": "./dist/motion.d.ts",
       "import": "./dist/motion.js"
     },
+    "./motion-policy": {
+      "types": "./dist/motion-policy.d.ts",
+      "import": "./dist/motion-policy.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js"
+    },
     "./ui": {
       "types": "./dist/ui.d.ts",
       "import": "./dist/ui.js"

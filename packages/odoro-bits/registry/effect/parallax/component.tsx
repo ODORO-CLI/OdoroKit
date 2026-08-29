@@ -23,7 +23,7 @@
 import {
   mergePresentation,
   useMotionState,
-  useScrollProgress,
+  useScrollScrub,
   type Customisable,
 } from '@odoro/engine'
 import { useCallback, useRef, type ReactElement, type ReactNode } from 'react'
@@ -82,7 +82,7 @@ export function Parallax({
     [distance, axis, scale],
   )
 
-  const { ref } = useScrollProgress<HTMLDivElement>(onProgress, {
+  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
     name: 'parallaxe',
   })
 

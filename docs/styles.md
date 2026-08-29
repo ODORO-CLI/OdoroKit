@@ -7,8 +7,8 @@ import '@odoro/libs/styles.css'
 
 ## Deux feuilles, jamais les deux
 
-| Feuille                      | Contenu                                                                  | Poids                   |
-| ---------------------------- | ------------------------------------------------------------------------ | ----------------------- |
+| Feuille                       | Contenu                                                                  | Poids                   |
+| ----------------------------- | ------------------------------------------------------------------------ | ----------------------- |
 | `@odoro/libs/styles.css`      | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 715 Ko — 59 Ko brotli |
 | `@odoro/libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances             | 2 858 Ko — 88 Ko brotli |
 

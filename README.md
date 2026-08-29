@@ -11,14 +11,14 @@ npm install odoro-libs       # la librairie, embarquée par défaut
 
 ## Ce que contient le dépôt
 
-| Paquet                                  | Rôle                                                                            |
-| --------------------------------------- | ------------------------------------------------------------------------------- |
+| Paquet                                   | Rôle                                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------- |
 | [`@odoro/libs`](packages/odoro-libs)     | Routeur, moteur d'animation, système de style et composants d'interface.        |
-| [`odoro`](packages/odoro)               | Moteur de développement et de compilation, plus l'échafaudage `odoro create`.   |
-| [`create-odoro`](packages/create-odoro) | Point d'entrée de `npm create odoro@latest`. Délègue entièrement au moteur.     |
+| [`odoro`](packages/odoro)                | Moteur de développement et de compilation, plus l'échafaudage `odoro create`.   |
+| [`create-odoro`](packages/create-odoro)  | Point d'entrée de `npm create odoro@latest`. Délègue entièrement au moteur.     |
 | [`@odoro/engine`](packages/odoro-engine) | Ce qui travaille à chaque image : boucle unique, politique de mouvement, WebGL. |
 | [`@odoro/bits`](packages/odoro-bits)     | Le registre de composants animés : source de vérité et artefacts servis.        |
-| [`playground`](playground)              | Application de test liée à la librairie, pour la développer à chaud.            |
+| [`playground`](playground)               | Application de test liée à la librairie, pour la développer à chaud.            |
 
 ## Démarrer
 

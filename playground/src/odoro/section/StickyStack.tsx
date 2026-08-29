@@ -25,7 +25,7 @@
 import {
   mergePresentation,
   useMotionState,
-  useScrollProgress,
+  useScrollScrub,
   type Customisable,
 } from '@odoro/engine'
 import {
@@ -83,7 +83,7 @@ function Card({
     [shrink],
   )
 
-  const { ref } = useScrollProgress<HTMLDivElement>(onProgress, {
+  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
     name: 'cartes empilees',
   })
 

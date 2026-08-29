@@ -94,7 +94,13 @@ describe.runIf(existsSync(join(DIST, 'index.js')))('bundle produit', () => {
   it('laisse la bibliotheque de base externe', () => {
     // Sa licence interdit d'en retirer les notices de propriete, ce qui exclut
     // de l'inliner dans un paquet publie.
-    expect(bundle).toMatch(/^import gsap from ['"]gsap['"]/m)
+    //
+    // La liaison locale n'est pas fixee : des que deux modules du paquet
+    // importent gsap, l'empaqueteur renomme l'une des deux pour eviter la
+    // collision. Ce qui compte est que l'import reste, et qu'aucune ligne de
+    // gsap ne soit recopiee.
+    expect(bundle).toMatch(/^import \w+ from ['"]gsap['"]/m)
+    expect(bundle).not.toContain('Copyright 2008-')
   })
 
   it('reste sous le seuil de poids annonce', () => {

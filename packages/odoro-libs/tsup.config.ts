@@ -21,6 +21,11 @@ export default defineConfig({
     index: 'src/index.ts',
     router: 'src/router/index.ts',
     motion: 'src/motion/index.ts',
+    // La politique de mouvement et les tokens sortent a part : ils sont
+    // consommes par le moteur et par le registre, qui n'ont aucune raison
+    // de tirer React ni la composition de classes pour lire une duree.
+    'motion-policy': 'src/motion-policy/index.ts',
+    tokens: 'src/styles/tokens.ts',
     ui: 'src/ui/index.ts',
     styles: 'src/styles/index.ts',
   },

@@ -25,7 +25,7 @@
 import {
   mergePresentation,
   useMotionState,
-  useScrollProgress,
+  useScrollScrub,
   type Customisable,
 } from '@odoro/engine'
 import { useCallback, useRef, useState, type ReactElement, type ReactNode } from 'react'
@@ -90,7 +90,7 @@ export function ScrollSteps({
     [steps.length],
   )
 
-  const { ref } = useScrollProgress<HTMLDivElement>(onProgress, {
+  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {
     name: 'etapes au defilement',
   })
 

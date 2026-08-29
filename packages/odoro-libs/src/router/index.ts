@@ -43,6 +43,12 @@ export {
   type RouterHistory,
 } from './history.js'
 
+export {
+  onNavigation,
+  type NavigationEvent,
+  type NavigationListener,
+  type NavigationPhase,
+} from './navigation.js'
 export { matchRoutes } from './matchRoutes.js'
 export {
   CATCH_ALL_PARAM,

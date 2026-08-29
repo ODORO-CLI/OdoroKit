@@ -8,7 +8,7 @@ import { registry } from '../core/registry.js'
 import { resetPluginRegistry } from './setup.js'
 import {
   scrollingAncestor,
-  useScrollProgress,
+  useScrollScrub,
   useScrollTrigger,
 } from './use-scroll-trigger.js'
 import { useSplitText } from './use-split-text.js'
@@ -154,7 +154,7 @@ describe('useTween', () => {
   })
 })
 
-describe('useScrollProgress', () => {
+describe('useScrollScrub', () => {
   /**
    * Une cible qui n'existe pas encore au premier rendu.
    *
@@ -166,7 +166,7 @@ describe('useScrollProgress', () => {
    */
   function Tardive(): ReactElement {
     const [cible, setCible] = useState<HTMLElement | null>(null)
-    useScrollProgress(() => undefined, { element: cible, name: 'tardive' })
+    useScrollScrub(() => undefined, { element: cible, name: 'tardive' })
     return <div ref={setCible} data-testid="cible" />
   }
 
@@ -177,7 +177,7 @@ describe('useScrollProgress', () => {
 
   it('n en cree aucun tant que la cible est absente', async () => {
     function Jamais(): ReactElement {
-      useScrollProgress(() => undefined, { element: null, name: 'jamais' })
+      useScrollScrub(() => undefined, { element: null, name: 'jamais' })
       return <div />
     }
 

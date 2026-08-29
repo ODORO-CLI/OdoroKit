@@ -33,7 +33,7 @@
 import {
   mergePresentation,
   useOnReady,
-  useScrollProgress,
+  useScrollScrub,
   type Customisable,
   type ReadyCallback,
   type Slot,
@@ -159,7 +159,7 @@ export function ScrollProgress({
     setObserved(next)
   })
 
-  useScrollProgress<HTMLElement>(onProgress, {
+  useScrollScrub<HTMLElement>(onProgress, {
     element: observed,
     // Bornes d'une lecture, pas d'une traversee : la progression commence
     // quand le haut du contenu atteint le haut de la fenetre, et s'acheve

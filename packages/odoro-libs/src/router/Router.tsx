@@ -30,6 +30,7 @@ import {
   createBrowserHistory,
   createMemoryHistory,
 } from './history.js'
+import { emitNavigation } from './navigation.js'
 import { preloadRoutes } from './lazy.js'
 import { createPath, resolvePath } from './path.js'
 import type { NavigateOptions, RouteObject, To } from './types.js'
@@ -202,6 +203,30 @@ export function Router({
     () => ({ history, navigate, routesRef, viewTransition }),
     [history, navigate, viewTransition],
   )
+
+  // `before` : l'historique a change, la nouvelle page n'a pas encore rendu.
+  // L'abonnement passe par l'historique et non par le rendu, pour couvrir de
+  // la meme facon un clic, un `navigate` et un retour arriere du navigateur —
+  // ce dernier ne traverse jamais `navigate`.
+  useEffect(
+    () =>
+      history.subscribe(() => {
+        const to = history.getSnapshot().location.pathname
+        const from = pathnameRef.current
+        if (to !== from) emitNavigation({ phase: 'before', from, to })
+      }),
+    [history],
+  )
+
+  // `after` : la nouvelle page a rendu. Un effet passif s'execute apres la
+  // peinture, ce qui est le premier instant ou une mesure a un sens.
+  const announced = useRef<string | null>(null)
+  useEffect(() => {
+    const to = location.pathname
+    const from = announced.current
+    announced.current = to
+    if (from !== null && from !== to) emitNavigation({ phase: 'after', from, to })
+  }, [location.pathname])
 
   useScrollTracking(history, location.key)
   useScrollPolicy(

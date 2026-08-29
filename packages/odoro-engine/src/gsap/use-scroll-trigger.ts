@@ -168,14 +168,14 @@ export function useScrollTrigger<T extends Element = HTMLElement>(
   return ref
 }
 
-/** Ce que rend {@link useScrollProgress}. */
-export interface ScrollProgressHandle<T extends Element> {
+/** Ce que rend {@link useScrollScrub}. */
+export interface ScrollScrubHandle<T extends Element> {
   /** Ref a poser sur l'element observe. */
   readonly ref: RefObject<T | null>
 }
 
-/** Options de {@link useScrollProgress}. */
-export interface ScrollProgressOptions {
+/** Options de {@link useScrollScrub}. */
+export interface ScrollScrubOptions {
   /**
    * Element observe, quand il ne peut pas venir de la ref rendue.
    *
@@ -210,24 +210,37 @@ export interface ScrollProgressOptions {
 /**
  * Progression du defilement d'un element, de 0 a 1.
  *
- * Cette lecture passe par la boucle unique du moteur. `@odoro/libs/motion`
- * expose une progression comparable, autonome, pour les projets sans moteur :
- * **ne pas melanger les deux sur une meme page**, ce serait lire le defilement
- * deux fois, et le decalage entre les deux lectures est precisement le
- * tremblement que la boucle unique existe pour supprimer.
+ * ## La frontiere avec `@odoro/libs/motion`
+ *
+ * Les deux paquets touchent au defilement, et ne font pas la meme chose.
+ *
+ * `useScrollProgress`, dans la librairie, rend **un nombre** : l'avancee de la
+ * lecture de la page, ou la traversee d'un element par la fenetre. Aucune
+ * dependance, une mesure par image, et un rendu React quand la valeur change.
+ *
+ * `useScrollScrub`, ici, asservit un **rappel** a un declencheur GSAP : bornes
+ * exprimees dans la grammaire de ScrollTrigger, conteneur de defilement
+ * detecte, aucun rendu React pendant la course. C'est le terme de GSAP pour
+ * une animation pilotee par le defilement, et il dit exactement ce que le hook
+ * fait.
+ *
+ * Les deux portaient le meme nom, ce qui obligeait a lire la signature pour
+ * savoir lequel on tenait. Ils ne se remplacent pas l'un l'autre : on prend
+ * celui de la librairie pour afficher une barre, celui du moteur pour piloter
+ * une animation.
  *
  * La valeur est transmise a un rappel plutot que rendue comme etat : une
  * progression provoquerait sinon un rendu React par image.
  *
  * @example
- * const { ref } = useScrollProgress((progress) => {
+ * const { ref } = useScrollScrub((progress) => {
  *   barre.current.style.transform = `scaleX(${progress})`
  * })
  */
-export function useScrollProgress<T extends Element = HTMLElement>(
+export function useScrollScrub<T extends Element = HTMLElement>(
   onProgress: (progress: number) => void,
-  options: ScrollProgressOptions = {},
-): ScrollProgressHandle<T> {
+  options: ScrollScrubOptions = {},
+): ScrollScrubHandle<T> {
   const ref = useRef<T | null>(null)
   const callback = useRef(onProgress)
   callback.current = onProgress

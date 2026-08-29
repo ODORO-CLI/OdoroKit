@@ -5,14 +5,14 @@ authentification, compte, fichiers — se montent dessus et vivent ailleurs.
 
 ## Decisions arretees
 
-| Point | Choix | Raison courte |
-| --- | --- | --- |
-| ORM | Drizzle, couche unique | Une couche de depot abstraite ferait ecrire chaque module deux fois, et fuirait au premier `jsonb`. |
-| Moteurs tenus | Postgres (niveau 1), SQLite (niveau 2) | Un moteur non teste en integration continue ne figure pas dans le tableau. |
-| Schemas | Un fichier par dialecte | `pgTable` et `sqliteTable` sont des constructeurs distincts : « multi-dialecte » veut dire N schemas, pas un schema portable. |
-| Authentification | Better Auth, encapsule | Voir la reserve ci-dessous. |
-| Redis | Optionnel, repli en memoire | Le plus petit des projets ne doit pas exiger une dependance d'infrastructure. |
-| Multi-tenant | Des le premier jour | Des invitations et des donnees partagees : la portee doit exister avant la premiere requete ecrite. |
+| Point            | Choix                                  | Raison courte                                                                                                                 |
+| ---------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| ORM              | Drizzle, couche unique                 | Une couche de depot abstraite ferait ecrire chaque module deux fois, et fuirait au premier `jsonb`.                           |
+| Moteurs tenus    | Postgres (niveau 1), SQLite (niveau 2) | Un moteur non teste en integration continue ne figure pas dans le tableau.                                                    |
+| Schemas          | Un fichier par dialecte                | `pgTable` et `sqliteTable` sont des constructeurs distincts : « multi-dialecte » veut dire N schemas, pas un schema portable. |
+| Authentification | Better Auth, encapsule                 | Voir la reserve ci-dessous.                                                                                                   |
+| Redis            | Optionnel, repli en memoire            | Le plus petit des projets ne doit pas exiger une dependance d'infrastructure.                                                 |
+| Multi-tenant     | Des le premier jour                    | Des invitations et des donnees partagees : la portee doit exister avant la premiere requete ecrite.                           |
 
 **La reserve sur Better Auth.** L'encapsulation stabilise les sites d'appel.
 Elle ne rend pas la librairie interchangeable : le verrouillage est dans le

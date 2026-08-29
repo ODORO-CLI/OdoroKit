@@ -33,6 +33,7 @@ import {
 } from 'react'
 
 import { type ClockInstance, clock } from './clock.js'
+import { type BridgeTeardown, bridgeToLibs } from './libs-bridge.js'
 import {
   type MotionPolicyInstance,
   type MotionState,
@@ -116,6 +117,24 @@ export function OdoroEngine({
   useEffect(() => {
     motionPolicy.configure({ quality, reducedMotion })
   }, [quality, reducedMotion])
+
+  // Quand `@odoro/libs` est installe, sa boucle de mesure passe sur le ticker
+  // de GSAP et sa politique suit celle du moteur. Son absence est un cas
+  // ordinaire : le moteur s'emploie aussi sans elle.
+  useEffect(() => {
+    let undo: BridgeTeardown = () => undefined
+    let cancelled = false
+
+    void bridgeToLibs(reducedMotion).then((teardown) => {
+      if (cancelled) teardown()
+      else undo = teardown
+    })
+
+    return () => {
+      cancelled = true
+      undo()
+    }
+  }, [reducedMotion])
 
   const value = useMemo<EngineContextValue>(
     () => ({ clock, policy: motionPolicy, registry, maxSurfaces, provided: true }),

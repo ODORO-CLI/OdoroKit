@@ -1,10 +1,24 @@
 /**
  * Progression de defilement, normalisee entre 0 et 1.
  *
+ * ## La seule boucle de la librairie, et elle est cedable
+ *
+ * Une progression de defilement se lit **a l'image**, pas a l'evenement : un
+ * navigateur emet des dizaines d'evenements de defilement par seconde, et
+ * mesurer a chacun recalcule la mise en page autant de fois.
+ *
+ * C'est la seule chose dans `@odoro/libs/motion` qui ouvre une boucle — tout
+ * le reste passe par la Web Animations API, pilotee par le compositeur. Elle
+ * passe donc par `onFrame`, l'ordonnanceur cedable de
+ * `@odoro/libs/motion-policy` : quand `@odoro/engine` est present, il
+ * l'installe sur son ticker et il n'y a plus qu'une boucle sur la page.
+ *
  * @module
  */
 
 import { type RefObject, useEffect, useRef, useState } from 'react'
+
+import { onFrame } from '../motion-policy/index.js'
 
 /** Options de {@link useScrollProgress}. */
 export interface ScrollProgressOptions {
@@ -26,9 +40,9 @@ function clamp(value: number, precision: number): number {
 /**
  * Progression du defilement de la page : 0 en haut, 1 tout en bas.
  *
- * La mesure est faite dans un `requestAnimationFrame` coalescant : plusieurs
- * evenements de defilement dans la meme image ne provoquent qu'une lecture et
- * au plus un rendu.
+ * La mesure est coalescee sur l'image : plusieurs evenements de defilement
+ * dans la meme image ne provoquent qu'une lecture et au plus un rendu. Elle
+ * passe par l'ordonnanceur cedable, non par `requestAnimationFrame` en dur.
  *
  * @example
  * const progress = useScrollProgress()
@@ -37,21 +51,23 @@ function clamp(value: number, precision: number): number {
 export function useScrollProgress(options: ScrollProgressOptions = {}): number {
   const { precision = 3 } = options
   const [progress, setProgress] = useState(0)
-  const frame = useRef(0)
+  const cancel = useRef<(() => void) | undefined>(undefined)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const measure = (): void => {
-      frame.current = 0
+      cancel.current = undefined
       const root = document.documentElement
       const max = root.scrollHeight - root.clientHeight
       setProgress(max <= 0 ? 0 : clamp(root.scrollTop / max, precision))
     }
 
+    // Coalescant : plusieurs evenements dans la meme image ne provoquent
+    // qu'une lecture, et au plus un rendu.
     const schedule = (): void => {
-      if (frame.current !== 0) return
-      frame.current = requestAnimationFrame(measure)
+      if (cancel.current !== undefined) return
+      cancel.current = onFrame(measure)
     }
 
     measure()
@@ -60,7 +76,8 @@ export function useScrollProgress(options: ScrollProgressOptions = {}): number {
     return () => {
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', schedule)
-      if (frame.current !== 0) cancelAnimationFrame(frame.current)
+      cancel.current?.()
+      cancel.current = undefined
     }
   }, [precision])
 
@@ -80,13 +97,13 @@ export function useElementScrollProgress<T extends HTMLElement = HTMLElement>(
   const { precision = 3 } = options
   const ref = useRef<T | null>(null)
   const [progress, setProgress] = useState(0)
-  const frame = useRef(0)
+  const cancel = useRef<(() => void) | undefined>(undefined)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const measure = (): void => {
-      frame.current = 0
+      cancel.current = undefined
       const element = ref.current
       if (element === null) return
       const rect = element.getBoundingClientRect()
@@ -96,8 +113,8 @@ export function useElementScrollProgress<T extends HTMLElement = HTMLElement>(
     }
 
     const schedule = (): void => {
-      if (frame.current !== 0) return
-      frame.current = requestAnimationFrame(measure)
+      if (cancel.current !== undefined) return
+      cancel.current = onFrame(measure)
     }
 
     measure()
@@ -106,7 +123,8 @@ export function useElementScrollProgress<T extends HTMLElement = HTMLElement>(
     return () => {
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', schedule)
-      if (frame.current !== 0) cancelAnimationFrame(frame.current)
+      cancel.current?.()
+      cancel.current = undefined
     }
   }, [precision])
 

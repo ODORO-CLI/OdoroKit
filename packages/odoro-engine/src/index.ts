@@ -108,10 +108,10 @@ export {
 export {
   killScrollTriggers,
   onRouteChange,
-  useScrollProgress,
+  useScrollScrub,
   useScrollTrigger,
-  type ScrollProgressHandle,
-  type ScrollProgressOptions,
+  type ScrollScrubHandle,
+  type ScrollScrubOptions,
   type ScrollTriggerConfig,
   type ScrollTriggerOptions,
 } from './gsap/use-scroll-trigger.js'
