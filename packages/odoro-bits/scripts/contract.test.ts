@@ -25,13 +25,15 @@ function meta(overrides: Partial<RegistryMeta> = {}): RegistryMeta & { id: strin
 /** Source d'un composant conforme, a deriver. */
 const CONFORME = `
 export function Demo({ className, ...rest }: Props) {
-  return <div {...rest} className={className} style={{ color: 'var(--o-fg)' }} />
+  return <div {...rest} className={className} style={{ color: 'var(--o-palette-zinc-900)' }} />
 }
 `
 
 describe('lecture des tokens', () => {
   it('releve un token consomme directement', () => {
-    expect([...usedTokens('color: var(--o-fg-muted)')]).toEqual(['--o-fg-muted'])
+    expect([...usedTokens('color: var(--o-palette-zinc-500)')]).toEqual([
+      '--o-palette-zinc-500',
+    ])
   })
 
   it('accepte une valeur de repli', () => {
@@ -50,29 +52,33 @@ describe('lecture des tokens', () => {
   })
 
   it('accepte les trois sortes de guillemets', () => {
-    expect(usedTokens('a("--o-a") b(`--o-b`)').size).toBe(2)
+    expect(usedTokens('a("--o-duration-fast") b(`--o-duration-slow`)').size).toBe(2)
   })
 
   it('ne compte pas deux fois le meme token', () => {
-    expect(usedTokens("var(--o-fg) '--o-fg'").size).toBe(1)
+    expect(usedTokens("var(--o-palette-zinc-900) '--o-palette-zinc-900'").size).toBe(1)
   })
 })
 
 describe('retrait des commentaires', () => {
   it('retire une ligne de commentaire', () => {
-    expect(stripComments('const a = 1 // var(--o-fg)')).not.toMatch(/--o-fg/)
+    expect(stripComments('const a = 1 // var(--o-palette-zinc-900)')).not.toMatch(
+      /--o-palette-zinc-900/,
+    )
   })
 
   it('retire un bloc de documentation', () => {
-    expect(stripComments('/** exemple : --o-accent */ const a = 1')).not.toMatch(
-      /--o-accent/,
-    )
+    expect(
+      stripComments('/** exemple : --o-palette-fuchsia-600 */ const a = 1'),
+    ).not.toMatch(/--o-palette-fuchsia-600/)
   })
 
   it('laisse les chaines intactes', () => {
     // Une lecture de token vit dans une chaine, un shader dans un gabarit :
     // les traverser reviendrait a ne plus rien voir.
-    expect(stripComments("read('--o-fg')")).toBe("read('--o-fg')")
+    expect(stripComments("read('--o-palette-zinc-900')")).toBe(
+      "read('--o-palette-zinc-900')",
+    )
     expect(stripComments('const s = `var(--o-bg)`')).toMatch(/--o-bg/)
   })
 
@@ -92,7 +98,7 @@ describe('retrait des commentaires', () => {
 
 describe('regle 1 — coherence des tokens', () => {
   it('accepte une declaration qui correspond au code', () => {
-    const problems = checkContract(meta({ tokens: ['--o-fg'] }), {
+    const problems = checkContract(meta({ tokens: ['--o-palette-zinc-900'] }), {
       'component.tsx': CONFORME,
     })
     expect(problems).toEqual([])
@@ -101,9 +107,12 @@ describe('regle 1 — coherence des tokens', () => {
   it('refuse un token declare mais jamais employe', () => {
     // L'ecart est invisible a la relecture — il faut avoir les deux fichiers
     // sous les yeux — et il trompe qui cherche quelle variable regler.
-    const problems = checkContract(meta({ tokens: ['--o-fg', '--o-duration-slow'] }), {
-      'component.tsx': CONFORME,
-    })
+    const problems = checkContract(
+      meta({ tokens: ['--o-palette-zinc-900', '--o-duration-slow'] }),
+      {
+        'component.tsx': CONFORME,
+      },
+    )
     expect(problems).toHaveLength(1)
     expect(problems[0]?.message).toMatch(/--o-duration-slow est declare/)
   })
@@ -111,27 +120,49 @@ describe('regle 1 — coherence des tokens', () => {
   it('ne compte pas un token cite dans un exemple', () => {
     // Un exemple montre autre chose que le defaut : c'est son interet. Le
     // premier jet de cette regle butait exactement la-dessus.
-    const problems = checkContract(meta({ tokens: ['--o-fg'] }), {
+    const problems = checkContract(meta({ tokens: ['--o-palette-zinc-900'] }), {
       'component.tsx': `/**
  * @example
- * <Fond colors={['--o-palette-red-600', '--o-bg-subtle']} />
+ * <Fond colors={['--o-palette-red-600', '--o-palette-zinc-900']} />
  */
 ${CONFORME}`,
     })
     expect(problems).toEqual([])
   })
 
+  it('refuse un token qui n existe pas dans le systeme', () => {
+    // Attrape la faute de frappe, que la coherence seule laissait passer des
+    // lors qu'elle etait faite des deux cotes.
+    const problems = checkContract(meta({ tokens: ['--o-palette-zinc-42'] }), {
+      'component.tsx': CONFORME,
+    })
+    expect(problems.map((p) => p.message).join()).toMatch(/n'existe pas dans le systeme/)
+  })
+
+  it('ignore une variable privee du composant', () => {
+    // `--o-shine-duration` n'est pas un token : c'est une variable que le
+    // composant se donne. La premiere version de la regle reclamait sa
+    // declaration.
+    const problems = checkContract(meta(), {
+      'component.tsx': `const s = { '--o-shine-duration': '3s' }; const c = 'className'`,
+    })
+    expect(problems).toEqual([])
+  })
+
   it('refuse un token employe mais non declare', () => {
     const problems = checkContract(meta(), { 'component.tsx': CONFORME })
-    expect(problems[0]?.message).toMatch(/--o-fg est employe/)
+    expect(problems[0]?.message).toMatch(/--o-palette-zinc-900 est employe/)
   })
 
   it('regarde tous les fichiers de l entree', () => {
-    const problems = checkContract(meta({ tokens: ['--o-accent'] }), {
-      'component.tsx': CONFORME.replace('var(--o-fg)', 'var(--o-fg)'),
-      'styles.ts': 'export const s = { background: "var(--o-accent)" }',
+    const problems = checkContract(meta({ tokens: ['--o-palette-fuchsia-600'] }), {
+      'component.tsx': CONFORME.replace(
+        'var(--o-palette-zinc-900)',
+        'var(--o-palette-zinc-900)',
+      ),
+      'styles.ts': 'export const s = { background: "var(--o-palette-fuchsia-600)" }',
     })
-    expect(problems.map((p) => p.message).join()).not.toMatch(/--o-accent/)
+    expect(problems.map((p) => p.message).join()).not.toMatch(/--o-palette-fuchsia-600/)
   })
 })
 
@@ -153,7 +184,7 @@ describe('regle 2 — le passe-plat', () => {
   })
 
   it('accepte un composant qui l accepte', () => {
-    const problems = checkContract(meta({ tokens: ['--o-fg'] }), {
+    const problems = checkContract(meta({ tokens: ['--o-palette-zinc-900'] }), {
       'component.tsx': CONFORME,
     })
     expect(problems).toEqual([])

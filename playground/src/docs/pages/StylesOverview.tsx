@@ -49,8 +49,8 @@ import 'odoro-libs/styles.full.css' // ~17 500 classes : + o-bg-sky-500, o-text-
         />
         <Callout>
           Les composants d'<code className="o-font-mono o-text-sm">odoro-libs/ui</code>{' '}
-          n'utilisent que la couche semantique : ils fonctionnent avec la feuille de base
-          seule, et se retheme en surchargeant les variables{' '}
+          n'emploient que les sept teintes essentielles : ils fonctionnent avec la feuille
+          de base seule, et se retheme en surchargeant les variables{' '}
           <code className="o-font-mono o-text-sm">--o-color-*</code>.
         </Callout>
       </Section>
@@ -97,7 +97,7 @@ tokens.duration.base        // '200ms'`}
       <Section title="Aller plus loin">
         <ul className="o-flex o-flex-col o-gap-2 o-text-zinc-500 dark:o-text-zinc-400">
           {[
-            ['/docs/styles/couleurs', 'Couleurs — palette et couche semantique'],
+            ['/docs/styles/couleurs', 'Couleurs — la palette brute, et rien d autre'],
             [
               '/docs/styles/typographie',
               'Typographie — echelles, decorations, surlignage',

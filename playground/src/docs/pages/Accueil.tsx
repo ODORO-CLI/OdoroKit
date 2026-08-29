@@ -112,8 +112,8 @@ export function Accueil(): ReactElement {
               </svg>
             }
           >
-            290 couleurs OKLCH, couche semantique clair/sombre, 12 000 utilitaires generes
-            depuis les tokens.
+            290 couleurs OKLCH en palette brute, le theme ecrit sur la classe, 21 000
+            utilitaires generes depuis les tokens.
           </Feature>
           <Feature
             title="Animations"

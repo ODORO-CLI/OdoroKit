@@ -95,7 +95,13 @@ const sobre = await browser.newPage()
 sobre.on('pageerror', (e) => failures.push(`mouvement reduit : ${String(e)}`))
 await sobre.emulateMedia({ reducedMotion: 'reduce' })
 await sobre.goto(`${base}/docs/registre/galerie`, { waitUntil: 'networkidle' })
-await sobre.waitForTimeout(1500)
+
+// Attendre l'element plutot qu'un delai fixe. Un delai trop court faisait
+// echouer ce controle une fois sur deux, en accusant le titre d'etre
+// invisible alors qu'il n'etait pas encore rendu : un test qui designe le
+// mauvais coupable est pire qu'un test qui echoue.
+const titreSobre = sobre.locator('p', { hasText: /^Construisez/ }).first()
+await titreSobre.waitFor({ state: 'attached', timeout: 10000 })
 
 const reduit = await sobre.evaluate(() => {
   // Le heros n'est pas monte sur cette passe : il attend un clic, et ce clic
@@ -105,7 +111,8 @@ const reduit = await sobre.evaluate(() => {
   )
   return {
     canvas: document.querySelectorAll('canvas').length,
-    titreVisible: titre === undefined ? false : getComputedStyle(titre).opacity !== '0',
+    titreTrouve: titre !== undefined,
+    titreVisible: titre !== undefined && getComputedStyle(titre).opacity !== '0',
     titreAttend: titre?.hasAttribute('data-o-split-pending') ?? false,
   }
 })
@@ -114,10 +121,12 @@ console.log('mouvement reduit :', JSON.stringify(reduit))
 if (reduit.canvas !== 0) {
   failures.push(`mouvement reduit : ${reduit.canvas} canevas, aucun n etait attendu`)
 }
-if (!reduit.titreVisible) {
+if (!reduit.titreTrouve) {
+  failures.push('mouvement reduit : le titre n a pas ete rendu du tout')
+} else if (!reduit.titreVisible) {
   // Le defaut le plus grave possible : l'animation neutralisee a emporte
   // l'etat final avec elle.
-  failures.push('mouvement reduit : le titre est invisible')
+  failures.push('mouvement reduit : le titre est rendu mais invisible')
 }
 if (reduit.titreAttend) {
   failures.push(

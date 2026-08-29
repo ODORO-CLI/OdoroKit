@@ -8,7 +8,7 @@
 import { type ReactElement, type ReactNode, useEffect, useState } from 'react'
 import { Link, useLocation } from 'odoro-libs/router'
 
-import { DOC_SECTIONS } from '../registry.js'
+import { DOC_SECTIONS, type DocPage } from '../registry.js'
 import { SearchDialog } from './SearchDialog.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
 
@@ -32,10 +32,41 @@ function Logo(): ReactElement {
   )
 }
 
-/** Liens d'une section de navigation. */
-function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement {
+/** Un lien de navigation, actif ou non. */
+function NavLink({
+  page,
+  onNavigate,
+}: {
+  page: DocPage
+  onNavigate?: () => void
+}): ReactElement {
   const { pathname } = useLocation()
+  const active = pathname === page.path
 
+  return (
+    <Link
+      to={page.path}
+      aria-current={active ? 'page' : undefined}
+      onClick={onNavigate}
+      className={`o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-transition-colors ${
+        active
+          ? 'o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 o-font-medium'
+          : 'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800'
+      }`}
+    >
+      {page.title}
+    </Link>
+  )
+}
+
+/**
+ * Liens de navigation, sections et sous-groupes.
+ *
+ * Les sous-groupes portent un titre plus discret que les sections : deux
+ * niveaux de reperes dans une colonne etroite ne se distinguent que si le
+ * second s'efface nettement devant le premier.
+ */
+function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement {
   return (
     <nav aria-label="Documentation" className="o-flex o-flex-col o-gap-6">
       {DOC_SECTIONS.map((section) => (
@@ -43,24 +74,24 @@ function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement
           <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500 o-px-3 o-mb-1">
             {section.title}
           </p>
-          {section.pages.map((page) => {
-            const active = pathname === page.path
-            return (
-              <Link
-                key={page.path}
-                to={page.path}
-                aria-current={active ? 'page' : undefined}
-                onClick={onNavigate}
-                className={`o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-transition-colors ${
-                  active
-                    ? 'o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 o-font-medium'
-                    : 'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800'
-                }`}
-              >
-                {page.title}
-              </Link>
-            )
-          })}
+
+          {(section.pages ?? []).map((page) => (
+            <NavLink key={page.path} page={page} onNavigate={onNavigate} />
+          ))}
+
+          {(section.groups ?? []).map((group) => (
+            <div
+              key={group.title}
+              className="o-flex o-flex-col o-gap-1 o-mt-2 first:o-mt-0"
+            >
+              <p className="o-px-3 o-text-xs o-font-medium o-text-zinc-400 dark:o-text-zinc-600 o-opacity-80">
+                {group.title}
+              </p>
+              {group.pages.map((page) => (
+                <NavLink key={page.path} page={page} onNavigate={onNavigate} />
+              ))}
+            </div>
+          ))}
         </div>
       ))}
     </nav>
@@ -93,7 +124,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
 
   return (
     <div className="o-min-h-screen o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50">
-      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky o-glass o-border-b o-border-zinc-200 dark:o-border-zinc-800">
+      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky o-glass dark:o-glass-dark o-border-b o-border-zinc-200 dark:o-border-zinc-800">
         <div className="o-mx-auto o-max-w-7xl o-h-16 o-flex o-items-center o-gap-4 o-px-4 md:o-px-6">
           <button
             type="button"

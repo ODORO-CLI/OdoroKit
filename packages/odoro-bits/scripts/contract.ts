@@ -17,7 +17,33 @@
  * @module
  */
 
+import { tokens } from 'odoro-libs/styles'
 import type { RegistryMeta } from 'odoro/registry'
+
+/**
+ * Noms de variables que le systeme declare reellement.
+ *
+ * ## Pourquoi cette liste existe
+ *
+ * Sans elle, la regle de coherence prend toute variable en `--o-` pour un
+ * token. Or un composant en declare pour son propre usage — la duree de son
+ * animation, la couleur de son reflet — qui ne viennent d'aucune echelle et
+ * n'ont rien a faire dans sa documentation.
+ *
+ * La liste est deduite des tokens, jamais ecrite a la main : elle ne peut donc
+ * pas deriver de ce que la feuille contient.
+ *
+ * Elle rend aussi la regle plus stricte dans l'autre sens : un token declare
+ * qui n'existe pas dans le systeme est desormais refuse, la ou il passait
+ * inapercu.
+ */
+const KNOWN_TOKENS: ReadonlySet<string> = new Set(
+  Object.entries(tokens).flatMap(([group, scale]) =>
+    typeof scale === 'string'
+      ? [`--o-${group}`]
+      : Object.keys(scale).map((key) => `--o-${group}-${key.replace(/\./g, '_')}`),
+  ),
+)
 
 /** Categories dont les entrees rendent un element du document. */
 const RENDERING = new Set(['text', 'background', 'effect', 'hero', 'ui', 'section'])
@@ -172,8 +198,16 @@ export function checkContract(
   // foi. Un ecart entre les deux est invisible a la relecture — il faut avoir
   // les deux fichiers sous les yeux — et il trompe exactement la personne qui
   // cherche quelle variable regler pour changer l'apparence.
-  const used = usedTokens(code)
+  // Seules les variables que le systeme declare comptent : les autres sont
+  // des variables privees du composant.
+  const used = new Set([...usedTokens(code)].filter((token) => KNOWN_TOKENS.has(token)))
   const declared = new Set(meta.tokens)
+
+  for (const token of declared) {
+    if (!KNOWN_TOKENS.has(token)) {
+      say(`le token ${token} n'existe pas dans le systeme.`)
+    }
+  }
 
   for (const token of declared) {
     if (!used.has(token)) {

@@ -1,0 +1,43 @@
+{
+  "name": "decode-text",
+  "category": "text",
+  "title": "Decodage",
+  "description": "Le texte se stabilise depuis un brouillage de caracteres, lettre par lettre.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "text/DecodeText.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree totale de la stabilisation."
+    },
+    { "name": "alphabet", "type": "string", "description": "Caracteres du brouillage." },
+    {
+      "name": "trigger",
+      "type": "'mount' | 'view' | 'hover'",
+      "default": "view",
+      "description": "Ce qui declenche la sequence."
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<DecodeControls>) => void | (() => void)",
+      "description": "Echappatoire : permet de rejouer la sequence."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une ecriture de textContent par image, sur un seul noeud."
+  }
+}

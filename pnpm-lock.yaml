@@ -106,6 +106,9 @@ importers:
       odoro-engine:
         specifier: workspace:*
         version: link:../odoro-engine
+      odoro-libs:
+        specifier: workspace:*
+        version: link:../odoro-libs
       react:
         specifier: ^19.2.0
         version: 19.2.8

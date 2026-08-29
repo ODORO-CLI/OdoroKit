@@ -33,6 +33,8 @@ const PAGES = [
   '/docs/registre/cli',
   '/docs/registre/contrat',
   '/docs/registre/galerie',
+  '/docs/backgrounds',
+  '/docs/text',
 ]
 
 const failures = []

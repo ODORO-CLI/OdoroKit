@@ -55,12 +55,39 @@
         }
       ]
     },
+    "text/decode-text": {
+      "installedAt": "2026-08-29T02:35:09.997Z",
+      "files": [
+        {
+          "path": "src/odoro/text/DecodeText.tsx",
+          "hash": "01de5720a0c37d5f"
+        }
+      ]
+    },
+    "text/shine-text": {
+      "installedAt": "2026-08-29T02:35:09.997Z",
+      "files": [
+        {
+          "path": "src/odoro/text/ShineText.tsx",
+          "hash": "c760a5d1b419a9ad"
+        }
+      ]
+    },
     "text/split-reveal": {
       "installedAt": "2026-08-29T02:23:39.104Z",
       "files": [
         {
           "path": "src/odoro/text/SplitReveal.tsx",
           "hash": "c6d257a0649230bf"
+        }
+      ]
+    },
+    "text/typewriter": {
+      "installedAt": "2026-08-29T02:35:09.997Z",
+      "files": [
+        {
+          "path": "src/odoro/text/Typewriter.tsx",
+          "hash": "9937b746b7ef93d0"
         }
       ]
     }

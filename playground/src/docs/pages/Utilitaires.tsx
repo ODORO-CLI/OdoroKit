@@ -47,14 +47,14 @@ export function Utilitaires(): ReactElement {
       >
         <DemoBlock
           code={`<div className="o-bg-gradient-to-r o-from-indigo-500 o-via-purple-500 o-to-pink-500 o-p-8">
-  <div className="o-glass o-rounded-lg o-p-6">
+  <div className="o-glass dark:o-glass-dark o-rounded-lg o-p-6">
     <p className="o-font-semibold">Verre depoli</p>
     <p className="o-text-sm">Le degrade se devine a travers.</p>
   </div>
 </div>`}
         >
           <div className="o-bg-gradient-to-r o-from-indigo-500 o-via-purple-500 o-to-pink-500 o-p-8 o-rounded-lg o-w-full o-max-w-md">
-            <div className="o-glass o-rounded-lg o-p-6">
+            <div className="o-glass dark:o-glass-dark o-rounded-lg o-p-6">
               <p className="o-font-semibold">Verre depoli</p>
               <p className="o-text-sm">Le degrade se devine a travers.</p>
             </div>

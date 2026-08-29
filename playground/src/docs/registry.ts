@@ -17,10 +17,29 @@ export interface DocPage {
   readonly keywords?: readonly string[]
 }
 
-/** Une section de la navigation laterale. */
-export interface DocSection {
+/**
+ * Un sous-groupe a l'interieur d'une section.
+ *
+ * Une section de trente entrees se parcourt mal : l'oeil n'y trouve rien sans
+ * lire chaque ligne. Le sous-groupe redonne des reperes — on cherche d'abord
+ * une famille, puis une entree dans la famille.
+ */
+export interface DocGroup {
   readonly title: string
   readonly pages: readonly DocPage[]
+}
+
+/**
+ * Une section de la navigation laterale.
+ *
+ * Elle porte soit des pages a plat, soit des sous-groupes. Les deux a la fois
+ * seraient une hierarchie a trois niveaux dans une colonne de deux cent
+ * cinquante pixels : illisible.
+ */
+export interface DocSection {
+  readonly title: string
+  readonly pages?: readonly DocPage[]
+  readonly groups?: readonly DocGroup[]
 }
 
 /** Pages de composants UI, groupees par theme. */
@@ -195,6 +214,87 @@ export const COMPONENT_PAGES: readonly DocPage[] = [
   },
 ]
 
+/** Pages de la categorie Backgrounds. */
+export const BACKGROUND_PAGES: readonly DocPage[] = [
+  {
+    path: '/docs/backgrounds',
+    title: 'Fonds animes',
+    description: 'Aurore, Molten — regles en direct, sous contenu de demonstration.',
+    keywords: ['fond', 'background', 'shader', 'webgl', 'aurora', 'molten', 'three'],
+  },
+]
+
+/** Pages de la categorie Text Animations. */
+export const TEXT_PAGES: readonly DocPage[] = [
+  {
+    path: '/docs/text',
+    title: 'Effets de texte',
+    description: 'Revelation, decodage, machine a ecrire, reflet.',
+    keywords: [
+      'texte',
+      'split',
+      'decode',
+      'scramble',
+      'typewriter',
+      'machine a ecrire',
+      'shine',
+      'reflet',
+    ],
+  },
+]
+
+/** Selectionne des pages de composants par leur identifiant, dans l'ordre donne. */
+function pick(names: readonly string[]): readonly DocPage[] {
+  return names.map((name) => {
+    const page = COMPONENT_PAGES.find((entry) => entry.path.endsWith(`/${name}`))
+    if (page === undefined) throw new Error(`Page de composant inconnue : ${name}`)
+    return page
+  })
+}
+
+/**
+ * Composants d'interface, groupes par ce qu'on vient y chercher.
+ *
+ * L'ordre alphabetique est le pire classement possible pour une liste qu'on
+ * parcourt sans savoir ce qu'on cherche : il rapproche `Alert` et `Avatar`,
+ * qui n'ont rien a voir, et separe `Input` de `Textarea`, qui vont ensemble.
+ */
+export const COMPONENT_GROUPS: readonly DocGroup[] = [
+  {
+    title: 'Saisie',
+    pages: pick([
+      'button',
+      'input',
+      'textarea',
+      'select',
+      'checkbox',
+      'radio',
+      'switch',
+      'slider',
+    ]),
+  },
+  {
+    title: 'Affichage',
+    pages: pick([
+      'card',
+      'badge',
+      'avatar',
+      'alert',
+      'separator',
+      'skeleton',
+      'spinner',
+      'progress',
+      'kbd',
+    ]),
+  },
+  { title: 'Navigation', pages: pick(['tabs', 'accordion', 'breadcrumb', 'pagination']) },
+  {
+    title: 'Surcouches',
+    pages: pick(['tooltip', 'popover', 'dropdown-menu', 'dialog', 'drawer', 'toast']),
+  },
+  { title: 'Donnees', pages: pick(['table']) },
+]
+
 /** Toutes les sections, dans l'ordre d'affichage. */
 export const DOC_SECTIONS: readonly DocSection[] = [
   {
@@ -215,7 +315,7 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     ],
   },
   {
-    title: 'Styles',
+    title: 'Fondations',
     pages: [
       {
         path: '/docs/styles',
@@ -226,7 +326,7 @@ export const DOC_SECTIONS: readonly DocSection[] = [
       {
         path: '/docs/styles/couleurs',
         title: 'Couleurs',
-        description: 'Palette de 290 nuances et couche semantique clair/sombre.',
+        description: 'Palette brute de 290 nuances OKLCH. Aucun role.',
         keywords: ['palette', 'oklch', 'theme', 'sombre', 'semantique'],
       },
       {
@@ -264,7 +364,30 @@ export const DOC_SECTIONS: readonly DocSection[] = [
     ],
   },
   {
-    title: 'Animations',
+    title: 'Routeur',
+    pages: [
+      {
+        path: '/docs/router',
+        title: 'Routeur',
+        description: 'Routes imbriquees, parametres, transitions de page.',
+        keywords: ['route', 'navigation', 'link', 'params', 'lazy'],
+      },
+    ],
+  },
+  {
+    title: 'Composants',
+    groups: COMPONENT_GROUPS,
+  },
+  {
+    title: 'Backgrounds',
+    pages: BACKGROUND_PAGES,
+  },
+  {
+    title: 'Text Animations',
+    pages: TEXT_PAGES,
+  },
+  {
+    title: 'Motions',
     pages: [
       {
         path: '/docs/motion',
@@ -289,17 +412,6 @@ export const DOC_SECTIONS: readonly DocSection[] = [
         title: 'Hooks',
         description: 'useAnimate, usePresence, useInView, useScrollProgress.',
         keywords: ['hook', 'useanimate', 'usepresence', 'useinview', 'scroll'],
-      },
-    ],
-  },
-  {
-    title: 'Routeur',
-    pages: [
-      {
-        path: '/docs/router',
-        title: 'Routeur',
-        description: 'Routes imbriquees, parametres, transitions de page.',
-        keywords: ['route', 'navigation', 'link', 'params', 'lazy'],
       },
     ],
   },
@@ -385,13 +497,14 @@ export const DOC_SECTIONS: readonly DocSection[] = [
       },
     ],
   },
-  {
-    title: 'Composants',
-    pages: COMPONENT_PAGES,
-  },
 ]
+
+/** Toutes les pages d'une section, sous-groupes compris. */
+export function sectionPages(section: DocSection): readonly DocPage[] {
+  return section.pages ?? (section.groups ?? []).flatMap((group) => group.pages)
+}
 
 /** Liste a plat de toutes les pages, avec leur section. */
 export const ALL_PAGES: readonly (DocPage & { section: string })[] = DOC_SECTIONS.flatMap(
-  (section) => section.pages.map((page) => ({ ...page, section: section.title })),
+  (section) => sectionPages(section).map((page) => ({ ...page, section: section.title })),
 )

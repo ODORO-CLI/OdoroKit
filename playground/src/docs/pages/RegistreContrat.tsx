@@ -73,7 +73,7 @@ export function RegistreContrat(): ReactElement {
       >
         {({ progress }) => (
           <div className="o-flex o-justify-end o-p-3">
-            <span className="o-rounded-full o-glass o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-px-3 o-py-1 o-text-xs o-font-mono o-tabular-nums">
+            <span className="o-rounded-full o-glass dark:o-glass-dark o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-px-3 o-py-1 o-text-xs o-font-mono o-tabular-nums">
               lecture {Math.round(progress * 100)} %
             </span>
           </div>
