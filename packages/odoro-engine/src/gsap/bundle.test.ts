@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -57,9 +57,29 @@ describe('chargement a la demande', () => {
 describe.runIf(existsSync(join(DIST, 'index.js')))('bundle produit', () => {
   const bundle = readFileSync(join(DIST, 'index.js'), 'utf8')
 
+  it('ne fait entrer aucun moteur de rendu 3D dans l entree principale', () => {
+    // Le moteur de rendu 3D pese un ordre de grandeur de plus que le backend
+    // leger. Un site qui n'affiche qu'une animation de texte ne doit pas en
+    // telecharger une ligne : la garantie se verifie, elle ne s'affirme pas.
+    expect(bundle).not.toContain('three')
+    expect(bundle).not.toContain('WebGLRenderer')
+  })
+
+  it('conserve le backend leger en import dynamique', () => {
+    expect(bundle).toContain("import('ogl')")
+  })
+
   it('conserve les plugins en imports dynamiques', () => {
+    // Le decoupage peut deplacer ce code dans un fragment partage entre les
+    // deux entrees : c'est l'ensemble du bundle qui doit etre inspecte, pas la
+    // seule entree principale.
+    const all = readdirSync(DIST)
+      .filter((entry) => entry.endsWith('.js'))
+      .map((entry) => readFileSync(join(DIST, entry), 'utf8'))
+      .join('\n')
+
     for (const plugin of LAZY_PLUGINS) {
-      expect(bundle).toContain(`import('gsap/${plugin}')`)
+      expect(all).toContain(`import('gsap/${plugin}')`)
     }
   })
 
@@ -82,3 +102,44 @@ describe.runIf(existsSync(join(DIST, 'index.js')))('bundle produit', () => {
     expect(kilobytes).toBeLessThan(60)
   })
 })
+
+describe.runIf(existsSync(join(DIST, 'three', 'index.js')))(
+  'entree du backend 3D',
+  () => {
+    const bundle = readFileSync(join(DIST, 'three', 'index.js'), 'utf8')
+
+    it('charge le moteur de rendu dynamiquement', () => {
+      // La separation d'entree ne suffit pas : sans import dynamique, importer
+      // ce module ferait entrer le moteur de rendu dans le fragment initial de
+      // l'appelant.
+      expect(bundle).toContain("import('three')")
+      expect(bundle).not.toMatch(/^import .* from ['"]three['"]/m)
+    })
+
+    it('n inline pas le moteur de rendu', () => {
+      // La comparaison de taille est la preuve la plus honnete : chercher des
+      // noms comme `WebGLRenderer` echouerait sur un simple site d'appel.
+      const upstream = resolve(
+        ROOT,
+        '..',
+        '..',
+        'node_modules',
+        'three',
+        'build',
+        'three.core.js',
+      )
+
+      if (!existsSync(upstream)) return
+
+      const ratio = Buffer.byteLength(bundle) / statSync(upstream).size
+      expect(ratio).toBeLessThan(0.05)
+    })
+
+    it('reste minuscule', () => {
+      // Cette entree ne contient que la logique du moteur : le poids reel est
+      // paye a l'import dynamique, et seulement par qui l'utilise.
+      const kilobytes = Buffer.byteLength(bundle) / 1024
+      expect(kilobytes).toBeLessThan(30)
+    })
+  },
+)

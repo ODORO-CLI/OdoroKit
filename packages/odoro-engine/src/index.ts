@@ -112,3 +112,28 @@ export {
   type SplitTextHandle,
   type SplitTextOptions,
 } from './gsap/use-split-text.js'
+
+export {
+  surfaceManager,
+  type RefusalReason,
+  type Surface,
+  type SurfaceBackend,
+  type SurfaceManagerInstance,
+  type SurfaceManagerOptions,
+  type SurfaceRequest,
+  type SurfaceResult,
+} from './gl/surface-manager.js'
+
+export {
+  useShaderSurface,
+  type ShaderSurfaceHandle,
+  type ShaderSurfaceOptions,
+  type UniformValue,
+} from './gl/ogl/use-shader-surface.js'
+
+export {
+  AURORA_FRAGMENT,
+  FULLSCREEN_VERTEX,
+  GRID_FRAGMENT,
+  NOISE_FUNCTIONS,
+} from './gl/ogl/shaders.js'

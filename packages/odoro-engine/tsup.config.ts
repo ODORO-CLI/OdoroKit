@@ -8,7 +8,7 @@ import { defineConfig } from 'tsup'
  * retirer les notices de propriete, et l'inliner reviendrait a le vendorer.
  */
 export default defineConfig({
-  entry: { index: 'src/index.ts' },
+  entry: { index: 'src/index.ts', 'three/index': 'src/three/index.ts' },
   format: ['esm'],
   target: 'es2022',
   platform: 'browser',
@@ -17,5 +17,5 @@ export default defineConfig({
   treeshake: true,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'react/jsx-runtime', 'gsap'],
+  external: ['react', 'react-dom', 'react/jsx-runtime', 'gsap', 'ogl', 'three'],
 })

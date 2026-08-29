@@ -65,3 +65,35 @@ l'interdiction.
 timeline arbitraire sur un canevas visuel et de l'exporter sans ecrire une
 ligne de code, cet usage basculerait dans l'interdit. Le panneau de diagnostic
 du moteur est volontairement en lecture seule pour cette raison.
+
+## OGL
+
+Backend graphique leger du moteur, charge a la demande pour les effets plein
+ecran en shader de fragment.
+
+> OGL est place dans le **domaine public** sous la licence Unlicense.
+
+Aucune notice n'est donc juridiquement exigee. Elle figure ici par correction :
+un travail dont on se sert merite d'etre nomme, licence ou pas.
+
+## Three.js
+
+Backend graphique du moteur pour les scenes 3D veritables — camera, eclairage,
+materiaux, profondeur. Charge exclusivement par import dynamique, depuis
+l'entree `odoro-engine/three`.
+
+> Copyright (c) 2010 three.js authors — licence MIT
+
+## Shaders
+
+Les shaders livres avec le moteur sont ecrits depuis leurs principes : fonction
+de hachage, bruit de valeur a interpolation lissee, somme d'octaves,
+deplacement de domaine, deduction de lignes par derivee d'ecran. Aucun n'est
+repris d'une implementation trouvee en ligne.
+
+Ce n'est pas une precaution excessive. Beaucoup de shaders partages
+publiquement le sont sous des licences non commerciales, et la ressemblance
+entre deux implementations d'une meme technique rend l'origine difficile a
+etablir apres coup. La mathematique sous-jacente est de toute facon plus courte
+a redemontrer qu'a verifier juridiquement — et chaque fonction porte
+l'explication de ce qu'elle fait et pourquoi.
