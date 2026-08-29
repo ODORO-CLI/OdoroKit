@@ -66,6 +66,30 @@ export default tseslint.config(
     },
   },
   {
+    /*
+     * Le socle serveur : `process.env` ne se lit qu'a un seul endroit.
+     *
+     * Une lecture ailleurs echappe a la validation de demarrage, au typage et
+     * au rapport d'erreur — et se manifeste a la centieme requete, sur la
+     * variable que personne n'avait pensee a definir. La regle rend la lecture
+     * impossible partout sauf dans `config.ts`, qui la desactive nommement.
+     */
+    files: ['packages/odoro-server/**/*.ts'],
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'process',
+          property: 'env',
+          message:
+            'Lisez la configuration validee (`loadConfig`) plutot que process.env : ' +
+            'une lecture directe echappe a la validation de demarrage.',
+        },
+      ],
+      'no-process-env': 'off',
+    },
+  },
+  {
     // Le CLI ecrit sur stdout : c'est sa raison d'etre.
     files: [
       'packages/create-odoro/**/*.ts',

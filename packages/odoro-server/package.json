@@ -1,0 +1,42 @@
+{
+  "name": "odoro-server",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "UNLICENSED",
+  "author": "BouBouw",
+  "description": "Socle back-end Odoro : noyau Express typé, conteneur de services, modules, erreurs RFC 9457.",
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "pino": "^9.5.0",
+    "zod": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.18.8",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.1.1",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
