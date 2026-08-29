@@ -69,7 +69,7 @@ const TOKEN_USE = /var\(\s*(--o-[a-z0-9-]+)|['"`](--o-[a-z0-9-]+)['"`]/g
  * pour des couleurs : elles contiennent des lettres hors de l'alphabet
  * hexadecimal, et la limite de mot empeche une correspondance partielle.
  */
-const HARD_COLOUR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g
+const HARD_COLOUR = /(?<!&)#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/g
 
 /** Un manquement au contrat. */
 export interface ContractProblem {

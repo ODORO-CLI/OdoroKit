@@ -80,10 +80,7 @@ function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement
           ))}
 
           {(section.groups ?? []).map((group) => (
-            <div
-              key={group.title}
-              className="o-flex o-flex-col o-gap-1 o-mt-2 first:o-mt-0"
-            >
+            <div key={group.title} className="o-flex o-flex-col o-gap-1 o-pt-2">
               <p className="o-px-3 o-text-xs o-font-medium o-text-zinc-400 dark:o-text-zinc-600 o-opacity-80">
                 {group.title}
               </p>
@@ -190,7 +187,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         style={{ paddingTop: HEADER_OFFSET }}
       >
         <aside
-          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-py-8 o-pr-6 o-border-r o-border-zinc-100 dark:o-border-zinc-900"
+          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-py-8 o-pr-6 o-border-r o-border-zinc-100 dark:o-border-zinc-900"
           style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
         >
           <SectionLinks />
@@ -211,7 +208,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
             onClick={() => setMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-white dark:o-bg-zinc-900 o-shadow-xl o-overflow-y-auto o-p-4 o-animate-slide-in-left o-animate-duration-fast">
+          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-white dark:o-bg-zinc-900 o-shadow-xl o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-4 o-animate-slide-in-left o-animate-duration-fast">
             <SectionLinks onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>

@@ -35,6 +35,7 @@ const PAGES = [
   '/docs/registre/galerie',
   '/docs/backgrounds',
   '/docs/text',
+  '/docs/motion/librairie',
 ]
 
 const failures = []

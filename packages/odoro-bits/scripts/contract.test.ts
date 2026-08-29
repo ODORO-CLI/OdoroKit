@@ -217,6 +217,16 @@ describe('regle 3 — aucune couleur en dur', () => {
     expect(problems).toEqual([])
   })
 
+  it('ne prend pas une entite HTML pour une couleur', () => {
+    // `&#8249;` est un chevron typographique. Sans exclusion, tout composant
+    // employant un caractere de ce genre se voyait reprocher une couleur qu il
+    // n avait pas ecrite.
+    const problems = checkContract(meta({ category: 'hooks', name: 'use-x' }), {
+      'a.ts': 'const chevrons = ["&#8249;", "&#8250;"]',
+    })
+    expect(problems).toEqual([])
+  })
+
   it('ne cite que les premieres occurrences', () => {
     const problems = checkContract(meta({ category: 'hooks', name: 'use-x' }), {
       'a.ts': "'#111' '#222' '#333' '#444' '#555'",

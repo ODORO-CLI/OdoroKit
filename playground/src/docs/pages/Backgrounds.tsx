@@ -8,78 +8,13 @@
  * @module
  */
 
-import { useState, type ReactElement } from 'react'
+import { type ReactElement } from 'react'
 
 import { Aurora } from '@/odoro/background/Aurora.jsx'
 import { Molten } from '@/odoro/hero/Molten.jsx'
 import { Atelier } from '../components/Atelier.jsx'
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
-
-/** Le heros, monte a la demande : il telecharge cent trente kilo-octets. */
-function MoltenDemo(): ReactElement {
-  const [mounted, setMounted] = useState(false)
-
-  return (
-    <Atelier
-      height="o-h-96"
-      controls={[
-        {
-          kind: 'range',
-          name: 'amplitude',
-          label: 'Deformation',
-          min: 0,
-          max: 0.7,
-          step: 0.01,
-          value: 0.28,
-        },
-        {
-          kind: 'range',
-          name: 'glow',
-          label: 'Halo',
-          min: 0,
-          max: 3,
-          step: 0.1,
-          value: 0.8,
-        },
-        {
-          kind: 'range',
-          name: 'parallax',
-          label: 'Pointeur',
-          min: 0,
-          max: 1,
-          step: 0.05,
-          value: 0.25,
-        },
-      ]}
-    >
-      {(values) =>
-        mounted ? (
-          <Molten
-            className="o-absolute o-inset-0"
-            amplitude={values['amplitude'] as number}
-            glow={values['glow'] as number}
-            parallax={values['parallax'] as number}
-          />
-        ) : (
-          <div className="o-absolute o-inset-0 o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-p-6 o-text-center">
-            <p className="o-max-w-sm o-text-sm o-opacity-80">
-              Cette scene telecharge environ 130 Ko compresses. Elle n est pas montee tant
-              que vous ne le demandez pas.
-            </p>
-            <button
-              type="button"
-              onClick={() => setMounted(true)}
-              className="o-h-9 o-px-4 o-text-sm o-rounded-md o-border-w-1 o-border-current o-cursor-pointer"
-            >
-              Monter la scene
-            </button>
-          </div>
-        )
-      }
-    </Atelier>
-  )
-}
 
 /** Page de la categorie Backgrounds. */
 export function Backgrounds(): ReactElement {
@@ -153,7 +88,51 @@ export function Backgrounds(): ReactElement {
         title="Molten"
         lead="Une masse en fusion, deformee par un bruit tridimensionnel. C'est le composant le plus cher du registre, et la CLI l'annonce avant d'ecrire."
       >
-        <MoltenDemo />
+        <Atelier
+          height="o-h-96"
+          deferred={{
+            label: 'Scene',
+            hint: 'Cette scene telecharge environ 130 Ko compresses. L interrupteur « Scene » du panneau la monte quand vous le decidez.',
+          }}
+          controls={[
+            {
+              kind: 'range',
+              name: 'amplitude',
+              label: 'Deformation',
+              min: 0,
+              max: 0.7,
+              step: 0.01,
+              value: 0.28,
+            },
+            {
+              kind: 'range',
+              name: 'glow',
+              label: 'Halo',
+              min: 0,
+              max: 3,
+              step: 0.1,
+              value: 0.8,
+            },
+            {
+              kind: 'range',
+              name: 'parallax',
+              label: 'Pointeur',
+              min: 0,
+              max: 1,
+              step: 0.05,
+              value: 0.25,
+            },
+          ]}
+        >
+          {(values) => (
+            <Molten
+              className="o-absolute o-inset-0"
+              amplitude={values['amplitude'] as number}
+              glow={values['glow'] as number}
+              parallax={values['parallax'] as number}
+            />
+          )}
+        </Atelier>
 
         <Callout tone="warning">
           Environ 130 Ko compresses au premier affichage, contre 13 pour le backend leger.

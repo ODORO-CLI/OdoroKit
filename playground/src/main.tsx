@@ -19,6 +19,11 @@ loadGoogleFonts([
 applyFontFamily('sans', 'Inter')
 applyFontFamily('mono', 'JetBrains Mono')
 
+// La barre de defilement du document ne peut pas etre habillee par une classe
+// applicative : elle appartient a l'element racine, qui est hors de l'arbre
+// React. Elle est donc posee ici, une fois.
+document.documentElement.classList.add('o-scrollbar', 'dark:o-scrollbar-dark')
+
 const container = document.getElementById('root')
 if (container === null) throw new Error('Element racine "#root" introuvable.')
 

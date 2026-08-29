@@ -1,0 +1,39 @@
+{
+  "name": "border-beam",
+  "category": "effect",
+  "title": "Trait de bordure",
+  "description": "Un trait lumineux parcourt le contour d un element, en boucle.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "effect/BorderBeam.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 4000,
+      "unit": "ms",
+      "description": "Duree d un tour complet."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait."
+    },
+    { "name": "color", "type": "string", "description": "Couleur du trait." },
+    {
+      "name": "trail",
+      "type": "number",
+      "default": 25,
+      "description": "Longueur de la trainee, en pourcentage du contour."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique anime par le compositeur. Aucun JavaScript par image."
+  }
+}

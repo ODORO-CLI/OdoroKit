@@ -85,6 +85,15 @@ export interface AtelierProps {
   readonly background?: string
   /** Couleur de texte de depart. @defaultValue blanc */
   readonly color?: string
+  /**
+   * Rend la preview differee, derriere un interrupteur.
+   *
+   * Un composant qui telecharge cent trente kilo-octets ne doit pas se monter
+   * parce qu'on a fait defiler la page jusqu'a lui. L'interrupteur vit dans le
+   * panneau, jamais dans le cadre : le contenu de demonstration se pose
+   * par-dessus la preview, et recouvrirait tout ce qu'on y placerait.
+   */
+  readonly deferred?: { readonly label: string; readonly hint: string }
   /** Ce qui est presente. */
   readonly children: (values: AtelierValues, frame: AtelierFrame) => ReactNode
 }
@@ -171,8 +180,10 @@ export function Atelier({
   demoByDefault = true,
   background = palette['zinc-950'] ?? '#09090b',
   color = palette.white ?? '#ffffff',
+  deferred,
   children,
 }: AtelierProps): ReactElement {
+  const [mounted, setMounted] = useState(false)
   const [frameBackground, setBackground] = useState(background)
   const [frameColor, setColor] = useState(color)
   const [radius, setRadius] = useState(12)
@@ -203,9 +214,19 @@ export function Atelier({
         className={`o-relative o-w-full o-overflow-hidden o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 ${height}`}
         style={surface}
       >
-        {children(values, frame)}
+        {deferred === undefined || mounted ? (
+          children(values, frame)
+        ) : (
+          <div className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-p-8">
+            <p className="o-max-w-sm o-text-center o-text-sm o-opacity-70">
+              {deferred.hint}
+            </p>
+          </div>
+        )}
         {demo ? (
-          <div className="o-absolute o-inset-0">
+          // Le contenu de demonstration est decoratif : il ne doit jamais
+          // intercepter un clic destine a la preview.
+          <div className="o-absolute o-inset-0 o-pointer-events-none">
             <DemoContent color={frameColor} radius={radius} />
           </div>
         ) : null}
@@ -243,6 +264,33 @@ export function Atelier({
               {radius} px
             </span>
           </label>
+
+          {deferred === undefined ? null : (
+            <label className="o-flex o-items-center o-gap-2">
+              <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                {deferred.label}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={mounted}
+                onClick={() => setMounted(!mounted)}
+                className={`o-h-6 o-w-11 o-rounded-full o-border-w-1 o-cursor-pointer o-transition-colors ${
+                  mounted
+                    ? 'o-bg-brand-500 o-border-brand-500'
+                    : 'o-bg-zinc-200 dark:o-bg-zinc-800 o-border-zinc-300 dark:o-border-zinc-700'
+                }`}
+              >
+                <span
+                  className="o-block o-size-4 o-rounded-full o-bg-white o-transition-transform"
+                  style={{ transform: `translateX(${mounted ? '22px' : '2px'})` }}
+                />
+              </button>
+              <span className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                {mounted ? 'montee' : 'non montee'}
+              </span>
+            </label>
+          )}
 
           <label className="o-flex o-items-center o-gap-2">
             <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">

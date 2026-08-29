@@ -15,12 +15,66 @@
         }
       ]
     },
+    "effect/border-beam": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/BorderBeam.tsx",
+          "hash": "f8b4a976a87d48e3"
+        }
+      ]
+    },
+    "effect/carousel": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Carousel.tsx",
+          "hash": "0e754df02a397678"
+        }
+      ]
+    },
+    "effect/magnetic": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Magnetic.tsx",
+          "hash": "d84e2471fc127429"
+        }
+      ]
+    },
+    "effect/marquee": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Marquee.tsx",
+          "hash": "606ece49c16e5394"
+        }
+      ]
+    },
+    "effect/parallax": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Parallax.tsx",
+          "hash": "9a6f5a1db13c8916"
+        }
+      ]
+    },
     "effect/scroll-progress": {
       "installedAt": "2026-08-29T02:23:39.104Z",
       "files": [
         {
           "path": "src/odoro/effect/ScrollProgress.tsx",
           "hash": "ed44079c41d78bef"
+        }
+      ]
+    },
+    "effect/spotlight": {
+      "installedAt": "2026-08-29T02:52:09.485Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Spotlight.tsx",
+          "hash": "988a4d29e27f608d"
         }
       ]
     },

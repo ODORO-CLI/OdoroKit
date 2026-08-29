@@ -1,0 +1,36 @@
+{
+  "name": "spotlight",
+  "category": "effect",
+  "title": "Halo de pointeur",
+  "description": "Un halo suit le curseur sur une carte, et s eteint quand il la quitte.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "effect/Spotlight.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 320,
+      "unit": "px",
+      "description": "Diametre du halo."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du halo. Une valeur, pas un role."
+    },
+    {
+      "name": "border",
+      "type": "boolean",
+      "default": true,
+      "description": "Eclaire aussi la bordure."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux variables CSS ecrites au deplacement du pointeur. Aucun rendu React."
+  }
+}

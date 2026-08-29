@@ -1,0 +1,49 @@
+{
+  "name": "carousel",
+  "category": "effect",
+  "title": "Carrousel",
+  "description": "Un rail d images ou de cartes, au clavier, au pointeur et au geste.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "effect/Carousel.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les diapositives."
+    },
+    {
+      "name": "perView",
+      "type": "number",
+      "default": 1,
+      "description": "Diapositives visibles a la fois."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Ecart entre deux diapositives."
+    },
+    {
+      "name": "loop",
+      "type": "boolean",
+      "default": false,
+      "description": "Revient au debut apres la derniere."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du carrousel, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le defilement natif fait le travail : pas de boucle, pas de transform pilote a la main."
+  }
+}

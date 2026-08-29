@@ -66,13 +66,21 @@ function tokenize(code: string): Token[] {
 }
 
 /** Couleurs par lexeme, en variables de palette : stables dans les deux themes. */
-const TOKEN_COLORS: Record<Token['kind'], string | undefined> = {
-  comment: 'var(--o-palette-zinc-500)',
-  string: 'var(--o-palette-emerald-300)',
-  keyword: 'var(--o-palette-sky-300)',
-  tag: 'var(--o-palette-fuchsia-300)',
-  number: 'var(--o-palette-amber-300)',
-  plain: undefined,
+/**
+ * Couleurs de coloration syntaxique, par theme.
+ *
+ * Elles passent par des classes plutot que par un style en ligne : un style en
+ * ligne ne peut pas porter de variant, et le bloc restait donc sombre au
+ * milieu d'une page claire. Les nuances basses conviennent au fond clair, les
+ * hautes au fond sombre — l'inverse manquerait de contraste dans les deux cas.
+ */
+const TOKEN_CLASS: Record<Token['kind'], string> = {
+  comment: 'o-text-zinc-400 dark:o-text-zinc-500',
+  string: 'o-text-emerald-600 dark:o-text-emerald-300',
+  keyword: 'o-text-sky-600 dark:o-text-sky-300',
+  tag: 'o-text-fuchsia-600 dark:o-text-fuchsia-300',
+  number: 'o-text-amber-600 dark:o-text-amber-300',
+  plain: '',
 }
 
 /** Proprietes de {@link CodeBlock}. */
@@ -101,10 +109,11 @@ function CopyButton({ code }: { code: string }): ReactElement {
           setTimeout(() => setCopied(false), 1600)
         })
       }}
-      className="o-inline-flex o-items-center o-gap-1 o-rounded-sm o-px-2 o-py-1 o-text-xs o-transition-colors o-cursor-pointer"
-      style={{
-        color: copied ? 'var(--o-palette-emerald-400)' : 'var(--o-palette-zinc-400)',
-      }}
+      className={`o-inline-flex o-items-center o-gap-1 o-rounded-sm o-px-2 o-py-1 o-text-xs o-transition-colors o-cursor-pointer ${
+        copied
+          ? 'o-text-emerald-600 dark:o-text-emerald-400'
+          : 'o-text-zinc-500 dark:o-text-zinc-400'
+      }`}
     >
       {copied ? (
         <svg
@@ -157,20 +166,10 @@ export function CodeBlock({
 
   return (
     <div
-      className={`o-rounded-lg o-overflow-hidden o-border-w-1 ${className ?? ''}`}
-      style={{
-        backgroundColor: 'var(--o-palette-zinc-950)',
-        borderColor: 'var(--o-palette-zinc-800)',
-      }}
+      className={`o-rounded-lg o-overflow-hidden o-border-w-1 o-bg-zinc-50 dark:o-bg-zinc-950 o-border-zinc-200 dark:o-border-zinc-800 ${className ?? ''}`}
     >
-      <div
-        className="o-flex o-items-center o-justify-between o-px-3 o-py-1 o-border-b"
-        style={{ borderColor: 'var(--o-palette-zinc-800)' }}
-      >
-        <span
-          className="o-text-xs o-font-mono"
-          style={{ color: 'var(--o-palette-zinc-500)' }}
-        >
+      <div className="o-flex o-items-center o-justify-between o-px-3 o-py-1 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
+        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
           {lang ?? 'tsx'}
         </span>
         <span className="o-inline-flex o-items-center o-gap-1">
@@ -178,13 +177,13 @@ export function CodeBlock({
           <CopyButton code={trimmed} />
         </span>
       </div>
-      <pre className="o-overflow-x-auto o-p-4 o-text-sm o-leading-relaxed">
-        <code style={{ color: 'var(--o-palette-zinc-100)' }}>
+      <pre className="o-overflow-x-auto o-scrollbar dark:o-scrollbar-dark o-p-4 o-text-sm o-leading-relaxed">
+        <code className="o-text-zinc-800 dark:o-text-zinc-100">
           {tokenize(trimmed).map((token, index) =>
-            token.kind === 'plain' && TOKEN_COLORS[token.kind] === undefined ? (
+            token.kind === 'plain' ? (
               token.text
             ) : (
-              <span key={index} style={{ color: TOKEN_COLORS[token.kind] }}>
+              <span key={index} className={TOKEN_CLASS[token.kind]}>
                 {token.text}
               </span>
             ),

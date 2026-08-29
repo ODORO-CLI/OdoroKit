@@ -276,17 +276,93 @@ function entriesFingerprint(root: string, specifiers: readonly string[]): string
   const resolver = createRequire(pathToFileURL(join(root, 'package.json')))
   const parts: string[] = []
 
-  for (const specifier of specifiers) {
-    try {
-      const entry = resolver.resolve(specifier)
-      const stats = statSync(entry)
-      parts.push(`${specifier}:${String(stats.mtimeMs)}:${String(stats.size)}`)
-    } catch {
-      parts.push(`${specifier}:absent`)
-    }
+  for (const name of packageNames(specifiers)) {
+    parts.push(`${name}:${packageFingerprint(name, resolver)}`)
   }
 
   return parts.join('|')
+}
+
+/** Ramene des specificateurs a la liste des paquets qu'ils designent. */
+function packageNames(specifiers: readonly string[]): string[] {
+  const names = new Set<string>()
+
+  for (const specifier of specifiers) {
+    const segments = specifier.split('/')
+    names.add(
+      specifier.startsWith('@') && segments.length > 1
+        ? `${segments[0] ?? ''}/${segments[1] ?? ''}`
+        : (segments[0] ?? specifier),
+    )
+  }
+
+  return [...names].sort()
+}
+
+/**
+ * Empreinte des fichiers qu'un paquet publie.
+ *
+ * ## Pourquoi ne pas resoudre le specificateur directement
+ *
+ * `require.resolve` applique la condition `require`. Un paquet ESM pur n'en
+ * declare pas, la resolution echoue, et l'empreinte devient constante : le
+ * cache ne s'invalide plus jamais. C'etait le cas de tous les paquets du
+ * depot, c'est-a-dire exactement ceux qu'on recompile dix fois par jour.
+ *
+ * Le manifeste, lui, est toujours atteignable — `./package.json` figure dans
+ * la carte d'exports de tout paquet correct, et le resolveur retombe sinon sur
+ * le chemin de fichier. De la, les cibles declarees dans `exports` donnent les
+ * fichiers reellement servis.
+ */
+function packageFingerprint(name: string, resolver: NodeJS.Require): string {
+  let manifestPath: string
+  try {
+    manifestPath = resolver.resolve(`${name}/package.json`)
+  } catch {
+    return 'introuvable'
+  }
+
+  let manifest: { exports?: unknown; main?: unknown; module?: unknown }
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as typeof manifest
+  } catch {
+    return 'illisible'
+  }
+
+  const directory = dirname(manifestPath)
+  const targets = new Set<string>()
+
+  /** Releve toute chaine ressemblant a un chemin de fichier. */
+  const collect = (node: unknown): void => {
+    if (typeof node === 'string') {
+      if (node.startsWith('./')) targets.add(node)
+      return
+    }
+    if (typeof node === 'object' && node !== null) {
+      for (const value of Object.values(node)) collect(value)
+    }
+  }
+
+  collect(manifest.exports)
+  collect(manifest.main)
+  collect(manifest.module)
+
+  const parts: string[] = [String(statSafe(manifestPath))]
+  for (const target of [...targets].sort()) {
+    parts.push(`${target}:${String(statSafe(join(directory, target)))}`)
+  }
+
+  return parts.join(',')
+}
+
+/** Date et taille d'un fichier, ou zero s'il n'existe pas. */
+function statSafe(path: string): string {
+  try {
+    const stats = statSync(path)
+    return `${String(stats.mtimeMs)}-${String(stats.size)}`
+  } catch {
+    return '0'
+  }
 }
 
 /**

@@ -44,8 +44,10 @@ sans réinstallation.
 | `pnpm format`    | Prettier en écriture.                                   |
 | `pnpm changeset` | Décrit une modification en vue de la prochaine version. |
 
-Quatre vérifications passent par un vrai navigateur, le serveur du playground
-étant démarré : `pnpm check:smoke` (réseau, exécution, navigation),
+Cinq vérifications passent par un vrai navigateur, le serveur du playground
+étant démarré : `pnpm check:classes` (aucune classe employée n'est absente de
+la feuille — le défaut le plus silencieux d'un système statique),
+`pnpm check:smoke` (réseau, exécution, navigation),
 `pnpm check:moteur` (les pages du moteur et du registre : contenu réel,
 compteur d'images qui avance, canevas WebGL qui peint), `pnpm check:galerie`
 (les composants du registre : shaders qui compilent, replis qui disparaissent,
@@ -106,8 +108,8 @@ Une documentation par sous-module, avec des exemples exécutables :
 
 **Pas de moteur JIT pour les styles.** Les tokens sont la source de vérité ; un
 script en dérive une feuille statique. Aucune analyse du code applicatif,
-aucune étape à l'exécution. Le prix est un fichier de taille fixe : 52 Ko
-compressés (brotli) pour la feuille de base, 76 Ko pour celle qui expose les
+aucune étape à l'exécution. Le prix est un fichier de taille fixe : 56 Ko
+compressés (brotli) pour la feuille de base, 82 Ko pour celle qui expose les
 290 nuances. On importe l'une **ou** l'autre.
 
 **Pas de couche sémantique.** Une couleur se désigne par sa place dans la

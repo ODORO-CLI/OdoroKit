@@ -65,7 +65,7 @@ export interface SliderProps extends Omit<
  *
  * S'appuie sur l'input natif `type="range"` : clavier, tactile et lecteurs
  * d'ecran sont pris en charge par le navigateur ; la couleur vient de
- * `accent-color` via `o-accent-primary` (ou le registre danger en erreur).
+ * `accent-color` via `o-accent-brand-600 dark:o-accent-brand-400` (ou le registre danger en erreur).
  *
  * @example
  * <Slider
@@ -149,7 +149,9 @@ export function Slider({
         disabled={disabled}
         className={cx(
           'o-w-full',
-          invalid ? 'o-accent-danger' : 'o-accent-primary',
+          invalid
+            ? 'o-accent-red-600 dark:o-accent-red-400'
+            : 'o-accent-brand-600 dark:o-accent-brand-400',
           disabled ? 'o-opacity-50 o-cursor-not-allowed' : 'o-cursor-pointer',
           className,
         )}

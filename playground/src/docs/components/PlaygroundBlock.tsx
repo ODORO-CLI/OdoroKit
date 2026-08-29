@@ -90,7 +90,7 @@ function ControlField({
           type="checkbox"
           checked={value === true}
           onChange={(event) => onChange(event.target.checked)}
-          className="o-accent-primary o-size-4"
+          className="o-accent-brand-600 dark:o-accent-brand-400 o-size-4"
         />
       </label>
     )

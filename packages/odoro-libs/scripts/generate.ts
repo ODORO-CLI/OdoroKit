@@ -472,6 +472,12 @@ const FAMILIES: readonly Family[] = [
         [1, 2, 3, 4].map((n) => [`row-span-${n}`, `grid-row:span ${n} / span ${n}`]),
       ),
       'row-span-full': 'grid-row:1 / -1',
+      // Le pendant de `col-start-*` : superposer deux elements dans la meme
+      // cellule demande de nommer la ligne autant que la colonne.
+      ...Object.fromEntries(
+        [1, 2, 3, 4, 5, 6, 7].map((n) => [`row-start-${n}`, `grid-row-start:${n}`]),
+      ),
+      'row-auto': 'grid-row:auto',
       'place-items-center': 'place-items:center',
       'place-content-center': 'place-content:center',
       'place-self-center': 'place-self:center',
@@ -696,6 +702,71 @@ const FAMILIES: readonly Family[] = [
     })),
   },
   {
+    title: 'Barres de defilement',
+    tier: 'core',
+    // Le theme se dit sur la classe, comme partout ailleurs : aucune variable
+    // ne bascule plus toute seule.
+    variants: ['dark'],
+    /*
+     * Deux ecritures pour un seul resultat.
+     *
+     * `scrollbar-width` et `scrollbar-color` sont la propriete standard, et
+     * c'est celle qu'il faut ecrire. Elle ne permet cependant ni d'arrondir le
+     * curseur, ni de regler son epaisseur finement, et une partie des
+     * navigateurs ne la connait pas encore.
+     *
+     * Le pseudo-element `::-webkit-scrollbar` couvre ces cas. Les deux
+     * coexistent sans se contredire : un navigateur applique celle qu'il
+     * comprend, et la standard l'emporte la ou les deux existent.
+     */
+    rules: {
+      scrollbar: [
+        'scrollbar-width:thin',
+        'scrollbar-color:var(--o-scrollbar-thumb) var(--o-scrollbar-track)',
+        '--o-scrollbar-thumb:' + palette['zinc-300'],
+        '--o-scrollbar-track:transparent',
+      ].join(';'),
+      'scrollbar-dark': [
+        '--o-scrollbar-thumb:' + palette['zinc-700'],
+        '--o-scrollbar-track:transparent',
+      ].join(';'),
+      'scrollbar-stable': 'scrollbar-gutter:stable',
+    },
+  },
+  {
+    title: 'Barres de defilement — pseudo-elements',
+    tier: 'core',
+    variants: [],
+    selectorSuffix: '::-webkit-scrollbar',
+    rules: {
+      scrollbar: 'width:8px;height:8px',
+      'scrollbar-none': 'display:none',
+    },
+  },
+  {
+    title: 'Barres de defilement — rail',
+    tier: 'core',
+    variants: [],
+    selectorSuffix: '::-webkit-scrollbar-track',
+    rules: { scrollbar: 'background:var(--o-scrollbar-track)' },
+  },
+  {
+    title: 'Barres de defilement — curseur',
+    tier: 'core',
+    variants: [],
+    selectorSuffix: '::-webkit-scrollbar-thumb',
+    rules: {
+      scrollbar: [
+        'background:var(--o-scrollbar-thumb)',
+        'border-radius:9999px',
+        // Une bordure transparente amincit le curseur sans reduire la zone
+        // qu'on peut attraper au pointeur.
+        'border:2px solid transparent',
+        'background-clip:content-box',
+      ].join(';'),
+    },
+  },
+  {
     title: 'Voiles',
     tier: 'core',
     variants: [],
@@ -731,7 +802,9 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Degrades',
     tier: 'core',
-    variants: [],
+    // Le theme s'ecrit desormais sur la classe : un jalon de degrade en a
+    // besoin autant qu'un fond.
+    variants: ['dark'],
     rules: merge(
       {
         'bg-none': 'background-image:none',
@@ -762,7 +835,7 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Bordures',
     tier: 'core',
-    variants: STATEFUL,
+    variants: [...STATEFUL, ...RESPONSIVE],
     rules: merge(
       fromScale('border', borderWidth, (token, key) => ({
         [`border-w-${key}`]: `border-width:${token};border-style:solid`,
@@ -1010,6 +1083,11 @@ const FAMILIES: readonly Family[] = [
       fromScale('space', space, (token, key) => ({
         [`w-${key}`]: `width:${token}`,
         [`h-${key}`]: `height:${token}`,
+        // Une hauteur minimale sur l'echelle d'espacement : reserver la place
+        // d'un contenu qui n'est pas encore la est un besoin courant, et le
+        // seul recours etait sinon un style en ligne.
+        [`min-h-${key}`]: `min-height:${token}`,
+        [`min-w-${key}`]: `min-width:${token}`,
         [`size-${key}`]: `width:${token};height:${token}`,
       })),
       Object.fromEntries(
@@ -1033,12 +1111,11 @@ const FAMILIES: readonly Family[] = [
         'h-screen': 'height:100dvh',
         'h-svh': 'height:100svh',
         'h-fit': 'height:fit-content',
-        'min-w-0': 'min-width:0',
         'min-w-full': 'min-width:100%',
         'min-w-fit': 'min-width:fit-content',
         'min-w-max': 'min-width:max-content',
-        'min-h-0': 'min-height:0',
         'min-h-full': 'min-height:100%',
+        'min-h-fit': 'min-height:fit-content',
         'min-h-screen': 'min-height:100dvh',
         'min-h-svh': 'min-height:100svh',
         'max-w-full': 'max-width:100%',
@@ -1349,7 +1426,7 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Palette complete — arrets de degrade',
     tier: 'extended',
-    variants: [],
+    variants: ['dark'],
     rules: gradientStops('palette', extendedPalette),
   },
 ]
@@ -1621,6 +1698,15 @@ export interface GeneratedStyles {
  */
 export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
   const classNames: string[] = []
+  /*
+   * Selecteurs produits, pour la detection de doublons.
+   *
+   * C'est le selecteur qui doit etre unique, pas le nom de classe : une meme
+   * classe habille legitimement plusieurs pseudo-elements — le rail et le
+   * curseur d'une barre de defilement, par exemple. Ne comparer que les noms
+   * refuserait ces familles, alors qu'elles ne se recouvrent en rien.
+   */
+  const selectors: string[] = []
   const sections: string[] = [...variableBlock()]
 
   for (const family of FAMILIES) {
@@ -1632,6 +1718,7 @@ export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
     for (const [ruleSuffix, body] of Object.entries(family.rules)) {
       const className = `o-${ruleSuffix}`
       classNames.push(className)
+      selectors.push(`${className}${suffix}`)
       sections.push(`.${escapeSelector(className)}${suffix}{${body}}`)
     }
 
@@ -1640,6 +1727,7 @@ export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
       for (const [ruleSuffix, body] of Object.entries(family.rules)) {
         const className = `${variant}:o-${ruleSuffix}`
         classNames.push(className)
+        selectors.push(`${className}${suffix}`)
         lines.push(wrapVariant(variant, `.${escapeSelector(className)}${suffix}`, body))
       }
       sections.push(`/* ${family.title} — variant ${variant}. */`, ...lines)
@@ -1648,14 +1736,14 @@ export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
     sections.push('')
   }
 
-  const duplicates = classNames.filter(
-    (name, index) => classNames.indexOf(name) !== index,
+  const duplicates = selectors.filter(
+    (selector, index) => selectors.indexOf(selector) !== index,
   )
   if (duplicates.length > 0) {
-    throw new Error(`[build-css] Noms de classes en double : ${duplicates.join(', ')}`)
+    throw new Error(`[build-css] Selecteurs en double : ${duplicates.join(', ')}`)
   }
 
-  return { css: sections.join('\n'), classNames }
+  return { css: sections.join('\n'), classNames: [...new Set(classNames)] }
 }
 
 /** Banniere apposee en tete des fichiers generes. */

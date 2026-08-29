@@ -1,0 +1,37 @@
+{
+  "name": "parallax",
+  "category": "effect",
+  "title": "Parallaxe",
+  "description": "Un element qui se deplace plus lentement que le defilement de la page.",
+  "engine": { "gsap": ["ScrollTrigger"], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "effect/Parallax.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 80,
+      "unit": "px",
+      "description": "Amplitude du deplacement sur toute la traversee."
+    },
+    {
+      "name": "axis",
+      "type": "'y' | 'x'",
+      "default": "y",
+      "description": "Axe du deplacement."
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 0,
+      "description": "Agrandissement additionnel, de 0 a 1."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de defilement dans la boucle unique, une ecriture de transform. Aucun rendu React."
+  }
+}

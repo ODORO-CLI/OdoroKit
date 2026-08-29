@@ -119,11 +119,11 @@ export function Typographie(): ReactElement {
         <DemoBlock
           center={false}
           code={`<p>Un passage <span className="o-highlight">surligne</span> au ton par defaut.</p>
-<p>Ou aux tons <span className="o-highlight-primary">primary</span>,{' '}
-<span className="o-highlight-success">success</span>,{' '}
-<span className="o-highlight-warning">warning</span>,{' '}
-<span className="o-highlight-danger">danger</span> et{' '}
-<span className="o-highlight-info">info</span>.</p>
+<p>Ou aux teintes <span className="o-highlight-brand">brand</span>,{' '}
+<span className="o-highlight-emerald">emerald</span>,{' '}
+<span className="o-highlight-amber">amber</span>,{' '}
+<span className="o-highlight-red">red</span> et{' '}
+<span className="o-highlight-sky">sky</span>.</p>
 <p>La balise <mark>mark</mark> native est stylee d'office.</p>`}
         >
           <div className="o-flex o-flex-col o-gap-2 o-text-lg">
@@ -131,11 +131,11 @@ export function Typographie(): ReactElement {
               Un passage <span className="o-highlight">surligne</span> au ton par defaut.
             </p>
             <p>
-              Ou aux tons <span className="o-highlight-primary">primary</span>,{' '}
-              <span className="o-highlight-success">success</span>,{' '}
-              <span className="o-highlight-warning">warning</span>,{' '}
-              <span className="o-highlight-danger">danger</span> et{' '}
-              <span className="o-highlight-info">info</span>.
+              Ou aux teintes <span className="o-highlight-brand">brand</span>,{' '}
+              <span className="o-highlight-emerald">emerald</span>,{' '}
+              <span className="o-highlight-amber">amber</span>,{' '}
+              <span className="o-highlight-red">red</span> et{' '}
+              <span className="o-highlight-sky">sky</span>.
             </p>
             <p>
               La balise <mark>mark</mark> native est stylee d'office.
