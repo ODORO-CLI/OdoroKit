@@ -142,6 +142,13 @@ export async function assertEnvIgnored(target: string): Promise<string | undefin
 }
 
 /** Ce que la plateforme dira quand elle existera. */
-export const PROVIDER_PENDING =
-  'Le provisionnement automatique arrive avec @odoro/cloud-sdk. ' +
-  'En attendant, collez une URL PostgreSQL existante, ou lancez `odoro db:create` plus tard.'
+export const PROVIDER_PENDING = [
+  'Le provisionnement passe par @odoro/cloud-sdk, installe a part :',
+  '',
+  '  npm install --save-dev @odoro/cloud-sdk',
+  '  odoro db:login',
+  '  odoro db:create --env production',
+  '',
+  'Il ne vient pas avec odoro : ce binaire est telecharge a chaque creation ' +
+    'de projet, et la plupart emploient leur propre base.',
+].join('\n')

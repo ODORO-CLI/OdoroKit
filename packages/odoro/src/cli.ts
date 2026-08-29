@@ -104,6 +104,15 @@ ${colors.bold('Registre de composants')}
   diff             Compare l'installe a ce que le registre sert
   doctor           Verifie que le projet est en etat
 
+${colors.bold('Base de donnees')}
+  db:login         Enregistre un jeton de plateforme
+  db:status        Liste les bases du projet
+  db:create        Provisionne une base et ecrit .env
+  db:branch        Cree une previsualisation par branche
+  ${colors.dim('Ces commandes demandent @odoro/cloud-sdk, installe a part :')}
+  ${colors.dim('il ne vient pas avec, ce binaire etant telecharge a chaque')}
+  ${colors.dim('creation de projet.')}
+
 ${colors.bold('Options du registre')}
   --registry <src>   URL ou dossier local, au lieu de celui du projet
   --yes              N'attend aucune confirmation
@@ -116,6 +125,12 @@ ${colors.bold('Options de create')}
   --overwrite        Vide le dossier cible avant de creer
   --merge            Ecrit par-dessus le contenu existant
   --yes              Accepte toutes les valeurs par defaut
+
+${colors.bold('Options de base de donnees')}
+  --env <nom>        Environnement vise (production, staging, preview-42)
+  --from <env>       Environnement dont brancher
+  --name <nom>       Nom de la branche
+  --api <url>        Racine de l'API, au lieu de celle par defaut
 
 ${colors.bold('Options de dev et preview')}
   --port <numero>    Port d'ecoute
@@ -246,6 +261,34 @@ export async function run(argv: readonly string[]): Promise<number> {
       if (command === 'list') return registry.listCommand(options)
       if (command === 'diff') return registry.diffCommand(options)
       return registry.doctorCommand(options)
+    }
+
+    case 'db:login':
+    case 'db:status':
+    case 'db:create':
+    case 'db:branch': {
+      // Le SDK de la plateforme n'est pas une dependance de ce binaire : il est
+      // telecharge a chaque creation de projet, et la plupart n'emploient pas
+      // la plateforme. L'import est donc dynamique, et son absence produit une
+      // phrase qui dit quoi installer — pas une trace sur un module introuvable.
+      const db = await import('./db/commands.js')
+
+      const options = {
+        root: typeof flags['root'] === 'string' ? flags['root'] : process.cwd(),
+        ...(typeof flags['api'] === 'string' ? { apiUrl: flags['api'] } : {}),
+        ...(typeof flags['env'] === 'string' ? { env: flags['env'] } : {}),
+        yes: flags['yes'] === true,
+      }
+
+      if (command === 'db:login') return db.loginCommand(options)
+      if (command === 'db:status') return db.statusCommand(options)
+      if (command === 'db:create') return db.createCommand(options)
+
+      return db.branchCommand({
+        ...options,
+        ...(typeof flags['from'] === 'string' ? { from: flags['from'] } : {}),
+        ...(typeof flags['name'] === 'string' ? { name: flags['name'] } : {}),
+      })
     }
 
     default:
