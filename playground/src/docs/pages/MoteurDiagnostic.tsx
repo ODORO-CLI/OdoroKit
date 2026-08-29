@@ -36,16 +36,16 @@ function InventaireDemo(): ReactElement {
   }, [])
 
   return (
-    <div className="o-flex o-flex-col o-gap-5 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-p-6">
+    <div className="o-flex o-flex-col o-gap-5 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
       <div className="o-flex o-gap-8">
         <div className="o-flex o-flex-col o-gap-1">
-          <span className="o-text-xs o-uppercase o-tracking-wide o-text-fg-subtle">
+          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
             images / s
           </span>
           <span className="o-font-mono o-text-2xl o-tabular-nums">{snapshot.fps}</span>
         </div>
         <div className="o-flex o-flex-col o-gap-1">
-          <span className="o-text-xs o-uppercase o-tracking-wide o-text-fg-subtle">
+          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
             image
           </span>
           <span className="o-font-mono o-text-2xl o-tabular-nums">{snapshot.frame}</span>
@@ -55,12 +55,12 @@ function InventaireDemo(): ReactElement {
       <div className="o-flex o-flex-col o-gap-2">
         <h4 className="o-text-sm o-font-medium">
           Abonnes a la boucle{' '}
-          <span className="o-text-fg-subtle o-font-normal">
+          <span className="o-text-zinc-400 dark:o-text-zinc-500 o-font-normal">
             ({snapshot.subscribers.length})
           </span>
         </h4>
         {snapshot.subscribers.length === 0 ? (
-          <p className="o-text-sm o-text-fg-muted">Aucun.</p>
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">Aucun.</p>
         ) : (
           <ul className="o-flex o-flex-col o-gap-1 o-font-mono o-text-xs">
             {snapshot.subscribers.map((entry) => (
@@ -68,10 +68,16 @@ function InventaireDemo(): ReactElement {
                 key={`${entry.name}-${String(entry.priority)}`}
                 className="o-flex o-items-center o-gap-3"
               >
-                <span className="o-w-12 o-text-right o-text-fg-subtle o-tabular-nums">
+                <span className="o-w-12 o-text-right o-text-zinc-400 dark:o-text-zinc-500 o-tabular-nums">
                   {entry.priority}
                 </span>
-                <span className={entry.active ? 'o-text-fg' : 'o-text-fg-subtle'}>
+                <span
+                  className={
+                    entry.active
+                      ? 'o-text-zinc-900 dark:o-text-zinc-50'
+                      : 'o-text-zinc-400 dark:o-text-zinc-500'
+                  }
+                >
                   {entry.name}
                 </span>
               </li>
@@ -83,20 +89,24 @@ function InventaireDemo(): ReactElement {
       <div className="o-flex o-flex-col o-gap-2">
         <h4 className="o-text-sm o-font-medium">
           Ressources vivantes{' '}
-          <span className="o-text-fg-subtle o-font-normal">
+          <span className="o-text-zinc-400 dark:o-text-zinc-500 o-font-normal">
             ({snapshot.resources.length})
           </span>
         </h4>
         {snapshot.resources.length === 0 ? (
-          <p className="o-text-sm o-text-fg-muted">
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             Aucune. Ouvrez la page des surfaces WebGL : deux contextes y apparaissent.
           </p>
         ) : (
           <ul className="o-flex o-flex-col o-gap-1 o-font-mono o-text-xs">
             {snapshot.resources.map((resource) => (
               <li key={resource.id} className="o-flex o-items-center o-gap-3">
-                <span className="o-w-20 o-text-fg-subtle">{resource.kind}</span>
-                <span className="o-text-fg">{resource.name}</span>
+                <span className="o-w-20 o-text-zinc-400 dark:o-text-zinc-500">
+                  {resource.kind}
+                </span>
+                <span className="o-text-zinc-900 dark:o-text-zinc-50">
+                  {resource.name}
+                </span>
               </li>
             ))}
           </ul>
@@ -117,7 +127,7 @@ function EnregistrementDemo(): ReactElement {
   }, [handle])
 
   return (
-    <div className="o-flex o-flex-col o-gap-3 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-p-6">
+    <div className="o-flex o-flex-col o-gap-3 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
       <button
         type="button"
         onClick={() => {
@@ -138,11 +148,11 @@ function EnregistrementDemo(): ReactElement {
             setHandle(null)
           }
         }}
-        className="o-self-start o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+        className="o-self-start o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
       >
         {handle === null ? 'Enregistrer une ressource' : 'La liberer'}
       </button>
-      <p className="o-text-sm o-text-fg-muted">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         {handle === null
           ? 'Rien n est enregistre. Le releve ci-dessus se met a jour deux fois par seconde.'
           : 'Elle apparait dans le releve. Elle sera liberee si vous quittez la page.'}

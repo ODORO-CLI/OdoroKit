@@ -44,8 +44,8 @@ describe('lecture des tokens', () => {
     // Un shader a besoin de trois flottants : il lit le token par son nom,
     // pas par une declaration CSS. La premiere version de la regle refusait
     // pourtant ce cas.
-    expect([...usedTokens("readTokenColour('--o-color-primary', host)")]).toEqual([
-      '--o-color-primary',
+    expect([...usedTokens("readTokenColour('--o-palette-brand-600', host)")]).toEqual([
+      '--o-palette-brand-600',
     ])
   })
 
@@ -114,7 +114,7 @@ describe('regle 1 — coherence des tokens', () => {
     const problems = checkContract(meta({ tokens: ['--o-fg'] }), {
       'component.tsx': `/**
  * @example
- * <Fond colors={['--o-color-danger', '--o-bg-subtle']} />
+ * <Fond colors={['--o-palette-red-600', '--o-bg-subtle']} />
  */
 ${CONFORME}`,
     })

@@ -120,7 +120,7 @@ export function AlertDoc(): ReactElement {
   icon={
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
       stroke="currentColor" strokeWidth="2" aria-hidden="true"
-      className="o-shrink-0 o-text-info">
+      className="o-shrink-0 o-text-sky-600 dark:o-text-sky-400">
       <path d="M12 3a6 6 0 0 0-4 10.5c.8.7 1.5 1.6 1.5 2.5h5c0-.9.7-1.8 1.5-2.5A6 6 0 0 0 12 3Z" />
       <path d="M10 19h4" strokeLinecap="round" />
     </svg>
@@ -147,7 +147,7 @@ export function AlertDoc(): ReactElement {
                   strokeWidth="2"
                   aria-hidden="true"
                   focusable="false"
-                  className="o-shrink-0 o-text-info"
+                  className="o-shrink-0 o-text-sky-600 dark:o-text-sky-400"
                 >
                   <path d="M12 3a6 6 0 0 0-4 10.5c.8.7 1.5 1.6 1.5 2.5h5c0-.9.7-1.8 1.5-2.5A6 6 0 0 0 12 3Z" />
                   <path d="M10 19h4" strokeLinecap="round" />

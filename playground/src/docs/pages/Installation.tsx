@@ -52,7 +52,7 @@ export default defineConfig({
         lead="odoro-libs fonctionne dans n'importe quel projet React 18+, quel que soit le bundler."
       >
         <CodeBlock lang="sh" code={`pnpm add odoro-libs`} />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Importez ensuite la feuille de style une seule fois, a la racine de
           l'application. Deux paliers sont disponibles — on importe l'un <em>ou</em>{' '}
           l'autre, jamais les deux :
@@ -77,17 +77,26 @@ import { Reveal, useAnimate, motionPresets } from 'odoro-libs/motion' // animati
 import { Router, Routes, Route, Link } from 'odoro-libs/router'   // routeur
 import { cx, variants, tokens, loadGoogleFonts } from 'odoro-libs/styles' // systeme de style`}
         />
-        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-border">
+        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
             <thead>
-              <tr className="o-border-b o-border-border o-bg-bg-subtle o-text-left">
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+              <tr className="o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-text-left">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Module
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Contenu
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Prerequis
                 </th>
               </tr>
@@ -103,12 +112,19 @@ import { cx, variants, tokens, loadGoogleFonts } from 'odoro-libs/styles' // sys
                 ['odoro-libs/motion', 'presets, Reveal, Stagger, hooks', 'react'],
                 ['odoro-libs/router', 'Router, Routes, Link, hooks', 'react'],
               ].map(([name, content, needs]) => (
-                <tr key={name} className="o-border-b o-border-border-subtle">
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-primary o-whitespace-nowrap">
+                <tr
+                  key={name}
+                  className="o-border-b o-border-zinc-100 dark:o-border-zinc-900"
+                >
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400 o-whitespace-nowrap">
                     {name}
                   </td>
-                  <td className="o-px-4 o-py-2 o-text-fg-muted">{content}</td>
-                  <td className="o-px-4 o-py-2 o-text-fg-muted">{needs}</td>
+                  <td className="o-px-4 o-py-2 o-text-zinc-500 dark:o-text-zinc-400">
+                    {content}
+                  </td>
+                  <td className="o-px-4 o-py-2 o-text-zinc-500 dark:o-text-zinc-400">
+                    {needs}
+                  </td>
                 </tr>
               ))}
             </tbody>

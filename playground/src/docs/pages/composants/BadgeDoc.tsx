@@ -122,7 +122,7 @@ export function BadgeDoc(): ReactElement {
   version 1.2, le module motion reste en <Badge tone="warning">beta</Badge>.
 </p>`}
         >
-          <p className="o-text-sm o-text-fg o-max-w-prose">
+          <p className="o-text-sm o-text-zinc-900 dark:o-text-zinc-50 o-max-w-prose">
             Le module routeur est{' '}
             <Badge tone="success" dot>
               stable

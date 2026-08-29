@@ -33,37 +33,52 @@ export function Responsive(): ReactElement {
         title="Points de rupture"
         lead="Un variant sm: s'applique a partir de 40rem de large, et ainsi de suite : les seuils sont des bornes basses."
       >
-        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-border">
+        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
             <thead>
-              <tr className="o-border-b o-border-border o-bg-bg-subtle o-text-left">
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+              <tr className="o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-text-left">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Variant
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Seuil
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Equivalent
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   Cible indicative
                 </th>
               </tr>
             </thead>
             <tbody>
               {Object.entries(breakpoint).map(([name, value]) => (
-                <tr key={name} className="o-border-b o-border-border-subtle">
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-primary o-whitespace-nowrap">
+                <tr
+                  key={name}
+                  className="o-border-b o-border-zinc-100 dark:o-border-zinc-900"
+                >
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400 o-whitespace-nowrap">
                     {name}:
                   </td>
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-fg-muted">
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                     {value}
                   </td>
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-fg-muted o-tabular-nums">
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">
                     {parseFloat(value) * 16}px
                   </td>
-                  <td className="o-px-4 o-py-2 o-text-fg-muted">
+                  <td className="o-px-4 o-py-2 o-text-zinc-500 dark:o-text-zinc-400">
                     {TARGETS[name] ?? '—'}
                   </td>
                 </tr>
@@ -101,7 +116,7 @@ export function Responsive(): ReactElement {
         <DemoBlock
           center={false}
           code={`<div className="o-grid o-grid-cols-1 sm:o-grid-cols-2 lg:o-grid-cols-4 o-gap-4">
-  <div className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4">Carte 1</div>
+  <div className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4">Carte 1</div>
   ...
 </div>`}
         >
@@ -109,7 +124,7 @@ export function Responsive(): ReactElement {
             {[1, 2, 3, 4].map((index) => (
               <div
                 key={index}
-                className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4 o-text-center o-text-sm o-text-fg-muted"
+                className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4 o-text-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
               >
                 Carte {index}
               </div>
@@ -128,10 +143,10 @@ export function Responsive(): ReactElement {
 <p className="md:o-hidden">Visible sous md seulement</p>`}
         >
           <div className="o-flex o-flex-col o-gap-2 o-text-sm">
-            <p className="max-md:o-hidden o-rounded-md o-bg-success-soft o-border-w-1 o-border-success-border o-px-3 o-py-2">
+            <p className="max-md:o-hidden o-rounded-md o-bg-emerald-50 dark:o-bg-emerald-950 o-border-w-1 o-border-emerald-200 dark:o-border-emerald-800 o-px-3 o-py-2">
               Visible a partir de md (48rem) — vous etes sur un ecran large.
             </p>
-            <p className="md:o-hidden o-rounded-md o-bg-info-soft o-border-w-1 o-border-info-border o-px-3 o-py-2">
+            <p className="md:o-hidden o-rounded-md o-bg-sky-50 dark:o-bg-sky-950 o-border-w-1 o-border-sky-200 dark:o-border-sky-800 o-px-3 o-py-2">
               Visible sous md seulement — vous etes sur un ecran etroit.
             </p>
           </div>
@@ -145,7 +160,7 @@ export function Responsive(): ReactElement {
         <CodeBlock
           lang="tsx"
           code={`// Fond au survol, bordure renforcee en theme sombre, marge elargie a partir de lg
-<a className="o-rounded-md o-p-2 o-border-w-1 o-border-border hover:o-bg-surface-hover dark:o-border-border-strong lg:o-p-4">
+<a className="o-rounded-md o-p-2 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 dark:o-border-zinc-700 lg:o-p-4">
   Un lien de navigation
 </a>`}
         />

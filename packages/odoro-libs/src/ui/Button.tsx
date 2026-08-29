@@ -31,11 +31,13 @@ export const buttonClasses = variants({
   variants: {
     tone: {
       primary:
-        'o-bg-primary o-text-on-primary hover:o-bg-primary-hover active:o-bg-primary-active',
+        'o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 hover:o-bg-brand-700 dark:hover:o-bg-brand-300 active:o-bg-brand-800 dark:active:o-bg-brand-200',
       secondary:
-        'o-bg-surface-sunken o-text-fg o-border-w-1 o-border-border hover:o-bg-surface-hover',
-      ghost: 'o-text-fg hover:o-bg-surface-hover',
-      danger: 'o-bg-danger o-text-on-danger hover:o-bg-danger-hover',
+        'o-bg-zinc-100 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800',
+      ghost:
+        'o-text-zinc-900 dark:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800',
+      danger:
+        'o-bg-red-600 dark:o-bg-red-400 o-text-white dark:o-text-zinc-950 hover:o-bg-red-700 dark:hover:o-bg-red-300',
     },
     size: {
       sm: 'o-h-8 o-px-3 o-text-sm',

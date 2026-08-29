@@ -157,7 +157,7 @@ export function Popover({
             role="dialog"
             id={panelId}
             className={cx(
-              'o-bg-surface-raised o-text-fg o-border-w-1 o-border-border',
+              'o-bg-white dark:o-bg-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800',
               'o-rounded-lg o-shadow-lg o-p-4',
               className,
             )}

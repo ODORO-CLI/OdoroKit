@@ -3,11 +3,19 @@
   "category": "background",
   "title": "Aurore",
   "description": "Un fond de bruit fractal a deplacement de domaine, colore par la palette du projet.",
-  "engine": { "gsap": [], "gl": "ogl" },
-  "files": [{ "path": "component.tsx", "target": "background/Aurora.tsx" }],
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Aurora.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-color-primary", "--o-color-accent", "--o-bg"],
+  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600", "--o-palette-zinc-50"],
   "props": [
     {
       "name": "speed",
@@ -30,7 +38,7 @@
     {
       "name": "colors",
       "type": "readonly [string, string, string]",
-      "default": "--o-color-primary, --o-color-accent, --o-bg",
+      "default": "--o-palette-brand-600, --o-palette-fuchsia-600, --o-palette-zinc-50",
       "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
     },
     {

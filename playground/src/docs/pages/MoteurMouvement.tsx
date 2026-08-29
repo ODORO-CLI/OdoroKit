@@ -25,14 +25,15 @@ function Chip({
   tone: 'neutral' | 'good' | 'warn'
 }): ReactElement {
   const colours = {
-    neutral: 'o-bg-surface o-border-border o-text-fg',
-    good: 'o-bg-success-soft o-border-success-border o-text-success',
-    warn: 'o-bg-warning-soft o-border-warning-border o-text-warning',
+    neutral:
+      'o-bg-white dark:o-bg-zinc-900 o-border-zinc-200 dark:o-border-zinc-800 o-text-zinc-900 dark:o-text-zinc-50',
+    good: 'o-bg-emerald-50 dark:o-bg-emerald-950 o-border-emerald-200 dark:o-border-emerald-800 o-text-emerald-600 dark:o-text-emerald-400',
+    warn: 'o-bg-amber-50 dark:o-bg-amber-950 o-border-amber-200 dark:o-border-amber-800 o-text-amber-600 dark:o-text-amber-400',
   } as const
 
   return (
     <div className="o-flex o-flex-col o-gap-1">
-      <span className="o-text-xs o-uppercase o-tracking-wide o-text-fg-subtle">
+      <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
         {label}
       </span>
       <span
@@ -59,7 +60,7 @@ function PolitiqueDemo(): ReactElement {
   }
 
   return (
-    <div className="o-flex o-flex-col o-gap-5 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-p-6">
+    <div className="o-flex o-flex-col o-gap-5 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
       <div className="o-grid o-grid-cols-2 md:o-grid-cols-4 o-gap-4">
         <Chip
           label="mouvement"
@@ -75,7 +76,7 @@ function PolitiqueDemo(): ReactElement {
         <Chip label="images / s" value={String(state.fps)} tone="neutral" />
       </div>
 
-      <p className="o-text-sm o-text-fg-muted">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Motif retenu : <code className="o-font-mono o-text-xs">{state.reason}</code>
       </p>
 
@@ -85,7 +86,7 @@ function PolitiqueDemo(): ReactElement {
             key={level}
             type="button"
             onClick={() => setQuality(level)}
-            className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer o-font-mono"
+            className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer o-font-mono"
           >
             {level}
           </button>
@@ -93,20 +94,20 @@ function PolitiqueDemo(): ReactElement {
         <button
           type="button"
           onClick={() => motionPolicy.configure({ reducedMotion: 'force' })}
-          className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-warning-border o-bg-warning-soft o-text-warning hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+          className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-amber-200 dark:o-border-amber-800 o-bg-amber-50 dark:o-bg-amber-950 o-text-amber-600 dark:o-text-amber-400 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
           Forcer le mouvement reduit
         </button>
         <button
           type="button"
           onClick={() => motionPolicy.configure({ reducedMotion: 'respect' })}
-          className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+          className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
           Respecter le systeme
         </button>
       </div>
 
-      <p className="o-text-xs o-text-fg-subtle">
+      <p className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
         Ces reglages sont remis a leur valeur de depart quand vous quittez la page.
       </p>
     </div>
@@ -147,7 +148,7 @@ function Fond(): ReactElement {
           laisserait son texte invisible — ce n est pas un respect de la preference, c est
           un bogue d accessibilite.
         </Callout>
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Un fond anime est le cas particulier : il n a pas d etat final a preserver,
           puisqu il n apporte rien d autre que son mouvement. Il n est donc pas rendu du
           tout, et le composant affiche son repli.
@@ -176,7 +177,7 @@ function Fond(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           L asymetrie est deliberee. Descendre vite et remonter lentement produit une page
           qui se stabilise ; l inverse produit une page qui clignote entre deux qualites.
         </p>

@@ -191,8 +191,8 @@ export function Drawer({
       onCancel={handleCancel}
       onClick={handleClick}
       className={cx(
-        'o-w-full o-bg-surface-raised o-text-fg o-shadow-lg o-p-0',
-        'o-border-border',
+        'o-w-full o-bg-white dark:o-bg-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-shadow-lg o-p-0',
+        'o-border-zinc-200 dark:o-border-zinc-800',
         BORDER[side],
         side === 'bottom' ? null : SIZE[size],
         className,
@@ -205,7 +205,7 @@ export function Drawer({
           onClick={() => closeRef.current()}
           className={cx(
             'o-absolute o-top-3 o-right-3 o-cursor-pointer o-rounded-sm o-p-1',
-            'o-text-fg-muted hover:o-text-fg o-transition',
+            'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-transition',
           )}
         >
           <svg
@@ -229,7 +229,10 @@ export function Drawer({
             {title}
           </h2>
           {description === undefined ? null : (
-            <p id={descriptionId} className="o-text-sm o-text-fg-muted">
+            <p
+              id={descriptionId}
+              className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+            >
               {description}
             </p>
           )}

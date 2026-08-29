@@ -59,7 +59,7 @@ export function BreadcrumbDoc(): ReactElement {
       >
         <DemoBlock
           code={`<Breadcrumb
-  separator={<span className="o-text-fg-subtle">/</span>}
+  separator={<span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>}
   items={[
     { label: 'Accueil', href: '/' },
     { label: 'Documentation', href: '/docs' },
@@ -68,7 +68,7 @@ export function BreadcrumbDoc(): ReactElement {
 />`}
         >
           <Breadcrumb
-            separator={<span className="o-text-fg-subtle">/</span>}
+            separator={<span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>}
             items={[
               { label: 'Accueil', href: '#' },
               { label: 'Documentation', href: '#' },
@@ -136,7 +136,7 @@ export function BreadcrumbDoc(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">BreadcrumbItem</code> :
         </p>

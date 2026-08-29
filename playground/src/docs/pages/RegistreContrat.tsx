@@ -32,13 +32,13 @@ function Niveau({
   quand: string
 }): ReactElement {
   return (
-    <div className="o-flex o-gap-4 o-rounded-lg o-border-w-1 o-border-border o-bg-surface o-p-4">
-      <span className="o-flex o-h-7 o-w-7 o-shrink-0 o-items-center o-justify-center o-rounded-full o-bg-primary-soft o-text-primary o-text-sm o-font-mono">
+    <div className="o-flex o-gap-4 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-4">
+      <span className="o-flex o-h-7 o-w-7 o-shrink-0 o-items-center o-justify-center o-rounded-full o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 o-text-sm o-font-mono">
         {rang}
       </span>
       <div className="o-flex o-flex-col o-gap-1">
         <span className="o-font-medium">{titre}</span>
-        <span className="o-text-sm o-text-fg-muted">{quand}</span>
+        <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{quand}</span>
       </div>
     </div>
   )
@@ -73,7 +73,7 @@ export function RegistreContrat(): ReactElement {
       >
         {({ progress }) => (
           <div className="o-flex o-justify-end o-p-3">
-            <span className="o-rounded-full o-glass o-border-w-1 o-border-border o-text-fg o-px-3 o-py-1 o-text-xs o-font-mono o-tabular-nums">
+            <span className="o-rounded-full o-glass o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-px-3 o-py-1 o-text-xs o-font-mono o-tabular-nums">
               lecture {Math.round(progress * 100)} %
             </span>
           </div>
@@ -131,7 +131,7 @@ export function RegistreContrat(): ReactElement {
           faite pour cela. Mais chaque retouche est une retouche a refaire :{' '}
           <Link
             to="/docs/registre/cli"
-            className="o-text-link hover:o-text-link-hover o-underline"
+            className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             <code className="o-font-mono o-text-xs">odoro diff</code>
           </Link>{' '}
@@ -166,14 +166,14 @@ export function RegistreContrat(): ReactElement {
 <ScrollProgress target={article} thickness={4} style={{ zIndex: 60 }} />`}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           D ou la place du niveau 3 dans l echelle : marges, position, largeur,{' '}
           <code className="o-font-mono o-text-sm">z-index</code> — ce qui ne se dispute
           pas. Pour repeindre avec certitude, il y a un token au-dessus et{' '}
           <code className="o-font-mono o-text-sm">style</code> en dessous.
         </p>
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Les classes du composant sont <strong>conservees</strong>, jamais remplacees :
           un composant qui ecraserait les siennes par celles qu on lui passe perdrait sa
           mise en forme des qu on veut seulement le decaler d un cran.
@@ -192,7 +192,7 @@ export function RegistreContrat(): ReactElement {
 </ScrollProgress>`}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Sans slot, la progression n est jamais un etat React : elle est ecrite
           directement dans le <code className="o-font-mono o-text-sm">transform</code> de
           la barre, et le defilement ne provoque aucun rendu — c est le cas de la barre du
@@ -206,10 +206,12 @@ export function RegistreContrat(): ReactElement {
         title="Niveau 5 — l echappatoire"
         lead="Sans elle, chaque besoin non prevu devient une propriete de plus. Au bout d'un an, le composant en a trente et la moitie ne sert qu'a un seul projet."
       >
-        <div className="o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-p-6">
-          <p className="o-text-sm o-text-fg-muted">
+        <div className="o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             Lecture imperative de la pastille, relevee quatre fois par seconde :{' '}
-            <span className="o-font-mono o-text-fg o-tabular-nums">{lu}</span>
+            <span className="o-font-mono o-text-zinc-900 dark:o-text-zinc-50 o-tabular-nums">
+              {lu}
+            </span>
           </p>
         </div>
 
@@ -231,7 +233,7 @@ export function RegistreContrat(): ReactElement {
           et de l element. Sans cela, chaque relevé poserait un intervalle de plus.
         </Callout>
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Le contexte porte aussi l etat du mouvement. L echappatoire contourne l API du
           composant, pas la preference de l utilisateur : sous mouvement reduit, le rappel
           ci-dessus ne pose aucun intervalle.
@@ -268,7 +270,7 @@ Registre invalide — 1 probleme(s) :
     employe nulle part.`}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Cet exemple n est pas invente : c est ce que la regle a signale la premiere fois
           qu elle a tourne, sur une entree de ce registre. La declaration etait restee
           apres que la duree soit passee en propriete.

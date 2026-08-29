@@ -176,7 +176,9 @@ function Region({ open, id, labelId, children }: RegionProps): ReactElement | nu
       aria-labelledby={labelId}
       className="o-overflow-hidden"
     >
-      <div className="o-pb-4 o-text-sm o-text-fg-muted">{children}</div>
+      <div className="o-pb-4 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+        {children}
+      </div>
     </div>
   )
 }
@@ -235,7 +237,10 @@ export function Accordion({
         const headerId = `${baseId}-header-${item.id}`
         const regionId = `${baseId}-region-${item.id}`
         return (
-          <div key={item.id} className="o-border-b o-border-border">
+          <div
+            key={item.id}
+            className="o-border-b o-border-zinc-200 dark:o-border-zinc-800"
+          >
             <h3 className="o-m-0">
               <button
                 type="button"
@@ -248,10 +253,10 @@ export function Accordion({
                 }}
                 className={cx(
                   'o-flex o-w-full o-items-center o-justify-between o-gap-2',
-                  'o-py-3 o-text-left o-text-base o-font-medium o-text-fg o-transition',
+                  'o-py-3 o-text-left o-text-base o-font-medium o-text-zinc-900 dark:o-text-zinc-50 o-transition',
                   item.disabled === true
                     ? 'o-opacity-50 o-cursor-not-allowed'
-                    : 'o-cursor-pointer hover:o-text-fg',
+                    : 'o-cursor-pointer hover:o-text-zinc-900 dark:hover:o-text-zinc-50',
                 )}
               >
                 {item.title}

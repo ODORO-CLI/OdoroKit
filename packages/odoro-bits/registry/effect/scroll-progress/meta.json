@@ -3,11 +3,19 @@
   "category": "effect",
   "title": "Progression de lecture",
   "description": "Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.",
-  "engine": { "gsap": ["ScrollTrigger"], "gl": false },
-  "files": [{ "path": "component.tsx", "target": "effect/ScrollProgress.tsx" }],
+  "engine": {
+    "gsap": ["ScrollTrigger"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ScrollProgress.tsx"
+    }
+  ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-color-primary", "--o-duration-fast"],
+  "tokens": ["--o-palette-brand-600", "--o-duration-fast"],
   "props": [
     {
       "name": "target",

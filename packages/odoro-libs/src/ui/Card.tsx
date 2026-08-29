@@ -23,9 +23,10 @@ export const cardClasses = variants({
   base: 'o-flex o-flex-col o-rounded-md o-overflow-hidden',
   variants: {
     variant: {
-      outlined: 'o-bg-surface o-border-w-1 o-border-border',
-      elevated: 'o-bg-surface o-shadow-md',
-      ghost: 'o-bg-bg-subtle',
+      outlined:
+        'o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800',
+      elevated: 'o-bg-white dark:o-bg-zinc-900 o-shadow-md',
+      ghost: 'o-bg-zinc-50 dark:o-bg-zinc-900',
     },
     interactive: {
       true: 'hover:o-lift-sm o-transition-transform hover:o-shadow-md o-cursor-pointer',
@@ -122,10 +123,14 @@ export function Card({
           {hasHeader ? (
             <div className="o-flex o-flex-col o-gap-1">
               {title === undefined ? null : (
-                <h3 className="o-text-base o-font-semibold o-text-fg">{title}</h3>
+                <h3 className="o-text-base o-font-semibold o-text-zinc-900 dark:o-text-zinc-50">
+                  {title}
+                </h3>
               )}
               {description === undefined ? null : (
-                <p className="o-text-sm o-text-fg-muted">{description}</p>
+                <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+                  {description}
+                </p>
               )}
             </div>
           ) : null}
@@ -134,7 +139,12 @@ export function Card({
       ) : null}
 
       {footer === undefined ? null : (
-        <div className={cx('o-border-t o-border-border', PADDING_CLASSES[padding])}>
+        <div
+          className={cx(
+            'o-border-t o-border-zinc-200 dark:o-border-zinc-800',
+            PADDING_CLASSES[padding],
+          )}
+        >
           {footer}
         </div>
       )}

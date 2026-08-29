@@ -48,9 +48,13 @@ export function SeparatorDoc(): ReactElement {
             if (v.orientation === 'vertical') {
               return (
                 <div className="o-flex o-items-stretch o-gap-4 o-h-16">
-                  <span className="o-self-center o-text-sm o-text-fg-muted">Avant</span>
+                  <span className="o-self-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+                    Avant
+                  </span>
                   <Separator orientation="vertical" />
-                  <span className="o-self-center o-text-sm o-text-fg-muted">Apres</span>
+                  <span className="o-self-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+                    Apres
+                  </span>
                 </div>
               )
             }

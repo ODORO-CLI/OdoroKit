@@ -6,7 +6,7 @@
  * C'est l'implementation de reference du contrat de personnalisation : les
  * cinq niveaux y sont, et dans cet ordre.
  *
- * 1. **Tokens** — la couleur et la duree viennent de `--o-color-primary` et
+ * 1. **Tokens** — la couleur et la duree viennent de `--o-palette-brand-600` et
  *    `--o-duration-fast`. Changer le theme change la barre, sans la toucher.
  * 2. **Props** — `target`, `thickness`, `position`.
  * 3. **Passe-plat** — `className`, `style` et les attributs DOM arrivent sur
@@ -189,7 +189,7 @@ export function ScrollProgress({
           ref={bar}
           style={{
             height: `${String(thickness)}px`,
-            background: 'var(--o-color-primary)',
+            background: 'var(--o-palette-brand-600)',
             transform: 'scaleX(0)',
             transformOrigin: 'left',
             // La barre suit le defilement : la transition ne sert qu'a lisser

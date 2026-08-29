@@ -28,7 +28,7 @@ describe('Card', () => {
     const { container } = render(<Card>Corps</Card>)
     const root = container.firstElementChild
     expect(root?.className).toContain('o-border-w-1')
-    expect(root?.className).toContain('o-border-border')
+    expect(root?.className).toContain('o-border-zinc-200 dark:o-border-zinc-800')
   })
 
   it('applique les variantes elevated et ghost', () => {
@@ -37,7 +37,9 @@ describe('Card', () => {
     expect(elevated.firstElementChild?.className).not.toContain('o-border-w-1')
 
     const { container: ghost } = render(<Card variant="ghost">Corps</Card>)
-    expect(ghost.firstElementChild?.className).toContain('o-bg-bg-subtle')
+    expect(ghost.firstElementChild?.className).toContain(
+      'o-bg-zinc-50 dark:o-bg-zinc-900',
+    )
     expect(ghost.firstElementChild?.className).not.toContain('o-shadow-md')
   })
 
@@ -65,7 +67,7 @@ describe('Card', () => {
   })
 
   it('expose sa table de classes', () => {
-    expect(cardClasses({ variant: 'ghost' })).toContain('o-bg-bg-subtle')
+    expect(cardClasses({ variant: 'ghost' })).toContain('o-bg-zinc-50 dark:o-bg-zinc-900')
     expect(cardClasses({ interactive: 'true' })).toContain('o-cursor-pointer')
   })
 
@@ -93,8 +95,8 @@ describe('Badge', () => {
   it('utilise le rendu soft par defaut', () => {
     render(<Badge tone="success">Publie</Badge>)
     const className = screen.getByText('Publie').className
-    expect(className).toContain('o-bg-success-soft')
-    expect(className).toContain('o-text-success')
+    expect(className).toContain('o-bg-emerald-50 dark:o-bg-emerald-950')
+    expect(className).toContain('o-text-emerald-600 dark:o-text-emerald-400')
   })
 
   it('applique les rendus solid et outline', () => {
@@ -103,15 +105,21 @@ describe('Badge', () => {
         Rejete
       </Badge>,
     )
-    expect(screen.getByText('Rejete').className).toContain('o-bg-danger')
-    expect(screen.getByText('Rejete').className).toContain('o-text-on-danger')
+    expect(screen.getByText('Rejete').className).toContain(
+      'o-bg-red-600 dark:o-bg-red-400',
+    )
+    expect(screen.getByText('Rejete').className).toContain(
+      'o-text-white dark:o-text-zinc-950',
+    )
 
     render(
       <Badge tone="info" variant="outline">
         Brouillon
       </Badge>,
     )
-    expect(screen.getByText('Brouillon').className).toContain('o-border-info-border')
+    expect(screen.getByText('Brouillon').className).toContain(
+      'o-border-sky-200 dark:o-border-sky-800',
+    )
   })
 
   it('affiche un point colore avec dot', () => {
@@ -122,8 +130,10 @@ describe('Badge', () => {
   })
 
   it('expose sa fonction de classes', () => {
-    expect(badgeClasses({ tone: 'warning', variant: 'solid' })).toContain('o-bg-warning')
-    expect(badgeClasses()).toContain('o-bg-surface-sunken')
+    expect(badgeClasses({ tone: 'warning', variant: 'solid' })).toContain(
+      'o-bg-amber-600 dark:o-bg-amber-400',
+    )
+    expect(badgeClasses()).toContain('o-bg-zinc-100 dark:o-bg-zinc-950')
   })
 })
 
@@ -203,8 +213,8 @@ describe('Alert', () => {
   it('applique les couleurs du ton', () => {
     render(<Alert tone="warning">Message</Alert>)
     const className = screen.getByRole('status').className
-    expect(className).toContain('o-bg-warning-soft')
-    expect(className).toContain('o-border-warning-border')
+    expect(className).toContain('o-bg-amber-50 dark:o-bg-amber-950')
+    expect(className).toContain('o-border-amber-200 dark:o-border-amber-800')
   })
 
   it('affiche une icone par defaut, remplacable ou supprimable', () => {
@@ -231,7 +241,7 @@ describe('Alert', () => {
   })
 
   it('expose sa table de classes', () => {
-    expect(alertClasses({ tone: 'danger' })).toContain('o-bg-danger-soft')
+    expect(alertClasses({ tone: 'danger' })).toContain('o-bg-red-50 dark:o-bg-red-950')
   })
 })
 
@@ -353,7 +363,7 @@ describe('Progress', () => {
   it('colore le remplissage suivant le ton', () => {
     render(<Progress value={10} tone="success" />)
     const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
-    expect(fill.className).toContain('o-bg-success')
+    expect(fill.className).toContain('o-bg-emerald-600 dark:o-bg-emerald-400')
   })
 })
 

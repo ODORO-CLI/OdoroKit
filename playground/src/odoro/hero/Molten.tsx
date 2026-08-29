@@ -79,11 +79,11 @@ export interface MoltenOwnProps {
 export type MoltenProps = Customisable<MoltenOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-color-primary', '--o-color-accent'] as const
+const DEFAULT_TOKENS = ['--o-palette-brand-600', '--o-palette-fuchsia-600'] as const
 
 /** Repli par defaut : un degrade radial dans les memes tons. */
 const DEFAULT_POSTER =
-  'o-bg-gradient-to-br o-from-primary o-via-accent o-to-bg-subtle o-blur-2xl o-scale-110'
+  'o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-via-fuchsia-600 dark:o-via-fuchsia-400 o-to-zinc-50 dark:o-to-zinc-900 o-blur-2xl o-scale-110'
 
 /** Subdivision de la sphere et octaves du bruit, par palier de qualite. */
 const DETAIL: Readonly<Record<QualityLevel, { detail: number; octaves: number }>> = {

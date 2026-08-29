@@ -27,17 +27,17 @@ function Side({
     <div
       className={`o-flex o-flex-col o-gap-3 o-rounded-lg o-border-w-1 o-p-5 ${
         tone === 'libs'
-          ? 'o-border-border o-bg-surface'
-          : 'o-border-primary-border o-bg-primary-soft'
+          ? 'o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900'
+          : 'o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950'
       }`}
     >
       <h3 className="o-font-mono o-text-sm o-font-semibold">{title}</h3>
-      <p className="o-text-sm o-text-fg-muted">{lead}</p>
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{lead}</p>
       <ul className="o-flex o-flex-col o-gap-1.5 o-text-sm">
         {items.map((item) => (
           <li key={item} className="o-flex o-gap-2">
-            <span className="o-text-fg-subtle">—</span>
-            <span className="o-text-fg-muted">{item}</span>
+            <span className="o-text-zinc-400 dark:o-text-zinc-500">—</span>
+            <span className="o-text-zinc-500 dark:o-text-zinc-400">{item}</span>
           </li>
         ))}
       </ul>
@@ -104,10 +104,10 @@ createRoot(document.getElementById('root')!).render(
   </OdoroEngine>,
 )`}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
             to="/docs/moteur/boucle"
-            className="o-text-link hover:o-text-link-hover o-underline"
+            className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             La boucle
           </Link>{' '}
@@ -143,10 +143,12 @@ createRoot(document.getElementById('root')!).render(
             <Link
               key={item.titre}
               to={item.vers}
-              className="o-flex o-flex-col o-gap-1 o-rounded-lg o-border-w-1 o-border-border o-bg-surface o-p-4 hover:o-border-border-strong o-transition-colors"
+              className="o-flex o-flex-col o-gap-1 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-4 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors"
             >
               <span className="o-font-medium">{item.titre}</span>
-              <span className="o-text-sm o-text-fg-muted">{item.texte}</span>
+              <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+                {item.texte}
+              </span>
             </Link>
           ))}
         </div>

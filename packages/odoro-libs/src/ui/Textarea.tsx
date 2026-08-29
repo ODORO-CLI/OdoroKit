@@ -132,7 +132,10 @@ export function Textarea({
     <div className={cx('o-flex o-flex-col o-gap-1', wrapperClassName)}>
       <label
         htmlFor={textareaId}
-        className={cx('o-text-sm o-font-medium o-text-fg', hideLabel && 'o-sr-only')}
+        className={cx(
+          'o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50',
+          hideLabel && 'o-sr-only',
+        )}
       >
         {label}
       </label>
@@ -155,11 +158,15 @@ export function Textarea({
       />
 
       {invalid ? (
-        <p id={errorId} role="alert" className="o-text-sm o-text-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="o-text-sm o-text-red-600 dark:o-text-red-400"
+        >
           {error}
         </p>
       ) : hint !== undefined ? (
-        <p id={hintId} className="o-text-sm o-text-fg-muted">
+        <p id={hintId} className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           {hint}
         </p>
       ) : null}

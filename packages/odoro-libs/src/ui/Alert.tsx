@@ -26,13 +26,15 @@ export type AlertTone = 'info' | 'success' | 'warning' | 'danger'
  * <section className={alertClasses({ tone: 'warning' })}>...</section>
  */
 export const alertClasses = variants({
-  base: 'o-flex o-items-start o-gap-3 o-rounded-md o-border-w-1 o-p-4 o-text-fg',
+  base: 'o-flex o-items-start o-gap-3 o-rounded-md o-border-w-1 o-p-4 o-text-zinc-900 dark:o-text-zinc-50',
   variants: {
     tone: {
-      info: 'o-bg-info-soft o-border-info-border',
-      success: 'o-bg-success-soft o-border-success-border',
-      warning: 'o-bg-warning-soft o-border-warning-border',
-      danger: 'o-bg-danger-soft o-border-danger-border',
+      info: 'o-bg-sky-50 dark:o-bg-sky-950 o-border-sky-200 dark:o-border-sky-800',
+      success:
+        'o-bg-emerald-50 dark:o-bg-emerald-950 o-border-emerald-200 dark:o-border-emerald-800',
+      warning:
+        'o-bg-amber-50 dark:o-bg-amber-950 o-border-amber-200 dark:o-border-amber-800',
+      danger: 'o-bg-red-50 dark:o-bg-red-950 o-border-red-200 dark:o-border-red-800',
     },
   },
   defaults: { tone: 'info' },
@@ -40,10 +42,10 @@ export const alertClasses = variants({
 
 /** Couleur de l'icone par registre. */
 const ICON_TONE_CLASSES: Readonly<Record<AlertTone, string>> = {
-  info: 'o-text-info',
-  success: 'o-text-success',
-  warning: 'o-text-warning',
-  danger: 'o-text-danger',
+  info: 'o-text-sky-600 dark:o-text-sky-400',
+  success: 'o-text-emerald-600 dark:o-text-emerald-400',
+  warning: 'o-text-amber-600 dark:o-text-amber-400',
+  danger: 'o-text-red-600 dark:o-text-red-400',
 }
 
 /** Traces des icones par registre : i cercle, coche cercle, triangle, octogone. */
@@ -184,7 +186,7 @@ export function Alert({
           type="button"
           onClick={() => setVisible(false)}
           aria-label="Fermer le message"
-          className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-fg-muted hover:o-text-fg o-transition"
+          className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-transition"
         >
           <svg
             width="16"

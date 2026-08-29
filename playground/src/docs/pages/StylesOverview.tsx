@@ -25,13 +25,13 @@ export function StylesOverview(): ReactElement {
         lead="Toutes les classes portent le prefixe o- et se lisent comme du Tailwind. Les variants se prefixent par deux-points : etat (hover:, focus:, active:), theme (dark:) et ecran (sm: a 2xl:, max-sm: a max-lg:)."
       >
         <DemoBlock
-          code={`<button className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-primary o-text-on-primary o-px-4 o-h-10 hover:o-bg-primary-hover o-transition">
+          code={`<button className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 o-px-4 o-h-10 hover:o-bg-brand-700 dark:hover:o-bg-brand-300 o-transition">
   Enregistrer
 </button>`}
         >
           <button
             type="button"
-            className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-primary o-text-on-primary o-px-4 o-h-10 hover:o-bg-primary-hover o-transition o-cursor-pointer"
+            className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 o-px-4 o-h-10 hover:o-bg-brand-700 dark:hover:o-bg-brand-300 o-transition o-cursor-pointer"
           >
             Enregistrer
           </button>
@@ -67,15 +67,15 @@ cx('o-flex', condition && 'o-hidden', { 'o-p-4': padded })
 // 'o-flex o-p-4'
 
 const card = variants({
-  base: 'o-rounded-lg o-border-w-1 o-border-border',
+  base: 'o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800',
   variants: {
-    tone: { neutral: 'o-bg-surface', brand: 'o-bg-primary-soft' },
+    tone: { neutral: 'o-bg-white dark:o-bg-zinc-900', brand: 'o-bg-brand-50 dark:o-bg-brand-950' },
     padding: { sm: 'o-p-3', md: 'o-p-5' },
   },
   defaults: { tone: 'neutral', padding: 'md' },
 })
 
-card({ tone: 'brand' }) // 'o-rounded-lg ... o-bg-primary-soft o-p-5'`}
+card({ tone: 'brand' }) // 'o-rounded-lg ... o-bg-brand-50 dark:o-bg-brand-950 o-p-5'`}
         />
       </Section>
 
@@ -95,7 +95,7 @@ tokens.duration.base        // '200ms'`}
       </Section>
 
       <Section title="Aller plus loin">
-        <ul className="o-flex o-flex-col o-gap-2 o-text-fg-muted">
+        <ul className="o-flex o-flex-col o-gap-2 o-text-zinc-500 dark:o-text-zinc-400">
           {[
             ['/docs/styles/couleurs', 'Couleurs — palette et couche semantique'],
             [
@@ -112,7 +112,7 @@ tokens.duration.base        // '200ms'`}
             <li key={to}>
               <Link
                 to={to}
-                className="o-text-link hover:o-text-link-hover o-underline o-underline-offset-2"
+                className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline o-underline-offset-2"
               >
                 {label}
               </Link>

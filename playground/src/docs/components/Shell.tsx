@@ -22,10 +22,12 @@ function Logo(): ReactElement {
       to="/"
       className="o-inline-flex o-items-baseline o-gap-1 o-no-underline o-shrink-0"
     >
-      <span className="o-text-xl o-font-extrabold o-tracking-tight o-text-gradient o-bg-gradient-to-r o-from-primary o-to-accent">
+      <span className="o-text-xl o-font-extrabold o-tracking-tight o-text-gradient o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400">
         Odoro
       </span>
-      <span className="o-text-xs o-font-mono o-text-fg-subtle">docs</span>
+      <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+        docs
+      </span>
     </Link>
   )
 }
@@ -38,7 +40,7 @@ function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement
     <nav aria-label="Documentation" className="o-flex o-flex-col o-gap-6">
       {DOC_SECTIONS.map((section) => (
         <div key={section.title} className="o-flex o-flex-col o-gap-1">
-          <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-fg-subtle o-px-3 o-mb-1">
+          <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500 o-px-3 o-mb-1">
             {section.title}
           </p>
           {section.pages.map((page) => {
@@ -51,8 +53,8 @@ function SectionLinks({ onNavigate }: { onNavigate?: () => void }): ReactElement
                 onClick={onNavigate}
                 className={`o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-transition-colors ${
                   active
-                    ? 'o-bg-primary-soft o-text-primary o-font-medium'
-                    : 'o-text-fg-muted hover:o-text-fg hover:o-bg-surface-hover'
+                    ? 'o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 o-font-medium'
+                    : 'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800'
                 }`}
               >
                 {page.title}
@@ -90,15 +92,15 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
   }, [pathname])
 
   return (
-    <div className="o-min-h-screen o-bg-bg o-text-fg">
-      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky o-glass o-border-b o-border-border">
+    <div className="o-min-h-screen o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50">
+      <header className="o-fixed o-top-0 o-inset-x-0 o-z-sticky o-glass o-border-b o-border-zinc-200 dark:o-border-zinc-800">
         <div className="o-mx-auto o-max-w-7xl o-h-16 o-flex o-items-center o-gap-4 o-px-4 md:o-px-6">
           <button
             type="button"
             aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="lg:o-hidden o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-fg-muted hover:o-text-fg hover:o-bg-surface-hover o-transition-colors o-cursor-pointer"
+            className="lg:o-hidden o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 o-transition-colors o-cursor-pointer"
           >
             <svg
               width="18"
@@ -126,7 +128,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="o-inline-flex o-items-center o-gap-2 o-h-9 o-rounded-md o-border-w-1 o-border-border o-bg-surface o-px-3 o-text-sm o-text-fg-subtle hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+            className="o-inline-flex o-items-center o-gap-2 o-h-9 o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-px-3 o-text-sm o-text-zinc-400 dark:o-text-zinc-500 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
           >
             <svg
               width="14"
@@ -143,7 +145,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
               <path d="m21 21-4.3-4.3" />
             </svg>
             <span className="max-md:o-hidden">Rechercher...</span>
-            <kbd className="max-md:o-hidden o-text-xs o-font-mono o-border-w-1 o-border-border o-rounded-sm o-px-1.5 o-py-0.5 o-bg-surface-sunken">
+            <kbd className="max-md:o-hidden o-text-xs o-font-mono o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-sm o-px-1.5 o-py-0.5 o-bg-zinc-100 dark:o-bg-zinc-950">
               Ctrl K
             </kbd>
           </button>
@@ -157,7 +159,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         style={{ paddingTop: HEADER_OFFSET }}
       >
         <aside
-          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-py-8 o-pr-6 o-border-r o-border-border-subtle"
+          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-py-8 o-pr-6 o-border-r o-border-zinc-100 dark:o-border-zinc-900"
           style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
         >
           <SectionLinks />
@@ -174,11 +176,11 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           style={{ paddingTop: HEADER_OFFSET }}
         >
           <div
-            className="o-absolute o-inset-0 o-bg-overlay"
+            className="o-absolute o-inset-0 o-bg-black-45 dark:o-bg-black-65"
             onClick={() => setMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-surface o-shadow-xl o-overflow-y-auto o-p-4 o-animate-slide-in-left o-animate-duration-fast">
+          <div className="o-relative o-h-full o-w-72 o-max-w-full o-bg-white dark:o-bg-zinc-900 o-shadow-xl o-overflow-y-auto o-p-4 o-animate-slide-in-left o-animate-duration-fast">
             <SectionLinks onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>

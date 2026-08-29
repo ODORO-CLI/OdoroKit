@@ -65,7 +65,7 @@ export function CardDoc(): ReactElement {
               description={v.description as string}
               className="o-w-72"
             >
-              <p className="o-text-sm o-text-fg-muted">
+              <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
                 Trois modules livres cette semaine.
               </p>
             </Card>
@@ -92,14 +92,14 @@ export function CardDoc(): ReactElement {
       >
         <DemoBlock
           code={`<Card
-  media={<div className="o-bg-gradient-to-br o-from-primary o-to-accent o-h-32" />}
+  media={<div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-32" />}
   title="Nouvelle identite"
   description="Le degrade tient lieu d'illustration."
 />`}
         >
           <Card
             media={
-              <div className="o-bg-gradient-to-br o-from-primary o-to-accent o-h-32" />
+              <div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-32" />
             }
             title="Nouvelle identite"
             description="Le degrade tient lieu d'illustration."
@@ -127,7 +127,7 @@ export function CardDoc(): ReactElement {
             footer={<Button size="sm">Ouvrir le projet</Button>}
             className="o-w-72"
           >
-            <p className="o-text-sm o-text-fg-muted">
+            <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
               Trois modules livres cette semaine.
             </p>
           </Card>

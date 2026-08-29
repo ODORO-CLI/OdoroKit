@@ -61,7 +61,7 @@ function MainDemo(): ReactElement {
         title="Details du projet"
         description="Le panneau glisse depuis le bord choisi."
       >
-        <p className="o-text-sm o-text-fg-muted o-max-w-prose">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Le contenu defile seul quand il depasse ; le panneau reste cale sur toute la
           hauteur du bord. Echap, la croix ou un clic sur l'arriere-plan referment.
         </p>

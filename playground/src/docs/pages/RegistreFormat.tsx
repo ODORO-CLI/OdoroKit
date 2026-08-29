@@ -21,11 +21,11 @@ function Regle({
   message?: string
 }): ReactElement {
   return (
-    <div className="o-flex o-flex-col o-gap-2 o-rounded-lg o-border-w-1 o-border-border o-bg-surface o-p-4">
+    <div className="o-flex o-flex-col o-gap-2 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-4">
       <h4 className="o-font-medium">{titre}</h4>
-      <p className="o-text-sm o-text-fg-muted">{pourquoi}</p>
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{pourquoi}</p>
       {message === undefined ? null : (
-        <p className="o-font-mono o-text-xs o-text-danger o-bg-danger-soft o-border-w-1 o-border-danger-border o-rounded-md o-px-3 o-py-2">
+        <p className="o-font-mono o-text-xs o-text-red-600 dark:o-text-red-400 o-bg-red-50 dark:o-bg-red-950 o-border-w-1 o-border-red-200 dark:o-border-red-800 o-rounded-md o-px-3 o-py-2">
           {message}
         </p>
       )}
@@ -47,7 +47,7 @@ export function RegistreFormat(): ReactElement {
         title="Pourquoi copier plutot que dependre"
         lead="Le choix a un cout — pas de mise a jour automatique — et une contrepartie qui le justifie."
       >
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Un composant d animation est presque toujours retouche. Un degrade change, une
           duree ne convient pas, un easing doit suivre la charte. Livre en dependance,
           chacune de ces retouches passerait par une propriete de plus, jusqu a ce que le
@@ -72,12 +72,14 @@ export function RegistreFormat(): ReactElement {
       component.tsx
       shader.glsl.ts`}
         />
-        <p className="o-text-fg-muted">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400">
           Sept categories, closes :{' '}
           {['text', 'background', 'effect', 'hero', 'ui', 'section', 'hooks'].map(
             (category, index, all) => (
               <span key={category}>
-                <code className="o-font-mono o-text-sm o-text-primary">{category}</code>
+                <code className="o-font-mono o-text-sm o-text-brand-600 dark:o-text-brand-400">
+                  {category}
+                </code>
                 {index === all.length - 1 ? '.' : ', '}
               </span>
             ),
@@ -185,16 +187,16 @@ export function RegistreFormat(): ReactElement {
         title="Le meme schema aux deux bouts"
         lead="Le schema vit du cote client, et non dans le paquet du registre."
       >
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Ce n est pas arbitraire : le registre valide ce qu il produit avant de le
           publier, mais le client valide ce qu il <strong>recoit</strong> — d un serveur
           qu il ne controle pas, juste avant d ecrire des fichiers dans le projet de
           quelqu un. C est la que la validation compte le plus.
         </p>
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
             to="/docs/registre/cli"
-            className="o-text-link hover:o-text-link-hover o-underline"
+            className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             Les commandes
           </Link>{' '}

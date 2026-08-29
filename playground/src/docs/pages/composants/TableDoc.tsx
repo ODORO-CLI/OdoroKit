@@ -96,8 +96,8 @@ export function TableDoc(): ReactElement {
               rowKey={(membre) => membre.nom}
               className={
                 v.stickyHeader === true
-                  ? 'o-h-48 o-overflow-y-auto o-bg-surface'
-                  : 'o-bg-surface'
+                  ? 'o-h-48 o-overflow-y-auto o-bg-white dark:o-bg-zinc-900'
+                  : 'o-bg-white dark:o-bg-zinc-900'
               }
             />
           )}

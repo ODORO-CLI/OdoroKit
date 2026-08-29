@@ -31,14 +31,18 @@ function Piece({
   children: ReactElement
 }): ReactElement {
   return (
-    <div className="o-flex o-flex-col o-gap-0 o-rounded-lg o-border-w-1 o-border-border o-overflow-hidden">
+    <div className="o-flex o-flex-col o-gap-0 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-overflow-hidden">
       {children}
-      <div className="o-flex o-flex-wrap o-items-center o-gap-3 o-border-t o-border-border o-bg-bg-subtle o-px-4 o-py-3">
-        <span className="o-font-mono o-text-sm o-text-primary">
+      <div className="o-flex o-flex-wrap o-items-center o-gap-3 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-4 o-py-3">
+        <span className="o-font-mono o-text-sm o-text-brand-600 dark:o-text-brand-400">
           {categorie}/{titre}
         </span>
-        <span className="o-text-xs o-font-mono o-text-fg-subtle">{cout}</span>
-        <span className="o-text-xs o-font-mono o-text-fg-subtle">{backend}</span>
+        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+          {cout}
+        </span>
+        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+          {backend}
+        </span>
       </div>
     </div>
   )
@@ -51,8 +55,8 @@ function MoltenDemo(): ReactElement {
 
   if (!monte) {
     return (
-      <div className="o-flex o-h-72 o-flex-col o-items-center o-justify-center o-gap-3 o-bg-bg-subtle">
-        <p className="o-text-sm o-text-fg-muted o-text-center o-max-w-sm">
+      <div className="o-flex o-h-72 o-flex-col o-items-center o-justify-center o-gap-3 o-bg-zinc-50 dark:o-bg-zinc-900">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-center o-max-w-sm">
           Cette scene telecharge environ 130 Ko compresses. Elle n est pas montee tant que
           vous ne le demandez pas — c est exactement ce que la CLI vous fait decider avant
           d installer.
@@ -60,7 +64,7 @@ function MoltenDemo(): ReactElement {
         <button
           type="button"
           onClick={() => setMonte(true)}
-          className="o-h-9 o-px-4 o-text-sm o-rounded-md o-border-w-1 o-border-primary-border o-bg-primary-soft o-text-primary hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+          className="o-h-9 o-px-4 o-text-sm o-rounded-md o-border-w-1 o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
           Monter la scene
         </button>
@@ -79,8 +83,11 @@ function MoltenDemo(): ReactElement {
           handle.scene.camera.position.z = 2.8
         }}
       />
-      <div className="o-flex o-items-center o-gap-3 o-bg-bg-subtle o-px-4 o-py-3">
-        <label htmlFor="molten-glow" className="o-text-xs o-text-fg-muted">
+      <div className="o-flex o-items-center o-gap-3 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-4 o-py-3">
+        <label
+          htmlFor="molten-glow"
+          className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
+        >
           halo
         </label>
         <input
@@ -93,7 +100,7 @@ function MoltenDemo(): ReactElement {
           onChange={(event) => setGlow(Number(event.target.value))}
           className="o-flex-1"
         />
-        <span className="o-font-mono o-text-xs o-tabular-nums o-text-fg">
+        <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-900 dark:o-text-zinc-50">
           {glow.toFixed(1)}
         </span>
       </div>
@@ -128,7 +135,7 @@ export function RegistreGalerie(): ReactElement {
         lead="Le titre se compose caractere par caractere. Le decoupage est defait au demontage : un texte laisse decoupe casserait le copier-coller bien apres la disparition de l'animation."
       >
         <Piece titre="split-reveal" categorie="text" cout="leger" backend="sans backend">
-          <div className="o-flex o-min-h-40 o-items-center o-justify-center o-bg-bg-subtle o-p-8">
+          <div className="o-flex o-min-h-40 o-items-center o-justify-center o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
             <SplitReveal
               key={cle}
               as="p"
@@ -143,7 +150,7 @@ export function RegistreGalerie(): ReactElement {
         <button
           type="button"
           onClick={() => setCle((n) => n + 1)}
-          className="o-self-start o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer"
+          className="o-self-start o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
           Rejouer
         </button>
@@ -173,10 +180,10 @@ export function RegistreGalerie(): ReactElement {
 
         <CodeBlock
           code={`// Trois tokens, pas trois valeurs. Changer le theme change le fond.
-<Aurora colors={['--o-color-primary', '--o-color-accent', '--o-bg']} />`}
+<Aurora colors={['--o-palette-brand-600', '--o-palette-fuchsia-600', '--o-bg']} />`}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           La palette est en OKLCH, un shader veut trois flottants, et aucune API du
           navigateur ne fait le pont : le detour par un canevas donne un resultat qui
           depend de la version du navigateur. La conversion est donc faite dans le moteur,
@@ -212,7 +219,7 @@ export function RegistreGalerie(): ReactElement {
           ]}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Ce sont les deux reglages qui pesent, et les deux qui se degradent le mieux.
           Baisser la definition du rendu a la place aurait donne une image floue, ce qui
           se remarque bien davantage qu un relief un peu moins fin.
@@ -237,8 +244,8 @@ export function RegistreGalerie(): ReactElement {
           cout="leger"
           backend="sans backend"
         >
-          <div className="o-flex o-min-h-32 o-items-center o-justify-center o-bg-bg-subtle o-p-8">
-            <p className="o-text-sm o-text-fg-muted o-text-center o-max-w-sm">
+          <div className="o-flex o-min-h-32 o-items-center o-justify-center o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
+            <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-center o-max-w-sm">
               Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.
               Aucun rendu React pendant le defilement.
             </p>
@@ -250,7 +257,7 @@ export function RegistreGalerie(): ReactElement {
         title="Ce qui reste a faire"
         lead="Cette tranche est une preuve de bout en bout, pas un catalogue."
       >
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Quatre composants suffisent a montrer que la chaine tient : le format valide, la
           CLI installe, le graphe se resout, le contrat s applique, et le poids est
           annonce avant d etre subi. Produire du volume par-dessus est mecanique — et c

@@ -365,7 +365,7 @@ résultat qui dépend de la version du navigateur.
 niveau 1 du contrat et WebGL.
 
 ```tsx
-<Aurora colors={['--o-color-primary', '--o-color-accent', '--o-bg']} />
+<Aurora colors={['--o-palette-brand-600', '--o-palette-fuchsia-600', '--o-bg']} />
 ```
 
 ### Ce que la qualité change sur un héros

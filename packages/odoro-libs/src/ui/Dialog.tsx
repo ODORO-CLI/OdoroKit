@@ -129,8 +129,8 @@ export function Dialog({
       onCancel={handleCancel}
       onClick={handleClick}
       className={cx(
-        'o-w-full o-max-w-md o-rounded-lg o-border-w-1 o-border-border',
-        'o-bg-surface-raised o-text-fg o-shadow-lg o-p-0',
+        'o-w-full o-max-w-md o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800',
+        'o-bg-white dark:o-bg-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-shadow-lg o-p-0',
         className,
       )}
     >
@@ -140,7 +140,10 @@ export function Dialog({
             {title}
           </h2>
           {description === undefined ? null : (
-            <p id={descriptionId} className="o-text-sm o-text-fg-muted">
+            <p
+              id={descriptionId}
+              className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+            >
               {description}
             </p>
           )}

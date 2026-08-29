@@ -31,9 +31,9 @@ function InterrupteurControle(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-gap-3">
       <Switch label="Sauvegarde automatique" checked={actif} onCheckedChange={setActif} />
-      <p className="o-text-sm o-text-fg-muted">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Etat :{' '}
-        <code className="o-font-mono o-text-xs o-text-primary">
+        <code className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400">
           {actif ? 'active' : 'desactive'}
         </code>
       </p>
@@ -112,14 +112,14 @@ export function SwitchDoc(): ReactElement {
       >
         <DemoBlock
           code={`<div className="o-flex o-flex-col o-w-full o-max-w-sm">
-  <div className="o-py-3 o-border-b o-border-border-subtle">
+  <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
     <Switch
       label="Notifications"
       description="Recevoir un courriel a chaque commentaire."
       defaultChecked
     />
   </div>
-  <div className="o-py-3 o-border-b o-border-border-subtle">
+  <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
     <Switch label="Resume hebdomadaire" defaultChecked />
   </div>
   <div className="o-py-3">
@@ -128,14 +128,14 @@ export function SwitchDoc(): ReactElement {
 </div>`}
         >
           <div className="o-flex o-flex-col o-w-full o-max-w-sm">
-            <div className="o-py-3 o-border-b o-border-border-subtle">
+            <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
               <Switch
                 label="Notifications"
                 description="Recevoir un courriel a chaque commentaire."
                 defaultChecked
               />
             </div>
-            <div className="o-py-3 o-border-b o-border-border-subtle">
+            <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
               <Switch label="Resume hebdomadaire" defaultChecked />
             </div>
             <div className="o-py-3">

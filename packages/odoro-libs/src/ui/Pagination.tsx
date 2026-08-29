@@ -113,8 +113,8 @@ export function Pagination({
             className={cx(
               BUTTON_CLASSES,
               page <= 1
-                ? 'o-text-fg-subtle o-opacity-50 o-cursor-not-allowed'
-                : 'o-text-fg o-cursor-pointer hover:o-bg-surface-hover',
+                ? 'o-text-zinc-400 dark:o-text-zinc-500 o-opacity-50 o-cursor-not-allowed'
+                : 'o-text-zinc-900 dark:o-text-zinc-50 o-cursor-pointer hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800',
             )}
           >
             <Chevron direction="left" />
@@ -133,8 +133,8 @@ export function Pagination({
                   BUTTON_CLASSES,
                   'o-cursor-pointer o-tabular-nums',
                   entry === page
-                    ? 'o-bg-primary o-text-on-primary'
-                    : 'o-text-fg hover:o-bg-surface-hover',
+                    ? 'o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950'
+                    : 'o-text-zinc-900 dark:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800',
                 )}
               >
                 {entry}
@@ -142,7 +142,12 @@ export function Pagination({
             </li>
           ) : (
             <li key={entry} aria-hidden="true">
-              <span className={cx(BUTTON_CLASSES, 'o-text-fg-subtle o-select-none')}>
+              <span
+                className={cx(
+                  BUTTON_CLASSES,
+                  'o-text-zinc-400 dark:o-text-zinc-500 o-select-none',
+                )}
+              >
                 &#8230;
               </span>
             </li>
@@ -157,8 +162,8 @@ export function Pagination({
             className={cx(
               BUTTON_CLASSES,
               page >= pageCount
-                ? 'o-text-fg-subtle o-opacity-50 o-cursor-not-allowed'
-                : 'o-text-fg o-cursor-pointer hover:o-bg-surface-hover',
+                ? 'o-text-zinc-400 dark:o-text-zinc-500 o-opacity-50 o-cursor-not-allowed'
+                : 'o-text-zinc-900 dark:o-text-zinc-50 o-cursor-pointer hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800',
             )}
           >
             <Chevron direction="right" />

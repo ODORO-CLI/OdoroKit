@@ -9,12 +9,16 @@
  * Ce que ce fichier ajoute par-dessus :
  *
  * 1. une **teinte de marque** Odoro, sur les 11 nuances habituelles ;
- * 2. une **couche semantique** clair/sombre (`bg`, `surface`, `fg`, `primary`,
- *    `danger`...), absente de la fondation brute ;
- * 3. une **echelle d'espacement enumeree**, exprimee en `calc()` sur un pas de
+ * 2. une **echelle d'espacement enumeree**, exprimee en `calc()` sur un pas de
  *    base unique ;
- * 4. des echelles de **duree**, d'**opacite** et de **plan** (`z-index`), et
+ * 3. des echelles de **duree**, d'**opacite** et de **plan** (`z-index`), et
  *    des **courbes d'entree/sortie** utilisees par le moteur d'animation.
+ *
+ * Il n'y a **pas** de couche semantique. Une couleur se designe par sa place
+ * dans la palette — `zinc-900`, `brand-600` — jamais par le role qu'elle joue.
+ * Le theme se dit alors explicitement, sur chaque classe : `o-bg-white
+ * dark:o-bg-zinc-900`. C'est plus verbeux, et c'est la contrepartie assumee
+ * d'un systeme ou l'on voit la couleur qu'on ecrit.
  *
  * Rien d'autre dans la librairie ne contient de valeur brute : variables CSS,
  * utilitaires atomiques et composants UI en derivent tous.
@@ -125,116 +129,6 @@ export const space: Readonly<Record<string, string>> = Object.freeze({
 
 /** Pas d'espacement de base : toute l'echelle en est un multiple. */
 export const spacingBase = baseSpacingUnit
-
-/**
- * Couleurs semantiques en theme clair.
- *
- * Ce sont ces noms — et eux seuls — que les composants d'`odoro-libs/ui`
- * manipulent : une application peut retheme integralement la librairie en
- * surchargeant ces seules variables.
- */
-export const colorLight = {
-  bg: palette.white,
-  'bg-subtle': palette['zinc-50'],
-  surface: palette.white,
-  'surface-raised': palette.white,
-  'surface-sunken': palette['zinc-100'],
-  'surface-hover': palette['zinc-50'],
-  overlay: 'oklch(0% 0 0 / 0.45)',
-  border: palette['zinc-200'],
-  'border-subtle': palette['zinc-100'],
-  'border-strong': palette['zinc-300'],
-  fg: palette['zinc-900'],
-  'fg-muted': palette['zinc-500'],
-  'fg-subtle': palette['zinc-400'],
-  'fg-inverted': palette.white,
-  link: palette['brand-600'],
-  'link-hover': palette['brand-700'],
-  primary: palette['brand-600'],
-  'primary-hover': palette['brand-700'],
-  'primary-active': palette['brand-800'],
-  'primary-soft': palette['brand-50'],
-  'primary-border': palette['brand-200'],
-  'on-primary': palette.white,
-  accent: palette['fuchsia-600'],
-  'accent-soft': palette['fuchsia-50'],
-  'on-accent': palette.white,
-  success: palette['emerald-600'],
-  'success-soft': palette['emerald-50'],
-  'success-border': palette['emerald-200'],
-  'on-success': palette.white,
-  warning: palette['amber-600'],
-  'warning-soft': palette['amber-50'],
-  'warning-border': palette['amber-200'],
-  'on-warning': palette['amber-950'],
-  danger: palette['red-600'],
-  'danger-hover': palette['red-700'],
-  'danger-soft': palette['red-50'],
-  'danger-border': palette['red-200'],
-  'on-danger': palette.white,
-  info: palette['sky-600'],
-  'info-soft': palette['sky-50'],
-  'info-border': palette['sky-200'],
-  'on-info': palette.white,
-  ring: palette['brand-500'],
-  selection: palette['brand-100'],
-  // Translucide : le surlignage doit laisser lire le texte qu'il recouvre,
-  // quel que soit le fond sur lequel il est pose.
-  highlight: 'oklch(90.5% 0.182 98.111 / 0.55)',
-} as const
-
-/**
- * Couleurs semantiques en theme sombre. Les cles sont exactement celles de
- * {@link colorLight} : le type l'impose, ce qui interdit d'oublier une couleur
- * lors d'un ajout.
- */
-export const colorDark: Readonly<Record<keyof typeof colorLight, string>> = {
-  bg: palette['zinc-950'],
-  'bg-subtle': palette['zinc-900'],
-  surface: palette['zinc-900'],
-  'surface-raised': palette['zinc-800'],
-  'surface-sunken': palette['zinc-950'],
-  'surface-hover': palette['zinc-800'],
-  overlay: 'oklch(0% 0 0 / 0.65)',
-  border: palette['zinc-800'],
-  'border-subtle': palette['zinc-900'],
-  'border-strong': palette['zinc-700'],
-  fg: palette['zinc-50'],
-  'fg-muted': palette['zinc-400'],
-  'fg-subtle': palette['zinc-500'],
-  'fg-inverted': palette['zinc-950'],
-  link: palette['brand-300'],
-  'link-hover': palette['brand-200'],
-  primary: palette['brand-400'],
-  'primary-hover': palette['brand-300'],
-  'primary-active': palette['brand-200'],
-  'primary-soft': palette['brand-950'],
-  'primary-border': palette['brand-800'],
-  'on-primary': palette['zinc-950'],
-  accent: palette['fuchsia-400'],
-  'accent-soft': palette['fuchsia-950'],
-  'on-accent': palette['zinc-950'],
-  success: palette['emerald-400'],
-  'success-soft': palette['emerald-950'],
-  'success-border': palette['emerald-800'],
-  'on-success': palette['zinc-950'],
-  warning: palette['amber-400'],
-  'warning-soft': palette['amber-950'],
-  'warning-border': palette['amber-800'],
-  'on-warning': palette['amber-950'],
-  danger: palette['red-400'],
-  'danger-hover': palette['red-300'],
-  'danger-soft': palette['red-950'],
-  'danger-border': palette['red-800'],
-  'on-danger': palette['zinc-950'],
-  info: palette['sky-400'],
-  'info-soft': palette['sky-950'],
-  'info-border': palette['sky-800'],
-  'on-info': palette['zinc-950'],
-  ring: palette['brand-400'],
-  selection: palette['brand-900'],
-  highlight: 'oklch(82.8% 0.189 84.429 / 0.35)',
-} as const
 
 /** Familles de police. */
 export const fontFamily = baseFontFamily
@@ -363,7 +257,6 @@ export const tokens = {
   spacing: spacingBase,
   space,
   palette,
-  color: colorLight,
   font: fontFamily,
   text: fontSize,
   weight: fontWeight,
@@ -387,9 +280,6 @@ export const tokens = {
 
 /** Type de l'ensemble des tokens. */
 export type Tokens = typeof tokens
-
-/** Nom d'une couleur semantique. */
-export type ColorToken = keyof typeof colorLight
 
 /** Nom d'un pas d'espacement. */
 export type SpaceToken = keyof typeof space

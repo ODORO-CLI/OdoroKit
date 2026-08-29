@@ -38,9 +38,11 @@ function GroupeControle(): ReactElement {
           { value: 'annuelle', label: 'Annuelle', description: 'Deux mois offerts.' },
         ]}
       />
-      <p className="o-text-sm o-text-fg-muted">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Valeur selectionnee :{' '}
-        <code className="o-font-mono o-text-xs o-text-primary">{valeur}</code>
+        <code className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400">
+          {valeur}
+        </code>
       </p>
     </div>
   )
@@ -170,7 +172,7 @@ export function RadioDoc(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Chaque entree de <code className="o-font-mono o-text-sm">items</code> est un{' '}
           <code className="o-font-mono o-text-sm">RadioItem</code> :
         </p>

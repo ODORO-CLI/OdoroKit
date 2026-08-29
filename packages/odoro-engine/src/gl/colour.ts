@@ -14,7 +14,7 @@
  *
  * ## Pourquoi la conversion est faite ici plutot que par le navigateur
  *
- * Le navigateur sait resoudre `var(--o-color-primary)` en une couleur, mais il
+ * Le navigateur sait resoudre `var(--o-palette-brand-600)` en une couleur, mais il
  * la rend sous la forme ou elle a ete ecrite : `getComputedStyle` d'une valeur
  * OKLCH rend une chaine OKLCH. Il n'existe pas d'API qui rende trois flottants.
  *
@@ -140,7 +140,7 @@ export function parseColour(value: string): ShaderColour | null {
  * @param fallback Couleur rendue si le token n'existe pas ou n'est pas lisible.
  *
  * @example
- * const primaire = readTokenColour('--o-color-primary', host)
+ * const primaire = readTokenColour('--o-palette-brand-600', host)
  */
 export function readTokenColour(
   token: string,

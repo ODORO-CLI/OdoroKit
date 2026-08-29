@@ -26,13 +26,13 @@ function Feature({
   return (
     <Link
       to={to}
-      className="o-flex o-flex-col o-gap-2 o-rounded-xl o-border-w-1 o-border-border o-bg-surface o-p-5 o-no-underline hover:o-lift-sm hover:o-shadow-md o-transition-all"
+      className="o-flex o-flex-col o-gap-2 o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-5 o-no-underline hover:o-lift-sm hover:o-shadow-md o-transition-all"
     >
-      <span className="o-inline-flex o-items-center o-justify-center o-size-10 o-rounded-lg o-bg-primary-soft o-text-primary">
+      <span className="o-inline-flex o-items-center o-justify-center o-size-10 o-rounded-lg o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400">
         {icon}
       </span>
-      <span className="o-font-semibold o-text-fg">{title}</span>
-      <span className="o-text-sm o-text-fg-muted">{children}</span>
+      <span className="o-font-semibold o-text-zinc-900 dark:o-text-zinc-50">{title}</span>
+      <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">{children}</span>
     </Link>
   )
 }
@@ -55,7 +55,7 @@ export function Accueil(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-gap-16">
       <section className="o-flex o-flex-col o-items-start o-gap-6 o-pt-8">
-        <span className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-primary-border o-bg-primary-soft o-px-3 o-py-1 o-text-xs o-font-medium o-text-primary o-animate-fade-in">
+        <span className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950 o-px-3 o-py-1 o-text-xs o-font-medium o-text-brand-600 dark:o-text-brand-400 o-animate-fade-in">
           Librairie front maison — zero dependance
         </span>
 
@@ -63,13 +63,13 @@ export function Accueil(): ReactElement {
           <TextReveal by="word" step={70}>
             Construisez des interfaces vivantes avec
           </TextReveal>{' '}
-          <span className="o-text-gradient o-bg-gradient-to-r o-from-primary o-via-accent o-to-primary o-animate-gradient">
+          <span className="o-text-gradient o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-via-fuchsia-600 dark:o-via-fuchsia-400 o-to-brand-600 dark:o-to-brand-400 o-animate-gradient">
             Odoro
           </span>
         </h1>
 
         <Reveal preset="fade-up" delay={300} className="o-max-w-2xl">
-          <p className="o-text-lg o-text-fg-muted o-text-pretty">
+          <p className="o-text-lg o-text-zinc-500 dark:o-text-zinc-400 o-text-pretty">
             Un systeme de style pilote par tokens, un moteur d'animation sur le fil de
             composition, un routeur avec transitions de page et une bibliotheque de
             composants accessibles — quatre modules coherents, sans une seule dependance

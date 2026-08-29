@@ -1,11 +1,11 @@
 /**
- * Couleurs : la couche semantique et la palette brute.
+ * Couleurs : la palette brute, et rien d'autre.
  *
  * @module
  */
 
 import { type ReactElement, useState } from 'react'
-import { colorLight, palette } from 'odoro-libs/styles'
+import { palette } from 'odoro-libs/styles'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { Callout, PageHeader, Section } from '../components/DocBlocks.jsx'
@@ -83,50 +83,47 @@ function PaletteSwatch({ name, value }: { name: string; value: string }): ReactE
   )
 }
 
-/** Couleurs : couche semantique, palette brute et modes d'emploi. */
+/** Couleurs : palette brute et modes d'emploi. */
 export function Couleurs(): ReactElement {
   return (
     <article>
       <PageHeader
         module="odoro-libs/styles"
         title="Couleurs"
-        lead="Deux etages : une palette brute de 290 nuances OKLCH, et une couche semantique clair/sombre par-dessus. Les composants ne connaissent que la seconde — c'est elle qui fait le theme."
+        lead="Une seule couche : 290 nuances OKLCH, designees par leur place dans l'echelle. Aucun nom de role."
       />
 
       <Section
-        title="Couche semantique"
-        lead="Chaque nom decrit un role, pas une teinte : bg, surface, fg, primary, danger... Les pastilles ci-dessous lisent la variable CSS courante — basculez le theme pour les voir changer."
+        title="Il n y a pas de couche semantique"
+        lead="Ni primary, ni surface, ni danger. Une couleur se designe par sa place dans l'echelle — zinc-900, brand-600 — et le theme se dit explicitement sur chaque classe."
       >
-        <div className="o-grid o-grid-cols-2 sm:o-grid-cols-3 lg:o-grid-cols-4 o-gap-3">
-          {Object.keys(colorLight).map((name) => (
-            <div key={name} className="o-flex o-flex-col o-gap-1">
-              <div
-                className="o-h-12 o-w-full o-rounded-md o-border-w-1 o-border-border-subtle"
-                style={{ backgroundColor: `var(--o-color-${name})` }}
-              />
-              <span className="o-font-mono o-text-xs o-text-fg-muted">{name}</span>
-            </div>
-          ))}
-        </div>
-        <Callout>
-          Les composants d'<code className="o-font-mono o-text-sm">odoro-libs/ui</code>{' '}
-          n'utilisent que ces noms : retheme la librairie entiere revient a surcharger
-          quelques variables <code className="o-font-mono o-text-sm">--o-color-*</code>,
-          sans toucher a un seul composant.
-        </Callout>
         <CodeBlock
-          lang="css"
-          code={`/* Rethemer la couleur d'action, dans les deux themes */
-:root {
-  --o-color-primary: oklch(64% 0.15 160);
-  --o-color-primary-hover: oklch(57% 0.15 160);
-  --o-color-ring: oklch(64% 0.15 160);
-}
-[data-theme='dark'] {
-  --o-color-primary: oklch(78% 0.13 160);
-  --o-color-primary-hover: oklch(84% 0.12 160);
-}`}
+          lang="tsx"
+          code={`// Le theme est ecrit, pas devine.
+<div className="o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50" />
+
+// Les etats se croisent avec le theme.
+<button className="o-bg-zinc-100 hover:o-bg-zinc-200 dark:o-bg-zinc-800 dark:hover:o-bg-zinc-700" />`}
         />
+
+        <Callout>
+          C est plus verbeux, et c est la contrepartie assumee : on voit la couleur qu on
+          ecrit. Un nom de role cache la teinte derriere une intention, et il faut ouvrir
+          la table des tokens pour savoir ce qui s affichera.
+        </Callout>
+
+        <Callout tone="warning">
+          La consequence est reelle et se mesure : la feuille de base est passee de{' '}
+          <strong>41,8 a 52,5 Ko</strong> compresses, parce que chaque couleur a desormais
+          besoin de ses variantes croisees avec le theme. Le prix du choix est la.
+        </Callout>
+
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
+          Le fond de page, la couleur du texte courant et celle des liens n ont pas d
+          element a habiller : elles restent posees une fois pour toutes dans le
+          preflight, en clair et en sombre. C est le seul endroit du systeme ou une
+          couleur est ecrite sans qu une classe la demande.
+        </p>
       </Section>
 
       <Section
@@ -140,7 +137,7 @@ export function Couleurs(): ReactElement {
               {SHADES.map((shade) => (
                 <span
                   key={shade}
-                  className="o-flex-1 o-text-center o-font-mono o-text-xs o-text-fg-subtle"
+                  className="o-flex-1 o-text-center o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500"
                 >
                   {shade}
                 </span>
@@ -149,7 +146,7 @@ export function Couleurs(): ReactElement {
           </div>
           {groupByHue().map(([hue, entries]) => (
             <div key={hue} className="o-flex o-items-center o-gap-2">
-              <span className="o-w-20 o-shrink-0 o-font-mono o-text-xs o-text-fg-muted">
+              <span className="o-w-20 o-shrink-0 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {hue}
               </span>
               <div className="o-flex o-flex-1 o-gap-1">
@@ -164,12 +161,15 @@ export function Couleurs(): ReactElement {
 
       <Section
         title="Utiliser la palette"
-        lead="Les classes utilitaires sur la palette brute exigent la feuille complete ; les variables CSS, elles, sont toujours presentes, quelle que soit la feuille importee."
+        lead="La feuille de base porte sept teintes : une echelle neutre, la marque, et les quatre intentions qu'une interface exprime sans y penser. Les 290 nuances vivent dans la feuille complete ; les variables CSS, elles, sont toujours la."
       >
         <CodeBlock
           lang="tsx"
-          code={`// Avec la feuille complete (styles.full.css) : classes sur toute la palette
-<div className="o-bg-sky-500 o-text-white o-rounded-lg o-p-4" />
+          code={`// Feuille de base : zinc, brand, red, amber, emerald, sky, fuchsia
+<div className="o-bg-zinc-100 dark:o-bg-zinc-900 o-rounded-lg o-p-4" />
+
+// Feuille complete (styles.full.css) : les 290 nuances
+<div className="o-bg-teal-500 o-text-white o-rounded-lg o-p-4" />
 
 // Toujours disponible, meme avec la feuille de base : la variable CSS
 <div style={{ backgroundColor: 'var(--o-palette-sky-500)' }} />

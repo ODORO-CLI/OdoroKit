@@ -111,7 +111,7 @@ export function Composants() {
               </>
             }
           >
-            <p className="o-text-sm o-text-fg-muted">
+            <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
               Le piegeage du focus, la touche Echap et l inertie de la page sont fournis
               par l element natif.
             </p>

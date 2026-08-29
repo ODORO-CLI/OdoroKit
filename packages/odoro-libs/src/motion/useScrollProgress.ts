@@ -32,7 +32,7 @@ function clamp(value: number, precision: number): number {
  *
  * @example
  * const progress = useScrollProgress()
- * <div className="o-fixed o-top-0 o-left-0 o-h-1 o-bg-primary" style={{ width: `${progress * 100}%` }} />
+ * <div className="o-fixed o-top-0 o-left-0 o-h-1 o-bg-brand-600 dark:o-bg-brand-400" style={{ width: `${progress * 100}%` }} />
  */
 export function useScrollProgress(options: ScrollProgressOptions = {}): number {
   const { precision = 3 } = options

@@ -59,7 +59,7 @@ function ControlledDemo(): ReactElement {
           </Button>
         </div>
       </Popover>
-      <span className="o-text-sm o-text-fg-muted">
+      <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Etat : <code className="o-font-mono o-text-xs">{open ? 'ouvert' : 'ferme'}</code>
       </span>
     </div>

@@ -33,8 +33,8 @@ export const switchClasses = variants({
       lg: 'o-h-6 o-w-12',
     },
     checked: {
-      true: 'o-bg-primary',
-      false: 'o-bg-surface-sunken',
+      true: 'o-bg-brand-600 dark:o-bg-brand-400',
+      false: 'o-bg-zinc-100 dark:o-bg-zinc-950',
     },
   },
   defaults: { size: 'md', checked: 'false' },
@@ -152,7 +152,7 @@ export function Switch({
         <span
           aria-hidden="true"
           className={cx(
-            'o-block o-rounded-full o-bg-surface o-shadow-sm o-transition-transform',
+            'o-block o-rounded-full o-bg-white dark:o-bg-zinc-900 o-shadow-sm o-transition-transform',
             THUMB_SIZE[size],
             isChecked ? THUMB_TRAVEL[size] : 'o-translate-x-0',
           )}
@@ -163,14 +163,17 @@ export function Switch({
         <label
           htmlFor={switchId}
           className={cx(
-            'o-text-sm o-font-medium o-text-fg o-select-none',
+            'o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50 o-select-none',
             disabled ? 'o-cursor-not-allowed' : 'o-cursor-pointer',
           )}
         >
           {label}
         </label>
         {description !== undefined ? (
-          <p id={descriptionId} className="o-text-sm o-text-fg-muted">
+          <p
+            id={descriptionId}
+            className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+          >
             {description}
           </p>
         ) : null}

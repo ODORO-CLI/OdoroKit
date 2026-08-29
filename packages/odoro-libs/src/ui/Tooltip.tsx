@@ -129,7 +129,7 @@ export function Tooltip({
             role="tooltip"
             id={tooltipId}
             className={cx(
-              'o-block o-bg-fg o-text-fg-inverted o-text-sm o-whitespace-nowrap',
+              'o-block o-bg-zinc-900 dark:o-bg-zinc-50 o-text-white dark:o-text-zinc-950 o-text-sm o-whitespace-nowrap',
               'o-rounded-md o-shadow-md o-px-2 o-py-1 o-pointer-events-none',
               className,
             )}

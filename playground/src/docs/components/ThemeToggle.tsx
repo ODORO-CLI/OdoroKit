@@ -117,7 +117,7 @@ export function ThemeToggle(): ReactElement {
       onClick={() => setTheme(next)}
       aria-label={`${LABELS[theme]} — basculer`}
       title={LABELS[theme]}
-      className="o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-fg-muted hover:o-text-fg hover:o-bg-surface-hover o-transition-colors o-cursor-pointer"
+      className="o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 o-transition-colors o-cursor-pointer"
     >
       {theme === 'system' ? (
         <MonitorIcon />

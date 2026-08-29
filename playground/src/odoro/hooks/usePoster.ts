@@ -62,7 +62,7 @@ export interface PosterHandle {
  *   <div className="o-relative">
  *     <div ref={ref} className="o-absolute o-inset-0" />
  *     {poster.visible ? (
- *       <div style={poster.style} className="o-absolute o-inset-0 o-bg-surface-sunken" />
+ *       <div style={poster.style} className="o-absolute o-inset-0 o-bg-zinc-100 dark:o-bg-zinc-950" />
  *     ) : null}
  *   </div>
  * )

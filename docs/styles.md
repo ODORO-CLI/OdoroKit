@@ -7,18 +7,22 @@ import 'odoro-libs/styles.css'
 
 ## Deux feuilles, jamais les deux
 
-| Feuille                      | Contenu                                                             | Poids                 |
-| ---------------------------- | ------------------------------------------------------------------- | --------------------- |
-| `odoro-libs/styles.css`      | Variables, préflight, utilitaires structurels, couleurs sémantiques | 315 Ko — 20 Ko brotli |
-| `odoro-libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances        | 757 Ko — 35 Ko brotli |
+| Feuille                      | Contenu                                                                  | Poids                   |
+| ---------------------------- | ------------------------------------------------------------------------ | ----------------------- |
+| `odoro-libs/styles.css`      | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 527 Ko — 52 Ko brotli |
+| `odoro-libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances             | 2 411 Ko — 76 Ko brotli |
 
 La feuille complète est un sur-ensemble de la feuille de base : on importe
 l'une **ou** l'autre.
 
 ### Quand la feuille complète est nécessaire
 
-Dès que vous nommez une couleur de la **palette brute** — `sky-500`,
-`fuchsia-500`, `indigo-500` — plutôt qu'un rôle sémantique. Cela vaut pour
+Dès que vous nommez une teinte absente de la feuille de base. Celle-ci porte
+sept teintes — `zinc`, `brand`, `red`, `amber`, `emerald`, `sky`, `fuchsia` —
+choisies parce qu'elles couvrent le travail courant : une échelle neutre, la
+marque, et les quatre intentions qu'une interface exprime sans y penser. Tout
+le reste — `teal`, `indigo`, `violet`, `olive`… — vit dans la feuille
+complète. Cela vaut pour
 `o-text-*`, `o-bg-*`, `o-border-*` et **aussi pour les jalons de dégradé**
 `o-from-*`, `o-via-*`, `o-to-*`.
 
@@ -34,7 +38,9 @@ Deux façons de s'en prémunir :
 
 ```html
 <!-- Avec la feuille de base : des rôles sémantiques -->
-<div class="o-bg-gradient-to-r o-from-primary o-to-accent"></div>
+<div
+  class="o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400"
+></div>
 
 <!-- Avec la feuille complète : toute la palette -->
 <div class="o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500"></div>
@@ -55,7 +61,7 @@ dont seuls quelques-uns ont besoin.
 Rien d'autre dans la librairie ne contient de valeur brute.
 
 ```ts
-tokens.color.primary // couleur sémantique  → --o-color-primary
+palette['brand-600'] // couleur de palette  → --o-palette-brand-600
 tokens.palette['sky-500'] // couleur brute       → --o-palette-sky-500
 tokens.space[4] // espacement          → --o-space-4
 tokens.text.lg // taille de texte     → --o-text-lg
@@ -65,8 +71,9 @@ tokens.duration.slow // durée               → --o-duration-slow
 La fondation compte 288 couleurs en OKLCH, 18 tailles de texte, 9 graisses, 8
 rayons, 17 ombres, 7 flous, 13 largeurs de conteneur, 5 perspectives et une
 échelle d'espacement en 35 pas. S'y ajoutent une teinte de marque sur 11
-nuances et une **couche sémantique** de 41 rôles, déclinée en clair et en
-sombre.
+nuances. Il n'y a **pas** de couche sémantique : aucun `primary`, aucun
+`surface`, aucun `danger`. Une couleur se désigne par sa place dans l'échelle,
+et le thème s'écrit sur la classe.
 
 Après toute modification des tokens :
 
@@ -83,19 +90,29 @@ Toutes les classes sont préfixées `o-`. Les variantes précèdent le préfixe,
 comme dans les conventions habituelles :
 
 ```html
-<div class="o-flex o-gap-4 md:o-grid md:o-grid-cols-3 hover:o-bg-surface-hover"></div>
+<div
+  class="o-flex o-gap-4 md:o-grid md:o-grid-cols-3 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800"
+></div>
 ```
 
 | Variante          | S'applique à                                      |
 | ----------------- | ------------------------------------------------- |
 | `md:` `lg:`       | Mise en page, espacement, dimensions, typographie |
 | `hover:` `focus:` | Couleurs, ombres, bordures, opacité               |
-| `active:`         | Couleurs sémantiques                              |
+| `active:`         | Couleurs                                          |
 | `dark:`           | Couleurs                                          |
+| `dark:hover:`     | Couleurs — le thème croisé avec un état           |
 
 Les variantes sont déclarées **par famille**, pas appliquées à tout : générer
 chaque variante pour chaque utilitaire multiplierait la feuille par cinq sans
 bénéfice.
+
+La composition est bornée au thème croisé avec un état. Elle existe parce
+qu'elle est indispensable : sans couche sémantique, aucune variable ne bascule
+toute seule, et un bouton qui s'éclaire au survol doit pouvoir s'éclairer
+différemment selon le thème. Ouvrir toutes les combinaisons multiplierait la
+feuille par le produit des variantes, pour couvrir des cas que personne
+n'écrit.
 
 ## Thèmes
 
@@ -113,14 +130,23 @@ Le thème suit la préférence système, sauf choix explicite — dans les deux 
 </html>
 ```
 
-Retheming complet, composants de la librairie compris, en surchargeant les
-seules variables sémantiques :
+Le thème n'est plus porté par des variables : il est écrit sur chaque classe.
+
+```html
+<div class="o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50"></div>
+```
+
+Trois valeurs font exception, et elles n'ont pas d'élément à habiller : le fond
+de la page, la couleur du texte courant et celle des liens. Elles sont posées
+une fois pour toutes dans le préflight, en clair et en sombre.
+
+Rethemer la marque revient donc à surcharger ses nuances de palette :
 
 ```css
 :root {
-  --o-color-primary: oklch(52.4% 0.212 275);
-  --o-color-primary-hover: oklch(44.6% 0.19 275);
-  --o-color-ring: var(--o-color-primary);
+  --o-palette-brand-600: oklch(52.4% 0.212 275);
+  --o-palette-brand-700: oklch(44.6% 0.19 275);
+  --o-palette-brand-500: var(--o-palette-brand-600);
 }
 ```
 
@@ -154,8 +180,8 @@ const carte = variants({
   base: 'o-rounded-lg o-border-w-1 o-transition',
   variants: {
     tone: {
-      neutre: 'o-bg-surface o-border-border',
-      alerte: 'o-bg-danger-soft o-border-danger-border',
+      neutre: 'o-bg-white dark:o-bg-zinc-900 o-border-zinc-200 dark:o-border-zinc-800',
+      alerte: 'o-bg-red-50 dark:o-bg-red-950 o-border-red-200 dark:o-border-red-800',
     },
     padding: { serre: 'o-p-3', large: 'o-p-6' },
   },

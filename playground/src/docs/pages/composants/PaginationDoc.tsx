@@ -28,7 +28,7 @@ function WindowPreview({ siblingCount }: { siblingCount: number }): ReactElement
         siblingCount={siblingCount}
         onPageChange={setPage}
       />
-      <span className="o-text-sm o-text-fg-muted">
+      <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Page <span className="o-tabular-nums">{page}</span> sur 12
       </span>
     </div>

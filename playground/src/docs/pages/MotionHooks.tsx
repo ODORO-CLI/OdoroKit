@@ -19,12 +19,12 @@ import { PageHeader, Section } from '../components/DocBlocks.jsx'
 
 /** Classes partagees des boutons des demos. */
 const CONTROL_BUTTON =
-  'o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer'
+  'o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer'
 
 /** Cadre d'apercu commun aux demos de la page. */
 function Preview({ children }: { children: ReactElement }): ReactElement {
   return (
-    <div className="o-flex o-items-center o-justify-center o-gap-4 o-p-8 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-overflow-hidden">
+    <div className="o-flex o-items-center o-justify-center o-gap-4 o-p-8 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-overflow-hidden">
       {children}
     </div>
   )
@@ -49,7 +49,7 @@ function UseAnimateDemo(): ReactElement {
         </button>
         <span
           ref={ref}
-          className="o-inline-flex o-items-center o-rounded-full o-bg-danger-soft o-border-w-1 o-border-danger-border o-text-danger o-px-3 o-py-1 o-text-sm o-font-medium"
+          className="o-inline-flex o-items-center o-rounded-full o-bg-red-50 dark:o-bg-red-950 o-border-w-1 o-border-red-200 dark:o-border-red-800 o-text-red-600 dark:o-text-red-400 o-px-3 o-py-1 o-text-sm o-font-medium"
         >
           3 erreurs
         </span>
@@ -73,7 +73,7 @@ function UsePresenceDemo(): ReactElement {
         >
           {open ? 'Cacher' : 'Montrer'}
         </button>
-        <span className="o-font-mono o-text-xs o-text-fg-muted">
+        <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
           isMounted: {String(isMounted)} — status: {status}
         </span>
       </div>
@@ -82,7 +82,7 @@ function UsePresenceDemo(): ReactElement {
           {isMounted ? (
             <div
               ref={ref}
-              className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4 o-shadow-sm"
+              className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4 o-shadow-sm"
             >
               <p className="o-text-sm">
                 Je reste dans l'arbre le temps de mon animation de sortie.
@@ -105,13 +105,15 @@ function UseInViewDemo(): ReactElement {
         ref={ref}
         className={`o-rounded-lg o-border-w-1 o-p-6 o-max-w-sm o-transition-colors o-duration-slow ${
           inView
-            ? 'o-bg-success-soft o-border-success-border'
-            : 'o-bg-surface o-border-border'
+            ? 'o-bg-emerald-50 dark:o-bg-emerald-950 o-border-emerald-200 dark:o-border-emerald-800'
+            : 'o-bg-white dark:o-bg-zinc-900 o-border-zinc-200 dark:o-border-zinc-800'
         }`}
       >
         <p className="o-font-semibold">{inView ? 'Dans le viewport' : 'Hors champ'}</p>
-        <p className="o-text-sm o-text-fg-muted o-font-mono">inView: {String(inView)}</p>
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-font-mono">
+          inView: {String(inView)}
+        </p>
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Faites defiler pour me sortir de l'ecran, puis revenez : l'etat suit.
         </p>
       </div>
@@ -126,15 +128,15 @@ function UseScrollProgressDemo(): ReactElement {
   return (
     <Preview>
       <div className="o-flex o-flex-col o-gap-2 o-w-full o-max-w-sm">
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Defilement de la page :{' '}
-          <span className="o-font-mono o-tabular-nums o-text-fg">
+          <span className="o-font-mono o-tabular-nums o-text-zinc-900 dark:o-text-zinc-50">
             {Math.round(progress * 100)} %
           </span>
         </p>
-        <div className="o-h-2 o-w-full o-rounded-full o-bg-surface-sunken o-overflow-hidden">
+        <div className="o-h-2 o-w-full o-rounded-full o-bg-zinc-100 dark:o-bg-zinc-950 o-overflow-hidden">
           <div
-            className="o-h-2 o-rounded-full o-bg-primary"
+            className="o-h-2 o-rounded-full o-bg-brand-600 dark:o-bg-brand-400"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
@@ -220,7 +222,7 @@ const progress = useScrollProgress()
 
 return (
   <div
-    className="o-fixed o-top-0 o-left-0 o-h-1 o-bg-primary"
+    className="o-fixed o-top-0 o-left-0 o-h-1 o-bg-brand-600 dark:o-bg-brand-400"
     style={{ width: \`\${progress * 100}%\` }}
   />
 )`}

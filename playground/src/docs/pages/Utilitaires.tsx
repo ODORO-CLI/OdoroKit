@@ -72,13 +72,13 @@ export function Utilitaires(): ReactElement {
 <div className="o-rotate-6">Penche de 6 degres</div>`}
         >
           <div className="o-flex o-flex-wrap o-items-center o-justify-center o-gap-8">
-            <div className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4 o-text-sm hover:o-scale-105 o-transition-transform o-cursor-pointer">
+            <div className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4 o-text-sm hover:o-scale-105 o-transition-transform o-cursor-pointer">
               Survolez-moi
             </div>
-            <div className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4 o-text-sm hover:o-lift-md o-transition-all o-cursor-pointer">
+            <div className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4 o-text-sm hover:o-lift-md o-transition-all o-cursor-pointer">
               Je decolle
             </div>
-            <div className="o-rounded-lg o-bg-primary o-text-on-primary o-p-4 o-text-sm o-rotate-6">
+            <div className="o-rounded-lg o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 o-p-4 o-text-sm o-rotate-6">
               Penche de 6 degres
             </div>
           </div>
@@ -128,9 +128,11 @@ export function Utilitaires(): ReactElement {
             {['2xs', 'xs', 'sm', 'md', 'lg', 'xl', '2xl'].map((size) => (
               <div
                 key={size}
-                className={`o-size-16 o-rounded-lg o-bg-surface o-shadow-${size} o-flex o-items-center o-justify-center`}
+                className={`o-size-16 o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-shadow-${size} o-flex o-items-center o-justify-center`}
               >
-                <span className="o-font-mono o-text-xs o-text-fg-muted">{size}</span>
+                <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                  {size}
+                </span>
               </div>
             ))}
           </div>
@@ -151,13 +153,13 @@ export function Utilitaires(): ReactElement {
               {['Premier', 'Deuxieme', 'Troisieme'].map((label) => (
                 <li
                   key={label}
-                  className="o-rounded-md o-bg-surface o-border-w-1 o-border-border o-px-3 o-py-2 o-text-sm"
+                  className="o-rounded-md o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-3 o-py-2 o-text-sm"
                 >
                   {label} — o-space-y-2
                 </li>
               ))}
             </ul>
-            <ul className="o-divide-y o-rounded-md o-border-w-1 o-border-border o-bg-surface">
+            <ul className="o-divide-y o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900">
               {['Premier', 'Deuxieme', 'Troisieme'].map((label) => (
                 <li key={label} className="o-px-3 o-py-2 o-text-sm">
                   {label} — o-divide-y
@@ -183,7 +185,7 @@ export function Utilitaires(): ReactElement {
             {[1, 2, 3, 4, 5, 6].map((index) => (
               <div
                 key={index}
-                className="o-snap-center o-shrink-0 o-w-56 o-h-32 o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-flex o-items-center o-justify-center o-text-fg-muted"
+                className="o-snap-center o-shrink-0 o-w-56 o-h-32 o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-flex o-items-center o-justify-center o-text-zinc-500 dark:o-text-zinc-400"
               >
                 Carte {index}
               </div>
@@ -213,52 +215,52 @@ export function Utilitaires(): ReactElement {
                   'spin',
                   <div
                     key="d"
-                    className="o-size-8 o-rounded-md o-border-w-4 o-border-primary-border o-animate-spin"
+                    className="o-size-8 o-rounded-md o-border-w-4 o-border-brand-200 dark:o-border-brand-800 o-animate-spin"
                   />,
                 ],
                 [
                   'pulse',
                   <div
                     key="d"
-                    className="o-size-8 o-rounded-full o-bg-primary o-animate-pulse"
+                    className="o-size-8 o-rounded-full o-bg-brand-600 dark:o-bg-brand-400 o-animate-pulse"
                   />,
                 ],
                 [
                   'bounce',
                   <div
                     key="d"
-                    className="o-size-8 o-rounded-full o-bg-accent o-animate-bounce"
+                    className="o-size-8 o-rounded-full o-bg-fuchsia-600 dark:o-bg-fuchsia-400 o-animate-bounce"
                   />,
                 ],
                 [
                   'ping',
                   <span key="d" className="o-relative o-inline-flex o-size-8">
-                    <span className="o-absolute o-inset-0 o-rounded-full o-bg-info o-animate-ping" />
-                    <span className="o-relative o-size-8 o-rounded-full o-bg-info" />
+                    <span className="o-absolute o-inset-0 o-rounded-full o-bg-sky-600 dark:o-bg-sky-400 o-animate-ping" />
+                    <span className="o-relative o-size-8 o-rounded-full o-bg-sky-600 dark:o-bg-sky-400" />
                   </span>,
                 ],
                 [
                   'float',
                   <div
                     key="d"
-                    className="o-size-8 o-rounded-lg o-bg-success o-animate-float"
+                    className="o-size-8 o-rounded-lg o-bg-emerald-600 dark:o-bg-emerald-400 o-animate-float"
                   />,
                 ],
                 [
                   'shimmer',
                   <div key="d" className="o-flex o-flex-col o-gap-2 o-w-full">
-                    <div className="o-h-3 o-w-3/4 o-rounded-sm o-bg-surface-sunken o-animate-shimmer" />
-                    <div className="o-h-3 o-w-1/2 o-rounded-sm o-bg-surface-sunken o-animate-shimmer" />
+                    <div className="o-h-3 o-w-3/4 o-rounded-sm o-bg-zinc-100 dark:o-bg-zinc-950 o-animate-shimmer" />
+                    <div className="o-h-3 o-w-1/2 o-rounded-sm o-bg-zinc-100 dark:o-bg-zinc-950 o-animate-shimmer" />
                   </div>,
                 ],
               ] as ReadonlyArray<readonly [string, ReactElement]>
             ).map(([name, demo]) => (
               <div
                 key={name}
-                className="o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-h-24 o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4"
+                className="o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-h-24 o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4"
               >
                 {demo}
-                <span className="o-font-mono o-text-xs o-text-fg-subtle">
+                <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
                   o-animate-{name}
                 </span>
               </div>

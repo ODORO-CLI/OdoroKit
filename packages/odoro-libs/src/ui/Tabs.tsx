@@ -174,7 +174,7 @@ export function Tabs({
         role="tablist"
         aria-label={label}
         onKeyDown={handleKeyDown}
-        className="o-relative o-flex o-gap-1 o-border-b o-border-border"
+        className="o-relative o-flex o-gap-1 o-border-b o-border-zinc-200 dark:o-border-zinc-800"
       >
         {items.map((item, index) => {
           const selected = index === activeIndex
@@ -193,7 +193,9 @@ export function Tabs({
               }}
               className={cx(
                 'o-px-3 o-py-2 o-text-sm o-font-medium o-transition o-rounded-t-sm',
-                selected ? 'o-text-primary' : 'o-text-fg-muted hover:o-text-fg',
+                selected
+                  ? 'o-text-brand-600 dark:o-text-brand-400'
+                  : 'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50',
                 item.disabled === true
                   ? 'o-opacity-50 o-cursor-not-allowed'
                   : 'o-cursor-pointer',
@@ -206,7 +208,7 @@ export function Tabs({
         <span
           ref={indicatorRef}
           aria-hidden="true"
-          className="o-absolute o-bottom-0 o-left-0 o-h-0.5 o-bg-primary"
+          className="o-absolute o-bottom-0 o-left-0 o-h-0.5 o-bg-brand-600 dark:o-bg-brand-400"
         />
       </div>
 

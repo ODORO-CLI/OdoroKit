@@ -26,8 +26,6 @@ import {
   blur,
   borderWidth,
   breakpoint,
-  colorDark,
-  colorLight,
   container,
   dropShadow,
   duration,
@@ -72,6 +70,26 @@ export type VariantName =
   | 'max-lg'
 
 /**
+ * Variant compose : le theme sombre croise avec un etat.
+ *
+ * ## Pourquoi la composition existe
+ *
+ * Tant qu'une couche semantique portait les couleurs, `hover:o-bg-surface-hover`
+ * suffisait : la variable changeait seule avec le theme. En palette brute,
+ * chaque classe designe une couleur precise, et il faut donc pouvoir dire
+ * « survole, en sombre » d'un seul tenant. Sans cela, aucun composant
+ * interactif ne peut avoir deux themes.
+ *
+ * La composition est volontairement bornee au theme croise avec un etat. Elle
+ * n'est pas generale : ouvrir toutes les combinaisons multiplierait la feuille
+ * par le produit des variants, pour couvrir des cas que personne n'ecrit.
+ */
+export type ComposedVariant = `dark:${'hover' | 'focus' | 'active'}`
+
+/** Un variant, simple ou compose. */
+export type AnyVariant = VariantName | ComposedVariant
+
+/**
  * Palier de diffusion d'une famille.
  *
  * - `core` : present dans les deux feuilles ;
@@ -86,7 +104,7 @@ export interface Family {
   /** Palier de diffusion. */
   readonly tier: Tier
   /** Variants generes pour cette famille. */
-  readonly variants: readonly VariantName[]
+  readonly variants: readonly AnyVariant[]
   /** Suffixe de classe (sans le prefixe `o-`) vers declarations CSS. */
   readonly rules: Readonly<Record<string, string>>
   /**
@@ -114,8 +132,66 @@ const RESPONSIVE: readonly VariantName[] = [
 ]
 /** Variants d'etat, pour les proprietes visuelles. */
 const STATEFUL: readonly VariantName[] = ['hover', 'focus']
-/** Variants d'etat plus theme, pour les couleurs. */
-const THEMED: readonly VariantName[] = ['hover', 'focus', 'active', 'dark']
+/**
+ * Teintes presentes dans la feuille de base.
+ *
+ * ## Pourquoi un sous-ensemble
+ *
+ * La couche semantique retiree, toute couleur passe desormais par la palette.
+ * Si la palette entiere basculait dans la feuille de base, celle-ci
+ * absorberait les 288 nuances et le decoupage en deux paliers n'aurait plus
+ * d'objet : il n'y aurait plus qu'une seule feuille, lourde pour tout le
+ * monde.
+ *
+ * Les teintes retenues sont celles qui portent le travail courant : une
+ * echelle neutre, la marque, et les quatre intentions qu'une interface exprime
+ * sans y penser — reussite, attention, erreur, information. Le reste vit dans
+ * la feuille complete.
+ */
+const CORE_HUES: readonly string[] = [
+  'zinc',
+  'brand',
+  'red',
+  'amber',
+  'emerald',
+  'sky',
+  'fuchsia',
+]
+
+/** Indique si une cle de palette appartient a la feuille de base. */
+function isCoreHue(key: string): boolean {
+  // Les cles sans nuance numerique — `white`, `black`, `transparent` — sont
+  // dans les deux feuilles : elles n'appartiennent a aucune teinte.
+  const hue = key.replace(/-\d+$/, '')
+  return hue === key || CORE_HUES.includes(hue)
+}
+
+/** Palette de la feuille de base. */
+const corePalette: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(Object.entries(palette).filter(([key]) => isCoreHue(key))),
+)
+
+/** Nuances reservees a la feuille complete. */
+const extendedPalette: Readonly<Record<string, string>> = Object.freeze(
+  Object.fromEntries(Object.entries(palette).filter(([key]) => !isCoreHue(key))),
+)
+
+/**
+ * Variants des familles de couleur.
+ *
+ * Le theme croise avec chaque etat : en palette brute, un bouton qui s'eclaire
+ * au survol doit pouvoir s'eclairer differemment selon le theme, et aucune
+ * variable ne le fait plus a sa place.
+ */
+const COLOURED: readonly AnyVariant[] = [
+  'hover',
+  'focus',
+  'active',
+  'dark',
+  'dark:hover',
+  'dark:focus',
+  'dark:active',
+]
 
 /**
  * Normalise une cle de token en identifiant CSS valide : un nom de propriete
@@ -592,29 +668,65 @@ const FAMILIES: readonly Family[] = [
     title: 'Surlignage',
     tier: 'core',
     variants: [],
-    // Les couleurs traversent les variables semantiques : le surlignage suit
-    // le theme sans variant `dark` dedie.
+    // Translucides : un surlignage doit laisser lire le texte qu'il recouvre,
+    // quel que soit le fond sur lequel il est pose. C'est aussi ce qui lui
+    // permet de traverser les deux themes sans variant dedie.
     rules: {
-      highlight: highlightRule(v('color', 'highlight')),
-      'highlight-primary': highlightRule(v('color', 'primary-soft')),
-      'highlight-accent': highlightRule(v('color', 'accent-soft')),
-      'highlight-success': highlightRule(v('color', 'success-soft')),
-      'highlight-warning': highlightRule(v('color', 'warning-soft')),
-      'highlight-danger': highlightRule(v('color', 'danger-soft')),
-      'highlight-info': highlightRule(v('color', 'info-soft')),
+      highlight: highlightRule('oklch(90.5% 0.182 98.111 / 0.55)'),
+      'highlight-brand': highlightRule('oklch(62% 0.19 259 / 0.35)'),
+      'highlight-fuchsia': highlightRule('oklch(66% 0.26 322 / 0.32)'),
+      'highlight-emerald': highlightRule('oklch(70% 0.17 162 / 0.35)'),
+      'highlight-amber': highlightRule('oklch(83% 0.19 84 / 0.45)'),
+      'highlight-red': highlightRule('oklch(64% 0.21 25 / 0.32)'),
+      'highlight-sky': highlightRule('oklch(69% 0.15 237 / 0.35)'),
     },
   },
   {
-    title: 'Couleurs semantiques',
+    title: 'Palette essentielle',
     tier: 'core',
-    variants: THEMED,
-    rules: fromScale('color', colorLight, (token, key) => ({
+    variants: COLOURED,
+    rules: fromScale('palette', corePalette, (token, key) => ({
       [`text-${key}`]: `color:${token}`,
       [`bg-${key}`]: `background-color:${token}`,
       [`border-${key}`]: `border-color:${token}`,
       [`ring-${key}`]: `outline-color:${token}`,
       [`decoration-${key}`]: `text-decoration-color:${token}`,
+      [`accent-${key}`]: `accent-color:${token}`,
+      [`caret-${key}`]: `caret-color:${token}`,
     })),
+  },
+  {
+    title: 'Voiles',
+    tier: 'core',
+    variants: [],
+    /*
+     * Noir et blanc translucides.
+     *
+     * Ils remplacent ce que la couche semantique appelait un `overlay` : une
+     * surcouche modale, un verre depoli, un degrade qui eteint une image sous
+     * un texte. La couleur et son alpha sont dans le nom — rien n'y designe un
+     * role, et la meme classe sert dans les deux themes.
+     */
+    rules: Object.fromEntries(
+      [10, 20, 30, 40, 45, 50, 60, 65, 70, 80, 90].flatMap((alpha) => [
+        [
+          `bg-black-${String(alpha)}`,
+          `background-color:oklch(0% 0 0 / ${String(alpha / 100)})`,
+        ],
+        [
+          `bg-white-${String(alpha)}`,
+          `background-color:oklch(100% 0 0 / ${String(alpha / 100)})`,
+        ],
+        [
+          `border-black-${String(alpha)}`,
+          `border-color:oklch(0% 0 0 / ${String(alpha / 100)})`,
+        ],
+        [
+          `border-white-${String(alpha)}`,
+          `border-color:oklch(100% 0 0 / ${String(alpha / 100)})`,
+        ],
+      ]),
+    ),
   },
   {
     title: 'Degrades',
@@ -644,7 +756,7 @@ const FAMILIES: readonly Family[] = [
         'bg-gradient-conic':
           'background-image:conic-gradient(from 180deg at 50% 50%,var(--o-gradient-stops))',
       },
-      gradientStops('color', colorLight),
+      gradientStops('palette', corePalette),
     ),
   },
   {
@@ -702,17 +814,29 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Surfaces',
     tier: 'core',
-    variants: [],
+    // Le verre depoli existe en deux teintes plutot qu'en une seule qui
+    // suivrait le theme : sans couche semantique, aucune variable ne bascule
+    // toute seule. C'est a l'appelant de dire laquelle il veut, comme pour
+    // n'importe quelle couleur.
+    variants: ['dark'],
     rules: {
-      // Verre depoli : surface translucide sur flou d'arriere-plan. La teinte
-      // vient de la surface semantique, donc suit le theme.
       glass: [
-        'background-color:color-mix(in oklab,var(--o-color-surface) 72%,transparent)',
+        `background-color:color-mix(in oklab,${v('palette', 'white')} 72%,transparent)`,
         `backdrop-filter:blur(${v('blur', 'md')})`,
         `-webkit-backdrop-filter:blur(${v('blur', 'md')})`,
       ].join(';'),
       'glass-strong': [
-        'background-color:color-mix(in oklab,var(--o-color-surface) 88%,transparent)',
+        `background-color:color-mix(in oklab,${v('palette', 'white')} 88%,transparent)`,
+        `backdrop-filter:blur(${v('blur', 'lg')})`,
+        `-webkit-backdrop-filter:blur(${v('blur', 'lg')})`,
+      ].join(';'),
+      'glass-dark': [
+        `background-color:color-mix(in oklab,${v('palette', 'zinc-900')} 72%,transparent)`,
+        `backdrop-filter:blur(${v('blur', 'md')})`,
+        `-webkit-backdrop-filter:blur(${v('blur', 'md')})`,
+      ].join(';'),
+      'glass-dark-strong': [
+        `background-color:color-mix(in oklab,${v('palette', 'zinc-900')} 88%,transparent)`,
         `backdrop-filter:blur(${v('blur', 'lg')})`,
         `-webkit-backdrop-filter:blur(${v('blur', 'lg')})`,
       ].join(';'),
@@ -1072,11 +1196,6 @@ const FAMILIES: readonly Family[] = [
         'will-change-opacity': 'will-change:opacity',
         'will-change-scroll': 'will-change:scroll-position',
         // Couleur d'accentuation des controles natifs (cases, radios, range).
-        'accent-primary': `accent-color:${v('color', 'primary')}`,
-        'accent-success': `accent-color:${v('color', 'success')}`,
-        'accent-danger': `accent-color:${v('color', 'danger')}`,
-        'caret-primary': `caret-color:${v('color', 'primary')}`,
-        'caret-fg': `caret-color:${v('color', 'fg')}`,
         transition: `transition-property:color,background-color,border-color,text-decoration-color,outline-color,box-shadow,filter,transform,translate,rotate,scale,opacity;transition-duration:${v('duration', 'base')};transition-timing-function:${v('ease', 'standard')}`,
         'transition-none': 'transition-property:none',
         'transition-all': `transition-property:all;transition-duration:${v('duration', 'base')};transition-timing-function:${v('ease', 'standard')}`,
@@ -1090,7 +1209,7 @@ const FAMILIES: readonly Family[] = [
             `transition-delay:${n}ms`,
           ]),
         ),
-        ring: `outline:2px solid ${v('color', 'ring')};outline-offset:2px`,
+        ring: `outline:2px solid ${v('palette', 'brand-500')};outline-offset:2px`,
         'ring-none': 'outline:none',
         'sr-only':
           'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0',
@@ -1164,7 +1283,7 @@ const FAMILIES: readonly Family[] = [
       'animate-swing': `transform-origin:top center;animation:o-swing 800ms ${v('ease', 'in-out')} both`,
       // Textures animees.
       'animate-shimmer': [
-        `background-image:linear-gradient(90deg,${v('color', 'surface-sunken')} 25%,${v('color', 'surface-hover')} 37%,${v('color', 'surface-sunken')} 63%)`,
+        `background-image:linear-gradient(90deg,${v('palette', 'zinc-100')} 25%,${v('palette', 'zinc-50')} 37%,${v('palette', 'zinc-100')} 63%)`,
         'background-size:400% 100%',
         `animation:o-shimmer 1.4s ${v('ease', 'linear')} infinite`,
       ].join(';'),
@@ -1206,24 +1325,24 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Palette complete — couleur de texte',
     tier: 'extended',
-    variants: THEMED,
-    rules: fromScale('palette', palette, (token, key) => ({
+    variants: COLOURED,
+    rules: fromScale('palette', extendedPalette, (token, key) => ({
       [`text-${key}`]: `color:${token}`,
     })),
   },
   {
     title: 'Palette complete — couleur de fond',
     tier: 'extended',
-    variants: THEMED,
-    rules: fromScale('palette', palette, (token, key) => ({
+    variants: COLOURED,
+    rules: fromScale('palette', extendedPalette, (token, key) => ({
       [`bg-${key}`]: `background-color:${token}`,
     })),
   },
   {
     title: 'Palette complete — couleur de bordure',
     tier: 'extended',
-    variants: THEMED,
-    rules: fromScale('palette', palette, (token, key) => ({
+    variants: COLOURED,
+    rules: fromScale('palette', extendedPalette, (token, key) => ({
       [`border-${key}`]: `border-color:${token}`,
     })),
   },
@@ -1231,7 +1350,7 @@ const FAMILIES: readonly Family[] = [
     title: 'Palette complete — arrets de degrade',
     tier: 'extended',
     variants: [],
-    rules: gradientStops('palette', palette),
+    rules: gradientStops('palette', extendedPalette),
   },
 ]
 
@@ -1246,15 +1365,41 @@ function escapeSelector(className: string): string {
   return /^\d/.test(escaped) ? `\\3${escaped[0]} ${escaped.slice(1)}` : escaped
 }
 
-/** Enveloppe des regles dans le contexte d'un variant. */
-function wrapVariant(variant: VariantName, selector: string, body: string): string {
+/** Pseudo-classe correspondant a un variant d'etat. */
+const STATE_PSEUDO: Readonly<Record<string, string>> = {
+  hover: ':hover',
+  focus: ':focus-visible',
+  active: ':active',
+}
+
+/**
+ * Enveloppe des regles dans le contexte d'un variant, simple ou compose.
+ *
+ * Le theme sombre produit deux ecritures : le choix explicite du developpeur
+ * l'emporte sur la preference systeme, dans les deux sens. Un variant compose
+ * — `dark:hover` — ajoute la pseudo-classe au selecteur avant de l'inscrire
+ * dans les deux contextes de theme.
+ */
+function wrapVariant(variant: AnyVariant, selector: string, body: string): string {
+  const segments = variant.split(':')
+  const dark = segments.includes('dark')
+
+  let scoped = selector
+  for (const segment of segments) {
+    const pseudo = STATE_PSEUDO[segment]
+    if (pseudo !== undefined) scoped += pseudo
+  }
+
+  if (dark) {
+    return [
+      `:root[data-theme="dark"] ${scoped}{${body}}`,
+      `@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) ${scoped}{${body}}}`,
+    ].join('\n')
+  }
+
+  if (scoped !== selector) return `${scoped}{${body}}`
+
   switch (variant) {
-    case 'hover':
-      return `${selector}:hover{${body}}`
-    case 'focus':
-      return `${selector}:focus-visible{${body}}`
-    case 'active':
-      return `${selector}:active{${body}}`
     case 'sm':
     case 'md':
     case 'lg':
@@ -1267,13 +1412,8 @@ function wrapVariant(variant: VariantName, selector: string, body: string): stri
       return `@media (width < ${breakpoint.md}){${selector}{${body}}}`
     case 'max-lg':
       return `@media (width < ${breakpoint.lg}){${selector}{${body}}}`
-    case 'dark':
-      // Deux ecritures : le choix explicite du developpeur l'emporte sur la
-      // preference systeme, dans les deux sens.
-      return [
-        `:root[data-theme="dark"] ${selector}{${body}}`,
-        `@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) ${selector}{${body}}}`,
-      ].join('\n')
+    default:
+      return `${selector}{${body}}`
   }
 }
 
@@ -1285,9 +1425,9 @@ function declareVars(group: string, scale: Readonly<Record<string, string>>): st
 }
 
 /** Preflight minimal : le strict necessaire pour que les tokens s'appliquent. */
-const PREFLIGHT = `*,*::before,*::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:${v('color', 'border')}}
+const PREFLIGHT = `*,*::before,*::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:${v('palette', 'zinc-200')}}
 html{-webkit-text-size-adjust:100%;tab-size:4}
-body{margin:0;font-family:${v('font', 'sans')};font-size:${v('text', 'base')};line-height:${v('leading', 'normal')};color:${v('color', 'fg')};background-color:${v('color', 'bg')};-webkit-font-smoothing:antialiased}
+body{margin:0;font-family:${v('font', 'sans')};font-size:${v('text', 'base')};line-height:${v('leading', 'normal')};color:${v('palette', 'zinc-900')};background-color:${v('palette', 'zinc-50')};-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4,h5,h6,p,figure,blockquote,dl,dd,pre{margin:0}
 h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}
 ol,ul,menu{list-style:none;margin:0;padding:0}
@@ -1296,11 +1436,11 @@ button,input,select,textarea{font:inherit;color:inherit;margin:0;background:tran
 button,[role="button"]{cursor:pointer}
 table{border-collapse:collapse}
 code,kbd,samp,pre{font-family:${v('font', 'mono')};font-size:1em}
-mark{background-color:${v('color', 'highlight')};color:inherit;border-radius:0.125em;padding-inline:0.125em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-:where(a){color:${v('color', 'link')}}
-:where(a:hover){color:${v('color', 'link-hover')}}
-::selection{background-color:${v('color', 'selection')}}
-:where(:focus-visible){outline:2px solid ${v('color', 'ring')};outline-offset:2px}
+mark{background-color:oklch(90.5% 0.182 98.111 / 0.55);color:inherit;border-radius:0.125em;padding-inline:0.125em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+:where(a){color:${v('palette', 'brand-600')}}
+:where(a:hover){color:${v('palette', 'brand-700')}}
+::selection{background-color:${v('palette', 'brand-100')}}
+:where(:focus-visible){outline:2px solid ${v('palette', 'brand-500')};outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}`
 
 /**
@@ -1374,6 +1514,44 @@ const VIEW_TRANSITIONS = `::view-transition-old(root){animation:o-vt-out ${v('du
 ::view-transition-new(o-page){animation:o-vt-page-in ${v('duration', 'base')} ${v('ease', 'entrance')} both}
 @media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root),::view-transition-old(o-page),::view-transition-new(o-page){animation:none}}`
 
+/**
+ * Valeurs par defaut du document en theme sombre.
+ *
+ * ## Pourquoi ce bloc existe
+ *
+ * Le fond de la page, la couleur du texte, celle des liens : rien de tout cela
+ * ne peut passer par une classe, puisqu'il n'y a pas d'element a habiller. Une
+ * couche semantique reglait la question toute seule — la variable changeait,
+ * le document suivait.
+ *
+ * Sans elle, ces valeurs sont ecrites deux fois : une fois en clair dans le
+ * preflight, une fois ici. C'est le prix de la palette brute, et il se paie
+ * exactement une fois, a cet endroit, plutot qu'a chaque composant.
+ */
+function darkPreflight(): string {
+  const rules: readonly string[] = [
+    `*,*::before,*::after{border-color:${v('palette', 'zinc-800')}}`,
+    `body{color:${v('palette', 'zinc-50')};background-color:${v('palette', 'zinc-950')}}`,
+    `:where(a){color:${v('palette', 'brand-300')}}`,
+    `:where(a:hover){color:${v('palette', 'brand-200')}}`,
+    `::selection{background-color:${v('palette', 'brand-900')}}`,
+    `mark{background-color:oklch(82.8% 0.189 84.429 / 0.35)}`,
+  ]
+
+  /** Prefixe chaque regle par une portee de theme. */
+  const scope = (prefix: string): string =>
+    rules.map((rule) => `${prefix} ${rule}`).join('\n')
+
+  return [
+    ':root[data-theme="dark"]{color-scheme:dark}',
+    scope(':root[data-theme="dark"]'),
+    '@media (prefers-color-scheme:dark){',
+    ':root:not([data-theme="light"]){color-scheme:dark}',
+    scope(':root:not([data-theme="light"])'),
+    '}',
+  ].join('\n')
+}
+
 /** Bloc des variables de tokens, commun aux deux feuilles. */
 function variableBlock(): string[] {
   return [
@@ -1382,7 +1560,6 @@ function variableBlock(): string[] {
     `  --o-spacing: ${spacingBase};`,
     ...declareVars('space', space),
     ...declareVars('palette', palette),
-    ...declareVars('color', colorLight),
     ...declareVars('font', fontFamily),
     ...declareVars('text', fontSize),
     ...Object.entries(fontSizeLeading).map(
@@ -1409,20 +1586,11 @@ function variableBlock(): string[] {
     '  color-scheme: light dark;',
     '}',
     '',
-    '/* Theme sombre : preference systeme, sauf choix explicite contraire. */',
-    '@media (prefers-color-scheme: dark) {',
-    '  :root:not([data-theme="light"]) {',
-    ...declareVars('color', colorDark).map((line) => `  ${line}`),
-    '  }',
-    '}',
-    '',
-    '/* Theme sombre force. */',
-    ':root[data-theme="dark"] {',
-    ...declareVars('color', colorDark),
-    '}',
-    '',
     '/* Preflight. */',
     PREFLIGHT,
+    '',
+    '/* Preflight — theme sombre. */',
+    darkPreflight(),
     '',
     '/* Images-cles. */',
     KEYFRAMES,

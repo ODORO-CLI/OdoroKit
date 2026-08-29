@@ -198,7 +198,7 @@ export function SelectDoc(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Chaque entree de <code className="o-font-mono o-text-sm">options</code> est un{' '}
           <code className="o-font-mono o-text-sm">SelectOption</code> :
         </p>

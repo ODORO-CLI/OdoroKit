@@ -83,7 +83,7 @@ odoro odoro.json ecrit.
   imports      @/odoro/…
   registre     https://registre.odoro.dev`}</Terminal>
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Quand aucun alias n est declare, la commande le dit et retombe sur un chemin nu.
           La reponse est notee dans{' '}
           <code className="o-font-mono o-text-sm">odoro.json</code> et n est plus jamais
@@ -118,7 +118,7 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
         title="L ecriture est transactionnelle"
         lead="Une installation ecrit plusieurs fichiers. Si la troisieme echoue, une approche naive laisse un projet a moitie servi — et personne ne sait ce qui a ete touche."
       >
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Les fichiers sont donc d abord ecrits <strong>a cote</strong> de leur
           destination, sous un nom temporaire ; rien d observable n a change a ce stade.
           Ils ne sont mis en place qu ensuite. Un echec avant la mise en place laisse le
@@ -137,7 +137,7 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
         title="diff, et les trois versions"
         lead="Comparer le fichier local a celui du registre ne dit presque rien : s'ils different, on ne sait pas si c'est une retouche locale ou une evolution amont. Ce sont pourtant deux situations opposees."
       >
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           L empreinte notee a l installation fournit le troisieme point de reference. Avec
           elle, les quatre cas se distinguent sans ambiguite.
         </p>
@@ -152,17 +152,26 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
   hooks/use-poster src/odoro/hooks/usePoster.ts
     retouche localement`}</Terminal>
 
-        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-border">
+        <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
             <thead>
-              <tr className="o-border-b o-border-border o-bg-bg-subtle o-text-left">
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+              <tr className="o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-text-left">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   local vs livre
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   amont vs livre
                 </th>
-                <th scope="col" className="o-px-4 o-py-2 o-font-medium o-text-fg-muted">
+                <th
+                  scope="col"
+                  className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   verdict
                 </th>
               </tr>
@@ -174,21 +183,26 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
                 ['identique', 'different', 'une mise a jour existe'],
                 ['different', 'different', 'divergence'],
               ].map((row) => (
-                <tr key={row.join()} className="o-border-b o-border-border-subtle">
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-fg-muted">
+                <tr
+                  key={row.join()}
+                  className="o-border-b o-border-zinc-100 dark:o-border-zinc-900"
+                >
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                     {row[0]}
                   </td>
-                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-fg-muted">
+                  <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                     {row[1]}
                   </td>
-                  <td className="o-px-4 o-py-2 o-text-fg">{row[2]}</td>
+                  <td className="o-px-4 o-py-2 o-text-zinc-900 dark:o-text-zinc-50">
+                    {row[2]}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Le dernier cas est le seul qui demande une decision humaine, et c est exactement
           celui qu une comparaison a deux termes aurait noye dans les autres.
         </p>
@@ -207,7 +221,7 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
 
 odoro 1 probleme(s).`}</Terminal>
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Une retouche locale n est pas un probleme — c est la raison d etre de la copie.
           Elle est signalee parce qu une reinstallation l effacerait.
         </p>
@@ -224,7 +238,7 @@ import { usePoster } from '@registre/hooks/usePoster'
 // Ce qui est ecrit chez vous :
 import { usePoster } from '@/odoro/hooks/usePoster'`}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Le jeton ne resout nulle part, ce qui est voulu : un composant qui l aurait
           garde par accident echoue a la compilation au lieu d aller chercher sur npm.
           Tout le reste est laisse intact —{' '}
@@ -233,10 +247,10 @@ import { usePoster } from '@/odoro/hooks/usePoster'`}
           <code className="o-font-mono o-text-sm">gsap</code> sont de vrais paquets : ils
           s installent, ils ne se copient pas.
         </p>
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
             to="/docs/registre"
-            className="o-text-link hover:o-text-link-hover o-underline"
+            className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             Le format
           </Link>{' '}

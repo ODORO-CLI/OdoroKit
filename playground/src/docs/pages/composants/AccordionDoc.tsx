@@ -207,7 +207,7 @@ export function AccordionDoc(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">AccordionItem</code> :
         </p>

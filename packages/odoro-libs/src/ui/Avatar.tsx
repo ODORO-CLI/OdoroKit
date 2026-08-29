@@ -100,7 +100,7 @@ export function Avatar({
       ref={ref}
       className={cx(
         'o-inline-flex o-items-center o-justify-center o-shrink-0 o-select-none',
-        'o-overflow-hidden o-bg-primary-soft o-text-primary o-font-medium',
+        'o-overflow-hidden o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 o-font-medium',
         SIZE_CLASSES[size],
         shape === 'circle' ? 'o-rounded-full' : 'o-rounded-md',
         className,
@@ -176,7 +176,7 @@ export function AvatarGroup({
         // Le lisere de surface detache chaque avatar de celui qu'il recouvre.
         <span
           key={index}
-          className="o-inline-flex o-rounded-full o-border-w-2 o-border-surface"
+          className="o-inline-flex o-rounded-full o-border-w-2 o-border-white dark:o-border-zinc-900"
           style={index === 0 ? undefined : overlap}
         >
           {item}
@@ -186,8 +186,8 @@ export function AvatarGroup({
         <span
           className={cx(
             'o-inline-flex o-items-center o-justify-center o-shrink-0 o-select-none',
-            'o-rounded-full o-border-w-2 o-border-surface',
-            'o-bg-surface-sunken o-text-fg-muted o-font-medium',
+            'o-rounded-full o-border-w-2 o-border-white dark:o-border-zinc-900',
+            'o-bg-zinc-100 dark:o-bg-zinc-950 o-text-zinc-500 dark:o-text-zinc-400 o-font-medium',
             SIZE_CLASSES[size],
           )}
           style={visible.length === 0 ? undefined : overlap}

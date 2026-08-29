@@ -31,7 +31,7 @@ export function Home() {
         <h1 className="o-text-4xl o-font-bold o-tracking-tight">
           Un point de depart maitrise.
         </h1>
-        <p className="o-mt-4 o-text-lg o-text-fg-muted o-max-w-prose">
+        <p className="o-mt-4 o-text-lg o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Ce projet a ete genere par <code className="o-font-mono">odoro create</code>. Le
           routeur, le moteur d animation et le systeme de style viennent tous de la meme
           librairie.
@@ -42,10 +42,12 @@ export function Home() {
         {FEATURES.map((feature) => (
           <article
             key={feature.title}
-            className="o-rounded-lg o-border-w-1 o-border-border o-bg-surface o-p-5"
+            className="o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-5"
           >
             <h2 className="o-font-semibold">{feature.title}</h2>
-            <p className="o-mt-2 o-text-sm o-text-fg-muted">{feature.body}</p>
+            <p className="o-mt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+              {feature.body}
+            </p>
           </article>
         ))}
       </Stagger>

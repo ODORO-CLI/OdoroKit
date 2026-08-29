@@ -88,7 +88,9 @@ export function RadioGroup({
     // Le navigateur dote le fieldset d'une bordure et de marges : remises a
     // zero pour qu'il soit invisible dans la mise en page.
     <fieldset className={cx('o-m-0 o-border-w-0 o-p-0', className)}>
-      <legend className="o-p-0 o-text-sm o-font-medium o-text-fg">{label}</legend>
+      <legend className="o-p-0 o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50">
+        {label}
+      </legend>
 
       <div
         className={cx(
@@ -135,21 +137,26 @@ export function RadioGroup({
                     'o-inline-flex o-items-center o-justify-center o-shrink-0',
                     'o-h-4 o-w-4 o-rounded-full o-border-w-1 o-transition',
                     isSelected
-                      ? 'o-bg-primary o-border-primary'
-                      : 'o-bg-surface o-border-border-strong',
+                      ? 'o-bg-brand-600 dark:o-bg-brand-400 o-border-brand-600 dark:o-border-brand-400'
+                      : 'o-bg-white dark:o-bg-zinc-900 o-border-zinc-300 dark:o-border-zinc-700',
                     focusedValue === item.value && 'o-ring',
                   )}
                 >
                   {isSelected ? (
-                    <span className="o-h-1.5 o-w-1.5 o-rounded-full o-bg-on-primary" />
+                    <span className="o-h-1.5 o-w-1.5 o-rounded-full o-bg-white dark:o-bg-zinc-950" />
                   ) : null}
                 </span>
 
-                <span className="o-text-sm o-font-medium o-text-fg">{item.label}</span>
+                <span className="o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50">
+                  {item.label}
+                </span>
               </label>
 
               {item.description !== undefined ? (
-                <p id={descriptionId} className="o-pl-6 o-text-sm o-text-fg-muted">
+                <p
+                  id={descriptionId}
+                  className="o-pl-6 o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+                >
                   {item.description}
                 </p>
               ) : null}

@@ -65,10 +65,13 @@ ToastContext.displayName = 'OdoroToast'
 
 /** Couleurs par registre, en classes de la feuille de base. */
 const TONE_CLASSES: Readonly<Record<ToastTone, string>> = {
-  info: 'o-bg-info-soft o-border-info-border o-text-fg',
-  success: 'o-bg-success-soft o-border-success-border o-text-fg',
-  warning: 'o-bg-warning-soft o-border-warning-border o-text-fg',
-  danger: 'o-bg-danger-soft o-border-danger-border o-text-fg',
+  info: 'o-bg-sky-50 dark:o-bg-sky-950 o-border-sky-200 dark:o-border-sky-800 o-text-zinc-900 dark:o-text-zinc-50',
+  success:
+    'o-bg-emerald-50 dark:o-bg-emerald-950 o-border-emerald-200 dark:o-border-emerald-800 o-text-zinc-900 dark:o-text-zinc-50',
+  warning:
+    'o-bg-amber-50 dark:o-bg-amber-950 o-border-amber-200 dark:o-border-amber-800 o-text-zinc-900 dark:o-text-zinc-50',
+  danger:
+    'o-bg-red-50 dark:o-bg-red-950 o-border-red-200 dark:o-border-red-800 o-text-zinc-900 dark:o-text-zinc-50',
 }
 
 /** Proprietes de {@link ToastProvider}. */
@@ -201,14 +204,16 @@ function ToastItem({ toast, onDismiss }: ToastItemProps): ReactElement | null {
       <div className="o-flex o-flex-col o-gap-1 o-flex-1 o-min-w-0">
         <p className="o-text-sm o-font-medium">{toast.title}</p>
         {toast.description === undefined ? null : (
-          <p className="o-text-sm o-text-fg-muted">{toast.description}</p>
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+            {toast.description}
+          </p>
         )}
       </div>
       <button
         type="button"
         onClick={() => setVisible(false)}
         aria-label="Fermer la notification"
-        className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-fg-muted hover:o-text-fg o-transition"
+        className="o-shrink-0 o-cursor-pointer o-rounded-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-transition"
       >
         <svg
           width="16"

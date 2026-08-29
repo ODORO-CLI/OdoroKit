@@ -11,8 +11,8 @@ import { cx } from '../styles/cx.js'
 /** Habillage d'une touche isolee. */
 const KEY_CLASSES = cx(
   'o-inline-flex o-items-center o-justify-center',
-  'o-text-xs o-font-mono o-text-fg',
-  'o-bg-surface-sunken o-border-w-1 o-border-border o-rounded-sm o-shadow-2xs',
+  'o-text-xs o-font-mono o-text-zinc-900 dark:o-text-zinc-50',
+  'o-bg-zinc-100 dark:o-bg-zinc-950 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-sm o-shadow-2xs',
   'o-px-1.5 o-py-0.5 o-select-none',
 )
 
@@ -52,7 +52,10 @@ export function Kbd({ keys, children, className, ...rest }: KbdProps): ReactElem
       {keys.map((key, index) => (
         <Fragment key={`${key}-${index}`}>
           {index > 0 ? (
-            <span aria-hidden="true" className="o-text-xs o-text-fg-subtle">
+            <span
+              aria-hidden="true"
+              className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500"
+            >
               +
             </span>
           ) : null}

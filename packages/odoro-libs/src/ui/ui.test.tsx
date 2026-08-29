@@ -23,12 +23,14 @@ describe('Button', () => {
       </Button>,
     )
     const className = screen.getByRole('button').className
-    expect(className).toContain('o-bg-danger')
+    expect(className).toContain('o-bg-red-600 dark:o-bg-red-400')
     expect(className).toContain('o-h-8')
   })
 
   it('expose sa table de classes pour habiller un autre element', () => {
-    expect(buttonClasses({ tone: 'ghost' })).toContain('o-text-fg')
+    expect(buttonClasses({ tone: 'ghost' })).toContain(
+      'o-text-zinc-900 dark:o-text-zinc-50',
+    )
     expect(buttonClasses({ block: 'true' })).toContain('o-w-full')
   })
 

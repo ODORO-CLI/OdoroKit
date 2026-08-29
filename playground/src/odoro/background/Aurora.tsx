@@ -66,10 +66,15 @@ export interface AuroraOwnProps {
 export type AuroraProps = Customisable<AuroraOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-color-primary', '--o-color-accent', '--o-bg'] as const
+const DEFAULT_TOKENS = [
+  '--o-palette-brand-600',
+  '--o-palette-fuchsia-600',
+  '--o-palette-zinc-50',
+] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-primary o-to-accent'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400'
 
 /**
  * Nombre d'octaves en qualite basse.
@@ -91,7 +96,7 @@ const LOW_OCTAVES = 2
  *
  * @example
  * // Les couleurs suivent la palette : trois tokens, pas trois valeurs.
- * <Aurora colors={['--o-color-danger', '--o-color-warning', '--o-bg-subtle']} />
+ * <Aurora colors={['--o-palette-red-600', '--o-palette-amber-600', '--o-palette-zinc-900']} />
  */
 export function Aurora({
   speed = 0.12,

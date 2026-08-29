@@ -98,25 +98,29 @@ export function Table<T>({
 
   return (
     <div className={cx('o-overflow-x-auto o-w-full', className)}>
-      <table className="o-w-full o-text-sm o-text-fg">
+      <table className="o-w-full o-text-sm o-text-zinc-900 dark:o-text-zinc-50">
         {caption === undefined ? null : (
           <caption
             className={cx(
-              showCaption ? 'o-text-left o-text-sm o-text-fg-muted o-pb-2' : 'o-sr-only',
+              showCaption
+                ? 'o-text-left o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-pb-2'
+                : 'o-sr-only',
             )}
           >
             {caption}
           </caption>
         )}
-        <thead className={cx(stickyHeader && 'o-sticky o-top-0 o-bg-surface')}>
+        <thead
+          className={cx(stickyHeader && 'o-sticky o-top-0 o-bg-white dark:o-bg-zinc-900')}
+        >
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
                 scope="col"
                 className={cx(
-                  'o-text-fg-muted o-text-sm o-font-medium',
-                  'o-border-b o-border-border',
+                  'o-text-zinc-500 dark:o-text-zinc-400 o-text-sm o-font-medium',
+                  'o-border-b o-border-zinc-200 dark:o-border-zinc-800',
                   cellPadding,
                   ALIGN_CLASSES[column.align ?? 'left'],
                 )}
@@ -131,7 +135,10 @@ export function Table<T>({
             <tr>
               <td
                 colSpan={columns.length}
-                className={cx('o-text-center o-text-fg-muted o-py-8', 'o-px-4')}
+                className={cx(
+                  'o-text-center o-text-zinc-500 dark:o-text-zinc-400 o-py-8',
+                  'o-px-4',
+                )}
               >
                 {empty}
               </td>
@@ -141,15 +148,15 @@ export function Table<T>({
               <tr
                 key={rowKey(row)}
                 className={cx(
-                  striped && index % 2 === 1 && 'o-bg-surface-sunken',
-                  hoverable && 'hover:o-bg-surface-hover o-transition',
+                  striped && index % 2 === 1 && 'o-bg-zinc-100 dark:o-bg-zinc-950',
+                  hoverable && 'hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 o-transition',
                 )}
               >
                 {columns.map((column) => (
                   <td
                     key={column.key}
                     className={cx(
-                      'o-border-b o-border-border o-align-middle',
+                      'o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-align-middle',
                       cellPadding,
                       ALIGN_CLASSES[column.align ?? 'left'],
                     )}

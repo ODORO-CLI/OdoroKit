@@ -106,9 +106,17 @@ Une documentation par sous-module, avec des exemples exécutables :
 
 **Pas de moteur JIT pour les styles.** Les tokens sont la source de vérité ; un
 script en dérive une feuille statique. Aucune analyse du code applicatif,
-aucune étape à l'exécution. Le prix est un fichier de taille fixe : 20 Ko
-compressés pour la feuille de base, 35 Ko pour celle qui expose les 290 nuances
-de la palette. On importe l'une **ou** l'autre.
+aucune étape à l'exécution. Le prix est un fichier de taille fixe : 52 Ko
+compressés (brotli) pour la feuille de base, 76 Ko pour celle qui expose les
+290 nuances. On importe l'une **ou** l'autre.
+
+**Pas de couche sémantique.** Une couleur se désigne par sa place dans la
+palette — `zinc-900`, `brand-600` — jamais par le rôle qu'elle joue, et le
+thème s'écrit sur chaque classe : `o-bg-white dark:o-bg-zinc-900`. On voit donc
+la couleur qu'on écrit, au lieu de la chercher dans une table de rôles. La
+contrepartie est mesurée et se paie sur la feuille : +26 % par rapport au
+modèle à variables, parce que chaque couleur a désormais besoin de ses
+variantes croisées avec le thème (`dark:hover:`).
 
 **Pas de moteur d'interpolation en JavaScript.** Les animations sont confiées
 au moteur du navigateur, qui les exécute sur son fil de composition. Aucune

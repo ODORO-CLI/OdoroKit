@@ -135,7 +135,7 @@ function MainDemo(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-items-center o-gap-3 o-pb-8">
       <DropdownMenu label="Actions" items={items} />
-      <span className="o-text-sm o-text-fg-muted">
+      <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         {lastAction === null ? (
           'Aucune action selectionnee'
         ) : (
@@ -247,7 +247,7 @@ const [lastAction, setLastAction] = useState<string | null>(null)
             },
           ]}
         />
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Une entree est soit un separateur{' '}
           <code className="o-font-mono o-text-xs">{`{ type: 'separator' }`}</code>, soit
           une action <code className="o-font-mono o-text-xs">DropdownMenuAction</code> :

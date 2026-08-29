@@ -19,7 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
-  "tokens": ["--o-color-primary", "--o-color-accent"],
+  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600"],
   "props": [
     {
       "name": "amplitude",
@@ -54,7 +54,7 @@
     {
       "name": "colors",
       "type": "readonly [string, string]",
-      "default": "--o-color-primary, --o-color-accent",
+      "default": "--o-palette-brand-600, --o-palette-fuchsia-600",
       "description": "Tokens du coeur et de la croute."
     },
     {

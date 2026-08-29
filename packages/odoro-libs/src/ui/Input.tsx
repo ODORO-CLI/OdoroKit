@@ -17,7 +17,7 @@ import { cx, variants } from '../styles/cx.js'
 /** Classes du champ, exposees pour habiller un `<textarea>` ou un `<select>`. */
 export const inputClasses = variants({
   base: cx(
-    'o-w-full o-rounded-md o-border-w-1 o-bg-surface o-text-fg o-transition',
+    'o-w-full o-rounded-md o-border-w-1 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 o-transition',
     'o-appearance-none',
   ),
   variants: {
@@ -27,8 +27,9 @@ export const inputClasses = variants({
       lg: 'o-h-12 o-px-4 o-text-lg',
     },
     invalid: {
-      true: 'o-border-danger-border',
-      false: 'o-border-border hover:o-border-border-strong',
+      true: 'o-border-red-200 dark:o-border-red-800',
+      false:
+        'o-border-zinc-200 dark:o-border-zinc-800 hover:o-border-zinc-300 dark:hover:o-border-zinc-700',
     },
   },
   defaults: { size: 'md', invalid: 'false' },
@@ -97,7 +98,10 @@ export function Input({
     <div className={cx('o-flex o-flex-col o-gap-1', wrapperClassName)}>
       <label
         htmlFor={inputId}
-        className={cx('o-text-sm o-font-medium o-text-fg', hideLabel && 'o-sr-only')}
+        className={cx(
+          'o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50',
+          hideLabel && 'o-sr-only',
+        )}
       >
         {label}
       </label>
@@ -117,11 +121,15 @@ export function Input({
       />
 
       {invalid ? (
-        <p id={errorId} role="alert" className="o-text-sm o-text-danger">
+        <p
+          id={errorId}
+          role="alert"
+          className="o-text-sm o-text-red-600 dark:o-text-red-400"
+        >
           {error}
         </p>
       ) : hint !== undefined ? (
-        <p id={hintId} className="o-text-sm o-text-fg-muted">
+        <p id={hintId} className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           {hint}
         </p>
       ) : null}

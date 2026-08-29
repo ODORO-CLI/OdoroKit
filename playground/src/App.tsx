@@ -67,11 +67,14 @@ import { TableDoc } from './docs/pages/composants/TableDoc.jsx'
 function Introuvable(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-items-center o-gap-4 o-py-24 o-text-center">
-      <p className="o-text-6xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-primary o-to-accent">
+      <p className="o-text-6xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400">
         404
       </p>
-      <p className="o-text-fg-muted">Cette page n'existe pas.</p>
-      <Link to="/" className="o-text-link hover:o-text-link-hover o-underline">
+      <p className="o-text-zinc-500 dark:o-text-zinc-400">Cette page n'existe pas.</p>
+      <Link
+        to="/"
+        className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
+      >
         Retour a l'accueil
       </Link>
     </div>
@@ -87,7 +90,11 @@ export function App(): ReactElement {
       <Router>
         <ToastProvider>
           <Shell>
-            <Routes fallback={<p className="o-text-fg-muted">Chargement...</p>}>
+            <Routes
+              fallback={
+                <p className="o-text-zinc-500 dark:o-text-zinc-400">Chargement...</p>
+              }
+            >
               <Route index element={<Accueil />} />
               <Route path="docs/installation" element={<Installation />} />
               <Route path="docs/styles" element={<StylesOverview />} />

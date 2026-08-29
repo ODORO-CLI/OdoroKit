@@ -37,7 +37,7 @@ function Chevron(): ReactElement {
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"
-      className="o-shrink-0 o-text-fg-subtle"
+      className="o-shrink-0 o-text-zinc-400 dark:o-text-zinc-500"
     >
       <path
         d="M9 6l6 6-6 6"
@@ -88,15 +88,23 @@ export function Breadcrumb({
               )}
               <li className="o-flex o-items-center">
                 {isLast ? (
-                  <span aria-current="page" className="o-text-fg o-font-medium">
+                  <span
+                    aria-current="page"
+                    className="o-text-zinc-900 dark:o-text-zinc-50 o-font-medium"
+                  >
                     {item.label}
                   </span>
                 ) : item.href === undefined ? (
-                  <span className="o-text-fg-muted">{item.label}</span>
+                  <span className="o-text-zinc-500 dark:o-text-zinc-400">
+                    {item.label}
+                  </span>
                 ) : (
                   <a
                     href={item.href}
-                    className={cx('o-text-fg-muted hover:o-text-fg', 'o-transition')}
+                    className={cx(
+                      'o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50',
+                      'o-transition',
+                    )}
                   >
                     {item.label}
                   </a>

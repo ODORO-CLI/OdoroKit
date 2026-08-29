@@ -15,7 +15,7 @@ export function Routage() {
 
       <section className="o-flex o-flex-col o-gap-2">
         <h2 className="o-text-lg o-font-semibold">Parametre de route</h2>
-        <p className="o-text-fg-muted">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400">
           Segment <code className="o-font-mono">:id</code> capture :{' '}
           <strong className="o-tabular-nums">{id}</strong>
         </p>
@@ -30,7 +30,7 @@ export function Routage() {
 
       <section className="o-flex o-flex-col o-gap-2">
         <h2 className="o-text-lg o-font-semibold">Chaine de requete</h2>
-        <p className="o-text-fg-muted o-tabular-nums">Page {page}</p>
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">Page {page}</p>
         <div className="o-flex o-gap-2">
           <Button
             size="sm"

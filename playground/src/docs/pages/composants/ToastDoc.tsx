@@ -184,7 +184,7 @@ clear()     // ferme toutes les notifications`}
       </Section>
 
       <Section title="Props">
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Props de <code className="o-font-mono o-text-xs">ToastProvider</code> :
         </p>
         <PropsTable
@@ -214,7 +214,7 @@ clear()     // ferme toutes les notifications`}
             },
           ]}
         />
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Champs de <code className="o-font-mono o-text-xs">ToastInput</code>, l'objet
           passe a <code className="o-font-mono o-text-xs">toast()</code> :
         </p>

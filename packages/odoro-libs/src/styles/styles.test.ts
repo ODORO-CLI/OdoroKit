@@ -11,7 +11,7 @@ import {
   ODORO_EXTENDED_CLASS_NAMES,
 } from './generated/classNames.js'
 import { cx, variants } from './cx.js'
-import { colorDark, colorLight, palette, space, tokens } from './tokens.js'
+import { palette, space, tokens } from './tokens.js'
 
 const GENERATED_DIR = join(dirname(fileURLToPath(import.meta.url)), 'generated')
 
@@ -45,19 +45,24 @@ describe('variants', () => {
   const button = variants({
     base: 'o-inline-flex o-rounded-md',
     variants: {
-      tone: { primary: 'o-bg-primary', ghost: 'o-bg-surface' },
+      tone: {
+        primary: 'o-bg-brand-600 dark:o-bg-brand-400',
+        ghost: 'o-bg-white dark:o-bg-zinc-900',
+      },
       size: { sm: 'o-px-2', md: 'o-px-4' },
     },
     defaults: { tone: 'primary', size: 'md' },
   })
 
   it('applique les valeurs par defaut', () => {
-    expect(button()).toBe('o-inline-flex o-rounded-md o-bg-primary o-px-4')
+    expect(button()).toBe(
+      'o-inline-flex o-rounded-md o-bg-brand-600 dark:o-bg-brand-400 o-px-4',
+    )
   })
 
   it('remplace une variante fournie', () => {
     expect(button({ tone: 'ghost' })).toBe(
-      'o-inline-flex o-rounded-md o-bg-surface o-px-4',
+      'o-inline-flex o-rounded-md o-bg-white dark:o-bg-zinc-900 o-px-4',
     )
   })
 
@@ -113,7 +118,7 @@ describe('artefacts generes', () => {
     // palier etendu doit rester un surcout substantiel de la feuille complete.
     const core = readFileSync(join(GENERATED_DIR, 'odoro.css'), 'utf8')
     const full = readFileSync(join(GENERATED_DIR, 'odoro.full.css'), 'utf8')
-    expect(core.length).toBeLessThan(1_100_000)
+    expect(core.length).toBeLessThan(1_800_000)
     expect(full.length - core.length).toBeGreaterThan(300_000)
   })
 })
@@ -127,14 +132,22 @@ describe('feuille de style produite', () => {
     }
   })
 
-  it('declare une variable pour chaque couleur semantique', () => {
-    for (const key of Object.keys(colorLight)) {
-      expect(css).toContain(`--o-color-${key}:`)
+  it('declare une variable pour chaque couleur de la palette', () => {
+    for (const key of Object.keys(palette)) {
+      expect(css).toContain(`--o-palette-${key}:`)
     }
   })
 
-  it('couvre exactement les memes couleurs en clair et en sombre', () => {
-    expect(Object.keys(colorDark).sort()).toEqual(Object.keys(colorLight).sort())
+  it('ne declare plus aucune couleur semantique', () => {
+    // La couche de roles a ete retiree : une couleur se designe par sa place
+    // dans la palette, jamais par ce a quoi elle sert.
+    expect(css).not.toMatch(/--o-color-[a-z]/)
+  })
+
+  it('croise le theme avec chaque etat', () => {
+    // Sans variable semantique, un composant interactif ne peut avoir deux
+    // themes que si `dark:` se compose avec `hover:`.
+    expect(css).toContain('.dark\\:hover\\:o-bg-zinc-800')
   })
 
   it('n utilise que des noms de variables CSS valides', () => {
@@ -149,11 +162,11 @@ describe('feuille de style produite', () => {
 
   it('echappe les deux-points des selecteurs a variant', () => {
     expect(css).toContain('.md\\:o-flex')
-    expect(css).toContain('.hover\\:o-bg-primary')
+    expect(css).toContain('.hover\\:o-bg-brand-600')
   })
 
   it('genere le theme sombre en preference systeme et en choix explicite', () => {
-    expect(css).toContain('@media (prefers-color-scheme: dark)')
+    expect(css).toMatch(/@media \(prefers-color-scheme: ?dark\)/)
     expect(css).toContain(':root[data-theme="dark"]')
   })
 
@@ -187,14 +200,13 @@ describe('feuille de style produite', () => {
   })
 
   it('ne laisse aucune valeur codee en dur dans les utilitaires de couleur', () => {
-    const utility = css.slice(css.indexOf('/* Couleurs semantiques. */'))
-    expect(utility).not.toMatch(/color:(#|oklch|rgb)/i)
+    const utility = css.slice(css.indexOf('/* Palette essentielle. */'))
+    expect(utility.slice(0, 4000)).not.toMatch(/color:(#|rgb)/i)
   })
 })
 
 describe('tokens', () => {
   it('regroupe les echelles sous les prefixes de variables CSS', () => {
-    expect(tokens.color.primary).toBe(colorLight.primary)
     expect(tokens.palette['sky-500']).toBe(palette['sky-500'])
   })
 

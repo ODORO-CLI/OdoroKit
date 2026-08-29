@@ -26,16 +26,18 @@ function PresetCard({ name }: { name: MotionPresetName }): ReactElement {
     <button
       type="button"
       onClick={() => setCount((current) => current + 1)}
-      className="o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-h-32 o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-4 hover:o-border-border-strong o-transition-colors o-cursor-pointer o-overflow-hidden"
+      className="o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-h-32 o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer o-overflow-hidden"
       aria-label={`Rejouer ${name}`}
     >
       <Animate
         as="span"
         preset={name}
         trigger={count}
-        className="o-block o-size-16 o-rounded-lg o-bg-primary"
+        className="o-block o-size-16 o-rounded-lg o-bg-brand-600 dark:o-bg-brand-400"
       />
-      <span className="o-font-mono o-text-xs o-text-fg-muted">{name}</span>
+      <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+        {name}
+      </span>
     </button>
   )
 }

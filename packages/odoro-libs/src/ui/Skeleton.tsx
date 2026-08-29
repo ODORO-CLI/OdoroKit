@@ -47,7 +47,7 @@ export function Skeleton({
   ...rest
 }: SkeletonProps): ReactElement {
   const shimmer = cx(
-    'o-animate-shimmer o-bg-surface-sunken',
+    'o-animate-shimmer o-bg-zinc-100 dark:o-bg-zinc-950',
     variant === 'circle' ? 'o-rounded-full' : 'o-rounded-md',
   )
 

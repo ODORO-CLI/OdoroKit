@@ -52,9 +52,11 @@ export function SpinnerDoc(): ReactElement {
         <Callout>
           Le dessin herite de <code className="o-font-mono o-text-sm">currentColor</code>{' '}
           : posez une classe de couleur de texte (par exemple{' '}
-          <code className="o-font-mono o-text-sm">o-text-primary</code>) sur le composant
-          pour le teinter. Le libelle est masque visuellement mais annonce via{' '}
-          <code className="o-font-mono o-text-sm">role="status"</code>.
+          <code className="o-font-mono o-text-sm">
+            o-text-brand-600 dark:o-text-brand-400
+          </code>
+          ) sur le composant pour le teinter. Le libelle est masque visuellement mais
+          annonce via <code className="o-font-mono o-text-sm">role="status"</code>.
         </Callout>
       </Section>
 
@@ -82,7 +84,7 @@ export function SpinnerDoc(): ReactElement {
         <DemoBlock
           code={`<Card>
   <div className="o-flex o-items-center o-justify-center o-py-12">
-    <Spinner size="lg" label="Chargement des projets" className="o-text-primary" />
+    <Spinner size="lg" label="Chargement des projets" className="o-text-brand-600 dark:o-text-brand-400" />
   </div>
 </Card>`}
         >
@@ -91,7 +93,7 @@ export function SpinnerDoc(): ReactElement {
               <Spinner
                 size="lg"
                 label="Chargement des projets"
-                className="o-text-primary"
+                className="o-text-brand-600 dark:o-text-brand-400"
               />
             </div>
           </Card>

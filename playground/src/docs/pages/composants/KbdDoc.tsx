@@ -66,7 +66,7 @@ export function KbdDoc(): ReactElement {
   <Kbd keys={['Ctrl', 'Entree']} /> pour envoyer directement.
 </p>`}
         >
-          <p className="o-text-sm o-text-fg o-max-w-prose">
+          <p className="o-text-sm o-text-zinc-900 dark:o-text-zinc-50 o-max-w-prose">
             Appuyez sur <Kbd>Echap</Kbd> pour fermer la fenetre, ou sur{' '}
             <Kbd keys={['Ctrl', 'Entree']} /> pour envoyer directement.
           </p>

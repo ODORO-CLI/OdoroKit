@@ -240,7 +240,7 @@ export function DropdownMenu({
           onKeyDown={handleMenuKeyDown}
           className={cx(
             'o-absolute o-top-full o-mt-2 o-left-0 o-z-overlay o-w-56',
-            'o-bg-surface-raised o-border-w-1 o-border-border',
+            'o-bg-white dark:o-bg-zinc-800 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800',
             'o-rounded-md o-shadow-lg o-p-1',
           )}
         >
@@ -250,7 +250,7 @@ export function DropdownMenu({
                 // Un separateur n'a pas d'identifiant : sa position suffit.
                 key={`separator-${index}`}
                 role="separator"
-                className="o-my-1 o-h-px o-bg-border"
+                className="o-my-1 o-h-px o-bg-zinc-200 dark:o-bg-zinc-800"
               />
             ) : (
               <button
@@ -266,10 +266,12 @@ export function DropdownMenu({
                 className={cx(
                   'o-flex o-w-full o-items-center o-gap-2 o-rounded-sm',
                   'o-px-2 o-py-1.5 o-text-sm o-text-left o-transition',
-                  item.danger === true ? 'o-text-danger' : 'o-text-fg',
+                  item.danger === true
+                    ? 'o-text-red-600 dark:o-text-red-400'
+                    : 'o-text-zinc-900 dark:o-text-zinc-50',
                   item.disabled === true
                     ? 'o-opacity-50 o-cursor-not-allowed'
-                    : 'o-cursor-pointer hover:o-bg-surface-hover focus:o-bg-surface-hover',
+                    : 'o-cursor-pointer hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 focus:o-bg-zinc-50 dark:focus:o-bg-zinc-800',
                 )}
               >
                 {item.icon === undefined ? null : (
@@ -279,7 +281,7 @@ export function DropdownMenu({
                 )}
                 <span className="o-flex-1">{item.label}</span>
                 {item.shortcut === undefined ? null : (
-                  <span className="o-ml-auto o-text-fg-subtle o-text-xs">
+                  <span className="o-ml-auto o-text-zinc-400 dark:o-text-zinc-500 o-text-xs">
                     {item.shortcut}
                   </span>
                 )}

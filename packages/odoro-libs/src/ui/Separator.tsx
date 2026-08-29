@@ -59,14 +59,21 @@ export function Separator({
       <div
         {...rest}
         {...aria}
-        className={cx('o-w-px o-self-stretch o-bg-border', className)}
+        className={cx(
+          'o-w-px o-self-stretch o-bg-zinc-200 dark:o-bg-zinc-800',
+          className,
+        )}
       />
     )
   }
 
   if (label === undefined) {
     return (
-      <div {...rest} {...aria} className={cx('o-h-px o-w-full o-bg-border', className)} />
+      <div
+        {...rest}
+        {...aria}
+        className={cx('o-h-px o-w-full o-bg-zinc-200 dark:o-bg-zinc-800', className)}
+      />
     )
   }
 
@@ -76,9 +83,11 @@ export function Separator({
       {...aria}
       className={cx('o-flex o-items-center o-gap-3 o-w-full', className)}
     >
-      <span className="o-h-px o-flex-1 o-bg-border" />
-      <span className="o-text-sm o-text-fg-muted o-shrink-0">{label}</span>
-      <span className="o-h-px o-flex-1 o-bg-border" />
+      <span className="o-h-px o-flex-1 o-bg-zinc-200 dark:o-bg-zinc-800" />
+      <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-shrink-0">
+        {label}
+      </span>
+      <span className="o-h-px o-flex-1 o-bg-zinc-200 dark:o-bg-zinc-800" />
     </div>
   )
 }

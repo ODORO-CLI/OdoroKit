@@ -22,12 +22,12 @@ const REVEAL_NAMES = Object.keys(revealPresets) as readonly RevealPresetName[]
 
 /** Classes partagees des boutons de reglage des demos. */
 const CONTROL_BUTTON =
-  'o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer'
+  'o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer'
 
 /** Cadre d'apercu commun aux demos de la page. */
 function Preview({ children }: { children: ReactElement }): ReactElement {
   return (
-    <div className="o-flex o-items-center o-justify-center o-p-8 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-overflow-hidden">
+    <div className="o-flex o-items-center o-justify-center o-p-8 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-overflow-hidden">
       {children}
     </div>
   )
@@ -65,10 +65,10 @@ function RevealDemo(): ReactElement {
         <Reveal
           key={`${preset}-${round}`}
           preset={preset}
-          className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-6 o-max-w-sm"
+          className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-6 o-max-w-sm"
         >
           <p className="o-font-semibold">Bloc revele</p>
-          <p className="o-text-sm o-text-fg-muted">
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             L'animation part quand le bloc entre a l'ecran, depuis l'etat{' '}
             <span className="o-font-mono o-text-xs">{preset}</span>.
           </p>
@@ -96,7 +96,7 @@ function StaggerDemo(): ReactElement {
           {[1, 2, 3, 4, 5, 6].map((index) => (
             <div
               key={index}
-              className="o-size-16 o-rounded-lg o-bg-primary-soft o-border-w-1 o-border-primary-border o-flex o-items-center o-justify-center o-text-primary o-font-semibold"
+              className="o-size-16 o-rounded-lg o-bg-brand-50 dark:o-bg-brand-950 o-border-w-1 o-border-brand-200 dark:o-border-brand-800 o-flex o-items-center o-justify-center o-text-brand-600 dark:o-text-brand-400 o-font-semibold"
             >
               {index}
             </div>
@@ -123,7 +123,7 @@ function TextRevealDemo(): ReactElement {
               setBy(mode)
               setRound((n) => n + 1)
             }}
-            className={`${CONTROL_BUTTON} ${by === mode ? 'o-border-primary-border o-bg-primary-soft o-text-primary' : ''}`}
+            className={`${CONTROL_BUTTON} ${by === mode ? 'o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400' : ''}`}
           >
             by=&quot;{mode}&quot;
           </button>
@@ -157,10 +157,12 @@ function AnimateDemo(): ReactElement {
         preset="pop"
         trigger={count}
         onClick={() => setCount((n) => n + 1)}
-        className="o-rounded-lg o-bg-surface o-border-w-1 o-border-border o-p-6 o-shadow-sm o-cursor-pointer o-select-none"
+        className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-6 o-shadow-sm o-cursor-pointer o-select-none"
       >
         <p className="o-font-semibold">Cliquez-moi</p>
-        <p className="o-text-sm o-text-fg-muted o-tabular-nums">pop x {count + 1}</p>
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">
+          pop x {count + 1}
+        </p>
       </Animate>
     </Preview>
   )

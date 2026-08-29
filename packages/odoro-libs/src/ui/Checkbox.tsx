@@ -157,8 +157,8 @@ export function Checkbox({
             'o-inline-flex o-items-center o-justify-center o-shrink-0',
             'o-h-4 o-w-4 o-rounded-sm o-border-w-1 o-transition',
             filled
-              ? 'o-bg-primary o-border-primary o-text-on-primary'
-              : 'o-bg-surface o-border-border-strong',
+              ? 'o-bg-brand-600 dark:o-bg-brand-400 o-border-brand-600 dark:o-border-brand-400 o-text-white dark:o-text-zinc-950'
+              : 'o-bg-white dark:o-bg-zinc-900 o-border-zinc-300 dark:o-border-zinc-700',
             focused && 'o-ring',
             className,
           )}
@@ -185,11 +185,16 @@ export function Checkbox({
           ) : null}
         </span>
 
-        <span className="o-text-sm o-font-medium o-text-fg">{label}</span>
+        <span className="o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50">
+          {label}
+        </span>
       </label>
 
       {description !== undefined ? (
-        <p id={descriptionId} className="o-pl-6 o-text-sm o-text-fg-muted">
+        <p
+          id={descriptionId}
+          className="o-pl-6 o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+        >
           {description}
         </p>
       ) : null}

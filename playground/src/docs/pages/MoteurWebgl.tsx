@@ -75,15 +75,17 @@ function SurfaceDemo(): ReactElement {
 
   return (
     <div className="o-flex o-flex-col o-gap-3">
-      <div className="o-relative o-h-64 o-w-full o-overflow-hidden o-rounded-lg o-border-w-1 o-border-border">
+      <div className="o-relative o-h-64 o-w-full o-overflow-hidden o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
         <div ref={ref} className="o-absolute o-inset-0" />
 
         {ready && refused === undefined ? null : (
           <div className={`o-absolute o-inset-0 ${choix.fallback}`}>
             {refused === undefined ? null : (
-              <div className="o-absolute o-inset-x-0 o-bottom-0 o-bg-bg/80 o-backdrop-blur-sm o-p-3 o-text-xs o-text-fg-muted">
+              <div className="o-absolute o-inset-x-0 o-bottom-0 o-bg-white dark:o-bg-zinc-950/80 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {REFUSAL_TEXT[refused] ?? refused}{' '}
-                <span className="o-text-fg-subtle">Le repli est ce que vous voyez.</span>
+                <span className="o-text-zinc-400 dark:o-text-zinc-500">
+                  Le repli est ce que vous voyez.
+                </span>
               </div>
             )}
           </div>
@@ -99,14 +101,16 @@ function SurfaceDemo(): ReactElement {
             aria-pressed={effet === name}
             className={`o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-transition-colors o-cursor-pointer ${
               effet === name
-                ? 'o-border-primary-border o-bg-primary-soft o-text-primary'
-                : 'o-border-border o-bg-surface o-text-fg hover:o-border-border-strong'
+                ? 'o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400'
+                : 'o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700'
             }`}
           >
             {EFFETS[name].label}
           </button>
         ))}
-        <span className="o-text-sm o-text-fg-muted">{choix.note}</span>
+        <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+          {choix.note}
+        </span>
       </div>
     </div>
   )
@@ -125,12 +129,17 @@ function ArbitreDemo(): ReactElement {
   const capacity = surfaceManager.capacity
 
   return (
-    <div className="o-flex o-flex-col o-gap-4 o-rounded-lg o-border-w-1 o-border-border o-bg-bg-subtle o-p-6">
-      <p className="o-text-sm o-text-fg-muted">
+    <div className="o-flex o-flex-col o-gap-4 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         Plafond de cette page :{' '}
-        <span className="o-font-mono o-text-fg">{capacity.max}</span> surfaces au total,{' '}
-        <span className="o-font-mono o-text-fg">{capacity.maxPerBackend}</span> par
-        backend.
+        <span className="o-font-mono o-text-zinc-900 dark:o-text-zinc-50">
+          {capacity.max}
+        </span>{' '}
+        surfaces au total,{' '}
+        <span className="o-font-mono o-text-zinc-900 dark:o-text-zinc-50">
+          {capacity.maxPerBackend}
+        </span>{' '}
+        par backend.
       </p>
 
       <div ref={host} className="o-hidden" />
@@ -159,7 +168,7 @@ function ArbitreDemo(): ReactElement {
                 setMessage(`${backend} : refusee (${result.reason}) — ${result.message}`)
               }
             }}
-            className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors o-cursor-pointer o-font-mono"
+            className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer o-font-mono"
           >
             Demander une surface {backend}
           </button>
@@ -167,10 +176,12 @@ function ArbitreDemo(): ReactElement {
       </div>
 
       {message === null ? null : (
-        <p className="o-font-mono o-text-xs o-text-fg-muted">{message}</p>
+        <p className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+          {message}
+        </p>
       )}
 
-      <p className="o-text-xs o-text-fg-subtle">
+      <p className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
         Le backend leger est deja pris par l effet ci-dessus. C est ce qui rend le premier
         bouton instructif.
       </p>
@@ -262,7 +273,7 @@ function Aurore(): ReactElement {
           ]}
         />
 
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Un refus n est pas une erreur. C est une reponse, que l appelant sait traiter :
           il affiche son repli. Le contraire — accorder toujours, et laisser le navigateur
           trancher — produit une page ou un fond disparait sans que personne ne puisse
@@ -281,7 +292,7 @@ disposeScene(scene, renderer)
 // L arbitre libere la surface et retire le canevas.
 surface.release()`}
         />
-        <p className="o-text-fg-muted o-max-w-prose">
+        <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Le moteur enregistre chaque surface. Ce qui n est pas libere apparait au
           diagnostic, au lieu de se deviner dans un profil memoire.
         </p>

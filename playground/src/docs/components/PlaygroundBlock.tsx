@@ -80,11 +80,11 @@ function ControlField({
 }): ReactElement {
   const label = control.label ?? control.name
   const inputClass =
-    'o-w-full o-h-8 o-px-2 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg hover:o-border-border-strong o-transition-colors'
+    'o-w-full o-h-8 o-px-2 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors'
 
   if (control.type === 'boolean') {
     return (
-      <label className="o-flex o-items-center o-justify-between o-gap-2 o-text-sm o-text-fg o-cursor-pointer">
+      <label className="o-flex o-items-center o-justify-between o-gap-2 o-text-sm o-text-zinc-900 dark:o-text-zinc-50 o-cursor-pointer">
         <span className="o-font-mono o-text-xs">{label}</span>
         <input
           type="checkbox"
@@ -97,8 +97,10 @@ function ControlField({
   }
 
   return (
-    <label className="o-flex o-flex-col o-gap-1 o-text-sm o-text-fg">
-      <span className="o-font-mono o-text-xs o-text-fg-muted">{label}</span>
+    <label className="o-flex o-flex-col o-gap-1 o-text-sm o-text-zinc-900 dark:o-text-zinc-50">
+      <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+        {label}
+      </span>
       {control.type === 'select' ? (
         <select
           value={String(value)}
@@ -153,14 +155,14 @@ export function PlaygroundBlock({
 
   return (
     <div className="o-flex o-flex-col o-gap-3">
-      <div className="o-grid o-grid-cols-1 lg:o-grid-cols-3 o-rounded-lg o-border-w-1 o-border-border o-overflow-hidden">
+      <div className="o-grid o-grid-cols-1 lg:o-grid-cols-3 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-overflow-hidden">
         <div
-          className={`lg:o-col-span-2 o-flex o-items-center o-justify-center o-p-8 o-bg-bg-subtle o-overflow-x-auto ${previewClassName ?? ''}`}
+          className={`lg:o-col-span-2 o-flex o-items-center o-justify-center o-p-8 o-bg-zinc-50 dark:o-bg-zinc-900 o-overflow-x-auto ${previewClassName ?? ''}`}
         >
           {render(values)}
         </div>
-        <div className="o-flex o-flex-col o-gap-3 o-p-4 o-border-t lg:o-border-t o-border-border o-bg-surface lg:o-border-l">
-          <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-fg-subtle">
+        <div className="o-flex o-flex-col o-gap-3 o-p-4 o-border-t lg:o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 lg:o-border-l">
+          <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
             Reglages
           </p>
           {controls.map((control) => (
@@ -176,7 +178,7 @@ export function PlaygroundBlock({
           <button
             type="button"
             onClick={() => setValues(defaults)}
-            className="o-self-start o-text-xs o-text-fg-muted hover:o-text-fg o-underline o-underline-offset-2 o-cursor-pointer o-transition-colors"
+            className="o-self-start o-text-xs o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-underline o-underline-offset-2 o-cursor-pointer o-transition-colors"
           >
             Reinitialiser
           </button>
@@ -188,7 +190,7 @@ export function PlaygroundBlock({
           type="button"
           onClick={() => setShowCode((current) => !current)}
           aria-expanded={showCode}
-          className="o-text-sm o-text-fg-muted hover:o-text-fg o-cursor-pointer o-transition-colors o-inline-flex o-items-center o-gap-1"
+          className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 o-cursor-pointer o-transition-colors o-inline-flex o-items-center o-gap-1"
         >
           <svg
             width="14"

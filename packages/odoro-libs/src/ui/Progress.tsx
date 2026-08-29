@@ -12,10 +12,10 @@ import { cx } from '../styles/cx.js'
 const TONE_CLASSES: Readonly<
   Record<'primary' | 'success' | 'warning' | 'danger', string>
 > = {
-  primary: 'o-bg-primary',
-  success: 'o-bg-success',
-  warning: 'o-bg-warning',
-  danger: 'o-bg-danger',
+  primary: 'o-bg-brand-600 dark:o-bg-brand-400',
+  success: 'o-bg-emerald-600 dark:o-bg-emerald-400',
+  warning: 'o-bg-amber-600 dark:o-bg-amber-400',
+  danger: 'o-bg-red-600 dark:o-bg-red-400',
 }
 
 /** Hauteur de la piste par taille. */
@@ -87,7 +87,7 @@ export function Progress({
         aria-valuemax={max}
         aria-valuenow={indeterminate ? undefined : bounded}
         className={cx(
-          'o-flex-1 o-bg-surface-sunken o-rounded-full o-overflow-hidden',
+          'o-flex-1 o-bg-zinc-100 dark:o-bg-zinc-950 o-rounded-full o-overflow-hidden',
           SIZE_CLASSES[size],
         )}
       >
@@ -101,7 +101,7 @@ export function Progress({
         />
       </div>
       {showValue && !indeterminate ? (
-        <span className="o-text-sm o-text-fg-muted o-tabular-nums o-shrink-0">
+        <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums o-shrink-0">
           {Math.round(percent)}%
         </span>
       ) : null}

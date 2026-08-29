@@ -89,13 +89,13 @@ export interface VariantsConfig<S extends VariantSchema> {
  * const button = variants({
  *   base: 'o-inline-flex o-items-center o-rounded-md',
  *   variants: {
- *     tone: { primary: 'o-bg-primary o-text-fg-inverted', ghost: 'o-bg-surface' },
+ *     tone: { primary: 'o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950', ghost: 'o-bg-white dark:o-bg-zinc-900' },
  *     size: { sm: 'o-px-2 o-text-sm', md: 'o-px-4 o-text-base' },
  *   },
  *   defaults: { tone: 'primary', size: 'md' },
  * })
  *
- * button({ size: 'sm' })            // '... o-bg-primary ... o-px-2 o-text-sm'
+ * button({ size: 'sm' })            // '... o-bg-brand-600 dark:o-bg-brand-400 ... o-px-2 o-text-sm'
  * button({ tone: 'ghost', className: 'o-w-full' })
  */
 export function variants<S extends VariantSchema>(

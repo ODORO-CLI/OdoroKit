@@ -37,7 +37,7 @@ export interface SpinnerProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'cla
  * `role="status"` et un libelle masque, le SVG restant decoratif.
  *
  * @example
- * <Spinner size="lg" label="Chargement des projets" className="o-text-primary" />
+ * <Spinner size="lg" label="Chargement des projets" className="o-text-brand-600 dark:o-text-brand-400" />
  */
 export function Spinner({
   size = 'md',

@@ -31,7 +31,7 @@ src/
 ## Personnalisation
 
 Toutes les valeurs visuelles passent par des variables CSS. Surcharger
-`--o-color-primary` dans `src/styles.css` retheme l'application **et** les
+`--o-palette-brand-600` dans `src/styles.css` retheme l'application **et** les
 composants de la librairie, sans toucher a leur code.
 
 Deux feuilles de style sont disponibles :

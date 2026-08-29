@@ -22,7 +22,7 @@ const DEMO_ITEMS: readonly TabItem[] = [
     id: 'apercu',
     label: 'Apercu',
     content: (
-      <p className="o-text-sm o-text-fg-muted o-max-w-prose">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
         Vue d'ensemble du projet : etat d'avancement, derniers changements et indicateurs
         cles.
       </p>
@@ -32,7 +32,7 @@ const DEMO_ITEMS: readonly TabItem[] = [
     id: 'reglages',
     label: 'Reglages',
     content: (
-      <p className="o-text-sm o-text-fg-muted o-max-w-prose">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
         Nom du projet, visibilite, membres et permissions. Chaque changement est
         enregistre immediatement.
       </p>
@@ -42,7 +42,7 @@ const DEMO_ITEMS: readonly TabItem[] = [
     id: 'facturation',
     label: 'Facturation',
     content: (
-      <p className="o-text-sm o-text-fg-muted o-max-w-prose">
+      <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
         Section reservee au proprietaire du projet.
       </p>
     ),
@@ -62,7 +62,7 @@ function ControlledDemo(): ReactElement {
         onValueChange={setActive}
       />
       <div className="o-flex o-items-center o-gap-2">
-        <span className="o-text-sm o-text-fg-muted">
+        <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Onglet actif : <code className="o-font-mono o-text-xs">{active}</code>
         </span>
         <Button size="sm" tone="secondary" onClick={() => setActive('reglages')}>
@@ -173,7 +173,7 @@ export function TabsDoc(): ReactElement {
             },
           ]}
         />
-        <p className="o-text-sm o-text-fg-muted">
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
           Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">TabItem</code> :
         </p>

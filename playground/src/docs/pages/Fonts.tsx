@@ -52,16 +52,19 @@ applyFontFamily('sans', 'Inter')`}
         title="Essayer une famille"
         lead="Le registre recense environ 90 familles avec leur categorie — sans-serif, serif, monospace, display, manuscrite. Choisissez : la police se charge, l'apercu bascule."
       >
-        <div className="o-flex o-flex-col o-gap-0 o-rounded-lg o-border-w-1 o-border-border o-overflow-hidden">
-          <div className="o-flex o-items-center o-gap-3 o-p-4 o-bg-surface o-border-b o-border-border">
-            <label className="o-text-sm o-text-fg-muted" htmlFor="fonts-family">
+        <div className="o-flex o-flex-col o-gap-0 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-overflow-hidden">
+          <div className="o-flex o-items-center o-gap-3 o-p-4 o-bg-white dark:o-bg-zinc-900 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
+            <label
+              className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400"
+              htmlFor="fonts-family"
+            >
               Famille
             </label>
             <select
               id="fonts-family"
               value={family}
               onChange={(event) => setFamily(event.target.value)}
-              className="o-h-8 o-px-2 o-text-sm o-rounded-md o-border-w-1 o-border-border o-bg-surface o-text-fg o-cursor-pointer"
+              className="o-h-8 o-px-2 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 o-cursor-pointer"
             >
               {FAMILIES.map((name) => (
                 <option key={name} value={name}>
@@ -69,16 +72,16 @@ applyFontFamily('sans', 'Inter')`}
                 </option>
               ))}
             </select>
-            <span className="o-font-mono o-text-xs o-text-fg-subtle">
+            <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
               {GOOGLE_FONTS[family as keyof typeof GOOGLE_FONTS]}
             </span>
           </div>
           <div
-            className="o-flex o-flex-col o-gap-3 o-p-8 o-bg-bg-subtle"
+            className="o-flex o-flex-col o-gap-3 o-p-8 o-bg-zinc-50 dark:o-bg-zinc-900"
             style={{ fontFamily: fontStack(family) }}
           >
             <h3 className="o-text-3xl o-font-bold">Portez ce vieux whisky</h3>
-            <p className="o-max-w-prose o-text-fg-muted">
+            <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
               Portez ce vieux whisky au juge blond qui fume — le pangramme montre chaque
               lettre de la famille chargee, en graisse normale puis{' '}
               <strong>en gras</strong>. 0123456789.

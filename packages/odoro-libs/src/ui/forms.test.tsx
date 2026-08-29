@@ -189,7 +189,7 @@ describe('Checkbox', () => {
   it('remplit la boite dessinee quand la case est cochee', () => {
     render(<Checkbox label="Option" defaultChecked />)
     const box = document.querySelector('span[aria-hidden="true"]')
-    expect(box?.className).toContain('o-bg-primary')
+    expect(box?.className).toContain('o-bg-brand-600 dark:o-bg-brand-400')
   })
 
   it('pose indeterminate sur l element natif', () => {
@@ -355,7 +355,9 @@ describe('Switch', () => {
 
   it('colore la piste selon l etat', () => {
     render(<Switch label="Notifications" defaultChecked />)
-    expect(screen.getByRole('switch').className).toContain('o-bg-primary')
+    expect(screen.getByRole('switch').className).toContain(
+      'o-bg-brand-600 dark:o-bg-brand-400',
+    )
   })
 
   it('applique les classes de taille', () => {
@@ -364,7 +366,9 @@ describe('Switch', () => {
   })
 
   it('expose sa table de classes pour habiller un autre element', () => {
-    expect(switchClasses({ checked: 'true' })).toContain('o-bg-primary')
+    expect(switchClasses({ checked: 'true' })).toContain(
+      'o-bg-brand-600 dark:o-bg-brand-400',
+    )
     expect(switchClasses({ size: 'sm' })).toContain('o-w-7')
   })
 

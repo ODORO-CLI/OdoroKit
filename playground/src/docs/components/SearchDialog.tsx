@@ -83,10 +83,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
       onClick={(event) => {
         if (event.target === dialogRef.current) onClose()
       }}
-      className="o-w-full o-max-w-xl o-rounded-xl o-border-w-1 o-border-border o-bg-surface-raised o-text-fg o-shadow-xl o-p-0 o-mt-24 o-animate-scale-in"
+      className="o-w-full o-max-w-xl o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-800 o-text-zinc-900 dark:o-text-zinc-50 o-shadow-xl o-p-0 o-mt-24 o-animate-scale-in"
       style={{ marginInline: 'auto' }}
     >
-      <div className="o-flex o-items-center o-gap-2 o-px-4 o-border-b o-border-border">
+      <div className="o-flex o-items-center o-gap-2 o-px-4 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
         <svg
           width="16"
           height="16"
@@ -97,7 +97,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
           strokeLinecap="round"
           aria-hidden="true"
           focusable="false"
-          className="o-text-fg-subtle o-shrink-0"
+          className="o-text-zinc-400 dark:o-text-zinc-500 o-shrink-0"
         >
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
@@ -123,9 +123,9 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
           }}
           placeholder="Rechercher une page, un composant, un utilitaire..."
           aria-label="Rechercher"
-          className="o-w-full o-h-12 o-bg-transparent o-text-base o-text-fg o-outline-none"
+          className="o-w-full o-h-12 o-bg-transparent o-text-base o-text-zinc-900 dark:o-text-zinc-50 o-outline-none"
         />
-        <kbd className="o-shrink-0 o-text-xs o-font-mono o-text-fg-subtle o-border-w-1 o-border-border o-rounded-sm o-px-1.5 o-py-0.5">
+        <kbd className="o-shrink-0 o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-sm o-px-1.5 o-py-0.5">
           Echap
         </kbd>
       </div>
@@ -137,7 +137,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         aria-label="Resultats"
       >
         {results.length === 0 ? (
-          <p className="o-p-6 o-text-center o-text-sm o-text-fg-muted">
+          <p className="o-p-6 o-text-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             Aucun resultat pour « {query} ».
           </p>
         ) : (
@@ -150,20 +150,20 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => select(page.path)}
               className={`o-w-full o-flex o-items-center o-justify-between o-gap-3 o-rounded-md o-px-3 o-py-2 o-text-left o-cursor-pointer o-transition-colors ${
-                index === activeIndex ? 'o-bg-primary-soft' : ''
+                index === activeIndex ? 'o-bg-brand-50 dark:o-bg-brand-950' : ''
               }`}
             >
               <span className="o-flex o-flex-col o-min-w-0">
                 <span
-                  className={`o-text-sm o-font-medium ${index === activeIndex ? 'o-text-primary' : 'o-text-fg'}`}
+                  className={`o-text-sm o-font-medium ${index === activeIndex ? 'o-text-brand-600 dark:o-text-brand-400' : 'o-text-zinc-900 dark:o-text-zinc-50'}`}
                 >
                   {page.title}
                 </span>
-                <span className="o-text-xs o-text-fg-muted o-truncate">
+                <span className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400 o-truncate">
                   {page.description}
                 </span>
               </span>
-              <span className="o-shrink-0 o-text-xs o-text-fg-subtle">
+              <span className="o-shrink-0 o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
                 {page.section}
               </span>
             </button>
