@@ -1,0 +1,57 @@
+{
+  "name": "compare",
+  "category": "image",
+  "title": "Avant / apres",
+  "description": "Deux images superposees, revelees par une poignee au pointeur comme au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Compare.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "before",
+      "type": "{ src: string; alt: string }",
+      "required": true,
+      "description": "Image de gauche."
+    },
+    {
+      "name": "after",
+      "type": "{ src: string; alt: string }",
+      "required": true,
+      "description": "Image de droite."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur."
+    },
+    {
+      "name": "start",
+      "type": "number",
+      "default": 50,
+      "unit": "%",
+      "description": "Position initiale de la poignee."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du curseur, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une variable CSS ecrite au deplacement. Aucun rendu React pendant le glissement."
+  }
+}

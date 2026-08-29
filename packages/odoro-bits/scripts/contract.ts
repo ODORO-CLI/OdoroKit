@@ -46,7 +46,15 @@ const KNOWN_TOKENS: ReadonlySet<string> = new Set(
 )
 
 /** Categories dont les entrees rendent un element du document. */
-const RENDERING = new Set(['text', 'background', 'effect', 'hero', 'ui', 'section'])
+const RENDERING = new Set([
+  'text',
+  'background',
+  'effect',
+  'hero',
+  'image',
+  'ui',
+  'section',
+])
 
 /**
  * Un token consomme directement dans une source.

@@ -44,9 +44,10 @@ sans réinstallation.
 | `pnpm format`    | Prettier en écriture.                                   |
 | `pnpm changeset` | Décrit une modification en vue de la prochaine version. |
 
-Cinq vérifications passent par un vrai navigateur, le serveur du playground
+Six vérifications passent par un vrai navigateur, le serveur du playground
 étant démarré : `pnpm check:classes` (aucune classe employée n'est absente de
 la feuille — le défaut le plus silencieux d'un système statique),
+`pnpm check:interaction` (les composants interactifs tiennent au clavier seul),
 `pnpm check:smoke` (réseau, exécution, navigation),
 `pnpm check:moteur` (les pages du moteur et du registre : contenu réel,
 compteur d'images qui avance, canevas WebGL qui peint), `pnpm check:galerie`

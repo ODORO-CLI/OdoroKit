@@ -78,6 +78,15 @@
         }
       ]
     },
+    "effect/deform": {
+      "installedAt": "2026-08-29T03:48:36.180Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Deform.tsx",
+          "hash": "a3a2739fe48e693a"
+        }
+      ]
+    },
     "effect/magnetic": {
       "installedAt": "2026-08-29T02:52:09.485Z",
       "files": [
@@ -151,6 +160,24 @@
         {
           "path": "src/odoro/hooks/usePoster.ts",
           "hash": "8b03bcfec703ced9"
+        }
+      ]
+    },
+    "image/compare": {
+      "installedAt": "2026-08-29T03:48:36.180Z",
+      "files": [
+        {
+          "path": "src/odoro/image/Compare.tsx",
+          "hash": "15c2a42d2436dc3b"
+        }
+      ]
+    },
+    "image/frame": {
+      "installedAt": "2026-08-29T03:48:36.180Z",
+      "files": [
+        {
+          "path": "src/odoro/image/Frame.tsx",
+          "hash": "1de4a28fd33852de"
         }
       ]
     },

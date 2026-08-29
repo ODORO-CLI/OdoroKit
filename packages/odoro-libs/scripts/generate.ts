@@ -1230,9 +1230,9 @@ const FAMILIES: readonly Family[] = [
   {
     title: 'Interaction',
     tier: 'core',
-    // Le curseur change quand un controle est desactive : c'est le seul
-    // variant dont cette famille ait besoin.
-    variants: ['disabled'],
+    // Le curseur change quand un controle est desactive, et l'anneau se pose
+    // au focus : ces deux etats appartiennent au DOM, pas au composant.
+    variants: ['disabled', 'focus'],
     rules: merge(
       fromScale('duration', duration, (token, key) => ({
         [`duration-${key}`]: `transition-duration:${token}`,
@@ -1248,6 +1248,10 @@ const FAMILIES: readonly Family[] = [
         'cursor-progress': 'cursor:progress',
         'cursor-text': 'cursor:text',
         'cursor-move': 'cursor:move',
+        'cursor-ew-resize': 'cursor:ew-resize',
+        'cursor-ns-resize': 'cursor:ns-resize',
+        'cursor-col-resize': 'cursor:col-resize',
+        'cursor-row-resize': 'cursor:row-resize',
         'cursor-grab': 'cursor:grab',
         'cursor-grabbing': 'cursor:grabbing',
         'cursor-help': 'cursor:help',

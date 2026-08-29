@@ -36,6 +36,8 @@ import { RegistreGalerie } from './docs/pages/RegistreGalerie.jsx'
 import { Backgrounds } from './docs/pages/Backgrounds.jsx'
 import { TextAnimations } from './docs/pages/TextAnimations.jsx'
 import { MotionsLibrairie } from './docs/pages/MotionsLibrairie.jsx'
+import { Images } from './docs/pages/Images.jsx'
+import { SelectMenuDoc } from './docs/pages/composants/SelectMenuDoc.jsx'
 
 import { ButtonDoc } from './docs/pages/composants/ButtonDoc.jsx'
 import { InputDoc } from './docs/pages/composants/InputDoc.jsx'
@@ -123,6 +125,8 @@ export function App(): ReactElement {
               <Route path="docs/backgrounds" element={<Backgrounds />} />
               <Route path="docs/text" element={<TextAnimations />} />
               <Route path="docs/motion/librairie" element={<MotionsLibrairie />} />
+              <Route path="docs/images" element={<Images />} />
+              <Route path="docs/composants/select-menu" element={<SelectMenuDoc />} />
               <Route path="docs/composants/button" element={<ButtonDoc />} />
               <Route path="docs/composants/input" element={<InputDoc />} />
               <Route path="docs/composants/textarea" element={<TextareaDoc />} />

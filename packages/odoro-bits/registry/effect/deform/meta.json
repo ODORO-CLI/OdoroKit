@@ -1,0 +1,57 @@
+{
+  "name": "deform",
+  "category": "effect",
+  "title": "Deformation",
+  "description": "Un filtre de deplacement pose sur n importe quel contenu : fond, texte ou image.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Deform.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "amount",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Amplitude du deplacement."
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "default": 0.012,
+      "description": "Finesse du bruit. Plus haut, plus serre."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.15,
+      "description": "Vitesse de derive du champ. Zero pour figer."
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "default": 2,
+      "description": "Detail du bruit. Retrograde a 1 en qualite basse."
+    },
+    {
+      "name": "onHover",
+      "type": "boolean",
+      "default": false,
+      "description": "Amplifie la deformation au survol seulement."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre natif, calcule une fois. Le mouvement translate le champ plutot que de le regenerer : animer la frequence effondrerait la cadence."
+  }
+}

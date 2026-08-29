@@ -36,6 +36,8 @@ const PAGES = [
   '/docs/backgrounds',
   '/docs/text',
   '/docs/motion/librairie',
+  '/docs/images',
+  '/docs/composants/select-menu',
 ]
 
 const failures = []

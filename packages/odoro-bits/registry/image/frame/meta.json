@@ -1,0 +1,56 @@
+{
+  "name": "frame",
+  "category": "image",
+  "title": "Cadre",
+  "description": "Une image avec rapport fige, silhouette de chargement et revelation en douceur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Frame.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur."
+    },
+    {
+      "name": "fit",
+      "type": "'cover' | 'contain'",
+      "default": "cover",
+      "description": "Ajustement dans le cadre."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 0,
+      "description": "Agrandissement au survol, de 0 a 0.3."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le rapport est fige avant le chargement : la page ne se decale pas quand l image arrive."
+  }
+}

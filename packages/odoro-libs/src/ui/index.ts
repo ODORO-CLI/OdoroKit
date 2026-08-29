@@ -15,6 +15,8 @@
 export { Button, buttonClasses, type ButtonProps } from './Button.jsx'
 export { Input, inputClasses, type InputProps } from './Input.jsx'
 export { Textarea, type TextareaProps } from './Textarea.jsx'
+export { SelectMenu, type SelectMenuOption, type SelectMenuProps } from './SelectMenu.js'
+
 export { Select, type SelectOption, type SelectProps } from './Select.jsx'
 export { Checkbox, type CheckboxProps } from './Checkbox.jsx'
 export { RadioGroup, type RadioGroupProps, type RadioItem } from './Radio.jsx'

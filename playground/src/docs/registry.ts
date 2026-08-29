@@ -63,6 +63,12 @@ export const COMPONENT_PAGES: readonly DocPage[] = [
     keywords: ['champ', 'multiligne'],
   },
   {
+    path: '/docs/composants/select-menu',
+    title: 'SelectMenu',
+    description: 'Liste deroulante riche : icones, descriptions, recherche.',
+    keywords: ['select', 'menu', 'combobox', 'liste', 'recherche', 'listbox'],
+  },
+  {
     path: '/docs/composants/select',
     title: 'Select',
     description: 'Liste deroulante native habillee.',
@@ -224,6 +230,26 @@ export const BACKGROUND_PAGES: readonly DocPage[] = [
   },
 ]
 
+/** Pages de la categorie Images. */
+export const IMAGE_PAGES: readonly DocPage[] = [
+  {
+    path: '/docs/images',
+    title: 'Cadre, comparaison, deformation',
+    description:
+      'Un cadre qui ne fait pas sauter la page, et une deformation applicable a tout contenu.',
+    keywords: [
+      'image',
+      'photo',
+      'cadre',
+      'frame',
+      'avant apres',
+      'compare',
+      'deform',
+      'filtre',
+    ],
+  },
+]
+
 /** Pages de la categorie Text Animations. */
 export const TEXT_PAGES: readonly DocPage[] = [
   {
@@ -267,6 +293,7 @@ export const COMPONENT_GROUPS: readonly DocGroup[] = [
       'input',
       'textarea',
       'select',
+      'select-menu',
       'checkbox',
       'radio',
       'switch',
@@ -385,6 +412,10 @@ export const DOC_SECTIONS: readonly DocSection[] = [
   {
     title: 'Text Animations',
     pages: TEXT_PAGES,
+  },
+  {
+    title: 'Images',
+    pages: IMAGE_PAGES,
   },
   {
     title: 'Motions',

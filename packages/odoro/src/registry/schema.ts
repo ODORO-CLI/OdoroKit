@@ -38,6 +38,7 @@ export const CATEGORIES = [
   'background',
   'effect',
   'hero',
+  'image',
   'ui',
   'section',
   'hooks',
