@@ -75,3 +75,40 @@ export {
   type DebugSnapshot,
   type OdoroDebugPanelProps,
 } from './core/debug.jsx'
+
+export {
+  ensurePlugin,
+  ensurePlugins,
+  isPluginRegistered,
+  loadScrollTrigger,
+  loadSplitText,
+  registeredPlugins,
+  type PluginName,
+} from './gsap/setup.js'
+
+export {
+  useTimeline,
+  useTween,
+  type TimelineHandle,
+  type TimelineOptions,
+  type TimelineSetup,
+  type TweenOptions,
+} from './gsap/use-timeline.js'
+
+export {
+  killScrollTriggers,
+  onRouteChange,
+  useScrollProgress,
+  useScrollTrigger,
+  type ScrollProgressHandle,
+  type ScrollProgressOptions,
+  type ScrollTriggerConfig,
+  type ScrollTriggerOptions,
+} from './gsap/use-scroll-trigger.js'
+
+export {
+  useSplitText,
+  type SplitBy,
+  type SplitTextHandle,
+  type SplitTextOptions,
+} from './gsap/use-split-text.js'

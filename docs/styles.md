@@ -15,6 +15,34 @@ import 'odoro-libs/styles.css'
 La feuille complète est un sur-ensemble de la feuille de base : on importe
 l'une **ou** l'autre.
 
+### Quand la feuille complète est nécessaire
+
+Dès que vous nommez une couleur de la **palette brute** — `sky-500`,
+`fuchsia-500`, `indigo-500` — plutôt qu'un rôle sémantique. Cela vaut pour
+`o-text-*`, `o-bg-*`, `o-border-*` et **aussi pour les jalons de dégradé**
+`o-from-*`, `o-via-*`, `o-to-*`.
+
+Ce dernier cas mérite un avertissement, parce qu'il échoue en silence. Les
+classes de **direction** (`o-bg-gradient-to-r`, `o-bg-gradient-radial`) sont
+dans la feuille de base ; les jalons de la palette brute ne le sont pas. Un
+`o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500` avec la seule feuille de
+base produit donc un dégradé **syntaxiquement valide et entièrement
+transparent** : la direction s'applique, les couleurs manquent, et rien ne le
+signale — ni erreur de console, ni classe absente.
+
+Deux façons de s'en prémunir :
+
+```html
+<!-- Avec la feuille de base : des rôles sémantiques -->
+<div class="o-bg-gradient-to-r o-from-primary o-to-accent"></div>
+
+<!-- Avec la feuille complète : toute la palette -->
+<div class="o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500"></div>
+```
+
+La feuille de base contient 135 jalons de dégradé, tous sémantiques ; la
+complète en contient 1038.
+
 Ce découpage a une raison précise. Le système refuse toute analyse du code
 applicatif : la feuille est un fichier statique, produit une fois, sans étape à
 l'exécution. Le prix de ce choix est une taille fixe, indépendante de l'usage.

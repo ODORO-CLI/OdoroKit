@@ -50,7 +50,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ['packages/odoro-libs/**/*.{ts,tsx}', 'playground/**/*.{ts,tsx}'],
+    files: [
+      'packages/odoro-libs/**/*.{ts,tsx}',
+      'packages/odoro-engine/**/*.{ts,tsx}',
+      'playground/**/*.{ts,tsx}',
+    ],
     plugins: { 'react-hooks': reactHooks },
     rules: {
       'react-hooks/rules-of-hooks': 'error',

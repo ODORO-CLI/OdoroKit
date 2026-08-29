@@ -6,7 +6,10 @@ import { applyFontFamily, loadGoogleFonts } from 'odoro-libs/styles'
 
 import { App } from './App.jsx'
 
-import 'odoro-libs/styles.css'
+// La feuille complete, et non la feuille de base : cette documentation
+// demontre la palette brute (`o-from-sky-500`), dont les jalons de degrade
+// n'existent que dans celle-ci.
+import 'odoro-libs/styles.full.css'
 
 // Polices du site, chargees par CDN — rien dans le bundle.
 loadGoogleFonts([

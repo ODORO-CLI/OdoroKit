@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     include: ['src/**/*.test.{ts,tsx}'],
+    setupFiles: ['./test/setup.ts'],
     restoreMocks: true,
   },
   esbuild: { jsx: 'automatic' },
