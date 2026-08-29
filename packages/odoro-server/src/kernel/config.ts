@@ -98,14 +98,21 @@ const kernelSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65_535).default(3001),
 
   /**
-   * L'URL décide du moteur, du pilote et des options.
+   * L'URL de la base. PostgreSQL, et rien d'autre.
    *
    * Une seule variable plutôt que cinq : un hôte, un port, un nom de base et
    * des identifiants séparés se désynchronisent, et l'erreur qui en résulte
    * est un refus de connexion sans indication de laquelle des cinq est
    * fautive.
+   *
+   * Elle peut être **vide hors production**. Un projet fraîchement échafaudé
+   * n'en a pas encore : le serveur démarre quand même, et `/ready` répond 503
+   * en disant ce qui manque. Refuser de démarrer ferait de la première
+   * impression un échec, alors que l'interface, elle, est déjà servie.
+   *
+   * En production, elle est exigée — voir {@link productionProblems}.
    */
-  DATABASE_URL: z.string().min(1, 'requise : postgres://… ou file:./storage/dev.db'),
+  DATABASE_URL: z.string().default(''),
 
   /** Réplica de lecture, optionnel. Le routage vers lui reste explicite. */
   DATABASE_REPLICA_URL: z.string().min(1).optional(),
@@ -155,11 +162,46 @@ const kernelSchema = z.object({
 /** La configuration du noyau. */
 export type KernelConfig = z.infer<typeof kernelSchema>
 
-/** Défauts propres au développement, refusés en production. */
+/**
+ * Défauts propres au développement, refusés en production.
+ *
+ * `DATABASE_URL` n'y figure pas, et ne peut pas y figurer : il n'y a pas de
+ * base locale. Ce qui la remplacerait serait une URL distante, c'est-à-dire un
+ * secret — et un secret n'a pas de valeur par défaut.
+ */
 const DEVELOPMENT_DEFAULTS: Readonly<Record<string, string>> = {
-  DATABASE_URL: 'file:./storage/dev.db',
   SESSION_SECRET: 'developpement-seulement-ne-jamais-employer-ailleurs',
   APP_URL: 'http://localhost:3001',
+}
+
+/**
+ * Ce qui est tolérable en développement et refusé en production.
+ *
+ * Ces règles ne peuvent pas vivre dans le schéma : elles dépendent d'une autre
+ * variable du même objet, et un schéma qui se référence lui-même rend le
+ * rapport d'erreur illisible.
+ */
+function productionProblems(config: KernelConfig): readonly ConfigProblem[] {
+  if (config.NODE_ENV !== 'production') return []
+
+  const problems: ConfigProblem[] = []
+
+  if (config.DATABASE_URL.trim().length === 0) {
+    problems.push({
+      variable: 'DATABASE_URL',
+      reason: 'requise en production : postgres://utilisateur:motdepasse@hote:5432/base',
+    })
+  } else if (!/^postgres(ql)?:\/\//.test(config.DATABASE_URL)) {
+    // La forme seulement : aucune connexion n'est ouverte ici. Une faute de
+    // frappe dans le mot de passe se decouvre au premier acces, pas au
+    // demarrage — c'est le prix d'un demarrage qui ne depend pas du reseau.
+    problems.push({
+      variable: 'DATABASE_URL',
+      reason: 'doit commencer par postgres:// ou postgresql://',
+    })
+  }
+
+  return problems
 }
 
 /** Un problème de configuration, tel qu'il est rapporté. */
@@ -220,7 +262,12 @@ export function loadConfig<Extra extends z.ZodRawShape = Record<never, never>>(
   }
 
   const result = schema.safeParse(applied)
-  if (result.success) return Object.freeze(result.data) as never
+
+  if (result.success) {
+    const extra = productionProblems(result.data as KernelConfig)
+    if (extra.length === 0) return Object.freeze(result.data) as never
+    throw new ConfigError(extra)
+  }
 
   // Tous les problemes d'un coup : une variable par execution ferait de la
   // mise en service une suite de redemarrages.

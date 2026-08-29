@@ -52,6 +52,7 @@ export {
   ForbiddenError,
   NotFoundError,
   RateLimitError,
+  ServiceUnavailableError,
   UnauthorizedError,
   ValidationError,
   createErrorHandler,

@@ -1,0 +1,78 @@
+# Copier ce fichier en `.env` et ajuster les valeurs.
+#
+# Toute variable manquante ou invalide arrete le serveur au demarrage, avec un
+# message qui les liste toutes d'un coup : mieux vaut un echec immediat qu'une
+# panne a la centieme requete.
+#
+# Ce fichier est versionne. `.env` ne l'est jamais.
+
+# ---------------------------------------------------------------------------
+# Base de donnees
+# ---------------------------------------------------------------------------
+
+# PostgreSQL, et rien d'autre. Aucune base locale : l'URL pointe sur une base
+# hebergee, la votre ou celle provisionnee par `odoro db:create`.
+#
+#   postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require
+#
+# Tant qu'elle est absente, le client demarre et le serveur repond 503 sur
+# /api/ready en disant ce qui manque.
+DATABASE_URL=
+
+# Replica de lecture, optionnel. Le routage vers lui reste explicite : jamais
+# de bascule automatique, le decalage de replication produit des defauts
+# incomprehensibles.
+# DATABASE_REPLICA_URL=
+
+# Taille du pool de connexions. Laisser vide pour le defaut de l'environnement.
+# DATABASE_POOL_MAX=
+
+# Desactive TLS. A ne poser que sur une base strictement locale a la machine,
+# jamais sur une base joignable par le reseau.
+# DATABASE_TLS_DISABLED=false
+
+# ---------------------------------------------------------------------------
+# Session
+# ---------------------------------------------------------------------------
+
+# Au moins 32 caracteres. Un secret court se retrouve par force brute, et le
+# jour ou c'est arrive, toutes les sessions emises depuis le premier jour sont
+# forgeables.
+#
+#   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+SESSION_SECRET=
+
+# ---------------------------------------------------------------------------
+# Serveur
+# ---------------------------------------------------------------------------
+
+# Environnement : development | test | production
+NODE_ENV=development
+
+# Port d'ecoute de l'API. Le client de developpement ecoute sur 5180 et lui
+# transmet les appels commencant par /api.
+PORT=3001
+
+# URL publique du serveur, employee dans les liens des courriels.
+APP_URL=http://localhost:3001
+
+# Origines autorisees, separees par des virgules. Vide = aucune origine
+# tierce. Jamais `*` avec des identifiants.
+ALLOWED_ORIGINS=
+
+# Plafond de la taille des corps de requete.
+BODY_LIMIT=1mb
+
+# Delai au-dela duquel l'arret propre cesse d'attendre les requetes en cours.
+SHUTDOWN_TIMEOUT=15s
+
+# Niveau de journalisation : fatal | error | warn | info | debug | trace
+LOG_LEVEL=info
+
+# ---------------------------------------------------------------------------
+# Files d'attente et cache
+# ---------------------------------------------------------------------------
+
+# Optionnel. Absente, le cache vit en memoire et les taches s'executent en
+# ligne — ce qui convient a une instance unique, et pas au-dela.
+# REDIS_URL=

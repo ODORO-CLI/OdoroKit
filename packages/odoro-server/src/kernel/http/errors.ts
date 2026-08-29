@@ -42,6 +42,7 @@ export const ERROR_KINDS = [
   'NOT_FOUND',
   'CONFLICT',
   'RATE_LIMIT',
+  'UNAVAILABLE',
   'INTERNAL',
 ] as const
 
@@ -56,6 +57,7 @@ const STATUS: Readonly<Record<ErrorKind, number>> = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   RATE_LIMIT: 429,
+  UNAVAILABLE: 503,
   INTERNAL: 500,
 }
 
@@ -174,6 +176,23 @@ export class RateLimitError extends ApiError {
   }
 }
 
+/**
+ * Une dependance manque, le service ne peut pas travailler.
+ *
+ * A distinguer de {@link ApiError} en 500 : un 503 dit que la demande etait
+ * valide et que le service est momentanement incapable d'y repondre. C'est ce
+ * qu'un repartiteur lit pour cesser d'envoyer du trafic — la ou un 500 le
+ * laisserait continuer, puisqu'il signale une requete fautive et non un
+ * service en peine.
+ *
+ * C'est aussi ce que rend `/ready` tant qu'il manque quelque chose.
+ */
+export class ServiceUnavailableError extends ApiError {
+  constructor(message = 'Service momentanement indisponible.', retryAfter?: number) {
+    super('UNAVAILABLE', message, retryAfter === undefined ? {} : { retryAfter })
+  }
+}
+
 /** Titres, stables pour un même type. */
 const TITLES: Readonly<Record<ErrorKind, string>> = {
   VALIDATION: 'Requete invalide',
@@ -182,6 +201,7 @@ const TITLES: Readonly<Record<ErrorKind, string>> = {
   NOT_FOUND: 'Introuvable',
   CONFLICT: 'Conflit',
   RATE_LIMIT: 'Trop de requetes',
+  UNAVAILABLE: 'Service indisponible',
   INTERNAL: 'Erreur interne',
 }
 

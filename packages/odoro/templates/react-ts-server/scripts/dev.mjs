@@ -17,7 +17,7 @@ const TASKS = [
     label: 'serveur',
     color: '\u001b[36m',
     command: 'tsx',
-    args: ['watch', 'server/src/index.ts'],
+    args: ['watch', 'server/src/main.ts'],
   },
 ]
 

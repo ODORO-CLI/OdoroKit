@@ -153,7 +153,7 @@ export function templatesRoot(from: string = fileURLToPath(import.meta.url)): st
  * ajouter un ne demande alors aucune modification du code.
  *
  * @example
- * availableTemplates() // ['react-ts', 'react-ts-express']
+ * availableTemplates() // ['react-ts', 'react-ts-server']
  */
 export function availableTemplates(root: string = templatesRoot()): string[] {
   return readdirSync(root)

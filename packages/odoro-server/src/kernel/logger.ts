@@ -32,6 +32,7 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomUUID } from 'node:crypto'
+import { createRequire } from 'node:module'
 
 import type { NextFunction, Request, Response } from 'express'
 import { pino, type Logger as PinoLogger } from 'pino'
@@ -108,15 +109,37 @@ export interface LoggerOptions {
    *
    * Réservée au développement : le JSON est ce qu'un agrégateur sait indexer,
    * et la mise en forme lisible coûte un processus de transport.
+   *
+   * Le transport est une dépendance **optionnelle**. Absente, le journal
+   * retombe sur le JSON plutôt que d'empêcher le démarrage — un serveur de
+   * production laissé par erreur en `development` doit servir ses requêtes,
+   * pas mourir sur une question de mise en forme.
    */
   readonly pretty?: boolean
   /** Nom du service, présent dans chaque ligne. */
   readonly name?: string
 }
 
+/**
+ * Le transport de mise en forme est-il installé ?
+ *
+ * Pino résout la cible au moment de construire le journal, et lève si elle
+ * manque. La question se pose donc avant, une fois, plutôt qu'en rattrapant
+ * une exception dont on ne saurait pas si elle vient de là.
+ */
+function prettyAvailable(): boolean {
+  try {
+    createRequire(import.meta.url).resolve('pino-pretty')
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Ouvre un journal. */
 export function createLogger(options: LoggerOptions): Logger {
   const { level, pretty = false, name = 'odoro' } = options
+  const readable = pretty && prettyAvailable()
 
   return pino({
     name,
@@ -129,7 +152,7 @@ export function createLogger(options: LoggerOptions): Logger {
     // plus souvent qu'il ne se trie.
     formatters: { level: (label) => ({ level: label }) },
     timestamp: pino.stdTimeFunctions.isoTime,
-    ...(pretty
+    ...(readable
       ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
       : {}),
   })

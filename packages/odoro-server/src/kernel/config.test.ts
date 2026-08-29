@@ -66,10 +66,27 @@ describe('refus en production', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ConfigError)
       const variables = (error as ConfigError).problems.map((p) => p.variable)
-      expect(variables).toContain('DATABASE_URL')
       expect(variables).toContain('SESSION_SECRET')
       expect(variables).toContain('APP_URL')
     }
+  })
+
+  it('exige une URL de base en production', () => {
+    const problems = capture({ ...PRODUCTION, DATABASE_URL: '' })
+    expect(problems).toEqual([
+      {
+        variable: 'DATABASE_URL',
+        reason: expect.stringContaining('requise en production'),
+      },
+    ])
+  })
+
+  it('refuse une URL qui n est pas PostgreSQL', () => {
+    // Il n'y a plus qu'un moteur. Une URL SQLite heritee d'un projet plus
+    // ancien doit echouer au demarrage, pas au premier acces.
+    const problems = capture({ ...PRODUCTION, DATABASE_URL: 'file:./storage/dev.db' })
+    expect(problems[0]?.variable).toBe('DATABASE_URL')
+    expect(problems[0]?.reason).toContain('postgres://')
   })
 
   it('n applique aucun defaut de developpement', () => {
@@ -78,6 +95,13 @@ describe('refus en production', () => {
     // silencieuses, puisque tout demarrerait normalement.
     const problems = capture({ NODE_ENV: 'production' })
     expect(problems.map((p) => p.variable)).toContain('SESSION_SECRET')
+  })
+
+  it('ne propose aucun defaut pour l URL de base', () => {
+    // Ce qui remplacerait une base locale serait une URL distante, donc un
+    // secret. Un secret n'a pas de valeur par defaut.
+    const config = loadConfig(undefined, {})
+    expect(config.DATABASE_URL).toBe('')
   })
 
   it('refuse un secret de session trop court', () => {
@@ -102,7 +126,16 @@ describe('developpement', () => {
   it('comble les variables absentes', () => {
     const config = loadConfig(undefined, {})
     expect(config.NODE_ENV).toBe('development')
-    expect(config.DATABASE_URL).toBe('file:./storage/dev.db')
+    expect(config.APP_URL).toBe('http://localhost:3001')
+  })
+
+  it('tolere une URL de base absente', () => {
+    // Il n'y a pas de base locale : un projet fraichement echafaude n'a pas
+    // encore d'URL. Le serveur demarre quand meme, et `/ready` repond 503 en
+    // disant ce qui manque — refuser de demarrer ferait de la premiere
+    // impression un echec, alors que l'interface est deja servie.
+    const config = loadConfig(undefined, {})
+    expect(config.DATABASE_URL).toBe('')
   })
 
   it('ne recouvre jamais une valeur fournie', () => {

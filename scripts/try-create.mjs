@@ -9,11 +9,11 @@
  *
  * Usage :
  *
- *   node scripts/try-create.mjs <dossier> [--template react-ts|react-ts-express]
+ *   node scripts/try-create.mjs <dossier> [--template react-ts|react-ts-server]
  *
  * Exemple :
  *
- *   node scripts/try-create.mjs ../essai-odoro --template react-ts-express
+ *   node scripts/try-create.mjs ../essai-odoro --template react-ts-server
  */
 
 import { execFileSync } from 'node:child_process'
@@ -53,13 +53,28 @@ const version = JSON.parse(
 const archives = join(ROOT, 'node_modules', '.odoro-archives')
 mkdirSync(archives, { recursive: true })
 
+/**
+ * Les paquets a empaqueter, par template.
+ *
+ * Le nom publie et le dossier different depuis le passage au scope : `npm pack`
+ * nomme l'archive d'apres le premier — `@odoro/libs` donne
+ * `odoro-libs-0.0.0.tgz` — mais le dossier, lui, n'a pas bouge.
+ */
+const PACKAGES = [
+  { name: '@odoro/libs', folder: 'odoro-libs', field: 'dependencies' },
+  { name: 'odoro', folder: 'odoro', field: 'devDependencies' },
+  ...(template === 'react-ts-server'
+    ? [{ name: '@odoro/server', folder: 'odoro-server', field: 'dependencies' }]
+    : []),
+]
+
 step('Compilation des paquets')
-run('pnpm', ['--filter', '@odoro/libs', 'run', 'build'], ROOT)
-run('pnpm', ['--filter', 'odoro', 'run', 'build'], ROOT)
+for (const pkg of PACKAGES) run('pnpm', ['--filter', pkg.name, 'run', 'build'], ROOT)
 
 step('Empaquetage, comme a la publication')
-run('npm', ['pack', '--pack-destination', archives], join(ROOT, 'packages', 'odoro-libs'))
-run('npm', ['pack', '--pack-destination', archives], join(ROOT, 'packages', 'odoro'))
+for (const pkg of PACKAGES) {
+  run('npm', ['pack', '--pack-destination', archives], join(ROOT, 'packages', pkg.folder))
+}
 
 step(`Echafaudage du template "${template}" dans ${target}`)
 mkdirSync(dirname(target), { recursive: true })
@@ -82,9 +97,12 @@ run(
 step('Substitution des dependances par les archives locales')
 const manifestPath = join(target, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-manifest.dependencies['@odoro/libs'] =
-  `file:${join(archives, `odoro-libs-${version}.tgz`)}`
-manifest.devDependencies['odoro'] = `file:${join(archives, `odoro-${version}.tgz`)}`
+for (const pkg of PACKAGES) {
+  // `npm pack` nomme l'archive d'apres le nom publie : l'arobase tombe et le
+  // slash devient un tiret.
+  const archive = `${pkg.name.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
+  manifest[pkg.field][pkg.name] = `file:${join(archives, archive)}`
+}
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
 step('Installation')

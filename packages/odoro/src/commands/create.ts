@@ -43,11 +43,78 @@ export interface CreateOptions {
   overwrite?: OverwriteMode
 }
 
+import {
+  PROVIDER_PENDING,
+  assertEnvIgnored,
+  checkDatabaseUrl,
+  writeDatabaseUrl,
+  type DatabaseChoice,
+  type DatabaseOutcome,
+} from './database.js'
+
 /** Descriptions affichees dans le selecteur de template. */
 const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
   'react-ts': 'Application monopage — React, TypeScript, routeur et animations Odoro',
-  'react-ts-express':
-    'Client et serveur — la meme application, plus une API Express typee et un Dockerfile',
+  'react-ts-server':
+    'Client et serveur — la meme application, plus un socle @odoro/server modulaire et un Dockerfile',
+}
+
+/**
+ * Demande comment le projet obtient sa base.
+ *
+ * Trois voies, dont deux fonctionnent aujourd'hui. La troisieme — le
+ * provisionnement par la plateforme — attend `@odoro/cloud-sdk` ; elle est
+ * proposee et annoncee comme telle plutot que masquee, pour que le chemin
+ * existe des maintenant dans la tete de celui qui cree un projet.
+ */
+async function askDatabase(): Promise<DatabaseOutcome> {
+  const choice = ensure(
+    await prompts.select<DatabaseChoice>({
+      message: 'Base de donnees',
+      initialValue: 'url',
+      options: [
+        {
+          value: 'provider',
+          label: 'Fournisseur Odoro',
+          hint: 'provisionnement automatique — bientot',
+        },
+        {
+          value: 'url',
+          label: 'URL PostgreSQL existante',
+          hint: 'Neon, Supabase, RDS, la votre',
+        },
+        { value: 'later', label: 'Configurer plus tard', hint: '.env.example seul' },
+      ],
+    }),
+  )
+
+  if (choice === 'provider') {
+    prompts.log.warn(PROVIDER_PENDING)
+    return { choice, note: 'Lancez `odoro db:create` des que la plateforme est la.' }
+  }
+
+  if (choice === 'later') {
+    return {
+      choice,
+      note: 'Aucune base : le client demarrera, et /api/ready repondra 503 en disant ce qui manque.',
+    }
+  }
+
+  const url = ensure(
+    await prompts.text({
+      message: 'URL PostgreSQL',
+      placeholder: 'postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require',
+      validate: (value) => checkDatabaseUrl(value ?? ''),
+    }),
+  )
+
+  return {
+    choice,
+    url: url.trim(),
+    // Seule la forme a ete verifiee : le dire, plutot que de laisser croire
+    // que la connexion a ete etablie.
+    note: 'Forme de l URL verifiee. La connexion sera etablie au premier demarrage.',
+  }
 }
 
 /** Interrompt proprement si l'utilisateur annule une question. */
@@ -171,6 +238,12 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     return 1
   }
 
+  // La base ne se demande que pour un template qui en a un besoin.
+  const database =
+    template === 'react-ts-server' && options.yes !== true
+      ? await askDatabase()
+      : undefined
+
   const withGit =
     options.git ??
     (options.yes === true
@@ -209,6 +282,16 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       prompts.log.warn('git est introuvable : depot non initialise.')
     }
   }
+
+  if (database?.url !== undefined) {
+    await writeDatabaseUrl(target, database.url)
+    prompts.log.success('URL de base ecrite dans .env')
+
+    const risque = await assertEnvIgnored(target)
+    if (risque !== undefined) prompts.log.warn(risque)
+  }
+
+  if (database !== undefined) prompts.log.info(database.note)
 
   if (withInstall) {
     const install = prompts.spinner()
