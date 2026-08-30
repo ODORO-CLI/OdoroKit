@@ -10,14 +10,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@odoro-cli/libs": "^0.0.0",
+    "@odoro-cli/libs": "latest",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
-    "odoro": "^0.0.0",
+    "odoro": "latest",
     "typescript": "^5.9.3"
   }
 }

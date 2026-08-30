@@ -239,3 +239,38 @@ describe('inspectTarget', () => {
     expect(inspectTarget(workspace)).toBe('occupe')
   })
 })
+
+describe('les versions Odoro du manifeste', () => {
+  it('suivent la version de la CLI, et non celle du gabarit', async () => {
+    // Les gabarits portaient `^0.0.0`, la version d'avant la premiere
+    // publication. Un caret sur `0.0.x` est le plus etroit de tous : `^0.0.0`
+    // ne correspond qu'a `0.0.0`. Chaque projet echafaude echouait donc a
+    // l'installation, sur une erreur de resolution que personne n'aurait
+    // rattachee au gabarit.
+    const cible = await mkdtemp(join(tmpdir(), 'odoro-versions-'))
+
+    try {
+      await scaffold({
+        target: cible,
+        template: 'react-ts',
+        packageName: 'essai',
+        version: '1.2.3',
+      })
+
+      const manifeste = JSON.parse(
+        await readFile(join(cible, 'package.json'), 'utf8'),
+      ) as {
+        dependencies: Record<string, string>
+        devDependencies: Record<string, string>
+      }
+
+      expect(manifeste.dependencies['@odoro-cli/libs']).toBe('^1.2.3')
+      expect(manifeste.devDependencies['odoro']).toBe('^1.2.3')
+
+      // Ce qui n'est pas de la famille ne bouge pas.
+      expect(manifeste.dependencies['react']).not.toContain('1.2.3')
+    } finally {
+      await rm(cible, { recursive: true, force: true })
+    }
+  })
+})
