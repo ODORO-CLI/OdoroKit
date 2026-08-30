@@ -109,7 +109,7 @@ ${colors.bold('Base de donnees')}
   db:status        Liste les bases du projet
   db:create        Provisionne une base et ecrit .env
   db:branch        Cree une previsualisation par branche
-  ${colors.dim('Ces commandes demandent @odoro/cloud-sdk, installe a part :')}
+  ${colors.dim('Ces commandes demandent @odoro-cli/cloud-sdk, installe a part :')}
   ${colors.dim('il ne vient pas avec, ce binaire etant telecharge a chaque')}
   ${colors.dim('creation de projet.')}
 

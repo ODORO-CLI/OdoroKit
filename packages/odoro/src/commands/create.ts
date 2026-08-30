@@ -63,7 +63,7 @@ const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
  * Demande comment le projet obtient sa base.
  *
  * Trois voies, dont deux fonctionnent aujourd'hui. La troisieme — le
- * provisionnement par la plateforme — attend `@odoro/cloud-sdk` ; elle est
+ * provisionnement par la plateforme — attend `@odoro-cli/cloud-sdk` ; elle est
  * proposee et annoncee comme telle plutot que masquee, pour que le chemin
  * existe des maintenant dans la tete de celui qui cree un projet.
  */

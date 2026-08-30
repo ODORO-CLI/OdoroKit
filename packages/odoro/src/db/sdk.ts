@@ -7,7 +7,7 @@
  * s'y ajoute est payee par tous ceux qui echafaudent un projet, y compris ceux
  * qui n'emploieront jamais la plateforme — c'est-a-dire la majorite.
  *
- * `@odoro/cloud-sdk` est donc importe **dynamiquement**, et seulement quand une
+ * `@odoro-cli/cloud-sdk` est donc importe **dynamiquement**, et seulement quand une
  * commande `db:*` est appelee. Son absence n'est pas une panne : c'est l'etat
  * normal d'un projet qui emploie sa propre base.
  *
@@ -22,7 +22,7 @@
  */
 
 /** Le paquet qui porte les commandes de base. */
-export const SDK_PACKAGE = '@odoro/cloud-sdk'
+export const SDK_PACKAGE = '@odoro-cli/cloud-sdk'
 
 /** Ce qu'un chargement rend. */
 export type SdkLoad =

@@ -143,9 +143,9 @@ export async function assertEnvIgnored(target: string): Promise<string | undefin
 
 /** Ce que la plateforme dira quand elle existera. */
 export const PROVIDER_PENDING = [
-  'Le provisionnement passe par @odoro/cloud-sdk, installe a part :',
+  'Le provisionnement passe par @odoro-cli/cloud-sdk, installe a part :',
   '',
-  '  npm install --save-dev @odoro/cloud-sdk',
+  '  npm install --save-dev @odoro-cli/cloud-sdk',
   '  odoro db:login',
   '  odoro db:create --env production',
   '',

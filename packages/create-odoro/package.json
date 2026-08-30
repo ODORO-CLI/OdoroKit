@@ -27,5 +27,14 @@
     "@types/node": "^22.18.8",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"
+  },
+  "homepage": "https://odoro.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ODORO-CLI/OdoroKit.git",
+    "directory": "packages/create-odoro"
+  },
+  "bugs": {
+    "url": "https://github.com/ODORO-CLI/OdoroKit/issues"
   }
 }

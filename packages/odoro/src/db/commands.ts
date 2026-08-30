@@ -27,8 +27,17 @@ import { assertEnvIgnored, writeDatabaseUrl } from '../commands/database.js'
 import { findToken, storeToken } from '../config/user.js'
 import { loadSdk, SDK_PACKAGE } from './sdk.js'
 
-/** Racine de l'API, par defaut. */
-const DEFAULT_API_URL = 'https://api.odoro.dev'
+/**
+ * Racine de l'API, par defaut.
+ *
+ * `db.odoro.dev` sert l'interface **et** l'API : les deux partagent l'origine,
+ * ce qui evite au navigateur une requete preliminaire sur chaque appel.
+ *
+ * Une version anterieure designait `api.odoro.dev`, qui n'existe pas. La
+ * commande echouait donc pour tout le monde, sur un domaine que personne
+ * n'avait jamais deploye.
+ */
+const DEFAULT_API_URL = 'https://db.odoro.dev'
 
 /** Options communes aux commandes de base. */
 export interface DbOptions {

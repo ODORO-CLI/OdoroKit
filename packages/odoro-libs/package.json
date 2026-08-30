@@ -75,5 +75,14 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
+  },
+  "homepage": "https://odoro.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ODORO-CLI/OdoroKit.git",
+    "directory": "packages/odoro-libs"
+  },
+  "bugs": {
+    "url": "https://github.com/ODORO-CLI/OdoroKit/issues"
   }
 }

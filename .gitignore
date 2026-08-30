@@ -29,3 +29,9 @@ test-results/
 playwright-report/
 .playwright/
 *.tgz
+
+# Jamais dans le depot : une cle maitresse poussee est une cle a faire
+# tourner, pas a retirer d un historique.
+kms-master-key
+*.key
+*.pem
