@@ -58,11 +58,22 @@ describe.runIf(ENABLED)('chaine complete : empaquetage, echafaudage, compilation
     exec('npm', ['pack', '--pack-destination', workspace], LIBS)
     exec('npm', ['pack', '--pack-destination', workspace], ENGINE)
 
-    const version = (
-      JSON.parse(readFileSync(join(ENGINE, 'package.json'), 'utf8')) as {
-        version: string
-      }
-    ).version
+    /**
+     * Le nom et la version viennent **du manifeste de chaque paquet**.
+     *
+     * Les supposer identiques marchait tant qu'une seule version circulait.
+     * Un correctif publie sur la CLI seule les a separees, et l'essai a
+     * cherche une archive `libs` portant le numero de la CLI — qui n'existe
+     * pas, et n'a aucune raison d'exister.
+     */
+    const archiveDe = (racine: string): string => {
+      const { name, version } = JSON.parse(
+        readFileSync(join(racine, 'package.json'), 'utf8'),
+      ) as { name: string; version: string }
+      // `npm pack` nomme l'archive d'apres le nom publie : l'arobase tombe et
+      // la barre oblique devient un tiret.
+      return `file:../${name.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
+    }
 
     exec(
       'node',
@@ -87,19 +98,8 @@ describe.runIf(ENABLED)('chaine complete : empaquetage, echafaudage, compilation
       dependencies: Record<string, string>
       devDependencies: Record<string, string>
     }
-    // Le nom de l'archive se **derive** du nom publie : `npm pack` fait tomber
-    // l'arobase et remplace la barre oblique par un tiret. L'ecrire en dur
-    // marchait jusqu'au changement de scope, ou `@odoro/libs` est devenu
-    // `@odoro-cli/libs` — et l'archive `odoro-cli-libs-…tgz` que personne ne
-    // cherchait plus.
-    //
-    // `scripts/try-create.mjs` deduisait deja ce nom. La lecon avait ete
-    // apprise la, et pas ici.
-    const archiveDe = (nom: string): string =>
-      `file:../${nom.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
-
-    manifest.dependencies['@odoro-cli/libs'] = archiveDe('@odoro-cli/libs')
-    manifest.devDependencies['odoro'] = archiveDe('odoro')
+    manifest.dependencies['@odoro-cli/libs'] = archiveDe(LIBS)
+    manifest.devDependencies['odoro'] = archiveDe(ENGINE)
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
     exec('npm', ['install', '--no-audit', '--no-fund'], project)
