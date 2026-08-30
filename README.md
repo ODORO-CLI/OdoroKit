@@ -136,3 +136,25 @@ CommonJS, assumée et vérifiée à chaque compilation.
 
 Propriétaire — voir [LICENSE](LICENSE). Les références ayant servi de base au
 système visuel sont créditées dans [CREDITS.md](CREDITS.md).
+
+## En ligne
+
+|                                                  |                                                |
+| ------------------------------------------------ | ---------------------------------------------- |
+| [odoro.dev](https://odoro.dev)                   | la documentation, avec chaque composant vivant |
+| [register.odoro.dev](https://register.odoro.dev) | le registre que `odoro add` interroge          |
+
+```sh
+pnpm build && pnpm --filter odoro-playground build
+pnpm deployer            # les deux
+pnpm deployer --registre # le registre seul
+```
+
+Le deploiement verifie que la production **qui ne nous appartient pas** repond
+avant et apres : le meme serveur heberge autre chose, et casser un voisin doit
+se voir tout de suite. La bascule est atomique — une requete arrivant pendant
+le deploiement voit l'ancienne version ou la nouvelle, jamais un melange.
+
+Les cartes de source ne partent pas : les sources sont publiques, et quinze
+megaoctets de cartes pour un site de documentation sont de la bande passante
+depensee pour rien.
