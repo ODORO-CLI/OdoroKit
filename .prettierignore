@@ -2,4 +2,13 @@ node_modules
 dist
 coverage
 pnpm-lock.yaml
+
+# Sorties de generateurs.
+#
+# Les formater serait du travail perdu : la generation suivante les remet dans
+# leur forme, et la verification de style echoue a nouveau — sur des fichiers
+# que personne n'ecrit a la main. Le generateur est responsable de sa sortie ;
+# Prettier n'a rien a y dire.
 packages/odoro-libs/src/styles/generated
+playground/public/registre
+playground/src/docs/catalogue.generated.ts
