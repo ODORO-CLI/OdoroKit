@@ -274,3 +274,27 @@ describe('les versions Odoro du manifeste', () => {
     }
   })
 })
+
+describe('la version par defaut', () => {
+  it('est celle de la CLI, et jamais le repli', async () => {
+    // Le repli `latest` existe pour qu'un echafaudage aboutisse malgre tout.
+    // S'il se declenche en temps normal, les projets recoivent `latest` — ce
+    // qui installerait une future version majeure sans que personne ne l'ait
+    // demande. C'est exactement ce qui arrivait quand le chemin du manifeste
+    // comptait des niveaux au lieu de les chercher.
+    const cible = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
+
+    try {
+      await scaffold({ target: cible, template: 'react-ts', packageName: 'essai' })
+
+      const manifeste = JSON.parse(
+        await readFile(join(cible, 'package.json'), 'utf8'),
+      ) as { devDependencies: Record<string, string> }
+
+      expect(manifeste.devDependencies['odoro']).not.toBe('latest')
+      expect(manifeste.devDependencies['odoro']).toMatch(/^\^\d+\.\d+\.\d+/)
+    } finally {
+      await rm(cible, { recursive: true, force: true })
+    }
+  })
+})

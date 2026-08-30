@@ -6,7 +6,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readFile, readdir, rm, writeFile, copyFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { targetFileName, templatesRoot } from './utils.js'
 
@@ -16,15 +16,28 @@ import { targetFileName, templatesRoot } from './utils.js'
  * Lue depuis son propre manifeste plutot que figee : une constante recopiee
  * serait juste le jour ou on l'ecrit, et fausse au premier changement de
  * version — c'est-a-dire des la publication suivante.
+ *
+ * ## Le chemin se cherche, il ne se compte pas
+ *
+ * `../../package.json` depuis `import.meta.url` est juste depuis les sources
+ * et faux une fois empaquete : le module vit alors dans `dist/`, un niveau
+ * plus haut. Le repli se declenchait donc systematiquement, et les projets
+ * echafaudes recevaient `latest` — ce qui fonctionne aujourd'hui et
+ * installerait une future version majeure demain.
+ *
+ * Le dossier des gabarits est a la racine du paquet, et `templatesRoot`
+ * sait deja le trouver depuis les deux emplacements. Son parent est donc la
+ * racine cherchee, sans compter de niveaux.
  */
 function cliVersion(): string {
-  const manifeste = new URL('../../package.json', import.meta.url)
   try {
+    const manifeste = join(dirname(templatesRoot()), 'package.json')
     const { version } = JSON.parse(readFileSync(manifeste, 'utf8')) as { version: string }
     return version
   } catch {
-    // Un echafaudage doit aboutir meme si le manifeste est illisible. `latest`
-    // est plus honnete qu'une version inventee : npm resoudra ce qui existe.
+    // Un echafaudage doit aboutir meme si le manifeste est introuvable.
+    // `latest` est plus honnete qu'une version inventee : npm resoudra ce qui
+    // existe. Ce repli ne doit plus se declencher, et un essai le verifie.
     return 'latest'
   }
 }
