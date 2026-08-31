@@ -32,6 +32,8 @@ export default defineConfig({
     minify: true,
     sourcemap: true,
     target: 'es2022',
+    elaguer: true, // retire les classes utilitaires inemployées
+    safelist: [], // celles à garder malgré tout
   },
 })
 ```
@@ -157,6 +159,69 @@ Les empreintes rendent les fichiers immuables : ils peuvent être mis en cache
 indéfiniment, et un déploiement n'invalide que ce qui a réellement changé. Le
 serveur de prévisualisation applique d'ailleurs `immutable` sur `assets/` et
 `no-cache` sur le reste, comme le ferait un hébergeur correctement configuré.
+
+## Élagage de la feuille de style
+
+`@odoro-cli/libs` livre une feuille pré-générée qui contient **toutes** les
+classes utilitaires possibles — plusieurs milliers. Une application donnée en
+emploie une fraction. Mesure faite sur un vrai tableau de bord :
+
+| | brut | compressé |
+| --- | --- | --- |
+| sans élagage | 1,65 Mo | 121 Ko |
+| avec élagage | **65 Ko** | **12,6 Ko** |
+
+Actif par défaut. `build.elaguer: false` le désactive.
+
+### Il lit le code produit, pas la source
+
+C'est la décision qui porte le mécanisme, et celle qu'il est facile de rater.
+
+Une classe utilitaire ne vient pas seulement de votre code. Les composants de
+la bibliothèque — `Button`, `Input`, `Alert` — portent les leurs, et ces
+classes vivent dans leur JavaScript **déjà compilé**. Une application peut
+n'écrire aucune classe utilitaire et en dépendre de plusieurs centaines par ses
+composants : c'est exactement le cas d'une interface écrite en CSS sémantique.
+
+Lire votre source seule retirerait donc tout ce dont vos composants ont besoin,
+et l'interface arriverait sans style — **sans qu'aucune erreur ne soit levée**,
+puisque du CSS absent ne casse rien, il ne peint rien.
+
+L'élagage a donc lieu **après le regroupement**, sur ce qui part réellement :
+les scripts produits et le document.
+
+### Ce qui n'est jamais retiré
+
+Une règle dont le sélecteur ne mentionne aucune classe préfixée est gardée sans
+condition : les variables de `:root`, la remise à zéro, les règles sur `body`
+ou `*`, vos propres classes sémantiques, et les `@keyframes`.
+
+La règle est volontairement prudente d'un seul côté. Garder de trop coûte des
+octets ; retirer de trop casse l'affichage, et ce défaut-là ne se voit qu'à
+l'œil, page par page, longtemps après.
+
+### Les classes assemblées à l'exécution
+
+Une classe construite par interpolation — `o-text-${couleur}` — n'existe nulle part sous sa
+forme finale. Aucun analyseur ne peut la deviner, et elle disparaîtra.
+
+C'est la limite du procédé, et elle est la même chez tous ceux qui le
+pratiquent. La réponse est `safelist` :
+
+```ts
+build: {
+  safelist: [/^o-text-/, 'o-animate-spin'],
+}
+```
+
+Une chaîne garde une classe, une expression régulière garde tout ce qu'elle
+reconnaît.
+
+### Le coût
+
+Environ 400 ms sur une feuille de 1,65 Mo. Le récapitulatif affiche la ligne
+d'élagage et les tailles réelles, lues sur le disque — pas celles du rapport du
+compilateur, qui décrit l'état d'avant.
 
 ## API programmatique
 

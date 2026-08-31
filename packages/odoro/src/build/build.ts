@@ -9,7 +9,7 @@
  */
 
 import { existsSync } from 'node:fs'
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, join, relative, resolve, sep } from 'node:path'
 
 import { type BuildResult, build as esbuild } from 'esbuild'
@@ -18,6 +18,7 @@ import type { ResolvedConfig } from '../config.js'
 import * as log from '../shared/logger.js'
 import { applyAlias, isBareSpecifier } from '../dev/transform.js'
 import { extractEntries } from '../dev/server.js'
+import { elaguer } from './elaguer.js'
 
 /** Normalise un chemin en separateurs d'URL. */
 function toPosix(path: string): string {
@@ -89,6 +90,52 @@ function outputsForEntry(
   }
 
   return { script: undefined, styles: [] }
+}
+
+/**
+ * Elague les feuilles produites, en lisant le code produit.
+ *
+ * ## Pourquoi apres le regroupement, et non avant
+ *
+ * Une classe utilitaire ne vient pas seulement de la source de l'application :
+ * les composants de bibliotheque portent les leurs, dans leur JavaScript deja
+ * compile. Lire la source seule retirerait tout ce dont ils ont besoin, et
+ * l'interface arriverait sans style — sans qu'aucune erreur ne soit levee,
+ * puisque du CSS absent ne casse rien, il ne peint rien.
+ *
+ * A cet instant, en revanche, on tient exactement ce qui part : les scripts
+ * produits et le document. Ce qui n'y figure sous aucune forme n'est
+ * atteignable par personne.
+ */
+async function elaguerFeuilles(
+  result: BuildResult<{ metafile: true }>,
+  config: ResolvedConfig,
+  html: string,
+): Promise<void> {
+  const produits = Object.keys(result.metafile.outputs).map((f) => resolve(config.root, f))
+
+  const feuilles = produits.filter((f) => f.endsWith('.css'))
+  if (feuilles.length === 0) return
+
+  // Tout ce qui part, document compris : une classe peut n'exister que dans
+  // l'index.
+  const sources = [html]
+  for (const fichier of produits) {
+    if (fichier.endsWith('.js')) sources.push(await readFile(fichier, 'utf8'))
+  }
+
+  for (const feuille of feuilles) {
+    const avant = await readFile(feuille, 'utf8')
+    const rapport = elaguer(avant, sources, { sauvegarde: config.build.safelist })
+
+    await writeFile(feuille, rapport.css, 'utf8')
+
+    log.info(
+      `  ${log.colors.dim('elagage')} ${basename(feuille)}  ` +
+        `${log.size(rapport.octetsAvant)} → ${log.size(rapport.octetsApres)}  ` +
+        `${log.colors.dim(`${String(rapport.gardees)} classes gardees`)}`,
+    )
+  }
 }
 
 /**
@@ -177,6 +224,8 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
     ],
   })
 
+  if (config.build.elaguer) await elaguerFeuilles(result, config, html)
+
   // Reecriture du document : chaque balise pointe vers le fichier empreinte.
   let output = html
   for (const entry of entries) {
@@ -208,12 +257,21 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
     await cp(config.publicDir, config.outDir, { recursive: true })
   }
 
-  const files: BuiltFile[] = Object.entries(result.metafile.outputs)
-    .map(([file, meta]) => ({
-      path: toPosix(relative(config.outDir, resolve(config.root, file))),
-      bytes: meta.bytes,
-    }))
-    .sort((a, b) => b.bytes - a.bytes)
+  // Les tailles se lisent sur le disque, et non dans le rapport du
+  // compilateur : celui-ci decrit ce qu esbuild a ecrit, avant que l elagage
+  // n y touche. Un recapitulatif qui annonce 1,7 Mo en livrant 65 Ko est pire
+  // qu absent — il fait croire que rien n a marche.
+  const files: BuiltFile[] = (
+    await Promise.all(
+      Object.keys(result.metafile.outputs).map(async (file) => {
+        const chemin = resolve(config.root, file)
+        return {
+          path: toPosix(relative(config.outDir, chemin)),
+          bytes: (await stat(chemin)).size,
+        }
+      }),
+    )
+  ).sort((a, b) => b.bytes - a.bytes)
 
   return { outDir: config.outDir, files, elapsed: Date.now() - started }
 }

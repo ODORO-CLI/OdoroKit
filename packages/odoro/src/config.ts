@@ -42,6 +42,31 @@ export interface BuildConfig {
   sourcemap?: boolean
   /** Cible de compilation. @defaultValue 'es2022' */
   target?: string
+  /**
+   * Retire de la feuille de style les classes utilitaires que rien n'emploie.
+   *
+   * La bibliotheque livre une feuille pre-generee qui les contient toutes ;
+   * une application donnee en emploie une fraction. L'elagage lit le code
+   * **produit** — donc les composants de bibliotheque autant que la source de
+   * l'application — et ne garde que ce qui est atteignable.
+   *
+   * Une classe assemblee a l'execution (`o-text-${couleur}`) n'existe nulle
+   * part sous sa forme finale et disparaitra : la declarer dans
+   * `safelist` est le seul moyen de la garder.
+   *
+   * @defaultValue true
+   */
+  elaguer?: boolean
+  /**
+   * Les classes gardees quoi qu'il arrive, malgre l'elagage.
+   *
+   * Une chaine garde une classe ; une expression reguliere garde toutes celles
+   * qu'elle reconnait.
+   *
+   * @example
+   * { safelist: [/^o-text-/, 'o-animate-spin'] }
+   */
+  safelist?: readonly (string | RegExp)[]
 }
 
 /** Configuration d'un projet Odoro. */
@@ -212,6 +237,10 @@ export async function loadConfig(
       minify: merged.build?.minify ?? true,
       sourcemap: merged.build?.sourcemap ?? true,
       target: merged.build?.target ?? 'es2022',
+      // Actif par defaut : une feuille qui contient toutes les classes
+      // possibles est un accident de generation, pas une intention.
+      elaguer: merged.build?.elaguer ?? true,
+      safelist: merged.build?.safelist ?? [],
     },
     // Les alias declares dans `tsconfig.json` sont repris d'office. Sans
     // cela, un projet qui suit `odoro init` — lequel deduit son prefixe du
