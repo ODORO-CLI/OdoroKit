@@ -5,55 +5,61 @@ import { cx, variants, tokens, colorLight, palette } from '@odoro-cli/libs'
 import '@odoro-cli/libs/styles.css'
 ```
 
-## Deux feuilles, jamais les deux
+## Une seule feuille
 
-| Feuille                           | Contenu                                                                  | Poids                   |
-| --------------------------------- | ------------------------------------------------------------------------ | ----------------------- |
-| `@odoro-cli/libs/styles.css`      | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 715 Ko — 59 Ko brotli |
-| `@odoro-cli/libs/styles.full.css` | La même, plus les utilitaires de couleur sur les 290 nuances             | 2 858 Ko — 88 Ko brotli |
+| Feuille                      | Contenu                                                                  | Poids                     |
+| ---------------------------- | ------------------------------------------------------------------------ | ------------------------- |
+| `@odoro-cli/libs/styles.css` | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 724 Ko — 119 Ko gzip    |
 
-La feuille complète est un sur-ensemble de la feuille de base : on importe
-l'une **ou** l'autre.
+Ce poids est celui du fichier livré, **pas celui que vos visiteurs
+téléchargent** : l'élagage à la construction n'en garde que ce que votre
+application emploie. Sur un vrai tableau de bord, 65 Ko bruts et 12,6 Ko une
+fois compressés. Voir [Élagage de la feuille de style](engine.md).
 
-### Quand la feuille complète est nécessaire
+### La feuille complète a été retirée du paquet
 
-Dès que vous nommez une teinte absente de la feuille de base. Celle-ci porte
-sept teintes — `zinc`, `brand`, `red`, `amber`, `emerald`, `sky`, `fuchsia` —
-choisies parce qu'elles couvrent le travail courant : une échelle neutre, la
-marque, et les quatre intentions qu'une interface exprime sans y penser. Tout
-le reste — `teal`, `indigo`, `violet`, `olive`… — vit dans la feuille
-complète. Cela vaut pour
-`o-text-*`, `o-bg-*`, `o-border-*` et **aussi pour les jalons de dégradé**
-`o-from-*`, `o-via-*`, `o-to-*`.
+`@odoro-cli/libs/styles.full.css` ajoutait les utilitaires de couleur sur les
+palettes supplémentaires — `orange`, `yellow`, `teal`, `indigo`, `violet`,
+`olive`… soit 2 640 classes de plus.
+
+Elle pesait 2,8 Mo, soit **182 Ko compressés — un tiers du poids du paquet** —
+et aucune application ne l'importait. Tout le monde la téléchargait à chaque
+installation ; personne ne s'en servait.
+
+C'est un retrait, pas une optimisation gratuite : si vous nommez une teinte
+absente de la feuille de base, la classe n'existe plus nulle part. Le type
+`OdoroClassName` a été rétréci en conséquence — il n'autocomplète plus que ce
+qui existe réellement, ce qui vaut mieux qu'un éditeur donnant sa caution à une
+classe qui ne peint rien.
+
+Elle reviendra d'elle-même quand le CSS sera produit à la demande plutôt que
+pré-généré : chaque projet obtiendra alors exactement les teintes qu'il nomme,
+sans que personne ne paie pour les autres.
+
+### Les sept teintes de la feuille de base
+
+`zinc`, `brand`, `red`, `amber`, `emerald`, `sky`, `fuchsia` — une échelle
+neutre, la marque, et les quatre intentions qu'une interface exprime sans y
+penser. Cela vaut pour `o-text-*`, `o-bg-*`, `o-border-*` et **aussi pour les
+jalons de dégradé** `o-from-*`, `o-via-*`, `o-to-*`.
 
 Ce dernier cas mérite un avertissement, parce qu'il échoue en silence. Les
 classes de **direction** (`o-bg-gradient-to-r`, `o-bg-gradient-radial`) sont
-dans la feuille de base ; les jalons de la palette brute ne le sont pas. Un
-`o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500` avec la seule feuille de
-base produit donc un dégradé **syntaxiquement valide et entièrement
-transparent** : la direction s'applique, les couleurs manquent, et rien ne le
-signale — ni erreur de console, ni classe absente.
+présentes ; les jalons d'une teinte absente ne le sont pas. Un
+`o-bg-gradient-to-r o-from-sky-500 o-to-violet-500` produit donc un dégradé
+**syntaxiquement valide et entièrement transparent** : la direction s'applique,
+la couleur de fin manque, et rien ne le signale — ni erreur de console, ni
+classe absente.
 
-Deux façons de s'en prémunir :
+La parade est de nommer des rôles sémantiques :
 
 ```html
-<!-- Avec la feuille de base : des rôles sémantiques -->
 <div
   class="o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400"
 ></div>
-
-<!-- Avec la feuille complète : toute la palette -->
-<div class="o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500"></div>
 ```
 
-La feuille de base contient 135 jalons de dégradé, tous sémantiques ; la
-complète en contient 1038.
-
-Ce découpage a une raison précise. Le système refuse toute analyse du code
-applicatif : la feuille est un fichier statique, produit une fois, sans étape à
-l'exécution. Le prix de ce choix est une taille fixe, indépendante de l'usage.
-Imposer les 290 nuances de la palette à tout projet ferait payer à chacun ce
-dont seuls quelques-uns ont besoin.
+La feuille contient 135 jalons de dégradé, tous sémantiques.
 
 ## Les tokens
 

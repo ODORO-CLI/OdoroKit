@@ -38,10 +38,15 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: ['react', 'react-dom', 'react/jsx-runtime'],
-  // Les feuilles de style sont des artefacts deja generes : tsup n'a qu'a les
-  // deposer a cote du code, sous les noms annonces par le champ `exports`.
+  // La feuille de style est un artefact deja genere : tsup n'a qu'a la deposer
+  // a cote du code, sous le nom annonce par le champ `exports`.
+  //
+  // `odoro.full.css` est produite mais **non publiee**. Elle pesait 2,8 Mo —
+  // 182 Ko une fois compressee, soit un tiers du poids du paquet — pour des
+  // utilitaires de couleur sur des palettes supplementaires qu'aucune
+  // application n'importait. Elle reste generee ici, et reviendra d'elle-meme
+  // le jour ou le CSS sera produit a la demande plutot que pre-genere.
   async onSuccess() {
     await cp(join(GENERATED, 'odoro.css'), join(DIST, 'styles.css'))
-    await cp(join(GENERATED, 'odoro.full.css'), join(DIST, 'styles.full.css'))
   },
 })

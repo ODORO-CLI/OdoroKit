@@ -2,15 +2,15 @@
  * Systeme de style d'Odoro : tokens, composition de classes et variantes.
  *
  * La feuille de style est un fichier statique, a importer une fois a la racine
- * de l'application. Deux paliers sont disponibles :
+ * de l'application :
  *
  * ```ts
- * import '@odoro-cli/libs/styles.css'      // structure + couleurs semantiques
- * import '@odoro-cli/libs/styles.full.css' // + utilitaires sur les 290 nuances
+ * import '@odoro-cli/libs/styles.css'
  * ```
  *
- * La feuille complete est un sur-ensemble de la feuille de base : on importe
- * l'une **ou** l'autre, jamais les deux.
+ * Elle porte la structure et les couleurs. Les utilitaires sur les palettes
+ * supplementaires ont ete retires du paquet : ils pesaient un tiers de son
+ * poids pour un fichier qu'aucune application n'importait.
  *
  * @module
  */
@@ -21,7 +21,6 @@
 export type {
   OdoroClassName,
   OdoroCoreClassName,
-  OdoroExtendedClassName,
 } from './generated/classNames.js'
 export * from './cx.js'
 export * from './fonts.js'

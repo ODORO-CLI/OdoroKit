@@ -1799,23 +1799,29 @@ ${list(extended)}
 /** Union des classes de la feuille de base. */
 export type OdoroCoreClassName = (typeof ODORO_CORE_CLASS_NAMES)[number]
 
-/** Union des classes reservees a la feuille complete. */
-export type OdoroExtendedClassName = (typeof ODORO_EXTENDED_CLASS_NAMES)[number]
-
 /**
  * Union de toutes les classes utilitaires valides.
  *
- * Une classe de type {@link OdoroExtendedClassName} n'a d'effet que si
- * l'application importe \`@odoro-cli/libs/styles.full.css\`.
+ * Elle ne couvre **que** la feuille livree. Les classes de la feuille complete
+ * en sont volontairement absentes : celle-ci n'est plus publiee, et un type qui
+ * autocompleterait des classes sans regle proposerait du vide — le pire des
+ * deux mondes, puisque l'editeur donnerait sa caution a une classe qui ne peint
+ * rien.
  */
-export type OdoroClassName = OdoroCoreClassName | OdoroExtendedClassName
+export type OdoroClassName = OdoroCoreClassName
 
 /**
- * Toutes les classes utilitaires, tous paliers confondus. L'annotation evite
- * de materialiser un tuple de plusieurs dizaines de milliers d'elements, que
+ * Toutes les classes utilitaires, tous paliers confondus.
+ *
+ * \`readonly string[]\` et non \`readonly OdoroClassName[]\` : le tableau contient
+ * aussi les classes du palier complet, qui ne sont plus dans le type publie
+ * depuis que cette feuille n'est plus livree. L'annotation evite au passage de
+ * materialiser un tuple de plusieurs dizaines de milliers d'elements, que
  * TypeScript refuse de representer.
+ *
+ * Interne : ne sert qu'au generateur et a la suite d'essais.
  */
-export const ODORO_CLASS_NAMES: readonly OdoroClassName[] = [
+export const ODORO_CLASS_NAMES: readonly string[] = [
   ...ODORO_CORE_CLASS_NAMES,
   ...ODORO_EXTENDED_CLASS_NAMES,
 ]

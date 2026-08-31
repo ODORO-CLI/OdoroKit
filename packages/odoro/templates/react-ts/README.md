@@ -34,13 +34,12 @@ Toutes les valeurs visuelles passent par des variables CSS. Surcharger
 `--o-palette-brand-600` dans `src/styles.css` retheme l'application **et** les
 composants de la librairie, sans toucher a leur code.
 
-Deux feuilles de style sont disponibles :
+Une seule feuille de style : `@odoro-cli/libs/styles.css`, a importer une fois
+a la racine de l'application.
 
-- `@odoro-cli/libs/styles.css` — structure et couleurs semantiques ;
-- `@odoro-cli/libs/styles.full.css` — la meme, plus les utilitaires de couleur sur
-  la palette complete.
-
-Importer l'une **ou** l'autre, jamais les deux.
+Elle pese 1,7 Mo sur le disque, mais ce n'est pas ce que vos visiteurs
+telechargent : la compilation n'en garde que les classes que votre code
+emploie reellement — quelques dizaines de kilooctets en pratique.
 
 ## Rechargement a chaud
 
