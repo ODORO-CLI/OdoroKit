@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { generate, renderClassNamesModule, renderCss } from '../../scripts/generate.js'
+import { generate, renderClassNamesModule, renderCss } from './generateur.js'
 import {
   ODORO_CLASS_NAMES,
   ODORO_CORE_CLASS_NAMES,

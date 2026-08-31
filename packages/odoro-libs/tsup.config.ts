@@ -28,6 +28,10 @@ export default defineConfig({
     tokens: 'src/styles/tokens.ts',
     ui: 'src/ui/index.ts',
     styles: 'src/styles/index.ts',
+    // Le generateur de feuille, consomme par le moteur au moment de la
+    // compilation. Il sort a part parce qu'il ne sert que la, et qu'il n'a
+    // aucune raison d'entrer dans un paquet expedie au navigateur.
+    generateur: 'src/styles/generateur.ts',
   },
   format: ['esm'],
   target: 'es2022',

@@ -18,7 +18,8 @@ import type { ResolvedConfig } from '../config.js'
 import * as log from '../shared/logger.js'
 import { applyAlias, isBareSpecifier } from '../dev/transform.js'
 import { extractEntries } from '../dev/server.js'
-import { elaguer } from './elaguer.js'
+import { elaguer, motsDe } from './elaguer.js'
+import { fournisseurDe } from './fournisseur-css.js'
 
 /** Normalise un chemin en separateurs d'URL. */
 function toPosix(path: string): string {
@@ -93,21 +94,34 @@ function outputsForEntry(
 }
 
 /**
- * Elague les feuilles produites, en lisant le code produit.
+ * Taille la feuille de style aux besoins reels de l'application.
  *
- * ## Pourquoi apres le regroupement, et non avant
+ * ## Deux chemins, et pourquoi le premier est meilleur
+ *
+ * **Generer**, quand le projet fournit un generateur : on produit exactement
+ * les regles employees. Rien d'inutile n'est jamais cree.
+ *
+ * **Elaguer**, sinon : on part de la feuille livree et on en retire ce que rien
+ * n'atteint. C'est la bonne reponse tant que la feuille arrive pre-generee,
+ * mais c'est un detour — produire tout pour en jeter la quasi-totalite.
+ *
+ * ## Ce qui n'est jamais touche, dans les deux cas
+ *
+ * Le CSS de l'application. Le paquet produit contient la feuille de la
+ * bibliotheque **et** les styles ecrits par le projet ; les remplacer en bloc
+ * les effacerait. La generation retire donc les seuls utilitaires prefixes,
+ * puis ajoute ceux qui servent — les variables, le preflight et les classes
+ * semantiques de l'application traversent intacts.
+ *
+ * ## Pourquoi apres le regroupement
  *
  * Une classe utilitaire ne vient pas seulement de la source de l'application :
  * les composants de bibliotheque portent les leurs, dans leur JavaScript deja
  * compile. Lire la source seule retirerait tout ce dont ils ont besoin, et
  * l'interface arriverait sans style — sans qu'aucune erreur ne soit levee,
  * puisque du CSS absent ne casse rien, il ne peint rien.
- *
- * A cet instant, en revanche, on tient exactement ce qui part : les scripts
- * produits et le document. Ce qui n'y figure sous aucune forme n'est
- * atteignable par personne.
  */
-async function elaguerFeuilles(
+async function taillerFeuilles(
   result: BuildResult<{ metafile: true }>,
   config: ResolvedConfig,
   html: string,
@@ -124,16 +138,42 @@ async function elaguerFeuilles(
     if (fichier.endsWith('.js')) sources.push(await readFile(fichier, 'utf8'))
   }
 
+  const fournisseur = await fournisseurDe(config.root)
+
+  const employes = new Set<string>()
+  if (fournisseur !== undefined) {
+    for (const source of sources) for (const mot of motsDe(source)) employes.add(mot)
+    for (const garde of config.build.safelist) {
+      if (typeof garde === 'string') employes.add(garde)
+    }
+  }
+
   for (const feuille of feuilles) {
     const avant = await readFile(feuille, 'utf8')
-    const rapport = elaguer(avant, sources, { sauvegarde: config.build.safelist })
 
-    await writeFile(feuille, rapport.css, 'utf8')
+    if (fournisseur === undefined) {
+      const rapport = elaguer(avant, sources, { sauvegarde: config.build.safelist })
+      await writeFile(feuille, rapport.css, 'utf8')
+
+      log.info(
+        `  ${log.colors.dim('elagage')} ${basename(feuille)}  ` +
+          `${log.size(rapport.octetsAvant)} → ${log.size(rapport.octetsApres)}  ` +
+          `${log.colors.dim(`${String(rapport.gardees)} classes gardees`)}`,
+      )
+      continue
+    }
+
+    // Un elagage a ensemble vide retire **tous** les utilitaires prefixes et
+    // ne garde que le reste : base, preflight, et le CSS de l'application.
+    const socle = elaguer(avant, [], {}).css
+    const utilitaires = fournisseur.renderUtilitairesPour(employes)
+    const apres = `${socle}\n${utilitaires}`
+
+    await writeFile(feuille, apres, 'utf8')
 
     log.info(
-      `  ${log.colors.dim('elagage')} ${basename(feuille)}  ` +
-        `${log.size(rapport.octetsAvant)} → ${log.size(rapport.octetsApres)}  ` +
-        `${log.colors.dim(`${String(rapport.gardees)} classes gardees`)}`,
+      `  ${log.colors.dim('generation')} ${basename(feuille)}  ` +
+        `${log.size(Buffer.byteLength(avant))} → ${log.size(Buffer.byteLength(apres))}`,
     )
   }
 }
@@ -224,7 +264,7 @@ export async function buildProject(config: ResolvedConfig): Promise<BuildOutput>
     ],
   })
 
-  if (config.build.elaguer) await elaguerFeuilles(result, config, html)
+  if (config.build.elaguer) await taillerFeuilles(result, config, html)
 
   // Reecriture du document : chaque balise pointe vers le fichier empreinte.
   let output = html

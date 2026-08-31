@@ -160,7 +160,7 @@ indéfiniment, et un déploiement n'invalide que ce qui a réellement changé. L
 serveur de prévisualisation applique d'ailleurs `immutable` sur `assets/` et
 `no-cache` sur le reste, comme le ferait un hébergeur correctement configuré.
 
-## Élagage de la feuille de style
+## Génération et élagage de la feuille de style
 
 `@odoro-cli/libs` livre une feuille pré-générée qui contient **toutes** les
 classes utilitaires possibles — plusieurs milliers. Une application donnée en
@@ -172,6 +172,25 @@ emploie une fraction. Mesure faite sur un vrai tableau de bord :
 | avec élagage | **65 Ko** | **12,6 Ko** |
 
 Actif par défaut. `build.elaguer: false` le désactive.
+
+### Deux chemins
+
+**Générer**, quand le projet fournit un générateur — c’est le cas dès que
+`@odoro-cli/libs` est installé : le moteur résout `@odoro-cli/libs/generateur`
+dans les dépendances **du projet**, et produit exactement les règles employées.
+
+**Élaguer**, sinon : partir de la feuille livrée et en retirer ce que rien
+n’atteint. Le moteur ne dépend pas de la bibliothèque — un projet qui ne
+l’emploie pas compile comme avant.
+
+Dans les deux cas, **le CSS de votre application traverse intact**. Le paquet
+produit contient la feuille de la bibliothèque *et* vos styles ; les remplacer
+en bloc les effacerait. Seuls les utilitaires préfixés sont touchés.
+
+La génération a un avantage que l’élagage ne peut pas avoir : elle sert
+n’importe quelle teinte de la palette, y compris celles qu’aucune feuille
+pré-générée ne porte. Un projet qui nomme `o-text-violet-500` l’obtient ; un
+projet qui ne la nomme pas ne la paie pas.
 
 ### Il lit le code produit, pas la source
 

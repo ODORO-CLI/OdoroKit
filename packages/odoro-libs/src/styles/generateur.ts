@@ -46,7 +46,7 @@ import {
   spacingBase,
   textShadow,
   zIndex,
-} from '../src/styles/tokens.js'
+} from './tokens.js'
 
 /**
  * Variants supportes.
@@ -1707,12 +1707,23 @@ export interface GeneratedStyles {
  *
  * @param tier `core` pour la feuille de base, `full` pour y ajouter les
  *   utilitaires de palette complete.
+ * @param seulement Ne produire que ces classes. Absent, le palier entier.
+ *
+ *   C'est ce qui permet de produire a la demande ce qu'une application emploie,
+ *   plutot que de tout produire puis d'en jeter la quasi-totalite. Le bloc de
+ *   base — variables, preflight, images-cles — n'est jamais filtre : il ne
+ *   contient aucune classe utilitaire, et son absence casserait tout.
+ *
  * @throws {Error} Si deux familles produisent le meme nom de classe.
  *
  * @example
- * const { css, classNames } = generate('core')
+ * generate('full', new Set(['o-flex', 'sm:o-grid']))
  */
-export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
+export function generate(
+  tier: 'core' | 'full' = 'core',
+  seulement?: ReadonlySet<string>,
+  options: { readonly sansBase?: boolean } = {},
+): GeneratedStyles {
   const classNames: string[] = []
   /*
    * Selecteurs produits, pour la detection de doublons.
@@ -1723,20 +1734,37 @@ export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
    * refuserait ces familles, alors qu'elles ne se recouvrent en rien.
    */
   const selectors: string[] = []
-  const sections: string[] = [...variableBlock()]
+  // Le bloc de base ne s'omet que pour completer une feuille qui le porte
+  // deja — c'est le cas du moteur, qui ajoute les utilitaires a un paquet ou
+  // les variables et le preflight sont arrives par l'import de l'application.
+  // L'omettre ailleurs produirait une feuille dont chaque regle reference des
+  // variables qui n'existent pas : tout serait la, et rien ne peindrait.
+  const sections: string[] = options.sansBase === true ? [] : [...variableBlock()]
 
   for (const family of FAMILIES) {
     if (tier === 'core' && family.tier === 'extended') continue
 
     const suffix = family.selectorSuffix ?? ''
-    sections.push(`/* ${family.title}. */`)
+
+    // `selectors` et `classNames` recoivent **tout**, filtre ou non : le
+    // controle de doublons porte sur l'integrite du systeme de tokens, pas sur
+    // le contenu de cette generation-ci. Le filtrer laisserait passer un
+    // doublon reel simplement parce que l'application du jour n'emploie pas les
+    // deux classes en conflit.
+    const garde = (nom: string): boolean => seulement === undefined || seulement.has(nom)
+
+    const regles: string[] = []
 
     for (const [ruleSuffix, body] of Object.entries(family.rules)) {
       const className = `o-${ruleSuffix}`
       classNames.push(className)
       selectors.push(`${className}${suffix}`)
-      sections.push(`.${escapeSelector(className)}${suffix}{${body}}`)
+      if (garde(className)) {
+        regles.push(`.${escapeSelector(className)}${suffix}{${body}}`)
+      }
     }
+
+    const blocs: string[] = []
 
     for (const variant of family.variants) {
       const lines: string[] = []
@@ -1744,12 +1772,20 @@ export function generate(tier: 'core' | 'full' = 'core'): GeneratedStyles {
         const className = `${variant}:o-${ruleSuffix}`
         classNames.push(className)
         selectors.push(`${className}${suffix}`)
-        lines.push(wrapVariant(variant, `.${escapeSelector(className)}${suffix}`, body))
+        if (garde(className)) {
+          lines.push(wrapVariant(variant, `.${escapeSelector(className)}${suffix}`, body))
+        }
       }
-      sections.push(`/* ${family.title} — variant ${variant}. */`, ...lines)
+      // Un variant dont rien ne survit n'ecrit ni titre ni regle : sinon une
+      // feuille produite a la demande serait un chapelet de commentaires vides.
+      if (lines.length > 0) {
+        blocs.push(`/* ${family.title} — variant ${variant}. */`, ...lines)
+      }
     }
 
-    sections.push('')
+    if (regles.length > 0 || blocs.length > 0) {
+      sections.push(`/* ${family.title}. */`, ...regles, ...blocs, '')
+    }
   }
 
   const duplicates = selectors.filter(
@@ -1769,6 +1805,46 @@ export const BANNER = `/* Genere par scripts/build-css.ts a partir de src/styles
 /** Rend le contenu complet d'une feuille de style. */
 export function renderCss(tier: 'core' | 'full'): string {
   return `${BANNER}\n${generate(tier).css}`
+}
+
+/**
+ * Rend une feuille taillee pour les classes employees.
+ *
+ * ## Ce que cela remplace
+ *
+ * Produire tout puis en jeter quatre-vingt-seize pour cent. L'elagage etait la
+ * bonne reponse tant que la feuille arrivait pre-generee ; ici, il n'y a plus
+ * rien a elaguer, puisque rien d'inutile n'est produit.
+ *
+ * ## Le palier complet, gratuitement
+ *
+ * La generation porte sur `full`, et non `core`. C'etait impensable avec une
+ * feuille pre-generee — imposer les 290 nuances a tout projet ferait payer a
+ * chacun ce dont seuls quelques-uns ont besoin. A la demande, la question ne se
+ * pose plus : un projet qui nomme `o-text-violet-500` l'obtient, et un projet
+ * qui ne la nomme pas ne la paie pas.
+ *
+ * @param classes Les classes reperees dans le code expedie.
+ *
+ * @example
+ * renderCssPour(new Set(['o-flex', 'o-text-violet-500']))
+ */
+export function renderCssPour(classes: ReadonlySet<string>): string {
+  return `${BANNER}\n${generate('full', classes).css}`
+}
+
+/**
+ * Rend les seuls utilitaires demandes, sans le bloc de base.
+ *
+ * Pour completer une feuille qui porte deja les variables et le preflight : le
+ * moteur les ajoute au paquet CSS produit, ou ils sont arrives par l'import de
+ * l'application.
+ *
+ * @example
+ * renderUtilitairesPour(new Set(['o-flex']))
+ */
+export function renderUtilitairesPour(classes: ReadonlySet<string>): string {
+  return generate('full', classes, { sansBase: true }).css
 }
 
 /** Rend le contenu complet de `src/styles/generated/classNames.ts`. */

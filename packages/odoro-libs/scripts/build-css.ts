@@ -12,7 +12,7 @@ import { mkdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { generate, renderClassNamesModule, renderCss } from './generate.js'
+import { generate, renderClassNamesModule, renderCss } from '../src/styles/generateur.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = join(HERE, '..', 'src', 'styles', 'generated')
