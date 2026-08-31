@@ -13,18 +13,35 @@
  * s'en passe s'il n'y est pas. Un projet sans bibliotheque compile comme avant ;
  * un projet avec elle obtient une feuille taillee a sa mesure.
  *
+ * ## Pourquoi la resolution est ecrite a la main
+ *
+ * La facon evidente — `createRequire(...).resolve('@odoro-cli/libs/generateur')`
+ * — echoue, et il a fallu un vrai deploiement pour s'en apercevoir : elle
+ * applique la resolution **CommonJS**, qui cherche une condition `require` dans
+ * le champ `exports`. Un paquet purement ESM n'en declare pas, et l'appel leve
+ * `ERR_PACKAGE_PATH_NOT_EXPORTED` — c'est-a-dire exactement le meme symptome
+ * qu'un paquet absent. Le moteur retombait donc silencieusement sur l'elagage,
+ * en croyant qu'aucun generateur n'etait installe.
+ *
+ * `import.meta.resolve` ne convient pas davantage : sa forme a deux arguments,
+ * seule capable de resoudre depuis un autre dossier que celui de l'appelant,
+ * n'est pas stable.
+ *
+ * On resout donc le `package.json` du paquet — toujours exporte, et sans
+ * condition — puis on lit son champ `exports` soi-meme.
+ *
  * ## Un contrat, pas un import
  *
  * Le moteur ne sait du generateur qu'une chose : il rend les utilitaires
  * correspondant a un ensemble de classes. Tout paquet qui expose cette fonction
- * sous ce nom fait l'affaire — la bibliotheque maison n'est qu'un fournisseur
- * parmi d'autres possibles.
+ * sous ce nom fait l'affaire.
  *
  * @module
  */
 
+import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 /** Ce que le moteur attend d'un fournisseur de feuille. */
@@ -38,8 +55,26 @@ export interface FournisseurCss {
   renderUtilitairesPour(classes: ReadonlySet<string>): string
 }
 
-/** Le paquet consulte, et l'export attendu. */
-const FOURNISSEUR = '@odoro-cli/libs/generateur'
+/** Le paquet consulte, et le sous-chemin attendu. */
+const PAQUET = '@odoro-cli/libs'
+const SOUS_CHEMIN = './generateur'
+
+/** Ce qu'un champ `exports` peut contenir pour une entree. */
+type Entree = string | { readonly import?: string; readonly default?: string }
+
+/**
+ * Le fichier ESM derriere une entree du champ `exports`.
+ *
+ * On ne reimplemente pas la resolution complete de Node — conditions
+ * imbriquees, motifs, replis. On lit le cas simple, et on renonce sur tout le
+ * reste : renoncer fait retomber sur l'elagage, ce qui marche, la ou une
+ * resolution approximative pointerait vers le mauvais fichier.
+ */
+function fichierDe(entree: Entree | undefined): string | undefined {
+  if (entree === undefined) return undefined
+  if (typeof entree === 'string') return entree
+  return entree.import ?? entree.default
+}
 
 /**
  * Cherche le generateur dans les dependances du projet.
@@ -57,13 +92,22 @@ const FOURNISSEUR = '@odoro-cli/libs/generateur'
  */
 export async function fournisseurDe(root: string): Promise<FournisseurCss | undefined> {
   try {
-    // `createRequire` sur un chemin du projet : c'est la seule facon de
-    // resoudre comme le ferait le projet lui-meme, y compris a travers les
-    // liens de pnpm.
+    // `package.json` est exporte par tous les paquets, sans condition : c'est
+    // le seul sous-chemin dont la resolution CommonJS aboutit a coup sur.
     const exiger = createRequire(join(root, 'package.json'))
-    const chemin = exiger.resolve(FOURNISSEUR)
+    const manifeste = exiger.resolve(`${PAQUET}/package.json`)
+    const dossier = dirname(manifeste)
 
-    const module_ = (await import(pathToFileURL(chemin).href)) as Partial<FournisseurCss>
+    const contenu = JSON.parse(await readFile(manifeste, 'utf8')) as {
+      readonly exports?: Readonly<Record<string, Entree>>
+    }
+
+    const relatif = fichierDe(contenu.exports?.[SOUS_CHEMIN])
+    if (relatif === undefined) return undefined
+
+    const module_ = (await import(
+      pathToFileURL(resolve(dossier, relatif)).href
+    )) as Partial<FournisseurCss>
 
     // Present mais sans la fonction attendue : c'est une version trop
     // ancienne. On le traite comme une absence, et l'elagage prend le relais —
