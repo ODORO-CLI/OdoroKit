@@ -1,16 +1,19 @@
 /**
  * Systeme de style d'Odoro : tokens, composition de classes et variantes.
  *
- * La feuille de style est un fichier statique, a importer une fois a la racine
- * de l'application :
+ * Le paquet livre un **socle**, a importer une fois a la racine de
+ * l'application :
  *
  * ```ts
  * import '@odoro-cli/libs/styles.css'
  * ```
  *
- * Elle porte la structure et les couleurs. Les utilitaires sur les palettes
- * supplementaires ont ete retires du paquet : ils pesaient un tiers de son
- * poids pour un fichier qu'aucune application n'importait.
+ * Variables, preflight, images-cles : trente kilooctets, et aucun utilitaire.
+ * Ceux-ci sont produits a la construction, pour les seules classes employees.
+ *
+ * Cela exige le moteur `odoro` 0.1.5 ou plus recent. Sans lui, l'application
+ * recoit les variables sans les utilitaires et arrive sans style — sans erreur
+ * pour le signaler, puisque du CSS absent ne casse rien, il ne peint rien.
  *
  * @module
  */

@@ -1,0 +1,603 @@
+/* Genere par scripts/build-css.ts a partir de src/styles/tokens.ts.
+   Ne pas editer a la main : toute modification sera ecrasee. */
+/* Variables de tokens — theme clair par defaut. */
+:root {
+  --o-spacing: 0.25rem;
+  --o-space-0: 0;
+  --o-space-1: calc(var(--o-spacing) * 1);
+  --o-space-2: calc(var(--o-spacing) * 2);
+  --o-space-3: calc(var(--o-spacing) * 3);
+  --o-space-4: calc(var(--o-spacing) * 4);
+  --o-space-5: calc(var(--o-spacing) * 5);
+  --o-space-6: calc(var(--o-spacing) * 6);
+  --o-space-7: calc(var(--o-spacing) * 7);
+  --o-space-8: calc(var(--o-spacing) * 8);
+  --o-space-9: calc(var(--o-spacing) * 9);
+  --o-space-10: calc(var(--o-spacing) * 10);
+  --o-space-11: calc(var(--o-spacing) * 11);
+  --o-space-12: calc(var(--o-spacing) * 12);
+  --o-space-14: calc(var(--o-spacing) * 14);
+  --o-space-16: calc(var(--o-spacing) * 16);
+  --o-space-20: calc(var(--o-spacing) * 20);
+  --o-space-24: calc(var(--o-spacing) * 24);
+  --o-space-28: calc(var(--o-spacing) * 28);
+  --o-space-32: calc(var(--o-spacing) * 32);
+  --o-space-36: calc(var(--o-spacing) * 36);
+  --o-space-40: calc(var(--o-spacing) * 40);
+  --o-space-44: calc(var(--o-spacing) * 44);
+  --o-space-48: calc(var(--o-spacing) * 48);
+  --o-space-52: calc(var(--o-spacing) * 52);
+  --o-space-56: calc(var(--o-spacing) * 56);
+  --o-space-60: calc(var(--o-spacing) * 60);
+  --o-space-64: calc(var(--o-spacing) * 64);
+  --o-space-72: calc(var(--o-spacing) * 72);
+  --o-space-80: calc(var(--o-spacing) * 80);
+  --o-space-96: calc(var(--o-spacing) * 96);
+  --o-space-px: 1px;
+  --o-space-0_5: calc(var(--o-spacing) * 0.5);
+  --o-space-1_5: calc(var(--o-spacing) * 1.5);
+  --o-space-2_5: calc(var(--o-spacing) * 2.5);
+  --o-space-3_5: calc(var(--o-spacing) * 3.5);
+  --o-palette-red-50: oklch(97.1% 0.013 17.38);
+  --o-palette-red-100: oklch(93.6% 0.032 17.717);
+  --o-palette-red-200: oklch(88.5% 0.062 18.334);
+  --o-palette-red-300: oklch(80.8% 0.114 19.571);
+  --o-palette-red-400: oklch(70.4% 0.191 22.216);
+  --o-palette-red-500: oklch(63.7% 0.237 25.331);
+  --o-palette-red-600: oklch(57.7% 0.245 27.325);
+  --o-palette-red-700: oklch(50.5% 0.213 27.518);
+  --o-palette-red-800: oklch(44.4% 0.177 26.899);
+  --o-palette-red-900: oklch(39.6% 0.141 25.723);
+  --o-palette-red-950: oklch(25.8% 0.092 26.042);
+  --o-palette-orange-50: oklch(98% 0.016 73.684);
+  --o-palette-orange-100: oklch(95.4% 0.038 75.164);
+  --o-palette-orange-200: oklch(90.1% 0.076 70.697);
+  --o-palette-orange-300: oklch(83.7% 0.128 66.29);
+  --o-palette-orange-400: oklch(75% 0.183 55.934);
+  --o-palette-orange-500: oklch(70.5% 0.213 47.604);
+  --o-palette-orange-600: oklch(64.6% 0.222 41.116);
+  --o-palette-orange-700: oklch(55.3% 0.195 38.402);
+  --o-palette-orange-800: oklch(47% 0.157 37.304);
+  --o-palette-orange-900: oklch(40.8% 0.123 38.172);
+  --o-palette-orange-950: oklch(26.6% 0.079 36.259);
+  --o-palette-amber-50: oklch(98.7% 0.022 95.277);
+  --o-palette-amber-100: oklch(96.2% 0.059 95.617);
+  --o-palette-amber-200: oklch(92.4% 0.12 95.746);
+  --o-palette-amber-300: oklch(87.9% 0.169 91.605);
+  --o-palette-amber-400: oklch(82.8% 0.189 84.429);
+  --o-palette-amber-500: oklch(76.9% 0.188 70.08);
+  --o-palette-amber-600: oklch(66.6% 0.179 58.318);
+  --o-palette-amber-700: oklch(55.5% 0.163 48.998);
+  --o-palette-amber-800: oklch(47.3% 0.137 46.201);
+  --o-palette-amber-900: oklch(41.4% 0.112 45.904);
+  --o-palette-amber-950: oklch(27.9% 0.077 45.635);
+  --o-palette-yellow-50: oklch(98.7% 0.026 102.212);
+  --o-palette-yellow-100: oklch(97.3% 0.071 103.193);
+  --o-palette-yellow-200: oklch(94.5% 0.129 101.54);
+  --o-palette-yellow-300: oklch(90.5% 0.182 98.111);
+  --o-palette-yellow-400: oklch(85.2% 0.199 91.936);
+  --o-palette-yellow-500: oklch(79.5% 0.184 86.047);
+  --o-palette-yellow-600: oklch(68.1% 0.162 75.834);
+  --o-palette-yellow-700: oklch(55.4% 0.135 66.442);
+  --o-palette-yellow-800: oklch(47.6% 0.114 61.907);
+  --o-palette-yellow-900: oklch(42.1% 0.095 57.708);
+  --o-palette-yellow-950: oklch(28.6% 0.066 53.813);
+  --o-palette-lime-50: oklch(98.6% 0.031 120.757);
+  --o-palette-lime-100: oklch(96.7% 0.067 122.328);
+  --o-palette-lime-200: oklch(93.8% 0.127 124.321);
+  --o-palette-lime-300: oklch(89.7% 0.196 126.665);
+  --o-palette-lime-400: oklch(84.1% 0.238 128.85);
+  --o-palette-lime-500: oklch(76.8% 0.233 130.85);
+  --o-palette-lime-600: oklch(64.8% 0.2 131.684);
+  --o-palette-lime-700: oklch(53.2% 0.157 131.589);
+  --o-palette-lime-800: oklch(45.3% 0.124 130.933);
+  --o-palette-lime-900: oklch(40.5% 0.101 131.063);
+  --o-palette-lime-950: oklch(27.4% 0.072 132.109);
+  --o-palette-green-50: oklch(98.2% 0.018 155.826);
+  --o-palette-green-100: oklch(96.2% 0.044 156.743);
+  --o-palette-green-200: oklch(92.5% 0.084 155.995);
+  --o-palette-green-300: oklch(87.1% 0.15 154.449);
+  --o-palette-green-400: oklch(79.2% 0.209 151.711);
+  --o-palette-green-500: oklch(72.3% 0.219 149.579);
+  --o-palette-green-600: oklch(62.7% 0.194 149.214);
+  --o-palette-green-700: oklch(52.7% 0.154 150.069);
+  --o-palette-green-800: oklch(44.8% 0.119 151.328);
+  --o-palette-green-900: oklch(39.3% 0.095 152.535);
+  --o-palette-green-950: oklch(26.6% 0.065 152.934);
+  --o-palette-emerald-50: oklch(97.9% 0.021 166.113);
+  --o-palette-emerald-100: oklch(95% 0.052 163.051);
+  --o-palette-emerald-200: oklch(90.5% 0.093 164.15);
+  --o-palette-emerald-300: oklch(84.5% 0.143 164.978);
+  --o-palette-emerald-400: oklch(76.5% 0.177 163.223);
+  --o-palette-emerald-500: oklch(69.6% 0.17 162.48);
+  --o-palette-emerald-600: oklch(59.6% 0.145 163.225);
+  --o-palette-emerald-700: oklch(50.8% 0.118 165.612);
+  --o-palette-emerald-800: oklch(43.2% 0.095 166.913);
+  --o-palette-emerald-900: oklch(37.8% 0.077 168.94);
+  --o-palette-emerald-950: oklch(26.2% 0.051 172.552);
+  --o-palette-teal-50: oklch(98.4% 0.014 180.72);
+  --o-palette-teal-100: oklch(95.3% 0.051 180.801);
+  --o-palette-teal-200: oklch(91% 0.096 180.426);
+  --o-palette-teal-300: oklch(85.5% 0.138 181.071);
+  --o-palette-teal-400: oklch(77.7% 0.152 181.912);
+  --o-palette-teal-500: oklch(70.4% 0.14 182.503);
+  --o-palette-teal-600: oklch(60% 0.118 184.704);
+  --o-palette-teal-700: oklch(51.1% 0.096 186.391);
+  --o-palette-teal-800: oklch(43.7% 0.078 188.216);
+  --o-palette-teal-900: oklch(38.6% 0.063 188.416);
+  --o-palette-teal-950: oklch(27.7% 0.046 192.524);
+  --o-palette-cyan-50: oklch(98.4% 0.019 200.873);
+  --o-palette-cyan-100: oklch(95.6% 0.045 203.388);
+  --o-palette-cyan-200: oklch(91.7% 0.08 205.041);
+  --o-palette-cyan-300: oklch(86.5% 0.127 207.078);
+  --o-palette-cyan-400: oklch(78.9% 0.154 211.53);
+  --o-palette-cyan-500: oklch(71.5% 0.143 215.221);
+  --o-palette-cyan-600: oklch(60.9% 0.126 221.723);
+  --o-palette-cyan-700: oklch(52% 0.105 223.128);
+  --o-palette-cyan-800: oklch(45% 0.085 224.283);
+  --o-palette-cyan-900: oklch(39.8% 0.07 227.392);
+  --o-palette-cyan-950: oklch(30.2% 0.056 229.695);
+  --o-palette-sky-50: oklch(97.7% 0.013 236.62);
+  --o-palette-sky-100: oklch(95.1% 0.026 236.824);
+  --o-palette-sky-200: oklch(90.1% 0.058 230.902);
+  --o-palette-sky-300: oklch(82.8% 0.111 230.318);
+  --o-palette-sky-400: oklch(74.6% 0.16 232.661);
+  --o-palette-sky-500: oklch(68.5% 0.169 237.323);
+  --o-palette-sky-600: oklch(58.8% 0.158 241.966);
+  --o-palette-sky-700: oklch(50% 0.134 242.749);
+  --o-palette-sky-800: oklch(44.3% 0.11 240.79);
+  --o-palette-sky-900: oklch(39.1% 0.09 240.876);
+  --o-palette-sky-950: oklch(29.3% 0.066 243.157);
+  --o-palette-blue-50: oklch(97% 0.014 254.604);
+  --o-palette-blue-100: oklch(93.2% 0.032 255.585);
+  --o-palette-blue-200: oklch(88.2% 0.059 254.128);
+  --o-palette-blue-300: oklch(80.9% 0.105 251.813);
+  --o-palette-blue-400: oklch(70.7% 0.165 254.624);
+  --o-palette-blue-500: oklch(62.3% 0.214 259.815);
+  --o-palette-blue-600: oklch(54.6% 0.245 262.881);
+  --o-palette-blue-700: oklch(48.8% 0.243 264.376);
+  --o-palette-blue-800: oklch(42.4% 0.199 265.638);
+  --o-palette-blue-900: oklch(37.9% 0.146 265.522);
+  --o-palette-blue-950: oklch(28.2% 0.091 267.935);
+  --o-palette-indigo-50: oklch(96.2% 0.018 272.314);
+  --o-palette-indigo-100: oklch(93% 0.034 272.788);
+  --o-palette-indigo-200: oklch(87% 0.065 274.039);
+  --o-palette-indigo-300: oklch(78.5% 0.115 274.713);
+  --o-palette-indigo-400: oklch(67.3% 0.182 276.935);
+  --o-palette-indigo-500: oklch(58.5% 0.233 277.117);
+  --o-palette-indigo-600: oklch(51.1% 0.262 276.966);
+  --o-palette-indigo-700: oklch(45.7% 0.24 277.023);
+  --o-palette-indigo-800: oklch(39.8% 0.195 277.366);
+  --o-palette-indigo-900: oklch(35.9% 0.144 278.697);
+  --o-palette-indigo-950: oklch(25.7% 0.09 281.288);
+  --o-palette-violet-50: oklch(96.9% 0.016 293.756);
+  --o-palette-violet-100: oklch(94.3% 0.029 294.588);
+  --o-palette-violet-200: oklch(89.4% 0.057 293.283);
+  --o-palette-violet-300: oklch(81.1% 0.111 293.571);
+  --o-palette-violet-400: oklch(70.2% 0.183 293.541);
+  --o-palette-violet-500: oklch(60.6% 0.25 292.717);
+  --o-palette-violet-600: oklch(54.1% 0.281 293.009);
+  --o-palette-violet-700: oklch(49.1% 0.27 292.581);
+  --o-palette-violet-800: oklch(43.2% 0.232 292.759);
+  --o-palette-violet-900: oklch(38% 0.189 293.745);
+  --o-palette-violet-950: oklch(28.3% 0.141 291.089);
+  --o-palette-purple-50: oklch(97.7% 0.014 308.299);
+  --o-palette-purple-100: oklch(94.6% 0.033 307.174);
+  --o-palette-purple-200: oklch(90.2% 0.063 306.703);
+  --o-palette-purple-300: oklch(82.7% 0.119 306.383);
+  --o-palette-purple-400: oklch(71.4% 0.203 305.504);
+  --o-palette-purple-500: oklch(62.7% 0.265 303.9);
+  --o-palette-purple-600: oklch(55.8% 0.288 302.321);
+  --o-palette-purple-700: oklch(49.6% 0.265 301.924);
+  --o-palette-purple-800: oklch(43.8% 0.218 303.724);
+  --o-palette-purple-900: oklch(38.1% 0.176 304.987);
+  --o-palette-purple-950: oklch(29.1% 0.149 302.717);
+  --o-palette-fuchsia-50: oklch(97.7% 0.017 320.058);
+  --o-palette-fuchsia-100: oklch(95.2% 0.037 318.852);
+  --o-palette-fuchsia-200: oklch(90.3% 0.076 319.62);
+  --o-palette-fuchsia-300: oklch(83.3% 0.145 321.434);
+  --o-palette-fuchsia-400: oklch(74% 0.238 322.16);
+  --o-palette-fuchsia-500: oklch(66.7% 0.295 322.15);
+  --o-palette-fuchsia-600: oklch(59.1% 0.293 322.896);
+  --o-palette-fuchsia-700: oklch(51.8% 0.253 323.949);
+  --o-palette-fuchsia-800: oklch(45.2% 0.211 324.591);
+  --o-palette-fuchsia-900: oklch(40.1% 0.17 325.612);
+  --o-palette-fuchsia-950: oklch(29.3% 0.136 325.661);
+  --o-palette-pink-50: oklch(97.1% 0.014 343.198);
+  --o-palette-pink-100: oklch(94.8% 0.028 342.258);
+  --o-palette-pink-200: oklch(89.9% 0.061 343.231);
+  --o-palette-pink-300: oklch(82.3% 0.12 346.018);
+  --o-palette-pink-400: oklch(71.8% 0.202 349.761);
+  --o-palette-pink-500: oklch(65.6% 0.241 354.308);
+  --o-palette-pink-600: oklch(59.2% 0.249 0.584);
+  --o-palette-pink-700: oklch(52.5% 0.223 3.958);
+  --o-palette-pink-800: oklch(45.9% 0.187 3.815);
+  --o-palette-pink-900: oklch(40.8% 0.153 2.432);
+  --o-palette-pink-950: oklch(28.4% 0.109 3.907);
+  --o-palette-rose-50: oklch(96.9% 0.015 12.422);
+  --o-palette-rose-100: oklch(94.1% 0.03 12.58);
+  --o-palette-rose-200: oklch(89.2% 0.058 10.001);
+  --o-palette-rose-300: oklch(81% 0.117 11.638);
+  --o-palette-rose-400: oklch(71.2% 0.194 13.428);
+  --o-palette-rose-500: oklch(64.5% 0.246 16.439);
+  --o-palette-rose-600: oklch(58.6% 0.253 17.585);
+  --o-palette-rose-700: oklch(51.4% 0.222 16.935);
+  --o-palette-rose-800: oklch(45.5% 0.188 13.697);
+  --o-palette-rose-900: oklch(41% 0.159 10.272);
+  --o-palette-rose-950: oklch(27.1% 0.105 12.094);
+  --o-palette-slate-50: oklch(98.4% 0.003 247.858);
+  --o-palette-slate-100: oklch(96.8% 0.007 247.896);
+  --o-palette-slate-200: oklch(92.9% 0.013 255.508);
+  --o-palette-slate-300: oklch(86.9% 0.022 252.894);
+  --o-palette-slate-400: oklch(70.4% 0.04 256.788);
+  --o-palette-slate-500: oklch(55.4% 0.046 257.417);
+  --o-palette-slate-600: oklch(44.6% 0.043 257.281);
+  --o-palette-slate-700: oklch(37.2% 0.044 257.287);
+  --o-palette-slate-800: oklch(27.9% 0.041 260.031);
+  --o-palette-slate-900: oklch(20.8% 0.042 265.755);
+  --o-palette-slate-950: oklch(12.9% 0.042 264.695);
+  --o-palette-gray-50: oklch(98.5% 0.002 247.839);
+  --o-palette-gray-100: oklch(96.7% 0.003 264.542);
+  --o-palette-gray-200: oklch(92.8% 0.006 264.531);
+  --o-palette-gray-300: oklch(87.2% 0.01 258.338);
+  --o-palette-gray-400: oklch(70.7% 0.022 261.325);
+  --o-palette-gray-500: oklch(55.1% 0.027 264.364);
+  --o-palette-gray-600: oklch(44.6% 0.03 256.802);
+  --o-palette-gray-700: oklch(37.3% 0.034 259.733);
+  --o-palette-gray-800: oklch(27.8% 0.033 256.848);
+  --o-palette-gray-900: oklch(21% 0.034 264.665);
+  --o-palette-gray-950: oklch(13% 0.028 261.692);
+  --o-palette-zinc-50: oklch(98.5% 0 none);
+  --o-palette-zinc-100: oklch(96.7% 0.001 286.375);
+  --o-palette-zinc-200: oklch(92% 0.004 286.32);
+  --o-palette-zinc-300: oklch(87.1% 0.006 286.286);
+  --o-palette-zinc-400: oklch(70.5% 0.015 286.067);
+  --o-palette-zinc-500: oklch(55.2% 0.016 285.938);
+  --o-palette-zinc-600: oklch(44.2% 0.017 285.786);
+  --o-palette-zinc-700: oklch(37% 0.013 285.805);
+  --o-palette-zinc-800: oklch(27.4% 0.006 286.033);
+  --o-palette-zinc-900: oklch(21% 0.006 285.885);
+  --o-palette-zinc-950: oklch(14.1% 0.005 285.823);
+  --o-palette-neutral-50: oklch(98.5% 0 none);
+  --o-palette-neutral-100: oklch(97% 0 none);
+  --o-palette-neutral-200: oklch(92.2% 0 none);
+  --o-palette-neutral-300: oklch(87% 0 none);
+  --o-palette-neutral-400: oklch(70.8% 0 none);
+  --o-palette-neutral-500: oklch(55.6% 0 none);
+  --o-palette-neutral-600: oklch(43.9% 0 none);
+  --o-palette-neutral-700: oklch(37.1% 0 none);
+  --o-palette-neutral-800: oklch(26.9% 0 none);
+  --o-palette-neutral-900: oklch(20.5% 0 none);
+  --o-palette-neutral-950: oklch(14.5% 0 none);
+  --o-palette-stone-50: oklch(98.5% 0.001 106.423);
+  --o-palette-stone-100: oklch(97% 0.001 106.424);
+  --o-palette-stone-200: oklch(92.3% 0.003 48.717);
+  --o-palette-stone-300: oklch(86.9% 0.005 56.366);
+  --o-palette-stone-400: oklch(70.9% 0.01 56.259);
+  --o-palette-stone-500: oklch(55.3% 0.013 58.071);
+  --o-palette-stone-600: oklch(44.4% 0.011 73.639);
+  --o-palette-stone-700: oklch(37.4% 0.01 67.558);
+  --o-palette-stone-800: oklch(26.8% 0.007 34.298);
+  --o-palette-stone-900: oklch(21.6% 0.006 56.043);
+  --o-palette-stone-950: oklch(14.7% 0.004 49.25);
+  --o-palette-mauve-50: oklch(98.5% 0 none);
+  --o-palette-mauve-100: oklch(96% 0.003 325.6);
+  --o-palette-mauve-200: oklch(92.2% 0.005 325.62);
+  --o-palette-mauve-300: oklch(86.5% 0.012 325.68);
+  --o-palette-mauve-400: oklch(71.1% 0.019 323.02);
+  --o-palette-mauve-500: oklch(54.2% 0.034 322.5);
+  --o-palette-mauve-600: oklch(43.5% 0.029 321.78);
+  --o-palette-mauve-700: oklch(36.4% 0.029 323.89);
+  --o-palette-mauve-800: oklch(26.3% 0.024 320.12);
+  --o-palette-mauve-900: oklch(21.2% 0.019 322.12);
+  --o-palette-mauve-950: oklch(14.5% 0.008 326);
+  --o-palette-olive-50: oklch(98.8% 0.003 106.5);
+  --o-palette-olive-100: oklch(96.6% 0.005 106.5);
+  --o-palette-olive-200: oklch(93% 0.007 106.5);
+  --o-palette-olive-300: oklch(88% 0.011 106.6);
+  --o-palette-olive-400: oklch(73.7% 0.021 106.9);
+  --o-palette-olive-500: oklch(58% 0.031 107.3);
+  --o-palette-olive-600: oklch(46.6% 0.025 107.3);
+  --o-palette-olive-700: oklch(39.4% 0.023 107.4);
+  --o-palette-olive-800: oklch(28.6% 0.016 107.4);
+  --o-palette-olive-900: oklch(22.8% 0.013 107.4);
+  --o-palette-olive-950: oklch(15.3% 0.006 107.1);
+  --o-palette-mist-50: oklch(98.7% 0.002 197.1);
+  --o-palette-mist-100: oklch(96.3% 0.002 197.1);
+  --o-palette-mist-200: oklch(92.5% 0.005 214.3);
+  --o-palette-mist-300: oklch(87.2% 0.007 219.6);
+  --o-palette-mist-400: oklch(72.3% 0.014 214.4);
+  --o-palette-mist-500: oklch(56% 0.021 213.5);
+  --o-palette-mist-600: oklch(45% 0.017 213.2);
+  --o-palette-mist-700: oklch(37.8% 0.015 216);
+  --o-palette-mist-800: oklch(27.5% 0.011 216.9);
+  --o-palette-mist-900: oklch(21.8% 0.008 223.9);
+  --o-palette-mist-950: oklch(14.8% 0.004 228.8);
+  --o-palette-taupe-50: oklch(98.6% 0.002 67.8);
+  --o-palette-taupe-100: oklch(96% 0.002 17.2);
+  --o-palette-taupe-200: oklch(92.2% 0.005 34.3);
+  --o-palette-taupe-300: oklch(86.8% 0.007 39.5);
+  --o-palette-taupe-400: oklch(71.4% 0.014 41.2);
+  --o-palette-taupe-500: oklch(54.7% 0.021 43.1);
+  --o-palette-taupe-600: oklch(43.8% 0.017 39.3);
+  --o-palette-taupe-700: oklch(36.7% 0.016 35.7);
+  --o-palette-taupe-800: oklch(26.8% 0.011 36.5);
+  --o-palette-taupe-900: oklch(21.4% 0.009 43.1);
+  --o-palette-taupe-950: oklch(14.7% 0.004 49.3);
+  --o-palette-black: #000;
+  --o-palette-white: #fff;
+  --o-palette-brand-50: oklch(97.0% 0.014 275);
+  --o-palette-brand-100: oklch(93.6% 0.032 275);
+  --o-palette-brand-200: oklch(87.4% 0.060 275);
+  --o-palette-brand-300: oklch(79.0% 0.101 275);
+  --o-palette-brand-400: oklch(69.2% 0.152 275);
+  --o-palette-brand-500: oklch(59.8% 0.198 275);
+  --o-palette-brand-600: oklch(52.4% 0.212 275);
+  --o-palette-brand-700: oklch(44.6% 0.190 275);
+  --o-palette-brand-800: oklch(37.4% 0.156 275);
+  --o-palette-brand-900: oklch(31.6% 0.124 275);
+  --o-palette-brand-950: oklch(22.0% 0.088 275);
+  --o-palette-transparent: transparent;
+  --o-palette-current: currentColor;
+  --o-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --o-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --o-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+  --o-text-xs: 0.75rem;
+  --o-text-sm: 0.875rem;
+  --o-text-base: 1rem;
+  --o-text-lg: 1.125rem;
+  --o-text-xl: 1.25rem;
+  --o-text-2xl: 1.5rem;
+  --o-text-3xl: 1.875rem;
+  --o-text-4xl: 2.25rem;
+  --o-text-5xl: 3rem;
+  --o-text-6xl: 3.75rem;
+  --o-text-7xl: 4.5rem;
+  --o-text-8xl: 6rem;
+  --o-text-9xl: 8rem;
+  --o-text-xs--leading: calc(1 / 0.75);
+  --o-text-sm--leading: calc(1.25 / 0.875);
+  --o-text-base--leading: calc(1.5 / 1);
+  --o-text-lg--leading: calc(1.75 / 1.125);
+  --o-text-xl--leading: calc(1.75 / 1.25);
+  --o-text-2xl--leading: calc(2 / 1.5);
+  --o-text-3xl--leading: calc(2.25 / 1.875);
+  --o-text-4xl--leading: calc(2.5 / 2.25);
+  --o-text-5xl--leading: 1;
+  --o-text-6xl--leading: 1;
+  --o-text-7xl--leading: 1;
+  --o-text-8xl--leading: 1;
+  --o-text-9xl--leading: 1;
+  --o-weight-thin: 100;
+  --o-weight-extralight: 200;
+  --o-weight-light: 300;
+  --o-weight-normal: 400;
+  --o-weight-medium: 500;
+  --o-weight-semibold: 600;
+  --o-weight-bold: 700;
+  --o-weight-extrabold: 800;
+  --o-weight-black: 900;
+  --o-leading-tight: 1.25;
+  --o-leading-snug: 1.375;
+  --o-leading-normal: 1.5;
+  --o-leading-relaxed: 1.625;
+  --o-leading-loose: 2;
+  --o-tracking-tighter: -0.05em;
+  --o-tracking-tight: -0.025em;
+  --o-tracking-normal: 0em;
+  --o-tracking-wide: 0.025em;
+  --o-tracking-wider: 0.05em;
+  --o-tracking-widest: 0.1em;
+  --o-radius-xs: 0.125rem;
+  --o-radius-sm: 0.25rem;
+  --o-radius-md: 0.375rem;
+  --o-radius-lg: 0.5rem;
+  --o-radius-xl: 0.75rem;
+  --o-radius-2xl: 1rem;
+  --o-radius-3xl: 1.5rem;
+  --o-radius-4xl: 2rem;
+  --o-shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+  --o-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --o-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --o-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --o-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --o-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --o-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --o-shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  --o-inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05);
+  --o-inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05);
+  --o-inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 / 0.05);
+  --o-drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.05);
+  --o-drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
+  --o-drop-shadow-md: 0 3px 3px rgb(0 0 0 / 0.12);
+  --o-drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
+  --o-drop-shadow-xl: 0 9px 7px rgb(0 0 0 / 0.1);
+  --o-drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15);
+  --o-text-shadow-2xs: 0px 1px 0px rgb(0 0 0 / 0.15);
+  --o-text-shadow-xs: 0px 1px 1px rgb(0 0 0 / 0.2);
+  --o-text-shadow-sm: 0px 1px 0px rgb(0 0 0 / 0.075), 0px 1px 1px rgb(0 0 0 / 0.075), 0px 2px 2px rgb(0 0 0 / 0.075);
+  --o-text-shadow-md: 0px 1px 1px rgb(0 0 0 / 0.1), 0px 1px 2px rgb(0 0 0 / 0.1), 0px 2px 4px rgb(0 0 0 / 0.1);
+  --o-text-shadow-lg: 0px 1px 2px rgb(0 0 0 / 0.1), 0px 3px 2px rgb(0 0 0 / 0.1), 0px 4px 8px rgb(0 0 0 / 0.1);
+  --o-text-shadow-none: none;
+  --o-blur-xs: 4px;
+  --o-blur-sm: 8px;
+  --o-blur-md: 12px;
+  --o-blur-lg: 16px;
+  --o-blur-xl: 24px;
+  --o-blur-2xl: 40px;
+  --o-blur-3xl: 64px;
+  --o-breakpoint-sm: 40rem;
+  --o-breakpoint-md: 48rem;
+  --o-breakpoint-lg: 64rem;
+  --o-breakpoint-xl: 80rem;
+  --o-breakpoint-2xl: 96rem;
+  --o-container-3xs: 16rem;
+  --o-container-2xs: 18rem;
+  --o-container-xs: 20rem;
+  --o-container-sm: 24rem;
+  --o-container-md: 28rem;
+  --o-container-lg: 32rem;
+  --o-container-xl: 36rem;
+  --o-container-2xl: 42rem;
+  --o-container-3xl: 48rem;
+  --o-container-4xl: 56rem;
+  --o-container-5xl: 64rem;
+  --o-container-6xl: 72rem;
+  --o-container-7xl: 80rem;
+  --o-perspective-dramatic: 100px;
+  --o-perspective-near: 300px;
+  --o-perspective-normal: 500px;
+  --o-perspective-midrange: 800px;
+  --o-perspective-distant: 1200px;
+  --o-aspect-video: 16 / 9;
+  --o-border-0: 0;
+  --o-border-1: 1px;
+  --o-border-2: 2px;
+  --o-border-4: 4px;
+  --o-border-8: 8px;
+  --o-duration-instant: 0ms;
+  --o-duration-fastest: 75ms;
+  --o-duration-faster: 120ms;
+  --o-duration-fast: 150ms;
+  --o-duration-base: 200ms;
+  --o-duration-slow: 320ms;
+  --o-duration-slower: 480ms;
+  --o-duration-slowest: 700ms;
+  --o-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --o-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --o-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --o-ease-linear: linear;
+  --o-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --o-ease-entrance: cubic-bezier(0, 0, 0, 1);
+  --o-ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --o-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+  --o-opacity-0: 0;
+  --o-opacity-5: 0.05;
+  --o-opacity-10: 0.1;
+  --o-opacity-15: 0.15000000000000002;
+  --o-opacity-20: 0.2;
+  --o-opacity-25: 0.25;
+  --o-opacity-30: 0.30000000000000004;
+  --o-opacity-35: 0.35000000000000003;
+  --o-opacity-40: 0.4;
+  --o-opacity-45: 0.45;
+  --o-opacity-50: 0.5;
+  --o-opacity-55: 0.55;
+  --o-opacity-60: 0.6000000000000001;
+  --o-opacity-65: 0.65;
+  --o-opacity-70: 0.7000000000000001;
+  --o-opacity-75: 0.75;
+  --o-opacity-80: 0.8;
+  --o-opacity-85: 0.8500000000000001;
+  --o-opacity-90: 0.9;
+  --o-opacity-95: 0.9500000000000001;
+  --o-opacity-100: 1;
+  --o-z-0: 0;
+  --o-z-10: 10;
+  --o-z-20: 20;
+  --o-z-30: 30;
+  --o-z-40: 40;
+  --o-z-50: 50;
+  --o-z-auto: auto;
+  --o-z-sticky: 100;
+  --o-z-dropdown: 900;
+  --o-z-overlay: 1000;
+  --o-z-modal: 1010;
+  --o-z-toast: 1100;
+  color-scheme: light dark;
+}
+
+/* Preflight. */
+*,*::before,*::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:var(--o-palette-zinc-200)}
+html{-webkit-text-size-adjust:100%;tab-size:4}
+body{margin:0;font-family:var(--o-font-sans);font-size:var(--o-text-base);line-height:var(--o-leading-normal);color:var(--o-palette-zinc-900);background-color:var(--o-palette-zinc-50);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5,h6,p,figure,blockquote,dl,dd,pre{margin:0}
+h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}
+ol,ul,menu{list-style:none;margin:0;padding:0}
+img,picture,video,canvas,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit;margin:0;background:transparent}
+button,[role="button"]{cursor:pointer}
+table{border-collapse:collapse}
+code,kbd,samp,pre{font-family:var(--o-font-mono);font-size:1em}
+mark{background-color:oklch(90.5% 0.182 98.111 / 0.55);color:inherit;border-radius:0.125em;padding-inline:0.125em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+:where(a){color:var(--o-palette-brand-600)}
+:where(a:hover){color:var(--o-palette-brand-700)}
+::selection{background-color:var(--o-palette-brand-100)}
+:where(:focus-visible){outline:2px solid var(--o-palette-brand-500);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
+
+/* Preflight — theme sombre. */
+:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="dark"] *,*::before,*::after{border-color:var(--o-palette-zinc-800)}
+:root[data-theme="dark"] body{color:var(--o-palette-zinc-50);background-color:var(--o-palette-zinc-950)}
+:root[data-theme="dark"] :where(a){color:var(--o-palette-brand-300)}
+:root[data-theme="dark"] :where(a:hover){color:var(--o-palette-brand-200)}
+:root[data-theme="dark"] ::selection{background-color:var(--o-palette-brand-900)}
+:root[data-theme="dark"] mark{background-color:oklch(82.8% 0.189 84.429 / 0.35)}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]){color-scheme:dark}
+:root:not([data-theme="light"]) *,*::before,*::after{border-color:var(--o-palette-zinc-800)}
+:root:not([data-theme="light"]) body{color:var(--o-palette-zinc-50);background-color:var(--o-palette-zinc-950)}
+:root:not([data-theme="light"]) :where(a){color:var(--o-palette-brand-300)}
+:root:not([data-theme="light"]) :where(a:hover){color:var(--o-palette-brand-200)}
+:root:not([data-theme="light"]) ::selection{background-color:var(--o-palette-brand-900)}
+:root:not([data-theme="light"]) mark{background-color:oklch(82.8% 0.189 84.429 / 0.35)}
+}
+
+/* Images-cles. */
+@keyframes o-spin{to{transform:rotate(360deg)}}
+@keyframes o-pulse{50%{opacity:0.5}}
+@keyframes o-ping{75%,100%{transform:scale(2);opacity:0}}
+@keyframes o-bounce{0%,100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}
+@keyframes o-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-0.375rem)}}
+@keyframes o-heartbeat{0%,28%,70%,100%{transform:scale(1)}14%,42%{transform:scale(1.12)}}
+@keyframes o-wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes o-caret-blink{0%,70%,100%{opacity:1}20%,50%{opacity:0}}
+@keyframes o-fade-in{from{opacity:0}}
+@keyframes o-fade-in-up{from{opacity:0;transform:translateY(1rem)}}
+@keyframes o-fade-in-down{from{opacity:0;transform:translateY(-1rem)}}
+@keyframes o-fade-in-left{from{opacity:0;transform:translateX(-1rem)}}
+@keyframes o-fade-in-right{from{opacity:0;transform:translateX(1rem)}}
+@keyframes o-scale-in{from{opacity:0;transform:scale(0.95)}}
+@keyframes o-zoom-in{from{opacity:0;transform:scale(0.5)}}
+@keyframes o-blur-in{from{opacity:0;filter:blur(8px)}}
+@keyframes o-pop{0%{opacity:0;transform:scale(0.8)}60%{transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+@keyframes o-slide-in-up{from{transform:translateY(100%)}}
+@keyframes o-slide-in-down{from{transform:translateY(-100%)}}
+@keyframes o-slide-in-left{from{transform:translateX(-100%)}}
+@keyframes o-slide-in-right{from{transform:translateX(100%)}}
+@keyframes o-flip-in-x{from{opacity:0;transform:perspective(800px) rotateX(-90deg)}}
+@keyframes o-flip-in-y{from{opacity:0;transform:perspective(800px) rotateY(-90deg)}}
+@keyframes o-fade-out{to{opacity:0}}
+@keyframes o-fade-out-up{to{opacity:0;transform:translateY(-1rem)}}
+@keyframes o-fade-out-down{to{opacity:0;transform:translateY(1rem)}}
+@keyframes o-scale-out{to{opacity:0;transform:scale(0.95)}}
+@keyframes o-zoom-out{to{opacity:0;transform:scale(0.5)}}
+@keyframes o-blur-out{to{opacity:0;filter:blur(8px)}}
+@keyframes o-slide-out-up{to{transform:translateY(-100%)}}
+@keyframes o-slide-out-down{to{transform:translateY(100%)}}
+@keyframes o-slide-out-left{to{transform:translateX(-100%)}}
+@keyframes o-slide-out-right{to{transform:translateX(100%)}}
+@keyframes o-shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-0.375rem)}20%,40%,60%,80%{transform:translateX(0.375rem)}}
+@keyframes o-tada{0%,100%{transform:scale(1)}10%,20%{transform:scale(0.92) rotate(-3deg)}30%,50%,70%,90%{transform:scale(1.08) rotate(3deg)}40%,60%,80%{transform:scale(1.08) rotate(-3deg)}}
+@keyframes o-wobble{0%,100%{transform:none}15%{transform:translateX(-1.25rem) rotate(-5deg)}30%{transform:translateX(1rem) rotate(3deg)}45%{transform:translateX(-0.75rem) rotate(-3deg)}60%{transform:translateX(0.5rem) rotate(2deg)}75%{transform:translateX(-0.25rem) rotate(-1deg)}}
+@keyframes o-jello{0%,100%{transform:none}22%{transform:skewX(-12deg) skewY(-12deg)}33%{transform:skewX(6deg) skewY(6deg)}44%{transform:skewX(-3deg) skewY(-3deg)}55%{transform:skewX(1.5deg) skewY(1.5deg)}66%{transform:skewX(-0.75deg) skewY(-0.75deg)}}
+@keyframes o-rubber-band{0%,100%{transform:scale(1,1)}30%{transform:scale(1.25,0.75)}40%{transform:scale(0.75,1.25)}50%{transform:scale(1.15,0.85)}65%{transform:scale(0.95,1.05)}75%{transform:scale(1.05,0.95)}}
+@keyframes o-flash{0%,50%,100%{opacity:1}25%,75%{opacity:0}}
+@keyframes o-swing{20%{transform:rotate(15deg)}40%{transform:rotate(-10deg)}60%{transform:rotate(5deg)}80%{transform:rotate(-5deg)}100%{transform:rotate(0deg)}}
+@keyframes o-shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes o-gradient-x{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes o-indeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+@keyframes o-vt-out{to{opacity:0}}
+@keyframes o-vt-in{from{opacity:0}}
+@keyframes o-vt-page-out{to{opacity:0;transform:translateY(-0.5rem)}}
+@keyframes o-vt-page-in{from{opacity:0;transform:translateY(0.75rem)}}
+
+/* Transitions de page. */
+::view-transition-old(root){animation:o-vt-out var(--o-duration-faster) var(--o-ease-exit) both}
+::view-transition-new(root){animation:o-vt-in var(--o-duration-fast) var(--o-ease-entrance) both}
+::view-transition-old(o-page){animation:o-vt-page-out var(--o-duration-fast) var(--o-ease-exit) both}
+::view-transition-new(o-page){animation:o-vt-page-in var(--o-duration-base) var(--o-ease-entrance) both}
+@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root),::view-transition-old(o-page),::view-transition-new(o-page){animation:none}}

@@ -1802,6 +1802,21 @@ export function generate(
 export const BANNER = `/* Genere par scripts/build-css.ts a partir de src/styles/tokens.ts.
    Ne pas editer a la main : toute modification sera ecrasee. */`
 
+/**
+ * Rend le socle seul : variables, preflight, images-cles, transitions.
+ *
+ * C'est ce que le paquet livre desormais. Les utilitaires n'y sont pas : ils
+ * sont produits a la construction, pour les seules classes employees.
+ *
+ * Ce socle n'est pas optionnel et ne s'elague pas. Chaque utilitaire genere
+ * reference ses variables ; sans elles, toutes les regles seraient la et
+ * aucune ne peindrait — une panne bien pire qu'une classe absente, parce
+ * qu'elle est totale et muette.
+ */
+export function renderBase(): string {
+  return `${BANNER}\n${variableBlock().join('\n')}`
+}
+
 /** Rend le contenu complet d'une feuille de style. */
 export function renderCss(tier: 'core' | 'full'): string {
   return `${BANNER}\n${generate(tier).css}`

@@ -42,15 +42,17 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   external: ['react', 'react-dom', 'react/jsx-runtime'],
-  // La feuille de style est un artefact deja genere : tsup n'a qu'a la deposer
-  // a cote du code, sous le nom annonce par le champ `exports`.
+  // Le paquet livre le **socle** seul : variables, preflight, images-cles.
+  // Les utilitaires sont produits a la construction de chaque application,
+  // pour les seules classes qu'elle emploie.
   //
-  // `odoro.full.css` est produite mais **non publiee**. Elle pesait 2,8 Mo —
-  // 182 Ko une fois compressee, soit un tiers du poids du paquet — pour des
-  // utilitaires de couleur sur des palettes supplementaires qu'aucune
-  // application n'importait. Elle reste generee ici, et reviendra d'elle-meme
-  // le jour ou le CSS sera produit a la demande plutot que pre-genere.
+  // La feuille entiere pesait 1 724 Ko — 119 Ko compresses, soit un tiers du
+  // poids du paquet — et chaque projet en jetait plus de quatre-vingt-quinze
+  // pour cent. Le socle en pese 30.
+  //
+  // Cela exige le moteur odoro 0.1.5 ou plus recent : sans lui, l'application
+  // recoit les variables sans les utilitaires, et arrive sans style.
   async onSuccess() {
-    await cp(join(GENERATED, 'odoro.css'), join(DIST, 'styles.css'))
+    await cp(join(GENERATED, 'odoro.base.css'), join(DIST, 'styles.css'))
   },
 })

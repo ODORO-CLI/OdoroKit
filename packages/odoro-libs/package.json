@@ -1,6 +1,6 @@
 {
   "name": "@odoro-cli/libs",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
@@ -62,7 +62,8 @@
   },
   "peerDependencies": {
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "odoro": ">=0.1.5"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
@@ -87,5 +88,10 @@
   },
   "bugs": {
     "url": "https://github.com/ODORO-CLI/OdoroKit/issues"
+  },
+  "peerDependenciesMeta": {
+    "odoro": {
+      "optional": true
+    }
   }
 }

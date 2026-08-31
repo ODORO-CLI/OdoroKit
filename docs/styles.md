@@ -5,38 +5,46 @@ import { cx, variants, tokens, colorLight, palette } from '@odoro-cli/libs'
 import '@odoro-cli/libs/styles.css'
 ```
 
-## Une seule feuille
+## Le paquet livre un socle, pas une feuille
 
-| Feuille                      | Contenu                                                                  | Poids                     |
-| ---------------------------- | ------------------------------------------------------------------------ | ------------------------- |
-| `@odoro-cli/libs/styles.css` | Variables, préflight, utilitaires structurels, sept teintes essentielles | 1 724 Ko — 119 Ko gzip    |
+`@odoro-cli/libs/styles.css` contient les variables, le préflight, les
+images-clés et les transitions de page — **30 Ko**. Aucun utilitaire.
 
-Ce poids est celui du fichier livré, **pas celui que vos visiteurs
-téléchargent** : l'élagage à la construction n'en garde que ce que votre
-application emploie. Sur un vrai tableau de bord, 65 Ko bruts et 12,6 Ko une
-fois compressés. Voir [Élagage de la feuille de style](engine.md).
+Les utilitaires sont produits à la construction, pour les seules classes que
+votre application emploie. Sur un vrai tableau de bord : 66 Ko bruts, 12,8 Ko
+compressés — exactement ce que produisait la feuille de 1 724 Ko, sans les
+1 694 Ko qu'il fallait télécharger pour les obtenir.
 
-### La feuille complète a été retirée du paquet
+### Cela exige le moteur
 
-`@odoro-cli/libs/styles.full.css` ajoutait les utilitaires de couleur sur les
-palettes supplémentaires — `orange`, `yellow`, `teal`, `indigo`, `violet`,
-`olive`… soit 2 640 classes de plus.
+`odoro` **0.1.5 ou plus récent**. Sans lui, votre application reçoit les
+variables sans les utilitaires, et arrive sans style — sans erreur pour le
+signaler, puisque du CSS absent ne casse rien, il ne peint rien.
 
-Elle pesait 2,8 Mo, soit **182 Ko compressés — un tiers du poids du paquet** —
-et aucune application ne l'importait. Tout le monde la téléchargait à chaque
-installation ; personne ne s'en servait.
+Le moteur résout `@odoro-cli/libs/generateur` dans les dépendances du projet.
+S'il ne le trouve pas, il élague la feuille reçue : sur un socle, il n'y a rien
+à élaguer.
 
-C'est un retrait, pas une optimisation gratuite : si vous nommez une teinte
-absente de la feuille de base, la classe n'existe plus nulle part. Le type
-`OdoroClassName` a été rétréci en conséquence — il n'autocomplète plus que ce
-qui existe réellement, ce qui vaut mieux qu'un éditeur donnant sa caution à une
-classe qui ne peint rien.
+### Ce que le socle contient, et pourquoi il ne s'élague jamais
 
-Elle reviendra d'elle-même quand le CSS sera produit à la demande plutôt que
-pré-généré : chaque projet obtiendra alors exactement les teintes qu'il nomme,
-sans que personne ne paie pour les autres.
+Variables, préflight, thème sombre, `@keyframes`, transitions de page.
 
-### Les sept teintes de la feuille de base
+Chaque utilitaire généré référence ses variables. Sans elles, toutes les règles
+seraient là et aucune ne peindrait — une panne bien pire qu'une classe absente,
+parce qu'elle est totale et muette.
+
+### Toute la palette, à la demande
+
+C'est ce que la feuille pré-générée ne pouvait pas offrir. Un projet qui nomme
+`o-text-violet-500` l'obtient ; un projet qui ne la nomme pas ne la paie pas.
+Les palettes que la feuille complète portait — `orange`, `yellow`, `teal`,
+`indigo`, `violet`, `olive` — sont de nouveau disponibles, sans peser sur
+personne.
+
+Le type `OdoroClassName` ne les autocomplète pas encore : il décrit les sept
+teintes du palier de base. Elles fonctionnent quand même.
+
+### Les sept teintes de la feuille de base### Les sept teintes de la feuille de base
 
 `zinc`, `brand`, `red`, `amber`, `emerald`, `sky`, `fuchsia` — une échelle
 neutre, la marque, et les quatre intentions qu'une interface exprime sans y

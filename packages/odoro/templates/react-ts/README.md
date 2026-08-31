@@ -37,9 +37,10 @@ composants de la librairie, sans toucher a leur code.
 Une seule feuille de style : `@odoro-cli/libs/styles.css`, a importer une fois
 a la racine de l'application.
 
-Elle pese 1,7 Mo sur le disque, mais ce n'est pas ce que vos visiteurs
-telechargent : la compilation n'en garde que les classes que votre code
-emploie reellement — quelques dizaines de kilooctets en pratique.
+Elle ne contient que le socle — variables, preflight, animations. Les
+utilitaires sont produits a la compilation, pour les seules classes que votre
+code emploie : quelques dizaines de kilooctets en pratique, et toute la palette
+disponible sans que rien ne pese.
 
 ## Rechargement a chaud
 
