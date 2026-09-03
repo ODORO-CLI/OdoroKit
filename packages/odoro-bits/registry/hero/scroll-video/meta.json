@@ -1,0 +1,82 @@
+{
+  "name": "scroll-video",
+  "category": "hero",
+  "title": "Video defilee",
+  "description": "Une video parcourue image par image par le defilement, dans une scene collante — sans verrouiller la page.",
+  "engine": {
+    "gsap": ["ScrollTrigger"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "hero/ScrollVideo.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-duration-slower",
+    "--o-ease-entrance",
+    "--o-ease-exit"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video. Un encodage a images cles rapprochees est necessaire : sans lui, chaque recherche decode depuis l image cle precedente et le parcours saccade."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Image affichee tant que la video n est pas decodable."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Titre, efface a mesure que la video avance."
+    },
+    {
+      "name": "tagline",
+      "type": "ReactNode",
+      "description": "Phrase revelee sur les derniers pour cent de la course."
+    },
+    {
+      "name": "hint",
+      "type": "ReactNode",
+      "default": "Defiler",
+      "description": "Invitation a defiler, effacee au premier mouvement."
+    },
+    {
+      "name": "range",
+      "type": "number",
+      "default": 3,
+      "description": "Longueur de la course, en hauteurs de fenetre.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "ease",
+      "type": "number",
+      "default": 6,
+      "description": "Vitesse de rattrapage de la position visee. Plus haut, plus sec.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "description": "Texte de remplacement de la video."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "fallback": "poster",
+    "notes": "Le cout est celui de la video : decodage a chaque recherche, et un fichier qui pese generalement plusieurs megaoctets. Sous mouvement reduit, aucune boucle n est ouverte et l image finale est affichee telle quelle."
+  }
+}

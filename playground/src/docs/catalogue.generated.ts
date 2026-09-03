@@ -455,6 +455,102 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "background/contour"
   },
   {
+    "name": "dot-matrix",
+    "category": "background",
+    "title": "Trame de points",
+    "description": "Une grille de points qui s allume depuis le centre, et s eteint depuis les bords, sur une seule surface.",
+    "engine": {
+      "gsap": [],
+      "gl": "ogl"
+    },
+    "files": [
+      {
+        "path": "dot-matrix.shader.ts",
+        "target": "background/dotMatrix.shader.ts"
+      },
+      {
+        "path": "component.tsx",
+        "target": "background/DotMatrix.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-50",
+      "--o-palette-zinc-400",
+      "--o-palette-zinc-950"
+    ],
+    "props": [
+      {
+        "name": "reverse",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Sens de la revelation. Le changement relance l animation depuis son debut."
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "required": false,
+        "default": 0.6,
+        "description": "Vitesse de propagation du front.",
+        "min": 0.1,
+        "max": 2,
+        "step": 0.1
+      },
+      {
+        "name": "cells",
+        "type": "number",
+        "required": false,
+        "default": 42,
+        "description": "Nombre de cellules sur le plus petit cote. Retrograde a 28 en qualite basse.",
+        "min": 12,
+        "max": 90,
+        "step": 2
+      },
+      {
+        "name": "dot",
+        "type": "number",
+        "required": false,
+        "default": 0.3,
+        "description": "Cote du point, en fraction de la cellule.",
+        "min": 0.05,
+        "max": 0.9,
+        "step": 0.05
+      },
+      {
+        "name": "flicker",
+        "type": "number",
+        "required": false,
+        "default": 0.7,
+        "description": "Part de scintillement. Zero pour une trame stable.",
+        "min": 0,
+        "max": 1,
+        "step": 0.1
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string, string]",
+        "required": false,
+        "default": "--o-palette-zinc-50, --o-palette-zinc-400, --o-palette-zinc-950",
+        "description": "Tokens des deux teintes de points, puis du fond."
+      },
+      {
+        "name": "fallback",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+      }
+    ],
+    "perf": {
+      "tier": "medium",
+      "backend": "ogl",
+      "notes": "Un triangle plein ecran et un shader de fragment. Le sens de la revelation est un uniforme : l aller et le retour partagent la meme surface, la seule que l arbitre accorde.",
+      "fallback": "gradient"
+    },
+    "id": "background/dot-matrix"
+  },
+  {
     "name": "dots",
     "category": "background",
     "title": "Champ de points",
@@ -2232,6 +2328,98 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "hero/molten"
   },
   {
+    "name": "scroll-video",
+    "category": "hero",
+    "title": "Video defilee",
+    "description": "Une video parcourue image par image par le defilement, dans une scene collante — sans verrouiller la page.",
+    "engine": {
+      "gsap": [
+        "ScrollTrigger"
+      ],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "hero/ScrollVideo.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-duration-slow",
+      "--o-duration-slower",
+      "--o-ease-entrance",
+      "--o-ease-exit"
+    ],
+    "props": [
+      {
+        "name": "src",
+        "type": "string",
+        "required": true,
+        "description": "Source de la video. Un encodage a images cles rapprochees est necessaire : sans lui, chaque recherche decode depuis l image cle precedente et le parcours saccade."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Image affichee tant que la video n est pas decodable."
+      },
+      {
+        "name": "title",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Titre, efface a mesure que la video avance."
+      },
+      {
+        "name": "tagline",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Phrase revelee sur les derniers pour cent de la course."
+      },
+      {
+        "name": "hint",
+        "type": "ReactNode",
+        "required": false,
+        "default": "Defiler",
+        "description": "Invitation a defiler, effacee au premier mouvement."
+      },
+      {
+        "name": "range",
+        "type": "number",
+        "required": false,
+        "default": 3,
+        "description": "Longueur de la course, en hauteurs de fenetre.",
+        "min": 1,
+        "max": 8,
+        "step": 1
+      },
+      {
+        "name": "ease",
+        "type": "number",
+        "required": false,
+        "default": 6,
+        "description": "Vitesse de rattrapage de la position visee. Plus haut, plus sec.",
+        "min": 2,
+        "max": 20,
+        "step": 1
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "required": false,
+        "description": "Texte de remplacement de la video."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": false,
+      "notes": "Le cout est celui de la video : decodage a chaque recherche, et un fichier qui pese generalement plusieurs megaoctets. Sous mouvement reduit, aucune boucle n est ouverte et l image finale est affichee telle quelle.",
+      "fallback": "poster"
+    },
+    "id": "hero/scroll-video"
+  },
+  {
     "name": "use-pointer-damped",
     "category": "hooks",
     "title": "Pointeur amorti",
@@ -2595,6 +2783,96 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "image/video"
   },
   {
+    "name": "cinematic-footer",
+    "category": "section",
+    "title": "Pied de page en rideau",
+    "description": "Un pied de page decouvert par le defilement, avec mot de fond en parallaxe, bandeau defilant et pastilles magnetiques.",
+    "engine": {
+      "gsap": [
+        "ScrollTrigger"
+      ],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/CinematicFooter.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "effect/magnetic",
+      "effect/marquee"
+    ],
+    "tokens": [
+      "--o-palette-zinc-50",
+      "--o-palette-zinc-950",
+      "--o-palette-brand-500",
+      "--o-palette-fuchsia-500",
+      "--o-duration-slow",
+      "--o-ease-standard"
+    ],
+    "props": [
+      {
+        "name": "heading",
+        "type": "ReactNode",
+        "required": false,
+        "default": "On commence ?",
+        "description": "Titre du bloc central."
+      },
+      {
+        "name": "word",
+        "type": "string",
+        "required": false,
+        "description": "Mot pose en fond, derriere tout le reste. Rien n est rendu s il est absent."
+      },
+      {
+        "name": "banner",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Contenu du bandeau defilant. Emplacement, rendu par le composant de defilement."
+      },
+      {
+        "name": "actions",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Actions principales, rendues en pastilles magnetiques."
+      },
+      {
+        "name": "links",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Liens secondaires, rendus en pastilles plus petites."
+      },
+      {
+        "name": "copyright",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Mention de bas de page, a gauche."
+      },
+      {
+        "name": "signature",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Signature, au centre de la barre basse."
+      },
+      {
+        "name": "topLabel",
+        "type": "string",
+        "required": false,
+        "default": "Revenir en haut",
+        "description": "Libelle accessible du bouton de remontee."
+      }
+    ],
+    "perf": {
+      "tier": "medium",
+      "backend": false,
+      "notes": "Un seul declencheur de defilement pour les deux mouvements. Le rideau est de la mise en page — une decoupe et un element fixe — et ne coute rien a l execution.",
+      "fallback": "static"
+    },
+    "id": "section/cinematic-footer"
+  },
+  {
     "name": "faq",
     "category": "section",
     "title": "Questions frequentes",
@@ -2813,6 +3091,117 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Une lecture de defilement dans la boucle unique, et un index qui ne change qu au passage d une etape."
     },
     "id": "section/scroll-steps"
+  },
+  {
+    "name": "sign-in",
+    "category": "section",
+    "title": "Parcours de connexion",
+    "description": "Trois ecrans — adresse, code, confirmation — poses sur une trame de points qui s inverse a la reussite.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/SignIn.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "background/dot-matrix"
+    ],
+    "tokens": [
+      "--o-duration-slow",
+      "--o-ease-entrance"
+    ],
+    "props": [
+      {
+        "name": "codeLength",
+        "type": "number",
+        "required": false,
+        "default": 6,
+        "description": "Nombre de caracteres du code.",
+        "min": 4,
+        "max": 8,
+        "step": 1
+      },
+      {
+        "name": "title",
+        "type": "ReactNode",
+        "required": false,
+        "default": "Content de vous revoir",
+        "description": "Titre du premier ecran."
+      },
+      {
+        "name": "subtitle",
+        "type": "ReactNode",
+        "required": false,
+        "default": "Entrez votre adresse pour recevoir un code.",
+        "description": "Sous-titre du premier ecran."
+      },
+      {
+        "name": "providers",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Fournisseurs externes, rendus au-dessus du separateur. Emplacement : le bouton appartient a l application."
+      },
+      {
+        "name": "legal",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Mentions legales, rendues sous le formulaire. Emplacement : les liens passent par le routeur du projet."
+      },
+      {
+        "name": "error",
+        "type": "string",
+        "required": false,
+        "description": "Message d erreur, annonce par une region vivante."
+      },
+      {
+        "name": "pending",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Suspend les envois pendant un appel en cours."
+      },
+      {
+        "name": "onEmailSubmit",
+        "type": "(email: string) => void",
+        "required": false,
+        "description": "Appele quand l adresse est soumise."
+      },
+      {
+        "name": "onCodeSubmit",
+        "type": "(code: string) => void",
+        "required": false,
+        "description": "Appele quand le code est complet."
+      },
+      {
+        "name": "onResend",
+        "type": "() => void",
+        "required": false,
+        "description": "Appele quand un nouvel envoi est demande."
+      },
+      {
+        "name": "onStepChange",
+        "type": "(step: SignInStep) => void",
+        "required": false,
+        "description": "Appele a chaque changement d ecran."
+      },
+      {
+        "name": "onDone",
+        "type": "() => void",
+        "required": false,
+        "description": "Appele depuis le dernier ecran."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Le composant lui-meme ne coute rien : le prix est celui de la trame qu il compose, et qui porte son propre repli."
+    },
+    "id": "section/sign-in"
   },
   {
     "name": "sticky-stack",

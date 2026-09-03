@@ -8,7 +8,9 @@
     "paths": {
       "@registre/hooks/usePoster": ["./registry/hooks/use-poster/hook.ts"],
       "@registre/hooks/usePointerDamped": ["./registry/hooks/use-pointer-damped/hook.ts"],
-      "@registre/effect/Marquee": ["./registry/effect/marquee/component.tsx"]
+      "@registre/effect/Marquee": ["./registry/effect/marquee/component.tsx"],
+      "@registre/effect/Magnetic": ["./registry/effect/magnetic/component.tsx"],
+      "@registre/background/DotMatrix": ["./registry/background/dot-matrix/component.tsx"]
     }
   },
   "include": ["scripts", "registry", "vitest.config.ts"]

@@ -1,0 +1,84 @@
+{
+  "name": "dot-matrix",
+  "category": "background",
+  "title": "Trame de points",
+  "description": "Une grille de points qui s allume depuis le centre, et s eteint depuis les bords, sur une seule surface.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "dot-matrix.shader.ts",
+      "target": "background/dotMatrix.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/DotMatrix.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-zinc-50", "--o-palette-zinc-400", "--o-palette-zinc-950"],
+  "props": [
+    {
+      "name": "reverse",
+      "type": "boolean",
+      "default": false,
+      "description": "Sens de la revelation. Le changement relance l animation depuis son debut."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.6,
+      "description": "Vitesse de propagation du front.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "cells",
+      "type": "number",
+      "default": 42,
+      "description": "Nombre de cellules sur le plus petit cote. Retrograde a 28 en qualite basse.",
+      "min": 12,
+      "max": 90,
+      "step": 2
+    },
+    {
+      "name": "dot",
+      "type": "number",
+      "default": 0.3,
+      "description": "Cote du point, en fraction de la cellule.",
+      "min": 0.05,
+      "max": 0.9,
+      "step": 0.05
+    },
+    {
+      "name": "flicker",
+      "type": "number",
+      "default": 0.7,
+      "description": "Part de scintillement. Zero pour une trame stable.",
+      "min": 0,
+      "max": 1,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-palette-zinc-50, --o-palette-zinc-400, --o-palette-zinc-950",
+      "description": "Tokens des deux teintes de points, puis du fond."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Un triangle plein ecran et un shader de fragment. Le sens de la revelation est un uniforme : l aller et le retour partagent la meme surface, la seule que l arbitre accorde."
+  }
+}

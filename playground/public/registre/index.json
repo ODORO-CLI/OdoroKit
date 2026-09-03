@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-30T00:22:56.770Z",
+  "generatedAt": "2026-09-02T23:52:30.511Z",
   "entries": [
     {
       "id": "background/aurora",
@@ -59,6 +59,16 @@
       "title": "Courbes de niveau",
       "description": "Une carte topographique animee, d epaisseur de trait constante.",
       "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/dot-matrix",
+      "name": "dot-matrix",
+      "category": "background",
+      "title": "Trame de points",
+      "description": "Une grille de points qui s allume depuis le centre, et s eteint depuis les bords, sur une seule surface.",
+      "tier": "medium",
       "backend": "ogl",
       "registryDependencies": []
     },
@@ -316,6 +326,16 @@
       ]
     },
     {
+      "id": "hero/scroll-video",
+      "name": "scroll-video",
+      "category": "hero",
+      "title": "Video defilee",
+      "description": "Une video parcourue image par image par le defilement, dans une scene collante — sans verrouiller la page.",
+      "tier": "heavy",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "hooks/use-pointer-damped",
       "name": "use-pointer-damped",
       "category": "hooks",
@@ -376,6 +396,19 @@
       "registryDependencies": []
     },
     {
+      "id": "section/cinematic-footer",
+      "name": "cinematic-footer",
+      "category": "section",
+      "title": "Pied de page en rideau",
+      "description": "Un pied de page decouvert par le defilement, avec mot de fond en parallaxe, bandeau defilant et pastilles magnetiques.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": [
+        "effect/magnetic",
+        "effect/marquee"
+      ]
+    },
+    {
       "id": "section/faq",
       "name": "faq",
       "category": "section",
@@ -416,6 +449,18 @@
       "tier": "light",
       "backend": false,
       "registryDependencies": []
+    },
+    {
+      "id": "section/sign-in",
+      "name": "sign-in",
+      "category": "section",
+      "title": "Parcours de connexion",
+      "description": "Trois ecrans — adresse, code, confirmation — poses sur une trame de points qui s inverse a la reussite.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "background/dot-matrix"
+      ]
     },
     {
       "id": "section/sticky-stack",

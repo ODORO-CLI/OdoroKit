@@ -1,0 +1,93 @@
+{
+  "name": "sign-in",
+  "category": "section",
+  "title": "Parcours de connexion",
+  "description": "Trois ecrans — adresse, code, confirmation — poses sur une trame de points qui s inverse a la reussite.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/SignIn.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["background/dot-matrix"],
+  "tokens": ["--o-duration-slow", "--o-ease-entrance"],
+  "props": [
+    {
+      "name": "codeLength",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de caracteres du code.",
+      "min": 4,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "default": "Content de vous revoir",
+      "description": "Titre du premier ecran."
+    },
+    {
+      "name": "subtitle",
+      "type": "ReactNode",
+      "default": "Entrez votre adresse pour recevoir un code.",
+      "description": "Sous-titre du premier ecran."
+    },
+    {
+      "name": "providers",
+      "type": "ReactNode",
+      "description": "Fournisseurs externes, rendus au-dessus du separateur. Emplacement : le bouton appartient a l application."
+    },
+    {
+      "name": "legal",
+      "type": "ReactNode",
+      "description": "Mentions legales, rendues sous le formulaire. Emplacement : les liens passent par le routeur du projet."
+    },
+    {
+      "name": "error",
+      "type": "string",
+      "description": "Message d erreur, annonce par une region vivante."
+    },
+    {
+      "name": "pending",
+      "type": "boolean",
+      "default": false,
+      "description": "Suspend les envois pendant un appel en cours."
+    },
+    {
+      "name": "onEmailSubmit",
+      "type": "(email: string) => void",
+      "description": "Appele quand l adresse est soumise."
+    },
+    {
+      "name": "onCodeSubmit",
+      "type": "(code: string) => void",
+      "description": "Appele quand le code est complet."
+    },
+    {
+      "name": "onResend",
+      "type": "() => void",
+      "description": "Appele quand un nouvel envoi est demande."
+    },
+    {
+      "name": "onStepChange",
+      "type": "(step: SignInStep) => void",
+      "description": "Appele a chaque changement d ecran."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele depuis le dernier ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le composant lui-meme ne coute rien : le prix est celui de la trame qu il compose, et qui porte son propre repli."
+  }
+}

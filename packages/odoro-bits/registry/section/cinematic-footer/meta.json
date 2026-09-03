@@ -1,0 +1,76 @@
+{
+  "name": "cinematic-footer",
+  "category": "section",
+  "title": "Pied de page en rideau",
+  "description": "Un pied de page decouvert par le defilement, avec mot de fond en parallaxe, bandeau defilant et pastilles magnetiques.",
+  "engine": {
+    "gsap": ["ScrollTrigger"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/CinematicFooter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["effect/magnetic", "effect/marquee"],
+  "tokens": [
+    "--o-palette-zinc-50",
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "heading",
+      "type": "ReactNode",
+      "default": "On commence ?",
+      "description": "Titre du bloc central."
+    },
+    {
+      "name": "word",
+      "type": "string",
+      "description": "Mot pose en fond, derriere tout le reste. Rien n est rendu s il est absent."
+    },
+    {
+      "name": "banner",
+      "type": "ReactNode",
+      "description": "Contenu du bandeau defilant. Emplacement, rendu par le composant de defilement."
+    },
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "description": "Actions principales, rendues en pastilles magnetiques."
+    },
+    {
+      "name": "links",
+      "type": "ReactNode",
+      "description": "Liens secondaires, rendus en pastilles plus petites."
+    },
+    {
+      "name": "copyright",
+      "type": "ReactNode",
+      "description": "Mention de bas de page, a gauche."
+    },
+    {
+      "name": "signature",
+      "type": "ReactNode",
+      "description": "Signature, au centre de la barre basse."
+    },
+    {
+      "name": "topLabel",
+      "type": "string",
+      "default": "Revenir en haut",
+      "description": "Libelle accessible du bouton de remontee."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "fallback": "static",
+    "notes": "Un seul declencheur de defilement pour les deux mouvements. Le rideau est de la mise en page — une decoupe et un element fixe — et ne coute rien a l execution."
+  }
+}
