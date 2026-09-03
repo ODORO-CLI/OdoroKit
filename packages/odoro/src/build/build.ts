@@ -126,7 +126,9 @@ async function taillerFeuilles(
   config: ResolvedConfig,
   html: string,
 ): Promise<void> {
-  const produits = Object.keys(result.metafile.outputs).map((f) => resolve(config.root, f))
+  const produits = Object.keys(result.metafile.outputs).map((f) =>
+    resolve(config.root, f),
+  )
 
   const feuilles = produits.filter((f) => f.endsWith('.css'))
   if (feuilles.length === 0) return

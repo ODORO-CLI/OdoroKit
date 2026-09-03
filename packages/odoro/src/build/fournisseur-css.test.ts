@@ -46,9 +46,7 @@ async function projet(options: {
       type: 'module',
       exports: {
         './package.json': './package.json',
-        ...(options.exports === undefined
-          ? {}
-          : { './generateur': options.exports }),
+        ...(options.exports === undefined ? {} : { './generateur': options.exports }),
       },
     }),
   )

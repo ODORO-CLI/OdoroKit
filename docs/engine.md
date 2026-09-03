@@ -166,9 +166,9 @@ serveur de prévisualisation applique d'ailleurs `immutable` sur `assets/` et
 classes utilitaires possibles — plusieurs milliers. Une application donnée en
 emploie une fraction. Mesure faite sur un vrai tableau de bord :
 
-| | brut | compressé |
-| --- | --- | --- |
-| sans élagage | 1,65 Mo | 121 Ko |
+|              | brut      | compressé   |
+| ------------ | --------- | ----------- |
+| sans élagage | 1,65 Mo   | 121 Ko      |
 | avec élagage | **65 Ko** | **12,6 Ko** |
 
 Actif par défaut. `build.elaguer: false` le désactive.
@@ -184,7 +184,7 @@ n’atteint. Le moteur ne dépend pas de la bibliothèque — un projet qui ne
 l’emploie pas compile comme avant.
 
 Dans les deux cas, **le CSS de votre application traverse intact**. Le paquet
-produit contient la feuille de la bibliothèque *et* vos styles ; les remplacer
+produit contient la feuille de la bibliothèque _et_ vos styles ; les remplacer
 en bloc les effacerait. Seuls les utilitaires préfixés sont touchés.
 
 La génération a un avantage que l’élagage ne peut pas avoir : elle sert

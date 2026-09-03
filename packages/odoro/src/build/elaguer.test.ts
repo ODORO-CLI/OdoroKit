@@ -177,10 +177,9 @@ describe('l analyse resiste', () => {
   })
 
   it('a des media imbriques', () => {
-    const sortie = css(
-      '@media screen{@supports (display:grid){.o-grid{display:grid}}}',
-      ['o-grid'],
-    )
+    const sortie = css('@media screen{@supports (display:grid){.o-grid{display:grid}}}', [
+      'o-grid',
+    ])
     expect(sortie).toContain('display:grid')
     expect(sortie).toContain('@supports')
   })

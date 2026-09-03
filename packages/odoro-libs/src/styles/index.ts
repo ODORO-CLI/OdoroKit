@@ -21,10 +21,7 @@
 // Seuls les types sont exposes : les tableaux de noms de classes pesent 195 Ko
 // et ne servent qu'au generateur et a la suite de tests. L'autocompletion, elle,
 // ne coute rien a l'execution.
-export type {
-  OdoroClassName,
-  OdoroCoreClassName,
-} from './generated/classNames.js'
+export type { OdoroClassName, OdoroCoreClassName } from './generated/classNames.js'
 export * from './cx.js'
 export * from './fonts.js'
 export * from './tokens.js'
