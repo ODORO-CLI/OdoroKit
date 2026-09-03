@@ -18,6 +18,11 @@
   "tokens": ["--o-duration-slow", "--o-ease-entrance"],
   "props": [
     {
+      "name": "step",
+      "type": "SignInStep",
+      "description": "Ecran affiche, impose par l application. Absente, le composant avance seul — donc aussi quand le code est faux."
+    },
+    {
       "name": "codeLength",
       "type": "number",
       "default": 6,

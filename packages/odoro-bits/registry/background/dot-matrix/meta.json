@@ -72,13 +72,13 @@
     {
       "name": "fallback",
       "type": "string",
-      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+      "description": "Classes du repli, a la place du motif fige. Sans elles, le repli reprend la meme trame, immobile."
     }
   ],
   "perf": {
     "tier": "medium",
     "backend": "ogl",
-    "fallback": "gradient",
+    "fallback": "static",
     "notes": "Un triangle plein ecran et un shader de fragment. Le sens de la revelation est un uniforme : l aller et le retour partagent la meme surface, la seule que l arbitre accorde."
   }
 }

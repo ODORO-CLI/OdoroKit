@@ -44,7 +44,13 @@ import {
   type ReadyCallback,
   type ShaderColour,
 } from '@odoro-cli/engine'
-import { useEffect, useMemo, useState, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { DOT_MATRIX_FRAGMENT } from './dot-matrix.shader.js'
 
@@ -79,7 +85,11 @@ export interface DotMatrixOwnProps {
   flicker?: number
   /** Tokens des deux teintes de points et du fond. */
   colors?: readonly [string, string, string]
-  /** Classes du repli. */
+  /**
+   * Classes du repli, a la place du motif fige derive des tokens.
+   *
+   * Sans elles, le repli reprend la meme trame, immobile.
+   */
   fallback?: string
   /** Echappatoire. */
   onReady?: ReadyCallback<DotMatrixControls>
@@ -95,8 +105,45 @@ const DEFAULT_TOKENS = [
   '--o-palette-zinc-950',
 ] as const
 
-/** Repli par defaut : le fond seul, sans la trame. */
-const DEFAULT_FALLBACK = 'o-bg-zinc-950'
+/**
+ * Repli par defaut : la meme trame, immobile.
+ *
+ * ## Pourquoi pas un aplat
+ *
+ * Un aplat de couleur serait plus court a ecrire, et il effacerait le motif
+ * pour tous ceux qui recoivent le repli — sans WebGL, en mouvement reduit, sur
+ * une surface refusee. Or les points ne sont pas du mouvement : seule leur
+ * apparition l'est. Ce qui doit disparaitre est la revelation, pas le dessin.
+ *
+ * Le motif est donc reconstruit en degrade radial repete, a partir des memes
+ * tokens que le shader. Il suit le theme, et la maille suit `cells`.
+ *
+ * @param colors Tokens des deux teintes de points, puis du fond.
+ * @param cells Nombre de cellules sur le plus petit cote.
+ * @param dot Cote du point, en fraction de la cellule.
+ */
+function staticPattern(
+  colors: readonly [string, string, string],
+  cells: number,
+  dot: number,
+): CSSProperties {
+  // La maille est exprimee en pixels faute de pouvoir l'exprimer en fraction
+  // du plus petit cote : `background-size` en pourcentage se rapporte a chaque
+  // axe separement, ce qui rendrait les points ovales. Mille pixels est une
+  // largeur de reference plausible, et l'ecart avec le rendu WebGL ne se voit
+  // pas sur un motif qu'on ne compare jamais cote a cote.
+  const pitch = Math.max(4, Math.round(1000 / Math.max(cells, 1)))
+  const radius = Math.max(2, Math.min(48, dot * 50))
+
+  return {
+    backgroundColor: `var(${colors[2]})`,
+    backgroundImage:
+      `radial-gradient(` +
+      `color-mix(in oklch, var(${colors[0]}) 45%, transparent) ${String(radius)}%,` +
+      ` transparent ${String(radius + 1)}%)`,
+    backgroundSize: `${String(pitch)}px ${String(pitch)}px`,
+  }
+}
 
 /**
  * Nombre de cellules en qualite basse.
@@ -129,7 +176,7 @@ export function DotMatrix({
   dot = 0.3,
   flicker = 0.7,
   colors = DEFAULT_TOKENS,
-  fallback = DEFAULT_FALLBACK,
+  fallback,
   onReady,
   ...rest
 }: DotMatrixProps): ReactElement {
@@ -137,13 +184,22 @@ export function DotMatrix({
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [colours, setColours] = useState<readonly ShaderColour[]>([])
 
+  // Les tokens entrent par leur texte, jamais par l'identite du tableau.
+  //
+  // `<DotMatrix colors={['--o-palette-red-500', …]} />` construit un tableau
+  // neuf a chaque rendu. Un effet qui en dependrait poserait un etat, qui
+  // provoquerait un rendu, qui construirait un tableau neuf : la boucle ne
+  // s'arreterait jamais, et rien dans la signature ne laisse deviner que passer
+  // un littéral est interdit. La chaine, elle, se compare par sa valeur.
+  const tokenList = colors.join(' ')
+
   // Les couleurs sont relues quand l'hote change, quand les tokens demandes
   // changent, et quand le theme bascule — ce dernier cas passe par la politique
   // de mouvement, qui se renouvelle a chaque changement d'etat.
   useEffect(() => {
     if (host === null) return
-    setColours(colors.map((token) => readTokenColour(token, host)))
-  }, [host, colors, reduced, quality])
+    setColours(tokenList.split(' ').map((token) => readTokenColour(token, host)))
+  }, [host, tokenList, reduced, quality])
 
   // Le sens change : l'animation repart de son debut, et non du temps absolu
   // ou elle est achevee depuis longtemps.
@@ -198,7 +254,12 @@ export function DotMatrix({
       style={style}
       aria-hidden
     >
-      {showFallback ? <div className={`o-absolute o-inset-0 ${fallback}`} /> : null}
+      {showFallback ? (
+        <div
+          className={`o-absolute o-inset-0 ${fallback ?? ''}`}
+          style={fallback === undefined ? staticPattern(colors, cells, dot) : undefined}
+        />
+      ) : null}
     </div>
   )
 }

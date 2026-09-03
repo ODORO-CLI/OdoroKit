@@ -87,6 +87,17 @@ function unit(value: number): number {
 }
 
 /**
+ * Ecart en deca duquel une recherche n'a pas lieu d'etre, en secondes.
+ *
+ * Un soixantieme de seconde est la duree d'une image : demander moins que cela
+ * ne change aucun pixel, et coute un aller-retour de decodage.
+ */
+const SEEK_EPSILON = 1 / 60
+
+/** `HTMLMediaElement.HAVE_CURRENT_DATA` : l'image courante est decodee. */
+const HAVE_CURRENT_DATA = 2
+
+/**
  * Heros dont la video avance avec le defilement.
  *
  * @example
@@ -187,6 +198,13 @@ export function ScrollVideo({
      * demandee pendant qu'une autre court est appliquee des sa fin.
      */
     const seek = (time: number): void => {
+      // Redemander la position courante ne declenche pas `seeked` partout : le
+      // drapeau resterait leve, la file ne se viderait plus, et le parcours se
+      // figerait definitivement. On ne demande donc que ce qui bouge vraiment.
+      // Le cas se produit des que la video est immobile, c'est-a-dire des que
+      // l'utilisateur s'arrete de defiler — donc a chaque fois.
+      if (Math.abs(element.currentTime - time) < SEEK_EPSILON) return
+
       if (seeking) {
         waiting = time
         return
@@ -213,6 +231,12 @@ export function ScrollVideo({
 
     element.addEventListener('seeked', onSeeked)
     element.addEventListener('loadeddata', onLoaded)
+
+    // La video peut deja etre decodable : en cache, ou remontee apres un
+    // changement de prop. L'evenement est alors passe avant l'ecoute, et sans
+    // ce rattrapage il ne reviendra jamais — la video resterait a l'opacite
+    // nulle, sur une page qui parait vide.
+    if (element.readyState >= HAVE_CURRENT_DATA) onLoaded()
 
     if (reduced) {
       return () => {
@@ -266,7 +290,12 @@ export function ScrollVideo({
           muted
           playsInline
           preload="auto"
+          // Sans description, la video ne porte aucune information que le titre
+          // ne porte deja : l'annoncer comme un media anonyme ajoute du bruit
+          // sans rien apprendre. Avec une description, elle devient un contenu
+          // a part entiere et reste dans l'arbre d'accessibilite.
           aria-label={description}
+          aria-hidden={description === undefined}
           className="o-absolute o-inset-0 o-h-full o-w-full o-object-cover o-will-change-transform"
           style={{
             opacity: loaded ? 1 : 0,
