@@ -1,5 +1,26 @@
 # odoro
 
+## 0.2.0
+
+### Minor Changes
+
+- La feuille de style ne voyage plus entiere. Le paquet livre un socle —
+  variables, preflight, animations — et les utilitaires sont **produits a la
+  compilation**, pour les seules classes que le projet emploie. Ce qui pesait
+  1,65 Mo a l'installation n'en pese plus qu'une fraction, et toute la palette
+  reste disponible sans que rien ne pese.
+
+- Le moteur elague la feuille meme quand il ne trouve pas de generateur : il se
+  rabat sur la purge au lieu de se taire. Auparavant, une resolution qui
+  echouait laissait passer la feuille complete sans le dire — le chemin de
+  generation n'etait jamais pris, et rien ne le signalait.
+
+- Le modele `react-ts` decrit ce que la compilation fait reellement. Il
+  promettait encore une feuille de 1,7 Mo elaguee a l'usage.
+
+Publiee a la main : les versions 0.1.2 et 0.1.5 l'avaient ete aussi, sans
+laisser de trace ici. Celle-ci en laisse une.
+
 ## 0.1.0
 
 ### Minor Changes
