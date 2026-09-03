@@ -36,10 +36,14 @@ import { Threads } from '@/odoro/background/Threads.jsx'
 import { Tunnel } from '@/odoro/background/Tunnel.jsx'
 import { Vortex } from '@/odoro/background/Vortex.jsx'
 import { Beams } from '@/odoro/background/Beams.jsx'
+import { DotMatrix } from '@/odoro/background/DotMatrix.jsx'
 import { Dots } from '@/odoro/background/Dots.jsx'
 import { GridLines } from '@/odoro/background/GridLines.jsx'
 import { Mesh } from '@/odoro/background/Mesh.jsx'
 import { Waves } from '@/odoro/background/Waves.jsx'
+import { ScrollVideo } from '@/odoro/hero/ScrollVideo.jsx'
+import { CinematicFooter } from '@/odoro/section/CinematicFooter.jsx'
+import { SignIn } from '@/odoro/section/SignIn.jsx'
 import { BorderBeam } from '@/odoro/effect/BorderBeam.jsx'
 import { Carousel } from '@/odoro/effect/Carousel.jsx'
 import { Deform } from '@/odoro/effect/Deform.jsx'
@@ -540,6 +544,23 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       ),
   },
 
+  'background/dot-matrix': {
+    height: 'o-h-96',
+    demoByDefault: true,
+    lead: 'Une grille qui s allume depuis le centre. Le sens est un uniforme : l aller et le retour partagent la seule surface que l arbitre accorde.',
+    render: (v) =>
+      fill(
+        <DotMatrix
+          className="o-size-full"
+          reverse={v['reverse'] === true}
+          speed={num(v, 'speed', 0.6)}
+          cells={num(v, 'cells', 42)}
+          dot={num(v, 'dot', 0.3)}
+          flicker={num(v, 'flicker', 0.7)}
+        />,
+      ),
+  },
+
   // ----- Heros ---------------------------------------------------------------
   'hero/molten': {
     height: 'o-h-96',
@@ -558,6 +579,24 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           parallax={num(v, 'parallax', 0.25)}
         />,
       ),
+  },
+
+  'hero/scroll-video': {
+    height: 'o-h-96',
+    lead: 'Le defilement fait avancer la video, sans jamais verrouiller la page : une enveloppe haute, une scene collante, et la progression reelle.',
+    render: (v) => (
+      <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
+        <ScrollVideo
+          src={CLIP}
+          poster={CLIP_POSTER}
+          description="Un degrade anime, avec un carre qui derive"
+          title="La ville s ouvre"
+          tagline="Chaque porte est deja ouverte."
+          range={num(v, 'range', 3)}
+          ease={num(v, 'ease', 6)}
+        />
+      </div>
+    ),
   },
 
   // ----- Texte ---------------------------------------------------------------
@@ -1011,6 +1050,34 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           />
         </div>
       </Scroller>
+    ),
+  },
+
+  'section/sign-in': {
+    height: 'o-h-96',
+    lead: 'Trois ecrans, poses sur la trame qui s inverse a la reussite. Le composant enchaine et previent ; l application decide.',
+    render: (v) => (
+      <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
+        <SignIn
+          codeLength={num(v, 'codeLength', 6)}
+          legal={<span>En continuant, vous acceptez les conditions.</span>}
+        />
+      </div>
+    ),
+  },
+  'section/cinematic-footer': {
+    height: 'o-h-96',
+    lead: 'Le rideau est de la mise en page — une decoupe et un element fixe — et ne coute rien a l execution.',
+    render: () => (
+      <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
+        <div className="o-h-1/2" />
+        <CinematicFooter
+          heading="On commence ?"
+          word="ODORO"
+          banner={<span className="o-px-8">Registre — moteur — librairie</span>}
+          copyright="© 2026 Odoro"
+        />
+      </div>
     ),
   },
 

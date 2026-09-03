@@ -10,7 +10,7 @@
   "files": [
     {
       "path": "dot-matrix.shader.ts",
-      "target": "background/dotMatrix.shader.ts"
+      "target": "background/dot-matrix.shader.ts"
     },
     {
       "path": "component.tsx",

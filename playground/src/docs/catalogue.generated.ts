@@ -466,7 +466,7 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "files": [
       {
         "path": "dot-matrix.shader.ts",
-        "target": "background/dotMatrix.shader.ts"
+        "target": "background/dot-matrix.shader.ts"
       },
       {
         "path": "component.tsx",
@@ -539,14 +539,14 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "name": "fallback",
         "type": "string",
         "required": false,
-        "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+        "description": "Classes du repli, a la place du motif fige. Sans elles, le repli reprend la meme trame, immobile."
       }
     ],
     "perf": {
       "tier": "medium",
       "backend": "ogl",
       "notes": "Un triangle plein ecran et un shader de fragment. Le sens de la revelation est un uniforme : l aller et le retour partagent la meme surface, la seule que l arbitre accorde.",
-      "fallback": "gradient"
+      "fallback": "static"
     },
     "id": "background/dot-matrix"
   },
@@ -3116,6 +3116,12 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "--o-ease-entrance"
     ],
     "props": [
+      {
+        "name": "step",
+        "type": "SignInStep",
+        "required": false,
+        "description": "Ecran affiche, impose par l application. Absente, le composant avance seul — donc aussi quand le code est faux."
+      },
       {
         "name": "codeLength",
         "type": "number",

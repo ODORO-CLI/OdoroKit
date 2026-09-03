@@ -6,10 +6,14 @@ import { applyFontFamily, loadGoogleFonts } from '@odoro-cli/libs/styles'
 
 import { App } from './App.jsx'
 
-// La feuille complete, et non la feuille de base : cette documentation
-// demontre la palette brute (`o-from-sky-500`), dont les jalons de degrade
-// n'existent que dans celle-ci.
-import '@odoro-cli/libs/styles.full.css'
+// Le socle seul : variables, remise a zero, images-cles et transitions de
+// page. Les utilitaires ne sont plus livres — ils sont produits a la
+// construction, pour les seules classes que cette documentation emploie.
+//
+// Celles qu'elle assemble a l'execution — `o-text-${'${size}'}` dans la page de
+// typographie — n'existent nulle part sous leur forme finale : elles sont
+// declarees dans la `safelist` d'`odoro.config.ts`.
+import '@odoro-cli/libs/styles.css'
 
 // Polices du site, chargees par CDN — rien dans le bundle.
 loadGoogleFonts([

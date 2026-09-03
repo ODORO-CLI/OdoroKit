@@ -60,6 +60,19 @@
         }
       ]
     },
+    "background/dot-matrix": {
+      "installedAt": "2026-09-03T12:51:53.097Z",
+      "files": [
+        {
+          "path": "src/odoro/background/dot-matrix.shader.ts",
+          "hash": "46a7fa27fb8790ed"
+        },
+        {
+          "path": "src/odoro/background/DotMatrix.tsx",
+          "hash": "e862248ed153b89a"
+        }
+      ]
+    },
     "background/dots": {
       "installedAt": "2026-08-29T03:15:27.669Z",
       "files": [
@@ -232,20 +245,20 @@
       ]
     },
     "effect/magnetic": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-09-03T12:33:18.780Z",
       "files": [
         {
           "path": "src/odoro/effect/Magnetic.tsx",
-          "hash": "d84e2471fc127429"
+          "hash": "377fc127a61ea19d"
         }
       ]
     },
     "effect/marquee": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-03T12:33:18.780Z",
       "files": [
         {
           "path": "src/odoro/effect/Marquee.tsx",
-          "hash": "606ece49c16e5394"
+          "hash": "289557cde5e22632"
         }
       ]
     },
@@ -286,6 +299,15 @@
         {
           "path": "src/odoro/hero/Molten.tsx",
           "hash": "98db2231f343ad8a"
+        }
+      ]
+    },
+    "hero/scroll-video": {
+      "installedAt": "2026-09-03T12:33:18.780Z",
+      "files": [
+        {
+          "path": "src/odoro/hero/ScrollVideo.tsx",
+          "hash": "4ae246016c9c47e6"
         }
       ]
     },
@@ -343,6 +365,15 @@
         }
       ]
     },
+    "section/cinematic-footer": {
+      "installedAt": "2026-09-03T12:33:18.780Z",
+      "files": [
+        {
+          "path": "src/odoro/section/CinematicFooter.tsx",
+          "hash": "3d4a2061755b833b"
+        }
+      ]
+    },
     "section/faq": {
       "installedAt": "2026-08-29T09:05:21.378Z",
       "files": [
@@ -376,6 +407,15 @@
         {
           "path": "src/odoro/section/ScrollSteps.tsx",
           "hash": "a0b8a0a96abecf60"
+        }
+      ]
+    },
+    "section/sign-in": {
+      "installedAt": "2026-09-03T12:33:18.780Z",
+      "files": [
+        {
+          "path": "src/odoro/section/SignIn.tsx",
+          "hash": "fd761b47d8815d52"
         }
       ]
     },
