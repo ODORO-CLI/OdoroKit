@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-03T12:49:58.612Z",
+  "generatedAt": "2026-09-03T16:45:09.634Z",
   "entries": [
     {
       "id": "background/aurora",
@@ -83,6 +83,18 @@
       "registryDependencies": []
     },
     {
+      "id": "background/globe-mesh",
+      "name": "globe-mesh",
+      "category": "background",
+      "title": "Globe filaire",
+      "description": "Une boule de points dans une cage d icosaedre qui scintille, et dont les faces s allument sous le pointeur.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
       "id": "background/grid-lines",
       "name": "grid-lines",
       "category": "background",
@@ -131,6 +143,18 @@
       "tier": "medium",
       "backend": "ogl",
       "registryDependencies": []
+    },
+    {
+      "id": "background/orbital-sphere",
+      "name": "orbital-sphere",
+      "category": "background",
+      "title": "Sphere orbitale",
+      "description": "Une sphere de particules repartie par la spirale de Fibonacci, ceinte d anneaux inclines et piquee de noeuds lumineux.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
     },
     {
       "id": "background/plasma",
@@ -336,6 +360,16 @@
       "registryDependencies": []
     },
     {
+      "id": "hero/spline-scene",
+      "name": "spline-scene",
+      "category": "hero",
+      "title": "Scene Spline",
+      "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
+      "tier": "heavy",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "hooks/use-pointer-damped",
       "name": "use-pointer-damped",
       "category": "hooks",
@@ -431,6 +465,16 @@
       ]
     },
     {
+      "id": "section/orbital-timeline",
+      "name": "orbital-timeline",
+      "category": "section",
+      "title": "Frise orbitale",
+      "description": "Des etapes disposees en cercle, qui tourne par la boucle du moteur et non par un minuteur, avec une fiche par etape.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "section/reveal-grid",
       "name": "reveal-grid",
       "category": "section",
@@ -508,6 +552,46 @@
       "category": "text",
       "title": "Machine a ecrire",
       "description": "Une suite de phrases frappees puis effacees, avec un curseur clignotant.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/card-form",
+      "name": "card-form",
+      "category": "ui",
+      "title": "Formulaire de carte",
+      "description": "Une saisie de carte avec apercu qui se retourne sur le code, et un controle de Luhn qui distingue la coquille du numero plausible.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/hover-reveal-button",
+      "name": "hover-reveal-button",
+      "category": "ui",
+      "title": "Bouton a fond deploye",
+      "description": "Une pastille qui s etend jusqu a devenir le fond, et deux copies du libelle qui se croisent sans changer la largeur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/pearl-button",
+      "name": "pearl-button",
+      "category": "ui",
+      "title": "Bouton en nacre",
+      "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/shiny-button",
+      "name": "shiny-button",
+      "category": "ui",
+      "title": "Bouton a lisere tournant",
+      "description": "Un degrade conique qui tourne autour du bouton, anime par une propriete enregistree — sans une ligne de JavaScript.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []

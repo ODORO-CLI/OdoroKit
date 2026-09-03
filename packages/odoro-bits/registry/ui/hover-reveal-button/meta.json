@@ -1,0 +1,48 @@
+{
+  "name": "hover-reveal-button",
+  "category": "ui",
+  "title": "Bouton a fond deploye",
+  "description": "Une pastille qui s etend jusqu a devenir le fond, et deux copies du libelle qui se croisent sans changer la largeur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/HoverRevealButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-zinc-50",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "adornment",
+      "type": "ReactNode",
+      "description": "Ce qui accompagne le libelle une fois le fond deploye. Emplacement : le registre ne depend d aucun jeu de pictogrammes."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-brand-600, --o-palette-zinc-50",
+      "description": "Tokens du fond deploye et du texte sur ce fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux transitions et un changement de taille. La largeur suit le contenu au lieu d etre figee, ce qui evite de couper les libelles longs."
+  }
+}

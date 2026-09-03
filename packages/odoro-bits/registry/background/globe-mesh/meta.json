@@ -1,0 +1,105 @@
+{
+  "name": "globe-mesh",
+  "category": "background",
+  "title": "Globe filaire",
+  "description": "Une boule de points dans une cage d icosaedre qui scintille, et dont les faces s allument sous le pointeur.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "globe-mesh.shader.ts",
+      "target": "background/globe-mesh.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GlobeMesh.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": [
+    "--o-palette-zinc-50",
+    "--o-palette-emerald-400",
+    "--o-palette-violet-300",
+    "--o-palette-sky-400",
+    "--o-palette-rose-400"
+  ],
+  "props": [
+    {
+      "name": "density",
+      "type": "number",
+      "default": 14,
+      "description": "Densite du nuage. Le nombre de points croit au carre : cent points se lisent un par un, plusieurs milliers font une surface.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "default": 8,
+      "description": "Vitesse de rotation propre. Zero laisse un globe qui ne bouge qu au glissement.",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "spinDir",
+      "type": "'left' | 'right'",
+      "default": "right",
+      "description": "Sens de rotation.",
+      "options": ["left", "right"]
+    },
+    {
+      "name": "detail",
+      "type": "number",
+      "default": 1,
+      "description": "Subdivision de la cage. Chaque cran multiplie les aretes par quatre.",
+      "min": 0,
+      "max": 3,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "'edge' | 'sweep'",
+      "default": "sweep",
+      "description": "L eclat court le long de chaque arete, ou traverse la boule d une bande. Jamais les deux : rien ne resterait assez immobile pour lire l un contre l autre.",
+      "options": ["edge", "sweep"]
+    },
+    {
+      "name": "sweepAngle",
+      "type": "number",
+      "default": 90,
+      "unit": "deg",
+      "description": "Direction de la bande, en angle d ecran. 90 la fait descendre, 0 la fait traverser.",
+      "min": 0,
+      "max": 360,
+      "step": 15
+    },
+    {
+      "name": "interactive",
+      "type": "boolean",
+      "default": true,
+      "description": "Reagit au pointeur : glissement, et faces qui s allument. Neutralise sous mouvement reduit."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string, string, string]",
+      "default": "--o-palette-zinc-50, --o-palette-emerald-400, --o-palette-violet-300, --o-palette-sky-400, --o-palette-rose-400",
+      "description": "Tokens des points, de la cage, de l eclat et des deux vagues."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Trois appels de dessin quelle que soit la densite — le rayon, la taille et la couleur de chaque point sont derives dans le shader, et rien n est ecrit par image. Le nombre de points est reduit de moitie en qualite basse."
+  }
+}

@@ -37,11 +37,18 @@ import { Tunnel } from '@/odoro/background/Tunnel.jsx'
 import { Vortex } from '@/odoro/background/Vortex.jsx'
 import { Beams } from '@/odoro/background/Beams.jsx'
 import { DotMatrix } from '@/odoro/background/DotMatrix.jsx'
+import { GlobeMesh } from '@/odoro/background/GlobeMesh.jsx'
+import { OrbitalSphere } from '@/odoro/background/OrbitalSphere.jsx'
 import { Dots } from '@/odoro/background/Dots.jsx'
 import { GridLines } from '@/odoro/background/GridLines.jsx'
 import { Mesh } from '@/odoro/background/Mesh.jsx'
 import { Waves } from '@/odoro/background/Waves.jsx'
 import { ScrollVideo } from '@/odoro/hero/ScrollVideo.jsx'
+import { OrbitalTimeline } from '@/odoro/section/OrbitalTimeline.jsx'
+import { CardForm } from '@/odoro/ui/CardForm.jsx'
+import { HoverRevealButton } from '@/odoro/ui/HoverRevealButton.jsx'
+import { PearlButton } from '@/odoro/ui/PearlButton.jsx'
+import { ShinyButton } from '@/odoro/ui/ShinyButton.jsx'
 import { CinematicFooter } from '@/odoro/section/CinematicFooter.jsx'
 import { SignIn } from '@/odoro/section/SignIn.jsx'
 import { BorderBeam } from '@/odoro/effect/BorderBeam.jsx'
@@ -557,6 +564,45 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           cells={num(v, 'cells', 42)}
           dot={num(v, 'dot', 0.3)}
           flicker={num(v, 'flicker', 0.7)}
+        />,
+      ),
+  },
+
+  'background/orbital-sphere': {
+    height: 'o-h-96',
+    demoByDefault: true,
+    deferred: {
+      label: 'Scene',
+      hint: 'Cette scene telecharge environ 130 Ko compresses. L interrupteur la monte quand vous le decidez.',
+    },
+    lead: 'Une sphere de points repartis par la spirale de Fibonacci, ceinte d anneaux inclines.',
+    render: (v) =>
+      fill(
+        <OrbitalSphere
+          className="o-size-full"
+          points={num(v, 'points', 2400)}
+          rings={num(v, 'rings', 3)}
+          nodes={num(v, 'nodes', 12)}
+          rpm={num(v, 'rpm', 2)}
+        />,
+      ),
+  },
+  'background/globe-mesh': {
+    height: 'o-h-96',
+    demoByDefault: true,
+    deferred: {
+      label: 'Scene',
+      hint: 'Cette scene telecharge environ 130 Ko compresses. Elle se glisse au pointeur, et ses faces s allument.',
+    },
+    lead: 'Trois appels de dessin quelle que soit la densite : tout est derive dans le shader.',
+    render: (v) =>
+      fill(
+        <GlobeMesh
+          className="o-size-full"
+          density={num(v, 'density', 14)}
+          spin={num(v, 'spin', 8)}
+          detail={num(v, 'detail', 1)}
+          sweepAngle={num(v, 'sweepAngle', 90)}
         />,
       ),
   },
@@ -1077,6 +1123,92 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           banner={<span className="o-px-8">Registre — moteur — librairie</span>}
           copyright="© 2026 Odoro"
         />
+      </div>
+    ),
+  },
+
+  'section/orbital-timeline': {
+    height: 'o-h-96',
+    lead: 'La rotation passe par la boucle du moteur : aucun rendu React pendant qu elle tourne.',
+    render: (v) => (
+      <div className="o-absolute o-inset-0 o-overflow-hidden">
+        <OrbitalTimeline
+          className="o-h-full o-min-h-0"
+          radius={num(v, 'radius', 130)}
+          rpm={num(v, 'rpm', 1)}
+          steps={[
+            {
+              id: 'cadrage',
+              title: 'Cadrage',
+              date: 'Janvier',
+              status: 'done',
+              energy: 100,
+              content: <p>Ce que le produit doit faire, et ce qu il ne fera pas.</p>,
+            },
+            {
+              id: 'design',
+              title: 'Design',
+              date: 'Fevrier',
+              status: 'done',
+              energy: 90,
+              relatedIds: ['cadrage', 'build'],
+            },
+            {
+              id: 'build',
+              title: 'Fabrication',
+              date: 'Mars',
+              status: 'current',
+              energy: 60,
+              relatedIds: ['design'],
+            },
+            {
+              id: 'recette',
+              title: 'Recette',
+              date: 'Avril',
+              status: 'todo',
+              energy: 30,
+              relatedIds: ['build'],
+            },
+          ]}
+        />
+      </div>
+    ),
+  },
+
+  // ----- Interface -----------------------------------------------------------
+  'ui/shiny-button': {
+    height: 'o-h-64',
+    lead: 'L angle du degrade est une propriete enregistree, donc animable : aucune boucle JavaScript.',
+    render: (v) => (
+      <Stage>
+        <ShinyButton spin={num(v, 'spin', 3000)}>Acceder sans limite</ShinyButton>
+      </Stage>
+    ),
+  },
+  'ui/pearl-button': {
+    height: 'o-h-64',
+    lead: 'Cinq ombres superposees, sans image ni filtre. Retirer la quatrieme colle le bouton a la page.',
+    render: () => (
+      <Stage>
+        <PearlButton>Commencer</PearlButton>
+      </Stage>
+    ),
+  },
+  'ui/hover-reveal-button': {
+    height: 'o-h-64',
+    lead: 'Deux copies du libelle se croisent : la largeur du bouton ne bouge pas.',
+    render: () => (
+      <Stage>
+        <HoverRevealButton>Nous ecrire</HoverRevealButton>
+      </Stage>
+    ),
+  },
+  'ui/card-form': {
+    height: 'o-h-96',
+    lead: 'Controle de Luhn, et carte qui se retourne au focus du code. A ne pas brancher sur un encaissement reel sans passer par un champ heberge.',
+    render: () => (
+      <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
+        <CardForm />
       </div>
     ),
   },

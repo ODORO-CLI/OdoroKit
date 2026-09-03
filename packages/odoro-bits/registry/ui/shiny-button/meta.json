@@ -1,0 +1,56 @@
+{
+  "name": "shiny-button",
+  "category": "ui",
+  "title": "Bouton a lisere tournant",
+  "description": "Un degrade conique qui tourne autour du bouton, anime par une propriete enregistree — sans une ligne de JavaScript.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ShinyButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50",
+    "--o-palette-brand-500",
+    "--o-palette-brand-300",
+    "--o-font-sans",
+    "--o-duration-slower",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Contenu du bouton."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string, string]",
+      "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-brand-500, --o-palette-brand-300",
+      "description": "Tokens du fond, du texte, du lisere et de son eclat au survol."
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour du lisere.",
+      "min": 800,
+      "max": 8000,
+      "step": 200
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucune boucle JavaScript : l angle du degrade est une propriete enregistree, donc animable par le compositeur. L animation reste en pause tant que le bouton n est ni survole ni au focus."
+  }
+}

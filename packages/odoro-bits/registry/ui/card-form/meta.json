@@ -1,0 +1,71 @@
+{
+  "name": "card-form",
+  "category": "ui",
+  "title": "Formulaire de carte",
+  "description": "Une saisie de carte avec apercu qui se retourne sur le code, et un controle de Luhn qui distingue la coquille du numero plausible.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CardForm.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-fuchsia-500",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slowest",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "defaultValue",
+      "type": "Partial<CardFormState>",
+      "description": "Valeurs de depart."
+    },
+    {
+      "name": "maskMiddle",
+      "type": "boolean",
+      "default": true,
+      "description": "Masque les chiffres du milieu sur l apercu."
+    },
+    {
+      "name": "showSubmit",
+      "type": "boolean",
+      "default": true,
+      "description": "Affiche le bouton d envoi. A desactiver quand un formulaire englobant porte l envoi."
+    },
+    {
+      "name": "submitLabel",
+      "type": "string",
+      "default": "Valider",
+      "description": "Libelle du bouton d envoi."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-fuchsia-500, --o-palette-brand-500",
+      "description": "Tokens des deux halos de la carte."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(state: CardFormState, validity: CardFormValidity) => void",
+      "description": "Appele a chaque frappe."
+    },
+    {
+      "name": "onSubmit",
+      "type": "(state: CardFormState, validity: CardFormValidity) => void",
+      "description": "Appele a l envoi. Le composant ne transmet rien lui-meme."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucune dependance et aucun reseau. A savoir avant de le brancher sur un paiement reel : les numeros passent par le document et par le JavaScript de la page, ce qui place l application dans le perimetre complet de PCI-DSS. Un champ heberge par le prestataire — une iframe qui rend un jeton — l en sort. Ce composant convient a un apercu, une maquette, ou une saisie remise aussitot a un client de tokenisation."
+  }
+}

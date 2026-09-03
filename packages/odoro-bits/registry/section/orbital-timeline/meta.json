@@ -1,0 +1,57 @@
+{
+  "name": "orbital-timeline",
+  "category": "section",
+  "title": "Frise orbitale",
+  "description": "Des etapes disposees en cercle, qui tourne par la boucle du moteur et non par un minuteur, avec une fiche par etape.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/OrbitalTimeline.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-ease-standard", "--o-ease-out"],
+  "props": [
+    {
+      "name": "steps",
+      "type": "readonly OrbitalStep[]",
+      "required": true,
+      "description": "Les etapes, dans l ordre ou elles se suivent. Chacune porte son titre, son avancement, son intensite et ses liens."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 200,
+      "unit": "px",
+      "description": "Rayon du cercle.",
+      "min": 100,
+      "max": 320,
+      "step": 10
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 1,
+      "description": "Tours par minute. Zero immobilise la frise, comme le mouvement reduit.",
+      "min": 0,
+      "max": 6,
+      "step": 0.5
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Etapes",
+      "description": "Libelle de la liste, pour les technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun rendu React pendant la rotation : l angle vit dans une ref et les positions sont ecrites en style. La rotation s arrete sous mouvement reduit et pendant qu une fiche est ouverte, qu elle emporterait hors du cadre."
+  }
+}

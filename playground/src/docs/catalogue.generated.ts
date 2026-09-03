@@ -625,6 +625,129 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "background/dots"
   },
   {
+    "name": "globe-mesh",
+    "category": "background",
+    "title": "Globe filaire",
+    "description": "Une boule de points dans une cage d icosaedre qui scintille, et dont les faces s allument sous le pointeur.",
+    "engine": {
+      "gsap": [],
+      "gl": "three"
+    },
+    "files": [
+      {
+        "path": "globe-mesh.shader.ts",
+        "target": "background/globe-mesh.shader.ts"
+      },
+      {
+        "path": "component.tsx",
+        "target": "background/GlobeMesh.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-poster"
+    ],
+    "tokens": [
+      "--o-palette-zinc-50",
+      "--o-palette-emerald-400",
+      "--o-palette-violet-300",
+      "--o-palette-sky-400",
+      "--o-palette-rose-400"
+    ],
+    "props": [
+      {
+        "name": "density",
+        "type": "number",
+        "required": false,
+        "default": 14,
+        "description": "Densite du nuage. Le nombre de points croit au carre : cent points se lisent un par un, plusieurs milliers font une surface.",
+        "min": 1,
+        "max": 20,
+        "step": 1
+      },
+      {
+        "name": "spin",
+        "type": "number",
+        "required": false,
+        "default": 8,
+        "description": "Vitesse de rotation propre. Zero laisse un globe qui ne bouge qu au glissement.",
+        "min": 0,
+        "max": 20,
+        "step": 1
+      },
+      {
+        "name": "spinDir",
+        "type": "'left' | 'right'",
+        "required": false,
+        "default": "right",
+        "description": "Sens de rotation.",
+        "options": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "name": "detail",
+        "type": "number",
+        "required": false,
+        "default": 1,
+        "description": "Subdivision de la cage. Chaque cran multiplie les aretes par quatre.",
+        "min": 0,
+        "max": 3,
+        "step": 1
+      },
+      {
+        "name": "shimmer",
+        "type": "'edge' | 'sweep'",
+        "required": false,
+        "default": "sweep",
+        "description": "L eclat court le long de chaque arete, ou traverse la boule d une bande. Jamais les deux : rien ne resterait assez immobile pour lire l un contre l autre.",
+        "options": [
+          "edge",
+          "sweep"
+        ]
+      },
+      {
+        "name": "sweepAngle",
+        "type": "number",
+        "required": false,
+        "default": 90,
+        "unit": "deg",
+        "description": "Direction de la bande, en angle d ecran. 90 la fait descendre, 0 la fait traverser.",
+        "min": 0,
+        "max": 360,
+        "step": 15
+      },
+      {
+        "name": "interactive",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Reagit au pointeur : glissement, et faces qui s allument. Neutralise sous mouvement reduit."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string, string, string, string]",
+        "required": false,
+        "default": "--o-palette-zinc-50, --o-palette-emerald-400, --o-palette-violet-300, --o-palette-sky-400, --o-palette-rose-400",
+        "description": "Tokens des points, de la cage, de l eclat et des deux vagues."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli, affiche tant que la scene n est pas prete."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": "three",
+      "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Trois appels de dessin quelle que soit la densite — le rayon, la taille et la couleur de chaque point sont derives dans le shader, et rien n est ecrit par image. Le nombre de points est reduit de moitie en qualite basse.",
+      "fallback": "poster"
+    },
+    "id": "background/globe-mesh"
+  },
+  {
     "name": "grid-lines",
     "category": "background",
     "title": "Grille",
@@ -980,6 +1103,93 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "fallback": "gradient"
     },
     "id": "background/mosaic"
+  },
+  {
+    "name": "orbital-sphere",
+    "category": "background",
+    "title": "Sphere orbitale",
+    "description": "Une sphere de particules repartie par la spirale de Fibonacci, ceinte d anneaux inclines et piquee de noeuds lumineux.",
+    "engine": {
+      "gsap": [],
+      "gl": "three"
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "background/OrbitalSphere.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-poster"
+    ],
+    "tokens": [
+      "--o-palette-violet-500",
+      "--o-palette-violet-300",
+      "--o-palette-fuchsia-400"
+    ],
+    "props": [
+      {
+        "name": "points",
+        "type": "number",
+        "required": false,
+        "default": 2400,
+        "description": "Nombre de points sur la sphere. Retrograde a 900 en qualite basse.",
+        "min": 400,
+        "max": 6000,
+        "step": 200
+      },
+      {
+        "name": "rings",
+        "type": "number",
+        "required": false,
+        "default": 3,
+        "description": "Nombre d anneaux inclines.",
+        "min": 0,
+        "max": 8,
+        "step": 1
+      },
+      {
+        "name": "nodes",
+        "type": "number",
+        "required": false,
+        "default": 12,
+        "description": "Nombre de noeuds lumineux.",
+        "min": 0,
+        "max": 40,
+        "step": 2
+      },
+      {
+        "name": "rpm",
+        "type": "number",
+        "required": false,
+        "default": 2,
+        "description": "Vitesse de rotation, en tours par minute.",
+        "min": 0,
+        "max": 12,
+        "step": 0.5
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string, string]",
+        "required": false,
+        "default": "--o-palette-violet-500, --o-palette-violet-300, --o-palette-fuchsia-400",
+        "description": "Tokens de la sphere, des anneaux et des noeuds."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli, affiche tant que la scene n est pas prete."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": "three",
+      "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Le nombre de points suit la qualite retenue, et le rendu se suspend hors du champ. Aucune boucle propre — ni rAF, ni observateur de taille ou de visibilite : le moteur les porte deja.",
+      "fallback": "poster"
+    },
+    "id": "background/orbital-sphere"
   },
   {
     "name": "plasma",
@@ -2420,6 +2630,62 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "hero/scroll-video"
   },
   {
+    "name": "spline-scene",
+    "category": "hero",
+    "title": "Scene Spline",
+    "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "hero/SplineScene.tsx"
+      }
+    ],
+    "dependencies": [
+      "@splinetool/react-spline",
+      "@splinetool/runtime"
+    ],
+    "registryDependencies": [],
+    "tokens": [],
+    "props": [
+      {
+        "name": "scene",
+        "type": "string",
+        "required": true,
+        "description": "URL de la scene, sur le compte Spline du projet. Sans valeur par defaut : une adresse d exemple ferait dependre la page d un fichier qui ne lui appartient pas."
+      },
+      {
+        "name": "rootMargin",
+        "type": "string",
+        "required": false,
+        "default": "200px",
+        "description": "Marge de declenchement du chargement. Le runtime arrive avant que la scene n entre dans le champ."
+      },
+      {
+        "name": "fallback",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Ce qui occupe le cadre tant que la scene n est pas la, et pour toujours sous mouvement reduit."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli par defaut, quand aucun n est fourni."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": false,
+      "notes": "Le runtime Spline pese plus de six cents kilo-octets compresses, et la scene elle-meme se compte en megaoctets. Rien n est telecharge avant que le cadre n approche du champ, et rien du tout sous mouvement reduit. C est la seule entree du registre a dependre d un paquet tiers a l execution : elle est copiee, donc un projet qui ne l appelle pas ne l installe pas.",
+      "fallback": "poster"
+    },
+    "id": "hero/spline-scene"
+  },
+  {
     "name": "use-pointer-damped",
     "category": "hooks",
     "title": "Pointeur amorti",
@@ -2971,6 +3237,70 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Le defilement vient du bandeau ; cette section n ajoute qu une mise en page et un intitule."
     },
     "id": "section/logo-band"
+  },
+  {
+    "name": "orbital-timeline",
+    "category": "section",
+    "title": "Frise orbitale",
+    "description": "Des etapes disposees en cercle, qui tourne par la boucle du moteur et non par un minuteur, avec une fiche par etape.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/OrbitalTimeline.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-ease-standard",
+      "--o-ease-out"
+    ],
+    "props": [
+      {
+        "name": "steps",
+        "type": "readonly OrbitalStep[]",
+        "required": true,
+        "description": "Les etapes, dans l ordre ou elles se suivent. Chacune porte son titre, son avancement, son intensite et ses liens."
+      },
+      {
+        "name": "radius",
+        "type": "number",
+        "required": false,
+        "default": 200,
+        "unit": "px",
+        "description": "Rayon du cercle.",
+        "min": 100,
+        "max": 320,
+        "step": 10
+      },
+      {
+        "name": "rpm",
+        "type": "number",
+        "required": false,
+        "default": 1,
+        "description": "Tours par minute. Zero immobilise la frise, comme le mouvement reduit.",
+        "min": 0,
+        "max": 6,
+        "step": 0.5
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "required": false,
+        "default": "Etapes",
+        "description": "Libelle de la liste, pour les technologies d assistance."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Aucun rendu React pendant la rotation : l angle vit dans une ref et les positions sont ecrites en style. La rotation s arrete sous mouvement reduit et pendant qu une fiche est ouverte, qu elle emporterait hors du cadre."
+    },
+    "id": "section/orbital-timeline"
   },
   {
     "name": "reveal-grid",
@@ -3570,5 +3900,255 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Un minuteur, pas d abonnement a la boucle : la frappe n a pas besoin de la cadence de l ecran."
     },
     "id": "text/typewriter"
+  },
+  {
+    "name": "card-form",
+    "category": "ui",
+    "title": "Formulaire de carte",
+    "description": "Une saisie de carte avec apercu qui se retourne sur le code, et un controle de Luhn qui distingue la coquille du numero plausible.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/CardForm.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-fuchsia-500",
+      "--o-palette-brand-500",
+      "--o-duration-base",
+      "--o-duration-slowest",
+      "--o-ease-standard"
+    ],
+    "props": [
+      {
+        "name": "defaultValue",
+        "type": "Partial<CardFormState>",
+        "required": false,
+        "description": "Valeurs de depart."
+      },
+      {
+        "name": "maskMiddle",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Masque les chiffres du milieu sur l apercu."
+      },
+      {
+        "name": "showSubmit",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Affiche le bouton d envoi. A desactiver quand un formulaire englobant porte l envoi."
+      },
+      {
+        "name": "submitLabel",
+        "type": "string",
+        "required": false,
+        "default": "Valider",
+        "description": "Libelle du bouton d envoi."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string]",
+        "required": false,
+        "default": "--o-palette-fuchsia-500, --o-palette-brand-500",
+        "description": "Tokens des deux halos de la carte."
+      },
+      {
+        "name": "onValueChange",
+        "type": "(state: CardFormState, validity: CardFormValidity) => void",
+        "required": false,
+        "description": "Appele a chaque frappe."
+      },
+      {
+        "name": "onSubmit",
+        "type": "(state: CardFormState, validity: CardFormValidity) => void",
+        "required": false,
+        "description": "Appele a l envoi. Le composant ne transmet rien lui-meme."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Aucune dependance et aucun reseau. A savoir avant de le brancher sur un paiement reel : les numeros passent par le document et par le JavaScript de la page, ce qui place l application dans le perimetre complet de PCI-DSS. Un champ heberge par le prestataire — une iframe qui rend un jeton — l en sort. Ce composant convient a un apercu, une maquette, ou une saisie remise aussitot a un client de tokenisation."
+    },
+    "id": "ui/card-form"
+  },
+  {
+    "name": "hover-reveal-button",
+    "category": "ui",
+    "title": "Bouton a fond deploye",
+    "description": "Une pastille qui s etend jusqu a devenir le fond, et deux copies du libelle qui se croisent sans changer la largeur.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/HoverRevealButton.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-brand-600",
+      "--o-palette-zinc-50",
+      "--o-duration-slow",
+      "--o-ease-standard"
+    ],
+    "props": [
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Libelle du bouton."
+      },
+      {
+        "name": "adornment",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Ce qui accompagne le libelle une fois le fond deploye. Emplacement : le registre ne depend d aucun jeu de pictogrammes."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string]",
+        "required": false,
+        "default": "--o-palette-brand-600, --o-palette-zinc-50",
+        "description": "Tokens du fond deploye et du texte sur ce fond."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Deux transitions et un changement de taille. La largeur suit le contenu au lieu d etre figee, ce qui evite de couper les libelles longs."
+    },
+    "id": "ui/hover-reveal-button"
+  },
+  {
+    "name": "pearl-button",
+    "category": "ui",
+    "title": "Bouton en nacre",
+    "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/PearlButton.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-950",
+      "--o-palette-zinc-50",
+      "--o-palette-zinc-900",
+      "--o-duration-base",
+      "--o-duration-slow",
+      "--o-ease-standard"
+    ],
+    "props": [
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Libelle du bouton."
+      },
+      {
+        "name": "glyph",
+        "type": "string",
+        "required": false,
+        "default": "✧",
+        "description": "Glyphe au repos."
+      },
+      {
+        "name": "glyphHover",
+        "type": "string",
+        "required": false,
+        "default": "✦",
+        "description": "Glyphe au survol. La bascule est une regle CSS, pas un etat React."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string, string]",
+        "required": false,
+        "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-zinc-900",
+        "description": "Tokens du corps, de la lumiere et de l ombre. Les echanger rend le bouton utilisable sur fond clair."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Cinq ombres et deux pseudo-elements. Aucune image, aucun filtre, aucun JavaScript a l execution."
+    },
+    "id": "ui/pearl-button"
+  },
+  {
+    "name": "shiny-button",
+    "category": "ui",
+    "title": "Bouton a lisere tournant",
+    "description": "Un degrade conique qui tourne autour du bouton, anime par une propriete enregistree — sans une ligne de JavaScript.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/ShinyButton.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-950",
+      "--o-palette-zinc-50",
+      "--o-palette-brand-500",
+      "--o-palette-brand-300",
+      "--o-font-sans",
+      "--o-duration-slower",
+      "--o-ease-standard"
+    ],
+    "props": [
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Contenu du bouton."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string, string, string]",
+        "required": false,
+        "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-brand-500, --o-palette-brand-300",
+        "description": "Tokens du fond, du texte, du lisere et de son eclat au survol."
+      },
+      {
+        "name": "spin",
+        "type": "number",
+        "required": false,
+        "default": 3000,
+        "unit": "ms",
+        "description": "Duree d un tour du lisere.",
+        "min": 800,
+        "max": 8000,
+        "step": 200
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Aucune boucle JavaScript : l angle du degrade est une propriete enregistree, donc animable par le compositeur. L animation reste en pause tant que le bouton n est ni survole ni au focus."
+    },
+    "id": "ui/shiny-button"
   }
 ]

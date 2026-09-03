@@ -82,6 +82,19 @@
         }
       ]
     },
+    "background/globe-mesh": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/background/globe-mesh.shader.ts",
+          "hash": "f152c5b948c42255"
+        },
+        {
+          "path": "src/odoro/background/GlobeMesh.tsx",
+          "hash": "1224008d1408497f"
+        }
+      ]
+    },
     "background/grid-lines": {
       "installedAt": "2026-08-29T03:15:27.669Z",
       "files": [
@@ -124,6 +137,15 @@
         {
           "path": "src/odoro/background/Mosaic.tsx",
           "hash": "90acdd9268d7cca8"
+        }
+      ]
+    },
+    "background/orbital-sphere": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/background/OrbitalSphere.tsx",
+          "hash": "3010c87969052f55"
         }
       ]
     },
@@ -311,6 +333,15 @@
         }
       ]
     },
+    "hero/spline-scene": {
+      "installedAt": "2026-09-03T16:48:13.203Z",
+      "files": [
+        {
+          "path": "src/odoro/hero/SplineScene.tsx",
+          "hash": "016e2a21e937b2ce"
+        }
+      ]
+    },
     "hooks/use-pointer-damped": {
       "installedAt": "2026-08-29T02:23:39.104Z",
       "files": [
@@ -321,7 +352,7 @@
       ]
     },
     "hooks/use-poster": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-09-03T16:23:16.832Z",
       "files": [
         {
           "path": "src/odoro/hooks/usePoster.ts",
@@ -389,6 +420,15 @@
         {
           "path": "src/odoro/section/LogoBand.tsx",
           "hash": "6b2bbd5445fcfbea"
+        }
+      ]
+    },
+    "section/orbital-timeline": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/section/OrbitalTimeline.tsx",
+          "hash": "dbe91621c4fcb884"
         }
       ]
     },
@@ -461,6 +501,42 @@
         {
           "path": "src/odoro/text/Typewriter.tsx",
           "hash": "9937b746b7ef93d0"
+        }
+      ]
+    },
+    "ui/card-form": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CardForm.tsx",
+          "hash": "bc988e90f6c07542"
+        }
+      ]
+    },
+    "ui/hover-reveal-button": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/HoverRevealButton.tsx",
+          "hash": "0dfcf992b293b89c"
+        }
+      ]
+    },
+    "ui/pearl-button": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/PearlButton.tsx",
+          "hash": "707974fc9cb66964"
+        }
+      ]
+    },
+    "ui/shiny-button": {
+      "installedAt": "2026-09-03T16:23:16.832Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ShinyButton.tsx",
+          "hash": "c08822b4e4c3b503"
         }
       ]
     }

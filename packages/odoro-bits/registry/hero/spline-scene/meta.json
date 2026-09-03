@@ -1,0 +1,49 @@
+{
+  "name": "spline-scene",
+  "category": "hero",
+  "title": "Scene Spline",
+  "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "hero/SplineScene.tsx"
+    }
+  ],
+  "dependencies": ["@splinetool/react-spline", "@splinetool/runtime"],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "scene",
+      "type": "string",
+      "required": true,
+      "description": "URL de la scene, sur le compte Spline du projet. Sans valeur par defaut : une adresse d exemple ferait dependre la page d un fichier qui ne lui appartient pas."
+    },
+    {
+      "name": "rootMargin",
+      "type": "string",
+      "default": "200px",
+      "description": "Marge de declenchement du chargement. Le runtime arrive avant que la scene n entre dans le champ."
+    },
+    {
+      "name": "fallback",
+      "type": "ReactNode",
+      "description": "Ce qui occupe le cadre tant que la scene n est pas la, et pour toujours sous mouvement reduit."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli par defaut, quand aucun n est fourni."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "fallback": "poster",
+    "notes": "Le runtime Spline pese plus de six cents kilo-octets compresses, et la scene elle-meme se compte en megaoctets. Rien n est telecharge avant que le cadre n approche du champ, et rien du tout sous mouvement reduit. C est la seule entree du registre a dependre d un paquet tiers a l execution : elle est copiee, donc un projet qui ne l appelle pas ne l installe pas."
+  }
+}

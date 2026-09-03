@@ -1,0 +1,57 @@
+{
+  "name": "pearl-button",
+  "category": "ui",
+  "title": "Bouton en nacre",
+  "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PearlButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50",
+    "--o-palette-zinc-900",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "glyph",
+      "type": "string",
+      "default": "✧",
+      "description": "Glyphe au repos."
+    },
+    {
+      "name": "glyphHover",
+      "type": "string",
+      "default": "✦",
+      "description": "Glyphe au survol. La bascule est une regle CSS, pas un etat React."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-zinc-900",
+      "description": "Tokens du corps, de la lumiere et de l ombre. Les echanger rend le bouton utilisable sur fond clair."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq ombres et deux pseudo-elements. Aucune image, aucun filtre, aucun JavaScript a l execution."
+  }
+}
