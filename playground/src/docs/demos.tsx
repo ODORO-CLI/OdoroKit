@@ -751,6 +751,28 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
 
+  'hero/spline-scene': {
+    height: 'o-h-72',
+    lead: 'Seule entree du registre sans apercu vivant, et pour une raison qui lui appartient.',
+    render: () => (
+      <Stage>
+        <div className="o-max-w-md o-space-y-3">
+          <div className="o-h-24 o-rounded-lg o-bg-gradient-to-br o-from-zinc-200 o-to-zinc-300 dark:o-from-zinc-800 dark:o-to-zinc-900" />
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+            Voila ce que le cadre montre tant que la scene n est pas la — et pour
+            toujours en mouvement reduit.
+          </p>
+          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+            La scene elle-meme n est pas montree ici : son adresse appartient au
+            compte Spline du projet, et le runtime est un paquet tiers que cette
+            documentation n installe pas. L onglet « Code » montre l integralite du
+            composant.
+          </p>
+        </div>
+      </Stage>
+    ),
+  },
+
   // ----- Texte ---------------------------------------------------------------
   'text/split-reveal': {
     height: 'o-h-56',

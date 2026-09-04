@@ -230,6 +230,7 @@ const REGISTRY_SECTIONS: readonly (readonly [string, string, string])[] = [
   ['effect', 'effects', 'Effets'],
   ['image', 'images', 'Images'],
   ['section', 'sections', 'Sections'],
+  ['ui', 'ui', 'Interface'],
   ['hooks', 'hooks', 'Hooks'],
 ]
 
