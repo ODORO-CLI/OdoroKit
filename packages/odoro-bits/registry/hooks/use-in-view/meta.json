@@ -1,0 +1,52 @@
+{
+  "name": "use-in-view",
+  "category": "hooks",
+  "title": "Entree dans le champ",
+  "description": "Dit quand un element entre dans le champ, une fois, sans dependance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useInView.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "once",
+      "type": "boolean",
+      "default": true,
+      "description": "Se detacher apres le premier passage."
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "default": 0.3,
+      "description": "Part visible qui declenche, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "margin",
+      "type": "string",
+      "description": "Marge autour de la zone d observation, syntaxe de rootMargin."
+    },
+    {
+      "name": "immediat",
+      "type": "boolean",
+      "default": false,
+      "description": "Ne pas observer : vrai des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur, detache apres le premier passage. Aucun travail par image."
+  }
+}

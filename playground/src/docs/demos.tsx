@@ -72,11 +72,15 @@ import { LogoBand } from '@/odoro/section/LogoBand.jsx'
 import { RevealGrid } from '@/odoro/section/RevealGrid.jsx'
 import { ScrollSteps } from '@/odoro/section/ScrollSteps.jsx'
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'
+import { CountUp } from '@/odoro/text/CountUp.jsx'
 import { DecodeText } from '@/odoro/text/DecodeText.jsx'
+import { HighlightSweep } from '@/odoro/text/HighlightSweep.jsx'
+import { RotatingWords } from '@/odoro/text/RotatingWords.jsx'
 import { ShineText } from '@/odoro/text/ShineText.jsx'
+import { SplitLines } from '@/odoro/text/SplitLines.jsx'
 import { SplitReveal } from '@/odoro/text/SplitReveal.jsx'
 import { Typewriter } from '@/odoro/text/Typewriter.jsx'
-import { PointerDampedDemo, PosterDemo } from './demos-hooks.jsx'
+import { InViewDemo, PointerDampedDemo, PosterDemo } from './demos-hooks.jsx'
 import type {
   AtelierControl,
   AtelierFrame,
@@ -822,6 +826,80 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
 
+  'text/split-lines': {
+    height: 'o-h-64',
+    lead: 'Les lignes sont mesurees telles que le navigateur les a composees, puis montent sous leur masque.',
+    render: (v) => (
+      <Stage>
+        <SplitLines
+          as="p"
+          duration={num(v, 'duration', 700)}
+          stagger={num(v, 'stagger', 90)}
+          delay={num(v, 'delay', 0)}
+          declenchement="montage"
+          className="o-max-w-md o-text-2xl o-font-semibold o-leading-snug"
+        >
+          Une ligne n existe pas dans le DOM : c est une decision du moteur de
+          rendu, prise apres la mise en page. On la lit donc la ou elle existe.
+        </SplitLines>
+      </Stage>
+    ),
+  },
+  'text/count-up': {
+    height: 'o-h-56',
+    lead: 'Le nombre final est toujours dans le DOM ; seules les valeurs intermediaires sont un calque.',
+    render: (v) => (
+      <Stage>
+        <CountUp
+          value={num(v, 'value', 12480)}
+          from={num(v, 'from', 0)}
+          duration={num(v, 'duration', 1500)}
+          decimals={num(v, 'decimals', 0)}
+          suffix={str(v, 'suffix', ' projets')}
+          declenchement="montage"
+          className="o-text-5xl o-font-extrabold o-tracking-tight"
+        />
+      </Stage>
+    ),
+  },
+  'text/highlight-sweep': {
+    height: 'o-h-56',
+    lead: 'Il ne decoupe rien : le texte reste le noeud qu il etait, seul un fond se trace derriere.',
+    render: (v) => (
+      <Stage>
+        <p className="o-max-w-md o-text-2xl o-font-medium o-leading-relaxed">
+          Un moteur{' '}
+          <HighlightSweep
+            thickness={num(v, 'thickness', 0.35)}
+            duration={num(v, 'duration', 600)}
+            delay={num(v, 'delay', 0)}
+            declenchement="montage"
+          >
+            cent pour cent maison
+          </HighlightSweep>
+          , et rien qui ne vous appartienne pas.
+        </p>
+      </Stage>
+    ),
+  },
+  'text/rotating-words': {
+    height: 'o-h-56',
+    lead: 'La largeur ne saute pas : tous les mots occupent la meme cellule de grille, sans aucune mesure.',
+    render: (v) => (
+      <Stage>
+        <p className="o-text-4xl o-font-bold o-tracking-tight">
+          Construisez plus{' '}
+          <RotatingWords
+            words={['vite', 'sur', 'ensemble', 'sereinement']}
+            interval={num(v, 'interval', 2200)}
+            duration={num(v, 'duration', 420)}
+            className="o-text-brand-600"
+          />
+        </p>
+      </Stage>
+    ),
+  },
+
   // ----- Effets --------------------------------------------------------------
   'effect/magnetic': {
     height: 'o-h-64',
@@ -1358,6 +1436,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     height: 'o-h-96',
     lead: 'Promenez le pointeur dans le cadre : le petit cercle est la position brute, le disque la rattrape.',
     render: (v) => <PointerDampedDemo speed={num(v, 'speed', 3)} />,
+  },
+  'hooks/use-in-view': {
+    height: 'o-h-96',
+    lead: 'Ce qui compte est le seuil : montez la part visible, refaites defiler, le basculement arrive plus tard.',
+    render: (v) => <InViewDemo amount={num(v, 'amount', 0.3)} />,
   },
   'hooks/use-poster': {
     height: 'o-h-96',

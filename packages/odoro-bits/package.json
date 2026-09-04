@@ -17,13 +17,16 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "^22.18.8",
-    "@types/react": "^19.2.2",
-    "odoro": "workspace:*",
     "@odoro-cli/engine": "workspace:*",
     "@odoro-cli/icons": "workspace:*",
     "@odoro-cli/libs": "workspace:*",
+    "@types/node": "^22.18.8",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "jsdom": "^27.0.0",
+    "odoro": "workspace:*",
     "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"

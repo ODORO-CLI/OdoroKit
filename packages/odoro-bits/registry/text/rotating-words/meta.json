@@ -1,0 +1,64 @@
+{
+  "name": "rotating-words",
+  "category": "text",
+  "title": "Mot tournant",
+  "description": "Un mot se substitue dans une phrase qui ne bouge pas, sans que la largeur saute.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/RotatingWords.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "words",
+      "type": "readonly string[]",
+      "required": true,
+      "description": "Les mots qui se succedent. Le premier est celui que l on lit."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 2200,
+      "unit": "ms",
+      "description": "Temps d affichage d un mot.",
+      "min": 600,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 420,
+      "unit": "ms",
+      "description": "Duree de la substitution.",
+      "min": 80,
+      "max": 1500,
+      "step": 20
+    },
+    {
+      "name": "sens",
+      "type": "'haut' | 'bas'",
+      "default": "haut",
+      "description": "Sens du mouvement."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un intervalle, arrete hors du champ. Les substitutions sont des transitions CSS, sans JavaScript par image."
+  }
+}

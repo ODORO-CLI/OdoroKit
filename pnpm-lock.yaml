@@ -109,12 +109,21 @@ importers:
       '@types/react':
         specifier: ^19.2.2
         version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.2.1
+        version: 19.2.5(@types/react@19.2.18)
+      jsdom:
+        specifier: ^27.0.0
+        version: 27.4.0(@noble/hashes@1.8.0)
       odoro:
         specifier: workspace:*
         version: link:../odoro
       react:
         specifier: ^19.2.0
         version: 19.2.8
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.8(react@19.2.8)
       tsx:
         specifier: ^4.20.6
         version: 4.23.12

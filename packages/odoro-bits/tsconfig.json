@@ -6,6 +6,7 @@
     "types": ["node"],
     "rootDir": ".",
     "paths": {
+      "@registre/hooks/useInView": ["./registry/hooks/use-in-view/hook.ts"],
       "@registre/hooks/usePoster": ["./registry/hooks/use-poster/hook.ts"],
       "@registre/hooks/usePointerDamped": ["./registry/hooks/use-pointer-damped/hook.ts"],
       "@registre/effect/Marquee": ["./registry/effect/marquee/component.tsx"],

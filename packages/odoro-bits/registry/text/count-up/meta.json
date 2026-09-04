@@ -1,0 +1,94 @@
+{
+  "name": "count-up",
+  "category": "text",
+  "title": "Compteur",
+  "description": "Un nombre monte jusqu a sa valeur quand il entre dans le champ, formate selon la langue.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CountUp.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": true,
+      "description": "Valeur d arrivee."
+    },
+    {
+      "name": "from",
+      "type": "number",
+      "default": 0,
+      "description": "Valeur de depart."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1500,
+      "unit": "ms",
+      "description": "Duree de la montee.",
+      "min": 200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 0,
+      "unit": "ms",
+      "description": "Retard avant le depart.",
+      "min": 0,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "description": "Langue du formatage. Par defaut, celle du navigateur."
+    },
+    {
+      "name": "decimals",
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de decimales.",
+      "min": 0,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "prefix",
+      "type": "string",
+      "description": "Texte colle avant le nombre."
+    },
+    {
+      "name": "suffix",
+      "type": "string",
+      "description": "Texte colle apres le nombre."
+    },
+    {
+      "name": "declenchement",
+      "type": "'vue' | 'montage'",
+      "default": "vue",
+      "description": "A l entree dans le champ, ou des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle d images qui dure le temps de la montee, puis s arrete. Un seul noeud de texte est reecrit."
+  }
+}

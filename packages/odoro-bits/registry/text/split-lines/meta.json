@@ -1,0 +1,68 @@
+{
+  "name": "split-lines",
+  "category": "text",
+  "title": "Revelation par ligne",
+  "description": "Chaque ligne rendue monte depuis sous son masque, l une apres l autre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la montee d une ligne.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "description": "Retard entre deux lignes.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 0,
+      "unit": "ms",
+      "description": "Retard avant la premiere ligne.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "declenchement",
+      "type": "'vue' | 'montage'",
+      "default": "vue",
+      "description": "A l entree dans le champ, ou des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les lignes sont mesurees a la construction, puis animees par le compositeur. Aucun JavaScript par image."
+  }
+}

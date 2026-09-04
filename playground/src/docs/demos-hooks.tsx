@@ -27,6 +27,7 @@ import { Icon } from '@odoro-cli/icons'
 import { MousePointer } from '@odoro-cli/icons/filaire'
 import { useEffect, useRef, useState, type ReactElement } from 'react'
 
+import { useInView } from '@/odoro/hooks/useInView.js'
 import { usePointerDamped } from '@/odoro/hooks/usePointerDamped.js'
 import { usePoster } from '@/odoro/hooks/usePoster.js'
 
@@ -165,6 +166,54 @@ export function PosterDemo({ fade }: { fade: number }): ReactElement {
         <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
           visible : {String(poster.visible)}
         </span>
+      </div>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Entree dans le champ                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Ce que cette demonstration doit prouver.
+ *
+ * Un crochet qui dit « c'est visible » ne se montre pas en affichant un
+ * booleen. Ce qui compte est le **seuil** : a partir de quelle part visible il
+ * bascule, et le fait qu'il ne rebascule pas ensuite.
+ *
+ * Le cadre defile donc a la main, avec une cible dont on voit la bordure
+ * changer au moment precis ou elle est assez entree. Le reglage `amount` est
+ * pilotable : on le monte, on refait defiler, et le basculement arrive plus
+ * tard. C'est la seule facon de rendre un seuil sensible.
+ */
+export function InViewDemo({ amount }: { readonly amount: number }): ReactElement {
+  // `once: false` ici, contrairement au defaut : une demonstration qu'on ne
+  // peut jouer qu'une fois n'en est pas une.
+  const { ref, vu } = useInView<HTMLDivElement>({ amount, once: false })
+
+  return (
+    <div className="o-absolute o-inset-0 o-flex o-flex-col">
+      <p className="o-shrink-0 o-px-4 o-pt-3 o-text-xs o-opacity-70">
+        Faites defiler le cadre : la cible s allume quand {String(Math.round(amount * 100))}
+        &nbsp;% d elle est visible.
+      </p>
+
+      <div className="o-min-h-0 o-flex-1 o-overflow-y-auto o-px-4 o-py-3">
+        <div className="o-h-64 o-shrink-0" aria-hidden="true" />
+
+        <div
+          ref={ref}
+          className={[
+            'o-flex o-h-32 o-items-center o-justify-center o-rounded-lg o-border-w-2',
+            'o-transition-colors',
+            vu ? 'o-border-brand-500 o-bg-brand-500/10' : 'o-border-current/20',
+          ].join(' ')}
+        >
+          <span className="o-text-sm o-font-medium">{vu ? 'vue' : 'pas encore'}</span>
+        </div>
+
+        <div className="o-h-64 o-shrink-0" aria-hidden="true" />
       </div>
     </div>
   )
