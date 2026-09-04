@@ -2836,6 +2836,63 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "hero/spline-scene"
   },
   {
+    "name": "use-in-view",
+    "category": "hooks",
+    "title": "Entree dans le champ",
+    "description": "Dit quand un element entre dans le champ, une fois, sans dependance.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "hook.ts",
+        "target": "hooks/useInView.ts"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [],
+    "props": [
+      {
+        "name": "once",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Se detacher apres le premier passage."
+      },
+      {
+        "name": "amount",
+        "type": "number",
+        "required": false,
+        "default": 0.3,
+        "description": "Part visible qui declenche, de 0 a 1.",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "name": "margin",
+        "type": "string",
+        "required": false,
+        "description": "Marge autour de la zone d observation, syntaxe de rootMargin."
+      },
+      {
+        "name": "immediat",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Ne pas observer : vrai des le montage."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Un observateur, detache apres le premier passage. Aucun travail par image."
+    },
+    "id": "hooks/use-in-view"
+  },
+  {
     "name": "use-pointer-damped",
     "category": "hooks",
     "title": "Pointeur amorti",
@@ -3819,6 +3876,112 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "section/sticky-stack"
   },
   {
+    "name": "count-up",
+    "category": "text",
+    "title": "Compteur",
+    "description": "Un nombre monte jusqu a sa valeur quand il entre dans le champ, formate selon la langue.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "text/CountUp.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-in-view"
+    ],
+    "tokens": [],
+    "props": [
+      {
+        "name": "value",
+        "type": "number",
+        "required": true,
+        "description": "Valeur d arrivee."
+      },
+      {
+        "name": "from",
+        "type": "number",
+        "required": false,
+        "default": 0,
+        "description": "Valeur de depart."
+      },
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "span",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 1500,
+        "unit": "ms",
+        "description": "Duree de la montee.",
+        "min": 200,
+        "max": 6000,
+        "step": 100
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "required": false,
+        "default": 0,
+        "unit": "ms",
+        "description": "Retard avant le depart.",
+        "min": 0,
+        "max": 3000,
+        "step": 100
+      },
+      {
+        "name": "locale",
+        "type": "string",
+        "required": false,
+        "description": "Langue du formatage. Par defaut, celle du navigateur."
+      },
+      {
+        "name": "decimals",
+        "type": "number",
+        "required": false,
+        "default": 0,
+        "description": "Nombre de decimales.",
+        "min": 0,
+        "max": 4,
+        "step": 1
+      },
+      {
+        "name": "prefix",
+        "type": "string",
+        "required": false,
+        "description": "Texte colle avant le nombre."
+      },
+      {
+        "name": "suffix",
+        "type": "string",
+        "required": false,
+        "description": "Texte colle apres le nombre."
+      },
+      {
+        "name": "declenchement",
+        "type": "'vue' | 'montage'",
+        "required": false,
+        "default": "vue",
+        "description": "A l entree dans le champ, ou des le montage."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Une boucle d images qui dure le temps de la montee, puis s arrete. Un seul noeud de texte est reecrit."
+    },
+    "id": "text/count-up"
+  },
+  {
     "name": "decode-text",
     "category": "text",
     "title": "Decodage",
@@ -3888,6 +4051,160 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "text/decode-text"
   },
   {
+    "name": "highlight-sweep",
+    "category": "text",
+    "title": "Surligneur",
+    "description": "Un trait se trace derriere le texte, comme au feutre, sans decouper le contenu.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "text/HighlightSweep.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-in-view"
+    ],
+    "tokens": [
+      "--o-palette-brand-200"
+    ],
+    "props": [
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "span",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "colour",
+        "type": "string",
+        "required": false,
+        "description": "Couleur du trait."
+      },
+      {
+        "name": "thickness",
+        "type": "number",
+        "required": false,
+        "default": 0.35,
+        "description": "Epaisseur du trait, en part de la hauteur de ligne.",
+        "min": 0.05,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 600,
+        "unit": "ms",
+        "description": "Duree du trace.",
+        "min": 100,
+        "max": 3000,
+        "step": 50
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "required": false,
+        "default": 0,
+        "unit": "ms",
+        "description": "Retard avant le trace.",
+        "min": 0,
+        "max": 2000,
+        "step": 50
+      },
+      {
+        "name": "declenchement",
+        "type": "'vue' | 'montage'",
+        "required": false,
+        "default": "vue",
+        "description": "A l entree dans le champ, ou des le montage."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Une transition de background-size. Aucune mise en page recalculee, aucun JavaScript par image."
+    },
+    "id": "text/highlight-sweep"
+  },
+  {
+    "name": "rotating-words",
+    "category": "text",
+    "title": "Mot tournant",
+    "description": "Un mot se substitue dans une phrase qui ne bouge pas, sans que la largeur saute.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "text/RotatingWords.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-in-view"
+    ],
+    "tokens": [],
+    "props": [
+      {
+        "name": "words",
+        "type": "readonly string[]",
+        "required": true,
+        "description": "Les mots qui se succedent. Le premier est celui que l on lit."
+      },
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "span",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "interval",
+        "type": "number",
+        "required": false,
+        "default": 2200,
+        "unit": "ms",
+        "description": "Temps d affichage d un mot.",
+        "min": 600,
+        "max": 8000,
+        "step": 100
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 420,
+        "unit": "ms",
+        "description": "Duree de la substitution.",
+        "min": 80,
+        "max": 1500,
+        "step": 20
+      },
+      {
+        "name": "sens",
+        "type": "'haut' | 'bas'",
+        "required": false,
+        "default": "haut",
+        "description": "Sens du mouvement."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Un intervalle, arrete hors du champ. Les substitutions sont des transitions CSS, sans JavaScript par image."
+    },
+    "id": "text/rotating-words"
+  },
+  {
     "name": "shine-text",
     "category": "text",
     "title": "Reflet",
@@ -3953,6 +4270,82 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Un degrade anime par le compositeur. Aucun JavaScript par image."
     },
     "id": "text/shine-text"
+  },
+  {
+    "name": "split-lines",
+    "category": "text",
+    "title": "Revelation par ligne",
+    "description": "Chaque ligne rendue monte depuis sous son masque, l une apres l autre.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "text/SplitLines.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-in-view"
+    ],
+    "tokens": [],
+    "props": [
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "p",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 700,
+        "unit": "ms",
+        "description": "Duree de la montee d une ligne.",
+        "min": 100,
+        "max": 2000,
+        "step": 50
+      },
+      {
+        "name": "stagger",
+        "type": "number",
+        "required": false,
+        "default": 90,
+        "unit": "ms",
+        "description": "Retard entre deux lignes.",
+        "min": 0,
+        "max": 400,
+        "step": 10
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "required": false,
+        "default": 0,
+        "unit": "ms",
+        "description": "Retard avant la premiere ligne.",
+        "min": 0,
+        "max": 2000,
+        "step": 50
+      },
+      {
+        "name": "declenchement",
+        "type": "'vue' | 'montage'",
+        "required": false,
+        "default": "vue",
+        "description": "A l entree dans le champ, ou des le montage."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Les lignes sont mesurees a la construction, puis animees par le compositeur. Aucun JavaScript par image."
+    },
+    "id": "text/split-lines"
   },
   {
     "name": "split-reveal",

@@ -360,6 +360,15 @@
         }
       ]
     },
+    "hooks/use-in-view": {
+      "installedAt": "2026-09-04T15:31:38.450Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useInView.ts",
+          "hash": "3c8665fe9fb1416d"
+        }
+      ]
+    },
     "hooks/use-pointer-damped": {
       "installedAt": "2026-08-29T02:23:39.104Z",
       "files": [
@@ -495,6 +504,15 @@
         }
       ]
     },
+    "text/count-up": {
+      "installedAt": "2026-09-04T15:31:38.450Z",
+      "files": [
+        {
+          "path": "src/odoro/text/CountUp.tsx",
+          "hash": "02af275b850df6a5"
+        }
+      ]
+    },
     "text/decode-text": {
       "installedAt": "2026-08-29T02:35:09.997Z",
       "files": [
@@ -504,12 +522,39 @@
         }
       ]
     },
+    "text/highlight-sweep": {
+      "installedAt": "2026-09-04T15:31:38.450Z",
+      "files": [
+        {
+          "path": "src/odoro/text/HighlightSweep.tsx",
+          "hash": "098d1c932287333d"
+        }
+      ]
+    },
+    "text/rotating-words": {
+      "installedAt": "2026-09-04T15:31:38.450Z",
+      "files": [
+        {
+          "path": "src/odoro/text/RotatingWords.tsx",
+          "hash": "994251c38bad6e2f"
+        }
+      ]
+    },
     "text/shine-text": {
       "installedAt": "2026-08-29T02:35:09.997Z",
       "files": [
         {
           "path": "src/odoro/text/ShineText.tsx",
           "hash": "c760a5d1b419a9ad"
+        }
+      ]
+    },
+    "text/split-lines": {
+      "installedAt": "2026-09-04T15:31:38.450Z",
+      "files": [
+        {
+          "path": "src/odoro/text/SplitLines.tsx",
+          "hash": "b76451515768180c"
         }
       ]
     },

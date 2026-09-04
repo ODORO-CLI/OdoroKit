@@ -121,6 +121,15 @@ function lignesRendues(noeud: Text): readonly string[] {
   const mesures: MotMesure[] = []
 
   const plage = document.createRange()
+
+  // Sans mesure, pas de lignes — et donc pas de calque. Le texte d'origine
+  // reste alors visible et intact, ce qui est exactement la bonne degradation :
+  // l'effet manque, la phrase est la. Lever ici casserait le rendu entier pour
+  // une animation.
+  if (typeof plage.getBoundingClientRect !== 'function') {
+    plage.detach()
+    return []
+  }
   let debut = 0
 
   while (debut < texte.length) {

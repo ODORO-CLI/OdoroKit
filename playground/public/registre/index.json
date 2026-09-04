@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-04T13:06:02.456Z",
+  "generatedAt": "2026-09-04T15:31:37.384Z",
   "entries": [
     {
       "id": "background/ashen-press",
@@ -390,6 +390,16 @@
       "registryDependencies": []
     },
     {
+      "id": "hooks/use-in-view",
+      "name": "use-in-view",
+      "category": "hooks",
+      "title": "Entree dans le champ",
+      "description": "Dit quand un element entre dans le champ, une fois, sans dependance.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "hooks/use-pointer-damped",
       "name": "use-pointer-damped",
       "category": "hooks",
@@ -549,6 +559,18 @@
       "registryDependencies": []
     },
     {
+      "id": "text/count-up",
+      "name": "count-up",
+      "category": "text",
+      "title": "Compteur",
+      "description": "Un nombre monte jusqu a sa valeur quand il entre dans le champ, formate selon la langue.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
       "id": "text/decode-text",
       "name": "decode-text",
       "category": "text",
@@ -559,6 +581,30 @@
       "registryDependencies": []
     },
     {
+      "id": "text/highlight-sweep",
+      "name": "highlight-sweep",
+      "category": "text",
+      "title": "Surligneur",
+      "description": "Un trait se trace derriere le texte, comme au feutre, sans decouper le contenu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/rotating-words",
+      "name": "rotating-words",
+      "category": "text",
+      "title": "Mot tournant",
+      "description": "Un mot se substitue dans une phrase qui ne bouge pas, sans que la largeur saute.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
       "id": "text/shine-text",
       "name": "shine-text",
       "category": "text",
@@ -567,6 +613,18 @@
       "tier": "light",
       "backend": false,
       "registryDependencies": []
+    },
+    {
+      "id": "text/split-lines",
+      "name": "split-lines",
+      "category": "text",
+      "title": "Revelation par ligne",
+      "description": "Chaque ligne rendue monte depuis sous son masque, l une apres l autre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
     },
     {
       "id": "text/split-reveal",
