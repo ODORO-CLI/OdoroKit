@@ -49,10 +49,12 @@ import { OrbitalTimeline } from '@/odoro/section/OrbitalTimeline.jsx'
 import { CardForm } from '@/odoro/ui/CardForm.jsx'
 import { HoverRevealButton } from '@/odoro/ui/HoverRevealButton.jsx'
 import { PearlButton } from '@/odoro/ui/PearlButton.jsx'
+import { PromptInput } from '@/odoro/ui/PromptInput.jsx'
 import { ShinyButton } from '@/odoro/ui/ShinyButton.jsx'
 import { CinematicFooter } from '@/odoro/section/CinematicFooter.jsx'
 import { SignIn } from '@/odoro/section/SignIn.jsx'
 import { BorderBeam } from '@/odoro/effect/BorderBeam.jsx'
+import { NeonBorder } from '@/odoro/effect/NeonBorder.jsx'
 import { Carousel } from '@/odoro/effect/Carousel.jsx'
 import { Deform } from '@/odoro/effect/Deform.jsx'
 import { Magnetic } from '@/odoro/effect/Magnetic.jsx'
@@ -955,6 +957,24 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
 
+  'effect/neon-border': {
+    height: 'o-h-80',
+    lead: 'L arc avance a pas constant le long du bord, pas en angle : sans cette correction il file sur les petits cotes et traine sur les longs.',
+    render: (v) => (
+      <Stage>
+        <div className="o-relative o-h-40 o-w-64 o-rounded-2xl o-bg-zinc-950">
+          <NeonBorder
+            radius={num(v, 'radius', 16)}
+            thickness={num(v, 'thickness', 2)}
+            length={num(v, 'length', 50)}
+            glow={num(v, 'glow', 100)}
+            duration={num(v, 'duration', 4000)}
+          />
+        </div>
+      </Stage>
+    ),
+  },
+
   // ----- Images --------------------------------------------------------------
   'image/frame': {
     height: 'o-h-80',
@@ -1311,6 +1331,15 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     render: () => (
       <Stage>
         <HoverRevealButton>Nous ecrire</HoverRevealButton>
+      </Stage>
+    ),
+  },
+  'ui/prompt-input': {
+    height: 'o-h-96',
+    lead: 'La hauteur est mesuree a chaque frappe, jamais devinee. Sans micro, le bouton de dictee est absent — l original ecrivait une phrase d exemple a la place.',
+    render: () => (
+      <Stage>
+        <PromptInput className="o-max-w-md" />
       </Stage>
     ),
   },

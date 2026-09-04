@@ -1,0 +1,67 @@
+{
+  "name": "prompt-input",
+  "category": "ui",
+  "title": "Champ de saisie deplie",
+  "description": "Un champ qui grandit avec son contenu, avec pieces jointes et dictee — sans simulation quand le micro manque.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PromptInput.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-fast",
+    "--o-duration-slow",
+    "--o-ease-standard",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "Posez votre question",
+      "description": "Texte d invite du champ."
+    },
+    {
+      "name": "maxAttachments",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre maximum de pieces jointes.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "accept",
+      "type": "string",
+      "default": "image/*",
+      "description": "Types acceptes par le selecteur de fichiers."
+    },
+    {
+      "name": "controls",
+      "type": "ReactNode",
+      "description": "Reglages rendus dans la barre basse. Emplacement : le registre ne connait ni les modeles ni leurs marques."
+    },
+    {
+      "name": "onSubmit",
+      "type": "(value: string, attachments: readonly File[]) => void",
+      "description": "Appele a l envoi. Entree envoie, Maj+Entree passe a la ligne."
+    },
+    {
+      "name": "onPreview",
+      "type": "(attachment: PromptAttachment) => void",
+      "description": "Appele quand une vignette est ouverte. L apercu appartient a la page."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucune boucle et aucune dependance. La dictee passe par la reconnaissance vocale du navigateur quand elle existe, et le bouton est simplement absent sinon — l implementation d origine ecrivait a la place une phrase d exemple, mot a mot, dans le champ de l utilisateur."
+  }
+}

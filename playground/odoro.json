@@ -293,6 +293,15 @@
         }
       ]
     },
+    "effect/neon-border": {
+      "installedAt": "2026-09-04T13:06:02.628Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/NeonBorder.tsx",
+          "hash": "78571ec56b08194b"
+        }
+      ]
+    },
     "effect/parallax": {
       "installedAt": "2026-08-29T02:52:09.485Z",
       "files": [
@@ -546,6 +555,15 @@
         {
           "path": "src/odoro/ui/PearlButton.tsx",
           "hash": "707974fc9cb66964"
+        }
+      ]
+    },
+    "ui/prompt-input": {
+      "installedAt": "2026-09-04T13:06:02.628Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/PromptInput.tsx",
+          "hash": "2c0c4d3763ba44bd"
         }
       ]
     },

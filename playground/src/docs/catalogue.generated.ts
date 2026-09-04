@@ -2302,6 +2302,107 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "effect/marquee"
   },
   {
+    "name": "neon-border",
+    "category": "effect",
+    "title": "Lisere de neon",
+    "description": "Un arc lumineux qui fait le tour d un cadre a vitesse constante le long du bord, et non a vitesse constante en angle.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "effect/NeonBorder.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-amber-400"
+    ],
+    "props": [
+      {
+        "name": "radius",
+        "type": "number",
+        "required": false,
+        "default": 24,
+        "unit": "px",
+        "description": "Rayon des coins.",
+        "min": 0,
+        "max": 64,
+        "step": 2
+      },
+      {
+        "name": "thickness",
+        "type": "number",
+        "required": false,
+        "default": 2,
+        "unit": "px",
+        "description": "Epaisseur du trait.",
+        "min": 1,
+        "max": 12,
+        "step": 1
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "required": false,
+        "default": 50,
+        "description": "Longueur de l arc, en pour cent du demi-perimetre.",
+        "min": 5,
+        "max": 100,
+        "step": 5
+      },
+      {
+        "name": "glow",
+        "type": "number",
+        "required": false,
+        "default": 100,
+        "description": "Intensite du halo, en pour cent.",
+        "min": 0,
+        "max": 100,
+        "step": 10
+      },
+      {
+        "name": "movement",
+        "type": "'continuous' | 'step'",
+        "required": false,
+        "default": "continuous",
+        "description": "L arc glisse sans arret, ou saute d un coin au suivant.",
+        "options": [
+          "continuous",
+          "step"
+        ]
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 4000,
+        "unit": "ms",
+        "description": "Duree d un tour.",
+        "min": 800,
+        "max": 20000,
+        "step": 400
+      },
+      {
+        "name": "color",
+        "type": "string",
+        "required": false,
+        "default": "--o-palette-amber-400",
+        "description": "Token de la couleur. Il entre tel quel dans le degrade, et suit donc le theme sans etre relu."
+      }
+    ],
+    "perf": {
+      "tier": "medium",
+      "backend": false,
+      "notes": "Le degrade est reconstruit a chaque image — vingt-six arrets, une chaine — et pose dans une variable CSS lue par quatre couches. Sous mouvement reduit, l arc est pose une fois et ne bouge plus : le cadre garde son lisere.",
+      "fallback": "static"
+    },
+    "id": "effect/neon-border"
+  },
+  {
     "name": "parallax",
     "category": "effect",
     "title": "Parallaxe",
@@ -4204,6 +4305,80 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Cinq ombres et deux pseudo-elements. Aucune image, aucun filtre, aucun JavaScript a l execution."
     },
     "id": "ui/pearl-button"
+  },
+  {
+    "name": "prompt-input",
+    "category": "ui",
+    "title": "Champ de saisie deplie",
+    "description": "Un champ qui grandit avec son contenu, avec pieces jointes et dictee — sans simulation quand le micro manque.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/PromptInput.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-duration-fast",
+      "--o-duration-slow",
+      "--o-ease-standard",
+      "--o-ease-emphasized"
+    ],
+    "props": [
+      {
+        "name": "placeholder",
+        "type": "string",
+        "required": false,
+        "default": "Posez votre question",
+        "description": "Texte d invite du champ."
+      },
+      {
+        "name": "maxAttachments",
+        "type": "number",
+        "required": false,
+        "default": 6,
+        "description": "Nombre maximum de pieces jointes.",
+        "min": 1,
+        "max": 12,
+        "step": 1
+      },
+      {
+        "name": "accept",
+        "type": "string",
+        "required": false,
+        "default": "image/*",
+        "description": "Types acceptes par le selecteur de fichiers."
+      },
+      {
+        "name": "controls",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Reglages rendus dans la barre basse. Emplacement : le registre ne connait ni les modeles ni leurs marques."
+      },
+      {
+        "name": "onSubmit",
+        "type": "(value: string, attachments: readonly File[]) => void",
+        "required": false,
+        "description": "Appele a l envoi. Entree envoie, Maj+Entree passe a la ligne."
+      },
+      {
+        "name": "onPreview",
+        "type": "(attachment: PromptAttachment) => void",
+        "required": false,
+        "description": "Appele quand une vignette est ouverte. L apercu appartient a la page."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Aucune boucle et aucune dependance. La dictee passe par la reconnaissance vocale du navigateur quand elle existe, et le bouton est simplement absent sinon — l implementation d origine ecrivait a la place une phrase d exemple, mot a mot, dans le champ de l utilisateur."
+    },
+    "id": "ui/prompt-input"
   },
   {
     "name": "shiny-button",

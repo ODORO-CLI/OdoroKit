@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-04T12:20:24.951Z",
+  "generatedAt": "2026-09-04T13:06:02.456Z",
   "entries": [
     {
       "id": "background/ashen-press",
@@ -317,6 +317,16 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/neon-border",
+      "name": "neon-border",
+      "category": "effect",
+      "title": "Lisere de neon",
+      "description": "Un arc lumineux qui fait le tour d un cadre a vitesse constante le long du bord, et non a vitesse constante en angle.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "effect/parallax",
       "name": "parallax",
       "category": "effect",
@@ -604,6 +614,16 @@
       "category": "ui",
       "title": "Bouton en nacre",
       "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/prompt-input",
+      "name": "prompt-input",
+      "category": "ui",
+      "title": "Champ de saisie deplie",
+      "description": "Un champ qui grandit avec son contenu, avec pieces jointes et dictee — sans simulation quand le micro manque.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []

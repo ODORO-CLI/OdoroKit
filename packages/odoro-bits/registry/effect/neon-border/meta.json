@@ -1,0 +1,88 @@
+{
+  "name": "neon-border",
+  "category": "effect",
+  "title": "Lisere de neon",
+  "description": "Un arc lumineux qui fait le tour d un cadre a vitesse constante le long du bord, et non a vitesse constante en angle.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/NeonBorder.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-amber-400"],
+  "props": [
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Rayon des coins.",
+      "min": 0,
+      "max": 64,
+      "step": 2
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "length",
+      "type": "number",
+      "default": 50,
+      "description": "Longueur de l arc, en pour cent du demi-perimetre.",
+      "min": 5,
+      "max": 100,
+      "step": 5
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 100,
+      "description": "Intensite du halo, en pour cent.",
+      "min": 0,
+      "max": 100,
+      "step": 10
+    },
+    {
+      "name": "movement",
+      "type": "'continuous' | 'step'",
+      "default": "continuous",
+      "description": "L arc glisse sans arret, ou saute d un coin au suivant.",
+      "options": ["continuous", "step"]
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 4000,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 800,
+      "max": 20000,
+      "step": 400
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "default": "--o-palette-amber-400",
+      "description": "Token de la couleur. Il entre tel quel dans le degrade, et suit donc le theme sans etre relu."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "fallback": "static",
+    "notes": "Le degrade est reconstruit a chaque image — vingt-six arrets, une chaine — et pose dans une variable CSS lue par quatre couches. Sous mouvement reduit, l arc est pose une fois et ne bouge plus : le cadre garde son lisere."
+  }
+}
