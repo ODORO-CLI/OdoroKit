@@ -12,6 +12,55 @@ export type CatalogueEntry = RegistryMeta & { readonly id: string }
  */
 export const CATALOGUE: readonly CatalogueEntry[] = [
   {
+    "name": "ashen-press",
+    "category": "background",
+    "title": "Fond AshenPress",
+    "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "background/AshenPress.tsx"
+      }
+    ],
+    "dependencies": [
+      "@designcodeio/threeui"
+    ],
+    "registryDependencies": [],
+    "tokens": [],
+    "props": [
+      {
+        "name": "rootMargin",
+        "type": "string",
+        "required": false,
+        "default": "200px",
+        "description": "Marge de declenchement du chargement. Le paquet arrive avant que le cadre n entre dans le champ."
+      },
+      {
+        "name": "fallback",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Ce qui occupe le cadre tant que le fond n est pas la, et pour toujours sous mouvement reduit."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli par defaut, quand aucun n est fourni."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": false,
+      "notes": "Le rendu appartient au paquet tiers et ouvre sa propre surface WebGL, hors de l arbitre du moteur. Une page qui emploie ce fond et un fond du registre ouvre deux contextes, et le navigateur perd silencieusement le plus ancien : un seul des deux par page. Rien n est telecharge avant l approche du champ, et rien du tout sous mouvement reduit.",
+      "fallback": "poster"
+    },
+    "id": "background/ashen-press"
+  },
+  {
     "name": "aurora",
     "category": "background",
     "title": "Aurore",
@@ -3047,6 +3096,70 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "fallback": "poster"
     },
     "id": "image/video"
+  },
+  {
+    "name": "book-shelf",
+    "category": "section",
+    "title": "Etagere de volumes",
+    "description": "Des livres ranges sur deux rayons, qu on fait tourner au glissement et qu on tire du rayon au clic.",
+    "engine": {
+      "gsap": [],
+      "gl": "three"
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/BookShelf.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "hooks/use-poster"
+    ],
+    "tokens": [
+      "--o-palette-stone-700",
+      "--o-palette-stone-900"
+    ],
+    "props": [
+      {
+        "name": "volumes",
+        "type": "readonly ShelfVolume[]",
+        "required": true,
+        "description": "Les volumes, avec leur rayon, leur place et leurs trois tokens — dos, toile, tranche. Le registre n en embarque aucun : c est le catalogue du projet."
+      },
+      {
+        "name": "selected",
+        "type": "string | null",
+        "required": false,
+        "description": "Identifiant du volume ouvert, impose par l application. La scene signale, l application decide."
+      },
+      {
+        "name": "onSelect",
+        "type": "(id: string | null) => void",
+        "required": false,
+        "description": "Appele quand un volume est choisi, ou referme — null alors. Un relachement qui a glisse ne compte pas comme un clic."
+      },
+      {
+        "name": "colors",
+        "type": "readonly [string, string]",
+        "required": false,
+        "default": "--o-palette-stone-700, --o-palette-stone-900",
+        "description": "Tokens des planches et du mur du fond."
+      },
+      {
+        "name": "poster",
+        "type": "string",
+        "required": false,
+        "description": "Classes du repli, affiche tant que la scene n est pas prete."
+      }
+    ],
+    "perf": {
+      "tier": "heavy",
+      "backend": "three",
+      "notes": "Scene 3D : environ 130 Ko compresses au premier affichage, plus une boite par volume. Un seul rayon de selection par image, et aucune boucle propre — le moteur porte la boucle, le redimensionnement et la suspension hors du champ. Le composant rend la scene seule : le panneau de detail et le catalogue appartiennent a la page.",
+      "fallback": "poster"
+    },
+    "id": "section/book-shelf"
   },
   {
     "name": "cinematic-footer",

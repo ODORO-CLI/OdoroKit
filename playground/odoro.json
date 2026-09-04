@@ -6,6 +6,15 @@
     "directory": "src/odoro"
   },
   "installed": {
+    "background/ashen-press": {
+      "installedAt": "2026-09-04T12:20:37.702Z",
+      "files": [
+        {
+          "path": "src/odoro/background/AshenPress.tsx",
+          "hash": "367a8c06ada4b35d"
+        }
+      ]
+    },
     "background/aurora": {
       "installedAt": "2026-08-29T02:23:39.104Z",
       "files": [
@@ -352,7 +361,7 @@
       ]
     },
     "hooks/use-poster": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-04T12:20:37.702Z",
       "files": [
         {
           "path": "src/odoro/hooks/usePoster.ts",
@@ -393,6 +402,15 @@
         {
           "path": "src/odoro/image/Video.tsx",
           "hash": "4c8cf06edd41091c"
+        }
+      ]
+    },
+    "section/book-shelf": {
+      "installedAt": "2026-09-04T12:20:37.702Z",
+      "files": [
+        {
+          "path": "src/odoro/section/BookShelf.tsx",
+          "hash": "d740bc64130b8fab"
         }
       ]
     },

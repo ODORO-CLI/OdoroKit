@@ -16,7 +16,7 @@
  * @module
  */
 
-import { useRef, type ReactElement, type ReactNode } from 'react'
+import { useRef, useState, type ReactElement, type ReactNode } from 'react'
 
 import { Aurora } from '@/odoro/background/Aurora.jsx'
 import { Bubbles } from '@/odoro/background/Bubbles.jsx'
@@ -44,6 +44,7 @@ import { GridLines } from '@/odoro/background/GridLines.jsx'
 import { Mesh } from '@/odoro/background/Mesh.jsx'
 import { Waves } from '@/odoro/background/Waves.jsx'
 import { ScrollVideo } from '@/odoro/hero/ScrollVideo.jsx'
+import { BookShelf } from '@/odoro/section/BookShelf.jsx'
 import { OrbitalTimeline } from '@/odoro/section/OrbitalTimeline.jsx'
 import { CardForm } from '@/odoro/ui/CardForm.jsx'
 import { HoverRevealButton } from '@/odoro/ui/HoverRevealButton.jsx'
@@ -230,6 +231,91 @@ function ProgressDemo({
           </p>
         ))}
       </div>
+    </div>
+  )
+}
+
+/** Les volumes de la demonstration : trois tokens chacun, comme le contrat le demande. */
+const SHELF_VOLUMES = [
+  {
+    id: 'a',
+    title: 'Premier volume',
+    shelf: 0,
+    slot: 0,
+    spine: '--o-palette-brand-700',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+  {
+    id: 'b',
+    title: 'Deuxieme volume',
+    shelf: 0,
+    slot: 1,
+    spine: '--o-palette-emerald-700',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+  {
+    id: 'c',
+    title: 'Troisieme volume',
+    shelf: 0,
+    slot: 2,
+    spine: '--o-palette-rose-700',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+  {
+    id: 'd',
+    title: 'Quatrieme volume',
+    shelf: 1,
+    slot: 0,
+    spine: '--o-palette-amber-600',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+  {
+    id: 'e',
+    title: 'Cinquieme volume',
+    shelf: 1,
+    slot: 1,
+    spine: '--o-palette-violet-700',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+  {
+    id: 'f',
+    title: 'Sixieme volume',
+    shelf: 1,
+    slot: 2,
+    spine: '--o-palette-sky-700',
+    cloth: '--o-palette-zinc-900',
+    edge: '--o-palette-amber-100',
+  },
+] as const
+
+/**
+ * L'etagere et le panneau que la page rend a cote.
+ *
+ * C'est exactement la frontiere du composant : il signale par `onSelect`, et
+ * ce texte-ci n'appartient pas a la scene.
+ */
+function ShelfDemo(): ReactElement {
+  const [ouvert, setOuvert] = useState<string | null>(null)
+  const volume = SHELF_VOLUMES.find((item) => item.id === ouvert)
+
+  return (
+    <div className="o-absolute o-inset-0">
+      <BookShelf
+        className="o-absolute o-inset-0"
+        volumes={SHELF_VOLUMES}
+        selected={ouvert}
+        onSelect={setOuvert}
+      />
+      {volume === undefined ? null : (
+        <p className="o-absolute o-bottom-4 o-left-4 o-rounded-lg o-bg-zinc-950 o-px-4 o-py-2 o-text-sm o-text-zinc-50">
+          {volume.title}
+        </p>
+      )}
     </div>
   )
 }
@@ -605,6 +691,20 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           sweepAngle={num(v, 'sweepAngle', 90)}
         />,
       ),
+  },
+
+  'background/ashen-press': {
+    height: 'o-h-96',
+    lead: 'Une porte vers un paquet tiers : rien n est telecharge avant l approche du champ, et rien du tout sous mouvement reduit.',
+    render: () => (
+      <Stage>
+        <p className="o-max-w-sm o-text-center o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
+          Cette entree demande le paquet threeui, que le registre n embarque pas. Elle
+          ouvre en outre sa propre surface WebGL, hors de l arbitre du moteur : un seul
+          fond de ce genre par page.
+        </p>
+      </Stage>
+    ),
   },
 
   // ----- Heros ---------------------------------------------------------------
@@ -1173,6 +1273,17 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         />
       </div>
     ),
+  },
+
+  'section/book-shelf': {
+    height: 'o-h-96',
+    demoByDefault: true,
+    deferred: {
+      label: 'Scene',
+      hint: 'Cette scene telecharge environ 130 Ko compresses. Glissez pour tourner le rayon, cliquez pour tirer un volume.',
+    },
+    lead: 'La scene seule : le panneau de detail et le catalogue appartiennent a la page, qui les rend avec ses propres composants.',
+    render: () => <ShelfDemo />,
   },
 
   // ----- Interface -----------------------------------------------------------

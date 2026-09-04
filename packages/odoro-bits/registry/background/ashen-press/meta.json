@@ -1,0 +1,43 @@
+{
+  "name": "ashen-press",
+  "category": "background",
+  "title": "Fond AshenPress",
+  "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/AshenPress.tsx"
+    }
+  ],
+  "dependencies": ["@designcodeio/threeui"],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "rootMargin",
+      "type": "string",
+      "default": "200px",
+      "description": "Marge de declenchement du chargement. Le paquet arrive avant que le cadre n entre dans le champ."
+    },
+    {
+      "name": "fallback",
+      "type": "ReactNode",
+      "description": "Ce qui occupe le cadre tant que le fond n est pas la, et pour toujours sous mouvement reduit."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli par defaut, quand aucun n est fourni."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "fallback": "poster",
+    "notes": "Le rendu appartient au paquet tiers et ouvre sa propre surface WebGL, hors de l arbitre du moteur. Une page qui emploie ce fond et un fond du registre ouvre deux contextes, et le navigateur perd silencieusement le plus ancien : un seul des deux par page. Rien n est telecharge avant l approche du champ, et rien du tout sous mouvement reduit."
+  }
+}

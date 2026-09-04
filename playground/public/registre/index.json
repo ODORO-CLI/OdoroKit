@@ -1,7 +1,17 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-03T16:45:09.634Z",
+  "generatedAt": "2026-09-04T12:20:24.951Z",
   "entries": [
+    {
+      "id": "background/ashen-press",
+      "name": "ashen-press",
+      "category": "background",
+      "title": "Fond AshenPress",
+      "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
+      "tier": "heavy",
+      "backend": false,
+      "registryDependencies": []
+    },
     {
       "id": "background/aurora",
       "name": "aurora",
@@ -428,6 +438,18 @@
       "tier": "medium",
       "backend": false,
       "registryDependencies": []
+    },
+    {
+      "id": "section/book-shelf",
+      "name": "book-shelf",
+      "category": "section",
+      "title": "Etagere de volumes",
+      "description": "Des livres ranges sur deux rayons, qu on fait tourner au glissement et qu on tire du rayon au clic.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
     },
     {
       "id": "section/cinematic-footer",
