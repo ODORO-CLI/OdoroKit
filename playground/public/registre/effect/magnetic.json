@@ -1,0 +1,61 @@
+{
+  "name": "magnetic",
+  "category": "effect",
+  "title": "Attraction",
+  "description": "Un element attire par le pointeur, qui revient a sa place des qu il s eloigne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Magnetic.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Fraction de la distance parcourue vers le pointeur.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 120,
+      "unit": "px",
+      "description": "Distance au-dela de laquelle l attraction cesse.",
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01
+    },
+    {
+      "name": "ease",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, une ecriture de transform par image."
+  },
+  "id": "effect/magnetic",
+  "sources": {
+    "component.tsx": "/**\n * Attraction : un element attire par le pointeur.\n *\n * ## Pourquoi la boucle plutot que l'evenement\n *\n * Reagir directement aux evenements de pointeur donnerait un mouvement dur :\n * l'element sauterait d'une position a l'autre au rythme irregulier ou le\n * systeme les livre. L'evenement ne fait donc que deplacer une **cible**, et\n * la boucle rapproche la position courante de cette cible a chaque image.\n *\n * Le rattrapage est exponentiel et exprime en fonction du temps ecoule :\n * `1 - exp(-vitesse x dt)`. Une fraction constante ferait varier la vitesse du\n * mouvement avec la cadence de l'ecran — deux fois plus rapide a cent vingt\n * images par seconde qu'a soixante — et le meme reglage ne donnerait pas le\n * meme resultat chez deux personnes.\n *\n * ## Le rayon\n *\n * Sans lui, tout element magnetique de la page reagirait a un pointeur situe a\n * l'autre bout. Au-dela du rayon, la cible revient au repos.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  motionPolicy,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface MagneticOwnProps {\n  /** Ce qui est attire. */\n  children: ReactNode\n  /** Fraction de la distance parcourue vers le pointeur. @defaultValue 0.35 */\n  strength?: number\n  /** Distance au-dela de laquelle l'attraction cesse, en pixels. @defaultValue 120 */\n  radius?: number\n  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 8 */\n  ease?: number\n}\n\n/** Toutes les proprietes. */\nexport type MagneticProps = Customisable<MagneticOwnProps>\n\n/**\n * Rend un element magnetique.\n *\n * @example\n * <Magnetic strength={0.4}>\n *   <button className=\"o-rounded-full o-px-6 o-py-3\">Nous ecrire</button>\n * </Magnetic>\n */\nexport function Magnetic({\n  children,\n  strength = 0.35,\n  radius = 120,\n  ease = 8,\n  ...rest\n}: MagneticProps): ReactElement {\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const target = useRef({ x: 0, y: 0 })\n  const current = useRef({ x: 0, y: 0 })\n\n  useEffect(() => {\n    if (host === null) return\n    // L'attraction est un agrement : elle n'a pas d'etat final a preserver.\n    if (motionPolicy.state.reduced) return\n\n    const onMove = (event: PointerEvent): void => {\n      const box = host.getBoundingClientRect()\n      const dx = event.clientX - (box.left + box.width / 2)\n      const dy = event.clientY - (box.top + box.height / 2)\n\n      target.current =\n        Math.hypot(dx, dy) > radius\n          ? { x: 0, y: 0 }\n          : { x: dx * strength, y: dy * strength }\n    }\n\n    const onLeave = (): void => {\n      target.current = { x: 0, y: 0 }\n    }\n\n    // L'ecoute est posee sur la fenetre : l'attraction doit commencer avant\n    // que le pointeur n'atteigne l'element, sans quoi elle ne se voit pas.\n    window.addEventListener('pointermove', onMove, { passive: true })\n    window.addEventListener('pointerleave', onLeave)\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        const factor = 1 - Math.exp(-ease * delta)\n        current.current.x += (target.current.x - current.current.x) * factor\n        current.current.y += (target.current.y - current.current.y) * factor\n        host.style.transform = `translate3d(${current.current.x.toFixed(2)}px,${current.current.y.toFixed(2)}px,0)`\n      },\n      { name: 'attraction', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      window.removeEventListener('pointermove', onMove)\n      window.removeEventListener('pointerleave', onLeave)\n      subscription.unsubscribe()\n      host.style.transform = ''\n    }\n  }, [host, strength, radius, ease])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-inline-block o-will-change-transform' },\n    rest,\n  )\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={style}>\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

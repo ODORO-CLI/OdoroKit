@@ -1,0 +1,78 @@
+{
+  "name": "reveal-grid",
+  "category": "section",
+  "title": "Grille revelee",
+  "description": "Une grille dont les elements arrivent en cascade quand la section entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/RevealGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les elements de la grille."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 70,
+      "unit": "ms",
+      "description": "Decalage entre deux elements.",
+      "min": 0,
+      "max": 210,
+      "step": 100
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "px",
+      "description": "Hauteur de la montee.",
+      "min": 0,
+      "max": 72,
+      "step": 100
+    },
+    {
+      "name": "once",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Ne rejoue pas quand la section repasse."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis des transitions CSS decalees. Aucun JavaScript par image."
+  },
+  "id": "section/reveal-grid",
+  "sources": {
+    "component.tsx": "/**\n * Grille revelee en cascade.\n *\n * ## Pourquoi des transitions CSS et pas une timeline\n *\n * Chaque element fait le meme trajet, decale dans le temps. C'est exactement ce\n * qu'une transition CSS avec un delai sait faire, et le compositeur du\n * navigateur s'en charge seul : aucun JavaScript ne s'execute pendant\n * l'animation.\n *\n * Une timeline apporterait le controle du milieu de course — une pause, un\n * retour arriere, un enchainement. Rien de tout cela n'est utile ici, et le\n * prix serait un orchestrateur charge pour deplacer six cartes une fois.\n *\n * ## Le declenchement, et ce qu'il ne doit pas casser\n *\n * L'observateur d'intersection ne pose l'attribut qu'une fois, puis se\n * deconnecte. Rejouer la cascade a chaque passage donne une page qui\n * s'agite quand on remonte, ce qui est fatigant plus qu'elegant — d'ou\n * `once` par defaut.\n *\n * Et l'etat de depart n'est pose que si l'animation va vraiment avoir lieu.\n * Sous mouvement reduit, les elements sont simplement la : une cascade\n * neutralisee qui laisserait la grille invisible serait un defaut\n * d'accessibilite, pas un respect de la preference.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  Children,\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface RevealGridOwnProps {\n  /** Les elements de la grille. */\n  children: ReactNode\n  /** Colonnes au-dela du palier moyen. @defaultValue 3 */\n  columns?: number\n  /** Decalage entre deux elements, en millisecondes. @defaultValue 70 */\n  stagger?: number\n  /** Hauteur de la montee, en pixels. @defaultValue 24 */\n  distance?: number\n  /** Ne rejoue pas quand la section repasse dans le champ. @defaultValue true */\n  once?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type RevealGridProps = Customisable<RevealGridOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-reveal-grid'\n\n/**\n * Pose l'etat de depart et l'arrivee, une fois par document.\n *\n * L'etat de depart doit s'appliquer avant le premier rendu peint : le poser\n * depuis JavaScript laisserait une image ou la grille apparait en entier avant\n * de disparaitre pour se recomposer.\n */\nfunction ensureRevealRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-reveal-grid] > *{',\n    'opacity:0;transform:translateY(var(--o-reveal-distance));',\n    'transition:opacity var(--o-duration-slow) var(--o-ease-entrance),',\n    'transform var(--o-duration-slow) var(--o-ease-entrance);',\n    'transition-delay:var(--o-reveal-delay)}',\n    '[data-o-reveal-grid-shown] > *{opacity:1;transform:none}',\n    // Le nombre de colonnes passe par une variable : une regle par valeur\n    // possible serait soit incomplete, soit interminable, et un `style` pose\n    // dans le composant s'appliquerait a toutes les grilles de la page.\n    '@media (min-width:48rem){[data-o-reveal-grid]{grid-template-columns:repeat(var(--o-reveal-columns),minmax(0,1fr))}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-reveal-grid] > *{opacity:1;transform:none;transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Revele une grille en cascade.\n *\n * @example\n * <RevealGrid columns={3} stagger={60}>\n *   {projets.map((projet) => (\n *     <article key={projet.id}>…</article>\n *   ))}\n * </RevealGrid>\n */\nexport function RevealGrid({\n  children,\n  columns = 3,\n  stagger = 70,\n  distance = 24,\n  once = true,\n  ...rest\n}: RevealGridProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  ensureRevealRule()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        for (const entry of entries) {\n          if (entry.isIntersecting) {\n            host.setAttribute('data-o-reveal-grid-shown', '')\n            if (once) observer.disconnect()\n          } else if (!once) {\n            host.removeAttribute('data-o-reveal-grid-shown')\n          }\n        }\n      },\n      { threshold: 0.15 },\n    )\n\n    observer.observe(host)\n    return () => observer.disconnect()\n  }, [host, once, reduced])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-grid o-grid-cols-1 sm:o-grid-cols-2 o-gap-4' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-reveal-distance': `${String(distance)}px`,\n          '--o-reveal-columns': String(columns),\n        } as CSSProperties\n      }\n      data-o-reveal-grid={reduced ? undefined : ''}\n    >\n      {Children.map(children, (child, index) => (\n        <div\n          style={{ '--o-reveal-delay': `${String(index * stagger)}ms` } as CSSProperties}\n        >\n          {child}\n        </div>\n      ))}\n    </div>\n  )\n}\n"
+  }
+}

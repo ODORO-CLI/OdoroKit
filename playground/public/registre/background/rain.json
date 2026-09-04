@@ -1,0 +1,76 @@
+{
+  "name": "rain",
+  "category": "background",
+  "title": "Pluie",
+  "description": "Des trainees verticales, une vitesse par colonne.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Rain.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-sky-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Vitesse de chute.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 60,
+      "description": "Nombre de colonnes.",
+      "min": 10,
+      "max": 160,
+      "step": 1
+    },
+    {
+      "name": "length",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Longueur des trainees.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Un sinus et deux repliements par fragment. Le nombre de colonnes est gratuit.",
+    "fallback": "gradient"
+  },
+  "id": "background/rain",
+  "sources": {
+    "component.tsx": "/**\n * Pluie : des trainees verticales, une vitesse par colonne.\n *\n * ## Le principe\n *\n * L espace est decoupe en colonnes qui defilent independamment. Une goutte n est pas un objet : c est une attenuation fonction de la distance a la tete.\n *\n * La coordonnee est repliee sur la colonne entiere : une goutte sortie par le bas rentre par le haut sans qu on ait a la creer.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  RAIN_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface RainControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface RainOwnProps {\n  /** Vitesse de chute. @defaultValue 0.6 */\n  speed?: number\n  /** Nombre de colonnes. @defaultValue 60 */\n  columns?: number\n  /** Longueur des trainees. @defaultValue 0.35 */\n  length?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<RainControls>\n}\n\n/** Toutes les proprietes. */\nexport type RainProps = Customisable<RainOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-sky-300'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-sky-950'\n\n/**\n * Pluie.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Rain className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Rain({\n  speed = 0.6,\n  columns = 60,\n  length = 0.35,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: RainProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: RAIN_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: columns, uLength: length },\n    name: 'rain',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

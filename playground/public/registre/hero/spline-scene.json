@@ -1,0 +1,59 @@
+{
+  "name": "spline-scene",
+  "category": "hero",
+  "title": "Scene Spline",
+  "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "hero/SplineScene.tsx"
+    }
+  ],
+  "dependencies": [
+    "@splinetool/react-spline",
+    "@splinetool/runtime"
+  ],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "scene",
+      "type": "string",
+      "required": true,
+      "description": "URL de la scene, sur le compte Spline du projet. Sans valeur par defaut : une adresse d exemple ferait dependre la page d un fichier qui ne lui appartient pas."
+    },
+    {
+      "name": "rootMargin",
+      "type": "string",
+      "required": false,
+      "default": "200px",
+      "description": "Marge de declenchement du chargement. Le runtime arrive avant que la scene n entre dans le champ."
+    },
+    {
+      "name": "fallback",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui occupe le cadre tant que la scene n est pas la, et pour toujours sous mouvement reduit."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli par defaut, quand aucun n est fourni."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "notes": "Le runtime Spline pese plus de six cents kilo-octets compresses, et la scene elle-meme se compte en megaoctets. Rien n est telecharge avant que le cadre n approche du champ, et rien du tout sous mouvement reduit. C est la seule entree du registre a dependre d un paquet tiers a l execution : elle est copiee, donc un projet qui ne l appelle pas ne l installe pas.",
+    "fallback": "poster"
+  },
+  "id": "hero/spline-scene",
+  "sources": {
+    "component.tsx": "/**\n * Scène Spline, chargée à la demande.\n *\n * ## Ce composant est une porte, pas un moteur\n *\n * Il n'y a rien à rendre ici : Spline apporte son propre moteur et son propre\n * format. Ce fichier ne fait que trois choses, et chacune répond à un défaut de\n * l'implémentation d'origine.\n *\n * **Il ne charge rien avant qu'on le voie.** L'original montait la scène au\n * montage du composant. Le runtime Spline pèse plus de six cents kilo-octets\n * compressés, et la scène elle-même se compte en mégaoctets : une page qui en\n * place une en pied de page les téléchargeait pour personne. Le chargement\n * attend donc l'entrée dans le champ.\n *\n * **Il respecte le mouvement réduit.** L'original ne consultait rien. Une scène\n * Spline anime en permanence, souvent avec un suivi du pointeur ; c'est\n * exactement ce qu'un réglage de mouvement réduit demande d'éteindre. Le repli\n * est alors affiché, et le runtime n'est jamais téléchargé.\n *\n * **Il dit ce qu'il attend.** `scene` est une URL que le projet possède, sur\n * son propre compte Spline. Aucune valeur par défaut : une adresse d'exemple\n * codée en dur ferait dépendre les pages de quelqu'un d'un fichier qui ne lui\n * appartient pas, et qui peut disparaître.\n *\n * ## Pourquoi il reste dans le registre malgré sa dépendance\n *\n * Parce qu'il est copié, pas installé : un projet qui n'appelle jamais ce\n * composant n'installe pas Spline. La dépendance est déclarée dans le `meta`,\n * et `odoro add` la propose au moment de la copie — pas avant.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  Suspense,\n  lazy,\n  useEffect,\n  useState,\n  type ComponentType,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/**\n * La surface de Spline que ce composant emploie.\n *\n * Décrite ici plutôt qu'importée. Le paquet est une dépendance du **projet\n * d'accueil**, déclarée dans le `meta` et proposée par `odoro add` au moment de\n * la copie — pas une dépendance de ce dépôt. Un import statique en ferait une\n * dépendance de compilation ici, et la vérification des types échouerait sur un\n * paquet que personne n'a demandé.\n */\ninterface SplineComponentProps {\n  scene: string\n  className?: string\n}\n\n/**\n * Le composant Spline, chargé séparément du reste.\n *\n * Déclaré au niveau du module et non dans le corps du composant : un `lazy`\n * reconstruit à chaque rendu perdrait son cache et redemanderait le module.\n *\n * Le spécificateur passe par une variable pour la même raison que le type :\n * écrit en clair, il serait résolu à la compilation.\n */\nconst Spline = lazy(async () => {\n  const specifier = '@splinetool/react-spline'\n  const loaded = (await import(/* @vite-ignore */ specifier)) as {\n    default: ComponentType<SplineComponentProps>\n  }\n  return { default: loaded.default }\n})\n\n/** Proprietes propres au composant. */\nexport interface SplineSceneOwnProps {\n  /**\n   * URL de la scene, sur le compte Spline du projet.\n   *\n   * Obligatoire, et sans valeur par defaut : une adresse d'exemple ferait\n   * dependre la page d'un fichier qui ne lui appartient pas.\n   */\n  scene: string\n  /**\n   * Marge de declenchement du chargement.\n   *\n   * Le chargement commence quand la scene approche du champ, pas quand elle y\n   * entre : sans avance, on regarde le repli pendant que le runtime arrive.\n   *\n   * @defaultValue '200px'\n   */\n  rootMargin?: string\n  /** Ce qui occupe le cadre tant que la scene n'est pas la. */\n  fallback?: ReactNode\n  /** Classes du repli par defaut. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type SplineSceneProps = Customisable<SplineSceneOwnProps>\n\n/** Repli par defaut : un degrade fige. */\nconst DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-zinc-900 o-to-zinc-950'\n\n/**\n * Scene Spline chargee a l'approche du champ.\n *\n * @example\n * <SplineScene\n *   scene=\"https://prod.spline.design/VOTRE-SCENE/scene.splinecode\"\n *   className=\"o-h-96 o-w-full\"\n * />\n *\n * @example\n * // Le repli peut etre une image, tant que la scene n'est pas la — et pour\n * // toujours si le mouvement est reduit.\n * <SplineScene scene={adresse} fallback={<img src=\"/apercu.jpg\" alt=\"\" />} />\n */\nexport function SplineScene({\n  scene,\n  rootMargin = '200px',\n  fallback,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: SplineSceneProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const [approaching, setApproaching] = useState(false)\n\n  useEffect(() => {\n    if (host === null) return\n    // Sous mouvement reduit, la scene ne viendra pas : rien a observer, et\n    // surtout rien a telecharger.\n    if (reduced) return\n\n    if (typeof IntersectionObserver === 'undefined') {\n      // Sans observateur, on charge : mieux vaut le poids que le cadre vide.\n      setApproaching(true)\n      return\n    }\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        if (entries[0]?.isIntersecting !== true) return\n        setApproaching(true)\n        // Une fois charge, il n'y a plus rien a surveiller.\n        observer.disconnect()\n      },\n      { rootMargin },\n    )\n    observer.observe(host)\n    return () => observer.disconnect()\n  }, [host, reduced, rootMargin])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const waiting = fallback ?? <div className={`o-absolute o-inset-0 ${poster}`} />\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={style}>\n      {approaching ? (\n        <Suspense fallback={waiting}>\n          <Spline scene={scene} className=\"o-h-full o-w-full\" />\n        </Suspense>\n      ) : (\n        waiting\n      )}\n    </div>\n  )\n}\n"
+  }
+}

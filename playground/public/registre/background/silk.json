@@ -1,0 +1,77 @@
+{
+  "name": "silk",
+  "category": "background",
+  "title": "Soie",
+  "description": "Un ecoulement obtenu en deplacant le domaine deux fois de suite.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Silk.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-palette-sky-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.08,
+      "description": "Vitesse de l ecoulement.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Echelle du motif.",
+      "min": 0.4,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre d octaves du bruit.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "notes": "Neuf evaluations de bruit fractal par fragment. En qualite basse, les octaves tombent a deux.",
+    "fallback": "gradient"
+  },
+  "id": "background/silk",
+  "sources": {
+    "component.tsx": "/**\n * Soie : un ecoulement obtenu en deplacant le domaine deux fois de suite.\n *\n * ## Le principe\n *\n * Un bruit fractal seul donne des taches ; le meme bruit lu en un point deja deplace donne des volutes. Ici le deplacement est applique deux fois.\n *\n * C est le plus couteux des fonds : chaque passe evalue le bruit trois fois. Les octaves sont le reglage a baisser.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  SILK_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SilkControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SilkOwnProps {\n  /** Vitesse de l ecoulement. @defaultValue 0.08 */\n  speed?: number\n  /** Echelle du motif. @defaultValue 1.6 */\n  scale?: number\n  /** Nombre d octaves du bruit. @defaultValue 4 */\n  octaves?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SilkControls>\n}\n\n/** Toutes les proprietes. */\nexport type SilkProps = Customisable<SilkOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-brand-500',\n  '--o-palette-sky-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-brand-900'\n\n/**\n * Soie.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Silk className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Silk({\n  speed = 0.08,\n  scale = 1.6,\n  octaves = 4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SilkProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SILK_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: scale, uOctaves: octaves },\n    name: 'silk',\n    // En qualite basse, le reglage qui pese est borne : le motif reste\n    // reconnaissable une fois reduit.\n    degrade: (quality) => ({\n      uOctaves: quality === 'low' ? Math.min(octaves, 2) : octaves,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

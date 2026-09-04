@@ -1,0 +1,48 @@
+{
+  "name": "use-pointer-damped",
+  "category": "hooks",
+  "title": "Pointeur amorti",
+  "description": "Position du pointeur, normalisee et lissee, mise a jour dans la boucle du moteur.",
+  "engine": {
+    "gsap": [
+      "core"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/usePointerDamped.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 0,
+      "max": 9,
+      "step": 1
+    },
+    {
+      "name": "host",
+      "type": "HTMLElement | null",
+      "required": false,
+      "description": "Zone observee. Par defaut, la fenetre entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, aucune allocation par image."
+  },
+  "id": "hooks/use-pointer-damped",
+  "sources": {
+    "hook.ts": "/**\n * Position du pointeur, normalisee et lissee.\n *\n * ## La technique\n *\n * Suivre le pointeur sans filtre donne un mouvement nerveux : les evenements\n * du systeme arrivent a un rythme irregulier, et chacun deplace la valeur d'un\n * saut. L'amortissement exponentiel corrige cela — a chaque image, la valeur\n * comble une fraction de l'ecart qui la separe de sa cible.\n *\n * Cette fraction depend du temps ecoule. Employer une constante ferait varier\n * la vitesse du mouvement avec la cadence d'affichage : deux fois plus rapide\n * sur un ecran a cent vingt images par seconde. La formule\n * `1 - exp(-vitesse x dt)` produit le meme mouvement quelle que soit la\n * cadence, ce qui est la seule facon d'obtenir un reglage qui se comporte\n * pareil chez tout le monde.\n *\n * ## Pourquoi une ref plutot qu'un etat\n *\n * La valeur change a chaque image. La rendre comme etat provoquerait un rendu\n * React par image — soixante par seconde, pour deplacer un objet que React ne\n * dessine meme pas. La lecture se fait donc dans la boucle, ou l'on est deja.\n *\n * @module\n */\n\nimport { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro-cli/engine'\nimport { type RefObject, useEffect, useRef } from 'react'\n\n/** Position normalisee, origine au centre, bornee a [-1, 1]. */\nexport interface PointerPosition {\n  x: number\n  y: number\n}\n\n/** Options de `usePointerDamped`. */\nexport interface PointerDampedOptions {\n  /** Zone observee. Par defaut, la fenetre entiere. */\n  host?: HTMLElement | null\n  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 3 */\n  speed?: number\n  /** Nom affiche dans le panneau de diagnostic. */\n  name?: string\n}\n\n/**\n * Suit le pointeur avec amortissement.\n *\n * Sous mouvement reduit, la valeur reste au repos : le suivi du pointeur est\n * un agrement, pas un contenu.\n *\n * @returns Une ref dont `.current` est lue dans la boucle de rendu.\n *\n * @example\n * const pointer = usePointerDamped({ host, speed: 4 })\n *\n * useScene({\n *   frame: ({ scene }) => {\n *     scene.rotation.y = pointer.current.x * 0.3\n *   },\n * })\n */\nexport function usePointerDamped(\n  options: PointerDampedOptions = {},\n): RefObject<PointerPosition> {\n  const { host, speed = 3, name = 'pointeur' } = options\n\n  const current = useRef<PointerPosition>({ x: 0, y: 0 })\n  const target = useRef<PointerPosition>({ x: 0, y: 0 })\n\n  useEffect(() => {\n    if (motionPolicy.state.reduced) return\n\n    const surface: HTMLElement | Window = host ?? window\n\n    const onMove = (event: Event): void => {\n      const pointer = event as PointerEvent\n      const bounds =\n        host === null || host === undefined\n          ? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }\n          : host.getBoundingClientRect()\n\n      target.current = {\n        x: ((pointer.clientX - bounds.left) / Math.max(bounds.width, 1)) * 2 - 1,\n        y: ((pointer.clientY - bounds.top) / Math.max(bounds.height, 1)) * 2 - 1,\n      }\n    }\n\n    const onLeave = (): void => {\n      // Retour au repos, plutot qu'un gel sur la derniere position connue.\n      target.current = { x: 0, y: 0 }\n    }\n\n    surface.addEventListener('pointermove', onMove, { passive: true })\n    surface.addEventListener('pointerleave', onLeave)\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        const factor = 1 - Math.exp(-speed * delta)\n        current.current.x += (target.current.x - current.current.x) * factor\n        current.current.y += (target.current.y - current.current.y) * factor\n      },\n      // Avant le rendu : la valeur lue par la scene est celle de cette image.\n      { priority: CLOCK_PRIORITY.input, name },\n    )\n\n    return () => {\n      surface.removeEventListener('pointermove', onMove)\n      surface.removeEventListener('pointerleave', onLeave)\n      subscription.unsubscribe()\n    }\n  }, [host, speed, name])\n\n  return current\n}\n"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "name": "molten",
+  "category": "hero",
+  "title": "Molten",
+  "description": "Une masse en fusion qui respire, deformee par un bruit fractal et coloree par la palette.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "molten.shader.ts",
+      "target": "hero/molten.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "hero/Molten.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-poster",
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-fuchsia-600"
+  ],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.28,
+      "description": "Profondeur de la deformation, en rayons.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Echelle du bruit. Plus haut, plus tourmente.",
+      "min": 0.002,
+      "max": 0.06,
+      "step": 0.001
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Vitesse de la respiration.",
+      "min": 0,
+      "max": 0.75,
+      "step": 0.05
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Intensite du halo de bord.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Amplitude du suivi du pointeur. Zero pour l immobiliser.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "required": false,
+      "default": "--o-palette-brand-600, --o-palette-fuchsia-600",
+      "description": "Tokens du coeur et de la croute."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage, contre 13 pour le backend leger. Le nombre d octaves et la subdivision suivent la qualite retenue.",
+    "fallback": "poster"
+  },
+  "id": "hero/molten",
+  "sources": {
+    "molten.shader.ts": "/**\n * Shaders de Molten.\n *\n * ## Ce que la scene calcule\n *\n * Une sphere subdivisee, deplacee le long de ses normales par une somme\n * d'octaves de bruit tridimensionnel. Le champ de bruit se translate dans le\n * temps plutot que de tourner : la masse semble alors respirer sur place, au\n * lieu de defiler.\n *\n * ## Pourquoi la normale est recalculee\n *\n * Deplacer les sommets change la forme, mais pas les normales fournies avec la\n * geometrie : l'eclairage resterait celui d'une sphere lisse, ce qui annule\n * visuellement toute la deformation. Les recalculer exactement demanderait la\n * derivee du champ de bruit.\n *\n * On l'approche par differences finies — trois evaluations de plus autour du\n * point, dont on tire deux tangentes. C'est plus cher, et c'est la depense qui\n * fait la difference entre une sphere bosselee et une masse qui a du relief.\n *\n * ## Ce que le fragment fait\n *\n * Deux couleurs, prises dans la palette : le coeur pour les creux, la croute\n * pour les reliefs. Un terme de Fresnel — la lumiere rase les bords — ajoute\n * le halo qui donne l'impression de matiere chaude. Aucune texture, aucun\n * fichier : tout est calcule.\n *\n * @module\n */\n\n/**\n * Vertex shader.\n *\n * Le bruit est prefixe a la compilation : les fonctions viennent du moteur, et\n * les recopier ici en ferait une seconde version a maintenir.\n */\nexport const MOLTEN_VERTEX = /* glsl */ `\nuniform float uTime;\nuniform float uAmplitude;\nuniform float uFrequency;\nuniform float uSpeed;\nuniform int uOctaves;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying float vRelief;\n\n/**\n * Champ de deplacement en un point de la sphere unite.\n *\n * Le nom de la variable evite le mot reserve du langage qui designe un\n * echantillon : la compilation du shader echouerait, sans que rien, cote\n * TypeScript, ne le signale.\n */\nfloat molten(vec3 direction) {\n  vec3 field = direction * uFrequency + vec3(0.0, 0.0, uTime * uSpeed);\n  return odoroFbm3(field, uOctaves) - 0.5;\n}\n\nvoid main() {\n  vec3 direction = normalize(position);\n  float relief = molten(direction);\n  vec3 displaced = position + direction * relief * uAmplitude;\n\n  // Normale approchee par differences finies. Deux tangentes suffisent : la\n  // normale est leur produit vectoriel.\n  vec3 up = abs(direction.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);\n  vec3 tangent = normalize(cross(up, direction));\n  vec3 bitangent = cross(direction, tangent);\n\n  // Nomme epsilon plutot que step : ce dernier masquerait la fonction native\n  // du meme nom, ce qui est legal et deroutant.\n  float epsilon = 0.02;\n  vec3 nearTangent = normalize(direction + tangent * epsilon);\n  vec3 nearBitangent = normalize(direction + bitangent * epsilon);\n\n  vec3 pointHere = displaced;\n  vec3 pointTangent =\n    nearTangent + nearTangent * molten(nearTangent) * uAmplitude;\n  vec3 pointBitangent =\n    nearBitangent + nearBitangent * molten(nearBitangent) * uAmplitude;\n\n  vec3 normal = normalize(\n    cross(pointTangent - pointHere, pointBitangent - pointHere)\n  );\n  // Le produit vectoriel peut sortir retourne selon l'ordre des tangentes :\n  // on le realigne sur la direction sortante plutot que d'esperer le bon sens.\n  normal *= sign(dot(normal, direction));\n\n  vRelief = relief;\n  vNormal = normalize(normalMatrix * normal);\n\n  vec4 viewPosition = modelViewMatrix * vec4(displaced, 1.0);\n  vViewPosition = viewPosition.xyz;\n  gl_Position = projectionMatrix * viewPosition;\n}\n`\n\n/** Fragment shader. */\nexport const MOLTEN_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nuniform vec3 uCore;\nuniform vec3 uCrust;\nuniform float uGlow;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\nvarying float vRelief;\n\nvoid main() {\n  vec3 normal = normalize(vNormal);\n  vec3 toEye = normalize(-vViewPosition);\n\n  // Fresnel : la lumiere rase les bords vus de profil. L'exposant trois est\n  // une approximation courante de la loi de Schlick, assez juste pour un halo.\n  float facing = max(dot(normal, toEye), 0.0);\n  float rim = pow(1.0 - facing, 3.0);\n\n  // Un eclairage diffus minimal suffit a lire le relief : la matiere est\n  // emissive, elle n'a pas de source a refleter.\n  float diffuse = 0.35 + 0.65 * facing;\n\n  vec3 base = mix(uCore, uCrust, smoothstep(-0.25, 0.3, vRelief));\n  vec3 colour = base * diffuse + uCore * rim * uGlow;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Molten — une masse en fusion qui respire.\n *\n * ## Ce que ce composant coute\n *\n * Environ cent trente kilo-octets compresses au premier affichage, contre\n * treize pour le backend leger. C'est le composant le plus cher du registre,\n * et la CLI l'annonce avant d'ecrire quoi que ce soit.\n *\n * La contrepartie est ce qu'une scene 3D permet et qu'un shader plein ecran ne\n * permet pas : une camera, une profondeur, une silhouette qui reagit au\n * pointeur. Si l'effet recherche n'a besoin d'aucun des trois, l'aurore fait\n * le meme travail pour un dixieme du poids.\n *\n * ## Le repli est la moitie du composant\n *\n * Il est affiche pendant le telechargement du backend — plusieurs centaines de\n * millisecondes sur une connexion ordinaire, a l'endroit le plus visible de la\n * page — puis fondu. Il sert aussi quand la scene ne viendra jamais : sans\n * WebGL, sous mouvement reduit, ou quand l'arbitre refuse la surface.\n *\n * ## Ce que la qualite change\n *\n * La subdivision de la sphere et le nombre d'octaves. Ce sont les deux\n * reglages qui pesent, et ce sont les deux qui se degradent le mieux : la\n * silhouette reste la, seul le detail s'efface. Baisser la definition du rendu\n * a la place aurait donne une image floue, ce qui se remarque bien davantage.\n *\n * @module\n */\n\nimport {\n  NOISE_FUNCTIONS_3D,\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  useOnReady,\n  type Customisable,\n  type QualityLevel,\n  type ReadyCallback,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useMemo, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\nimport { usePoster } from '@registre/hooks/usePoster'\n\nimport { MOLTEN_FRAGMENT, MOLTEN_VERTEX } from './molten.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MoltenControls {\n  /** Contexte de la scene : objets, camera, moteur de rendu, module. */\n  readonly scene: SceneContext\n  /** Uniformes vivants du materiau, modifiables en place. */\n  readonly uniforms: Record<string, { value: unknown }>\n}\n\n/** Proprietes propres au composant. */\nexport interface MoltenOwnProps {\n  /** Profondeur de la deformation, en rayons. @defaultValue 0.28 */\n  amplitude?: number\n  /** Echelle du bruit. @defaultValue 1.6 */\n  frequency?: number\n  /** Vitesse de la respiration. @defaultValue 0.25 */\n  speed?: number\n  /** Intensite du halo de bord. @defaultValue 0.8 */\n  glow?: number\n  /** Amplitude du suivi du pointeur. Zero pour l'immobiliser. @defaultValue 0.25 */\n  parallax?: number\n  /** Tokens du coeur et de la croute. */\n  colors?: readonly [string, string]\n  /** Classes du repli. */\n  poster?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MoltenControls>\n}\n\n/** Toutes les proprietes. */\nexport type MoltenProps = Customisable<MoltenOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-brand-600', '--o-palette-fuchsia-600'] as const\n\n/** Repli par defaut : un degrade radial dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-via-fuchsia-600 dark:o-via-fuchsia-400 o-to-zinc-50 dark:o-to-zinc-900 o-blur-2xl o-scale-110'\n\n/** Subdivision de la sphere et octaves du bruit, par palier de qualite. */\nconst DETAIL: Readonly<Record<QualityLevel, { detail: number; octaves: number }>> = {\n  low: { detail: 24, octaves: 2 },\n  medium: { detail: 48, octaves: 3 },\n  high: { detail: 96, octaves: 4 },\n}\n\n/**\n * Masse en fusion, en scene 3D.\n *\n * @example\n * <section className=\"o-relative o-h-screen\">\n *   <Molten className=\"o-absolute o-inset-0\" />\n *   <h1 className=\"o-relative\">Odoro</h1>\n * </section>\n *\n * @example\n * // Niveau 5 : la scene elle-meme, pour ce que l API n a pas prevu.\n * <Molten\n *   onReady={({ handle }) => {\n *     handle.uniforms.uGlow.value = 2\n *     handle.scene.camera.position.z = 4\n *   }}\n * />\n */\nexport function Molten({\n  amplitude = 0.28,\n  frequency = 1.6,\n  speed = 0.25,\n  glow = 0.8,\n  parallax = 0.25,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  onReady,\n  ...rest\n}: MoltenProps): ReactElement {\n  const { quality } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  const pointer = usePointerDamped({ host, speed: 3, name: 'molten : pointeur' })\n\n  /** Uniformes vivants, partages entre la construction et la boucle. */\n  const uniforms = useRef<Record<string, { value: unknown }>>({})\n  const context = useRef<SceneContext | null>(null)\n\n  const grade = DETAIL[quality]\n\n  const { ref, ready, refused } = useScene({\n    name: 'molten',\n    setup: (scene) => {\n      context.current = scene\n      const { three, camera } = scene\n\n      const [core, crust] = colors.map((token) => readTokenColour(token, host))\n\n      uniforms.current = {\n        uTime: { value: 0 },\n        uAmplitude: { value: amplitude },\n        uFrequency: { value: frequency },\n        uSpeed: { value: speed },\n        uOctaves: { value: grade.octaves },\n        uGlow: { value: glow },\n        uCore: { value: new three.Color(core?.[0] ?? 1, core?.[1] ?? 1, core?.[2] ?? 1) },\n        uCrust: {\n          value: new three.Color(crust?.[0] ?? 0, crust?.[1] ?? 0, crust?.[2] ?? 0),\n        },\n      }\n\n      const mesh = new three.Mesh(\n        // Un icosaedre subdivise repartit ses sommets bien plus regulierement\n        // qu'une sphere en latitude et longitude, qui les entasse aux poles —\n        // la ou la deformation serait alors plus fine qu'ailleurs, sans raison.\n        new three.IcosahedronGeometry(1, grade.detail),\n        new three.ShaderMaterial({\n          // Le bruit vient du moteur : le recopier ici en ferait une seconde\n          // version a maintenir.\n          vertexShader: `${NOISE_FUNCTIONS_3D}\\n${MOLTEN_VERTEX}`,\n          fragmentShader: MOLTEN_FRAGMENT,\n          uniforms: uniforms.current,\n        }),\n      )\n\n      scene.scene.add(mesh)\n      camera.position.z = 2.6\n    },\n\n    frame: ({ scene }, { time, delta }) => {\n      const time_ = uniforms.current['uTime']\n      if (time_ !== undefined) time_.value = time\n\n      if (parallax === 0) return\n      // Le pointeur incline la masse, il ne la deplace pas : une rotation se\n      // lit comme un volume qui se presente, une translation comme une image\n      // qui glisse.\n      const target = pointer.current\n      scene.rotation.y += (target.x * parallax - scene.rotation.y) * delta * 2\n      scene.rotation.x += (-target.y * parallax - scene.rotation.x) * delta * 2\n    },\n  })\n\n  const fallback = usePoster({ ready, refused })\n\n  useOnReady(\n    onReady,\n    ready && context.current !== null\n      ? { scene: context.current, uniforms: uniforms.current }\n      : null,\n    host,\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const detail = useMemo(() => String(grade.detail), [grade.detail])\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      data-o-detail={detail}\n      aria-hidden\n    >\n      {fallback.visible ? (\n        <div style={fallback.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

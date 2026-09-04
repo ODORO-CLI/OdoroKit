@@ -1,0 +1,64 @@
+{
+  "name": "marquee",
+  "category": "effect",
+  "title": "Bandeau defilant",
+  "description": "Un contenu qui defile sans fin, avec fondus aux extremites.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Marquee.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "description": "Duree d un cycle, en secondes pour cent pour cent de largeur.",
+      "min": 0,
+      "max": 120,
+      "step": 100
+    },
+    {
+      "name": "reverse",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Inverse le sens du defilement."
+    },
+    {
+      "name": "pauseOnHover",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Suspend le defilement au survol."
+    },
+    {
+      "name": "fade",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Largeur des fondus, en pourcentage.",
+      "min": 0,
+      "max": 36,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une translation animee par le compositeur, et un masque. Aucun JavaScript par image."
+  },
+  "id": "effect/marquee",
+  "sources": {
+    "component.tsx": "/**\n * Bandeau defilant, sans fin.\n *\n * ## Le contenu est rendu deux fois\n *\n * Un defilement sans fin demande que la fin du contenu soit suivie de son\n * debut. La seule facon d'y parvenir sans calcul est de rendre le contenu deux\n * fois et de translater l'ensemble d'exactement la moitie : au moment ou la\n * premiere copie disparait, la seconde occupe sa place au pixel pres, et le\n * cycle recommence sans saut.\n *\n * La copie est retiree de l'arbre d'accessibilite : un lecteur d'ecran\n * annoncerait sinon deux fois la meme chose.\n *\n * ## La duree suit la largeur\n *\n * Une duree fixe ferait defiler un bandeau court aussi lentement qu'un long.\n * Le reglage est donc une vitesse, et la duree se deduit de la largeur reelle\n * du contenu — relue quand elle change.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface MarqueeOwnProps {\n  /** Contenu defilant. */\n  children: ReactNode\n  /** Duree d'un cycle pour cent pour cent de largeur, en secondes. @defaultValue 40 */\n  speed?: number\n  /** Inverse le sens du defilement. @defaultValue false */\n  reverse?: boolean\n  /** Suspend le defilement au survol. @defaultValue true */\n  pauseOnHover?: boolean\n  /** Largeur des fondus lateraux, en pourcentage. @defaultValue 12 */\n  fade?: number\n}\n\n/** Toutes les proprietes. */\nexport type MarqueeProps = Customisable<MarqueeOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-marquee'\n\n/** Pose l'animation, une fois par document. */\nfunction ensureMarqueeRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '@keyframes o-marquee{to{transform:translateX(-50%)}}',\n    '@keyframes o-marquee-reverse{from{transform:translateX(-50%)}to{transform:none}}',\n    '[data-o-marquee]{overflow:hidden;',\n    '-webkit-mask:linear-gradient(90deg,transparent,black var(--o-marquee-fade),black calc(100% - var(--o-marquee-fade)),transparent);',\n    'mask:linear-gradient(90deg,transparent,black var(--o-marquee-fade),black calc(100% - var(--o-marquee-fade)),transparent)}',\n    '[data-o-marquee] > div{display:flex;width:max-content;',\n    'animation:o-marquee var(--o-marquee-duration) linear infinite}',\n    '[data-o-marquee-reverse] > div{animation-name:o-marquee-reverse}',\n    '[data-o-marquee-pause]:hover > div{animation-play-state:paused}',\n    '@media (prefers-reduced-motion:reduce){[data-o-marquee] > div{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait defiler un contenu sans fin.\n *\n * @example\n * <Marquee speed={30} className=\"o-py-4\">\n *   {logos.map((logo) => (\n *     <span key={logo} className=\"o-px-8\">\n *       {logo}\n *     </span>\n *   ))}\n * </Marquee>\n */\nexport function Marquee({\n  children,\n  speed = 40,\n  reverse = false,\n  pauseOnHover = true,\n  fade = 12,\n  ...rest\n}: MarqueeProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [track, setTrack] = useState<HTMLElement | null>(null)\n  const [duration, setDuration] = useState(speed)\n  ensureMarqueeRule()\n\n  useEffect(() => {\n    if (track === null) return\n\n    // La duree se deduit de la largeur : un reglage de vitesse doit donner le\n    // meme defilement apparent quel que soit le contenu.\n    const measure = (): void => {\n      const width = track.scrollWidth / 2\n      const viewport = track.parentElement?.clientWidth ?? 1\n      setDuration(Math.max(2, (width / Math.max(viewport, 1)) * speed))\n    }\n\n    measure()\n    if (typeof ResizeObserver === 'undefined') return\n    const observer = new ResizeObserver(measure)\n    observer.observe(track)\n    return () => observer.disconnect()\n  }, [track, speed, children])\n\n  const { className, style } = mergePresentation({ className: 'o-relative' }, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-marquee-duration': `${duration.toFixed(2)}s`,\n          '--o-marquee-fade': `${String(fade)}%`,\n        } as CSSProperties\n      }\n      data-o-marquee={reduced ? undefined : ''}\n      data-o-marquee-reverse={reverse ? '' : undefined}\n      data-o-marquee-pause={pauseOnHover ? '' : undefined}\n    >\n      <div ref={setTrack}>\n        <div className=\"o-flex\">{children}</div>\n        {/* La copie n'est la que pour l'oeil : elle ne doit pas etre annoncee. */}\n        <div aria-hidden className=\"o-flex\">\n          {children}\n        </div>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

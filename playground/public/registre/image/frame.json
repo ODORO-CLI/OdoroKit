@@ -1,0 +1,76 @@
+{
+  "name": "frame",
+  "category": "image",
+  "title": "Cadre",
+  "description": "Une image avec rapport fige, silhouette de chargement et revelation en douceur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Frame.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "fit",
+      "type": "'cover' | 'contain'",
+      "required": false,
+      "default": "cover",
+      "description": "Ajustement dans le cadre.",
+      "options": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Agrandissement au survol, de 0 a 0.3.",
+      "min": 0,
+      "max": 0.3,
+      "step": 0.01
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le rapport est fige avant le chargement : la page ne se decale pas quand l image arrive."
+  },
+  "id": "image/frame",
+  "sources": {
+    "component.tsx": "/**\n * Cadre d'image : rapport fige, chargement couvert, revelation en douceur.\n *\n * ## Le rapport est pose avant l'image\n *\n * Une image sans dimensions declarees occupe zero pixel jusqu'a son\n * chargement, puis pousse brutalement tout ce qui la suit. C'est le decalage\n * de mise en page le plus courant du web, et il est entierement evitable : le\n * cadre reserve la place des le premier rendu, a partir du seul rapport.\n *\n * ## La revelation n'est pas un ornement\n *\n * Entre le moment ou la place est reservee et celui ou l'image arrive, il y a\n * un rectangle vide. Le laisser tel quel donne une page trouee ; y poser une\n * silhouette dit qu'il se passe quelque chose. Le fondu, lui, evite le\n * clignotement d'une apparition seche.\n *\n * ## Ce qui n'est pas fait ici\n *\n * Ni miniature floue, ni jeu de sources : cela demande une chaine de\n * traitement d'images que ce composant n'a pas a decider. `srcSet` et `sizes`\n * passent par le passe-plat et arrivent tels quels sur la balise.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useState, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-frame'\n\n/**\n * Pose la regle d'agrandissement, une fois par document.\n *\n * Elle ne peut pas etre un style en ligne : elle depend du survol du cadre,\n * pas de celui de l'image.\n */\nfunction ensureFrameRule() {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent =\n    '[data-o-frame-zoom]:hover img{transform:scale(var(--o-frame-zoom))}'\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface FrameOwnProps {\n  /** Source de l'image. */\n  src: string\n  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */\n  alt: string\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n  /** Ajustement dans le cadre. @defaultValue 'cover' */\n  fit?: 'cover' | 'contain'\n  /** Agrandissement au survol, de 0 a 0.3. @defaultValue 0 */\n  zoom?: number\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une image. */\nexport type FrameProps = Customisable<FrameOwnProps, 'img'>\n\n/**\n * Encadre une image.\n *\n * @example\n * <Frame src=\"/photo.jpg\" alt=\"Vue de l atelier\" ratio={16 / 9} zoom={0.06} />\n *\n * @example\n * // Le passe-plat porte ce que le composant n a pas a decider.\n * <Frame\n *   src=\"/photo.jpg\"\n *   alt=\"\"\n *   srcSet=\"/photo-800.jpg 800w, /photo-1600.jpg 1600w\"\n *   sizes=\"(min-width: 60rem) 50vw, 100vw\"\n *   loading=\"lazy\"\n * />\n */\nexport function Frame({\n  src,\n  alt,\n  ratio = 1.777,\n  fit = 'cover',\n  zoom = 0,\n  ...rest\n}: FrameProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [loaded, setLoaded] = useState(false)\n  ensureFrameRule()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const image: CSSProperties = {\n    objectFit: fit,\n    opacity: loaded ? 1 : 0,\n    transform: loaded || reduced ? undefined : 'scale(1.02)',\n    transition: reduced\n      ? undefined\n      : 'opacity var(--o-duration-slow) var(--o-ease-entrance), transform var(--o-duration-slow) var(--o-ease-entrance)',\n  }\n\n  return (\n    <div\n      className={className}\n      style={{ ...style, aspectRatio: String(ratio) }}\n      // Le survol agrandit l'image, pas le cadre : sans quoi la mise en page\n      // bougerait, ce que le rapport fige existe justement pour empecher.\n      data-o-frame-zoom={zoom > 0 && !reduced ? '' : undefined}\n    >\n      {loaded ? null : (\n        <div\n          className=\"o-absolute o-inset-0 o-bg-zinc-100 dark:o-bg-zinc-900 o-animate-shimmer\"\n          aria-hidden\n        />\n      )}\n\n      <img\n        {...rest}\n        src={src}\n        alt={alt}\n        onLoad={() => setLoaded(true)}\n        className=\"o-size-full o-transition-transform\"\n        style={{\n          ...image,\n          ...(zoom > 0 && !reduced ? { '--o-frame-zoom': String(1 + zoom) } : {}),\n        }}\n      />\n    </div>\n  )\n}\n"
+  }
+}

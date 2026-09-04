@@ -1,0 +1,64 @@
+{
+  "name": "parallax",
+  "category": "effect",
+  "title": "Parallaxe",
+  "description": "Un element qui se deplace plus lentement que le defilement de la page.",
+  "engine": {
+    "gsap": [
+      "ScrollTrigger"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Parallax.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "distance",
+      "type": "number",
+      "required": false,
+      "default": 80,
+      "unit": "px",
+      "description": "Amplitude du deplacement sur toute la traversee.",
+      "min": 0,
+      "max": 240,
+      "step": 100
+    },
+    {
+      "name": "axis",
+      "type": "'y' | 'x'",
+      "required": false,
+      "default": "y",
+      "description": "Axe du deplacement.",
+      "options": [
+        "y",
+        "x"
+      ]
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Agrandissement additionnel, de 0 a 1.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de defilement dans la boucle unique, une ecriture de transform. Aucun rendu React."
+  },
+  "id": "effect/parallax",
+  "sources": {
+    "component.tsx": "/**\n * Parallaxe : un element qui se deplace moins vite que la page.\n *\n * ## Pourquoi la boucle unique et pas un ecouteur de defilement\n *\n * Un ecouteur de `scroll` se declenche a un rythme decide par le navigateur,\n * qui n'est pas celui du rafraichissement de l'ecran. Ecrire une transformation\n * depuis cet ecouteur produit un decalage d'une image sur deux : l'element\n * traine derriere le contenu, puis le rattrape. C'est le tremblement\n * caracteristique des parallaxes faites a la main.\n *\n * La lecture passe donc par la boucle unique du moteur, qui la place avant le\n * rendu de la meme image.\n *\n * ## Sous mouvement reduit\n *\n * L'element reste a sa place. Une parallaxe n'a pas d'etat final a preserver :\n * elle n'apporte rien d'autre que son mouvement.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useMotionState,\n  useScrollScrub,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useCallback, useRef, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ParallaxOwnProps {\n  /** Contenu deplace. */\n  children: ReactNode\n  /** Amplitude du deplacement sur toute la traversee, en pixels. @defaultValue 80 */\n  distance?: number\n  /** Axe du deplacement. @defaultValue 'y' */\n  axis?: 'x' | 'y'\n  /** Agrandissement additionnel, de 0 a 1. @defaultValue 0 */\n  scale?: number\n}\n\n/** Toutes les proprietes. */\nexport type ParallaxProps = Customisable<ParallaxOwnProps>\n\n/**\n * Deplace un contenu au fil du defilement.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden\">\n *   <Parallax distance={120} scale={0.15} className=\"o-absolute o-inset-0\">\n *     <img src=\"/photo.jpg\" alt=\"\" className=\"o-size-full o-object-cover\" />\n *   </Parallax>\n * </div>\n */\nexport function Parallax({\n  children,\n  distance = 80,\n  axis = 'y',\n  scale = 0,\n  ...rest\n}: ParallaxProps): ReactElement {\n  const { reduced } = useMotionState()\n  const inner = useRef<HTMLDivElement | null>(null)\n\n  const onProgress = useCallback(\n    (progress: number) => {\n      const target = inner.current\n      if (target === null) return\n\n      // La progression va de 0 a 1 sur la traversee ; on la ramene a [-1, 1]\n      // pour que l'element soit a sa place quand il est au centre du champ.\n      const centred = progress * 2 - 1\n      const shift = (-centred * distance) / 2\n      const zoom = 1 + scale * (1 - Math.abs(centred))\n\n      target.style.transform =\n        axis === 'y'\n          ? `translate3d(0,${shift.toFixed(2)}px,0) scale(${zoom.toFixed(3)})`\n          : `translate3d(${shift.toFixed(2)}px,0,0) scale(${zoom.toFixed(3)})`\n    },\n    [distance, axis, scale],\n  )\n\n  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {\n    name: 'parallaxe',\n  })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-will-change-transform' },\n    rest,\n  )\n\n  return (\n    <div {...rest} ref={ref} className={className} style={style}>\n      <div ref={inner} className={reduced ? undefined : 'o-will-change-transform'}>\n        {children}\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

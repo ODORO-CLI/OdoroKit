@@ -1,0 +1,73 @@
+{
+  "name": "video",
+  "category": "image",
+  "title": "Video de fond",
+  "description": "Une video au rapport fige, avec affiche de chargement et respect du mouvement reduit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Video.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Image affichee avant la premiere trame."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "fit",
+      "type": "'cover' | 'contain'",
+      "required": false,
+      "default": "cover",
+      "description": "Ajustement dans le cadre.",
+      "options": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": false,
+      "description": "Ce que la video montre, pour qui ne la voit pas."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "La lecture ne demarre qu une fois la video dans le champ, et jamais sous mouvement reduit.",
+    "fallback": "poster"
+  },
+  "id": "image/video",
+  "sources": {
+    "component.tsx": "/**\n * Video de fond : le pendant de `image/frame`, pour une video.\n *\n * ## Ce qu'une video decorative doit respecter\n *\n * Elle est muette, elle boucle, et elle ne demarre pas toute seule sur une\n * page qu'on n'a pas encore atteinte : une video qui se decode hors de l'ecran\n * consomme du processeur et de la batterie pour rien. La lecture attend donc\n * l'entree dans le champ, et s'arrete a la sortie.\n *\n * Sous **mouvement reduit**, elle ne demarre pas du tout et l'affiche reste.\n * C'est le seul cas ou une image fixe est le rendu final plutot qu'une\n * attente — une video d'ambiance n'apporte rien d'autre que son mouvement.\n *\n * ## L'affiche n'est pas optionnelle\n *\n * Entre le premier rendu et la premiere trame decodee, il s'ecoule bien plus\n * de temps que pour une image. Sans affiche, le cadre est noir pendant tout ce\n * temps — a l'endroit le plus visible de la page, puisque c'est generalement\n * un fond de heros.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useState, type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface VideoOwnProps {\n  /** Source de la video. */\n  src: string\n  /** Image affichee avant la premiere trame. */\n  poster?: string\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n  /** Ajustement dans le cadre. @defaultValue 'cover' */\n  fit?: 'cover' | 'contain'\n  /**\n   * Ce que la video montre, pour qui ne la voit pas.\n   *\n   * Une video decorative n'a pas d'equivalent textuel — elle est alors retiree\n   * de l'arbre d'accessibilite. Des qu'elle porte du sens, cette description\n   * devient obligatoire.\n   */\n  description?: string\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une video. */\nexport type VideoProps = Customisable<VideoOwnProps, 'video'>\n\n/**\n * Affiche une video d'ambiance.\n *\n * @example\n * <Video\n *   src=\"/atelier.mp4\"\n *   poster=\"/atelier.jpg\"\n *   className=\"o-absolute o-inset-0\"\n * />\n */\nexport function Video({\n  src,\n  poster,\n  ratio = 1.777,\n  fit = 'cover',\n  description,\n  ...rest\n}: VideoProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [node, setNode] = useState<HTMLVideoElement | null>(null)\n  const [playing, setPlaying] = useState(false)\n\n  useEffect(() => {\n    if (node === null || reduced) return\n\n    // Le decodage attend l'entree dans le champ : une video qui tourne hors de\n    // l'ecran consomme processeur et batterie sans que personne ne la voie.\n    const observer = new IntersectionObserver(\n      (entries) => {\n        for (const entry of entries) {\n          if (entry.isIntersecting) void node.play().catch(() => undefined)\n          else node.pause()\n        }\n      },\n      { threshold: 0.1 },\n    )\n\n    observer.observe(node)\n    return () => observer.disconnect()\n  }, [node, reduced])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const surface: CSSProperties = {\n    objectFit: fit,\n    opacity: playing ? 1 : 0,\n    transition: reduced\n      ? undefined\n      : 'opacity var(--o-duration-slow) var(--o-ease-entrance)',\n  }\n\n  return (\n    <div className={className} style={{ ...style, aspectRatio: String(ratio) }}>\n      {/*\n        L'affiche reste sous la video et n'est jamais retiree : elle couvre le\n        decodage, et devient le rendu final sous mouvement reduit.\n      */}\n      {poster === undefined ? null : (\n        <img\n          src={poster}\n          alt={description ?? ''}\n          aria-hidden={description === undefined}\n          className=\"o-absolute o-inset-0 o-size-full\"\n          style={{ objectFit: fit }}\n        />\n      )}\n\n      <video\n        {...rest}\n        ref={setNode}\n        src={reduced ? undefined : src}\n        poster={poster}\n        muted\n        loop\n        playsInline\n        preload=\"metadata\"\n        onPlaying={() => setPlaying(true)}\n        onPause={() => setPlaying(false)}\n        aria-hidden={description === undefined}\n        aria-label={description}\n        className=\"o-absolute o-inset-0 o-size-full\"\n        style={surface}\n      />\n    </div>\n  )\n}\n"
+  }
+}

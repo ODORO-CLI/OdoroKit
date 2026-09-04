@@ -1,0 +1,76 @@
+{
+  "name": "typewriter",
+  "category": "text",
+  "title": "Machine a ecrire",
+  "description": "Une suite de phrases frappees puis effacees, avec un curseur clignotant.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/Typewriter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "phrases",
+      "type": "readonly string[]",
+      "required": true,
+      "description": "Phrases jouees en boucle."
+    },
+    {
+      "name": "typeSpeed",
+      "type": "number",
+      "required": false,
+      "default": 55,
+      "unit": "ms",
+      "description": "Delai entre deux caracteres frappes.",
+      "min": 0,
+      "max": 170,
+      "step": 100
+    },
+    {
+      "name": "deleteSpeed",
+      "type": "number",
+      "required": false,
+      "default": 28,
+      "unit": "ms",
+      "description": "Delai entre deux caracteres effaces.",
+      "min": 0,
+      "max": 84,
+      "step": 100
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Temps d attente une fois la phrase complete.",
+      "min": 0,
+      "max": 4200,
+      "step": 100
+    },
+    {
+      "name": "cursor",
+      "type": "string",
+      "required": false,
+      "default": "|",
+      "description": "Caractere du curseur. Chaine vide pour l enlever."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur, pas d abonnement a la boucle : la frappe n a pas besoin de la cadence de l ecran."
+  },
+  "id": "text/typewriter",
+  "sources": {
+    "component.tsx": "/**\n * Machine a ecrire : des phrases frappees puis effacees, en boucle.\n *\n * ## Pourquoi un minuteur plutot que la boucle\n *\n * La frappe avance d'un caractere toutes les cinquante millisecondes. Sur un\n * ecran a soixante images par seconde, cela fait un changement toutes les trois\n * images ; sur un ecran a cent vingt, un toutes les six. La cadence de\n * l'affichage n'a donc aucune influence sur le resultat, et s'abonner a la\n * boucle reviendrait a la reveiller cinquante-neuf fois sur soixante pour ne\n * rien faire.\n *\n * C'est la contre-epreuve du critere du moteur : cet effet ne possede pas la\n * frame, il possede une horloge.\n *\n * ## L'espace reserve\n *\n * La ligne change de longueur a chaque caractere. Sans precaution, ce qui suit\n * se decale en permanence — et si la machine a ecrire est dans un titre, c'est\n * toute la page qui respire. La phrase la plus longue est donc rendue en\n * reserve, invisible et sans hauteur, pour figer la largeur.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface TypewriterOwnProps {\n  /** Phrases jouees en boucle. */\n  phrases: readonly string[]\n  /** Delai entre deux caracteres frappes, en millisecondes. @defaultValue 55 */\n  typeSpeed?: number\n  /** Delai entre deux caracteres effaces, en millisecondes. @defaultValue 28 */\n  deleteSpeed?: number\n  /** Attente une fois la phrase complete, en millisecondes. @defaultValue 1400 */\n  hold?: number\n  /** Caractere du curseur. Chaine vide pour l'enlever. @defaultValue '|' */\n  cursor?: string\n}\n\n/** Toutes les proprietes. */\nexport type TypewriterProps = Customisable<TypewriterOwnProps, 'span'>\n\n/**\n * Frappe une suite de phrases, en boucle.\n *\n * @example\n * <Typewriter\n *   phrases={['des interfaces vivantes', 'sans dependance externe']}\n *   className=\"o-text-brand-500\"\n * />\n */\nexport function Typewriter({\n  phrases,\n  typeSpeed = 55,\n  deleteSpeed = 28,\n  hold = 1400,\n  cursor = '|',\n  ...rest\n}: TypewriterProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [index, setIndex] = useState(0)\n  const [length, setLength] = useState(0)\n  const [erasing, setErasing] = useState(false)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  const phrase = phrases[index % Math.max(phrases.length, 1)] ?? ''\n  const longest = phrases.reduce(\n    (best, item) => (item.length > best.length ? item : best),\n    '',\n  )\n\n  useEffect(() => {\n    if (reduced || phrases.length === 0) return\n\n    const step = (): void => {\n      if (!erasing) {\n        if (length < phrase.length) {\n          setLength(length + 1)\n          return\n        }\n        // Une seule phrase : l'effacer pour la reecrire a l'identique serait\n        // du mouvement pour rien.\n        if (phrases.length > 1) setErasing(true)\n        return\n      }\n\n      if (length > 0) {\n        setLength(length - 1)\n        return\n      }\n      setErasing(false)\n      setIndex(index + 1)\n    }\n\n    const delay = erasing ? deleteSpeed : length === phrase.length ? hold : typeSpeed\n\n    timer.current = setTimeout(step, delay)\n    return () => clearTimeout(timer.current)\n  }, [reduced, phrases, phrase, length, erasing, index, typeSpeed, deleteSpeed, hold])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-inline-grid' },\n    rest,\n  )\n\n  // Sous mouvement reduit, la premiere phrase est simplement la.\n  const shown = reduced ? (phrases[0] ?? '') : phrase.slice(0, length)\n\n  return (\n    <span {...rest} className={className} style={style}>\n      {/*\n        Reserve de largeur : la phrase la plus longue occupe la meme cellule de\n        grille, invisible. Sans elle, la ligne se decale a chaque caractere.\n      */}\n      <span aria-hidden className=\"o-invisible o-col-start-1 o-row-start-1\">\n        {longest}\n        {cursor}\n      </span>\n\n      <span className=\"o-col-start-1 o-row-start-1\" aria-live=\"polite\">\n        {shown}\n        {cursor === '' || reduced ? null : (\n          <span aria-hidden className=\"o-animate-caret-blink\">\n            {cursor}\n          </span>\n        )}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "halftone",
+  "category": "background",
+  "title": "Trame",
+  "description": "Un demi-ton dont les points grossissent avec la lumiere, comme en impression.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Halftone.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Vitesse du champ.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 26,
+      "description": "Finesse de la trame.",
+      "min": 6,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 0.26,
+      "description": "Rotation de la trame, en radians.",
+      "min": 0,
+      "max": 1.57,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un bruit fractal a trois octaves et une rotation. La finesse ne coute rien.",
+    "fallback": "gradient"
+  },
+  "id": "background/halftone",
+  "sources": {
+    "component.tsx": "/**\n * Trame : un demi-ton dont les points grossissent avec la lumiere, comme en impression.\n *\n * ## Le principe\n *\n * La trame est bicolore : c est le taux de couverture, donc la taille des points, qui simule la nuance.\n *\n * La grille est tournee pour la meme raison qu en impression : alignee sur les axes, elle bat avec la grille de pixels et produit un moire.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  HALFTONE_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface HalftoneControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface HalftoneOwnProps {\n  /** Vitesse du champ. @defaultValue 0.12 */\n  speed?: number\n  /** Finesse de la trame. @defaultValue 26 */\n  density?: number\n  /** Rotation de la trame, en radians. @defaultValue 0.26 */\n  angle?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<HalftoneControls>\n}\n\n/** Toutes les proprietes. */\nexport type HalftoneProps = Customisable<HalftoneOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-amber-300'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-950'\n\n/**\n * Trame.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Halftone className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Halftone({\n  speed = 0.12,\n  density = 26,\n  angle = 0.26,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: HalftoneProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: HALFTONE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: density, uAngle: angle },\n    name: 'halftone',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "name": "compare",
+  "category": "image",
+  "title": "Avant / apres",
+  "description": "Deux images superposees, revelees par une poignee au pointeur comme au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Compare.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "before",
+      "type": "{ src: string; alt: string }",
+      "required": true,
+      "description": "Image de gauche."
+    },
+    {
+      "name": "after",
+      "type": "{ src: string; alt: string }",
+      "required": true,
+      "description": "Image de droite."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "start",
+      "type": "number",
+      "required": false,
+      "default": 50,
+      "unit": "%",
+      "description": "Position initiale de la poignee.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du curseur, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une variable CSS ecrite au deplacement. Aucun rendu React pendant le glissement."
+  },
+  "id": "image/compare",
+  "sources": {
+    "component.tsx": "/**\n * Comparaison avant / apres.\n *\n * ## C'est un curseur, pas une image cliquable\n *\n * La plupart des comparateurs se pilotent au pointeur et nulle part ailleurs :\n * au clavier, ils sont muets, et un lecteur d'ecran n'annonce que deux images\n * superposees sans dire ce qu'elles font la.\n *\n * Le role est donc celui d'un curseur, avec ses valeurs et son nom. Les\n * fleches le deplacent, `Origine` et `Fin` le poussent aux extremites, et la\n * position est annoncee en pourcentage. Cela ne coute que des attributs.\n *\n * ## La position ne passe pas par React\n *\n * Elle change a chaque mouvement du pointeur. La porter dans l'etat\n * provoquerait un rendu par evenement pendant tout le glissement, pour\n * deplacer un decoupage que le compositeur sait animer seul. Une variable CSS\n * suffit ; l'etat React ne sert qu'a l'annonce accessible, mise a jour au\n * relachement.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  useCallback,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n} from 'react'\n\n/** Une des deux images comparees. */\nexport interface CompareImage {\n  /** Source. */\n  readonly src: string\n  /** Texte de remplacement. */\n  readonly alt: string\n}\n\n/** Proprietes propres au composant. */\nexport interface CompareOwnProps {\n  /** Image revelee a gauche de la poignee. */\n  before: CompareImage\n  /** Image revelee a droite de la poignee. */\n  after: CompareImage\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n  /** Position initiale de la poignee, en pourcentage. @defaultValue 50 */\n  start?: number\n  /** Nom du curseur, annonce aux technologies d'assistance. */\n  label: string\n}\n\n/** Toutes les proprietes. */\nexport type CompareProps = Customisable<CompareOwnProps>\n\n/** Pas du deplacement au clavier, en pourcentage. */\nconst STEP = 2\n\n/**\n * Compare deux images.\n *\n * @example\n * <Compare\n *   label=\"Avant et apres retouche\"\n *   before={{ src: '/avant.jpg', alt: 'Avant retouche' }}\n *   after={{ src: '/apres.jpg', alt: 'Apres retouche' }}\n * />\n */\nexport function Compare({\n  before,\n  after,\n  ratio = 1.777,\n  start = 50,\n  label,\n  ...rest\n}: CompareProps): ReactElement {\n  const host = useRef<HTMLDivElement | null>(null)\n  const [announced, setAnnounced] = useState(start)\n  const position = useRef(start)\n\n  const place = useCallback((percent: number) => {\n    const clamped = Math.min(100, Math.max(0, percent))\n    position.current = clamped\n    host.current?.style.setProperty('--o-compare', `${clamped.toFixed(1)}%`)\n  }, [])\n\n  const fromPointer = useCallback(\n    (clientX: number) => {\n      const box = host.current?.getBoundingClientRect()\n      if (box === undefined) return\n      place(((clientX - box.left) / Math.max(box.width, 1)) * 100)\n    },\n    [place],\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden o-select-none' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={host}\n      className={className}\n      style={\n        {\n          ...style,\n          aspectRatio: String(ratio),\n          '--o-compare': `${String(start)}%`,\n        } as CSSProperties\n      }\n      onPointerDown={(event) => {\n        event.currentTarget.setPointerCapture(event.pointerId)\n        fromPointer(event.clientX)\n      }}\n      onPointerMove={(event) => {\n        if (event.currentTarget.hasPointerCapture(event.pointerId)) {\n          fromPointer(event.clientX)\n        }\n      }}\n      onPointerUp={() => setAnnounced(Math.round(position.current))}\n    >\n      <img\n        src={after.src}\n        alt={after.alt}\n        className=\"o-absolute o-inset-0 o-size-full o-object-cover\"\n      />\n\n      {/*\n        L'image de gauche est decoupee par un `clip-path` plutot que par une\n        largeur : redimensionner l'element deformerait l'image, alors qu'un\n        decoupage laisse les deux exactement superposees.\n      */}\n      <img\n        src={before.src}\n        alt={before.alt}\n        className=\"o-absolute o-inset-0 o-size-full o-object-cover\"\n        style={{ clipPath: 'inset(0 calc(100% - var(--o-compare)) 0 0)' }}\n      />\n\n      <div\n        role=\"slider\"\n        aria-label={label}\n        aria-valuemin={0}\n        aria-valuemax={100}\n        aria-valuenow={announced}\n        aria-valuetext={`${String(announced)} pour cent`}\n        tabIndex={0}\n        onKeyDown={(event) => {\n          const delta =\n            event.key === 'ArrowLeft' ? -STEP : event.key === 'ArrowRight' ? STEP : 0\n          const target =\n            event.key === 'Home'\n              ? 0\n              : event.key === 'End'\n                ? 100\n                : delta === 0\n                  ? null\n                  : position.current + delta\n\n          if (target === null) return\n          event.preventDefault()\n          place(target)\n          setAnnounced(Math.round(position.current))\n        }}\n        className=\"o-absolute o-inset-y-0 o-w-1 o-cursor-ew-resize o-bg-white focus:o-ring\"\n        style={{ left: 'var(--o-compare)', transform: 'translateX(-50%)' }}\n      >\n        <span\n          aria-hidden\n          className=\"o-absolute o-top-1/2 o-left-1/2 o-size-8 o-rounded-full o-border-w-1 o-border-white o-bg-black-45\"\n          style={{ transform: 'translate(-50%, -50%)' }}\n        />\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

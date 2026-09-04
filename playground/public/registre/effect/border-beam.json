@@ -1,0 +1,68 @@
+{
+  "name": "border-beam",
+  "category": "effect",
+  "title": "Trait de bordure",
+  "description": "Un trait lumineux parcourt le contour d un element, en boucle.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BorderBeam.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 4000,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 0,
+      "max": 12000,
+      "step": 100
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du trait."
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "required": false,
+      "default": 25,
+      "description": "Longueur de la trainee, en pourcentage du contour.",
+      "min": 5,
+      "max": 50,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique anime par le compositeur. Aucun JavaScript par image."
+  },
+  "id": "effect/border-beam",
+  "sources": {
+    "component.tsx": "/**\n * Trait lumineux parcourant une bordure.\n *\n * ## Un degrade conique, pas un element qui tourne\n *\n * L'approche naive consiste a faire tourner un petit rectangle autour du\n * contour. Elle demande de connaitre la geometrie, casse des que l'element\n * change de proportions, et coince dans les angles arrondis.\n *\n * Un degrade conique tourne, lui, autour du centre : la bande claire balaie\n * naturellement tout le contour, quelle que soit la forme. Il ne reste qu'a\n * n'en garder que la bordure, ce que fait un masque en deux couches dont on\n * soustrait l'interieur.\n *\n * ## Aucun JavaScript par image\n *\n * La rotation est une animation CSS d'une propriete personnalisee enregistree\n * en angle. Sans cet enregistrement, un navigateur interpolerait la valeur\n * comme une chaine de caracteres — c'est-a-dire pas du tout : le trait\n * sauterait d'un tour a l'autre au lieu de tourner.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface BorderBeamOwnProps {\n  /** Contenu encadre. */\n  children: ReactNode\n  /** Duree d'un tour complet, en millisecondes. @defaultValue 4000 */\n  duration?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 2 */\n  width?: number\n  /** Couleur du trait. */\n  color?: string\n  /** Longueur de la trainee, en pourcentage du contour. @defaultValue 25 */\n  trail?: number\n}\n\n/** Toutes les proprietes. */\nexport type BorderBeamProps = Customisable<BorderBeamOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-border-beam'\n\n/** Pose l'animation et l'enregistrement d'angle, une fois par document. */\nfunction ensureBeamRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '@property --o-beam-angle{syntax:\"<angle>\";inherits:false;initial-value:0deg}',\n    '@keyframes o-beam{to{--o-beam-angle:360deg}}',\n    '[data-o-beam]{position:relative;isolation:isolate}',\n    '[data-o-beam]::after{',\n    'content:\"\";position:absolute;inset:0;pointer-events:none;border-radius:inherit;',\n    'padding:var(--o-beam-width);',\n    'background:conic-gradient(from var(--o-beam-angle),transparent 0%,var(--o-beam-color) var(--o-beam-trail),transparent calc(var(--o-beam-trail) * 2));',\n    '-webkit-mask:linear-gradient(black 0 0) content-box,linear-gradient(black 0 0);',\n    'mask:linear-gradient(black 0 0) content-box,linear-gradient(black 0 0);',\n    '-webkit-mask-composite:xor;mask-composite:exclude;',\n    'animation:o-beam var(--o-beam-duration) linear infinite',\n    '}',\n    '@media (prefers-reduced-motion:reduce){[data-o-beam]::after{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait courir un trait le long du contour.\n *\n * @example\n * <BorderBeam className=\"o-rounded-xl o-border-w-1 o-p-6\" duration={6000}>\n *   <p>Une carte mise en avant</p>\n * </BorderBeam>\n */\nexport function BorderBeam({\n  children,\n  duration = 4000,\n  width = 2,\n  color = 'oklch(70% 0.18 264)',\n  trail = 25,\n  ...rest\n}: BorderBeamProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureBeamRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-beam-duration': `${String(duration)}ms`,\n          '--o-beam-width': `${String(width)}px`,\n          '--o-beam-color': color,\n          '--o-beam-trail': `${String(trail)}%`,\n        } as CSSProperties\n      }\n      data-o-beam={reduced ? undefined : ''}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "caustics",
+  "category": "background",
+  "title": "Caustiques",
+  "description": "Le reseau de lumiere au fond d un bassin, imite par replis successifs.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Caustics.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-sky-950",
+    "--o-palette-sky-200"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse du reseau.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Echelle du reseau.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Force de la lumiere.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Cinq iterations de deux fonctions trigonometriques. Aucun bruit, donc aucun echantillonnage de texture.",
+    "fallback": "gradient"
+  },
+  "id": "background/caustics",
+  "sources": {
+    "component.tsx": "/**\n * Caustiques : le reseau de lumiere au fond d un bassin, imite par replis successifs.\n *\n * ## Le principe\n *\n * Cinq replis de l espace par le sinus de ses propres coordonnees. La distance accumulee dessine des filaments la ou les rayons se concentreraient.\n *\n * L exposant applique a la fin est ce qui separe un filament net d un halo de brouillard.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  CAUSTICS_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CausticsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface CausticsOwnProps {\n  /** Vitesse du reseau. @defaultValue 0.5 */\n  speed?: number\n  /** Echelle du reseau. @defaultValue 4 */\n  scale?: number\n  /** Force de la lumiere. @defaultValue 1 */\n  intensity?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CausticsControls>\n}\n\n/** Toutes les proprietes. */\nexport type CausticsProps = Customisable<CausticsOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-sky-950', '--o-palette-sky-200'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-sky-950 o-to-sky-800'\n\n/**\n * Caustiques.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Caustics className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Caustics({\n  speed = 0.5,\n  scale = 4,\n  intensity = 1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: CausticsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: CAUSTICS_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: scale, uIntensity: intensity },\n    name: 'caustics',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

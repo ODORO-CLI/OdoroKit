@@ -1,0 +1,76 @@
+{
+  "name": "stars",
+  "category": "background",
+  "title": "Etoiles",
+  "description": "Un semis a trois profondeurs, qui derive en parallaxe.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Stars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-100"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de la derive.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "description": "Densite du semis.",
+      "min": 6,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "twinkle",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Force du scintillement.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois couches, une cellule evaluee par couche. La densite ne change pas le cout.",
+    "fallback": "gradient"
+  },
+  "id": "background/stars",
+  "sources": {
+    "component.tsx": "/**\n * Etoiles : un semis a trois profondeurs, qui derive en parallaxe.\n *\n * ## Le principe\n *\n * Une etoile par cellule d une grille, sa position tiree de l identifiant de la cellule : aucune liste n est parcourue.\n *\n * Le scintillement est un sinus de phase propre a chaque etoile, jamais un tirage par image — ce dernier ne produirait que du bruit.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  STARS_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface StarsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface StarsOwnProps {\n  /** Vitesse de la derive. @defaultValue 0.5 */\n  speed?: number\n  /** Densite du semis. @defaultValue 24 */\n  density?: number\n  /** Force du scintillement. @defaultValue 0.6 */\n  twinkle?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<StarsControls>\n}\n\n/** Toutes les proprietes. */\nexport type StarsProps = Customisable<StarsOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-zinc-100'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-950'\n\n/**\n * Etoiles.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Stars className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Stars({\n  speed = 0.5,\n  density = 24,\n  twinkle = 0.6,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: StarsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: STARS_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: density, uTwinkle: twinkle },\n    name: 'stars',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

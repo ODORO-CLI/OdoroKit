@@ -1,0 +1,90 @@
+{
+  "name": "orbital-sphere",
+  "category": "background",
+  "title": "Sphere orbitale",
+  "description": "Une sphere de particules repartie par la spirale de Fibonacci, ceinte d anneaux inclines et piquee de noeuds lumineux.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/OrbitalSphere.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-poster"
+  ],
+  "tokens": [
+    "--o-palette-violet-500",
+    "--o-palette-violet-300",
+    "--o-palette-fuchsia-400"
+  ],
+  "props": [
+    {
+      "name": "points",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "description": "Nombre de points sur la sphere. Retrograde a 900 en qualite basse.",
+      "min": 400,
+      "max": 6000,
+      "step": 200
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre d anneaux inclines.",
+      "min": 0,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "nodes",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Nombre de noeuds lumineux.",
+      "min": 0,
+      "max": 40,
+      "step": 2
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-palette-violet-500, --o-palette-violet-300, --o-palette-fuchsia-400",
+      "description": "Tokens de la sphere, des anneaux et des noeuds."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Le nombre de points suit la qualite retenue, et le rendu se suspend hors du champ. Aucune boucle propre — ni rAF, ni observateur de taille ou de visibilite : le moteur les porte deja.",
+    "fallback": "poster"
+  },
+  "id": "background/orbital-sphere",
+  "sources": {
+    "component.tsx": "/**\n * Sphère de particules, ceinte d'anneaux et piquée de nœuds lumineux.\n *\n * ## Ce fichier n'est pas un portage\n *\n * L'implémentation dont il s'inspire déléguait tout à un\n * `createOrbitalSphereRenderer` qui n'accompagnait pas le composant. La scène\n * est donc écrite ici, depuis sa description : une sphère de points, trois\n * anneaux inclinés, quelques nœuds plus brillants.\n *\n * ## Ce qu'elle ne fait pas, contrairement à l'original\n *\n * Elle n'ouvre ni `requestAnimationFrame`, ni `ResizeObserver`, ni\n * `IntersectionObserver`. Les trois vivent déjà dans le moteur : `useScene`\n * arbitre la surface, suit le redimensionnement, suspend le rendu hors du champ\n * et s'abonne à la boucle unique. Les rouvrir ici donnerait deux boucles\n * concurrentes sur une même page, et le tremblement irrégulier que la boucle\n * unique existe pour supprimer.\n *\n * L'original appliquait aussi sa teinte par `filter: hue-rotate()` sur le\n * canevas. C'est un filtre plein écran à chaque image, pour un résultat que les\n * couleurs des matériaux donnent gratuitement — et qui, lui, suit la palette.\n *\n * ## La répartition des points n'est pas aléatoire\n *\n * Tirer une latitude et une longitude au hasard accumule les points aux pôles :\n * les parallèles y sont plus courts, mais reçoivent autant de tirages. La\n * spirale de Fibonacci répartit au contraire les points à distance égale, ce\n * qui est ce qu'on veut d'une sphère de particules — et ce qui se voit\n * immédiatement si on s'en passe.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePoster } from '@registre/hooks/usePoster'\n\n/** Proprietes propres au composant. */\nexport interface OrbitalSphereOwnProps {\n  /** Nombre de points sur la sphere. @defaultValue 2400 */\n  points?: number\n  /** Nombre d'anneaux. @defaultValue 3 */\n  rings?: number\n  /** Nombre de noeuds lumineux. @defaultValue 12 */\n  nodes?: number\n  /** Vitesse de rotation, en tours par minute. @defaultValue 2 */\n  rpm?: number\n  /** Tokens de la sphere, des anneaux et des noeuds. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type OrbitalSphereProps = Customisable<OrbitalSphereOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-violet-500',\n  '--o-palette-violet-300',\n  '--o-palette-fuchsia-400',\n] as const\n\n/** Repli par defaut : un halo fige, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-br o-from-violet-950 o-via-zinc-950 o-to-fuchsia-950'\n\n/**\n * Nombre de points en qualite basse.\n *\n * Chaque point est un sommet, et le cout d'un nuage de points croit lineairement\n * avec leur nombre. C'est le seul levier qui compte ici — les anneaux et les\n * noeuds sont negligeables a cote.\n */\nconst LOW_POINTS = 900\n\n/** L'angle d'or, qui donne son pas a la spirale. */\nconst GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5))\n\n/**\n * Sphere de particules en rotation.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <OrbitalSphere className=\"o-absolute o-inset-0\" />\n *   <div className=\"o-relative o-z-10\">…</div>\n * </div>\n *\n * @example\n * // Les couleurs suivent la palette : trois tokens, pas trois valeurs.\n * <OrbitalSphere colors={[\n *   '--o-palette-sky-500',\n *   '--o-palette-sky-300',\n *   '--o-palette-cyan-400',\n * ]} />\n */\nexport function OrbitalSphere({\n  points = 2400,\n  rings = 3,\n  nodes = 12,\n  rpm = 2,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: OrbitalSphereProps): ReactElement {\n  const { quality, reduced } = useMotionState()\n  const [element, setElement] = useState<HTMLElement | null>(null)\n\n  // Les tokens entrent par leur texte : un littéral ecrit dans le JSX est un\n  // tableau neuf a chaque rendu, et une lecture qui pose un etat bouclerait.\n  const tokenList = colors.join(' ')\n  const [shades, setShades] = useState<readonly (readonly number[])[]>([])\n\n  useEffect(() => {\n    if (element === null) return\n    setShades(tokenList.split(' ').map((token) => readTokenColour(token, element)))\n  }, [element, tokenList, reduced, quality])\n\n  // La scene lit les couleurs par ref : elle est construite une fois, et un\n  // changement de theme met a jour les materiaux sans la reconstruire.\n  const shadesRef = useRef(shades)\n  shadesRef.current = shades\n\n  const { ref, ready, refused } = useScene<HTMLDivElement>({\n    name: 'sphere-orbitale',\n    setup: (context: SceneContext) => {\n      const { scene, camera, three, quality: level } = context\n      const [sphereTint, ringTint, nodeTint] = shadesRef.current\n      if (sphereTint === undefined || ringTint === undefined || nodeTint === undefined) {\n        return\n      }\n\n      camera.position.set(0, 0, 3.4)\n\n      const group = new three.Group()\n      scene.add(group)\n\n      const count = level === 'low' ? LOW_POINTS : points\n\n      // La sphere de points, repartis par la spirale de Fibonacci.\n      const positions = new Float32Array(count * 3)\n      for (let index = 0; index < count; index += 1) {\n        // La hauteur balaie l'intervalle a pas constant ; l'angle avance de\n        // l'angle d'or. C'est ce couple qui egalise les distances.\n        const y = 1 - (index / Math.max(count - 1, 1)) * 2\n        const ray = Math.sqrt(Math.max(0, 1 - y * y))\n        const theta = GOLDEN_ANGLE * index\n        positions[index * 3] = Math.cos(theta) * ray\n        positions[index * 3 + 1] = y\n        positions[index * 3 + 2] = Math.sin(theta) * ray\n      }\n\n      const cloud = new three.BufferGeometry()\n      cloud.setAttribute('position', new three.BufferAttribute(positions, 3))\n      const cloudMaterial = new three.PointsMaterial({\n        size: 0.016,\n        transparent: true,\n        opacity: 0.85,\n        depthWrite: false,\n        blending: three.AdditiveBlending,\n      })\n      cloudMaterial.color.setRGB(\n        sphereTint[0] ?? 0,\n        sphereTint[1] ?? 0,\n        sphereTint[2] ?? 0,\n      )\n      group.add(new three.Points(cloud, cloudMaterial))\n\n      // Les anneaux, inclines regulierement autour de l'axe.\n      const ringMaterial = new three.MeshBasicMaterial({\n        transparent: true,\n        opacity: 0.35,\n        side: three.DoubleSide,\n        blending: three.AdditiveBlending,\n        depthWrite: false,\n      })\n      ringMaterial.color.setRGB(ringTint[0] ?? 0, ringTint[1] ?? 0, ringTint[2] ?? 0)\n\n      for (let index = 0; index < rings; index += 1) {\n        const geometry = new three.TorusGeometry(1.25 + index * 0.14, 0.004, 6, 180)\n        const torus = new three.Mesh(geometry, ringMaterial)\n        torus.rotation.x = Math.PI / 2 + (index / Math.max(rings, 1)) * 0.9\n        torus.rotation.y = (index / Math.max(rings, 1)) * Math.PI\n        group.add(torus)\n      }\n\n      // Les noeuds : de petites spheres pleines, posees sur la meme spirale.\n      const nodeGeometry = new three.SphereGeometry(0.028, 12, 12)\n      const nodeMaterial = new three.MeshBasicMaterial({\n        transparent: true,\n        opacity: 0.95,\n        blending: three.AdditiveBlending,\n        depthWrite: false,\n      })\n      nodeMaterial.color.setRGB(nodeTint[0] ?? 0, nodeTint[1] ?? 0, nodeTint[2] ?? 0)\n\n      for (let index = 0; index < nodes; index += 1) {\n        const y = 1 - (index / Math.max(nodes - 1, 1)) * 2\n        const ray = Math.sqrt(Math.max(0, 1 - y * y))\n        const theta = GOLDEN_ANGLE * index * 7\n        const node = new three.Mesh(nodeGeometry, nodeMaterial)\n        node.position.set(Math.cos(theta) * ray, y, Math.sin(theta) * ray)\n        node.scale.setScalar(1.15)\n        group.add(node)\n      }\n\n      // Ce qui tourne est le groupe, pas la camera : une camera qui orbite\n      // ferait tourner aussi le repere des noeuds si on venait a les ancrer.\n      const spin = group\n\n      // La construction rend sa fonction de nettoyage. Les geometries et les\n      // materiaux sont liberes par le parcours de la scene ; ce qui est cree\n      // ici et n'y figure pas ne l'est pas, et il n'y en a aucun.\n      return () => {\n        scene.remove(group)\n        spin.clear()\n      }\n    },\n    frame: ({ scene }, { delta }) => {\n      const group = scene.children.find((child) => child.type === 'Group')\n      if (group === undefined) return\n      // La rotation est exprimee en fonction du temps ecoule : le meme reglage\n      // donne la meme vitesse apparente a soixante comme a cent vingt images.\n      group.rotation.y += (delta * rpm * Math.PI * 2) / 60\n      group.rotation.x = Math.sin(group.rotation.y * 0.3) * 0.12\n    },\n  })\n\n  const pending = usePoster({ ready, refused })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden o-bg-zinc-950' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(node) => {\n        setElement(node)\n        ref.current = node\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {pending.visible ? (\n        <div style={pending.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

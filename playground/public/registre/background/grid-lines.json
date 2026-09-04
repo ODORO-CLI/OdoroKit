@@ -1,0 +1,76 @@
+{
+  "name": "grid-lines",
+  "category": "background",
+  "title": "Grille",
+  "description": "Un quadrillage qui derive, en degrades repetes. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/GridLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Pas du quadrillage.",
+      "min": 0,
+      "max": 140,
+      "step": 100
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "unit": "px",
+      "description": "Epaisseur des traits.",
+      "min": 0,
+      "max": 3,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "s",
+      "description": "Duree d un cycle de derive. Zero pour l immobiliser.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "fade",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Attenue la grille vers les bords."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux degrades repetes et un masque. Aucun contexte graphique, aucun plafond a partager."
+  },
+  "id": "background/grid-lines",
+  "sources": {
+    "component.tsx": "/**\n * Grille : un quadrillage qui derive, sans contexte graphique.\n *\n * ## Pourquoi celui-ci n'emploie pas WebGL\n *\n * Un quadrillage est une repetition reguliere de deux traits. Deux degrades\n * repetes le decrivent exactement, et le compositeur du navigateur les dessine\n * sans qu'aucun JavaScript ne s'execute. Prendre une surface graphique pour\n * cela reviendrait a payer treize kilo-octets et un contexte — dont le\n * navigateur ne distribue qu'un nombre limite — pour un resultat identique.\n *\n * La consequence pratique compte autant que le principe : l'arbitre n'accorde\n * qu'une surface par backend, si bien que deux fonds en shader ne peuvent pas\n * coexister sur une page. Celui-ci se pose autant de fois qu'on veut.\n *\n * ## L'attenuation vers les bords\n *\n * Un quadrillage qui s'arrete net au bord de son conteneur se lit comme une\n * texture posee dessus. Un masque radial le fait disparaitre progressivement,\n * ce qui le fait appartenir a la page plutot que s'y superposer.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface GridLinesOwnProps {\n  /** Pas du quadrillage, en pixels. @defaultValue 48 */\n  size?: number\n  /** Epaisseur des traits, en pixels. @defaultValue 1 */\n  thickness?: number\n  /** Couleur des traits. */\n  color?: string\n  /** Duree d'un cycle de derive, en secondes. Zero pour l'immobiliser. @defaultValue 0 */\n  speed?: number\n  /** Attenue la grille vers les bords. @defaultValue true */\n  fade?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type GridLinesProps = Customisable<GridLinesOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-grid-lines'\n\n/** Pose la derive, une fois par document. */\nfunction ensureGridRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La derive parcourt exactement un pas : au terme du cycle, le motif est\n    // superposable a lui-meme et la boucle ne se voit pas.\n    '@keyframes o-grid-drift{to{background-position:var(--o-grid-size) var(--o-grid-size)}}',\n    '[data-o-grid-drift]{animation:o-grid-drift var(--o-grid-duration) linear infinite}',\n    '@media (prefers-reduced-motion:reduce){[data-o-grid-drift]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Quadrillage de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <GridLines className=\"o-absolute o-inset-0\" speed={24} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function GridLines({\n  size = 48,\n  thickness = 1,\n  color = 'oklch(100% 0 0 / 0.08)',\n  speed = 0,\n  fade = true,\n  ...rest\n}: GridLinesProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureGridRule()\n\n  const step = `${String(size)}px`\n  const line = `${String(thickness)}px`\n\n  const mask = fade\n    ? 'radial-gradient(ellipse at center, black 45%, transparent 85%)'\n    : undefined\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-grid-size': step,\n          '--o-grid-duration': `${String(Math.max(speed, 1))}s`,\n          backgroundImage: [\n            `linear-gradient(to right, ${color} ${line}, transparent ${line})`,\n            `linear-gradient(to bottom, ${color} ${line}, transparent ${line})`,\n          ].join(','),\n          backgroundSize: `${step} ${step}`,\n          ...(mask === undefined ? {} : { WebkitMaskImage: mask, maskImage: mask }),\n        } as CSSProperties\n      }\n      data-o-grid-drift={speed > 0 && !reduced ? '' : undefined}\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

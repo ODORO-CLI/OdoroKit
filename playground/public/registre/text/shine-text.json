@@ -1,0 +1,70 @@
+{
+  "name": "shine-text",
+  "category": "text",
+  "title": "Reflet",
+  "description": "Un reflet traverse le texte en boucle, sans aucun JavaScript a l execution.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/ShineText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "from",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du texte au repos."
+    },
+    {
+      "name": "shine",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du reflet."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un passage.",
+      "min": 0,
+      "max": 9000,
+      "step": 100
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 30,
+      "description": "Largeur du reflet, en pourcentage de la largeur du texte.",
+      "min": 1,
+      "max": 60,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade anime par le compositeur. Aucun JavaScript par image."
+  },
+  "id": "text/shine-text",
+  "sources": {
+    "component.tsx": "/**\n * Reflet : une bande claire traverse le texte, en boucle.\n *\n * ## Zero JavaScript a l'execution\n *\n * L'effet tient dans un degrade decoupe sur la forme des lettres, dont la\n * position est animee. Le compositeur du navigateur s'en charge seul : aucune\n * boucle, aucun abonnement, aucun rendu React apres le premier.\n *\n * C'est la demonstration de la frontiere posee par le moteur. Cet effet est\n * visuellement proche de ce qu'un shader ferait, et il ne demande pas une\n * ligne de moteur — parce qu'il ne recalcule rien : il decrit une animation\n * une fois, puis se tait.\n *\n * ## La contrepartie du decoupage\n *\n * `background-clip: text` peint le texte avec le fond, ce qui suppose de\n * rendre la couleur du texte transparente. Un navigateur qui ne saurait pas le\n * faire afficherait donc un texte invisible — pas « sans reflet »,\n * **invisible**.\n *\n * La regle est donc posee derriere une requete de support. Sans elle, le texte\n * garde sa couleur et perd seulement son reflet, ce qui est le bon sens de la\n * degradation.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useId, type CSSProperties, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ShineTextOwnProps {\n  /** Texte a habiller. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Couleur du texte au repos. Par defaut, celle heritee. */\n  from?: string\n  /** Couleur du reflet. @defaultValue blanc */\n  shine?: string\n  /** Duree d'un passage, en millisecondes. @defaultValue 3000 */\n  duration?: number\n  /** Largeur du reflet, en pourcentage de la largeur du texte. @defaultValue 30 */\n  width?: number\n}\n\n/** Toutes les proprietes. */\nexport type ShineTextProps = Customisable<ShineTextOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-shine-text'\n\n/**\n * Pose l'animation, une fois par document.\n *\n * Le decoupage est enferme dans une requete de support : la ou il n'est pas\n * compris, le texte garde sa couleur et perd seulement son reflet.\n */\nfunction ensureShineRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '@keyframes o-shine{from{background-position:200% 0}to{background-position:-200% 0}}',\n    '@supports (background-clip:text) or (-webkit-background-clip:text){',\n    '[data-o-shine]{',\n    'background-image:linear-gradient(100deg,var(--o-shine-from) 40%,var(--o-shine-color) 50%,var(--o-shine-from) 60%);',\n    'background-size:300% 100%;',\n    '-webkit-background-clip:text;background-clip:text;',\n    'color:transparent;-webkit-text-fill-color:transparent;',\n    'animation:o-shine var(--o-shine-duration) linear infinite;',\n    '}}',\n    '@media (prefers-reduced-motion:reduce){[data-o-shine]{animation:none;background-position:50% 0}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait passer un reflet sur un texte.\n *\n * @example\n * <ShineText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   Odoro\n * </ShineText>\n *\n * @example\n * // Les couleurs sont libres : ce sont des valeurs, pas des roles.\n * <ShineText from=\"var(--o-palette-zinc-500)\" shine=\"var(--o-palette-amber-300)\">\n *   Nouveaute\n * </ShineText>\n */\nexport function ShineText({\n  children,\n  as: Tag = 'span',\n  from = 'currentColor',\n  shine = 'oklch(100% 0 0)',\n  duration = 3000,\n  width = 30,\n  ...rest\n}: ShineTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  useId()\n  ensureShineRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const shineStyle = {\n    ...style,\n    '--o-shine-from': from,\n    '--o-shine-color': shine,\n    '--o-shine-duration': `${String(duration)}ms`,\n    // La largeur du reflet joue sur l'ecart entre les deux jalons sombres du\n    // degrade : plus ils se rapprochent, plus la bande est etroite.\n    '--o-shine-width': `${String(width)}%`,\n  } as CSSProperties\n\n  return (\n    <Tag\n      {...rest}\n      className={className}\n      style={shineStyle}\n      data-o-shine={reduced ? undefined : ''}\n    >\n      {children}\n    </Tag>\n  )\n}\n"
+  }
+}

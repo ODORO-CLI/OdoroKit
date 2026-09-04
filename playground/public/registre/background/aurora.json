@@ -1,0 +1,78 @@
+{
+  "name": "aurora",
+  "category": "background",
+  "title": "Aurore",
+  "description": "Un fond de bruit fractal a deplacement de domaine, colore par la palette du projet.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Aurora.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-fuchsia-600",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Vitesse de derive du motif.",
+      "min": 0,
+      "max": 0.36,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 2.4,
+      "description": "Echelle du bruit. Plus haut, plus fin.",
+      "min": 0,
+      "max": 7.2,
+      "step": 1
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre d octaves. Retrograde a 2 en qualite basse.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-palette-brand-600, --o-palette-fuchsia-600, --o-palette-zinc-50",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un triangle plein ecran et un shader de fragment. Treize kilo-octets compresses ; le rendu se suspend hors du champ.",
+    "fallback": "gradient"
+  },
+  "id": "background/aurora",
+  "sources": {
+    "component.tsx": "/**\n * Fond anime : bruit fractal a deplacement de domaine.\n *\n * ## Les couleurs viennent de la palette\n *\n * C'est la difference entre un fond qui appartient au projet et un fond qui\n * lui est juxtapose. Un fond dont les couleurs sont ecrites en dur reste seul\n * de son espece le jour ou la charte change, et il faut alors rouvrir le\n * shader pour y corriger trois vecteurs.\n *\n * La conversion n'est pas gratuite : la palette est en OKLCH, un shader veut\n * trois flottants, et aucune API du navigateur ne fait le pont. Le moteur s'en\n * charge — c'est ce que `readTokenColour` existe pour faire.\n *\n * Les couleurs sont relues quand le theme change. Un fond fige en clair au\n * milieu d'une page passee en sombre serait le meme defaut, un cran plus loin.\n *\n * ## Le repli n'est pas une precaution\n *\n * C'est la moitie du composant. Il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime\n * n'apporte rien d'autre que son mouvement.\n *\n * @module\n */\n\nimport {\n  AURORA_FRAGMENT,\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  useOnReady,\n  useShaderSurface,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useMemo, useState, type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface AuroraControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface AuroraOwnProps {\n  /** Vitesse de derive du motif. @defaultValue 0.12 */\n  speed?: number\n  /** Echelle du bruit. Plus haut, plus fin. @defaultValue 2.4 */\n  scale?: number\n  /** Nombre d'octaves. @defaultValue 4 */\n  octaves?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<AuroraControls>\n}\n\n/** Toutes les proprietes. */\nexport type AuroraProps = Customisable<AuroraOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-brand-600',\n  '--o-palette-fuchsia-600',\n  '--o-palette-zinc-50',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400'\n\n/**\n * Nombre d'octaves en qualite basse.\n *\n * Chaque octave est une evaluation de bruit de plus par pixel. En diviser le\n * nombre par deux est le reglage le plus rentable : le motif reste reconnaissable\n * la ou la cadence, elle, double.\n */\nconst LOW_OCTAVES = 2\n\n/**\n * Fond anime plein cadre.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Aurora className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n *\n * @example\n * // Les couleurs suivent la palette : trois tokens, pas trois valeurs.\n * <Aurora colors={['--o-palette-red-600', '--o-palette-amber-600', '--o-palette-zinc-900']} />\n */\nexport function Aurora({\n  speed = 0.12,\n  scale = 2.4,\n  octaves = 4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: AuroraProps): ReactElement {\n  const { quality, reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  // Les couleurs sont relues quand l'hote change, quand les tokens demandes\n  // changent, et quand le theme bascule — ce dernier cas passe par la\n  // politique de mouvement, qui se renouvelle a chaque changement d'etat.\n  const [colours, setColours] = useState<readonly ShaderColour[]>([])\n\n  useEffect(() => {\n    if (host === null) return\n    setColours(colors.map((token) => readTokenColour(token, host)))\n  }, [host, colors, reduced, quality])\n\n  const uniforms = useMemo(() => {\n    const [a, b, c] = colours\n    if (a === undefined || b === undefined || c === undefined) return undefined\n\n    return {\n      uColorA: a,\n      uColorB: b,\n      uColorC: c,\n      uSpeed: speed,\n      uScale: scale,\n      uOctaves: quality === 'low' ? LOW_OCTAVES : octaves,\n    }\n  }, [colours, speed, scale, octaves, quality])\n\n  const { ref, ready, refused } = useShaderSurface<HTMLDivElement>({\n    fragment: AURORA_FRAGMENT,\n    // Le shader n'est monte qu'une fois les couleurs lues : le construire avec\n    // des uniformes vides afficherait une image noire avant la premiere\n    // correction, ce que le repli couvre deja mieux.\n    uniforms: uniforms ?? {},\n    name: 'aurore',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, host)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const showFallback = !ready || refused !== undefined || uniforms === undefined\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {showFallback ? <div className={`o-absolute o-inset-0 ${fallback}`} /> : null}\n    </div>\n  )\n}\n"
+  }
+}

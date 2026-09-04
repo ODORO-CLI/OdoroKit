@@ -1,0 +1,62 @@
+{
+  "name": "shiny-button",
+  "category": "ui",
+  "title": "Bouton a lisere tournant",
+  "description": "Un degrade conique qui tourne autour du bouton, anime par une propriete enregistree — sans une ligne de JavaScript.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ShinyButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50",
+    "--o-palette-brand-500",
+    "--o-palette-brand-300",
+    "--o-font-sans",
+    "--o-duration-slower",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Contenu du bouton."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string, string]",
+      "required": false,
+      "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-brand-500, --o-palette-brand-300",
+      "description": "Tokens du fond, du texte, du lisere et de son eclat au survol."
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour du lisere.",
+      "min": 800,
+      "max": 8000,
+      "step": 200
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucune boucle JavaScript : l angle du degrade est une propriete enregistree, donc animable par le compositeur. L animation reste en pause tant que le bouton n est ni survole ni au focus."
+  },
+  "id": "ui/shiny-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton a liseré tournant, en CSS seul.\n *\n * ## Aucun JavaScript n'anime quoi que ce soit\n *\n * Le liseré est un dégradé conique dont l'angle est une propriété enregistrée\n * par `@property`. Sans cet enregistrement, `--gradient-angle` serait une\n * chaîne pour le navigateur, et une chaîne ne s'interpole pas : l'animation\n * sauterait de zéro à trois cent soixante degrés d'un coup. Déclarée comme\n * `<angle>`, elle devient une valeur animable, et le compositeur s'en charge.\n *\n * C'est la seule raison pour laquelle ce bouton n'ouvre pas de boucle.\n *\n * ## Ce qui a été retiré de l'implémentation d'origine\n *\n * Un `@import` de Google Fonts, posé dans la feuille du composant. Il coûtait\n * une requête bloquante à la première peinture, pour imposer une police que le\n * projet n'a pas forcément choisie. La police vient donc du token `--o-font-sans`.\n *\n * Et les couleurs, écrites en dur — un noir, un blanc, un bleu nommé. Elles\n * sont maintenant lues dans la palette, ce qui les fait suivre le thème.\n *\n * ## L'animation est en pause au repos\n *\n * Les trois couches tournent, mais `animation-play-state: paused` les fige tant\n * que le bouton n'est ni survolé ni au focus. Un liseré qui tourne en\n * permanence sur une page qui en compte cinq occupe le compositeur sans que\n * personne ne le regarde.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ShinyButtonOwnProps {\n  /** Contenu du bouton. */\n  children: ReactNode\n  /**\n   * Tokens du fond, du texte, du liseré et de son éclat au survol.\n   *\n   * Quatre, dans cet ordre. Le troisième porte la couleur qui tourne ; le\n   * quatrième celle qui la remplace quand le bouton s'éveille.\n   */\n  colors?: readonly [string, string, string, string]\n  /** Durée d'un tour du liseré, en millisecondes. @defaultValue 3000 */\n  spin?: number\n}\n\n/** Toutes les proprietes. */\nexport type ShinyButtonProps = Customisable<ShinyButtonOwnProps, 'button'>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-zinc-50',\n  '--o-palette-brand-500',\n  '--o-palette-brand-300',\n] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-shiny-button'\n\n/**\n * Pose les regles du bouton, une fois par document.\n *\n * ## Pourquoi `@property` est indispensable ici\n *\n * Une variable CSS ordinaire n'a pas de type : le navigateur la traite comme du\n * texte, et deux textes ne s'interpolent pas. L'animation existerait, mais elle\n * passerait d'une valeur a l'autre sans transition — un liseré qui claque au\n * lieu de tourner.\n *\n * `@property` donne un type, une valeur initiale et une regle d'heritage. C'est\n * ce qui rend `--gradient-angle` animable, et donc tout ce fichier possible.\n *\n * La valeur initiale de l'éclat est `transparent` et non une couleur nommée :\n * `initial-value` n'accepte pas `var()`, et y écrire un blanc figerait une\n * couleur hors de la palette. L'élément la remplace immédiatement par son token.\n */\nfunction ensureShinyRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '@property --o-shiny-angle{syntax:\"<angle>\";initial-value:0deg;inherits:false}',\n    '@property --o-shiny-offset{syntax:\"<angle>\";initial-value:0deg;inherits:false}',\n    '@property --o-shiny-percent{syntax:\"<percentage>\";initial-value:5%;inherits:false}',\n    '@property --o-shiny-shine{syntax:\"<color>\";initial-value:transparent;inherits:false}',\n\n    '[data-o-shiny]{',\n    '--o-shiny-spin:3000ms;',\n    'isolation:isolate;position:relative;overflow:hidden;cursor:pointer;',\n    'outline-offset:4px;border:1px solid transparent;border-radius:360px;',\n    'font-family:var(--o-font-sans);font-size:1.125rem;line-height:1.2;font-weight:500;',\n    'color:var(--o-shiny-fg);',\n    'background:linear-gradient(var(--o-shiny-bg),var(--o-shiny-bg)) padding-box,',\n    'conic-gradient(from calc(var(--o-shiny-angle) - var(--o-shiny-offset)),transparent,',\n    'var(--o-shiny-edge) var(--o-shiny-percent),',\n    'var(--o-shiny-shine) calc(var(--o-shiny-percent) * 2),',\n    'var(--o-shiny-edge) calc(var(--o-shiny-percent) * 3),',\n    'transparent calc(var(--o-shiny-percent) * 4)) border-box;',\n    'box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--o-shiny-fg) 10%,transparent);',\n    'transition:--o-shiny-offset var(--o-duration-slower) var(--o-ease-standard),',\n    '--o-shiny-percent var(--o-duration-slower) var(--o-ease-standard),',\n    '--o-shiny-shine var(--o-duration-slower) var(--o-ease-standard)}',\n\n    '[data-o-shiny]::before,[data-o-shiny]::after,[data-o-shiny]>span::before{',\n    'content:\"\";pointer-events:none;position:absolute;',\n    'inset-inline-start:50%;inset-block-start:50%;translate:-50% -50%;z-index:-1}',\n\n    '[data-o-shiny]:active{translate:0 1px}',\n\n    // Semis de points, masque par un secteur tournant.\n    '[data-o-shiny]::before{--size:calc(100% - 6px);width:var(--size);height:var(--size);',\n    'background:radial-gradient(circle at 2px 2px,var(--o-shiny-fg) 0.5px,transparent 0) padding-box;',\n    'background-size:4px 4px;background-repeat:space;',\n    '-webkit-mask-image:conic-gradient(from calc(var(--o-shiny-angle) + 45deg),black,transparent 10% 90%,black);',\n    'mask-image:conic-gradient(from calc(var(--o-shiny-angle) + 45deg),black,transparent 10% 90%,black);',\n    'border-radius:inherit;opacity:0.4;z-index:-1}',\n\n    // Reflet interne, qui tourne dans l'autre sens.\n    '[data-o-shiny]::after{width:100%;aspect-ratio:1;',\n    'background:linear-gradient(-50deg,transparent,var(--o-shiny-edge),transparent);',\n    '-webkit-mask-image:radial-gradient(circle at bottom,transparent 40%,black);',\n    'mask-image:radial-gradient(circle at bottom,transparent 40%,black);opacity:0.6}',\n\n    '[data-o-shiny]>span{position:relative;z-index:1}',\n    '[data-o-shiny]>span::before{--size:calc(100% + 1rem);width:var(--size);height:var(--size);',\n    'box-shadow:inset 0 -1ex 2rem 4px var(--o-shiny-edge);opacity:0;',\n    'transition:opacity var(--o-duration-slower) var(--o-ease-standard);',\n    'animation:calc(var(--o-shiny-spin) * 1.5) o-shiny-breathe linear infinite}',\n\n    // Les trois couches tournent, et restent en pause tant qu'on ne les regarde pas.\n    '[data-o-shiny],[data-o-shiny]::before,[data-o-shiny]::after{',\n    'animation:o-shiny-turn linear infinite var(--o-shiny-spin),',\n    'o-shiny-turn linear infinite calc(var(--o-shiny-spin) / 0.4) reverse paused;',\n    'animation-composition:add}',\n\n    '[data-o-shiny]:is(:hover,:focus-visible){',\n    '--o-shiny-percent:20%;--o-shiny-offset:95deg;--o-shiny-shine:var(--o-shiny-glow)}',\n    '[data-o-shiny]:is(:hover,:focus-visible),',\n    '[data-o-shiny]:is(:hover,:focus-visible)::before,',\n    '[data-o-shiny]:is(:hover,:focus-visible)::after{animation-play-state:running}',\n    '[data-o-shiny]:is(:hover,:focus-visible)>span::before{opacity:1}',\n\n    '@keyframes o-shiny-turn{to{--o-shiny-angle:360deg}}',\n    '@keyframes o-shiny-breathe{from,to{scale:1}50%{scale:1.2}}',\n\n    // Le liseré est un agrement : sous mouvement reduit il ne tourne plus, et\n    // le bouton garde son etat final — visible, lisible, cliquable.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-shiny],[data-o-shiny]::before,[data-o-shiny]::after,',\n    '[data-o-shiny]>span::before{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Bouton dont le liseré tourne au survol.\n *\n * @example\n * <ShinyButton onClick={souscrire}>Acceder sans limite</ShinyButton>\n *\n * @example\n * // Les quatre couleurs viennent de la palette : fond, texte, lisere, eclat.\n * <ShinyButton colors={[\n *   '--o-palette-zinc-950',\n *   '--o-palette-zinc-50',\n *   '--o-palette-emerald-500',\n *   '--o-palette-emerald-300',\n * ]}>\n *   Publier\n * </ShinyButton>\n */\nexport function ShinyButton({\n  children,\n  colors = DEFAULT_TOKENS,\n  spin = 3000,\n  ...rest\n}: ShinyButtonProps): ReactElement {\n  ensureShinyRules()\n\n  const { className, style } = mergePresentation({ className: 'o-px-10 o-py-5' }, rest)\n\n  return (\n    <button\n      type=\"button\"\n      {...rest}\n      data-o-shiny\n      className={className}\n      style={{\n        // Les quatre tokens deviennent les variables que la feuille consomme.\n        // Elles sont posees en ligne parce qu'elles dependent des props, et\n        // qu'une feuille unique par document ne peut pas les porter.\n        ['--o-shiny-bg' as string]: `var(${colors[0]})`,\n        ['--o-shiny-fg' as string]: `var(${colors[1]})`,\n        ['--o-shiny-edge' as string]: `var(${colors[2]})`,\n        ['--o-shiny-glow' as string]: `var(${colors[3]})`,\n        ['--o-shiny-spin' as string]: `${String(spin)}ms`,\n        ...style,\n      }}\n    >\n      <span>{children}</span>\n    </button>\n  )\n}\n"
+  }
+}

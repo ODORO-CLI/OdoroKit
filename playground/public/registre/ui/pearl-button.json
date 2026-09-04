@@ -1,0 +1,64 @@
+{
+  "name": "pearl-button",
+  "category": "ui",
+  "title": "Bouton en nacre",
+  "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PearlButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50",
+    "--o-palette-zinc-900",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "glyph",
+      "type": "string",
+      "required": false,
+      "default": "✧",
+      "description": "Glyphe au repos."
+    },
+    {
+      "name": "glyphHover",
+      "type": "string",
+      "required": false,
+      "default": "✦",
+      "description": "Glyphe au survol. La bascule est une regle CSS, pas un etat React."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-palette-zinc-950, --o-palette-zinc-50, --o-palette-zinc-900",
+      "description": "Tokens du corps, de la lumiere et de l ombre. Les echanger rend le bouton utilisable sur fond clair."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq ombres et deux pseudo-elements. Aucune image, aucun filtre, aucun JavaScript a l execution."
+  },
+  "id": "ui/pearl-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton en nacre : un volume obtenu par empilement d'ombres.\n *\n * ## Ce que les cinq ombres font\n *\n * Il n'y a ni image, ni dégradé de fond, ni filtre. Le relief vient de cinq\n * ombres superposées, et chacune joue un rôle qu'on ne peut pas retirer sans\n * aplatir l'objet :\n *\n * 1. une lueur interne haute — la lumière qui entre par le dessus ;\n * 2. une ombre interne basse, courte et sombre — l'épaisseur du bord ;\n * 3. une seconde lueur interne basse, large — le rebond de la lumière au fond ;\n * 4. une ombre portée large et lointaine — la distance au sol ;\n * 5. une ombre portée courte et resserrée — le contact.\n *\n * Retirer la quatrième colle le bouton à la page ; retirer la troisième le\n * rend creux au lieu de bombé.\n *\n * ## Les couleurs viennent de la palette\n *\n * L'implémentation d'origine écrivait dix couleurs en dur, canal alpha compris.\n * Chacune est\n * désormais un mélange du token de lumière ou d'ombre, ce qui les fait suivre\n * le thème — et rend le bouton utilisable sur un fond clair, ce qu'il n'était\n * pas.\n *\n * ## Le glyphe change au survol\n *\n * Deux caractères sont rendus, un seul est affiché. C'est plus court qu'un état\n * React, et surtout cela ne provoque aucun rendu : la bascule est une règle CSS.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface PearlButtonOwnProps {\n  /** Libelle du bouton. */\n  children: ReactNode\n  /** Glyphe au repos. @defaultValue '✧' */\n  glyph?: string\n  /** Glyphe au survol. @defaultValue '✦' */\n  glyphHover?: string\n  /**\n   * Tokens du corps, de la lumiere et de l'ombre.\n   *\n   * Trois, dans cet ordre. La lumiere sert aux reflets internes et au texte ;\n   * l'ombre aux ombres internes et portees.\n   */\n  colors?: readonly [string, string, string]\n}\n\n/** Toutes les proprietes. */\nexport type PearlButtonProps = Customisable<PearlButtonOwnProps, 'button'>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-zinc-50',\n  '--o-palette-zinc-900',\n] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-pearl-button'\n\n/** Pose les regles du bouton, une fois par document. */\nfunction ensurePearlRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  /** Un melange du token de lumiere, a l'opacite demandee. */\n  const light = (percent: number): string =>\n    `color-mix(in oklch,var(--o-pearl-light) ${String(percent)}%,transparent)`\n\n  /** Un melange du token d'ombre. */\n  const dark = (percent: number): string =>\n    `color-mix(in oklch,var(--o-pearl-dark) ${String(percent)}%,transparent)`\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pearl]{outline:none;cursor:pointer;border:0;position:relative;',\n    'border-radius:360px;background-color:var(--o-pearl-body);',\n    'transition:box-shadow var(--o-duration-base) var(--o-ease-standard),',\n    'transform var(--o-duration-base) var(--o-ease-standard);',\n    `box-shadow:inset 0 0.3rem 0.9rem ${light(30)},`,\n    `inset 0 -0.1rem 0.3rem ${dark(70)},`,\n    `inset 0 -0.4rem 0.9rem ${light(50)},`,\n    `0 3rem 3rem ${dark(30)},`,\n    `0 1rem 1rem -0.6rem ${dark(80)}}`,\n\n    '[data-o-pearl] [data-o-pearl-wrap]{display:block;font-size:1.5rem;font-weight:500;',\n    `color:${light(70)};padding:2rem 2.8rem;border-radius:inherit;`,\n    'position:relative;overflow:hidden}',\n\n    '[data-o-pearl] [data-o-pearl-line]{display:flex;align-items:center;gap:0.75rem;margin:0;',\n    'transform:translateY(2%);',\n    'transition:transform var(--o-duration-base) var(--o-ease-standard);',\n    '-webkit-mask-image:linear-gradient(to bottom,black 40%,transparent);',\n    'mask-image:linear-gradient(to bottom,black 40%,transparent)}',\n\n    '[data-o-pearl] [data-o-pearl-wrap]::before,[data-o-pearl] [data-o-pearl-wrap]::after{',\n    'content:\"\";position:absolute;',\n    'transition:transform var(--o-duration-slow) var(--o-ease-standard),',\n    'opacity var(--o-duration-slow) var(--o-ease-standard)}',\n\n    // La grande tache de lumiere, qui deborde largement en haut.\n    `[data-o-pearl] [data-o-pearl-wrap]::before{left:-15%;right:-15%;bottom:25%;top:-100%;`,\n    `border-radius:50%;background-color:${light(12)}}`,\n\n    // Le reflet superieur, un rectangle a coins hauts arrondis.\n    '[data-o-pearl] [data-o-pearl-wrap]::after{left:6%;right:6%;top:12%;bottom:40%;',\n    `border-radius:22px 22px 0 0;box-shadow:inset 0 10px 8px -10px ${light(80)};`,\n    `background:linear-gradient(180deg,${light(30)} 0%,transparent 50%,transparent 100%)}`,\n\n    '[data-o-pearl] [data-o-pearl-glyph=\"hover\"]{display:none}',\n    '[data-o-pearl]:hover [data-o-pearl-glyph=\"rest\"]{display:none}',\n    '[data-o-pearl]:hover [data-o-pearl-glyph=\"hover\"]{display:inline-block}',\n\n    `[data-o-pearl]:hover{box-shadow:inset 0 0.3rem 0.5rem ${light(40)},`,\n    `inset 0 -0.1rem 0.3rem ${dark(70)},`,\n    `inset 0 -0.4rem 0.9rem ${light(70)},`,\n    `0 3rem 3rem ${dark(30)},`,\n    `0 1rem 1rem -0.6rem ${dark(80)}}`,\n    '[data-o-pearl]:hover [data-o-pearl-wrap]::before{transform:translateY(-5%)}',\n    '[data-o-pearl]:hover [data-o-pearl-wrap]::after{opacity:0.4;transform:translateY(5%)}',\n    '[data-o-pearl]:hover [data-o-pearl-line]{transform:translateY(-4%)}',\n\n    '[data-o-pearl]:active{transform:translateY(4px);',\n    `box-shadow:inset 0 0.3rem 0.5rem ${light(50)},`,\n    `inset 0 -0.1rem 0.3rem ${dark(80)},`,\n    `inset 0 -0.4rem 0.9rem ${light(40)},`,\n    `0 3rem 3rem ${dark(30)},`,\n    `0 1rem 1rem -0.6rem ${dark(80)}}`,\n\n    // Les deplacements sont un agrement ; l'enfoncement au clic, un retour.\n    // Seul le premier est neutralise : sans retour, on ne sait pas si le clic\n    // a ete pris.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pearl],[data-o-pearl] [data-o-pearl-line],',\n    '[data-o-pearl] [data-o-pearl-wrap]::before,[data-o-pearl] [data-o-pearl-wrap]::after{',\n    'transition:none}',\n    '[data-o-pearl]:hover [data-o-pearl-wrap]::before,',\n    '[data-o-pearl]:hover [data-o-pearl-wrap]::after,',\n    '[data-o-pearl]:hover [data-o-pearl-line]{transform:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Bouton en nacre.\n *\n * @example\n * <PearlButton>Commencer</PearlButton>\n *\n * @example\n * // Sur un fond clair, la lumiere et l'ombre s'echangent.\n * <PearlButton colors={[\n *   '--o-palette-zinc-100',\n *   '--o-palette-zinc-950',\n *   '--o-palette-zinc-400',\n * ]}>\n *   Commencer\n * </PearlButton>\n */\nexport function PearlButton({\n  children,\n  glyph = '✧',\n  glyphHover = '✦',\n  colors = DEFAULT_TOKENS,\n  ...rest\n}: PearlButtonProps): ReactElement {\n  ensurePearlRules()\n\n  const { className, style } = mergePresentation({ className: '' }, rest)\n\n  return (\n    <button\n      type=\"button\"\n      {...rest}\n      data-o-pearl\n      className={className}\n      style={{\n        ['--o-pearl-body' as string]: `var(${colors[0]})`,\n        ['--o-pearl-light' as string]: `var(${colors[1]})`,\n        ['--o-pearl-dark' as string]: `var(${colors[2]})`,\n        ...style,\n      }}\n    >\n      <span data-o-pearl-wrap>\n        {/* Deux `span` et non un `div` contenant un `p` : le contenu d'un\n            bouton est du contenu de phrase, et le balisage d'origine etait\n            invalide. Le `display` vient de la feuille. */}\n        <span data-o-pearl-line>\n          {/* Les deux glyphes sont rendus, un seul est affiche : la bascule est\n              une regle CSS, donc elle ne provoque aucun rendu React. */}\n          <span aria-hidden data-o-pearl-glyph=\"rest\">\n            {glyph}\n          </span>\n          <span aria-hidden data-o-pearl-glyph=\"hover\">\n            {glyphHover}\n          </span>\n          {children}\n        </span>\n      </span>\n    </button>\n  )\n}\n"
+  }
+}

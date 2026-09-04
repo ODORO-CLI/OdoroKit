@@ -1,0 +1,95 @@
+{
+  "name": "scroll-video",
+  "category": "hero",
+  "title": "Video defilee",
+  "description": "Une video parcourue image par image par le defilement, dans une scene collante — sans verrouiller la page.",
+  "engine": {
+    "gsap": [
+      "ScrollTrigger"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "hero/ScrollVideo.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-duration-slower",
+    "--o-ease-entrance",
+    "--o-ease-exit"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video. Un encodage a images cles rapprochees est necessaire : sans lui, chaque recherche decode depuis l image cle precedente et le parcours saccade."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Image affichee tant que la video n est pas decodable."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Titre, efface a mesure que la video avance."
+    },
+    {
+      "name": "tagline",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Phrase revelee sur les derniers pour cent de la course."
+    },
+    {
+      "name": "hint",
+      "type": "ReactNode",
+      "required": false,
+      "default": "Defiler",
+      "description": "Invitation a defiler, effacee au premier mouvement."
+    },
+    {
+      "name": "range",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Longueur de la course, en hauteurs de fenetre.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "ease",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Vitesse de rattrapage de la position visee. Plus haut, plus sec.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": false,
+      "description": "Texte de remplacement de la video."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "notes": "Le cout est celui de la video : decodage a chaque recherche, et un fichier qui pese generalement plusieurs megaoctets. Sous mouvement reduit, aucune boucle n est ouverte et l image finale est affichee telle quelle.",
+    "fallback": "poster"
+  },
+  "id": "hero/scroll-video",
+  "sources": {
+    "component.tsx": "/**\n * Heros video : le defilement fait avancer la video, image par image.\n *\n * ## Le verrou de page a ete retire, et c'est le point important\n *\n * L'implementation d'origine posait `position: fixed` sur `document.body` et\n * captait la molette pour la detourner vers `video.currentTime`. Son propre\n * commentaire l'assumait : « aucune soupape dans un sens ni dans l'autre ».\n *\n * Cela produit un cul-de-sac. Une page ainsi verrouillee ne se quitte pas au\n * clavier — ni `Page suivante`, ni `Fin`, ni `Tab` ne font quoi que ce soit,\n * puisque la page ne defile plus. Un lecteur d'ecran n'a plus de document a\n * parcourir. Une tablette sans molette n'a que le geste tactile, lui aussi\n * capte. Et la barre de defilement disparait, donc rien n'indique qu'il se\n * passe quelque chose.\n *\n * Le meme rendu s'obtient sans rien verrouiller : une enveloppe haute de\n * plusieurs hauteurs de fenetre, une scene collante a l'interieur, et la\n * progression du defilement — reelle — qui pilote la video. Le defilement\n * clavier fonctionne, la barre indique ou l'on en est, et quitter la section\n * consiste a continuer de defiler.\n *\n * ## La file d'attente des recherches\n *\n * `currentTime` ne se pose pas a chaque image : une recherche en cours ignore\n * les suivantes, et les demandes s'empilent jusqu'a ce que la video parte en\n * arriere. La derniere valeur demandee est donc retenue, et appliquee au\n * `seeked` suivant — une recherche a la fois, toujours vers la position la plus\n * recente. C'est la seule facon d'obtenir un defilement fluide, et elle vient\n * de l'implementation d'origine.\n *\n * ## Ce que la video doit etre\n *\n * Une video ordinaire ne se parcourt pas image par image : sans images cles\n * rapprochees, chaque recherche decode depuis la precedente, et le rendu\n * saccade. Un encodage a intervalle court — une image cle toutes les dix a\n * quinze images — est ce qui fait la difference entre l'effet et son echec.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  useScrollScrub,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ScrollVideoOwnProps {\n  /** Source de la video. Obligatoire : le registre n'en embarque aucune. */\n  src: string\n  /** Image affichee tant que la video n'est pas decodable. */\n  poster?: string\n  /** Titre, efface a mesure que la video avance. */\n  title?: ReactNode\n  /** Phrase revelee a la fin de la course. */\n  tagline?: ReactNode\n  /** Invitation a defiler, effacee au premier mouvement. @defaultValue 'Defiler' */\n  hint?: ReactNode\n  /**\n   * Longueur de la course, en hauteurs de fenetre. Trois signifie qu'il faut\n   * trois ecrans de defilement pour parcourir la video entiere.\n   *\n   * @defaultValue 3\n   */\n  range?: number\n  /**\n   * Vitesse de rattrapage de la position visee. Plus haut, plus sec.\n   *\n   * @defaultValue 6\n   */\n  ease?: number\n  /** Texte de remplacement de la video, pour ce qui ne peut pas la lire. */\n  description?: string\n}\n\n/** Toutes les proprietes. */\nexport type ScrollVideoProps = Customisable<ScrollVideoOwnProps, 'section'>\n\n/** Borne une valeur entre zero et un. */\nfunction unit(value: number): number {\n  return Math.min(1, Math.max(0, value))\n}\n\n/**\n * Ecart en deca duquel une recherche n'a pas lieu d'etre, en secondes.\n *\n * Un soixantieme de seconde est la duree d'une image : demander moins que cela\n * ne change aucun pixel, et coute un aller-retour de decodage.\n */\nconst SEEK_EPSILON = 1 / 60\n\n/** `HTMLMediaElement.HAVE_CURRENT_DATA` : l'image courante est decodee. */\nconst HAVE_CURRENT_DATA = 2\n\n/**\n * Heros dont la video avance avec le defilement.\n *\n * @example\n * <ScrollVideo\n *   src=\"/videos/ville.mp4\"\n *   poster=\"/videos/ville.jpg\"\n *   title=\"La ville s ouvre\"\n *   tagline=\"Chaque porte est deja ouverte.\"\n * />\n *\n * @example\n * // Une course plus longue laisse plus de defilement pour la meme video.\n * <ScrollVideo src=\"/videos/atelier.mp4\" range={5} />\n */\nexport function ScrollVideo({\n  src,\n  poster,\n  title,\n  tagline,\n  hint = 'Defiler',\n  range = 3,\n  ease = 6,\n  description,\n  ...rest\n}: ScrollVideoProps): ReactElement {\n  const { reduced } = useMotionState()\n  const video = useRef<HTMLVideoElement | null>(null)\n  const titleRef = useRef<HTMLDivElement | null>(null)\n  const taglineRef = useRef<HTMLDivElement | null>(null)\n  const hintRef = useRef<HTMLDivElement | null>(null)\n  const barRef = useRef<HTMLDivElement | null>(null)\n\n  const [loaded, setLoaded] = useState(false)\n\n  /** Position visee, ecrite par le defilement, lue par la boucle. */\n  const target = useRef(0)\n  /** Position affichee, rapprochee de la cible a chaque image. */\n  const shown = useRef(0)\n\n  const { ref } = useScrollScrub<HTMLDivElement>(\n    (progress) => {\n      target.current = progress\n      // Sous mouvement reduit, la progression arrive une fois, a un : il n'y a\n      // pas de boucle pour la reprendre, donc elle est appliquee ici meme.\n      if (reduced) {\n        shown.current = progress\n        paint(progress)\n      }\n    },\n    { start: 'top top', end: 'bottom bottom', name: 'video-defilee' },\n  )\n\n  /**\n   * Applique une progression a tout ce qui en depend.\n   *\n   * Declaree comme fonction du composant plutot que memorisee : elle ne lit que\n   * des refs, et ne referme donc sur aucune valeur qui vieillirait.\n   */\n  function paint(progress: number): void {\n    const element = video.current\n    if (element !== null) {\n      element.style.transform = `scale(${String(1 + progress * 0.06)})`\n    }\n\n    const heading = titleRef.current\n    if (heading !== null) {\n      const t = 1 - unit(progress / 0.35)\n      heading.style.opacity = t.toFixed(3)\n      heading.style.transform = `translate3d(0,${String((1 - t) * -24)}px,0)`\n    }\n\n    const end = taglineRef.current\n    if (end !== null) {\n      const t = unit((progress - 0.82) / 0.18)\n      end.style.opacity = t.toFixed(3)\n      end.style.transform = `translate3d(0,${String((1 - t) * 20)}px,0)`\n    }\n\n    const invitation = hintRef.current\n    if (invitation !== null) {\n      invitation.style.opacity = progress > 0.01 ? '0' : '1'\n    }\n\n    const bar = barRef.current\n    if (bar !== null) bar.style.transform = `scaleX(${progress.toFixed(4)})`\n  }\n\n  // La recherche, et la boucle qui l'alimente.\n  useEffect(() => {\n    const element = video.current\n    if (element === null) return\n\n    let seeking = false\n    let waiting: number | null = null\n\n    /**\n     * Demande une position. Une seule recherche a la fois ; la derniere\n     * demandee pendant qu'une autre court est appliquee des sa fin.\n     */\n    const seek = (time: number): void => {\n      // Redemander la position courante ne declenche pas `seeked` partout : le\n      // drapeau resterait leve, la file ne se viderait plus, et le parcours se\n      // figerait definitivement. On ne demande donc que ce qui bouge vraiment.\n      // Le cas se produit des que la video est immobile, c'est-a-dire des que\n      // l'utilisateur s'arrete de defiler — donc a chaque fois.\n      if (Math.abs(element.currentTime - time) < SEEK_EPSILON) return\n\n      if (seeking) {\n        waiting = time\n        return\n      }\n      seeking = true\n      element.currentTime = time\n    }\n\n    const onSeeked = (): void => {\n      seeking = false\n      if (waiting === null) return\n      const next = waiting\n      waiting = null\n      seek(next)\n    }\n\n    const onLoaded = (): void => {\n      setLoaded(true)\n      // La duree n'etait pas connue quand la premiere progression est arrivee :\n      // on la rejoue, sans quoi la video resterait sur son image de depart.\n      if (reduced) seek((element.duration || 0) * 0.92)\n      paint(shown.current)\n    }\n\n    element.addEventListener('seeked', onSeeked)\n    element.addEventListener('loadeddata', onLoaded)\n\n    // La video peut deja etre decodable : en cache, ou remontee apres un\n    // changement de prop. L'evenement est alors passe avant l'ecoute, et sans\n    // ce rattrapage il ne reviendra jamais — la video resterait a l'opacite\n    // nulle, sur une page qui parait vide.\n    if (element.readyState >= HAVE_CURRENT_DATA) onLoaded()\n\n    if (reduced) {\n      return () => {\n        element.removeEventListener('seeked', onSeeked)\n        element.removeEventListener('loadeddata', onLoaded)\n      }\n    }\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        // Rattrapage exponentiel exprime en fonction du temps ecoule : une\n        // fraction constante irait deux fois plus vite sur un ecran a cent\n        // vingt images par seconde.\n        const factor = 1 - Math.exp(-ease * delta)\n        shown.current += (target.current - shown.current) * factor\n\n        const duration = element.duration\n        if (Number.isFinite(duration) && duration > 0) {\n          seek(shown.current * duration)\n        }\n        paint(shown.current)\n      },\n      { name: 'video-defilee', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n      element.removeEventListener('seeked', onSeeked)\n      element.removeEventListener('loadeddata', onLoaded)\n    }\n    // `paint` ne figure pas dans les dependances : elle ne lit que des refs, et\n    // ne referme donc sur aucune valeur qui vieillirait entre deux rendus.\n  }, [ease, reduced])\n\n  const { className, style } = mergePresentation({ className: 'o-relative' }, rest)\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      className={className}\n      // La hauteur de l'enveloppe **est** la longueur de la course : c'est elle\n      // que le declencheur mesure, et elle seule.\n      style={{ height: `${String(Math.max(1, range + 1) * 100)}vh`, ...style }}\n    >\n      <div className=\"o-sticky o-top-0 o-h-screen o-w-full o-overflow-hidden o-bg-zinc-950\">\n        <video\n          ref={video}\n          src={src}\n          poster={poster}\n          muted\n          playsInline\n          preload=\"auto\"\n          // Sans description, la video ne porte aucune information que le titre\n          // ne porte deja : l'annoncer comme un media anonyme ajoute du bruit\n          // sans rien apprendre. Avec une description, elle devient un contenu\n          // a part entiere et reste dans l'arbre d'accessibilite.\n          aria-label={description}\n          aria-hidden={description === undefined}\n          className=\"o-absolute o-inset-0 o-h-full o-w-full o-object-cover o-will-change-transform\"\n          style={{\n            opacity: loaded ? 1 : 0,\n            transition: 'opacity var(--o-duration-slower) var(--o-ease-entrance)',\n          }}\n        />\n\n        <div\n          aria-hidden\n          className=\"o-pointer-events-none o-absolute o-inset-0 o-bg-gradient-to-b o-from-zinc-950 o-via-transparent o-to-zinc-950\"\n        />\n\n        {title === undefined ? null : (\n          <div\n            ref={titleRef}\n            className=\"o-pointer-events-none o-absolute o-inset-0 o-flex o-items-center o-justify-center o-px-8 o-text-center\"\n          >\n            <h1 className=\"o-text-5xl o-font-bold o-tracking-tight o-text-zinc-50 md:o-text-8xl\">\n              {title}\n            </h1>\n          </div>\n        )}\n\n        {tagline === undefined ? null : (\n          <div\n            ref={taglineRef}\n            style={{ opacity: 0 }}\n            className=\"o-pointer-events-none o-absolute o-inset-0 o-flex o-items-center o-justify-center o-px-10 o-text-center\"\n          >\n            <p className=\"o-text-2xl o-font-medium o-text-zinc-50 md:o-text-4xl\">\n              {tagline}\n            </p>\n          </div>\n        )}\n\n        <div\n          ref={hintRef}\n          aria-hidden\n          className=\"o-pointer-events-none o-absolute o-bottom-10 o-left-1/2 o-flex o-flex-col o-items-center o-gap-2 o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-300\"\n          style={{\n            transform: 'translateX(-50%)',\n            transition: 'opacity var(--o-duration-slow) var(--o-ease-exit)',\n          }}\n        >\n          <span>{hint}</span>\n          <svg\n            viewBox=\"0 0 14 18\"\n            fill=\"none\"\n            stroke=\"currentColor\"\n            strokeWidth=\"1.5\"\n            strokeLinecap=\"round\"\n            strokeLinejoin=\"round\"\n            className=\"o-h-4 o-w-4\"\n          >\n            <path d=\"M7 1v16M2 12l5 5 5-5\" />\n          </svg>\n        </div>\n\n        {/* Le fil de progression : la seule indication de l'avancee dans la\n            video, la barre du navigateur mesurant la page et non la course. */}\n        <div aria-hidden className=\"o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-800\">\n          <div\n            ref={barRef}\n            className=\"o-h-full o-w-full o-bg-zinc-50\"\n            style={{ transform: 'scaleX(0)', transformOrigin: 'left center' }}\n          />\n        </div>\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

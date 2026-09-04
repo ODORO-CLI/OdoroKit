@@ -140,7 +140,7 @@ export async function buildRegistry(
   written.push('index.json')
 
   if (publish) {
-    await publishCatalogue(index)
+    await publishCatalogue(index, entries)
     await publishCatalogueModule(entries)
   }
 
@@ -163,12 +163,27 @@ export async function buildRegistry(
  * L'ecriture est silencieuse quand le dossier n'existe pas : un registre tiers
  * qui reprendrait ce script n'a pas de playground.
  */
-async function publishCatalogue(index: RegistryIndex): Promise<void> {
+async function publishCatalogue(
+  index: RegistryIndex,
+  entries: readonly (PublishedEntry & { directory: string })[],
+): Promise<void> {
   const target = join('..', '..', 'playground', 'public', 'registre')
 
   try {
     await mkdir(target, { recursive: true })
     await writeFile(join(target, 'index.json'), encode(index), 'utf8')
+
+    // Les entrees completes, avec leur code. La page d'un composant les
+    // telecharge **a la demande**, quand on demande a voir le code — jamais au
+    // premier rendu. C'est la raison pour laquelle elles ne sont pas dans le
+    // module du catalogue : le source pese dix fois le reste, et la plupart des
+    // visites ne le regardent pas.
+    for (const entry of entries) {
+      const { directory: _directory, ...published } = entry
+      const fichier = join(target, entry.category, `${entry.name}.json`)
+      await mkdir(dirname(fichier), { recursive: true })
+      await writeFile(fichier, encode(published satisfies PublishedEntry), 'utf8')
+    }
   } catch {
     // Voir la note ci-dessus.
   }

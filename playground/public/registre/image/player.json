@@ -1,0 +1,66 @@
+{
+  "name": "player",
+  "category": "image",
+  "title": "Lecteur video",
+  "description": "Un lecteur complet : lecture, barre de progression, volume, plein ecran, au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Player.tsx"
+    }
+  ],
+  "dependencies": [
+    "@odoro-cli/icons"
+  ],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de la video."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Image affichee avant la lecture."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Titre de la video, annonce aux technologies d assistance."
+    },
+    {
+      "name": "tracks",
+      "type": "readonly { src: string; srcLang: string; label: string }[]",
+      "required": false,
+      "description": "Pistes de sous-titres."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le decodage revient au navigateur. Le lecteur n ajoute que des commandes et un abonnement aux evenements du media. Les six icones des commandes viennent de odoro-icons : l elagage ne retient qu elles."
+  },
+  "id": "image/player",
+  "sources": {
+    "component.tsx": "/**\n * Lecteur video.\n *\n * ## Pourquoi refaire ce que le navigateur donne\n *\n * Les commandes natives fonctionnent parfaitement — et n'ont aucune raison\n * d'etre remplacees si l'apparence par defaut convient. Ce lecteur existe pour\n * une seule raison : elles ne sont pas habillables. Ni couleur, ni forme, ni\n * rayon, ni position ; chaque navigateur impose la sienne.\n *\n * Ce qui reste au natif reste au natif : le decodage, la mise en tampon, les\n * pistes de sous-titres, le plein ecran, l'image dans l'image. Le lecteur\n * n'ajoute que des boutons et un abonnement aux evenements du media.\n *\n * ## L'etat vient du media, jamais l'inverse\n *\n * Un lecteur qui tiendrait son propre etat de lecture se desynchroniserait au\n * premier evenement exterieur — une touche media du clavier, une mise en\n * pause par le systeme, une coupure reseau. L'element est donc la seule source\n * de verite : les commandes lui demandent, et l'affichage suit ce qu'il\n * annonce.\n *\n * ## Les commandes sont des icones, pas des caracteres\n *\n * Les triangles et les barres du repertoire Unicode donnent un lecteur qui\n * fonctionne sans rien installer. Ils donnent aussi un lecteur different sur\n * chaque plateforme — l'emoji de volume est en couleurs sur l'un, un trait sur\n * l'autre —, qui ne suit ni la couleur du texte ni sa taille, et qu'aucune\n * classe ne rattrape.\n *\n * Le lecteur emploie donc six icones du jeu filaire. L'elagage ne retient\n * qu'elles : le cout est de quelques centaines d'octets, pour des commandes\n * qui se colorent et se dimensionnent comme le reste.\n *\n * ## La barre de progression est un curseur\n *\n * Pas une barre cliquable. Elle porte son role, ses bornes et sa valeur en\n * secondes, les fleches la deplacent de cinq secondes, `Origine` et `Fin`\n * sautent aux extremites. C'est ce qui separe un lecteur d'une decoration.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { Icon, type IconData } from '@odoro-cli/icons'\nimport { Maximize, Pause, Play, Volume_2, VolumeX } from '@odoro-cli/icons/filaire'\nimport { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'\n\n/** Une piste de sous-titres. */\nexport interface PlayerTrack {\n  /** Fichier WebVTT. */\n  readonly src: string\n  /** Code de langue. */\n  readonly srcLang: string\n  /** Intitule affiche dans le menu du navigateur. */\n  readonly label: string\n}\n\n/** Proprietes propres au composant. */\nexport interface PlayerOwnProps {\n  /** Source de la video. */\n  src: string\n  /** Image affichee avant la lecture. */\n  poster?: string\n  /** Titre de la video, annonce aux technologies d'assistance. */\n  label: string\n  /** Pistes de sous-titres. */\n  tracks?: readonly PlayerTrack[]\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n}\n\n/** Toutes les proprietes. */\nexport type PlayerProps = Customisable<PlayerOwnProps>\n\n/** Pas de deplacement au clavier, en secondes. */\nconst STEP = 5\n\n/** Met une duree en minutes et secondes. */\nfunction clock(seconds: number): string {\n  if (!Number.isFinite(seconds)) return '--:--'\n  const minutes = Math.floor(seconds / 60)\n  const rest = Math.floor(seconds % 60)\n  return `${String(minutes)}:${String(rest).padStart(2, '0')}`\n}\n\n/** Un bouton de commande. */\nfunction Control({\n  label,\n  icon,\n  onClick,\n}: {\n  label: string\n  icon: IconData\n  onClick: () => void\n}): ReactElement {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      onClick={onClick}\n      className=\"o-inline-flex o-size-9 o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-white hover:o-bg-white-20 focus:o-ring o-cursor-pointer o-transition-colors\"\n    >\n      <Icon icon={icon} size={18} />\n    </button>\n  )\n}\n\n/**\n * Lecteur video habillable.\n *\n * @example\n * <Player\n *   src=\"/presentation.mp4\"\n *   poster=\"/presentation.jpg\"\n *   label=\"Presentation du produit\"\n *   tracks={[{ src: '/fr.vtt', srcLang: 'fr', label: 'Francais' }]}\n * />\n */\nexport function Player({\n  src,\n  poster,\n  label,\n  tracks = [],\n  ratio = 1.777,\n  ...rest\n}: PlayerProps): ReactElement {\n  const video = useRef<HTMLVideoElement | null>(null)\n  const shell = useRef<HTMLDivElement | null>(null)\n\n  const [playing, setPlaying] = useState(false)\n  const [muted, setMuted] = useState(false)\n  const [time, setTime] = useState(0)\n  const [duration, setDuration] = useState(Number.NaN)\n\n  // L'etat suit le media : une source de verite ailleurs se\n  // desynchroniserait au premier evenement exterieur.\n  useEffect(() => {\n    const node = video.current\n    if (node === null) return\n\n    const sync = (): void => {\n      setPlaying(!node.paused && !node.ended)\n      setMuted(node.muted)\n      setTime(node.currentTime)\n      setDuration(node.duration)\n    }\n\n    for (const event of [\n      'play',\n      'pause',\n      'timeupdate',\n      'loadedmetadata',\n      'volumechange',\n    ]) {\n      node.addEventListener(event, sync)\n    }\n    sync()\n\n    return () => {\n      for (const event of [\n        'play',\n        'pause',\n        'timeupdate',\n        'loadedmetadata',\n        'volumechange',\n      ]) {\n        node.removeEventListener(event, sync)\n      }\n    }\n  }, [])\n\n  const seek = useCallback((seconds: number) => {\n    const node = video.current\n    if (node === null || !Number.isFinite(node.duration)) return\n    node.currentTime = Math.min(node.duration, Math.max(0, seconds))\n  }, [])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden o-bg-black' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={shell}\n      className={className}\n      style={{ ...style, aspectRatio: String(ratio) }}\n    >\n      <video\n        ref={video}\n        src={src}\n        poster={poster}\n        playsInline\n        aria-label={label}\n        onClick={() => (playing ? video.current?.pause() : void video.current?.play())}\n        className=\"o-size-full o-cursor-pointer\"\n      >\n        {tracks.map((track) => (\n          <track\n            key={track.srcLang}\n            kind=\"subtitles\"\n            src={track.src}\n            srcLang={track.srcLang}\n            label={track.label}\n          />\n        ))}\n      </video>\n\n      <div className=\"o-absolute o-inset-x-0 o-bottom-0 o-flex o-flex-col o-gap-1 o-bg-black-60 o-px-3 o-py-2\">\n        <div\n          role=\"slider\"\n          aria-label={`Position dans ${label}`}\n          aria-valuemin={0}\n          aria-valuemax={Number.isFinite(duration) ? Math.round(duration) : 0}\n          aria-valuenow={Math.round(time)}\n          aria-valuetext={`${clock(time)} sur ${clock(duration)}`}\n          tabIndex={0}\n          onKeyDown={(event) => {\n            const delta =\n              event.key === 'ArrowLeft' ? -STEP : event.key === 'ArrowRight' ? STEP : 0\n            if (event.key === 'Home') return void (event.preventDefault(), seek(0))\n            if (event.key === 'End') return void (event.preventDefault(), seek(duration))\n            if (delta === 0) return\n            event.preventDefault()\n            seek(time + delta)\n          }}\n          onPointerDown={(event) => {\n            const box = event.currentTarget.getBoundingClientRect()\n            seek(((event.clientX - box.left) / Math.max(box.width, 1)) * duration)\n          }}\n          className=\"o-h-4 o-flex o-cursor-pointer o-items-center focus:o-ring\"\n        >\n          <span className=\"o-h-1 o-w-full o-rounded-full o-bg-white-30\">\n            <span\n              className=\"o-block o-h-full o-rounded-full o-bg-white\"\n              style={{\n                width: Number.isFinite(duration)\n                  ? `${String((time / Math.max(duration, 1)) * 100)}%`\n                  : '0%',\n              }}\n            />\n          </span>\n        </div>\n\n        <div className=\"o-flex o-items-center o-gap-1\">\n          <Control\n            label={playing ? 'Mettre en pause' : 'Lire'}\n            icon={playing ? Pause : Play}\n            onClick={() =>\n              playing ? video.current?.pause() : void video.current?.play()\n            }\n          />\n\n          <Control\n            label={muted ? 'Retablir le son' : 'Couper le son'}\n            icon={muted ? VolumeX : Volume_2}\n            onClick={() => {\n              const node = video.current\n              if (node !== null) node.muted = !node.muted\n            }}\n          />\n\n          <span className=\"o-ml-1 o-font-mono o-text-xs o-tabular-nums o-text-white\">\n            {clock(time)} / {clock(duration)}\n          </span>\n\n          <span className=\"o-flex-1\" />\n\n          {/*\n            Le plein ecran est demande au conteneur, pas a la video : demander\n            la video afficherait les commandes natives par-dessus les notres.\n          */}\n          <Control\n            label=\"Plein ecran\"\n            icon={Maximize}\n            onClick={() => void shell.current?.requestFullscreen().catch(() => undefined)}\n          />\n        </div>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

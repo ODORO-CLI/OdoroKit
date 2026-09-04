@@ -1,0 +1,49 @@
+{
+  "name": "use-poster",
+  "category": "hooks",
+  "title": "Repli visuel",
+  "description": "Maintient un repli affiche jusqu a ce que la scene soit prete, puis le fond en douceur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/usePoster.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "ready",
+      "type": "boolean",
+      "required": true,
+      "description": "Passe a vrai quand la scene a rendu sa premiere image."
+    },
+    {
+      "name": "fade",
+      "type": "number",
+      "required": false,
+      "default": 320,
+      "unit": "ms",
+      "description": "Duree du fondu du repli.",
+      "min": 0,
+      "max": 960,
+      "step": 100
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun rendu : le repli est un element du DOM."
+  },
+  "id": "hooks/use-poster",
+  "sources": {
+    "hook.ts": "/**\n * Repli visuel d'un composant couteux.\n *\n * ## Pourquoi le repli est affiche d'abord\n *\n * Un moteur de rendu 3D pese plus de cent kilo-octets compresses. Entre\n * l'arrivee de la page et la premiere image de la scene, il s'ecoule un delai\n * qui se compte en centaines de millisecondes sur une connexion ordinaire.\n * Monter la scene d'abord et le repli ensuite reviendrait a afficher un\n * rectangle vide pendant tout ce temps — a l'endroit le plus visible de la\n * page.\n *\n * Le repli est donc rendu **immediatement**, dans le document, et ne\n * disparait qu'une fois la scene prete. Il sert aussi lorsque la scene ne\n * viendra jamais : sans WebGL, sous mouvement reduit, ou quand l'arbitre de\n * surfaces refuse.\n *\n * ## Pourquoi il n'est pas simplement retire\n *\n * Un retrait sec fait clignoter la transition entre deux images tres proches\n * mais pas identiques. Le fondu, lui, masque l'ecart. Sa duree vient des\n * tokens : elle suit le reglage du projet plutot que d'imposer le sien.\n *\n * @module\n */\n\nimport { useEffect, useRef, useState, type CSSProperties } from 'react'\n\n/** Options de `usePoster`. */\nexport interface PosterOptions {\n  /** Passe a vrai quand la scene a rendu sa premiere image. */\n  ready: boolean\n  /**\n   * Motif pour lequel la scene ne sera jamais montee. Sa presence maintient le\n   * repli indefiniment.\n   */\n  refused?: string | undefined\n  /** Duree du fondu, en millisecondes. @defaultValue 320 */\n  fade?: number\n}\n\n/** Ce que rend `usePoster`. */\nexport interface PosterHandle {\n  /** `true` tant que le repli doit rester dans le document. */\n  readonly visible: boolean\n  /** Styles a appliquer au repli. */\n  readonly style: CSSProperties\n}\n\n/**\n * Pilote l'affichage et la disparition d'un repli.\n *\n * Le repli reste monte pendant toute la duree du fondu : le retirer des le\n * debut ferait apparaitre la scene d'un coup, ce que le fondu existe\n * precisement pour eviter.\n *\n * @example\n * const { ref, ready, refused } = useScene({ ... })\n * const poster = usePoster({ ready, refused })\n *\n * return (\n *   <div className=\"o-relative\">\n *     <div ref={ref} className=\"o-absolute o-inset-0\" />\n *     {poster.visible ? (\n *       <div style={poster.style} className=\"o-absolute o-inset-0 o-bg-zinc-100 dark:o-bg-zinc-950\" />\n *     ) : null}\n *   </div>\n * )\n */\nexport function usePoster(options: PosterOptions): PosterHandle {\n  const { ready, refused, fade = 320 } = options\n\n  const [visible, setVisible] = useState(true)\n  const [opacity, setOpacity] = useState(1)\n  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n\n  useEffect(() => {\n    // La scene ne viendra pas : le repli est le rendu final, pas une attente.\n    if (refused !== undefined) {\n      setVisible(true)\n      setOpacity(1)\n      return\n    }\n\n    if (!ready) return\n\n    setOpacity(0)\n    timer.current = setTimeout(() => setVisible(false), fade)\n\n    return () => clearTimeout(timer.current)\n  }, [ready, refused, fade])\n\n  return {\n    visible,\n    style: {\n      opacity,\n      transition: `opacity ${fade}ms var(--o-ease-entrance, ease-out)`,\n      // Le repli s'efface, mais il ne doit intercepter aucun clic entre-temps.\n      pointerEvents: 'none',\n    },\n  }\n}\n"
+  }
+}

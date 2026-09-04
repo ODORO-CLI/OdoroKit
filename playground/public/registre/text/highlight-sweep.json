@@ -1,0 +1,86 @@
+{
+  "name": "highlight-sweep",
+  "category": "text",
+  "title": "Surligneur",
+  "description": "Un trait se trace derriere le texte, comme au feutre, sans decouper le contenu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/HighlightSweep.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-palette-brand-200"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "colour",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du trait."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Epaisseur du trait, en part de la hauteur de ligne.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du trace.",
+      "min": 100,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "ms",
+      "description": "Retard avant le trace.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "declenchement",
+      "type": "'vue' | 'montage'",
+      "required": false,
+      "default": "vue",
+      "description": "A l entree dans le champ, ou des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de background-size. Aucune mise en page recalculee, aucun JavaScript par image."
+  },
+  "id": "text/highlight-sweep",
+  "sources": {
+    "component.tsx": "/**\n * Surligneur : un trait se trace derriere le texte, comme au feutre.\n *\n * ## Il ne decoupe rien\n *\n * C'est ce qui le distingue des autres animations de texte de ce registre :\n * aucun fragment, aucun calque, aucune mesure. Le texte reste exactement le\n * noeud qu'il etait — un lien reste un lien, une emphase reste une emphase, et\n * la selection se comporte normalement.\n *\n * Ce qui bouge est un fond, derriere les lettres. C'est aussi pourquoi il\n * fonctionne sur plusieurs lignes sans rien de special : le fond suit les\n * boites de ligne, que le navigateur sait deja composer.\n *\n * ## Pourquoi `background-size` et non `width`\n *\n * Animer la largeur d'un element declencherait une mise en page a chaque\n * image. `background-size` n'affecte que la peinture — le compositeur s'en\n * charge, et rien ne se recalcule.\n *\n * ## Il se pose derriere, jamais devant\n *\n * `background-image` peint sous le texte par construction. Un pseudo-element\n * superpose demanderait un `z-index` negatif et un contexte d'empilement, ce\n * qui casse des que le parent en cree un. Le fond n'a pas ce probleme.\n *\n * ## En mouvement reduit, le trait reste\n *\n * Il ne s'anime pas, mais il s'affiche : c'est une mise en valeur, pas une\n * decoration. La retirer changerait le sens de la phrase, la ou supprimer un\n * mouvement ne retire rien.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface HighlightSweepOwnProps {\n  /** Texte a surligner. */\n  children: React.ReactNode\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /**\n   * Couleur du trait.\n   *\n   * Une valeur, pas un role : le surlignage est un choix de mise en page, et\n   * l'imposer depuis les jetons de theme priverait de la moitie des usages.\n   *\n   * @defaultValue une teinte de la palette de marque\n   */\n  colour?: string\n  /**\n   * Epaisseur du trait, en part de la hauteur de ligne.\n   *\n   * @defaultValue 0.35\n   */\n  thickness?: number\n  /** Duree du trace, en millisecondes. @defaultValue 600 */\n  duration?: number\n  /** Retard avant le trace, en millisecondes. @defaultValue 0 */\n  delay?: number\n  /**\n   * Quand partir.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: 'vue' | 'montage'\n}\n\n/** Toutes les proprietes. */\nexport type HighlightSweepProps = Customisable<HighlightSweepOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-highlight-sweep'\n\n/** Pose les regles du surligneur, une fois par document. */\nfunction ensureHighlightRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-highlight]{',\n    'background-image:linear-gradient(var(--o-highlight-colour),var(--o-highlight-colour));',\n    'background-repeat:no-repeat;',\n    // Ancre en bas a gauche : le trait pousse vers la droite, comme une main.\n    'background-position:0 88%;',\n    'background-size:0% var(--o-highlight-thickness);',\n    'transition:background-size var(--o-highlight-duration) cubic-bezier(0.65,0,0.35,1) var(--o-highlight-delay);',\n    // La marge negative laisse le trait deborder un peu du texte, ce qui rend\n    // le geste moins mecanique.\n    'padding:0 0.08em;margin:0 -0.08em;',\n    '}',\n    '[data-o-highlight-trace]{background-size:100% var(--o-highlight-thickness)}',\n    // Sans mouvement, le trait est simplement la : c'est une mise en valeur,\n    // pas une decoration, et la retirer changerait le sens de la phrase.\n    '@media (prefers-reduced-motion:reduce){[data-o-highlight]{transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Trace un surligneur derriere un texte.\n *\n * @example\n * <p>\n *   Un moteur <HighlightSweep>cent pour cent maison</HighlightSweep>, et rien\n *   qui ne vous appartienne pas.\n * </p>\n *\n * @example\n * // Un trait fin et clair, trace des le montage.\n * <HighlightSweep colour=\"var(--o-palette-amber-200)\" thickness={0.2} declenchement=\"montage\">\n *   nouveaute\n * </HighlightSweep>\n */\nexport function HighlightSweep({\n  children,\n  as: Tag = 'span',\n  colour = 'var(--o-palette-brand-200)',\n  thickness = 0.35,\n  duration = 600,\n  delay = 0,\n  declenchement = 'vue',\n  ...rest\n}: HighlightSweepProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref: refVue, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  ensureHighlightRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const styleTrait = {\n    ...style,\n    '--o-highlight-colour': colour,\n    '--o-highlight-thickness': `${String(Math.round(thickness * 100))}%`,\n    '--o-highlight-duration': `${String(duration)}ms`,\n    '--o-highlight-delay': `${String(delay)}ms`,\n  } as CSSProperties\n\n  // En mouvement reduit, le trait est pose d'emblee : la transition est\n  // neutralisee par la feuille, il n'y a donc rien a attendre.\n  const trace = reduced || vu\n\n  return (\n    <Tag\n      {...rest}\n      ref={refVue}\n      className={className}\n      style={styleTrait}\n      data-o-highlight=\"\"\n      {...(trace ? { 'data-o-highlight-trace': '' } : {})}\n    >\n      {children}\n    </Tag>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "hover-reveal-button",
+  "category": "ui",
+  "title": "Bouton a fond deploye",
+  "description": "Une pastille qui s etend jusqu a devenir le fond, et deux copies du libelle qui se croisent sans changer la largeur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/HoverRevealButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-palette-zinc-50",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "adornment",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui accompagne le libelle une fois le fond deploye. Emplacement : le registre ne depend d aucun jeu de pictogrammes."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "required": false,
+      "default": "--o-palette-brand-600, --o-palette-zinc-50",
+      "description": "Tokens du fond deploye et du texte sur ce fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux transitions et un changement de taille. La largeur suit le contenu au lieu d etre figee, ce qui evite de couper les libelles longs."
+  },
+  "id": "ui/hover-reveal-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton dont le fond se déploie depuis un point au survol.\n *\n * ## Le libellé est écrit deux fois, et c'est voulu\n *\n * Une copie sort par la droite, l'autre entre par la gauche. Les deux occupent\n * la même place, si bien que la largeur du bouton ne change pas pendant la\n * bascule — ce qu'un seul texte changé en place ne permettrait pas sans\n * mesurer, ni sans faire sauter la mise en page des voisins.\n *\n * La copie entrante est retirée de l'arbre d'accessibilité : un lecteur d'écran\n * annoncerait sinon deux fois le même libellé pour un seul bouton.\n *\n * ## La pastille n'est pas décorative\n *\n * C'est elle qui devient le fond. Au repos, un point de huit pixels ; au\n * survol, elle s'étend à tout le bouton et grandit encore un peu, ce qui donne\n * l'impression que la couleur déborde. Un simple changement de\n * `background-color` donnerait la même couleur finale sans l'origine du\n * mouvement.\n *\n * ## Ce qui a changé par rapport à l'implémentation d'origine\n *\n * Sa largeur était figée à `w-32`, ce qui coupait tout libellé de plus de dix\n * caractères. Elle est désormais déduite du contenu, avec un minimum.\n *\n * Et l'icône était importée d'une librairie tierce. Ici c'est un emplacement :\n * le projet passe la sienne, ou rien.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface HoverRevealButtonOwnProps {\n  /** Libelle du bouton. */\n  children: ReactNode\n  /**\n   * Ce qui accompagne le libelle une fois le fond deploye.\n   *\n   * Emplacement plutot qu'icone imposee : le registre ne depend d'aucun jeu de\n   * pictogrammes, et le projet a le sien.\n   */\n  adornment?: ReactNode\n  /** Tokens du fond deploye et du texte sur ce fond. */\n  colors?: readonly [string, string]\n}\n\n/** Toutes les proprietes. */\nexport type HoverRevealButtonProps = Customisable<HoverRevealButtonOwnProps, 'button'>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-brand-600', '--o-palette-zinc-50'] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-hover-reveal-button'\n\n/** Pose les regles du bouton, une fois par document. */\nfunction ensureRevealRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-reveal]{position:relative;overflow:hidden;cursor:pointer;',\n    'border-radius:360px;isolation:isolate}',\n\n    // La pastille, qui devient le fond.\n    '[data-o-reveal] [data-o-reveal-blob]{position:absolute;left:20%;top:40%;',\n    'width:0.5rem;height:0.5rem;border-radius:0.5rem;z-index:-1;',\n    'background-color:var(--o-reveal-bg);',\n    'transition:all var(--o-duration-slow) var(--o-ease-standard)}',\n    '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-blob]{',\n    'left:0;top:0;width:100%;height:100%;scale:1.8}',\n\n    // Les deux copies du libelle, qui se croisent sans changer la largeur.\n    '[data-o-reveal] [data-o-reveal-out]{display:inline-block;translate:0.25rem 0;',\n    'transition:translate var(--o-duration-slow) var(--o-ease-standard),',\n    'opacity var(--o-duration-slow) var(--o-ease-standard)}',\n    '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-out]{',\n    'translate:3rem 0;opacity:0}',\n\n    '[data-o-reveal] [data-o-reveal-in]{position:absolute;inset:0;display:flex;',\n    'align-items:center;justify-content:center;gap:0.5rem;',\n    'color:var(--o-reveal-fg);translate:3rem 0;opacity:0;',\n    'transition:translate var(--o-duration-slow) var(--o-ease-standard),',\n    'opacity var(--o-duration-slow) var(--o-ease-standard)}',\n    '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-in]{',\n    'translate:-0.25rem 0;opacity:1}',\n\n    // Sous mouvement reduit, l'etat final est applique sans course : le fond\n    // est deploye et le libelle lisible des le survol, sans glissement.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-reveal] [data-o-reveal-blob],[data-o-reveal] [data-o-reveal-out],',\n    '[data-o-reveal] [data-o-reveal-in]{transition:none}',\n    '[data-o-reveal]:is(:hover,:focus-visible) [data-o-reveal-out]{translate:0.25rem 0}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Bouton dont le fond se deploie au survol.\n *\n * @example\n * <HoverRevealButton>Nous ecrire</HoverRevealButton>\n *\n * @example\n * // L'ornement est un emplacement : le projet passe son icone.\n * <HoverRevealButton adornment={<Icon icon={ArrowRight} size={16} />}>\n *   Continuer\n * </HoverRevealButton>\n */\nexport function HoverRevealButton({\n  children,\n  adornment,\n  colors = DEFAULT_TOKENS,\n  ...rest\n}: HoverRevealButtonProps): ReactElement {\n  ensureRevealRules()\n\n  const { className, style } = mergePresentation(\n    {\n      className:\n        'o-min-w-32 o-border-w-1 o-border-zinc-200 o-bg-transparent o-p-2 o-text-center o-font-semibold dark:o-border-zinc-800',\n    },\n    rest,\n  )\n\n  return (\n    <button\n      type=\"button\"\n      {...rest}\n      data-o-reveal\n      className={className}\n      style={{\n        ['--o-reveal-bg' as string]: `var(${colors[0]})`,\n        ['--o-reveal-fg' as string]: `var(${colors[1]})`,\n        ...style,\n      }}\n    >\n      <span data-o-reveal-out>{children}</span>\n      {/* La copie entrante porte le meme texte : elle ne doit pas etre\n          annoncee une seconde fois. */}\n      <span aria-hidden data-o-reveal-in>\n        <span>{children}</span>\n        {adornment}\n      </span>\n      <span aria-hidden data-o-reveal-blob />\n    </button>\n  )\n}\n"
+  }
+}

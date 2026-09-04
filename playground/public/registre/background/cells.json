@@ -1,0 +1,77 @@
+{
+  "name": "cells",
+  "category": "background",
+  "title": "Cellules",
+  "description": "Un pavage cellulaire anime, dont les aretes viennent de la seconde distance.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Cells.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-emerald-700",
+    "--o-palette-emerald-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Vitesse de derive des germes.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 7,
+      "description": "Nombre de cellules par cote.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "edge",
+      "type": "number",
+      "required": false,
+      "default": 0.06,
+      "description": "Largeur des aretes.",
+      "min": 0.01,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "notes": "Neuf germes evalues par fragment, quelle que soit la densite. En qualite basse, la densite est bornee a cinq.",
+    "fallback": "gradient"
+  },
+  "id": "background/cells",
+  "sources": {
+    "component.tsx": "/**\n * Cellules : un pavage cellulaire anime, dont les aretes viennent de la seconde distance.\n *\n * ## Le principe\n *\n * Chaque cellule d une grille porte un germe. Neuf tests suffisent a trouver le plus proche, quelle que soit la densite.\n *\n * La difference entre premiere et seconde distance s annule sur les aretes : c est ainsi qu on obtient le reseau sans en construire une seule.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  CELLS_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CellsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface CellsOwnProps {\n  /** Vitesse de derive des germes. @defaultValue 0.35 */\n  speed?: number\n  /** Nombre de cellules par cote. @defaultValue 7 */\n  density?: number\n  /** Largeur des aretes. @defaultValue 0.06 */\n  edge?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CellsControls>\n}\n\n/** Toutes les proprietes. */\nexport type CellsProps = Customisable<CellsOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-emerald-700',\n  '--o-palette-emerald-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-emerald-950'\n\n/**\n * Cellules.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Cells className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Cells({\n  speed = 0.35,\n  density = 7,\n  edge = 0.06,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: CellsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: CELLS_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: density, uEdge: edge },\n    name: 'cells',\n    // En qualite basse, le reglage qui pese est borne : le motif reste\n    // reconnaissable une fois reduit.\n    degrade: (quality) => ({\n      uScale: quality === 'low' ? Math.min(density, 5) : density,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

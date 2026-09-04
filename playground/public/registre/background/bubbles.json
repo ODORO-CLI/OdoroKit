@@ -1,0 +1,76 @@
+{
+  "name": "bubbles",
+  "category": "background",
+  "title": "Bulles",
+  "description": "Des disques qui montent et fusionnent en col quand ils se rapprochent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Bubbles.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-fuchsia-600"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Vitesse de remontee.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 9,
+      "description": "Nombre de bulles. Borne a seize par le shader.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 0.09,
+      "description": "Rayon de reference.",
+      "min": 0.02,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un champ evalue par bulle, borne a seize. En qualite basse, le nombre est ramene a six.",
+    "fallback": "gradient"
+  },
+  "id": "background/bubbles",
+  "sources": {
+    "component.tsx": "/**\n * Bulles : des disques qui montent et fusionnent en col quand ils se rapprochent.\n *\n * ## Le principe\n *\n * Additionner des champs qui decroissent avec la distance, puis seuiller la somme : c est le principe des surfaces implicites.\n *\n * Le champ vaut un sur le bord du disque, si bien qu une bulle isolee retrouve exactement sa taille nominale.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  BUBBLES_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface BubblesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface BubblesOwnProps {\n  /** Vitesse de remontee. @defaultValue 0.25 */\n  speed?: number\n  /** Nombre de bulles. Borne a seize par le shader. @defaultValue 9 */\n  count?: number\n  /** Rayon de reference. @defaultValue 0.09 */\n  radius?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<BubblesControls>\n}\n\n/** Toutes les proprietes. */\nexport type BubblesProps = Customisable<BubblesOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-fuchsia-600'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-t o-from-fuchsia-950 o-to-zinc-950'\n\n/**\n * Bulles.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Bubbles className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Bubbles({\n  speed = 0.25,\n  count = 9,\n  radius = 0.09,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: BubblesProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: BUBBLES_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: count, uRadius: radius },\n    name: 'bubbles',\n    // En qualite basse, le reglage qui pese est borne : le motif reste\n    // reconnaissable une fois reduit.\n    degrade: (quality) => ({\n      uScale: quality === 'low' ? Math.min(count, 6) : count,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "plasma",
+  "category": "background",
+  "title": "Plasma",
+  "description": "L interference de quatre ondes, dont une radiale qui brise la periodicite.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Plasma.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Vitesse des ondes.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Echelle du motif. Plus grand, plus serre.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Quatre sinus par fragment, sans bruit ni boucle : le cout ne varie pas avec les reglages.",
+    "fallback": "gradient"
+  },
+  "id": "background/plasma",
+  "sources": {
+    "component.tsx": "/**\n * Plasma : l interference de quatre ondes, dont une radiale qui brise la periodicite.\n *\n * ## Le principe\n *\n * Quatre sinus evalues au meme point. La figure n a aucune structure propre : elle n est faite que de leurs battements.\n *\n * L onde radiale est ce qui empeche le reseau de rester une grille de losanges.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  PLASMA_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface PlasmaControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface PlasmaOwnProps {\n  /** Vitesse des ondes. @defaultValue 0.35 */\n  speed?: number\n  /** Echelle du motif. Plus grand, plus serre. @defaultValue 3 */\n  scale?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<PlasmaControls>\n}\n\n/** Toutes les proprietes. */\nexport type PlasmaProps = Customisable<PlasmaOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-fuchsia-500',\n  '--o-palette-sky-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-950 o-to-fuchsia-900'\n\n/**\n * Plasma.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Plasma className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Plasma({\n  speed = 0.35,\n  scale = 3,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: PlasmaProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: PLASMA_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: scale },\n    name: 'plasma',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

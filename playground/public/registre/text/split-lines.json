@@ -1,0 +1,79 @@
+{
+  "name": "split-lines",
+  "category": "text",
+  "title": "Revelation par ligne",
+  "description": "Chaque ligne rendue monte depuis sous son masque, l une apres l autre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la montee d une ligne.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "ms",
+      "description": "Retard entre deux lignes.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "ms",
+      "description": "Retard avant la premiere ligne.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "declenchement",
+      "type": "'vue' | 'montage'",
+      "required": false,
+      "default": "vue",
+      "description": "A l entree dans le champ, ou des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les lignes sont mesurees a la construction, puis animees par le compositeur. Aucun JavaScript par image."
+  },
+  "id": "text/split-lines",
+  "sources": {
+    "component.tsx": "/**\n * Revelation par ligne : chaque ligne monte depuis sous son propre masque.\n *\n * ## Decouper par ligne, et non par caractere\n *\n * `split-reveal` decoupe par caractere : chaque lettre est un element, et\n * l'effet est menu, nerveux. Celui-ci travaille a l'echelle de la ligne — le\n * mouvement est ample, lent, et convient a un titre long ou a un paragraphe\n * d'introduction, la ou cent lettres qui sautent seraient du bruit.\n *\n * ## Une ligne n'existe pas dans le DOM\n *\n * C'est toute la difficulte. Un mot est une chaine, un caractere aussi ; une\n * ligne, elle, est une decision du moteur de rendu, prise apres la mise en\n * page, et qui change avec la largeur, la police, la taille de texte du\n * systeme.\n *\n * On la lit donc la ou elle existe : dans les rectangles rendus. Un `Range`\n * pose sur chaque mot donne sa position verticale, et les mots qui partagent\n * cette position forment une ligne. C'est la seule methode qui ne se trompe\n * pas — deviner d'apres le nombre de caracteres marche jusqu'a la premiere\n * cesure.\n *\n * ## Le texte d'origine ne bouge jamais\n *\n * Il reste un noeud unique : lisible par un lecteur d'ecran, selectionnable,\n * copiable d'un bloc. Ce sont ses rectangles qu'on mesure, et il donne aussi\n * sa hauteur au conteneur.\n *\n * Les lignes animees vivent dans un calque `aria-hidden` pose par-dessus. Le\n * texte d'origine n'est rendu transparent **qu'une fois ce calque construit** :\n * si le JavaScript ne s'execute pas, ou echoue, le texte reste simplement la.\n * Un effet manquant se pardonne, un titre invisible non.\n *\n * ## La mesure se refait quand la mise en page change\n *\n * Une police qui finit de charger recompose les lignes. Une fenetre qu'on\n * redimensionne aussi. Mesurer une fois au montage donnerait un calque juste\n * pendant deux secondes, puis decale — et decale de facon d'autant plus visible\n * que le texte est long.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface SplitLinesOwnProps {\n  /** Texte a reveler. Une chaine : ce sont ses lignes qu'on mesure. */\n  children: string\n  /** Balise rendue. @defaultValue 'p' */\n  as?: ElementType\n  /** Duree de la montee d'une ligne, en millisecondes. @defaultValue 700 */\n  duration?: number\n  /** Retard entre deux lignes, en millisecondes. @defaultValue 90 */\n  stagger?: number\n  /** Retard avant la premiere ligne, en millisecondes. @defaultValue 0 */\n  delay?: number\n  /**\n   * Quand partir.\n   *\n   * `vue` attend l'entree dans le champ, `montage` part tout de suite.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: 'vue' | 'montage'\n}\n\n/** Toutes les proprietes. */\nexport type SplitLinesProps = Customisable<SplitLinesOwnProps, 'p'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-split-lines'\n\n/** Pose les regles du calque, une fois par document. */\nfunction ensureSplitLinesRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-split-lines]{position:relative}',\n    // Le calque se superpose exactement, et ne recoit jamais le pointeur : la\n    // selection de texte doit atteindre l'original, dessous.\n    '[data-o-split-lines-layer]{position:absolute;inset:0;pointer-events:none}',\n    // Chaque ligne est un masque : ce qui depasse par le bas est coupe.\n    '[data-o-split-lines-mask]{display:block;overflow:hidden}',\n    '[data-o-split-lines-inner]{display:block;will-change:transform}',\n    // L'original devient transparent seulement quand le calque existe.\n    '[data-o-split-lines-hidden]{color:transparent}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Un mot, et le rectangle qu'il occupe. */\ninterface MotMesure {\n  readonly texte: string\n  readonly haut: number\n}\n\n/**\n * Regroupe les mots d'un noeud de texte en lignes rendues.\n *\n * Les rectangles sont arrondis avant comparaison : deux mots d'une meme ligne\n * peuvent differer d'une fraction de pixel selon leurs jambages, et une\n * comparaison stricte les separerait en deux lignes d'un mot.\n */\nfunction lignesRendues(noeud: Text): readonly string[] {\n  const texte = noeud.data\n  const mesures: MotMesure[] = []\n\n  const plage = document.createRange()\n\n  // Sans mesure, pas de lignes — et donc pas de calque. Le texte d'origine\n  // reste alors visible et intact, ce qui est exactement la bonne degradation :\n  // l'effet manque, la phrase est la. Lever ici casserait le rendu entier pour\n  // une animation.\n  if (typeof plage.getBoundingClientRect !== 'function') {\n    plage.detach()\n    return []\n  }\n  let debut = 0\n\n  while (debut < texte.length) {\n    // On saute les espaces : ils appartiennent a la ligne qui precede, et un\n    // espace en fin de ligne a un rectangle qui peut deborder sur la suivante.\n    while (debut < texte.length && /\\s/.test(texte[debut] as string)) debut += 1\n    if (debut >= texte.length) break\n\n    let fin = debut\n    while (fin < texte.length && !/\\s/.test(texte[fin] as string)) fin += 1\n\n    plage.setStart(noeud, debut)\n    plage.setEnd(noeud, fin)\n\n    const rect = plage.getBoundingClientRect()\n    mesures.push({ texte: texte.slice(debut, fin), haut: Math.round(rect.top) })\n\n    debut = fin\n  }\n\n  plage.detach()\n\n  const lignes: string[] = []\n  let hautCourant: number | undefined\n\n  for (const mot of mesures) {\n    if (hautCourant === undefined || mot.haut !== hautCourant) {\n      lignes.push(mot.texte)\n      hautCourant = mot.haut\n    } else {\n      lignes[lignes.length - 1] += ` ${mot.texte}`\n    }\n  }\n\n  return lignes\n}\n\n/**\n * Revele un texte ligne par ligne.\n *\n * @example\n * <SplitLines as=\"h1\" className=\"o-text-4xl o-font-bold\">\n *   Un moteur maison, et rien qui ne vous appartienne pas.\n * </SplitLines>\n *\n * @example\n * // Au montage plutot qu'a l'entree dans le champ, pour un titre de heros.\n * <SplitLines declenchement=\"montage\" stagger={140}>\n *   Bienvenue\n * </SplitLines>\n */\nexport function SplitLines({\n  children,\n  as: Tag = 'p',\n  duration = 700,\n  stagger = 90,\n  delay = 0,\n  declenchement = 'vue',\n  ...rest\n}: SplitLinesProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref: refVue, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  const refSource = useRef<HTMLSpanElement | null>(null)\n  const refCalque = useRef<HTMLSpanElement | null>(null)\n  const [construit, setConstruit] = useState(false)\n\n  ensureSplitLinesRule()\n\n  useEffect(() => {\n    // En mouvement reduit, aucun calque n'est construit : le texte est la, et\n    // c'est tout ce qu'on lui demandait.\n    if (reduced) return\n\n    const source = refSource.current\n    const calque = refCalque.current\n    if (source === null || calque === null) return\n\n    const noeud = source.firstChild\n    if (noeud === null || noeud.nodeType !== Node.TEXT_NODE) return\n\n    let animations: Animation[] = []\n\n    const construire = () => {\n      for (const a of animations) a.cancel()\n      animations = []\n      calque.replaceChildren()\n\n      const lignes = lignesRendues(noeud as Text)\n      if (lignes.length === 0) return\n\n      for (const ligne of lignes) {\n        const masque = document.createElement('span')\n        masque.setAttribute('data-o-split-lines-mask', '')\n\n        const interieur = document.createElement('span')\n        interieur.setAttribute('data-o-split-lines-inner', '')\n        interieur.textContent = ligne\n\n        masque.append(interieur)\n        calque.append(masque)\n      }\n\n      setConstruit(true)\n\n      if (!vu) {\n        // Construit mais pas encore declenche : les lignes attendent sous leur\n        // masque. Sans cela, elles seraient visibles avant l'animation.\n        for (const interieur of calque.children) {\n          const cible = interieur.firstElementChild\n          if (cible instanceof HTMLElement) cible.style.transform = 'translateY(110%)'\n        }\n        return\n      }\n\n      let index = 0\n      for (const masque of calque.children) {\n        const interieur = masque.firstElementChild\n        if (!(interieur instanceof HTMLElement)) continue\n\n        interieur.style.transform = ''\n\n        animations.push(\n          interieur.animate(\n            [\n              { transform: 'translateY(110%)' },\n              { transform: 'translateY(0)' },\n            ],\n            {\n              duration,\n              delay: delay + index * stagger,\n              // Une sortie franche puis un amorti : le mouvement doit paraitre\n              // arriver, pas s'arreter net.\n              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',\n              fill: 'both',\n            },\n          ),\n        )\n        index += 1\n      }\n    }\n\n    construire()\n\n    // La mise en page change, les lignes changent. Une police qui finit de\n    // charger est le cas le plus frequent, et le plus visible.\n    const observateur = new ResizeObserver(() => {\n      construire()\n    })\n    observateur.observe(source)\n\n    let vivant = true\n    if (typeof document.fonts !== 'undefined') {\n      void document.fonts.ready.then(() => {\n        if (vivant) construire()\n      })\n    }\n\n    return () => {\n      vivant = false\n      observateur.disconnect()\n      for (const a of animations) a.cancel()\n      calque.replaceChildren()\n      setConstruit(false)\n    }\n  }, [children, reduced, vu, duration, stagger, delay])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <Tag\n      {...rest}\n      ref={refVue}\n      className={className}\n      style={style as CSSProperties}\n      data-o-split-lines=\"\"\n    >\n      <span\n        ref={refSource}\n        {...(construit ? { 'data-o-split-lines-hidden': '' } : {})}\n      >\n        {children}\n      </span>\n      <span ref={refCalque} aria-hidden=\"true\" data-o-split-lines-layer=\"\" />\n    </Tag>\n  )\n}\n"
+  }
+}

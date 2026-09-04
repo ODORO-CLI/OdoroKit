@@ -1,0 +1,91 @@
+{
+  "name": "split-reveal",
+  "category": "text",
+  "title": "Revelation par fragments",
+  "description": "Un titre qui se compose caractere par caractere quand il entre dans le champ.",
+  "engine": {
+    "gsap": [
+      "SplitText",
+      "ScrollTrigger"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitReveal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "h2",
+      "description": "Balise rendue. Un titre reste un titre."
+    },
+    {
+      "name": "by",
+      "type": "'chars' | 'words' | 'lines'",
+      "required": false,
+      "default": "chars",
+      "description": "Granularite du decoupage.",
+      "options": [
+        "chars",
+        "words",
+        "lines"
+      ]
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "ms",
+      "description": "Decalage entre deux fragments.",
+      "min": 0,
+      "max": 72,
+      "step": 100
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree d entree d un fragment.",
+      "min": 0,
+      "max": 1800,
+      "step": 100
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "px",
+      "description": "Hauteur de la montee. Zero pour un simple fondu.",
+      "min": 0,
+      "max": 72,
+      "step": 100
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<SplitRevealControls>) => void | (() => void)",
+      "required": false,
+      "description": "Echappatoire : donne la timeline et les fragments."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le decoupage a lieu une fois. L animation est jouee par l orchestrateur, sans rendu React."
+  },
+  "id": "text/split-reveal",
+  "sources": {
+    "component.tsx": "/**\n * Revelation d'un titre, fragment par fragment.\n *\n * ## L'etat de depart, et le filet qui va avec\n *\n * Les fragments doivent etre invisibles avant que l'animation ne commence. Or\n * le decoupage a lieu dans un effet, apres le premier rendu : sans precaution,\n * le titre apparait en entier, puis disparait pour se recomposer. Le\n * clignotement est bref et parfaitement visible.\n *\n * L'element porte donc un attribut d'attente, pose des le rendu, qu'une regle\n * CSS traduit en opacite nulle. Jusque-la, rien d'original.\n *\n * Ce qui compte est la suite. Le decoupage peut ne jamais avoir lieu : le\n * plugin peut ne pas se charger, sur un reseau qui coupe ou derriere un\n * bloqueur. L'attente serait alors levee par personne, et le titre resterait\n * invisible — pas « sans animation », **invisible**. C'est le pire defaut\n * possible pour un composant de texte, et il ne se voit pas en developpement,\n * ou tout se charge.\n *\n * L'attente est donc levee quoi qu'il arrive : au decoupage s'il vient, sinon\n * au bout d'un delai. Le pire cas devient « le titre arrive une seconde en\n * retard » au lieu de « le titre n'arrive jamais ».\n *\n * ## Sous mouvement reduit\n *\n * Aucun decoupage, aucune attente, aucun attribut : le titre est simplement\n * la. L'animation est neutralisee, jamais l'etat final.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useMotionState,\n  useOnReady,\n  useSplitText,\n  useTimeline,\n  type Customisable,\n  type ReadyCallback,\n  type SplitBy,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type ElementType,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SplitRevealControls {\n  /** Fragments produits par le decoupage, dans l'ordre du texte. */\n  readonly parts: readonly Element[]\n  /** Granularite effectivement employee. */\n  readonly by: SplitBy\n}\n\n/** Proprietes propres au composant. */\nexport interface SplitRevealOwnProps {\n  /** Texte a reveler. */\n  children: ReactNode\n  /** Balise rendue. @defaultValue 'h2' */\n  as?: ElementType\n  /** Granularite du decoupage. @defaultValue 'chars' */\n  by?: SplitBy\n  /** Decalage entre deux fragments, en millisecondes. @defaultValue 24 */\n  stagger?: number\n  /** Duree d'entree d'un fragment, en millisecondes. @defaultValue 600 */\n  duration?: number\n  /** Hauteur de la montee, en pixels. Zero pour un simple fondu. @defaultValue 24 */\n  distance?: number\n  /** Echappatoire, appelee une fois le decoupage fait. */\n  onReady?: ReadyCallback<SplitRevealControls>\n}\n\n/** Toutes les proprietes. */\nexport type SplitRevealProps = Customisable<SplitRevealOwnProps, 'div'>\n\n/** Attribut porte pendant l'attente du decoupage. */\nconst PENDING = 'data-o-split-pending'\n\n/**\n * Delai au bout duquel l'attente est levee sans decoupage, en millisecondes.\n *\n * Le decoupage a lieu dans l'effet qui suit le montage : une seconde est un\n * ordre de grandeur au-dela. La valeur n'a pas a etre juste, seulement a\n * borner le pire cas.\n */\nconst RESCUE_MS = 1000\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-split-reveal'\n\n/**\n * Pose la regle d'etat de depart, une fois par document.\n *\n * Elle ne peut pas etre un style en ligne : l'attribut doit deja masquer\n * l'element au premier rendu, avant que le moindre effet ne tourne.\n */\nfunction ensureHiddenRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = `[${PENDING}]{opacity:0}`\n  document.head.append(style)\n}\n\n/**\n * Revele un texte fragment par fragment.\n *\n * @example\n * <SplitReveal as=\"h1\" by=\"words\" className=\"o-text-5xl o-font-bold\">\n *   Construisez des interfaces vivantes\n * </SplitReveal>\n *\n * @example\n * // Niveau 5 : reprendre la main sur les fragments.\n * <SplitReveal\n *   onReady={({ handle }) => {\n *     handle.parts.forEach((part, index) => {\n *       part.setAttribute('data-index', String(index))\n *     })\n *   }}\n * >\n *   Un titre\n * </SplitReveal>\n */\nexport function SplitReveal({\n  children,\n  as: Tag = 'h2',\n  by = 'chars',\n  stagger = 24,\n  duration = 600,\n  distance = 24,\n  onReady,\n  ...rest\n}: SplitRevealProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  ensureHiddenRule()\n\n  const split = useSplitText<HTMLElement>({ by })\n\n  // La timeline se reconstruit quand les reglages changent, et quand le\n  // decoupage produit de nouveaux fragments — ce qui arrive au montage, puis a\n  // chaque redecoupage en lignes.\n  const { ref: timelineRef } = useTimeline<HTMLElement>(\n    ({ timeline }) => {\n      if (split.parts.length === 0) return\n\n      timeline.from([...split.parts], {\n        opacity: 0,\n        y: distance,\n        duration: duration / 1000,\n        stagger: stagger / 1000,\n        ease: 'power3.out',\n      })\n    },\n    [split.parts, stagger, duration, distance],\n    { name: 'revelation de texte' },\n  )\n\n  // Le filet. Voir l'explication en tete de module : sans lui, un plugin qui\n  // ne se charge pas laisse le titre invisible pour de bon.\n  useEffect(() => {\n    if (host === null || reduced) return\n\n    if (split.ready) {\n      host.removeAttribute(PENDING)\n      return\n    }\n\n    const timer = setTimeout(() => host.removeAttribute(PENDING), RESCUE_MS)\n    return () => clearTimeout(timer)\n  }, [host, reduced, split.ready])\n\n  useOnReady(onReady, split.ready ? { parts: split.parts, by } : null, host)\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <Tag\n      {...rest}\n      ref={(element: HTMLElement | null) => {\n        setHost(element)\n        split.ref.current = element\n        timelineRef.current = element\n      }}\n      className={className}\n      style={style}\n      // L'attribut n'est pose que si une animation est attendue. Le moteur se\n      // charge de l'etiquette accessible et de masquer les fragments : le\n      // repeter ici ferait deux verites a maintenir.\n      {...(reduced ? {} : { [PENDING]: '' })}\n    >\n      {children}\n    </Tag>\n  )\n}\n"
+  }
+}

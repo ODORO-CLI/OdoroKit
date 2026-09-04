@@ -1,0 +1,74 @@
+{
+  "name": "rotating-words",
+  "category": "text",
+  "title": "Mot tournant",
+  "description": "Un mot se substitue dans une phrase qui ne bouge pas, sans que la largeur saute.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/RotatingWords.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "words",
+      "type": "readonly string[]",
+      "required": true,
+      "description": "Les mots qui se succedent. Le premier est celui que l on lit."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "required": false,
+      "default": 2200,
+      "unit": "ms",
+      "description": "Temps d affichage d un mot.",
+      "min": 600,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 420,
+      "unit": "ms",
+      "description": "Duree de la substitution.",
+      "min": 80,
+      "max": 1500,
+      "step": 20
+    },
+    {
+      "name": "sens",
+      "type": "'haut' | 'bas'",
+      "required": false,
+      "default": "haut",
+      "description": "Sens du mouvement."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un intervalle, arrete hors du champ. Les substitutions sont des transitions CSS, sans JavaScript par image."
+  },
+  "id": "text/rotating-words",
+  "sources": {
+    "component.tsx": "/**\n * Mot tournant : un seul mot change dans une phrase qui, elle, ne bouge pas.\n *\n * ## Ce n'est pas la machine a ecrire\n *\n * `typewriter` frappe puis efface des phrases entieres, caractere par\n * caractere : le regard suit le curseur. Ici la phrase est fixe et lisible du\n * debut a la fin, seul un mot se substitue. C'est ce qu'on veut pour un titre\n * de page — « Construisez plus **vite** / plus **sur** / **ensemble** » — la ou\n * une phrase qui s'efface obligerait a relire a chaque tour.\n *\n * ## La largeur ne saute pas, et sans mesurer quoi que ce soit\n *\n * Le probleme classique : « vite » est plus court qu'« ensemble », donc la fin\n * de la phrase se deplace a chaque tour. La reponse habituelle consiste a\n * mesurer chaque mot en JavaScript pour reserver la largeur du plus long — ce\n * qui suppose que les polices soient chargees, se refait a chaque\n * redimensionnement, et se trompe entre-temps.\n *\n * Une grille en ligne le fait toute seule. Tous les mots occupent la **meme\n * cellule** ; la cellule prend la largeur du plus large, et l'on n'a rien\n * mesure. Le navigateur sait faire cela depuis toujours, et il le refait tout\n * seul quand la police change.\n *\n * ## Le premier mot est le mot lu\n *\n * Un lecteur d'ecran ne doit pas entendre huit variantes a la suite. La phrase\n * porte donc un mot, un seul, dans le flux normal ; la pile qui tourne est\n * `aria-hidden`. Ce que l'on entend est une phrase complete et sensee, ce que\n * l'on voit est la meme phrase qui respire.\n *\n * ## Elle ne tourne que sous les yeux\n *\n * L'intervalle s'arrete des que le composant sort du champ. Une page qui garde\n * trois titres en train de tourner dans des sections qu'on ne regarde pas\n * reveille le processeur pour rien, et cela se sent sur la batterie.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface RotatingWordsOwnProps {\n  /** Les mots qui se succedent. Le premier est celui que l'on lit. */\n  words: readonly string[]\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Temps d'affichage d'un mot, en millisecondes. @defaultValue 2200 */\n  interval?: number\n  /** Duree de la substitution, en millisecondes. @defaultValue 420 */\n  duration?: number\n  /**\n   * Sens du mouvement.\n   *\n   * @defaultValue 'haut'\n   */\n  sens?: 'haut' | 'bas'\n}\n\n/** Toutes les proprietes. */\nexport type RotatingWordsProps = Customisable<RotatingWordsOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-rotating-words'\n\n/** Pose les regles de la pile, une fois par document. */\nfunction ensureRotatingRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La grille en ligne donne la largeur du plus long mot, sans mesure.\n    '[data-o-rotating]{display:inline-grid;vertical-align:bottom;overflow:hidden;text-align:left}',\n    '[data-o-rotating]>*{grid-area:1/1}',\n    '[data-o-rotating-stack]{display:inline-grid}',\n    '[data-o-rotating-stack]>*{grid-area:1/1}',\n    '[data-o-rotating-word]{',\n    'opacity:0;',\n    'transform:translateY(var(--o-rotating-depart));',\n    'transition:opacity var(--o-rotating-duration) ease,transform var(--o-rotating-duration) cubic-bezier(0.22,1,0.36,1);',\n    '}',\n    '[data-o-rotating-word][data-actif]{opacity:1;transform:translateY(0)}',\n    // Le mot qui vient de partir s'en va dans le sens du mouvement, plutot que\n    // de revenir sur ses pas : sans cela, l'entrant et le sortant se croisent.\n    '[data-o-rotating-word][data-sortant]{opacity:0;transform:translateY(var(--o-rotating-sortie))}',\n    '[data-o-rotating-hidden]{color:transparent}',\n    '@media (prefers-reduced-motion:reduce){[data-o-rotating-word]{transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait tourner un mot dans une phrase fixe.\n *\n * @example\n * <p className=\"o-text-4xl\">\n *   Construisez plus{' '}\n *   <RotatingWords words={['vite', 'sur', 'ensemble']} className=\"o-text-brand-600\" />\n * </p>\n *\n * @example\n * // Vers le bas, et plus lentement.\n * <RotatingWords words={['hier', 'aujourd hui', 'demain']} sens=\"bas\" interval={3200} />\n */\nexport function RotatingWords({\n  words,\n  as: Tag = 'span',\n  interval = 2200,\n  duration = 420,\n  sens = 'haut',\n  ...rest\n}: RotatingWordsProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref: refVue, vu } = useInView<HTMLElement>({ once: false })\n  const [index, setIndex] = useState(0)\n  const [precedent, setPrecedent] = useState<number | undefined>(undefined)\n\n  ensureRotatingRule()\n\n  useEffect(() => {\n    // En mouvement reduit, le premier mot reste. La phrase garde son sens, et\n    // c'est tout ce que la rotation apportait.\n    if (reduced || !vu || words.length < 2) return\n\n    const minuteur = setInterval(() => {\n      setIndex((courant) => {\n        setPrecedent(courant)\n        return (courant + 1) % words.length\n      })\n    }, Math.max(duration, interval))\n\n    return () => {\n      clearInterval(minuteur)\n    }\n  }, [vu, reduced, words.length, interval, duration])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le sens decide d'ou vient l'entrant et ou va le sortant. Les deux vont\n  // dans la meme direction : c'est ce qui donne l'impression d'un rouleau.\n  const depart = sens === 'haut' ? '0.9em' : '-0.9em'\n  const sortie = sens === 'haut' ? '-0.9em' : '0.9em'\n\n  const styleRotation = {\n    ...style,\n    '--o-rotating-duration': `${String(duration)}ms`,\n    '--o-rotating-depart': depart,\n    '--o-rotating-sortie': sortie,\n  } as CSSProperties\n\n  const anime = !reduced && words.length > 1\n  const lu = words[0] ?? ''\n\n  return (\n    <Tag\n      {...rest}\n      ref={refVue}\n      className={className}\n      style={styleRotation}\n      data-o-rotating=\"\"\n    >\n      {/* Le mot lu, dans le flux : c'est lui qui est annonce et copie. */}\n      <span {...(anime ? { 'data-o-rotating-hidden': '' } : {})}>{lu}</span>\n\n      {anime && (\n        <span aria-hidden=\"true\" data-o-rotating-stack=\"\">\n          {words.map((mot, i) => (\n            <span\n              key={mot}\n              data-o-rotating-word=\"\"\n              {...(i === index ? { 'data-actif': '' } : {})}\n              {...(i === precedent && i !== index ? { 'data-sortant': '' } : {})}\n            >\n              {mot}\n            </span>\n          ))}\n        </span>\n      )}\n    </Tag>\n  )\n}\n"
+  }
+}

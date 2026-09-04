@@ -1,0 +1,67 @@
+{
+  "name": "mesh",
+  "category": "background",
+  "title": "Nappe",
+  "description": "Trois taches de couleur qui derivent et se melangent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Mesh.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.2,
+      "description": "Vitesse de derive des taches.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "Etendue des taches.",
+      "min": 0.2,
+      "max": 1.2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Trois evaluations de distance par pixel. Le plus leger des quatre.",
+    "fallback": "gradient"
+  },
+  "id": "background/mesh",
+  "sources": {
+    "component.tsx": "/**\n * Nappe : trois taches de couleur qui derivent et se melangent.\n *\n * ## Ce que ce composant apporte, et ce qu'il delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * ## Le repli n'est pas une precaution\n *\n * C'est la moitie du composant. Il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime\n * n'apporte rien d'autre que son mouvement.\n *\n * @module\n */\n\nimport {\n  MESH_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MeshControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface MeshOwnProps {\n  /** Vitesse de derive des taches. @defaultValue 0.2 */\n  speed?: number\n  /** Etendue des taches. @defaultValue 0.55 */\n  spread?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MeshControls>\n}\n\n/** Toutes les proprietes. */\nexport type MeshProps = Customisable<MeshOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-brand-500',\n  '--o-palette-fuchsia-500',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-brand-800 o-via-fuchsia-800 o-to-zinc-950'\n\n/**\n * Nappe : trois taches de couleur qui derivent et se melangent.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Mesh className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Mesh({\n  speed = 0.2,\n  spread = 0.55,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: MeshProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: MESH_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: spread },\n    name: 'nappe',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

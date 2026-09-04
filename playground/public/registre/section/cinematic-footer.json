@@ -1,0 +1,93 @@
+{
+  "name": "cinematic-footer",
+  "category": "section",
+  "title": "Pied de page en rideau",
+  "description": "Un pied de page decouvert par le defilement, avec mot de fond en parallaxe, bandeau defilant et pastilles magnetiques.",
+  "engine": {
+    "gsap": [
+      "ScrollTrigger"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/CinematicFooter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "effect/magnetic",
+    "effect/marquee"
+  ],
+  "tokens": [
+    "--o-palette-zinc-50",
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "heading",
+      "type": "ReactNode",
+      "required": false,
+      "default": "On commence ?",
+      "description": "Titre du bloc central."
+    },
+    {
+      "name": "word",
+      "type": "string",
+      "required": false,
+      "description": "Mot pose en fond, derriere tout le reste. Rien n est rendu s il est absent."
+    },
+    {
+      "name": "banner",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Contenu du bandeau defilant. Emplacement, rendu par le composant de defilement."
+    },
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Actions principales, rendues en pastilles magnetiques."
+    },
+    {
+      "name": "links",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Liens secondaires, rendus en pastilles plus petites."
+    },
+    {
+      "name": "copyright",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Mention de bas de page, a gauche."
+    },
+    {
+      "name": "signature",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Signature, au centre de la barre basse."
+    },
+    {
+      "name": "topLabel",
+      "type": "string",
+      "required": false,
+      "default": "Revenir en haut",
+      "description": "Libelle accessible du bouton de remontee."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un seul declencheur de defilement pour les deux mouvements. Le rideau est de la mise en page — une decoupe et un element fixe — et ne coute rien a l execution.",
+    "fallback": "static"
+  },
+  "id": "section/cinematic-footer",
+  "sources": {
+    "component.tsx": "/**\n * Pied de page en rideau : la page glisse par-dessus, il se decouvre dessous.\n *\n * ## Comment le rideau tient\n *\n * Le pied de page est en `fixed`, et son enveloppe porte un `clip-path`. C'est\n * la seule piece du montage : un element decoupe devient bloc conteneur pour\n * ses descendants fixes, si bien que le pied de page ne se colle pas a la\n * fenetre mais reste borne a l'enveloppe. Il apparait donc a mesure que\n * l'enveloppe entre dans le champ, sans qu'aucun JavaScript ne le deplace.\n *\n * Retirer le `clip-path` casse l'effet en silence : le pied de page se colle\n * alors a la fenetre et reste visible sur toute la page.\n *\n * ## Ce qui est confie au defilement, et ce qui ne l'est pas\n *\n * Le mot de fond et le bloc central sont asservis a la progression du\n * defilement. Rien d'autre. Le rideau, lui, est de la mise en page : le confier\n * a une animation le ferait dependre d'une mesure, alors qu'il decoule de la\n * geometrie.\n *\n * Sous mouvement reduit, `useScrollScrub` applique l'etat **final** une fois :\n * le contenu est en place, sans course. Le rideau continue de fonctionner,\n * puisqu'il n'anime rien — c'est la page qui defile.\n *\n * ## Pourquoi les couleurs passent par deux variables\n *\n * Le systeme n'a pas de couche semantique : il n'existe ni `--foreground` ni\n * `--background` a interroger. Les degrades, le masque de grille et le verre\n * en ont pourtant besoin, et les ecrire en dur les figerait dans un theme.\n *\n * L'enveloppe declare donc deux variables privees, definies dans les deux\n * themes a partir de la palette. Ce sont les seules du composant, et elles ne\n * sortent pas de lui.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useMotionState,\n  useScrollScrub,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useRef, type ReactElement, type ReactNode } from 'react'\n\nimport { Magnetic } from '@registre/effect/Magnetic'\nimport { Marquee } from '@registre/effect/Marquee'\n\n/** Proprietes propres au composant. */\nexport interface CinematicFooterOwnProps {\n  /** Titre du bloc central. */\n  heading?: ReactNode\n  /** Mot pose en fond, derriere tout le reste. */\n  word?: string\n  /** Contenu du bandeau defilant. Rien n'est affiche s'il est absent. */\n  banner?: ReactNode\n  /** Actions principales, rendues en pastilles magnetiques. */\n  actions?: ReactNode\n  /** Liens secondaires, rendus en pastilles plus petites. */\n  links?: ReactNode\n  /** Mention de bas de page, a gauche. */\n  copyright?: ReactNode\n  /** Signature, au centre de la barre basse. */\n  signature?: ReactNode\n  /** Libelle du bouton de remontee. @defaultValue 'Revenir en haut' */\n  topLabel?: string\n}\n\n/** Toutes les proprietes. */\nexport type CinematicFooterProps = Customisable<CinematicFooterOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-cinematic-footer'\n\n/**\n * Pose les regles du pied de page, une fois par document.\n *\n * Tout ce qui est ici est hors de portee des utilitaires : un contour de\n * texte, un masque de degrade, un fond de grille, une teinte melangee. Le\n * reste de l'habillage reste en classes.\n */\nfunction ensureFooterRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const palette = [\n    '[data-o-footer]{',\n    '--o-footer-ink:var(--o-palette-zinc-950);',\n    '--o-footer-ground:var(--o-palette-zinc-50);',\n    '--o-footer-glow-a:var(--o-palette-brand-500);',\n    '--o-footer-glow-b:var(--o-palette-fuchsia-500)}',\n  ].join('')\n\n  const dark = [\n    '[data-o-footer]{',\n    '--o-footer-ink:var(--o-palette-zinc-50);',\n    '--o-footer-ground:var(--o-palette-zinc-950)}',\n  ].join('')\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    palette,\n    `:root[data-theme=\"dark\"] ${dark}`,\n    `@media (prefers-color-scheme:dark){:root:not([data-theme=\"light\"]) ${dark}}`,\n\n    // Halo : une nappe radiale qui respire lentement.\n    '[data-o-footer-glow]{background:radial-gradient(circle at 50% 50%,',\n    'color-mix(in oklch,var(--o-footer-glow-a) 18%,transparent) 0%,',\n    'color-mix(in oklch,var(--o-footer-glow-b) 18%,transparent) 40%,transparent 70%);',\n    'animation:o-footer-breathe 8s var(--o-ease-standard) infinite alternate}',\n    '@keyframes o-footer-breathe{to{transform:translate(-50%,-50%) scale(1.1)}}',\n\n    // Grille de fond, estompee aux deux extremites.\n    '[data-o-footer-grid]{background-size:60px 60px;background-image:',\n    'linear-gradient(to right,color-mix(in oklch,var(--o-footer-ink) 6%,transparent) 1px,transparent 1px),',\n    'linear-gradient(to bottom,color-mix(in oklch,var(--o-footer-ink) 6%,transparent) 1px,transparent 1px);',\n    '-webkit-mask:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent);',\n    'mask:linear-gradient(to bottom,transparent,black 30%,black 70%,transparent)}',\n\n    // Mot de fond : un contour, et un degrade qui s'eteint vers le bas.\n    '[data-o-footer-word]{font-size:26vw;line-height:0.75;letter-spacing:-0.05em;',\n    'color:transparent;-webkit-text-stroke:1px color-mix(in oklch,var(--o-footer-ink) 10%,transparent);',\n    'background:linear-gradient(180deg,color-mix(in oklch,var(--o-footer-ink) 14%,transparent) 0%,transparent 60%);',\n    '-webkit-background-clip:text;background-clip:text}',\n\n    // Verre : un fond melange, un liseré, et un flou d'arriere-plan.\n    '[data-o-footer-pill]{background:linear-gradient(145deg,',\n    'color-mix(in oklch,var(--o-footer-ink) 5%,transparent) 0%,',\n    'color-mix(in oklch,var(--o-footer-ink) 2%,transparent) 100%);',\n    'border:1px solid color-mix(in oklch,var(--o-footer-ink) 10%,transparent);',\n    'box-shadow:0 10px 30px -10px color-mix(in oklch,var(--o-footer-ground) 50%,transparent);',\n    '-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);',\n    'transition:background var(--o-duration-slow) var(--o-ease-standard),',\n    'border-color var(--o-duration-slow) var(--o-ease-standard)}',\n    '[data-o-footer-pill]:hover{',\n    'background:linear-gradient(145deg,',\n    'color-mix(in oklch,var(--o-footer-ink) 10%,transparent) 0%,',\n    'color-mix(in oklch,var(--o-footer-ink) 4%,transparent) 100%);',\n    'border-color:color-mix(in oklch,var(--o-footer-ink) 22%,transparent)}',\n\n    // Battement : la couleur vient du texte, donc d'une classe, donc d'un token.\n    '[data-o-footer-beat]{animation:o-footer-beat 2s var(--o-ease-standard) infinite}',\n    '@keyframes o-footer-beat{0%,100%{transform:scale(1)}15%,45%{transform:scale(1.18)}30%{transform:scale(1)}}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-footer-glow],[data-o-footer-beat]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Pied de page decouvert par le defilement.\n *\n * @example\n * <CinematicFooter\n *   heading=\"On commence ?\"\n *   word=\"ODORO\"\n *   actions={<a href=\"/contact\">Nous ecrire</a>}\n *   copyright=\"© 2026 Odoro\"\n * />\n *\n * @example\n * // Le bandeau est un emplacement : il recoit ce que la page a a dire.\n * <CinematicFooter banner={<span className=\"o-px-8\">Disponible en mars</span>} />\n */\nexport function CinematicFooter({\n  heading = 'On commence ?',\n  word,\n  banner,\n  actions,\n  links,\n  copyright,\n  signature,\n  topLabel = 'Revenir en haut',\n  ...rest\n}: CinematicFooterProps): ReactElement {\n  const { reduced } = useMotionState()\n  const wordRef = useRef<HTMLDivElement | null>(null)\n  const centreRef = useRef<HTMLDivElement | null>(null)\n\n  ensureFooterRules()\n\n  // Une seule mesure pour les deux mouvements : deux declencheurs sur la meme\n  // plage produiraient deux lectures de la meme progression.\n  const { ref } = useScrollScrub<HTMLDivElement>(\n    (progress) => {\n      // Le nom evite celui de la prop : la fermeture la capture, et deux\n      // « word » a deux lignes d'ecart se relisent mal.\n      const backdrop = wordRef.current\n      if (backdrop !== null) {\n        backdrop.style.transform = `translate3d(-50%,${String((1 - progress) * 10)}vh,0) scale(${String(0.86 + progress * 0.14)})`\n        backdrop.style.opacity = progress.toFixed(3)\n      }\n\n      const centre = centreRef.current\n      if (centre !== null) {\n        // Le bloc central arrive plus tard que le mot : la moitie basse de la\n        // course lui suffit, et il finit en place avant la barre du bas.\n        const own = Math.max(0, Math.min(1, (progress - 0.35) / 0.45))\n        centre.style.transform = `translate3d(0,${String((1 - own) * 50)}px,0)`\n        centre.style.opacity = own.toFixed(3)\n      }\n    },\n    { start: 'top bottom', end: 'bottom bottom', name: 'pied-de-page' },\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-h-screen o-w-full' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={ref}\n      data-o-footer\n      className={className}\n      style={{\n        // La decoupe est ce qui borne le pied de page fixe a cette enveloppe.\n        // Sans elle, il se collerait a la fenetre sur toute la page.\n        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',\n        ...style,\n      }}\n    >\n      <footer className=\"o-fixed o-bottom-0 o-left-0 o-flex o-h-screen o-w-full o-flex-col o-justify-between o-overflow-hidden o-bg-zinc-50 o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50\">\n        <div\n          aria-hidden\n          data-o-footer-glow\n          className=\"o-pointer-events-none o-absolute o-left-1/2 o-top-1/2 o-h-1/2 o-w-4/5 o-rounded-full o-blur-3xl\"\n          style={{ transform: 'translate(-50%,-50%)' }}\n        />\n        <div\n          aria-hidden\n          data-o-footer-grid\n          className=\"o-pointer-events-none o-absolute o-inset-0\"\n        />\n\n        {/* Le recentrage est pose des le depart : la mesure du defilement\n            n'arrive qu'apres la premiere peinture, et le mot sauterait d'une\n            demi-largeur entre les deux. */}\n        {word === undefined ? null : (\n          <div\n            aria-hidden\n            ref={wordRef}\n            data-o-footer-word\n            style={{ transform: 'translate3d(-50%,0,0)' }}\n            className=\"o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-select-none o-whitespace-nowrap o-font-bold\"\n          >\n            {word}\n          </div>\n        )}\n\n        {banner === undefined ? null : (\n          <Marquee\n            className=\"o-absolute o-top-12 o-w-full o-border-t o-border-b o-border-zinc-200 o-py-4 o-text-xs o-font-bold o-uppercase o-tracking-widest o-text-zinc-500 dark:o-border-zinc-800\"\n            style={{ transform: 'rotate(-2deg) scale(1.1)' }}\n          >\n            {banner}\n          </Marquee>\n        )}\n\n        <div\n          ref={centreRef}\n          className=\"o-relative o-mx-auto o-flex o-flex-1 o-w-full o-max-w-5xl o-flex-col o-items-center o-justify-center o-gap-10 o-px-6\"\n        >\n          <h2 className=\"o-text-center o-text-5xl o-font-bold o-tracking-tight md:o-text-7xl\">\n            {heading}\n          </h2>\n\n          {actions === undefined ? null : (\n            <div className=\"o-flex o-flex-wrap o-justify-center o-gap-4\">{actions}</div>\n          )}\n\n          {links === undefined ? null : (\n            <div className=\"o-flex o-flex-wrap o-justify-center o-gap-3\">{links}</div>\n          )}\n        </div>\n\n        <div className=\"o-relative o-flex o-flex-col o-items-center o-justify-between o-gap-6 o-px-6 o-pb-8 md:o-flex-row md:o-px-12\">\n          {copyright === undefined ? (\n            // Un paragraphe vide occupe quand meme sa ligne : la barre du bas\n            // se retrouverait decentree pour la seule raison qu'une mention\n            // n'a pas ete fournie.\n            <span />\n          ) : (\n            <p className=\"o-text-xs o-uppercase o-tracking-widest o-text-zinc-500\">\n              {copyright}\n            </p>\n          )}\n\n          {signature === undefined ? null : (\n            <p\n              data-o-footer-pill\n              className=\"o-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-xs o-uppercase o-tracking-widest o-text-zinc-500\"\n            >\n              {signature}\n              <span\n                aria-hidden\n                data-o-footer-beat={reduced ? undefined : ''}\n                className=\"o-text-red-500\"\n              >\n                &#10084;\n              </span>\n            </p>\n          )}\n\n          <Magnetic>\n            <button\n              type=\"button\"\n              data-o-footer-pill\n              onClick={() => {\n                window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })\n              }}\n              className=\"o-flex o-h-12 o-w-12 o-items-center o-justify-center o-rounded-full o-text-zinc-500 hover:o-text-zinc-950 dark:hover:o-text-zinc-50\"\n            >\n              <span className=\"o-sr-only\">{topLabel}</span>\n              <svg\n                aria-hidden\n                viewBox=\"0 0 24 24\"\n                fill=\"none\"\n                stroke=\"currentColor\"\n                strokeWidth=\"1.5\"\n                strokeLinecap=\"round\"\n                strokeLinejoin=\"round\"\n                className=\"o-h-5 o-w-5\"\n              >\n                <path d=\"M12 19V5M5 12l7-7 7 7\" />\n              </svg>\n            </button>\n          </Magnetic>\n        </div>\n      </footer>\n    </div>\n  )\n}\n"
+  }
+}

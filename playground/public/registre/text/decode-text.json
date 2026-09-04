@@ -1,0 +1,72 @@
+{
+  "name": "decode-text",
+  "category": "text",
+  "title": "Decodage",
+  "description": "Le texte se stabilise depuis un brouillage de caracteres, lettre par lettre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/DecodeText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree totale de la stabilisation.",
+      "min": 0,
+      "max": 3600,
+      "step": 100
+    },
+    {
+      "name": "alphabet",
+      "type": "string",
+      "required": false,
+      "description": "Caracteres du brouillage."
+    },
+    {
+      "name": "trigger",
+      "type": "'mount' | 'view' | 'hover'",
+      "required": false,
+      "default": "view",
+      "description": "Ce qui declenche la sequence.",
+      "options": [
+        "view",
+        "mount",
+        "hover"
+      ]
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<DecodeControls>) => void | (() => void)",
+      "required": false,
+      "description": "Echappatoire : permet de rejouer la sequence."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une ecriture de textContent par image, sur un seul noeud."
+  },
+  "id": "text/decode-text",
+  "sources": {
+    "component.tsx": "/**\n * Decodage : le texte se stabilise depuis un brouillage.\n *\n * ## Le texte reste lisible pendant tout l'effet\n *\n * Un brouillage remplace les caracteres affiches par des symboles aleatoires.\n * Rendu tel quel, c'est du bruit : un lecteur d'ecran annonce des suites de\n * signes, et une recherche dans la page ne trouve rien pendant toute la duree\n * de l'animation.\n *\n * Le texte veritable est donc porte par l'element, en `aria-label`, et le\n * brouillage n'existe que dans ce qui est peint. L'effet ne coute alors rien a\n * personne d'autre qu'a l'oeil.\n *\n * ## Pourquoi la boucle du moteur\n *\n * Le brouillage doit changer a la cadence de l'ecran, sans quoi il saccade. Un\n * minuteur a intervalle fixe donnerait un rythme different du rafraichissement\n * et produirait un battement visible. C'est le cas d'ecole d'un effet qui\n * possede la frame.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  useOnReady,\n  type Customisable,\n  type ReadyCallback,\n} from '@odoro-cli/engine'\nimport {\n  useCallback,\n  useEffect,\n  useRef,\n  useState,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface DecodeControls {\n  /** Rejoue la sequence depuis le debut. */\n  replay(): void\n}\n\n/** Ce qui declenche la sequence. */\nexport type DecodeTrigger = 'mount' | 'view' | 'hover'\n\n/** Proprietes propres au composant. */\nexport interface DecodeTextOwnProps {\n  /** Texte a decoder. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree totale de la stabilisation, en millisecondes. @defaultValue 1200 */\n  duration?: number\n  /** Caracteres employes pour le brouillage. */\n  alphabet?: string\n  /** Ce qui declenche la sequence. @defaultValue 'view' */\n  trigger?: DecodeTrigger\n  /** Echappatoire. */\n  onReady?: ReadyCallback<DecodeControls>\n}\n\n/** Toutes les proprietes. */\nexport type DecodeTextProps = Customisable<DecodeTextOwnProps, 'span'>\n\n/**\n * Alphabet par defaut.\n *\n * Volontairement sans lettres accentuees ni signes larges : un caractere plus\n * large que celui qu'il remplace ferait respirer la ligne a chaque image, et\n * le texte tremblerait au lieu de se stabiliser.\n */\nconst DEFAULT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$?!/\\\\|<>*+='\n\n/**\n * Revele un texte en le decodant.\n *\n * @example\n * <DecodeText as=\"h2\" className=\"o-text-4xl o-font-bold\">\n *   Odoro\n * </DecodeText>\n *\n * @example\n * // Niveau 5 : rejouer la sequence depuis l exterieur.\n * const rejouer = useRef<(() => void) | null>(null)\n * <DecodeText onReady={({ handle }) => { rejouer.current = handle.replay }}>\n *   Odoro\n * </DecodeText>\n */\nexport function DecodeText({\n  children,\n  as: Tag = 'span',\n  duration = 1200,\n  alphabet = DEFAULT_ALPHABET,\n  trigger = 'view',\n  onReady,\n  ...rest\n}: DecodeTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const output = useRef<HTMLSpanElement | null>(null)\n\n  const run = useCallback(() => {\n    const target = output.current\n    if (target === null) return\n\n    // Sous mouvement reduit, le texte est simplement la. L'animation est\n    // neutralisee, jamais l'etat final.\n    if (reduced) {\n      target.textContent = children\n      return\n    }\n\n    const started = performance.now()\n    const letters = [...children]\n\n    const subscription = clock.subscribe(\n      () => {\n        const ratio = Math.min(1, (performance.now() - started) / duration)\n        // Chaque lettre se fige a son tour, de la premiere a la derniere : la\n        // progression avance dans le mot, elle ne le stabilise pas d'un bloc.\n        const settled = ratio * letters.length\n\n        target.textContent = letters\n          .map((letter, index) => {\n            if (index < settled) return letter\n            if (letter === ' ') return ' '\n            return alphabet[Math.floor(Math.random() * alphabet.length)] ?? letter\n          })\n          .join('')\n\n        if (ratio >= 1) subscription.unsubscribe()\n      },\n      { name: 'decodage de texte', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => subscription.unsubscribe()\n  }, [children, duration, alphabet, reduced])\n\n  useEffect(() => {\n    if (host === null) return\n\n    if (trigger === 'mount') return run()\n\n    if (trigger === 'view') {\n      const observer = new IntersectionObserver(\n        (entries) => {\n          if (entries.some((entry) => entry.isIntersecting)) {\n            run()\n            observer.disconnect()\n          }\n        },\n        { threshold: 0.4 },\n      )\n      observer.observe(host)\n      return () => observer.disconnect()\n    }\n\n    const onEnter = (): void => void run()\n    host.addEventListener('pointerenter', onEnter)\n    return () => host.removeEventListener('pointerenter', onEnter)\n  }, [host, trigger, run])\n\n  // La poignee est stable : `useOnReady` ne depend que d'elle et de l'element,\n  // et un objet neuf a chaque rendu rejouerait l'echappatoire en boucle. Elle\n  // lit `run` dans une reference pour rester juste apres un changement de\n  // reglage.\n  const runRef = useRef(run)\n  runRef.current = run\n  const controls = useRef<DecodeControls>({ replay: () => void runRef.current() })\n  useOnReady(onReady, controls.current, host)\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <Tag\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={style}\n      // Le brouillage n'existe que pour l'oeil : le texte veritable reste\n      // annonce, cherchable et copiable.\n      aria-label={children}\n    >\n      <span ref={output} aria-hidden>\n        {children}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

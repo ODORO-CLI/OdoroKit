@@ -1,0 +1,68 @@
+{
+  "name": "sticky-stack",
+  "category": "section",
+  "title": "Cartes empilees",
+  "description": "Des cartes qui se figent et s empilent a mesure que le defilement avance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/StickyStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes."
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Distance au haut de la fenetre.",
+      "min": 0,
+      "max": 290,
+      "step": 100
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "px",
+      "description": "Decalage visible entre deux cartes empilees.",
+      "min": 0,
+      "max": 72,
+      "step": 100
+    },
+    {
+      "name": "shrink",
+      "type": "number",
+      "required": false,
+      "default": 0.05,
+      "description": "Reduction de la carte quand la suivante arrive.",
+      "min": 0,
+      "max": 0.15,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le collage est natif. Seule l echelle est ecrite par la boucle, une fois par carte et par image."
+  },
+  "id": "section/sticky-stack",
+  "sources": {
+    "component.tsx": "/**\n * Cartes qui se figent et s'empilent au defilement.\n *\n * ## Le collage est natif, et il doit le rester\n *\n * `position: sticky` fait tout le travail de position : la carte suit le\n * defilement jusqu'a son point d'ancrage, puis s'y fige pendant que la\n * suivante monte. Reproduire cela a la main demanderait de mesurer, de\n * calculer, et de reecrire une transformation par image — pour un resultat qui\n * traine d'une image derriere le contenu.\n *\n * Le seul reglage que le natif ne donne pas est la **reduction** de la carte\n * figee quand la suivante la recouvre. C'est ce que la boucle ecrit, et rien\n * d'autre.\n *\n * ## Chaque carte a son propre ancrage\n *\n * Empiler des cartes au meme endroit les ferait disparaitre les unes sous les\n * autres. Chacune s'ancre donc quelques pixels plus bas que la precedente : le\n * bord de celles du dessous reste visible, et l'empilement se lit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useMotionState,\n  useScrollScrub,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  Children,\n  useCallback,\n  useRef,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface StickyStackOwnProps {\n  /** Les cartes. */\n  children: ReactNode\n  /** Distance au haut de la fenetre, en pixels. @defaultValue 96 */\n  offset?: number\n  /** Decalage visible entre deux cartes empilees, en pixels. @defaultValue 24 */\n  gap?: number\n  /** Reduction de la carte quand la suivante arrive, de 0 a 0.3. @defaultValue 0.05 */\n  shrink?: number\n}\n\n/** Toutes les proprietes. */\nexport type StickyStackProps = Customisable<StickyStackOwnProps>\n\n/** Une carte figee, qui se reduit quand la suivante la recouvre. */\nfunction Card({\n  index,\n  offset,\n  gap,\n  shrink,\n  reduced,\n  children,\n}: {\n  index: number\n  offset: number\n  gap: number\n  shrink: number\n  reduced: boolean\n  children: ReactNode\n}): ReactElement {\n  const inner = useRef<HTMLDivElement | null>(null)\n\n  const onProgress = useCallback(\n    (progress: number) => {\n      const target = inner.current\n      if (target === null) return\n      // La reduction ne commence qu'a la seconde moitie de la traversee :\n      // avant, la carte n'est pas encore recouverte, et la voir retrecir sans\n      // raison se lit comme un defaut.\n      const started = Math.max(0, progress * 2 - 1)\n      target.style.transform = `scale(${(1 - started * shrink).toFixed(4)})`\n    },\n    [shrink],\n  )\n\n  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {\n    name: 'cartes empilees',\n  })\n\n  return (\n    <div\n      ref={ref}\n      className=\"o-sticky\"\n      style={{ top: `${String(offset + index * gap)}px` }}\n    >\n      <div\n        ref={inner}\n        className={reduced ? undefined : 'o-will-change-transform o-origin-top'}\n      >\n        {children}\n      </div>\n    </div>\n  )\n}\n\n/**\n * Empile des cartes au fil du defilement.\n *\n * @example\n * <StickyStack offset={120} shrink={0.06}>\n *   {etapes.map((etape) => (\n *     <article key={etape.id} className=\"o-rounded-xl o-border-w-1 o-p-8\">\n *       {etape.titre}\n *     </article>\n *   ))}\n * </StickyStack>\n */\nexport function StickyStack({\n  children,\n  offset = 96,\n  gap = 24,\n  shrink = 0.05,\n  ...rest\n}: StickyStackProps): ReactElement {\n  const { reduced } = useMotionState()\n  const cards = Children.toArray(children)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-8' },\n    rest,\n  )\n\n  return (\n    <div {...rest} className={className} style={style as CSSProperties}>\n      {cards.map((card, index) => (\n        <Card\n          key={index}\n          index={index}\n          offset={offset}\n          gap={gap}\n          shrink={reduced ? 0 : shrink}\n          reduced={reduced}\n        >\n          {card}\n        </Card>\n      ))}\n    </div>\n  )\n}\n"
+  }
+}

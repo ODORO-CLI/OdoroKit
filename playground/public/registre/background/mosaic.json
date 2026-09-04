@@ -1,0 +1,77 @@
+{
+  "name": "mosaic",
+  "category": "background",
+  "title": "Mosaique",
+  "description": "Un bruit lu au centre de chaque cellule, donc quantifie en carreaux.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Mosaic.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-900",
+    "--o-palette-brand-600",
+    "--o-palette-fuchsia-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.05,
+      "description": "Vitesse du champ.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "description": "Nombre de carreaux par cote.",
+      "min": 4,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 0.06,
+      "description": "Largeur du joint.",
+      "min": 0,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un bruit fractal a trois octaves, evalue une fois par carreau et non par pixel.",
+    "fallback": "gradient"
+  },
+  "id": "background/mosaic",
+  "sources": {
+    "component.tsx": "/**\n * Mosaique : un bruit lu au centre de chaque cellule, donc quantifie en carreaux.\n *\n * ## Le principe\n *\n * Le carreau n existe nulle part dans le calcul : il apparait parce que le champ est echantillonne grossierement, exprès.\n *\n * Le joint entre carreaux n est pas decoratif — sans lui, deux valeurs voisines se fondent et la grille disparait.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  MOSAIC_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MosaicControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface MosaicOwnProps {\n  /** Vitesse du champ. @defaultValue 0.05 */\n  speed?: number\n  /** Nombre de carreaux par cote. @defaultValue 16 */\n  density?: number\n  /** Largeur du joint. @defaultValue 0.06 */\n  gap?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MosaicControls>\n}\n\n/** Toutes les proprietes. */\nexport type MosaicProps = Customisable<MosaicOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-900',\n  '--o-palette-brand-600',\n  '--o-palette-fuchsia-500',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-900 o-to-brand-900'\n\n/**\n * Mosaique.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Mosaic className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Mosaic({\n  speed = 0.05,\n  density = 16,\n  gap = 0.06,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: MosaicProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: MOSAIC_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: density, uGap: gap },\n    name: 'mosaic',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "use-in-view",
+  "category": "hooks",
+  "title": "Entree dans le champ",
+  "description": "Dit quand un element entre dans le champ, une fois, sans dependance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useInView.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "once",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Se detacher apres le premier passage."
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Part visible qui declenche, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "margin",
+      "type": "string",
+      "required": false,
+      "description": "Marge autour de la zone d observation, syntaxe de rootMargin."
+    },
+    {
+      "name": "immediat",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Ne pas observer : vrai des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur, detache apres le premier passage. Aucun travail par image."
+  },
+  "id": "hooks/use-in-view",
+  "sources": {
+    "hook.ts": "/**\n * Declenche quand l'element entre dans le champ, une fois.\n *\n * ## Pourquoi ce crochet plutot que ScrollTrigger\n *\n * Le moteur sait deja observer le defilement, mais par GSAP — et GSAP arrive\n * alors dans le projet de celui qui installe une simple animation de titre.\n * `IntersectionObserver` est dans le navigateur depuis des annees, ne coute\n * rien, et repond exactement a la question posee : « est-ce visible ? ».\n *\n * Ce qui demande GSAP, c'est le *scrub* — une animation dont l'avancement suit\n * la position de defilement au pixel pres. Ce crochet ne pretend pas le faire.\n *\n * ## Il s'ouvre en cas de doute, jamais il ne se ferme\n *\n * Sans `IntersectionObserver` — un navigateur ancien, un environnement de test,\n * un rendu serveur hydrate bizarrement — le crochet rend `vu: true`\n * **immediatement**.\n *\n * Le defaut inverse serait le pire possible : une animation qui ne part jamais\n * laisse le texte dans son etat initial, c'est-a-dire souvent invisible. Un\n * effet qui ne joue pas se remarque a peine ; un titre absent se remarque tout\n * de suite, et trop tard.\n *\n * ## Une fois, par defaut\n *\n * Un titre qui rejoue son animation chaque fois qu'on remonte la page attire\n * l'attention sur lui a un moment ou l'on cherchait autre chose. L'observateur\n * se detache donc apres le premier passage, ce qui libere aussi son cout.\n *\n * @module\n */\n\nimport { useEffect, useRef, useState, type RefObject } from 'react'\n\n/** Reglages de l'observation. */\nexport interface UseInViewOptions {\n  /**\n   * Se detacher apres le premier passage.\n   *\n   * @defaultValue true\n   */\n  once?: boolean\n  /**\n   * Part visible qui declenche, de 0 a 1.\n   *\n   * @defaultValue 0.3\n   */\n  amount?: number\n  /**\n   * Marge autour de la zone d'observation, syntaxe de `rootMargin`.\n   *\n   * Une marge negative en bas retarde le declenchement jusqu'a ce que\n   * l'element soit franchement entre.\n   */\n  margin?: string\n  /**\n   * Ne pas observer du tout : le crochet rend `vu: true` des le montage.\n   *\n   * C'est ainsi qu'un composant expose un declenchement « au montage » sans\n   * ecrire deux chemins de code.\n   *\n   * @defaultValue false\n   */\n  immediat?: boolean\n}\n\n/** Ce que le crochet rend. */\nexport interface UseInViewResult<T extends Element> {\n  /** A poser sur l'element a observer. */\n  readonly ref: RefObject<T | null>\n  /** Vrai des que l'element a ete vu. */\n  readonly vu: boolean\n}\n\n/**\n * Observe un element et dit quand il a ete vu.\n *\n * @example\n * const { ref, vu } = useInView<HTMLDivElement>()\n * return <div ref={ref} data-anime={vu ? '' : undefined} />\n *\n * @example\n * // Declenchement au montage : aucun observateur n'est cree.\n * const { ref, vu } = useInView<HTMLSpanElement>({ immediat: true })\n */\nexport function useInView<T extends Element>(\n  options: UseInViewOptions = {},\n): UseInViewResult<T> {\n  const { once = true, amount = 0.3, margin, immediat = false } = options\n\n  const ref = useRef<T | null>(null)\n  const [vu, setVu] = useState(immediat)\n\n  useEffect(() => {\n    if (immediat) {\n      setVu(true)\n      return\n    }\n\n    const cible = ref.current\n    if (cible === null) return\n\n    // Voir l'en-tete : en cas de doute, on montre. Un effet qui ne joue pas se\n    // remarque a peine, un titre absent se remarque tout de suite.\n    if (typeof IntersectionObserver === 'undefined') {\n      setVu(true)\n      return\n    }\n\n    const observateur = new IntersectionObserver(\n      (entrees) => {\n        for (const entree of entrees) {\n          if (entree.isIntersecting) {\n            setVu(true)\n            if (once) observateur.disconnect()\n          } else if (!once) {\n            setVu(false)\n          }\n        }\n      },\n      {\n        // `threshold` refuse une valeur hors de [0, 1] en levant : on la borne\n        // plutot que de laisser une faute de frappe casser la page.\n        threshold: Math.min(1, Math.max(0, amount)),\n        ...(margin === undefined ? {} : { rootMargin: margin }),\n      },\n    )\n\n    observateur.observe(cible)\n\n    return () => {\n      observateur.disconnect()\n    }\n  }, [once, amount, margin, immediat])\n\n  return { ref, vu }\n}\n"
+  }
+}

@@ -27,6 +27,7 @@ import { useMemo, type ReactElement } from 'react'
 
 import { CATALOGUE, type CatalogueEntry } from '../catalogue.generated.js'
 import { DEMOS } from '../demos.jsx'
+import { ApercuCode } from './ApercuCode.jsx'
 import { Atelier, type AtelierControl } from './Atelier.jsx'
 import { CodeBlock } from './CodeBlock.jsx'
 import { Callout, PageHeader, PropsTable, Section } from './DocBlocks.jsx'
@@ -140,23 +141,28 @@ export function EntryPage({ id }: { id: string }): ReactElement {
         )}
       </div>
 
-      {demo === undefined ? (
-        <Callout tone="warning">
-          Ce composant n a pas encore de demonstration vivante. Sa fiche reste exacte :
-          elle vient du registre.
-        </Callout>
-      ) : (
-        <Section title="Apercu" lead={demo.lead}>
-          <Atelier
-            height={demo.height ?? 'o-h-80'}
-            demoByDefault={demo.demoByDefault ?? false}
-            controls={demo.controls ?? controls}
-            {...(demo.deferred === undefined ? {} : { deferred: demo.deferred })}
-          >
-            {(values, frame) => demo.render(values, frame)}
-          </Atelier>
-        </Section>
-      )}
+      {/* La bascule vaut aussi sans demonstration : c'est meme la qu'elle
+          sert le plus, puisque le code est alors la seule chose a montrer. */}
+      <Section title="Apercu" {...(demo?.lead === undefined ? {} : { lead: demo.lead })}>
+        <ApercuCode id={entry.id}>
+          {demo === undefined ? (
+            <Callout tone="warning">
+              Ce composant n a pas encore de demonstration vivante. Sa fiche reste
+              exacte : elle vient du registre, et l onglet « Code » montre ce que la
+              commande ecrira.
+            </Callout>
+          ) : (
+            <Atelier
+              height={demo.height ?? 'o-h-80'}
+              demoByDefault={demo.demoByDefault ?? false}
+              controls={demo.controls ?? controls}
+              {...(demo.deferred === undefined ? {} : { deferred: demo.deferred })}
+            >
+              {(values, frame) => demo.render(values, frame)}
+            </Atelier>
+          )}
+        </ApercuCode>
+      </Section>
 
       {entry.perf.notes === undefined ? null : <Callout>{entry.perf.notes}</Callout>}
 

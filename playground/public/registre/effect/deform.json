@@ -1,0 +1,89 @@
+{
+  "name": "deform",
+  "category": "effect",
+  "title": "Deformation",
+  "description": "Un filtre de deplacement pose sur n importe quel contenu : fond, texte ou image.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Deform.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "amount",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Amplitude du deplacement.",
+      "min": 0,
+      "max": 36,
+      "step": 1
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "required": false,
+      "default": 0.012,
+      "description": "Finesse du bruit. Plus haut, plus serre.",
+      "min": 0.002,
+      "max": 0.06,
+      "step": 0.001
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Vitesse de derive du champ. Zero pour figer.",
+      "min": 0,
+      "max": 0.45,
+      "step": 0.05
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Detail du bruit. Une seule octave donne une ondulation lisse.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "edges",
+      "type": "'clean' | 'organic'",
+      "required": false,
+      "default": "clean",
+      "description": "clean redecoupe le resultat sur la forme d origine ; organic laisse la silhouette se deformer.",
+      "options": [
+        "clean",
+        "organic"
+      ]
+    },
+    {
+      "name": "onHover",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Amplifie la deformation au survol seulement."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre natif, calcule une fois. Le mouvement translate le champ plutot que de le regenerer : animer la frequence effondrerait la cadence."
+  },
+  "id": "effect/deform",
+  "sources": {
+    "component.tsx": "/**\n * Deformation : un filtre de deplacement pose sur n'importe quel contenu.\n *\n * ## Pourquoi un filtre SVG et pas une texture\n *\n * La facon evidente de deformer du contenu serait de le rendre dans une\n * texture, puis de la tordre dans un shader. C'est ce que font les\n * demonstrations WebGL, et c'est une impasse des que le contenu est du DOM :\n * capturer du HTML en image demande une bibliotheque tierce, echoue sur les\n * polices distantes, ignore une partie des pseudo-elements, et casse\n * completement des qu'une image vient d'une autre origine.\n *\n * Un filtre de deplacement fait le meme travail, nativement. Le navigateur\n * rasterise l'element — ce qu'il fait de toute facon — puis decale chaque\n * pixel selon un champ de bruit. Aucune capture, aucune dependance, et cela\n * s'applique indifferemment a un fond, a du texte ou a une image.\n *\n * ## Les bords, et pourquoi ils sont recolles par defaut\n *\n * Un deplacement va chercher chaque pixel ailleurs. Au bord de l'element, cet\n * ailleurs est en dehors : le filtre y trouve du vide, et la silhouette part\n * en lambeaux. C'est correct au sens du calcul, et illisible a l'oeil — cela\n * ressemble a un defaut d'affichage, pas a un effet.\n *\n * Le resultat est donc redecoupe sur l'opacite d'origine : la forme reste\n * exactement celle qu'elle etait, et seul l'interieur ondule. C'est ce que\n * `edges: 'clean'` fait, et c'est le defaut.\n *\n * `edges: 'organic'` laisse la silhouette se deformer. C'est le bon choix pour\n * une tache de couleur ou un fond, ou il n'y a pas de forme a respecter — et\n * le mauvais pour une carte, dont les angles droits sont precisement ce qu'on\n * remarque.\n *\n * ## Ce que ce choix coute\n *\n * Trois limites, qu'il vaut mieux connaitre avant de poser le composant.\n *\n * Le texte est **rasterise**. A faible amplitude cela ne se voit pas ; au-dela\n * d'une dizaine de pixels, les lettres perdent leur nettete. C'est inherent :\n * un filtre travaille sur des pixels, pas sur des glyphes.\n *\n * Un filtre cree un **contexte d'empilement** et un bloc conteneur. Un enfant\n * en `position: fixed` a l'interieur se positionnera par rapport au conteneur\n * deforme, pas par rapport a la fenetre.\n *\n * Et la turbulence est **calculee une fois**, pas a chaque image. Animer sa\n * frequence obligerait le navigateur a la recalculer entierement, ce qui\n * effondre la cadence. Le mouvement vient donc du deplacement du champ, pas de\n * sa regeneration — moins riche, et cent fois moins cher.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useId, useRef, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface DeformOwnProps {\n  /** Contenu deforme : conteneur, texte, image, n'importe quoi. */\n  children: ReactNode\n  /** Amplitude du deplacement, en pixels. @defaultValue 12 */\n  amount?: number\n  /** Finesse du bruit. Plus haut, plus serre. @defaultValue 0.012 */\n  frequency?: number\n  /** Vitesse de derive du champ. Zero pour figer. @defaultValue 0.15 */\n  speed?: number\n  /**\n   * Nombre d'octaves du bruit. Une seule donne une ondulation lisse ; au-dela,\n   * le detail fin hache le deplacement.\n   *\n   * @defaultValue 1\n   */\n  octaves?: number\n  /**\n   * Traitement des bords.\n   *\n   * - `clean` redecoupe le resultat sur la forme d'origine : elle est\n   *   preservee, seul l'interieur ondule.\n   * - `organic` laisse la silhouette se deformer.\n   *\n   * @defaultValue 'clean'\n   */\n  edges?: 'clean' | 'organic'\n  /** Amplifie la deformation au survol. @defaultValue false */\n  onHover?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type DeformProps = Customisable<DeformOwnProps>\n\n/**\n * Deforme son contenu.\n *\n * @example\n * // Un conteneur ordinaire, fond et texte compris.\n * <Deform amount={8}>\n *   <section className=\"o-rounded-xl o-bg-brand-600 o-p-8\">\n *     <h2>Un titre</h2>\n *   </section>\n * </Deform>\n *\n * @example\n * // Une image, deformee seulement au survol.\n * <Deform amount={0} onHover className=\"o-rounded-lg o-overflow-hidden\">\n *   <img src=\"/photo.jpg\" alt=\"\" />\n * </Deform>\n */\nexport function Deform({\n  children,\n  amount = 12,\n  frequency = 0.012,\n  speed = 0.15,\n  octaves = 1,\n  edges = 'clean',\n  onHover = false,\n  ...rest\n}: DeformProps): ReactElement {\n  const { reduced, quality } = useMotionState()\n  const id = useId().replace(/:/g, '')\n  const displacement = useRef<SVGFEDisplacementMapElement | null>(null)\n  const offset = useRef<SVGFEOffsetElement | null>(null)\n  const hovering = useRef(false)\n\n  // En qualite basse, une seule octave : c'est le reglage qui pese, et la\n  // deformation reste lisible avec moins de detail.\n  const grade = quality === 'low' ? 1 : octaves\n\n  useEffect(() => {\n    if (reduced || speed === 0) return\n\n    const subscription = clock.subscribe(\n      ({ time }) => {\n        // Le champ est translate, jamais regenere : animer la frequence de la\n        // turbulence obligerait le navigateur a la recalculer a chaque image.\n        const shift = time * speed * 60\n        offset.current?.setAttribute('dx', (Math.sin(shift * 0.017) * 30).toFixed(1))\n        offset.current?.setAttribute('dy', (Math.cos(shift * 0.013) * 30).toFixed(1))\n\n        if (onHover) {\n          const target = hovering.current ? amount : 0\n          const current = Number(displacement.current?.getAttribute('scale') ?? 0)\n          displacement.current?.setAttribute(\n            'scale',\n            (current + (target - current) * 0.12).toFixed(2),\n          )\n        }\n      },\n      { name: 'deformation', priority: CLOCK_PRIORITY.render },\n    )\n\n    return () => subscription.unsubscribe()\n  }, [reduced, speed, onHover, amount])\n\n  const { className, style } = mergePresentation({ className: 'o-relative' }, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={{ ...style, filter: reduced ? undefined : `url(#${id})` }}\n      onPointerEnter={() => (hovering.current = true)}\n      onPointerLeave={() => (hovering.current = false)}\n    >\n      {/*\n        Le filtre vit dans le document, pas dans une feuille : il porte des\n        valeurs qui changent, et un attribut se met a jour la ou une regle CSS\n        devrait etre reecrite.\n      */}\n      <svg aria-hidden className=\"o-absolute o-size-0\" focusable=\"false\">\n        <filter id={id} colorInterpolationFilters=\"sRGB\">\n          <feTurbulence\n            type=\"fractalNoise\"\n            baseFrequency={frequency}\n            numOctaves={grade}\n            seed={7}\n            result=\"bruit\"\n          />\n          <feOffset ref={offset} in=\"bruit\" dx=\"0\" dy=\"0\" result=\"champ\" />\n          <feDisplacementMap\n            ref={displacement}\n            in=\"SourceGraphic\"\n            in2=\"champ\"\n            scale={onHover ? 0 : amount}\n            xChannelSelector=\"R\"\n            yChannelSelector=\"G\"\n            result=\"deplace\"\n          />\n          {edges === 'clean' ? (\n            // Le resultat est redecoupe sur l'opacite d'origine : la forme\n            // reste intacte, seul son interieur ondule.\n            <feComposite in=\"deplace\" in2=\"SourceAlpha\" operator=\"in\" />\n          ) : null}\n        </filter>\n      </svg>\n\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

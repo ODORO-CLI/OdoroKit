@@ -1,0 +1,52 @@
+{
+  "name": "ashen-press",
+  "category": "background",
+  "title": "Fond AshenPress",
+  "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/AshenPress.tsx"
+    }
+  ],
+  "dependencies": [
+    "@designcodeio/threeui"
+  ],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "rootMargin",
+      "type": "string",
+      "required": false,
+      "default": "200px",
+      "description": "Marge de declenchement du chargement. Le paquet arrive avant que le cadre n entre dans le champ."
+    },
+    {
+      "name": "fallback",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui occupe le cadre tant que le fond n est pas la, et pour toujours sous mouvement reduit."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli par defaut, quand aucun n est fourni."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": false,
+    "notes": "Le rendu appartient au paquet tiers et ouvre sa propre surface WebGL, hors de l arbitre du moteur. Une page qui emploie ce fond et un fond du registre ouvre deux contextes, et le navigateur perd silencieusement le plus ancien : un seul des deux par page. Rien n est telecharge avant l approche du champ, et rien du tout sous mouvement reduit.",
+    "fallback": "poster"
+  },
+  "id": "background/ashen-press",
+  "sources": {
+    "component.tsx": "/**\n * Enveloppe autour d'un fond de `@designcodeio/threeui`.\n *\n * ## Ce que ce fichier est, et ce qu'il n'est pas\n *\n * Ce n'est pas un portage : le rendu appartient au paquet tiers, dont la source\n * ne fait pas partie de ce dépôt. Ce fichier est une **porte** — il décide\n * *quand* le paquet est chargé, et *si* il doit l'être.\n *\n * C'est ce qui manque presque toujours à un fond décoratif importé tel quel :\n *\n * **Il ne charge rien avant qu'on le voie.** Un fond en pied de page téléchargé\n * au montage fait payer son poids à quelqu'un qui ne le verra jamais. Le\n * chargement attend l'approche du champ.\n *\n * **Il respecte le mouvement réduit.** Un fond animé n'a pas d'état final à\n * préserver : il n'apporte rien d'autre que son mouvement. Sous mouvement\n * réduit il n'est donc pas monté du tout, et le paquet n'est jamais téléchargé.\n *\n * **Il porte un repli.** Pendant le chargement, sans WebGL, et pour toujours si\n * le mouvement est réduit.\n *\n * ## L'avertissement qui compte\n *\n * Ce composant ouvre sa propre surface WebGL, hors de l'arbitre du moteur. Une\n * page qui l'emploie **et** un fond du registre ouvre deux contextes ; le\n * navigateur en plafonne le nombre et perd silencieusement le plus ancien.\n * Un seul de ces deux fonds par page.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  Suspense,\n  lazy,\n  useEffect,\n  useState,\n  type ComponentType,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/**\n * La surface du paquet que ce composant emploie.\n *\n * Décrite ici plutôt qu'importée : le paquet est une dépendance du projet\n * d'accueil, proposée par `odoro add` au moment de la copie. Un import statique\n * en ferait une dépendance de compilation du registre lui-même.\n */\ninterface AshenPressComponentProps {\n  className?: string\n}\n\n/**\n * Le fond, chargé séparément du reste.\n *\n * Déclaré au niveau du module : un `lazy` reconstruit à chaque rendu perdrait\n * son cache et redemanderait le paquet.\n */\nconst Press = lazy(async () => {\n  const specifier = '@designcodeio/threeui'\n  const loaded = (await import(/* @vite-ignore */ specifier)) as {\n    AshenPress: ComponentType<AshenPressComponentProps>\n  }\n  return { default: loaded.AshenPress }\n})\n\n/** Proprietes propres au composant. */\nexport interface AshenPressOwnProps {\n  /**\n   * Marge de declenchement du chargement.\n   *\n   * Le paquet arrive avant que le cadre n'entre dans le champ : sans avance, on\n   * regarde le repli pendant que le moteur se telecharge.\n   *\n   * @defaultValue '200px'\n   */\n  rootMargin?: string\n  /** Ce qui occupe le cadre tant que le fond n'est pas la. */\n  fallback?: ReactNode\n  /** Classes du repli par defaut. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type AshenPressProps = Customisable<AshenPressOwnProps>\n\n/** Repli par defaut : un degrade fige, dans les memes tons cendres. */\nconst DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-stone-800 o-to-stone-950'\n\n/**\n * Fond `AshenPress`, charge a l'approche du champ.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <AshenPress className=\"o-absolute o-inset-0\" />\n * </div>\n *\n * @example\n * // Le repli peut etre une image, tant que le fond n'est pas la — et pour\n * // toujours si le mouvement est reduit.\n * <AshenPress fallback={<img src=\"/apercu.jpg\" alt=\"\" />} />\n */\nexport function AshenPress({\n  rootMargin = '200px',\n  fallback,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: AshenPressProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const [approaching, setApproaching] = useState(false)\n\n  useEffect(() => {\n    if (host === null) return\n    // Sous mouvement reduit, le fond ne viendra pas : rien a observer, et\n    // surtout rien a telecharger.\n    if (reduced) return\n\n    if (typeof IntersectionObserver === 'undefined') {\n      setApproaching(true)\n      return\n    }\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        if (entries[0]?.isIntersecting !== true) return\n        setApproaching(true)\n        observer.disconnect()\n      },\n      { rootMargin },\n    )\n    observer.observe(host)\n    return () => observer.disconnect()\n  }, [host, reduced, rootMargin])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const waiting = fallback ?? <div className={`o-absolute o-inset-0 ${poster}`} />\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={style} aria-hidden>\n      {approaching ? (\n        <Suspense fallback={waiting}>\n          <Press className=\"o-absolute o-inset-0\" />\n        </Suspense>\n      ) : (\n        waiting\n      )}\n    </div>\n  )\n}\n"
+  }
+}

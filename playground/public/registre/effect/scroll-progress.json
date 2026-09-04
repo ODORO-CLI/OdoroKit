@@ -1,0 +1,75 @@
+{
+  "name": "scroll-progress",
+  "category": "effect",
+  "title": "Progression de lecture",
+  "description": "Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.",
+  "engine": {
+    "gsap": [
+      "ScrollTrigger"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ScrollProgress.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-600",
+    "--o-duration-fast"
+  ],
+  "props": [
+    {
+      "name": "target",
+      "type": "RefObject<HTMLElement | null>",
+      "required": false,
+      "description": "Element dont on suit la lecture. Par defaut, la page entiere."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur de la barre.",
+      "min": 0,
+      "max": 9,
+      "step": 1
+    },
+    {
+      "name": "position",
+      "type": "'top' | 'bottom'",
+      "required": false,
+      "default": "top",
+      "description": "Bord auquel la barre est ancree.",
+      "options": [
+        "top",
+        "bottom"
+      ]
+    },
+    {
+      "name": "children",
+      "type": "(state: { progress: number }) => ReactNode",
+      "required": false,
+      "description": "Slot de rendu. Remplace la barre en gardant la mesure."
+    },
+    {
+      "name": "onReady",
+      "type": "(context: ReadyContext<ScrollProgressControls>) => void | (() => void)",
+      "required": false,
+      "description": "Echappatoire : donne la lecture imperative de la progression."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement au defilement, une ecriture de transform par image. Aucun rendu React en cours de defilement."
+  },
+  "id": "effect/scroll-progress",
+  "sources": {
+    "component.tsx": "/**\n * Barre de progression de lecture.\n *\n * ## Ce que ce composant montre\n *\n * C'est l'implementation de reference du contrat de personnalisation : les\n * cinq niveaux y sont, et dans cet ordre.\n *\n * 1. **Tokens** — la couleur et la duree viennent de `--o-palette-brand-600` et\n *    `--o-duration-fast`. Changer le theme change la barre, sans la toucher.\n * 2. **Props** — `target`, `thickness`, `position`.\n * 3. **Passe-plat** — `className`, `style` et les attributs DOM arrivent sur\n *    l'element racine, avec les classes du composant conservees.\n * 4. **Slot de rendu** — `children` recoit la progression et remplace la\n *    barre, en gardant la mesure.\n * 5. **`onReady`** — donne la lecture imperative, pour ce que rien de ce qui\n *    precede ne permet.\n *\n * ## Pourquoi la progression n'est pas un etat React\n *\n * Elle change a chaque image. La rendre comme etat provoquerait soixante\n * rendus par seconde pendant tout le defilement de la page, pour deplacer un\n * rectangle que le compositeur sait deja animer seul. La valeur est donc\n * ecrite directement dans le `transform` de la barre.\n *\n * Le slot de rendu est l'exception, et elle est assumee : quelqu'un qui veut\n * afficher un pourcentage en chiffres a besoin d'un rendu. Il n'a lieu que si\n * un slot est fourni, et sa cadence est bornee — voir `sampling`.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useScrollScrub,\n  type Customisable,\n  type ReadyCallback,\n  type Slot,\n} from '@odoro-cli/engine'\nimport {\n  useCallback,\n  useEffect,\n  useRef,\n  useState,\n  type ReactElement,\n  type RefObject,\n} from 'react'\n\n/** Lecture imperative offerte a l'echappatoire. */\nexport interface ScrollProgressControls {\n  /** Progression courante, de 0 a 1. */\n  read(): number\n  /** L'element de la barre, pour en reprendre le rendu entierement. */\n  readonly bar: HTMLElement | null\n}\n\n/** Ce que le slot de rendu recoit. */\nexport interface ScrollProgressState {\n  /** Progression courante, de 0 a 1. */\n  readonly progress: number\n}\n\n/** Proprietes propres au composant. */\nexport interface ScrollProgressOwnProps {\n  /** Element dont on suit la lecture. Par defaut, la page entiere. */\n  target?: RefObject<HTMLElement | null>\n  /** Epaisseur de la barre, en pixels. @defaultValue 3 */\n  thickness?: number\n  /** Bord auquel la barre est ancree. @defaultValue 'top' */\n  position?: 'top' | 'bottom'\n  /** Slot de rendu. Remplace la barre en gardant la mesure. */\n  children?: Slot<ScrollProgressState>\n  /** Echappatoire, appelee une fois la mesure en place. */\n  onReady?: ReadyCallback<ScrollProgressControls>\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'un `div`. */\nexport type ScrollProgressProps = Customisable<ScrollProgressOwnProps>\n\n/**\n * Pas d'echantillonnage du slot de rendu, en centiemes.\n *\n * Sans lui, un slot provoquerait un rendu React par image. Cent paliers sont\n * plus fins que ce qu'un affichage en pourcentage peut montrer, et divisent le\n * nombre de rendus par l'ordre de grandeur qui separe une image d'un centieme\n * de course.\n */\nconst SAMPLING = 100\n\n/**\n * Barre de progression de lecture.\n *\n * @example\n * // Le cas courant : rien a regler.\n * <ScrollProgress />\n *\n * @example\n * // Niveaux 3 et 4 : pose dans la mise en page, et rendu remplace.\n * <ScrollProgress className=\"o-z-50\" position=\"bottom\">\n *   {({ progress }) => <span>{Math.round(progress * 100)} %</span>}\n * </ScrollProgress>\n *\n * @example\n * // Niveau 5 : ce que l'API n'a pas prevu.\n * <ScrollProgress\n *   onReady={({ handle, motion }) => {\n *     if (motion.reduced) return\n *     const timer = setInterval(() => console.log(handle.read()), 1000)\n *     return () => clearInterval(timer)\n *   }}\n * />\n */\nexport function ScrollProgress({\n  target,\n  thickness = 3,\n  position = 'top',\n  children,\n  onReady,\n  ...rest\n}: ScrollProgressProps): ReactElement {\n  const bar = useRef<HTMLDivElement | null>(null)\n  const progress = useRef(0)\n\n  // Le slot n'existe pas la plupart du temps : l'etat n'est alors jamais\n  // ecrit, et le composant ne provoque aucun rendu pendant le defilement.\n  const [sampled, setSampled] = useState(0)\n  const hasSlot = children !== undefined\n\n  const onProgress = useCallback(\n    (value: number) => {\n      progress.current = value\n      if (bar.current !== null) bar.current.style.transform = `scaleX(${String(value)})`\n\n      if (hasSlot) {\n        const step = Math.round(value * SAMPLING)\n        setSampled((previous) => (previous === step ? previous : step))\n      }\n    },\n    [hasSlot],\n  )\n\n  // L'element observe est resolu a chaque rendu plutot que lu une fois au\n  // montage. Une cible placee **plus loin dans l'arbre** que cette barre — le\n  // cas naturel, puisqu'une barre se pose en tete — a sa ref encore vide quand\n  // les effets s'executent : la progression restait alors a zero, sans erreur\n  // et sans declencheur enregistre.\n  const [observed, setObserved] = useState<HTMLElement | null>(null)\n  // Sans liste de dependances, volontairement : `target.current` se remplit\n  // apres le commit sans que `target` change, donc aucune dependance ne\n  // signalerait son arrivee. La regle craint une chaine de mises a jour ;\n  // elle ne peut pas se produire ici, `setState` avec la meme valeur ne\n  // provoquant aucun rendu.\n  // eslint-disable-next-line react-hooks/exhaustive-deps\n  useEffect(() => {\n    const next = target === undefined ? document.documentElement : target.current\n    // `setState` avec la meme valeur ne provoque aucun rendu : la resolution a\n    // chaque rendu ne coute donc rien une fois la cible trouvee.\n    setObserved(next)\n  })\n\n  useScrollScrub<HTMLElement>(onProgress, {\n    element: observed,\n    // Bornes d'une lecture, pas d'une traversee : la progression commence\n    // quand le haut du contenu atteint le haut de la fenetre, et s'acheve\n    // quand son bas atteint le bas. Les bornes par defaut mesureraient le\n    // passage de l'element dans le champ, ce qui n'est pas la meme chose.\n    start: 'top top',\n    end: 'bottom bottom',\n    name: 'progression de lecture',\n  })\n\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const controls = useRef<ScrollProgressControls>({\n    read: () => progress.current,\n    get bar() {\n      return bar.current\n    },\n  })\n  useOnReady(onReady, controls.current, host)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-fixed o-inset-x-0 o-pointer-events-none' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={{ [position]: 0, ...style }}\n      role=\"progressbar\"\n      aria-hidden={hasSlot ? undefined : true}\n    >\n      {children === undefined ? (\n        <div\n          ref={bar}\n          style={{\n            height: `${String(thickness)}px`,\n            background: 'var(--o-palette-brand-600)',\n            transform: 'scaleX(0)',\n            transformOrigin: 'left',\n            // La barre suit le defilement : la transition ne sert qu'a lisser\n            // les sauts, pas a animer la course elle-meme.\n            transition: 'opacity var(--o-duration-fast) linear',\n            willChange: 'transform',\n          }}\n        />\n      ) : (\n        children({ progress: sampled / SAMPLING })\n      )}\n    </div>\n  )\n}\n"
+  }
+}

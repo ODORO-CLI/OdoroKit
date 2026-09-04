@@ -1,0 +1,109 @@
+{
+  "name": "count-up",
+  "category": "text",
+  "title": "Compteur",
+  "description": "Un nombre monte jusqu a sa valeur quand il entre dans le champ, formate selon la langue.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CountUp.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": true,
+      "description": "Valeur d arrivee."
+    },
+    {
+      "name": "from",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Valeur de depart."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 1500,
+      "unit": "ms",
+      "description": "Duree de la montee.",
+      "min": 200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "ms",
+      "description": "Retard avant le depart.",
+      "min": 0,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "required": false,
+      "description": "Langue du formatage. Par defaut, celle du navigateur."
+    },
+    {
+      "name": "decimals",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Nombre de decimales.",
+      "min": 0,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "prefix",
+      "type": "string",
+      "required": false,
+      "description": "Texte colle avant le nombre."
+    },
+    {
+      "name": "suffix",
+      "type": "string",
+      "required": false,
+      "description": "Texte colle apres le nombre."
+    },
+    {
+      "name": "declenchement",
+      "type": "'vue' | 'montage'",
+      "required": false,
+      "default": "vue",
+      "description": "A l entree dans le champ, ou des le montage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle d images qui dure le temps de la montee, puis s arrete. Un seul noeud de texte est reecrit."
+  },
+  "id": "text/count-up",
+  "sources": {
+    "component.tsx": "/**\n * Compteur : un nombre monte jusqu'a sa valeur, quand il entre dans le champ.\n *\n * ## Le nombre final est toujours dans le DOM\n *\n * Un compteur qui n'ecrirait que sa valeur courante ferait lire « 0 » a un\n * lecteur d'ecran — puis « 12 », puis « 47 », a chaque image. Ce qui est\n * insupportable a l'oreille, et faux au moment ou l'on copie.\n *\n * Le nombre final est donc rendu tel quel, une fois pour toutes. C'est lui qui\n * est annonce, copie, indexe. Les valeurs intermediaires vivent dans un calque\n * `aria-hidden` pose par-dessus, qui n'existe que le temps de l'animation.\n *\n * ## Les chiffres ne doivent pas gigoter\n *\n * Dans la plupart des polices, un « 1 » est plus etroit qu'un « 8 ». Un\n * compteur qui traverse mille valeurs voit donc sa largeur changer a chaque\n * image, et pousse ce qui suit. `font-variant-numeric: tabular-nums` donne a\n * tous les chiffres la meme chasse — c'est exactement ce pour quoi cette\n * fonctionnalite existe.\n *\n * ## Le formatage passe par `Intl`\n *\n * Separer les milliers a la main donne « 1,234 » a un lecteur francais, qui y\n * lit un nombre a virgule. `Intl.NumberFormat` connait la convention de chaque\n * langue, y compris les espaces insecables etroits du francais.\n *\n * ## Une boucle qui s'arrete\n *\n * L'animation tourne sur `requestAnimationFrame` — une valeur en JavaScript\n * n'est pas une propriete CSS, le compositeur ne sait pas l'interpoler. Mais\n * elle dure une seconde et demie, puis s'arrete : ce n'est pas une boucle de\n * rendu, c'est une transition.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useMemo,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface CountUpOwnProps {\n  /** Valeur d'arrivee. */\n  value: number\n  /** Valeur de depart. @defaultValue 0 */\n  from?: number\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree de la montee, en millisecondes. @defaultValue 1500 */\n  duration?: number\n  /** Retard avant le depart, en millisecondes. @defaultValue 0 */\n  delay?: number\n  /**\n   * Langue du formatage.\n   *\n   * Par defaut, celle du navigateur — et non `fr-FR` en dur : un compteur qui\n   * affiche des espaces insecables a un lecteur anglophone a l'air casse.\n   */\n  locale?: string\n  /** Nombre de decimales. @defaultValue 0 */\n  decimals?: number\n  /** Texte colle avant le nombre. */\n  prefix?: string\n  /** Texte colle apres le nombre. */\n  suffix?: string\n  /**\n   * Quand partir.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: 'vue' | 'montage'\n}\n\n/** Toutes les proprietes. */\nexport type CountUpProps = Customisable<CountUpOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-count-up'\n\n/** Pose les regles du calque, une fois par document. */\nfunction ensureCountUpRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La chasse fixe s'applique aux deux : sans cela, le nombre final n'aurait\n    // pas la meme largeur que les valeurs qui defilent au-dessus.\n    '[data-o-count-up]{position:relative;font-variant-numeric:tabular-nums}',\n    '[data-o-count-up-layer]{position:absolute;inset:0;pointer-events:none}',\n    '[data-o-count-up-hidden]{color:transparent}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Sortie exponentielle : vite, puis de plus en plus lentement.\n *\n * C'est le profil qui donne l'impression que le compteur « arrive » plutot\n * qu'il ne s'arrete. Une progression lineaire se termine sur un coup sec.\n */\nfunction sortieExpo(t: number): number {\n  return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)\n}\n\n/**\n * Fait monter un nombre jusqu'a sa valeur.\n *\n * @example\n * <CountUp value={12480} suffix=\" projets\" className=\"o-text-4xl o-font-bold\" />\n *\n * @example\n * // Deux decimales, et un depart qui n'est pas zero.\n * <CountUp value={99.98} from={95} decimals={2} suffix=\" %\" />\n */\nexport function CountUp({\n  value,\n  from = 0,\n  as: Tag = 'span',\n  duration = 1500,\n  delay = 0,\n  locale,\n  decimals = 0,\n  prefix = '',\n  suffix = '',\n  declenchement = 'vue',\n  ...rest\n}: CountUpProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref: refVue, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  const refCalque = useRef<HTMLSpanElement | null>(null)\n  const [anime, setAnime] = useState(false)\n\n  ensureCountUpRule()\n\n  const formateur = useMemo(\n    () =>\n      new Intl.NumberFormat(locale, {\n        minimumFractionDigits: decimals,\n        maximumFractionDigits: decimals,\n      }),\n    [locale, decimals],\n  )\n\n  const final = `${prefix}${formateur.format(value)}${suffix}`\n\n  useEffect(() => {\n    // En mouvement reduit, le nombre est simplement la. C'est d'ailleurs ce\n    // qu'on voulait montrer ; l'animation n'etait que la maniere.\n    if (reduced || !vu) return\n\n    const calque = refCalque.current\n    if (calque === null) return\n\n    let image = 0\n    let depart: number | undefined\n    setAnime(true)\n\n    const pas = (maintenant: number) => {\n      depart ??= maintenant\n\n      const ecoule = maintenant - depart - delay\n\n      if (ecoule < 0) {\n        calque.textContent = `${prefix}${formateur.format(from)}${suffix}`\n        image = requestAnimationFrame(pas)\n        return\n      }\n\n      const t = duration <= 0 ? 1 : Math.min(1, ecoule / duration)\n      const courant = from + (value - from) * sortieExpo(t)\n\n      calque.textContent = `${prefix}${formateur.format(courant)}${suffix}`\n\n      if (t < 1) {\n        image = requestAnimationFrame(pas)\n        return\n      }\n\n      // Fini : on efface le calque et on rend la main au nombre d'origine,\n      // plutot que de laisser une valeur arrondie qui pourrait differer d'une\n      // unite peinte par-dessus lui.\n      calque.textContent = ''\n      setAnime(false)\n    }\n\n    image = requestAnimationFrame(pas)\n\n    return () => {\n      cancelAnimationFrame(image)\n      calque.textContent = ''\n      setAnime(false)\n    }\n  }, [vu, reduced, value, from, duration, delay, formateur, prefix, suffix])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <Tag\n      {...rest}\n      ref={refVue}\n      className={className}\n      style={style as CSSProperties}\n      data-o-count-up=\"\"\n    >\n      <span {...(anime ? { 'data-o-count-up-hidden': '' } : {})}>{final}</span>\n      {/* Toujours rendu, meme vide : le monter seulement pendant l'animation\n          rendrait sa reference nulle au moment ou l'effet la lit, et le\n          compteur ne partirait jamais. Un span vide ne coute rien. */}\n      <span ref={refCalque} aria-hidden=\"true\" data-o-count-up-layer=\"\" />\n    </Tag>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "carousel",
+  "category": "effect",
+  "title": "Carrousel",
+  "description": "Un rail d images ou de cartes, au clavier, au pointeur et au geste.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Carousel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les diapositives."
+    },
+    {
+      "name": "perView",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Diapositives visibles a la fois.",
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Ecart entre deux diapositives.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "loop",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Revient au debut apres la derniere."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du carrousel, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le defilement natif fait le travail : pas de boucle, pas de transform pilote a la main."
+  },
+  "id": "effect/carousel",
+  "sources": {
+    "component.tsx": "/**\n * Carrousel : un rail de diapositives.\n *\n * ## Le defilement natif fait le travail\n *\n * Un carrousel pilote a la main — transformations calculees, gestes captes,\n * inertie simulee — represente plusieurs centaines de lignes, et il est\n * toujours moins bon que celui du navigateur. Il ne connait pas l'inertie du\n * systeme, ignore le defilement horizontal d'un pave tactile, et se comporte\n * differemment sur chaque appareil.\n *\n * Le rail est donc un conteneur a defilement, avec accrochage. Le navigateur\n * apporte gratuitement le geste, l'inertie, la molette, le clavier, et le\n * respect des reglages systeme.\n *\n * ## Ce qui reste a notre charge\n *\n * L'accessibilite, qu'aucun defilement ne donne : un role de groupe, un nom,\n * des diapositives numerotees, et des commandes qui disent ou elles menent.\n * C'est precisement ce que la plupart des carrousels oublient.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  Children,\n  useCallback,\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CarouselOwnProps {\n  /** Les diapositives. */\n  children: ReactNode\n  /** Nom du carrousel, annonce aux technologies d'assistance. */\n  label: string\n  /** Diapositives visibles a la fois. @defaultValue 1 */\n  perView?: number\n  /** Ecart entre deux diapositives, en pixels. @defaultValue 16 */\n  gap?: number\n  /** Revient au debut apres la derniere. @defaultValue false */\n  loop?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type CarouselProps = Customisable<CarouselOwnProps>\n\n/** Un bouton de commande, place hors du rail. */\nfunction Control({\n  label,\n  disabled,\n  onClick,\n  children,\n}: {\n  label: string\n  disabled: boolean\n  onClick: () => void\n  children: ReactNode\n}): ReactElement {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      disabled={disabled}\n      onClick={onClick}\n      className=\"o-inline-flex o-size-9 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-current o-bg-transparent o-cursor-pointer disabled:o-opacity-30 disabled:o-cursor-default o-transition-opacity\"\n    >\n      {children}\n    </button>\n  )\n}\n\n/**\n * Rail de diapositives, au geste comme au clavier.\n *\n * @example\n * <Carousel label=\"Nos realisations\" perView={3}>\n *   {projets.map((projet) => (\n *     <article key={projet.id}>…</article>\n *   ))}\n * </Carousel>\n */\nexport function Carousel({\n  children,\n  label,\n  perView = 1,\n  gap = 16,\n  loop = false,\n  ...rest\n}: CarouselProps): ReactElement {\n  const slides = Children.toArray(children)\n  const [rail, setRail] = useState<HTMLElement | null>(null)\n  const [index, setIndex] = useState(0)\n\n  const pages = Math.max(1, slides.length - perView + 1)\n\n  useEffect(() => {\n    if (rail === null) return\n\n    // L'index suit le defilement reel plutot que l'inverse : c'est le\n    // navigateur qui fait autorite, y compris quand l'utilisateur fait glisser\n    // le rail a la main.\n    const onScroll = (): void => {\n      const step = rail.scrollWidth / Math.max(slides.length, 1)\n      setIndex(Math.round(rail.scrollLeft / Math.max(step, 1)))\n    }\n\n    rail.addEventListener('scroll', onScroll, { passive: true })\n    return () => rail.removeEventListener('scroll', onScroll)\n  }, [rail, slides.length])\n\n  const goTo = useCallback(\n    (next: number) => {\n      if (rail === null) return\n      const wrapped = loop\n        ? (next + pages) % pages\n        : Math.min(Math.max(next, 0), pages - 1)\n      const step = rail.scrollWidth / Math.max(slides.length, 1)\n      rail.scrollTo({ left: wrapped * step, behavior: 'smooth' })\n    },\n    [rail, loop, pages, slides.length],\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-3' },\n    rest,\n  )\n\n  return (\n    <div {...rest} className={className} style={style}>\n      <div\n        ref={setRail}\n        role=\"group\"\n        aria-roledescription=\"carrousel\"\n        aria-label={label}\n        tabIndex={0}\n        className=\"o-flex o-snap-x o-snap-mandatory o-overflow-x-auto o-scroll-smooth\"\n        style={{ gap: `${String(gap)}px`, scrollbarWidth: 'none' } as CSSProperties}\n      >\n        {slides.map((slide, position) => (\n          <div\n            key={position}\n            role=\"group\"\n            aria-roledescription=\"diapositive\"\n            aria-label={`${String(position + 1)} sur ${String(slides.length)}`}\n            className=\"o-snap-start o-shrink-0\"\n            style={{\n              width: `calc((100% - ${String(gap * (perView - 1))}px) / ${String(perView)})`,\n            }}\n          >\n            {slide}\n          </div>\n        ))}\n      </div>\n\n      <div className=\"o-flex o-items-center o-gap-2\">\n        <Control\n          label=\"Diapositive precedente\"\n          disabled={!loop && index === 0}\n          onClick={() => goTo(index - 1)}\n        >\n          <span aria-hidden>&#8249;</span>\n        </Control>\n        <Control\n          label=\"Diapositive suivante\"\n          disabled={!loop && index >= pages - 1}\n          onClick={() => goTo(index + 1)}\n        >\n          <span aria-hidden>&#8250;</span>\n        </Control>\n        <span className=\"o-ml-1 o-font-mono o-text-xs o-tabular-nums o-opacity-70\">\n          {Math.min(index + 1, pages)} / {pages}\n        </span>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

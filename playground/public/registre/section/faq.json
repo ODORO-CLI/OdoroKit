@@ -1,0 +1,52 @@
+{
+  "name": "faq",
+  "category": "section",
+  "title": "Questions frequentes",
+  "description": "Une liste de questions repliables, une seule ouverte a la fois ou plusieurs.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/Faq.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-fast",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { question: string; answer: ReactNode }[]",
+      "required": true,
+      "description": "Les questions."
+    },
+    {
+      "name": "single",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "N ouvre qu une question a la fois."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Intitule de la section."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le repliage passe par les elements natifs : le clavier et la recherche dans la page fonctionnent sans code."
+  },
+  "id": "section/faq",
+  "sources": {
+    "component.tsx": "/**\n * Questions frequentes.\n *\n * ## Le repliage est natif, et ce n'est pas une facilite\n *\n * `<details>` apporte gratuitement ce qu'une version en JavaScript doit\n * reconstruire : l'ouverture au clavier, l'etat annonce aux technologies\n * d'assistance, et — le point que presque tout le monde manque — la\n * **recherche dans la page**. Un navigateur ouvre un `<details>` ferme quand le\n * texte cherche s'y trouve. Une reponse cachee derriere un `useState` reste\n * introuvable.\n *\n * ## L'ouverture unique se fait sans etat\n *\n * Un attribut `name` partage suffit : le navigateur ferme alors les autres de\n * lui-meme, exactement comme des boutons radio. C'est recent, et la degradation\n * est douce — la ou il n'est pas compris, plusieurs reponses restent ouvertes,\n * ce qui n'a jamais empeche personne de lire.\n *\n * ## L'animation de hauteur\n *\n * Elle passe par `interpolate-size`, qui permet d'animer vers `auto`. La ou\n * elle manque, le repliage est instantane — et c'est tres bien : mesurer la\n * hauteur a la main pour l'animer demande un observateur, un rendu supplementaire\n * et une resynchronisation a chaque changement de contenu.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { useId, type ReactElement, type ReactNode } from 'react'\n\n/** Une question et sa reponse. */\nexport interface FaqItem {\n  /** Question posee. */\n  readonly question: string\n  /** Reponse. */\n  readonly answer: ReactNode\n}\n\n/** Proprietes propres au composant. */\nexport interface FaqOwnProps {\n  /** Les questions, dans l'ordre d'affichage. */\n  items: readonly FaqItem[]\n  /** N'ouvre qu'une question a la fois. @defaultValue false */\n  single?: boolean\n  /** Intitule de la section. */\n  title?: ReactNode\n}\n\n/** Toutes les proprietes. */\nexport type FaqProps = Customisable<FaqOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-faq'\n\n/** Pose l'animation de hauteur, une fois par document. */\nfunction ensureFaqRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // `interpolate-size` autorise l'animation vers `auto`. Sans lui, la regle\n    // est simplement sans effet et le repliage est instantane.\n    '@supports (interpolate-size: allow-keywords){',\n    '[data-o-faq]{interpolate-size:allow-keywords}',\n    '[data-o-faq] details::details-content{',\n    'block-size:0;overflow:hidden;',\n    'transition:block-size var(--o-duration-fast) var(--o-ease-standard),',\n    'content-visibility var(--o-duration-fast) allow-discrete}',\n    '[data-o-faq] details[open]::details-content{block-size:auto}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-faq] details::details-content{transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Liste de questions repliables.\n *\n * @example\n * <Faq\n *   title=\"Questions frequentes\"\n *   single\n *   items={[\n *     { question: 'Pourquoi copier plutot que dependre ?', answer: <p>Parce que…</p> },\n *   ]}\n * />\n */\nexport function Faq({ items, single = false, title, ...rest }: FaqProps): ReactElement {\n  const group = useId().replace(/[^a-zA-Z0-9]/g, '')\n  ensureFaqRule()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-6' },\n    rest,\n  )\n\n  return (\n    <section {...rest} className={className} style={style} data-o-faq=\"\">\n      {title === undefined ? null : (\n        <h2 className=\"o-text-2xl o-font-semibold o-tracking-tight\">{title}</h2>\n      )}\n\n      <div className=\"o-flex o-flex-col\">\n        {items.map((item) => (\n          <details\n            key={item.question}\n            // Un `name` partage suffit a n'en ouvrir qu'une : le navigateur\n            // ferme les autres, sans qu'aucun etat ne soit tenu.\n            name={single ? group : undefined}\n            className=\"o-border-b o-border-zinc-200 dark:o-border-zinc-800\"\n          >\n            <summary className=\"o-flex o-cursor-pointer o-items-center o-justify-between o-gap-4 o-py-4 o-text-left o-font-medium focus:o-ring\">\n              {item.question}\n              <span\n                aria-hidden\n                className=\"o-shrink-0 o-text-zinc-400 dark:o-text-zinc-500\"\n              >\n                +\n              </span>\n            </summary>\n            <div className=\"o-pb-4 o-text-zinc-500 dark:o-text-zinc-400\">\n              {item.answer}\n            </div>\n          </details>\n        ))}\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

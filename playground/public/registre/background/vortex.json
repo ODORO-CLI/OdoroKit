@@ -1,0 +1,77 @@
+{
+  "name": "vortex",
+  "category": "background",
+  "title": "Vortex",
+  "description": "Une spirale obtenue en ajoutant a l angle une quantite qui decroit avec le rayon.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Vortex.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-600",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Vitesse de rotation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "arms",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Nombre de bras.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "required": false,
+      "default": 2.5,
+      "description": "Force de l enroulement.",
+      "min": 0,
+      "max": 8,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Un arc tangente et un sinus par fragment. Le nombre de bras ne coute rien.",
+    "fallback": "gradient"
+  },
+  "id": "background/vortex",
+  "sources": {
+    "component.tsx": "/**\n * Vortex : une spirale obtenue en ajoutant a l angle une quantite qui decroit avec le rayon.\n *\n * ## Le principe\n *\n * En polaires, un tourbillon n est pas un mouvement mais une addition. Le motif enroule est volontairement trivial : la richesse vient de la torsion.\n *\n * La torsion est bornee au centre ; sans cela le pixel central clignoterait a chaque image.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  VORTEX_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface VortexControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface VortexOwnProps {\n  /** Vitesse de rotation. @defaultValue 0.25 */\n  speed?: number\n  /** Nombre de bras. @defaultValue 6 */\n  arms?: number\n  /** Force de l enroulement. @defaultValue 2.5 */\n  twist?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<VortexControls>\n}\n\n/** Toutes les proprietes. */\nexport type VortexProps = Customisable<VortexOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-brand-600',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-950 o-to-brand-900'\n\n/**\n * Vortex.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Vortex className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Vortex({\n  speed = 0.25,\n  arms = 6,\n  twist = 2.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: VortexProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: VORTEX_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: arms, uTwist: twist },\n    name: 'vortex',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "waves",
+  "category": "background",
+  "title": "Ondes",
+  "description": "Des bandes qui ondulent, sommees de trois sinus non harmoniques.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Waves.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Vitesse de l ondulation.",
+      "min": 0,
+      "max": 0.75,
+      "step": 0.05
+    },
+    {
+      "name": "bands",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "Nombre de bandes.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Hauteur de l ondulation.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un triangle plein ecran. Le cout ne depend que du nombre de bandes, borne a huit.",
+    "fallback": "gradient"
+  },
+  "id": "background/waves",
+  "sources": {
+    "component.tsx": "/**\n * Ondes : des bandes qui ondulent et se replient.\n *\n * ## Ce que ce composant apporte, et ce qu'il delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * ## Le repli n'est pas une precaution\n *\n * C'est la moitie du composant. Il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit, ou un fond anime\n * n'apporte rien d'autre que son mouvement.\n *\n * @module\n */\n\nimport {\n  WAVES_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface WavesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface WavesOwnProps {\n  /** Vitesse de l'ondulation. @defaultValue 0.25 */\n  speed?: number\n  /** Nombre de bandes. Borne a huit par le shader. @defaultValue 5 */\n  bands?: number\n  /** Hauteur de l'ondulation. @defaultValue 0.12 */\n  amplitude?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<WavesControls>\n}\n\n/** Toutes les proprietes. */\nexport type WavesProps = Customisable<WavesOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-palette-zinc-950',\n  '--o-palette-brand-500',\n  '--o-palette-fuchsia-500',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-brand-900'\n\n/**\n * Ondes : des bandes qui ondulent et se replient.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Waves className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Waves({\n  speed = 0.25,\n  bands = 5,\n  amplitude = 0.12,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: WavesProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: WAVES_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: bands, uAmplitude: amplitude },\n    name: 'ondes',\n    // En qualite basse, la densite est bornee : c'est le seul reglage qui\n    // pese vraiment, et le motif reste reconnaissable une fois reduit.\n    degrade: (quality) => ({ uScale: quality === 'low' ? Math.min(bands, 3) : bands }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "scroll-steps",
+  "category": "section",
+  "title": "Etapes au defilement",
+  "description": "Un media colle a gauche, des etapes qui defilent a droite, et le media qui suit l etape active.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/ScrollSteps.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "steps",
+      "type": "readonly { title: string; body: ReactNode }[]",
+      "required": true,
+      "description": "Les etapes."
+    },
+    {
+      "name": "render",
+      "type": "(index: number) => ReactNode",
+      "required": true,
+      "description": "Rend le media pour l etape active."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de defilement dans la boucle unique, et un index qui ne change qu au passage d une etape."
+  },
+  "id": "section/scroll-steps",
+  "sources": {
+    "component.tsx": "/**\n * Etapes au defilement : un media colle, des etapes qui defilent.\n *\n * ## L'index ne change qu'au passage d'une etape\n *\n * La progression du defilement est continue, l'etape active ne l'est pas. Si\n * l'etat React suivait la progression, il changerait a chaque image et\n * provoquerait un rendu par image — pour afficher le meme media la plupart du\n * temps.\n *\n * La progression est donc lue dans la boucle, mais l'etat n'est ecrit que\n * lorsque l'index calcule differe de celui en cours. Sur une section de quatre\n * etapes, cela fait trois rendus au lieu de plusieurs centaines.\n *\n * ## Ce qui reste lisible sans defilement\n *\n * Toutes les etapes sont dans le document, dans l'ordre, et le media porte le\n * nom de l'etape active. Sur un petit ecran, la colonne collee passe au-dessus\n * et le contenu se lit comme une suite ordinaire. Une section qui n'existerait\n * qu'au defilement serait vide pour qui ne defile pas.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useMotionState,\n  useScrollScrub,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useCallback, useRef, useState, type ReactElement, type ReactNode } from 'react'\n\n/** Une etape. */\nexport interface Step {\n  /** Intitule. */\n  readonly title: string\n  /** Contenu. */\n  readonly body: ReactNode\n}\n\n/** Proprietes propres au composant. */\nexport interface ScrollStepsOwnProps {\n  /** Les etapes, dans l'ordre de lecture. */\n  steps: readonly Step[]\n  /** Rend le media pour l'etape active. */\n  render: (index: number) => ReactNode\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label: string\n}\n\n/** Toutes les proprietes. */\nexport type ScrollStepsProps = Customisable<ScrollStepsOwnProps>\n\n/**\n * Fait suivre un media aux etapes d'un texte.\n *\n * @example\n * <ScrollSteps\n *   label=\"Comment ca marche\"\n *   steps={[\n *     { title: 'Ecrire', body: <p>Une entree de registre…</p> },\n *     { title: 'Valider', body: <p>Le schema refuse…</p> },\n *   ]}\n *   render={(index) => <Illustration etape={index} />}\n * />\n */\nexport function ScrollSteps({\n  steps,\n  render,\n  label,\n  ...rest\n}: ScrollStepsProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [active, setActive] = useState(0)\n  const current = useRef(0)\n\n  const onProgress = useCallback(\n    (progress: number) => {\n      const index = Math.min(\n        steps.length - 1,\n        Math.max(0, Math.floor(progress * steps.length)),\n      )\n      // L'etat n'est ecrit qu'au passage d'une etape : la progression est\n      // continue, l'index ne l'est pas.\n      if (index !== current.current) {\n        current.current = index\n        setActive(index)\n      }\n    },\n    [steps.length],\n  )\n\n  const { ref } = useScrollScrub<HTMLDivElement>(onProgress, {\n    name: 'etapes au defilement',\n  })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-grid o-gap-8 lg:o-grid-cols-2' },\n    rest,\n  )\n\n  return (\n    <section {...rest} ref={ref} aria-label={label} className={className} style={style}>\n      {/*\n        Sur petit ecran, la colonne collee passe au-dessus et cesse de coller :\n        deux colonnes empilees dont l'une reste figee donneraient un media qui\n        recouvre le texte.\n      */}\n      <div className=\"lg:o-sticky lg:o-top-24 lg:o-self-start\">\n        <div className=\"o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800\">\n          {render(active)}\n        </div>\n      </div>\n\n      <ol className=\"o-flex o-flex-col o-gap-10\">\n        {steps.map((step, index) => (\n          <li\n            key={step.title}\n            aria-current={index === active ? 'step' : undefined}\n            className=\"o-flex o-flex-col o-gap-2 o-transition-opacity\"\n            style={{ opacity: reduced || index === active ? 1 : 0.45 }}\n          >\n            <span className=\"o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500\">\n              {String(index + 1).padStart(2, '0')}\n            </span>\n            <h3 className=\"o-text-xl o-font-semibold o-tracking-tight\">{step.title}</h3>\n            <div className=\"o-text-zinc-500 dark:o-text-zinc-400\">{step.body}</div>\n          </li>\n        ))}\n      </ol>\n    </section>\n  )\n}\n"
+  }
+}

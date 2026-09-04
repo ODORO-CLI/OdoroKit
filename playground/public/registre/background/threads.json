@@ -1,0 +1,76 @@
+{
+  "name": "threads",
+  "category": "background",
+  "title": "Fils",
+  "description": "Un faisceau de courbes fines, d epaisseur constante sur toute leur longueur.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Threads.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-emerald-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Vitesse de l ondulation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 7,
+      "description": "Nombre de fils. Borne a douze par le shader.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 0.004,
+      "description": "Epaisseur des fils.",
+      "min": 0.001,
+      "max": 0.02,
+      "step": 0.001
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "required": false,
+      "description": "Tokens dont les couleurs sont lues."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Un passage par fil, borne a douze. En qualite basse, le faisceau est ramene a quatre.",
+    "fallback": "gradient"
+  },
+  "id": "background/threads",
+  "sources": {
+    "component.tsx": "/**\n * Fils : un faisceau de courbes fines, d epaisseur constante sur toute leur longueur.\n *\n * ## Le principe\n *\n * Chaque fil est un y = f(x) ; le fragment compare son propre y a celui du fil. Aucun trace n existe.\n *\n * La division par la pente n est pas un detail : sans elle, le fil parait epais la ou il est plat et fin la ou il monte.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  THREADS_FRAGMENT,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\n/** Ce que l'echappatoire recoit. */\nexport interface ThreadsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface ThreadsOwnProps {\n  /** Vitesse de l ondulation. @defaultValue 0.3 */\n  speed?: number\n  /** Nombre de fils. Borne a douze par le shader. @defaultValue 7 */\n  count?: number\n  /** Epaisseur des fils. @defaultValue 0.004 */\n  thickness?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<ThreadsControls>\n}\n\n/** Toutes les proprietes. */\nexport type ThreadsProps = Customisable<ThreadsOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-emerald-300'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-950'\n\n/**\n * Fils.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Threads className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Threads({\n  speed = 0.3,\n  count = 7,\n  thickness = 0.004,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: ThreadsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: THREADS_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: count, uThickness: thickness },\n    name: 'threads',\n    // En qualite basse, le reglage qui pese est borne : le motif reste\n    // reconnaissable une fois reduit.\n    degrade: (quality) => ({\n      uScale: quality === 'low' ? Math.min(count, 4) : count,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}
