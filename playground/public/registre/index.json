@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-06T16:13:31.474Z",
+  "generatedAt": "2026-09-06T16:23:28.505Z",
   "entries": [
     {
       "id": "background/ashen-press",
@@ -697,6 +697,16 @@
       "registryDependencies": []
     },
     {
+      "id": "ui/magnify-dock",
+      "name": "magnify-dock",
+      "category": "ui",
+      "title": "Barre a loupe",
+      "description": "Les elements grossissent a l approche du pointeur, vers le haut, sans jamais deplacer leurs voisins.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "ui/pearl-button",
       "name": "pearl-button",
       "category": "ui",
@@ -722,6 +732,16 @@
       "category": "ui",
       "title": "Bouton a lisere tournant",
       "description": "Un degrade conique qui tourne autour du bouton, anime par une propriete enregistree — sans une ligne de JavaScript.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/tilt-card",
+      "name": "tilt-card",
+      "category": "ui",
+      "title": "Carte inclinee",
+      "description": "Une carte qui pivote vers le pointeur avec un retard, et un reflet qui le suit.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []

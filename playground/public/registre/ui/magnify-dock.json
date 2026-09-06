@@ -1,0 +1,51 @@
+{
+  "name": "magnify-dock",
+  "category": "ui",
+  "title": "Barre a loupe",
+  "description": "Les elements grossissent a l approche du pointeur, vers le haut, sans jamais deplacer leurs voisins.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/MagnifyDock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Echelle maximale, atteinte sous le pointeur.",
+      "min": 1,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 130,
+      "unit": "px",
+      "description": "Rayon d influence. Au-dela, un element ne bouge plus.",
+      "min": 40,
+      "max": 320,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle qui n ecrit qu une echelle par element, sans jamais re-rendre l arbre React. Rien du tout au doigt ni en mouvement reduit."
+  },
+  "id": "ui/magnify-dock",
+  "sources": {
+    "component.tsx": "/**\n * Barre a loupe : les elements grossissent a l'approche du pointeur.\n *\n * ## Ce que la distance decide\n *\n * Chaque element regarde l'ecart entre son centre et le pointeur, sur l'axe\n * horizontal seulement. En dessous d'un rayon, il grandit ; au-dela, il reste\n * a sa taille. Le profil est une cosinusoide relevee plutot qu'une rampe\n * lineaire : la bosse est arrondie a son sommet et se raccorde a plat sur les\n * bords, si bien que le voisin du voisin ne sursaute pas quand le pointeur\n * franchit sa limite.\n *\n * ## L'agrandissement pousse ses voisins vers le haut, jamais sur les cotes\n *\n * Faire grossir un element dans un flux horizontal deplace tous les suivants,\n * et la barre entiere se met a respirer — ce qui rend le survol imprevisible :\n * la cible bouge pendant qu'on la vise.\n *\n * L'echelle est donc appliquee **depuis le bas** (`transform-origin: bottom`),\n * et la largeur de la boite ne change jamais. L'element grandit vers le haut,\n * ses voisins restent ou ils sont, et l'on clique ou l'on croyait cliquer.\n *\n * ## Aucun rendu React pendant le mouvement\n *\n * Les echelles sont ecrites directement dans le style de chaque element depuis\n * la boucle. Les passer par l'etat provoquerait un rendu de la barre entiere a\n * chaque pixel parcouru par la souris.\n *\n * ## Ce qui reste quand on retire le mouvement\n *\n * Une barre. Sous `prefers-reduced-motion`, plus rien ne grossit — et rien\n * n'est perdu, parce que l'agrandissement n'a jamais porte d'information : les\n * libelles sont la, les cibles sont a leur taille de repos, qui est une vraie\n * taille cliquable.\n *\n * Au doigt, meme chose : il n'y a pas de survol sur un ecran tactile, et une\n * barre dont les elements ne grossissent jamais est exactement ce qu'il faut.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface MagnifyDockOwnProps {\n  /** Les elements de la barre. Chacun doit rester cliquable au repos. */\n  children: ReactNode\n  /**\n   * Echelle maximale, atteinte quand le pointeur est sur l'element.\n   *\n   * @defaultValue 1.6\n   */\n  scale?: number\n  /**\n   * Rayon d'influence, en pixels.\n   *\n   * Au-dela, un element ne bouge plus. Trop large, toute la barre gonfle et\n   * l'effet se perd ; trop etroit, il devient nerveux.\n   *\n   * @defaultValue 130\n   */\n  radius?: number\n}\n\n/** Toutes les proprietes. */\nexport type MagnifyDockProps = Customisable<MagnifyDockOwnProps, 'div'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-magnify-dock'\n\n/** Pose les regles de la barre, une fois par document. */\nfunction ensureDockRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-dock]{display:flex;align-items:flex-end;gap:0.5rem}',\n    '[data-o-dock]>*{',\n    // Depuis le bas : c'est ce qui fait grandir vers le haut sans pousser les\n    // voisins de cote.\n    'transform-origin:bottom center;',\n    'will-change:transform;',\n    // La transition ne sert qu'au retour au repos, quand le pointeur quitte la\n    // barre : pendant le survol, c'est la boucle qui ecrit, image par image.\n    'transition:transform 260ms cubic-bezier(0.22,1,0.36,1);',\n    '}',\n    '[data-o-dock-actif]>*{transition:none}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Une barre dont les elements grossissent a l'approche du pointeur.\n *\n * @example\n * <MagnifyDock>\n *   <button type=\"button\">Accueil</button>\n *   <button type=\"button\">Travaux</button>\n *   <button type=\"button\">Contact</button>\n * </MagnifyDock>\n *\n * @example\n * // Plus ample, et sur un rayon plus etroit.\n * <MagnifyDock scale={2} radius={90}>…</MagnifyDock>\n */\nexport function MagnifyDock({\n  children,\n  scale = 1.6,\n  radius = 130,\n  ...rest\n}: MagnifyDockProps): ReactElement {\n  const { reduced } = useMotionState()\n  const barre = useRef<HTMLDivElement | null>(null)\n\n  ensureDockRule()\n\n  useEffect(() => {\n    // Rien a faire sans pointeur fin : pas de survol sur un ecran tactile, et\n    // une boucle qui tourne pour un effet qui ne peut pas se produire.\n    if (reduced || typeof window === 'undefined') return\n    if (window.matchMedia('(pointer: coarse)').matches) return\n\n    const hote = barre.current\n    if (hote === null) return\n\n    let x: number | undefined\n    let image = 0\n\n    const surEntree = (evenement: PointerEvent) => {\n      x = evenement.clientX\n      hote.setAttribute('data-o-dock-actif', '')\n    }\n\n    const surSortie = () => {\n      x = undefined\n      hote.removeAttribute('data-o-dock-actif')\n\n      // Le repos est ecrit une fois, et la transition CSS s'en charge : y\n      // revenir image par image ferait un retour qu'on ne peut pas courber.\n      for (const enfant of hote.children) {\n        if (enfant instanceof HTMLElement) enfant.style.transform = ''\n      }\n    }\n\n    const pas = () => {\n      if (x !== undefined) {\n        for (const enfant of hote.children) {\n          if (!(enfant instanceof HTMLElement)) continue\n\n          const boite = enfant.getBoundingClientRect()\n          const centre = boite.left + boite.width / 2\n          const ecart = Math.abs(x - centre)\n\n          // Cosinusoide relevee : plate aux bords, arrondie au sommet. Une\n          // rampe lineaire produirait une cassure visible au moment ou un\n          // element entre dans le rayon.\n          const t = Math.min(1, ecart / radius)\n          const facteur = (Math.cos(t * Math.PI) + 1) / 2\n          const k = 1 + (scale - 1) * facteur\n\n          enfant.style.transform = `scale(${String(k)})`\n        }\n      }\n\n      image = requestAnimationFrame(pas)\n    }\n\n    hote.addEventListener('pointermove', surEntree, { passive: true })\n    hote.addEventListener('pointerleave', surSortie, { passive: true })\n    image = requestAnimationFrame(pas)\n\n    return () => {\n      hote.removeEventListener('pointermove', surEntree)\n      hote.removeEventListener('pointerleave', surSortie)\n      cancelAnimationFrame(image)\n      surSortie()\n    }\n  }, [reduced, scale, radius])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={barre}\n      className={className}\n      style={style as CSSProperties}\n      data-o-dock=\"\"\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "tilt-card",
+  "category": "ui",
+  "title": "Carte inclinee",
+  "description": "Une carte qui pivote vers le pointeur avec un retard, et un reflet qui le suit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/TiltCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 8,
+      "unit": "deg",
+      "description": "Inclinaison maximale.",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "perspective",
+      "type": "number",
+      "default": 900,
+      "unit": "px",
+      "description": "Profondeur. Plus c est petit, plus la deformation est marquee.",
+      "min": 300,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 10,
+      "description": "Vitesse a laquelle la carte rejoint l angle vise.",
+      "min": 2,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "glare",
+      "type": "number",
+      "default": 0.18,
+      "description": "Intensite du reflet. Zero le supprime.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "glareColour",
+      "type": "string",
+      "description": "Couleur du reflet. Une valeur, pour qu elle suive le theme."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux angles et deux positions ecrits par image, sans rendu React. Rien au doigt ni en mouvement reduit."
+  }
+}

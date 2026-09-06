@@ -1,0 +1,20 @@
+{
+  "name": "magnify-dock",
+  "category": "ui",
+  "title": "Barre a loupe",
+  "description": "Les elements grossissent a l approche du pointeur, vers le haut, sans jamais deplacer leurs voisins.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "ui/MagnifyDock.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    { "name": "scale", "type": "number", "default": 1.6, "description": "Echelle maximale, atteinte sous le pointeur.", "min": 1, "max": 3, "step": 0.1 },
+    { "name": "radius", "type": "number", "default": 130, "unit": "px", "description": "Rayon d influence. Au-dela, un element ne bouge plus.", "min": 40, "max": 320, "step": 10 }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle qui n ecrit qu une echelle par element, sans jamais re-rendre l arbre React. Rien du tout au doigt ni en mouvement reduit."
+  }
+}

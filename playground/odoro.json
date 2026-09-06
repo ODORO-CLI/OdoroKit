@@ -621,6 +621,15 @@
         }
       ]
     },
+    "ui/magnify-dock": {
+      "installedAt": "2026-09-06T16:23:29.086Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/MagnifyDock.tsx",
+          "hash": "e6931d037303e520"
+        }
+      ]
+    },
     "ui/pearl-button": {
       "installedAt": "2026-09-03T16:23:16.832Z",
       "files": [
@@ -645,6 +654,15 @@
         {
           "path": "src/odoro/ui/ShinyButton.tsx",
           "hash": "c08822b4e4c3b503"
+        }
+      ]
+    },
+    "ui/tilt-card": {
+      "installedAt": "2026-09-06T16:23:29.086Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/TiltCard.tsx",
+          "hash": "7b5110da72a0b033"
         }
       ]
     }

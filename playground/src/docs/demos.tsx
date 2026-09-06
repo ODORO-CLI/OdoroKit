@@ -72,6 +72,8 @@ import { LogoBand } from '@/odoro/section/LogoBand.jsx'
 import { RevealGrid } from '@/odoro/section/RevealGrid.jsx'
 import { ScrollSteps } from '@/odoro/section/ScrollSteps.jsx'
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'
+import { MagnifyDock } from '@/odoro/ui/MagnifyDock.jsx'
+import { TiltCard } from '@/odoro/ui/TiltCard.jsx'
 import { CountUp } from '@/odoro/text/CountUp.jsx'
 import { DecodeText } from '@/odoro/text/DecodeText.jsx'
 import { HighlightSweep } from '@/odoro/text/HighlightSweep.jsx'
@@ -1466,6 +1468,51 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
         <CardForm />
       </div>
+    ),
+  },
+
+  'ui/magnify-dock': {
+    height: 'o-h-72',
+    lead: 'L echelle part du bas : les elements grandissent vers le haut, et la cible ne bouge jamais pendant qu on la vise.',
+    render: (v) => (
+      <Stage>
+        <MagnifyDock scale={num(v, 'scale', 1.6)} radius={num(v, 'radius', 130)}>
+          {['Accueil', 'Travaux', 'Studio', 'Journal', 'Contact'].map((mot) => (
+            <button
+              key={mot}
+              type="button"
+              className="o-rounded-lg o-border-w-1 o-border-current/20 o-px-4 o-py-3 o-text-sm o-font-medium"
+            >
+              {mot}
+            </button>
+          ))}
+        </MagnifyDock>
+      </Stage>
+    ),
+  },
+  'ui/tilt-card': {
+    height: 'o-h-80',
+    lead: 'Le retard entre le pointeur et l angle est ce qui donne du poids : collee, la carte serait sans masse.',
+    render: (v) => (
+      <Stage>
+        <TiltCard
+          tilt={num(v, 'tilt', 8)}
+          perspective={num(v, 'perspective', 900)}
+          speed={num(v, 'speed', 10)}
+          glare={num(v, 'glare', 0.18)}
+          className="o-w-72"
+        >
+          <div className="o-rounded-xl o-border-w-1 o-border-current/20 o-bg-white/60 dark:o-bg-zinc-900/60 o-p-6 o-text-left">
+            <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">Registre</p>
+            <p className="o-mt-2 o-text-xl o-font-semibold o-tracking-tight">
+              Soixante-douze entrees
+            </p>
+            <p className="o-mt-2 o-text-sm o-opacity-70">
+              Promenez le pointeur sur la carte.
+            </p>
+          </div>
+        </TiltCard>
+      </Stage>
     ),
   },
 

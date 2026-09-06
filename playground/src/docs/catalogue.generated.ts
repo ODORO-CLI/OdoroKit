@@ -4910,6 +4910,54 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "ui/hover-reveal-button"
   },
   {
+    "name": "magnify-dock",
+    "category": "ui",
+    "title": "Barre a loupe",
+    "description": "Les elements grossissent a l approche du pointeur, vers le haut, sans jamais deplacer leurs voisins.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/MagnifyDock.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [],
+    "props": [
+      {
+        "name": "scale",
+        "type": "number",
+        "required": false,
+        "default": 1.6,
+        "description": "Echelle maximale, atteinte sous le pointeur.",
+        "min": 1,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "name": "radius",
+        "type": "number",
+        "required": false,
+        "default": 130,
+        "unit": "px",
+        "description": "Rayon d influence. Au-dela, un element ne bouge plus.",
+        "min": 40,
+        "max": 320,
+        "step": 10
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Une boucle qui n ecrit qu une echelle par element, sans jamais re-rendre l arbre React. Rien du tout au doigt ni en mouvement reduit."
+    },
+    "id": "ui/magnify-dock"
+  },
+  {
     "name": "pearl-button",
     "category": "ui",
     "title": "Bouton en nacre",
@@ -5102,5 +5150,82 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Aucune boucle JavaScript : l angle du degrade est une propriete enregistree, donc animable par le compositeur. L animation reste en pause tant que le bouton n est ni survole ni au focus."
     },
     "id": "ui/shiny-button"
+  },
+  {
+    "name": "tilt-card",
+    "category": "ui",
+    "title": "Carte inclinee",
+    "description": "Une carte qui pivote vers le pointeur avec un retard, et un reflet qui le suit.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "ui/TiltCard.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-50"
+    ],
+    "props": [
+      {
+        "name": "tilt",
+        "type": "number",
+        "required": false,
+        "default": 8,
+        "unit": "deg",
+        "description": "Inclinaison maximale.",
+        "min": 0,
+        "max": 20,
+        "step": 1
+      },
+      {
+        "name": "perspective",
+        "type": "number",
+        "required": false,
+        "default": 900,
+        "unit": "px",
+        "description": "Profondeur. Plus c est petit, plus la deformation est marquee.",
+        "min": 300,
+        "max": 2000,
+        "step": 50
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "required": false,
+        "default": 10,
+        "description": "Vitesse a laquelle la carte rejoint l angle vise.",
+        "min": 2,
+        "max": 30,
+        "step": 1
+      },
+      {
+        "name": "glare",
+        "type": "number",
+        "required": false,
+        "default": 0.18,
+        "description": "Intensite du reflet. Zero le supprime.",
+        "min": 0,
+        "max": 0.6,
+        "step": 0.02
+      },
+      {
+        "name": "glareColour",
+        "type": "string",
+        "required": false,
+        "description": "Couleur du reflet. Une valeur, pour qu elle suive le theme."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Deux angles et deux positions ecrits par image, sans rendu React. Rien au doigt ni en mouvement reduit."
+    },
+    "id": "ui/tilt-card"
   }
 ]
