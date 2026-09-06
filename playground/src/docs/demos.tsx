@@ -72,6 +72,8 @@ import { LogoBand } from '@/odoro/section/LogoBand.jsx'
 import { RevealGrid } from '@/odoro/section/RevealGrid.jsx'
 import { ScrollSteps } from '@/odoro/section/ScrollSteps.jsx'
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'
+import { PricingTiers } from '@/odoro/section/PricingTiers.jsx'
+import { StatBand } from '@/odoro/section/StatBand.jsx'
 import { MagnifyDock } from '@/odoro/ui/MagnifyDock.jsx'
 import { TiltCard } from '@/odoro/ui/TiltCard.jsx'
 import { CountUp } from '@/odoro/text/CountUp.jsx'
@@ -1154,6 +1156,61 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           className="o-w-full o-max-w-md o-rounded-lg"
         />
       </Stage>
+    ),
+  },
+
+  'section/stat-band': {
+    height: 'o-h-64',
+    lead: 'Le retard entre les nombres appartient a la bande : une rangee se lit comme un objet, pas comme trois evenements.',
+    render: (v) => (
+      <div className="o-absolute o-inset-0 o-flex o-items-center o-px-10">
+        <StatBand
+          stagger={num(v, 'stagger', 120)}
+          duration={num(v, 'duration', 1500)}
+          locale="fr-FR"
+          className="o-w-full"
+          stats={[
+            { value: 12480, label: 'projets livres' },
+            { value: 99.98, label: 'disponibilite', suffix: ' %', decimals: 2 },
+            { value: 42, label: 'pays' },
+            { value: 74, label: 'entrees au registre' },
+          ]}
+        />
+      </div>
+    ),
+  },
+  'section/pricing-tiers': {
+    height: 'o-h-[34rem]',
+    lead: 'Basculez la periode : les prix se recalculent au lieu d etre remplaces, et l oeil suit le sens du changement.',
+    render: (v) => (
+      <div className="o-absolute o-inset-0 o-overflow-auto o-p-8">
+        <PricingTiers
+          yearlyDiscount={num(v, 'yearlyDiscount', 0.2)}
+          locale="fr-FR"
+          tiers={[
+            {
+              name: 'Depart',
+              monthly: 0,
+              note: 'Pour essayer',
+              features: ['Un projet', 'Registre public', 'Communaute'],
+              cta: 'Commencer',
+            },
+            {
+              name: 'Studio',
+              monthly: 29,
+              note: 'Le cas courant',
+              features: ['Dix projets', 'Bases geree', 'Support sous 24 h'],
+              featured: true,
+            },
+            {
+              name: 'Agence',
+              monthly: 99,
+              note: 'Sans plafond',
+              features: ['Projets illimites', 'Astreinte', 'Registre prive'],
+            },
+          ]}
+        />
+      </div>
     ),
   },
 

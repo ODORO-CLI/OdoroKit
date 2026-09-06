@@ -1,0 +1,23 @@
+{
+  "name": "stat-band",
+  "category": "section",
+  "title": "Bande de statistiques",
+  "description": "Une rangee de nombres qui montent ensemble quand la section entre dans le champ.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/StatBand.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["text/count-up"],
+  "tokens": [],
+  "props": [
+    { "name": "stats", "type": "readonly Stat[]", "required": true, "description": "Les statistiques, dans l ordre d affichage." },
+    { "name": "as", "type": "ElementType", "default": "section", "description": "Balise rendue." },
+    { "name": "duration", "type": "number", "default": 1500, "unit": "ms", "description": "Duree de la montee d un nombre.", "min": 200, "max": 5000, "step": 100 },
+    { "name": "stagger", "type": "number", "default": 120, "unit": "ms", "description": "Retard entre deux nombres. Zero les fait partir ensemble.", "min": 0, "max": 600, "step": 20 },
+    { "name": "locale", "type": "string", "description": "Langue du formatage. Par defaut, celle du navigateur." }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un compteur par statistique, chacun s arretant a la fin de sa montee. Aucune boucle permanente."
+  }
+}

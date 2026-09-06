@@ -370,7 +370,7 @@
       ]
     },
     "hooks/use-in-view": {
-      "installedAt": "2026-09-04T15:31:38.450Z",
+      "installedAt": "2026-09-06T16:34:06.042Z",
       "files": [
         {
           "path": "src/odoro/hooks/useInView.ts",
@@ -495,6 +495,15 @@
         }
       ]
     },
+    "section/pricing-tiers": {
+      "installedAt": "2026-09-06T16:34:06.042Z",
+      "files": [
+        {
+          "path": "src/odoro/section/PricingTiers.tsx",
+          "hash": "18b22e4483f4dbca"
+        }
+      ]
+    },
     "section/reveal-grid": {
       "installedAt": "2026-08-29T09:05:21.378Z",
       "files": [
@@ -522,6 +531,15 @@
         }
       ]
     },
+    "section/stat-band": {
+      "installedAt": "2026-09-06T16:34:06.042Z",
+      "files": [
+        {
+          "path": "src/odoro/section/StatBand.tsx",
+          "hash": "86ddceeb7e5ad0f2"
+        }
+      ]
+    },
     "section/sticky-stack": {
       "installedAt": "2026-08-29T09:05:21.378Z",
       "files": [
@@ -532,7 +550,7 @@
       ]
     },
     "text/count-up": {
-      "installedAt": "2026-09-04T15:31:38.450Z",
+      "installedAt": "2026-09-06T16:34:06.042Z",
       "files": [
         {
           "path": "src/odoro/text/CountUp.tsx",

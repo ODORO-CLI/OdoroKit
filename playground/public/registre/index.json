@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-06T16:23:28.505Z",
+  "generatedAt": "2026-09-06T16:33:56.682Z",
   "entries": [
     {
       "id": "background/ashen-press",
@@ -547,6 +547,18 @@
       "registryDependencies": []
     },
     {
+      "id": "section/pricing-tiers",
+      "name": "pricing-tiers",
+      "category": "section",
+      "title": "Grille de tarifs",
+      "description": "Des offres avec bascule mensuelle ou annuelle, dont les prix se recalculent au lieu de se remplacer.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "text/count-up"
+      ]
+    },
+    {
       "id": "section/reveal-grid",
       "name": "reveal-grid",
       "category": "section",
@@ -576,6 +588,18 @@
       "backend": false,
       "registryDependencies": [
         "background/dot-matrix"
+      ]
+    },
+    {
+      "id": "section/stat-band",
+      "name": "stat-band",
+      "category": "section",
+      "title": "Bande de statistiques",
+      "description": "Une rangee de nombres qui montent ensemble quand la section entre dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "text/count-up"
       ]
     },
     {

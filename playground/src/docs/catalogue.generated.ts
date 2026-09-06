@@ -3845,6 +3845,82 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "section/orbital-timeline"
   },
   {
+    "name": "pricing-tiers",
+    "category": "section",
+    "title": "Grille de tarifs",
+    "description": "Des offres avec bascule mensuelle ou annuelle, dont les prix se recalculent au lieu de se remplacer.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/PricingTiers.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "text/count-up"
+    ],
+    "tokens": [],
+    "props": [
+      {
+        "name": "tiers",
+        "type": "readonly Tier[]",
+        "required": true,
+        "description": "Les offres, dans l ordre d affichage."
+      },
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "section",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "currency",
+        "type": "string",
+        "required": false,
+        "description": "Symbole colle avant le prix."
+      },
+      {
+        "name": "suffix",
+        "type": "string",
+        "required": false,
+        "description": "Symbole colle apres le prix."
+      },
+      {
+        "name": "yearlyDiscount",
+        "type": "number",
+        "required": false,
+        "default": 0.2,
+        "description": "Part remise sur l annee. Zero retire la bascule.",
+        "min": 0,
+        "max": 0.6,
+        "step": 0.05
+      },
+      {
+        "name": "locale",
+        "type": "string",
+        "required": false,
+        "description": "Langue du formatage."
+      },
+      {
+        "name": "onChoose",
+        "type": "(tier: Tier) => void",
+        "required": false,
+        "description": "Appele au clic sur une offre."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Un compteur par offre, relance a chaque bascule de periode puis arrete. Rien ne tourne au repos."
+    },
+    "id": "section/pricing-tiers"
+  },
+  {
     "name": "reveal-grid",
     "category": "section",
     "title": "Grille revelee",
@@ -4080,6 +4156,76 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "notes": "Le composant lui-meme ne coute rien : le prix est celui de la trame qu il compose, et qui porte son propre repli."
     },
     "id": "section/sign-in"
+  },
+  {
+    "name": "stat-band",
+    "category": "section",
+    "title": "Bande de statistiques",
+    "description": "Une rangee de nombres qui montent ensemble quand la section entre dans le champ.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "section/StatBand.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [
+      "text/count-up"
+    ],
+    "tokens": [],
+    "props": [
+      {
+        "name": "stats",
+        "type": "readonly Stat[]",
+        "required": true,
+        "description": "Les statistiques, dans l ordre d affichage."
+      },
+      {
+        "name": "as",
+        "type": "ElementType",
+        "required": false,
+        "default": "section",
+        "description": "Balise rendue."
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "default": 1500,
+        "unit": "ms",
+        "description": "Duree de la montee d un nombre.",
+        "min": 200,
+        "max": 5000,
+        "step": 100
+      },
+      {
+        "name": "stagger",
+        "type": "number",
+        "required": false,
+        "default": 120,
+        "unit": "ms",
+        "description": "Retard entre deux nombres. Zero les fait partir ensemble.",
+        "min": 0,
+        "max": 600,
+        "step": 20
+      },
+      {
+        "name": "locale",
+        "type": "string",
+        "required": false,
+        "description": "Langue du formatage. Par defaut, celle du navigateur."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Un compteur par statistique, chacun s arretant a la fin de sa montee. Aucune boucle permanente."
+    },
+    "id": "section/stat-band"
   },
   {
     "name": "sticky-stack",

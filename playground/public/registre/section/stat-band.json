@@ -1,0 +1,73 @@
+{
+  "name": "stat-band",
+  "category": "section",
+  "title": "Bande de statistiques",
+  "description": "Une rangee de nombres qui montent ensemble quand la section entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/StatBand.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "text/count-up"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "stats",
+      "type": "readonly Stat[]",
+      "required": true,
+      "description": "Les statistiques, dans l ordre d affichage."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "section",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 1500,
+      "unit": "ms",
+      "description": "Duree de la montee d un nombre.",
+      "min": 200,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 120,
+      "unit": "ms",
+      "description": "Retard entre deux nombres. Zero les fait partir ensemble.",
+      "min": 0,
+      "max": 600,
+      "step": 20
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "required": false,
+      "description": "Langue du formatage. Par defaut, celle du navigateur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un compteur par statistique, chacun s arretant a la fin de sa montee. Aucune boucle permanente."
+  },
+  "id": "section/stat-band",
+  "sources": {
+    "component.tsx": "/**\n * Bande de statistiques : des nombres qui montent quand la section arrive.\n *\n * ## Elle ne recompte pas ce qui existe deja\n *\n * Le comptage, le formatage selon la langue, la chasse fixe des chiffres, le\n * calque qui garde la valeur finale lisible par un lecteur d'ecran — tout cela\n * est dans `text/count-up`, et cette section s'en sert. Le reecrire ici\n * donnerait deux implementations du meme probleme, dont l'une prendrait du\n * retard sans que rien ne le signale.\n *\n * C'est la raison d'etre d'une dependance de registre : `odoro add` installe\n * les deux, et le lien est declare plutot que copie.\n *\n * ## Le declenchement appartient a la bande, pas a chaque nombre\n *\n * Chaque compteur pourrait guetter son propre passage dans le champ. Ils\n * partiraient alors les uns apres les autres, au fil du defilement — ce qui est\n * juste pour un paragraphe, et faux pour une rangee : une bande de chiffres se\n * lit comme un seul objet, et doit s'animer comme tel.\n *\n * Le retard entre eux est donc volontaire et regle ici, pas subi.\n *\n * ## Ce qu'une statistique doit dire quand elle ne bouge pas\n *\n * Tout. Le nombre final est dans le DOM des le premier rendu — c'est\n * `count-up` qui s'en charge — et le libelle est un texte ordinaire. En\n * mouvement reduit, la bande est simplement une bande de chiffres, ce qu'elle\n * a toujours ete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ElementType, type ReactElement } from 'react'\n\nimport { CountUp } from '@registre/text/CountUp'\n\n/** Une statistique de la bande. */\nexport interface Stat {\n  /** La valeur d'arrivee. */\n  readonly value: number\n  /** Ce qu'elle mesure. */\n  readonly label: string\n  /** Colle avant le nombre. */\n  readonly prefix?: string\n  /** Colle apres le nombre. */\n  readonly suffix?: string\n  /** Nombre de decimales. @defaultValue 0 */\n  readonly decimals?: number\n}\n\n/** Proprietes propres au composant. */\nexport interface StatBandOwnProps {\n  /** Les statistiques, dans l'ordre d'affichage. */\n  stats: readonly Stat[]\n  /** Balise rendue. @defaultValue 'section' */\n  as?: ElementType\n  /** Duree de la montee d'un nombre, en millisecondes. @defaultValue 1500 */\n  duration?: number\n  /**\n   * Retard entre deux nombres, en millisecondes.\n   *\n   * Zero les fait partir ensemble ; une centaine donne une lecture de gauche a\n   * droite sans que la bande se disloque.\n   *\n   * @defaultValue 120\n   */\n  stagger?: number\n  /** Langue du formatage. Par defaut, celle du navigateur. */\n  locale?: string\n}\n\n/** Toutes les proprietes. */\nexport type StatBandProps = Customisable<StatBandOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-stat-band'\n\n/** Pose les regles de la bande, une fois par document. */\nfunction ensureStatBandRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Une grille automatique plutot qu'un nombre de colonnes fixe : la bande\n    // sert aussi bien deux statistiques que six, et personne ne devrait avoir\n    // a choisir une mise en page selon leur nombre.\n    '[data-o-stat-band]{',\n    'display:grid;gap:2rem 3rem;',\n    'grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));',\n    '}',\n    '[data-o-stat] dt{order:2;font-size:0.875rem;opacity:0.7;margin-top:0.35rem}',\n    '[data-o-stat] dd{order:1;margin:0;line-height:1.05}',\n    // La colonne inverse l'ordre visuel sans toucher a l'ordre du document :\n    // un lecteur d'ecran doit entendre « projets livres, 12 480 », pas\n    // l'inverse, et l'oeil doit voir le nombre d'abord.\n    '[data-o-stat]{display:flex;flex-direction:column}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Une rangee de statistiques qui montent a l'entree dans le champ.\n *\n * @example\n * <StatBand\n *   stats={[\n *     { value: 12480, label: 'projets livres' },\n *     { value: 99.98, label: 'disponibilite', suffix: ' %', decimals: 2 },\n *     { value: 42, label: 'pays' },\n *   ]}\n * />\n */\nexport function StatBand({\n  stats,\n  as: Tag = 'section',\n  duration = 1500,\n  stagger = 120,\n  locale,\n  ...rest\n}: StatBandProps): ReactElement {\n  ensureStatBandRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <Tag\n      {...rest}\n      className={className}\n      style={style as CSSProperties}\n      data-o-stat-band=\"\"\n    >\n      {stats.map((stat, i) => (\n        // Une liste de definitions : chaque statistique est une valeur et ce\n        // qu'elle mesure, ce qui est exactement la relation que `dl` decrit.\n        <dl key={stat.label} data-o-stat=\"\">\n          <dd className=\"o-text-4xl o-font-bold o-tracking-tight\">\n            <CountUp\n              value={stat.value}\n              duration={duration}\n              // Le retard vient de la bande : les compteurs ne guettent pas\n              // chacun leur propre entree dans le champ.\n              delay={i * stagger}\n              decimals={stat.decimals ?? 0}\n              {...(locale === undefined ? {} : { locale })}\n              {...(stat.prefix === undefined ? {} : { prefix: stat.prefix })}\n              {...(stat.suffix === undefined ? {} : { suffix: stat.suffix })}\n            />\n          </dd>\n          <dt>{stat.label}</dt>\n        </dl>\n      ))}\n    </Tag>\n  )\n}\n"
+  }
+}
