@@ -266,6 +266,15 @@
         }
       ]
     },
+    "effect/cursor-halo": {
+      "installedAt": "2026-09-06T16:02:08.531Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/CursorHalo.tsx",
+          "hash": "35f124bb369efac9"
+        }
+      ]
+    },
     "effect/deform": {
       "installedAt": "2026-08-29T11:41:15.953Z",
       "files": [
@@ -420,6 +429,24 @@
         {
           "path": "src/odoro/image/Video.tsx",
           "hash": "4c8cf06edd41091c"
+        }
+      ]
+    },
+    "loader/counter-gate": {
+      "installedAt": "2026-09-06T16:13:32.082Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CounterGate.tsx",
+          "hash": "1c98f3e63662acde"
+        }
+      ]
+    },
+    "loader/curtain-wipe": {
+      "installedAt": "2026-09-06T16:13:32.082Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CurtainWipe.tsx",
+          "hash": "4dce402061d8cca9"
         }
       ]
     },

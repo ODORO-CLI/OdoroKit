@@ -1,0 +1,86 @@
+{
+  "name": "curtain-wipe",
+  "category": "loader",
+  "title": "Plaque percee",
+  "description": "Un rideau sans compteur, qui s ouvre par un trou grandissant plutot que de s effacer.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CurtainWipe.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Le fond du rideau."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "required": false,
+      "description": "L encre du rideau."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "required": false,
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps la plaque reste pleine.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "wipeMs",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree de l ouverture.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "origin",
+      "type": "readonly [number, number]",
+      "required": false,
+      "default": "50, 50",
+      "description": "D ou part le trou, en pourcentage."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "required": false,
+      "description": "Appele au debut de l ouverture, pour que le contenu entre pendant qu elle s agrandit."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur et une transition de clip-path. Aucune mise en page recalculee, aucun JavaScript par image."
+  },
+  "id": "loader/curtain-wipe",
+  "sources": {
+    "component.tsx": "/**\n * Rideau sans compteur : une plaque qui s'ouvre par un trou qui grandit.\n *\n * ## Ne rien compter est souvent le meilleur choix\n *\n * `counter-gate` mesure une disponibilite reelle. Quand il n'y a rien a\n * mesurer — une page dont tout le poids est deja la, un site qui veut\n * simplement une entree — un pourcentage n'aurait rien a dire, et un\n * pourcentage qui n'a rien a dire ment.\n *\n * Alors on ne compte pas. Une marque, une plaque, une duree assumee. C'est le\n * rideau le plus cher a l'oeil et le plus honnete des deux, parce qu'il ne\n * promet aucune information.\n *\n * ## L'ouverture est une forme, pas une disparition\n *\n * Le plan ne s'efface pas : il se **perce**. Un disque grandit depuis le centre\n * jusqu'a deborder l'ecran, et la page apparait dedans.\n *\n * C'est fait avec `clip-path`, donc par le compositeur : aucune mise en page\n * n'est recalculee pendant l'ouverture. Une opacite qui tombe laisserait la\n * page transparaitre a travers le rideau et trahirait qu'il n'y a jamais eu\n * qu'un voile. Un trou dit qu'il y avait une plaque.\n *\n * ## `onDone` part au debut de l'ouverture\n *\n * Comme pour l'autre rideau, et pour la meme raison : le contenu doit entrer\n * pendant que le trou s'agrandit. Attendre la fin donne deux gestes qui se\n * suivent au lieu d'un seul qui se deploie.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CurtainWipeOwnProps {\n  /**\n   * Le fond du rideau.\n   *\n   * Une valeur, pas un jeton de role : le systeme n'en a pas. Il ship des\n   * echelles brutes, et c'est au composant de dire laquelle il prend.\n   *\n   * @defaultValue le plus sombre de l'echelle neutre\n   */\n  background?: string\n  /** L'encre du rideau. @defaultValue le plus clair de l'echelle neutre */\n  ink?: string\n  /** Ce qui s'affiche au centre pendant l'attente. */\n  label?: ReactNode\n  /**\n   * Combien de temps la plaque reste pleine, en millisecondes.\n   *\n   * @defaultValue 1200\n   */\n  holdMs?: number\n  /**\n   * Duree de l'ouverture, en millisecondes.\n   *\n   * @defaultValue 1000\n   */\n  wipeMs?: number\n  /**\n   * D'ou part le trou, en pourcentage de la largeur et de la hauteur.\n   *\n   * @defaultValue [50, 50]\n   */\n  origin?: readonly [number, number]\n  /** Appele au **debut** de l'ouverture. Voir l'en-tete du module. */\n  onDone?: () => void\n}\n\n/** Toutes les proprietes. */\nexport type CurtainWipeProps = Customisable<CurtainWipeOwnProps, 'div'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-curtain-wipe'\n\n/** Pose les regles de la plaque, une fois par document. */\nfunction ensureCurtainRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-curtain]{',\n    'position:fixed;inset:0;z-index:9999;',\n    'display:flex;align-items:center;justify-content:center;',\n    'background:var(--o-curtain-bg);color:var(--o-curtain-ink);',\n    // Le trou est ferme au repos. `circle(0)` plutot que `circle(0%)` : la\n    // forme se ferme sur un rayon nul, pas sur une fraction d'une reference\n    // qui changerait avec le format de l'ecran.\n    'clip-path:circle(140% at var(--o-curtain-x) var(--o-curtain-y));',\n    'transition:clip-path var(--o-curtain-wipe) cubic-bezier(0.83,0,0.17,1);',\n    '}',\n    // L'ouverture inverse le decoupage : c'est le rideau qu'on perce, donc son\n    // rayon *diminue* jusqu'a ne plus rien couvrir.\n    '[data-o-curtain-open]{clip-path:circle(0% at var(--o-curtain-x) var(--o-curtain-y))}',\n    '[data-o-curtain-label]{transition:opacity 420ms ease}',\n    '[data-o-curtain-open] [data-o-curtain-label]{opacity:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Couvre la page d'une plaque, puis la perce.\n *\n * @example\n * <CurtainWipe label=\"Odoro\" onDone={ouvrir} />\n *\n * @example\n * // Le trou part du coin superieur gauche, la ou se trouve le logo.\n * <CurtainWipe origin={[12, 18]} holdMs={800} onDone={ouvrir} />\n */\nexport function CurtainWipe({\n  background = 'var(--o-palette-zinc-950)',\n  ink = 'var(--o-palette-zinc-50)',\n  label,\n  holdMs = 1200,\n  wipeMs = 1000,\n  origin = [50, 50],\n  onDone,\n  ...rest\n}: CurtainWipeProps): ReactElement | null {\n  const { reduced } = useMotionState()\n  const [ouvert, setOuvert] = useState(false)\n  const [parti, setParti] = useState(false)\n\n  const annonce = useRef(false)\n  const rappel = useRef(onDone)\n  rappel.current = onDone\n\n  ensureCurtainRule()\n\n  useEffect(() => {\n    // Mouvement reduit : la plaque n'apparait pas. Elle n'apportait qu'un\n    // geste, et le geste est precisement ce qu'on nous demande d'omettre.\n    if (reduced) {\n      if (!annonce.current) {\n        annonce.current = true\n        rappel.current?.()\n      }\n      setParti(true)\n      return\n    }\n\n    const minuteur = setTimeout(() => {\n      setOuvert(true)\n\n      // Ici, pas a la fin de la transition : le contenu entre pendant que le\n      // trou s'agrandit.\n      if (!annonce.current) {\n        annonce.current = true\n        rappel.current?.()\n      }\n    }, holdMs)\n\n    return () => {\n      clearTimeout(minuteur)\n    }\n  }, [reduced, holdMs])\n\n  if (parti) return null\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const stylePlaque = {\n    ...style,\n    '--o-curtain-x': `${String(origin[0])}%`,\n    '--o-curtain-y': `${String(origin[1])}%`,\n    '--o-curtain-wipe': `${String(wipeMs)}ms`,\n    '--o-curtain-bg': background,\n    '--o-curtain-ink': ink,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={stylePlaque}\n      data-o-curtain=\"\"\n      {...(ouvert ? { 'data-o-curtain-open': '' } : {})}\n      aria-hidden=\"true\"\n      onTransitionEnd={() => {\n        if (ouvert) setParti(true)\n      }}\n    >\n      {label !== undefined && <div data-o-curtain-label=\"\">{label}</div>}\n    </div>\n  )\n}\n"
+  }
+}

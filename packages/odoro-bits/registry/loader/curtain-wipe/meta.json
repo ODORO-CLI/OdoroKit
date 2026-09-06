@@ -1,0 +1,75 @@
+{
+  "name": "curtain-wipe",
+  "category": "loader",
+  "title": "Plaque percee",
+  "description": "Un rideau sans compteur, qui s ouvre par un trou grandissant plutot que de s effacer.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CurtainWipe.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond du rideau."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du rideau."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps la plaque reste pleine.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "wipeMs",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree de l ouverture.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "origin",
+      "type": "readonly [number, number]",
+      "default": "50, 50",
+      "description": "D ou part le trou, en pourcentage."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de l ouverture, pour que le contenu entre pendant qu elle s agrandit."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur et une transition de clip-path. Aucune mise en page recalculee, aucun JavaScript par image."
+  }
+}

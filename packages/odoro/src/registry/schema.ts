@@ -41,6 +41,14 @@ export const CATEGORIES = [
   'image',
   'ui',
   'section',
+  /**
+   * Le rideau d'ouverture.
+   *
+   * Pas une section : une section occupe une place dans le flux de la page,
+   * un chargeur couvre l'ecran entier et disparait. Les ranger ensemble
+   * obligerait chaque section a declarer laquelle des deux elle est.
+   */
+  'loader',
   'hooks',
 ] as const
 

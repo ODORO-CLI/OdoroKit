@@ -81,6 +81,11 @@ import { SplitLines } from '@/odoro/text/SplitLines.jsx'
 import { SplitReveal } from '@/odoro/text/SplitReveal.jsx'
 import { Typewriter } from '@/odoro/text/Typewriter.jsx'
 import { InViewDemo, PointerDampedDemo, PosterDemo } from './demos-hooks.jsx'
+import {
+  CounterGateDemo,
+  CursorHaloDemo,
+  CurtainWipeDemo,
+} from './demos-loaders.jsx'
 import type {
   AtelierControl,
   AtelierFrame,
@@ -923,6 +928,17 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
   },
 
   // ----- Effets --------------------------------------------------------------
+  'effect/cursor-halo': {
+    height: 'o-h-72',
+    lead: 'Le point est exact, le halo arrive apres — et c est cet ecart, pas le rond, qui fait l effet.',
+    render: (v) => (
+      <CursorHaloDemo
+        speed={num(v, 'speed', 8)}
+        haloSize={num(v, 'haloSize', 34)}
+        hoverScale={num(v, 'hoverScale', 1.8)}
+      />
+    ),
+  },
   'effect/magnetic': {
     height: 'o-h-64',
     lead: 'L evenement deplace une cible ; c est la boucle qui rejoint la cible.',
@@ -1450,6 +1466,40 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
         <CardForm />
       </div>
+    ),
+  },
+
+  // ----- Rideaux -------------------------------------------------------------
+  'loader/counter-gate': {
+    height: 'o-h-96',
+    lead: 'Le compteur se gare sous son plafond tant que rien n est pret — decochez « pret » pour le voir tenir parole.',
+    controls: [
+      { kind: 'switch', name: 'ready', label: 'pret', value: true },
+      { kind: 'range', name: 'ceiling', label: 'plafond', min: 50, max: 99, step: 1, value: 92 },
+      {
+        kind: 'range',
+        name: 'minVisibleMs',
+        label: 'plancher',
+        min: 0,
+        max: 3000,
+        step: 100,
+        value: 900,
+        unit: 'ms',
+      },
+    ],
+    render: (v) => (
+      <CounterGateDemo
+        ready={v['ready'] !== false}
+        ceiling={num(v, 'ceiling', 92)}
+        minVisibleMs={num(v, 'minVisibleMs', 900)}
+      />
+    ),
+  },
+  'loader/curtain-wipe': {
+    height: 'o-h-96',
+    lead: 'La plaque ne s efface pas : elle se perce, par un decoupage que le compositeur anime seul.',
+    render: (v) => (
+      <CurtainWipeDemo holdMs={num(v, 'holdMs', 1200)} wipeMs={num(v, 'wipeMs', 1000)} />
     ),
   },
 

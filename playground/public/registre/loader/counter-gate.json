@@ -1,0 +1,103 @@
+{
+  "name": "counter-gate",
+  "category": "loader",
+  "title": "Rideau a compteur",
+  "description": "Un rideau dont le compteur suit la vraie disponibilite : il se gare sous un plafond tant que rien n est pret.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CounterGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Le fond du rideau."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "required": false,
+      "description": "L encre du rideau."
+    },
+    {
+      "name": "ready",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Ce qu on attend vraiment. Branche sur la premiere image d une scene, le compteur dit la verite."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui s affiche au centre : un nom, une marque."
+    },
+    {
+      "name": "minVisibleMs",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree minimale d affichage, contre le clignotement sur cache chaud.",
+      "min": 0,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "maxMs",
+      "type": "number",
+      "required": false,
+      "default": 6000,
+      "unit": "ms",
+      "description": "Au-dela, on ouvre quoi qu il arrive.",
+      "min": 1000,
+      "max": 15000,
+      "step": 500
+    },
+    {
+      "name": "ceiling",
+      "type": "number",
+      "required": false,
+      "default": 92,
+      "description": "Ou le compteur se gare tant que rien n est pret.",
+      "min": 50,
+      "max": 99,
+      "step": 1
+    },
+    {
+      "name": "hideCount",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Ne garder que la barre."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "required": false,
+      "description": "Appele au debut de la sortie, pour que le contenu entre a travers le rideau."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle d images qui dure le temps du rideau, puis s arrete. La sortie est une transition CSS."
+  },
+  "id": "loader/counter-gate",
+  "sources": {
+    "component.tsx": "/**\n * Rideau d'ouverture a compteur honnete.\n *\n * ## Un pourcentage doit mesurer quelque chose\n *\n * Le defaut de presque tous les prechargeurs : un `setTimeout` deguise en\n * progression. Le compteur monte de zero a cent en deux secondes, quelle que\n * soit la realite, et se trouve a 100 % alors que rien n'est pret — ou a 40 %\n * alors que tout l'est depuis longtemps.\n *\n * Ici le compteur suit `ready`. Tant que ce n'est pas vrai, il **se gare** sous\n * un plafond et y reste. Si la ressource ne vient jamais, la barre s'arrete a\n * 92 % et ne ment pas. C'est laid, et c'est exact : mieux vaut un chiffre bloque\n * qu'un chiffre faux.\n *\n * Deux vitesses, donc : une reptation lente vers le plafond pendant l'attente,\n * une course rapide vers cent une fois pret.\n *\n * ## Un plancher, et un plafond\n *\n * **Le plancher** empeche le clignotement. Sur un cache chaud, tout est pret\n * en quarante millisecondes ; sans plancher, le visiteur voit un rideau\n * apparaitre et disparaitre — une secousse, pas une entree.\n *\n * **Le plafond de duree** empeche la prison. Une ressource qui ne repond jamais\n * garderait le visiteur derriere le rideau indefiniment. Passe ce delai, on\n * ouvre : une page sans sa scene vaut mieux qu'une page qu'on ne voit pas.\n *\n * ## `onDone` part au **debut** de la sortie, pas a sa fin\n *\n * C'est le detail qui separe une ouverture reussie d'une succession de deux\n * animations. Le contenu doit entrer **a travers** le rideau qui s'en va : si\n * l'on attend que le rideau soit parti, la page reste vide un quart de seconde,\n * puis s'anime — deux gestes, la ou l'on en voulait un.\n *\n * ## Il ne retient pas le contenu, il le couvre\n *\n * Le rideau est une surcouche. La page est montee dessous des le premier rendu,\n * masquee par ses propres etats initiaux. Ne pas monter le contenu serait plus\n * simple, et couterait trois choses : les moteurs d'indexation ne le voient\n * pas, les lecteurs d'ecran non plus, et le decoupage des textes se ferait au\n * moment du reveal — donc pendant l'image ou l'on peut le moins se le\n * permettre.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CounterGateOwnProps {\n  /**\n   * Le fond du rideau.\n   *\n   * Une valeur, pas un jeton de role : le systeme n'en a pas. Il ship des\n   * echelles brutes, et c'est au composant de dire laquelle il prend.\n   *\n   * @defaultValue le plus sombre de l'echelle neutre\n   */\n  background?: string\n  /** L'encre du rideau. @defaultValue le plus clair de l'echelle neutre */\n  ink?: string\n  /**\n   * Ce qu'on attend vraiment.\n   *\n   * Passer `true` d'emblee donne un rideau de courtoisie qui tient le plancher\n   * puis s'ouvre. Le brancher sur la premiere image dessinee d'une scene donne\n   * un compteur qui dit la verite.\n   *\n   * @defaultValue true\n   */\n  ready?: boolean\n  /** Ce qui s'affiche au centre : un nom, une marque. */\n  label?: ReactNode\n  /**\n   * Duree minimale d'affichage, en millisecondes.\n   *\n   * @defaultValue 900\n   */\n  minVisibleMs?: number\n  /**\n   * Au-dela, on ouvre quoi qu'il arrive.\n   *\n   * @defaultValue 6000\n   */\n  maxMs?: number\n  /**\n   * Ou le compteur se gare tant que rien n'est pret, en pourcentage.\n   *\n   * @defaultValue 92\n   */\n  ceiling?: number\n  /** Cache le pourcentage, et ne garde que la barre. */\n  hideCount?: boolean\n  /**\n   * Appele au **debut** de la sortie. Voir l'en-tete du module.\n   */\n  onDone?: () => void\n}\n\n/** Toutes les proprietes. */\nexport type CounterGateProps = Customisable<CounterGateOwnProps, 'div'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-counter-gate'\n\n/** Pose les regles du rideau, une fois par document. */\nfunction ensureCounterGateRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-gate]{',\n    'position:fixed;inset:0;z-index:9999;',\n    'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;',\n    'background:var(--o-gate-bg);color:var(--o-gate-ink);',\n    'transition:transform var(--o-gate-exit) cubic-bezier(0.76,0,0.24,1);',\n    '}',\n    // La sortie translate le rideau plutot que de le faire disparaitre : une\n    // opacite qui tombe laisse voir la page a travers, ce qui trahit le\n    // montage. Un plan qui s'en va est un objet, pas un voile.\n    '[data-o-gate-out]{transform:translateY(-100%)}',\n    '[data-o-gate-bar]{',\n    'position:relative;width:min(18rem,60vw);height:1px;',\n    'background:color-mix(in oklch,currentColor 25%,transparent);',\n    '}',\n    '[data-o-gate-bar]::after{',\n    'content:\"\";position:absolute;inset:0;',\n    'transform-origin:left;transform:scaleX(var(--o-gate-p));',\n    'background:currentColor;',\n    '}',\n    '[data-o-gate-count]{font-variant-numeric:tabular-nums;font-size:0.75rem;opacity:0.6}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Couvre la page jusqu'a ce qu'elle soit prete, puis s'en va.\n *\n * @example\n * // Un rideau de courtoisie : rien a attendre, mais une vraie entree.\n * <CounterGate label=\"Odoro\" onDone={() => { setPret(true) }} />\n *\n * @example\n * // Branche sur la premiere image d'une scene : le compteur dit la verite.\n * <CounterGate ready={sceneDessinee} onDone={ouvrir} />\n */\nexport function CounterGate({\n  background = 'var(--o-palette-zinc-950)',\n  ink = 'var(--o-palette-zinc-50)',\n  ready = true,\n  label,\n  minVisibleMs = 900,\n  maxMs = 6000,\n  ceiling = 92,\n  hideCount = false,\n  onDone,\n  ...rest\n}: CounterGateProps): ReactElement | null {\n  const { reduced } = useMotionState()\n  const [pourcent, setPourcent] = useState(0)\n  const [sortant, setSortant] = useState(false)\n  const [parti, setParti] = useState(false)\n\n  // Dans une ref : la sortie ne doit partir qu'une fois, et un rendu\n  // supplementaire ne doit pas la rejouer.\n  const annonce = useRef(false)\n  const rappel = useRef(onDone)\n  rappel.current = onDone\n\n  ensureCounterGateRule()\n\n  useEffect(() => {\n    // Mouvement reduit : pas de rideau du tout. Ce qu'il apportait etait le\n    // geste ; ce qu'il coutait serait une attente sans contrepartie.\n    if (reduced) {\n      if (!annonce.current) {\n        annonce.current = true\n        rappel.current?.()\n      }\n      setParti(true)\n      return\n    }\n\n    const depart = performance.now()\n    let image = 0\n    let dernier = depart\n\n    // La valeur vit dans une variable, pas dans l'etat : sans cela la boucle\n    // provoquerait soixante rendus par seconde pour un chiffre qui n'en change\n    // que cent fois. On ne remonte a React que lorsque l'entier affiche bouge.\n    let valeur = 0\n    let affiche = -1\n\n    const pas = (maintenant: number) => {\n      // Le pas est borne : un onglet revenu au premier plan apres une minute\n      // rendrait un delta enorme et ferait sauter le compteur a cent.\n      const dt = Math.min((maintenant - dernier) / 1000, 0.05)\n      dernier = maintenant\n\n      const ecoule = maintenant - depart\n      const pret = ready || ecoule >= maxMs\n\n      // Trois regimes, et le plancher est ce qui separe les deux derniers.\n      // Sans lui, un cache chaud amene le compteur a cent en moins de temps que\n      // la duree minimale, et la sortie partirait avant : le rideau\n      // clignoterait, ce que le plancher etait cense empecher.\n      const acheve = pret && ecoule >= minVisibleMs\n      const cible = acheve ? 100 : pret ? 99 : ceiling\n      const vitesse = pret ? 6 : 1.7\n\n      valeur = acheve && valeur >= 99.4 ? 100 : valeur + (cible - valeur) * vitesse * dt\n\n      const entier = Math.round(valeur)\n      if (entier !== affiche) {\n        affiche = entier\n        setPourcent(valeur)\n      }\n\n      if (valeur >= 100) return\n\n      image = requestAnimationFrame(pas)\n    }\n\n    image = requestAnimationFrame(pas)\n\n    return () => {\n      cancelAnimationFrame(image)\n    }\n  }, [ready, reduced, minVisibleMs, maxMs, ceiling])\n\n  // La bascule vers la sortie, separee de la boucle : elle ne depend que de\n  // l'etat atteint, et la melanger a la boucle la ferait dependre d'une image.\n  useEffect(() => {\n    if (reduced || sortant || pourcent < 100) return\n\n    setSortant(true)\n\n    // Ici, et pas a la fin de la transition : le contenu doit entrer a travers\n    // le rideau qui s'en va.\n    if (!annonce.current) {\n      annonce.current = true\n      rappel.current?.()\n    }\n  }, [pourcent, sortant, reduced])\n\n  if (parti) return null\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const styleRideau = {\n    ...style,\n    '--o-gate-p': String(Math.min(1, pourcent / 100)),\n    '--o-gate-exit': '900ms',\n    '--o-gate-bg': background,\n    '--o-gate-ink': ink,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={styleRideau}\n      data-o-gate=\"\"\n      {...(sortant ? { 'data-o-gate-out': '' } : {})}\n      // Le rideau n'est pas du contenu : il ne doit pas etre lu, et la page\n      // qu'il couvre l'est deja.\n      aria-hidden=\"true\"\n      onTransitionEnd={() => {\n        if (sortant) setParti(true)\n      }}\n    >\n      {label !== undefined && <div>{label}</div>}\n      <div data-o-gate-bar=\"\" />\n      {!hideCount && (\n        <div data-o-gate-count=\"\">{String(Math.round(pourcent)).padStart(3, '0')}</div>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "counter-gate",
+  "category": "loader",
+  "title": "Rideau a compteur",
+  "description": "Un rideau dont le compteur suit la vraie disponibilite : il se gare sous un plafond tant que rien n est pret.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CounterGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-950",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond du rideau."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du rideau."
+    },
+    {
+      "name": "ready",
+      "type": "boolean",
+      "default": true,
+      "description": "Ce qu on attend vraiment. Branche sur la premiere image d une scene, le compteur dit la verite."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre : un nom, une marque."
+    },
+    {
+      "name": "minVisibleMs",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree minimale d affichage, contre le clignotement sur cache chaud.",
+      "min": 0,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "maxMs",
+      "type": "number",
+      "default": 6000,
+      "unit": "ms",
+      "description": "Au-dela, on ouvre quoi qu il arrive.",
+      "min": 1000,
+      "max": 15000,
+      "step": 500
+    },
+    {
+      "name": "ceiling",
+      "type": "number",
+      "default": 92,
+      "description": "Ou le compteur se gare tant que rien n est pret.",
+      "min": 50,
+      "max": 99,
+      "step": 1
+    },
+    {
+      "name": "hideCount",
+      "type": "boolean",
+      "default": false,
+      "description": "Ne garder que la barre."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de la sortie, pour que le contenu entre a travers le rideau."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle d images qui dure le temps du rideau, puis s arrete. La sortie est une transition CSS."
+  }
+}

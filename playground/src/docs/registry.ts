@@ -231,6 +231,7 @@ const REGISTRY_SECTIONS: readonly (readonly [string, string, string])[] = [
   ['image', 'images', 'Images'],
   ['section', 'sections', 'Sections'],
   ['ui', 'ui', 'Interface'],
+  ['loader', 'loaders', 'Rideaux'],
   ['hooks', 'hooks', 'Hooks'],
 ]
 

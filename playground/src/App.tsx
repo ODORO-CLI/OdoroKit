@@ -177,6 +177,10 @@ export function App(): ReactElement {
                 element={<RegistryEntryRoute category="ui" />}
               />
               <Route
+                path="docs/loaders/:name"
+                element={<RegistryEntryRoute category="loader" />}
+              />
+              <Route
                 path="docs/hooks/:name"
                 element={<RegistryEntryRoute category="hooks" />}
               />

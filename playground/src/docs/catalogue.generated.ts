@@ -2097,6 +2097,94 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "effect/carousel"
   },
   {
+    "name": "cursor-halo",
+    "category": "effect",
+    "title": "Curseur a halo",
+    "description": "Un point qui suit le pointeur au pixel pres, et un halo amorti qui le rattrape.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "effect/CursorHalo.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [],
+    "props": [
+      {
+        "name": "dotSize",
+        "type": "number",
+        "required": false,
+        "default": 6,
+        "unit": "px",
+        "description": "Diametre du point.",
+        "min": 2,
+        "max": 20,
+        "step": 1
+      },
+      {
+        "name": "haloSize",
+        "type": "number",
+        "required": false,
+        "default": 34,
+        "unit": "px",
+        "description": "Diametre du halo au repos.",
+        "min": 12,
+        "max": 90,
+        "step": 2
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "required": false,
+        "default": 8,
+        "description": "Vitesse a laquelle le halo rejoint le point. Plus c est haut, plus il colle.",
+        "min": 2,
+        "max": 24,
+        "step": 1
+      },
+      {
+        "name": "hoverScale",
+        "type": "number",
+        "required": false,
+        "default": 1.8,
+        "description": "De combien le halo grossit au survol d un element interactif.",
+        "min": 1,
+        "max": 4,
+        "step": 0.1
+      },
+      {
+        "name": "interactive",
+        "type": "string",
+        "required": false,
+        "description": "Le selecteur de ce qui compte comme interactif."
+      },
+      {
+        "name": "host",
+        "type": "RefObject<HTMLElement>",
+        "required": false,
+        "description": "Limiter le curseur a une zone. Absent, il vaut pour la fenetre entiere."
+      },
+      {
+        "name": "hideNative",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Cacher le curseur natif. Faux par defaut : le curseur systeme porte des signaux que le halo ne reprend pas."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Une boucle d images qui n ecrit que deux transform, sans jamais re-rendre l arbre React. Rien du tout sur un ecran tactile."
+    },
+    "id": "effect/cursor-halo"
+  },
+  {
     "name": "deform",
     "category": "effect",
     "title": "Deformation",
@@ -3254,6 +3342,189 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "fallback": "poster"
     },
     "id": "image/video"
+  },
+  {
+    "name": "counter-gate",
+    "category": "loader",
+    "title": "Rideau a compteur",
+    "description": "Un rideau dont le compteur suit la vraie disponibilite : il se gare sous un plafond tant que rien n est pret.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "loader/CounterGate.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-950",
+      "--o-palette-zinc-50"
+    ],
+    "props": [
+      {
+        "name": "background",
+        "type": "string",
+        "required": false,
+        "description": "Le fond du rideau."
+      },
+      {
+        "name": "ink",
+        "type": "string",
+        "required": false,
+        "description": "L encre du rideau."
+      },
+      {
+        "name": "ready",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Ce qu on attend vraiment. Branche sur la premiere image d une scene, le compteur dit la verite."
+      },
+      {
+        "name": "label",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Ce qui s affiche au centre : un nom, une marque."
+      },
+      {
+        "name": "minVisibleMs",
+        "type": "number",
+        "required": false,
+        "default": 900,
+        "unit": "ms",
+        "description": "Duree minimale d affichage, contre le clignotement sur cache chaud.",
+        "min": 0,
+        "max": 3000,
+        "step": 100
+      },
+      {
+        "name": "maxMs",
+        "type": "number",
+        "required": false,
+        "default": 6000,
+        "unit": "ms",
+        "description": "Au-dela, on ouvre quoi qu il arrive.",
+        "min": 1000,
+        "max": 15000,
+        "step": 500
+      },
+      {
+        "name": "ceiling",
+        "type": "number",
+        "required": false,
+        "default": 92,
+        "description": "Ou le compteur se gare tant que rien n est pret.",
+        "min": 50,
+        "max": 99,
+        "step": 1
+      },
+      {
+        "name": "hideCount",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Ne garder que la barre."
+      },
+      {
+        "name": "onDone",
+        "type": "() => void",
+        "required": false,
+        "description": "Appele au debut de la sortie, pour que le contenu entre a travers le rideau."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Une boucle d images qui dure le temps du rideau, puis s arrete. La sortie est une transition CSS."
+    },
+    "id": "loader/counter-gate"
+  },
+  {
+    "name": "curtain-wipe",
+    "category": "loader",
+    "title": "Plaque percee",
+    "description": "Un rideau sans compteur, qui s ouvre par un trou grandissant plutot que de s effacer.",
+    "engine": {
+      "gsap": [],
+      "gl": false
+    },
+    "files": [
+      {
+        "path": "component.tsx",
+        "target": "loader/CurtainWipe.tsx"
+      }
+    ],
+    "dependencies": [],
+    "registryDependencies": [],
+    "tokens": [
+      "--o-palette-zinc-950",
+      "--o-palette-zinc-50"
+    ],
+    "props": [
+      {
+        "name": "background",
+        "type": "string",
+        "required": false,
+        "description": "Le fond du rideau."
+      },
+      {
+        "name": "ink",
+        "type": "string",
+        "required": false,
+        "description": "L encre du rideau."
+      },
+      {
+        "name": "label",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Ce qui s affiche au centre pendant l attente."
+      },
+      {
+        "name": "holdMs",
+        "type": "number",
+        "required": false,
+        "default": 1200,
+        "unit": "ms",
+        "description": "Combien de temps la plaque reste pleine.",
+        "min": 200,
+        "max": 4000,
+        "step": 100
+      },
+      {
+        "name": "wipeMs",
+        "type": "number",
+        "required": false,
+        "default": 1000,
+        "unit": "ms",
+        "description": "Duree de l ouverture.",
+        "min": 200,
+        "max": 3000,
+        "step": 100
+      },
+      {
+        "name": "origin",
+        "type": "readonly [number, number]",
+        "required": false,
+        "default": "50, 50",
+        "description": "D ou part le trou, en pourcentage."
+      },
+      {
+        "name": "onDone",
+        "type": "() => void",
+        "required": false,
+        "description": "Appele au debut de l ouverture, pour que le contenu entre pendant qu elle s agrandit."
+      }
+    ],
+    "perf": {
+      "tier": "light",
+      "backend": false,
+      "notes": "Un minuteur et une transition de clip-path. Aucune mise en page recalculee, aucun JavaScript par image."
+    },
+    "id": "loader/curtain-wipe"
   },
   {
     "name": "book-shelf",
