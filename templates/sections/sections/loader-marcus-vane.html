@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Section · Percent Curtain Loader</title>
+<!--
+  GetLayers · Section — Percent Curtain Loader  (loader-marcus-vane)
+
+  A near-empty dark plate with a wordmark in one corner and a huge percent counter in the
+  other. The count runs 0→100, the labels blink out, the whole plate lifts like a curtain,
+  and scroll unlocks the instant it settles. Underneath, the page content is ALREADY
+  moving — its reveal runs on its own absolute clock, so the two timelines cross and the
+  hand-off reads as one continuous move rather than two beats.
+
+  THE TIMING IS THE ASSET. Every number lives in CONFIG below, lifted verbatim from the
+  Marcus Vane template (src/components/sections/preloader.tsx + hero.tsx). The production
+  build drives these with @react-spring/web and spring-text-engine; here, the two
+  physics springs are integrated with react-spring's own solver (1ms fixed step,
+  tension·1e-6 / friction·1e-3) so they are literally the same curve, and the two
+  duration+easing reveals are CSS transitions on easeOutExpo, which is exactly what
+  spring-text-engine emits for a `{duration, easing}` config.
+
+  Self-contained: no libraries, no media. The template's hero portrait (a transparent
+  cutout under an SVG turbulence/displacement filter) is stood in for here by a CSS
+  silhouette block — it is a stage prop, not part of the loader mechanic.
+
+  Re-skin surface: the --gl-* tokens in the :root block. Nothing else carries colour.
+  Type: Anton (display) + Onest (body), Google Fonts.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     TOKENS — the entire skin surface. Swap these to re-dress the section.
+     ========================================================================== */
+  :root {
+    --gl-bg:            #08080a;
+    --gl-ink:           #f3f1ea;
+    --gl-ink-muted:     #807f78;
+    --gl-accent:        #ff3b1d;
+    --gl-line:          rgba(243, 241, 234, .10);
+
+    --gl-font-display:  'Anton', 'Arial Narrow', Impact, sans-serif;
+    --gl-font-body:     'Onest', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --gl-tracking-display: -.01em;
+    --gl-weight-display: 400;
+
+    --gl-duration:      300ms;   /* label blink-out at 100% */
+    --gl-duration-slow: 900ms;   /* the long per-letter rise */
+    --gl-ease:          cubic-bezier(.16, 1, .3, 1);   /* easeOutExpo */
+
+    /* layout constants (not skin) */
+    --gutter: 2.5rem;
+  }
+  @media (max-width: 640px) { :root { --gutter: 16px; } }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--gl-bg); }
+  /* THE GATE, part 1 — the document cannot scroll while `-gated` is set.
+     In the template this is Lenis `stop()` plus html{overflow:hidden}; the
+     store flag and the DOM lock are the same latch. */
+  html.-gated { overflow: hidden; height: 100%; position: relative; }
+
+  body {
+    font-family: var(--gl-font-body);
+    color: var(--gl-ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .disp {
+    font-family: var(--gl-font-display);
+    font-weight: var(--gl-weight-display);
+    letter-spacing: var(--gl-tracking-display);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* ==========================================================================
+     THE LOADER PLATE
+     Two corners of an empty field: wordmark and counter. Nothing else.
+     ========================================================================== */
+  #loader {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: flex-end;
+    gap: .75rem; padding: var(--gutter);
+    background: var(--gl-bg);
+    will-change: transform;
+  }
+  @media (min-width: 641px) {
+    #loader { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+  }
+  #loader .ld-name  { margin: 0; font-size: clamp(20px, 1.6vw, 30px); }
+  #loader .ld-count { margin: 0; flex: 0 0 auto; font-size: clamp(64px, 7.5vw, 150px);
+                      font-variant-numeric: tabular-nums; }
+  #loader .ld-count i { font-style: normal; color: var(--gl-accent); }
+  /* the blink-out — opacity only, and only at 100 */
+  #loader .ld-name, #loader .ld-count { opacity: 1; transition: opacity var(--gl-duration) linear; }
+  #loader.-done .ld-name, #loader.-done .ld-count { opacity: 0; }
+
+  /* ==========================================================================
+     THE CONTENT UNDERNEATH — a stand-in page section, so the hand-off is
+     visible. Its reveal choreography is the template's, verbatim.
+     ========================================================================== */
+  #page { position: relative; width: 100%; overflow-x: hidden; }
+  .hero {
+    position: relative; display: flex; flex-direction: column;
+    min-height: 100svh; overflow: hidden;
+  }
+
+  /* top row — stacked role words left, short intro right */
+  .hero__top {
+    position: relative; z-index: 30;
+    display: flex; flex-direction: column; gap: 2rem;
+    padding: 7rem var(--gutter) 0;
+  }
+  @media (min-width: 641px) {
+    .hero__top { flex-direction: row; align-items: flex-start; justify-content: space-between; padding-top: 8rem; }
+  }
+  .hero__roles { margin: 0; font-size: clamp(28px, 2.9vw, 56px); line-height: 1.05; }
+  .hero__intro {
+    margin: 0; max-width: 26rem;
+    font-size: clamp(14px, .95vw, 18px); line-height: 1.6; color: var(--gl-ink-muted);
+  }
+  @media (min-width: 641px) { .hero__intro { text-align: right; } }
+
+  /* the figure column — a STAND-IN for the template's cutout portrait */
+  .hero__figure {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    z-index: 20; height: 86vh; width: 80vw; pointer-events: none;
+  }
+  @media (min-width: 641px) { .hero__figure { width: 48vw; } }
+  @media (min-width: 1025px) { .hero__figure { width: 36vw; } }
+  .hero__figure::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(46% 34% at 50% 16%, color-mix(in srgb, var(--gl-ink) 26%, transparent) 0%, transparent 68%),
+      radial-gradient(62% 52% at 50% 74%, color-mix(in srgb, var(--gl-ink) 18%, transparent) 0%, transparent 72%);
+  }
+  .hero__figure span {
+    position: absolute; left: 50%; top: 46%; transform: translateX(-50%);
+    font-size: clamp(9px, .7vw, 12px); letter-spacing: .28em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--gl-ink) 22%, transparent); white-space: nowrap;
+  }
+
+  /* the scrim that melts the figure's base and the wordmark into the ground */
+  .hero__scrim {
+    position: absolute; inset-inline: 0; bottom: 0; z-index: 20; height: 26vh;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--gl-bg));
+  }
+
+  /* the colossal wordmark — two lines, clipped by all three edges, BEHIND the figure */
+  .hero__mark {
+    position: absolute; inset-inline: 0; bottom: 0; z-index: 10;
+    margin: 0; display: flex; flex-direction: column; align-items: center;
+    transform: translateY(6%);
+    font-size: clamp(88px, 23vw, 460px); line-height: .78;
+    color: var(--gl-accent);
+  }
+  .hero__mark .ln { display: block; overflow: hidden; white-space: nowrap; }
+
+  /* scroll cue */
+  .hero__cue {
+    position: absolute; bottom: 2rem; left: var(--gutter); z-index: 30;
+    display: flex; align-items: center; gap: .75rem; margin: 0;
+    font-size: clamp(11px, .7vw, 13px); letter-spacing: .22em; text-transform: uppercase;
+    color: var(--gl-ink-muted);
+  }
+  .hero__cue b { display: inline-block; width: 2.5rem; height: 1px; background: var(--gl-accent); }
+
+  /* a second block, so there is somewhere to scroll once the gate opens */
+  .after {
+    border-top: 1px solid var(--gl-line);
+    padding: 9rem var(--gutter);
+    font-size: clamp(14px, .95vw, 18px); line-height: 1.6; color: var(--gl-ink-muted);
+  }
+  .after p { max-width: 46ch; margin: 0; }
+
+  /* ==========================================================================
+     REVEAL PRIMITIVES
+     .ln>.lt  — per-letter rise out of a line mask   (duration + easing)
+     .lnmask  — whole-line rise out of a mask        (duration + easing)
+     .spr     — opacity/translate written by the JS spring solver
+     Delays and stagger are written inline by the script from CONFIG.
+     ========================================================================== */
+  .lt {
+    display: inline-block; transform: translateY(100%); opacity: 0;
+    transition: transform var(--gl-duration-slow) var(--gl-ease),
+                opacity   var(--gl-duration-slow) var(--gl-ease);
+  }
+  .-in .lt { transform: none; opacity: 1; }
+
+  .lnmask { display: block; overflow: hidden; }
+  .lnmask > span {
+    display: block; transform: translateY(110%); opacity: 0;
+    transition: transform 760ms var(--gl-ease), opacity 760ms var(--gl-ease);
+  }
+  .-in .lnmask > span { transform: none; opacity: 1; }
+
+  .spr { opacity: 0; }
+
+  /* replay only — mute transitions for one frame so the reset doesn't animate */
+  body.-nomotion .lt, body.-nomotion .lnmask > span { transition: none !important; }
+
+  /* ==========================================================================
+     REPLAY — demo affordance only. Delete with the #replay node to ship.
+     ========================================================================== */
+  #replay {
+    position: fixed; z-index: 200; top: 12px; right: 12px;
+    padding: 7px 13px; border-radius: 999px;
+    border: 1px solid var(--gl-line); background: color-mix(in srgb, var(--gl-bg) 80%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: var(--gl-ink-muted); font: 500 10.5px/1 var(--gl-font-body);
+    letter-spacing: .18em; text-transform: uppercase; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity .5s ease;
+  }
+  #replay.-on { opacity: 1; pointer-events: auto; }
+  #replay:hover { color: var(--gl-ink); border-color: var(--gl-accent); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lt, .lnmask > span { transition: none !important; transform: none !important; opacity: 1 !important; }
+    #loader { transition: none !important; }
+  }
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- ============================ THE PAGE (gated) ============================ -->
+<main id="page">
+  <section class="hero" id="top">
+    <div class="hero__top">
+      <h2 class="hero__roles disp" id="roles">
+        <span class="lnmask"><span>Founder</span></span>
+        <span class="lnmask"><span>Investor</span></span>
+        <span class="lnmask"><span>Operator</span></span>
+        <span class="lnmask"><span>Contrarian</span></span>
+      </h2>
+      <p class="hero__intro spr" id="intro">
+        I start companies that shouldn't be possible — then make them inevitable.
+        Four exits, one playbook: conviction before consensus.
+      </p>
+    </div>
+
+    <!-- stand-in for the template's cutout portrait (see header comment) -->
+    <div class="hero__figure" aria-hidden="true"><span>figure · stand-in</span></div>
+    <div class="hero__scrim" aria-hidden="true"></div>
+
+    <h1 class="hero__mark disp" id="mark">
+      <span class="ln" data-letters>Marcus</span>
+      <span class="ln" data-letters>Vane</span>
+    </h1>
+
+    <p class="hero__cue spr" id="cue"><b aria-hidden="true"></b>Scroll to enter</p>
+  </section>
+
+  <section class="after">
+    <p>Everything below the fold is ordinary. The gate is only closed for the length of the
+    count — once the curtain settles, scroll is handed back and the page behaves like any
+    other page.</p>
+  </section>
+</main>
+
+<!-- ============================== THE LOADER =============================== -->
+<div id="loader">
+  <p class="ld-name disp">Marcus Vane</p>
+  <p class="ld-count disp"><span id="ld-num">0</span><i>%</i></p>
+</div>
+
+<button id="replay" type="button">Replay</button>
+
+<script>
+/* ============================================================================
+   CONFIG — THE ASSET. Lifted verbatim from the template. Do not "tidy" these.
+   ========================================================================== */
+const CONFIG = {
+  /* --- loader ------------------------------------------------------------ */
+  COUNT_MS:       2000,   // 0→100, LINEAR (react-spring `config:{duration}` eases linearly)
+  LABEL_FADE_MS:  300,    // labels blink out the moment the count rests (CSS, linear)
+  WIPE_DELAY_MS:  200,    // hold on the full plate before it moves
+  WIPE_SPRING:    { tension: 90, friction: 20, mass: 1 },  // lifts the plate a full 100%
+  /* Scroll unlocks on the WIPE SPRING'S REST — not on a timer, not at 100%. */
+
+  /* --- content, on its own absolute clock from mount --------------------- */
+  REVEAL_DELAY:   2500,   // the crossing point: content starts BEFORE the curtain clears
+  MARK_LINE_STEP:  240,   // +ms per wordmark line
+  MARK_LETTER_STAGGER: 52,
+  MARK_LETTER_MS:  900,   // easeOutExpo
+  ROLE_OFFSET:     200,   // REVEAL_DELAY + 200 + i*80
+  ROLE_STEP:        80,
+  ROLE_MS:         760,   // easeOutExpo
+  INTRO_OFFSET:    400,   // REVEAL_DELAY + 400
+  INTRO_SPRING:   { tension: 180, friction: 26, mass: 1 },
+  INTRO_FROM:     { opacity: 0, y: 16 },
+  INTRO_TO:       { opacity: 1, y: 0 },
+  CUE_OFFSET:      900,   // REVEAL_DELAY + 900
+  CUE_SPRING:     { tension: 170, friction: 26, mass: 1 },  // react-spring default
+};
+
+/* ============================================================================
+   SPRING SOLVER — react-spring's own integrator: fixed 1ms step,
+   tension scaled by 1e-6 and friction by 1e-3 so the constants read in ms.
+   Same numbers in, same curve out.
+   ========================================================================== */
+function spring({ from = 0, to = 1, config = {}, onChange, onRest }) {
+  const tension  = config.tension  ?? 170;
+  const friction = config.friction ?? 26;
+  const mass     = config.mass     ?? 1;
+  const precision = config.precision ??
+    (from === to ? 0.005 : Math.min(1, Math.abs(to - from) * 0.001));
+
+  let position = from, velocity = 0, last = null, raf = 0, cancelled = false;
+
+  function tick(now) {
+    if (cancelled) return;
+    if (last === null) last = now;
+    let elapsed = Math.min(64, now - last);   // clamp after a tab-switch
+    last = now;
+
+    for (let i = 0; i < elapsed; i++) {       // 1ms fixed steps
+      const springForce  = -tension  * 0.000001 * (position - to);
+      const dampingForce = -friction * 0.001    * velocity;
+      velocity += ((springForce + dampingForce) / mass) * 1;
+      position += velocity * 1;
+    }
+
+    const atRest = Math.abs(velocity) < precision && Math.abs(to - position) <= precision;
+    if (atRest) position = to;
+    onChange && onChange(position);
+    if (atRest) { onRest && onRest(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+  raf = requestAnimationFrame(tick);
+  return () => { cancelled = true; cancelAnimationFrame(raf); };
+}
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/* ============================================================================
+   THE GATE — the store flag + the DOM lock, latched together.
+   In the template this is a zustand store read by the Lenis controller:
+   the preloader calls stop() on mount and start() on the wipe spring's rest.
+   ========================================================================== */
+const gate = {
+  stop() { document.documentElement.classList.add('-gated'); window.scrollTo(0, 0); },
+  start() { document.documentElement.classList.remove('-gated'); },
+};
+
+/* ============================================================================
+   SPLIT — one inline-block per letter, inside a per-line mask. Words are kept
+   whole (nowrap) so a line break can never split a word mid-reveal.
+   ========================================================================== */
+function splitLetters(line) {
+  const text = line.textContent;
+  line.textContent = '';
+  for (const token of text.split(/(\s+)/)) {
+    if (!token) continue;
+    if (/^\s+$/.test(token)) { line.appendChild(document.createTextNode(token)); continue; }
+    const w = document.createElement('span');
+    w.style.display = 'inline-block';
+    w.style.whiteSpace = 'nowrap';
+    for (const ch of token) {
+      const s = document.createElement('span');
+      s.className = 'lt';
+      s.textContent = ch;
+      w.appendChild(s);
+    }
+    line.appendChild(w);
+  }
+}
+
+/* ============================================================================
+   RUN
+   ========================================================================== */
+const loader  = document.getElementById('loader');
+const num     = document.getElementById('ld-num');
+const mark    = document.getElementById('mark');
+const roles   = document.getElementById('roles');
+const intro   = document.getElementById('intro');
+const cue     = document.getElementById('cue');
+const replay  = document.getElementById('replay');
+
+let timers = [], stops = [];
+const after = (ms, fn) => timers.push(setTimeout(fn, ms));
+
+function reset() {
+  timers.forEach(clearTimeout); timers = [];
+  stops.forEach(fn => fn());    stops = [];
+
+  loader.classList.remove('-done');
+  loader.style.transform = 'translateY(0%)';
+  loader.style.pointerEvents = 'auto';
+  num.textContent = '0';
+
+  // snap the reveals back with transitions muted, so a replay starts clean
+  document.body.classList.add('-nomotion');
+  mark.classList.remove('-in');
+  roles.classList.remove('-in');
+  void document.body.offsetHeight;                 // flush
+  document.body.classList.remove('-nomotion');
+
+  intro.style.opacity = 0; intro.style.transform = 'translateY(16px)';
+  cue.style.opacity = 0;
+  replay.classList.remove('-on');
+}
+
+function run() {
+  reset();
+  gate.stop();
+
+  /* --- the counter: LINEAR, 2000ms, 0→100 ------------------------------- */
+  const t0 = performance.now();
+  (function count(now) {
+    const p = Math.min(1, (now - t0) / CONFIG.COUNT_MS);
+    num.textContent = Math.round(p * 100);
+    if (p < 1) { requestAnimationFrame(count); return; }
+
+    /* --- rest: labels blink out, then the plate holds, then it lifts ----- */
+    loader.classList.add('-done');                        // 300ms opacity, linear
+    after(CONFIG.WIPE_DELAY_MS, () => {                   // 200ms hold
+      stops.push(spring({
+        from: 0, to: 1, config: CONFIG.WIPE_SPRING,
+        onChange: p => { loader.style.transform = 'translateY(' + (p * -100) + '%)'; },
+        onRest: () => {                                   // ← THE UNLOCK
+          gate.start();
+          loader.style.pointerEvents = 'none';
+          replay.classList.add('-on');
+        },
+      }));
+    });
+  })(t0);
+
+  /* --- the content clock, running in parallel from mount ---------------- */
+
+  // wordmark — per line, per letter. Line i starts at REVEAL_DELAY + i*240.
+  mark.querySelectorAll('[data-letters]').forEach((line, i) => {
+    splitLetters(line);
+    const base = i * CONFIG.MARK_LINE_STEP;                 // relative to REVEAL_DELAY
+    line.querySelectorAll('.lt').forEach((s, n) => {
+      const d = base + n * CONFIG.MARK_LETTER_STAGGER;
+      s.style.transitionDelay = d + 'ms, ' + d + 'ms';
+    });
+  });
+  after(CONFIG.REVEAL_DELAY, () => mark.classList.add('-in'));
+
+  // role words — line masks, REVEAL_DELAY + 200 + i*80
+  roles.querySelectorAll('.lnmask > span').forEach((s, i) => {
+    const d = CONFIG.ROLE_OFFSET + i * CONFIG.ROLE_STEP;
+    s.style.transitionDelay = d + 'ms, ' + d + 'ms';
+  });
+  after(CONFIG.REVEAL_DELAY, () => roles.classList.add('-in'));
+
+  // intro — spring 180/26, opacity 0→1 and y 16→0, at REVEAL_DELAY + 400
+  after(CONFIG.REVEAL_DELAY + CONFIG.INTRO_OFFSET, () => {
+    stops.push(spring({
+      from: 0, to: 1, config: CONFIG.INTRO_SPRING,
+      onChange: p => {
+        intro.style.opacity = lerp(CONFIG.INTRO_FROM.opacity, CONFIG.INTRO_TO.opacity, p);
+        intro.style.transform =
+          'translateY(' + lerp(CONFIG.INTRO_FROM.y, CONFIG.INTRO_TO.y, p) + 'px)';
+      },
+    }));
+  });
+
+  // scroll cue — default spring, opacity only, at REVEAL_DELAY + 900
+  after(CONFIG.REVEAL_DELAY + CONFIG.CUE_OFFSET, () => {
+    stops.push(spring({
+      from: 0, to: 1, config: CONFIG.CUE_SPRING,
+      onChange: p => { cue.style.opacity = p; },
+    }));
+  });
+}
+
+replay.addEventListener('click', run);
+run();
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

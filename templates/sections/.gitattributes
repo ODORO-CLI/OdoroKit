@@ -1,0 +1,22 @@
+# Normalise les fins de ligne : LF dans le dépôt, quelle que soit la machine.
+* text=auto eol=lf
+
+*.html  text eol=lf
+*.svg   text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.py    text eol=lf
+*.txt   text eol=lf
+
+# Binaires, si des images de contenu viennent se poser dans assets/
+*.webp  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.mp4   binary
+*.woff2 binary
+
+# Linguist : ces fichiers sont des sources livrées telles quelles, pas du code
+# écrit ici. On les sort des statistiques de langage du dépôt pour que GitHub
+# n'affiche pas le projet comme « 98% HTML » alors que rien n'y a été écrit.
+sections/*.html linguist-vendored

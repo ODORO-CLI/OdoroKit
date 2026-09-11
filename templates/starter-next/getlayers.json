@@ -1,0 +1,40 @@
+{
+  "version": 1,
+
+  "brief": {
+    "dimensionality": ["depth", "3d"],
+    "mood": ["luxe", "calm"],
+    "tone": ["light"],
+    "motionEnergy": ["subtle"],
+    "density": ["balanced"]
+  },
+
+  "styleId": "aerra-style",
+
+  "tokens": {
+    "gl-bg": "#ffffff",
+    "gl-bg-alt": "#f4f4f4",
+    "gl-surface": "rgba(243, 243, 243, 0.8)",
+    "gl-surface-raised": "rgba(255, 255, 255, 0.85)",
+    "gl-ink": "#000000",
+    "gl-ink-muted": "rgba(0, 0, 0, 0.5)",
+    "gl-accent": "#1a506d",
+    "gl-accent-ink": "#ffffff",
+    "gl-line": "rgba(0, 0, 0, 0.1)",
+    "gl-font-display": "var(--font-google-sans-flex-display)",
+    "gl-font-body": "var(--font-google-sans-flex)"
+  },
+
+  "activeTemplateId": "aerra",
+
+  "placed": [
+    { "sectionId": "aerra-hero", "slot": 0, "role": "hero" },
+    { "sectionId": "aerra-about", "slot": 1, "role": "about" },
+    { "sectionId": "aerra-numbers", "slot": 2, "role": "stats" },
+    { "sectionId": "aerra-location", "slot": 3, "role": "location" },
+    { "sectionId": "aerra-audience", "slot": 4, "role": "audience" },
+    { "sectionId": "aerra-contact", "slot": 5, "role": "contact" }
+  ],
+
+  "notes": "Template Aerra reprise ENTIEREMENT via build.downloadProject (zip 17,7 Mo, 12 medias verifies octet pour octet). Elle garde son Style natif aerra-style : aucun re-tint demande. Contrat de la template : mutable = skin uniquement, preserve = motion + composition, donc seule la copie change. Au-dessus de 1280px la page est un board Figma en positionnement absolu, la LONGUEUR des textes est donc structurelle : toute chaine reecrite doit rester a +/- 15% de l'originale. Le wordmark du hero fait exactement 5 lettres, rendu a 801px avec ajustement metrique. Les valeurs de statistiques doivent rester des nombres purs, un compteur les incremente. Reorientation editoriale en cours : de la vente d'une maison isolee vers un programme neuf de promoteur immobilier, copie en francais."
+}

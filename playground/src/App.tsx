@@ -13,6 +13,7 @@ import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from '@odoro-cli/engin
 import { Shell } from './docs/components/Shell.jsx'
 import { Accueil } from './docs/pages/Accueil.jsx'
 import { Installation } from './docs/pages/Installation.jsx'
+import { Templates } from './docs/pages/Templates.jsx'
 import { StylesOverview } from './docs/pages/StylesOverview.jsx'
 import { Couleurs } from './docs/pages/Couleurs.jsx'
 import { Typographie } from './docs/pages/Typographie.jsx'
@@ -106,6 +107,7 @@ export function App(): ReactElement {
             >
               <Route index element={<Accueil />} />
               <Route path="docs/installation" element={<Installation />} />
+              <Route path="docs/templates" element={<Templates />} />
               <Route path="docs/styles" element={<StylesOverview />} />
               <Route path="docs/styles/couleurs" element={<Couleurs />} />
               <Route path="docs/styles/typographie" element={<Typographie />} />

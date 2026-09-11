@@ -1,0 +1,119 @@
+{
+  "$comment": "État GetLayers pour ce dossier. Tenu à jour entre les étapes d'un build pour éviter la dérive. Ici il n'enregistre qu'un pull de catalogue, pas un site.",
+  "version": 1,
+  "updated": "2026-09-11",
+  "intent": "library-pull",
+  "style": null,
+  "palette": null,
+  "fonts": null,
+  "target": "other",
+  "$targetNote": "Aucun projet hôte dans ce dossier au moment du pull, donc master portable single-HTML. Si un projet Next arrive ensuite, les Sections se portent en composants sans repasser par le catalogue.",
+  "pulled": {
+    "type": "section",
+    "count": 21,
+    "directory": "sections/",
+    "styleId": null,
+    "$styleNote": "Pull brut, sans Style engagé : chaque Section garde les tokens avec lesquels elle a été livrée. Au moment de composer une page, engager UN Style et repeindre toutes les Sections avec — la cohérence vient de là, pas d'une origine commune.",
+    "ids": [
+      "cards-almanac",
+      "cards-cascade",
+      "carousel-spotlight",
+      "carousel-under-the-radar",
+      "colonnade",
+      "hero-mirror-hall",
+      "loader-altitude",
+      "loader-artist",
+      "loader-baseline",
+      "loader-flowstate",
+      "loader-forma",
+      "loader-gravity-webgl",
+      "loader-halcyon",
+      "loader-loopstack",
+      "loader-lumora",
+      "loader-marcus-vane",
+      "mirror-hall",
+      "roadmap-ascent",
+      "showcase-equator",
+      "slider-slipstream",
+      "slider-spectra"
+    ],
+    "byRole": {
+      "loader": [
+        "loader-altitude",
+        "loader-artist",
+        "loader-baseline",
+        "loader-flowstate",
+        "loader-forma",
+        "loader-gravity-webgl",
+        "loader-halcyon",
+        "loader-loopstack",
+        "loader-lumora",
+        "loader-marcus-vane"
+      ],
+      "carousel": [
+        "carousel-spotlight",
+        "carousel-under-the-radar",
+        "mirror-hall",
+        "slider-slipstream",
+        "slider-spectra"
+      ],
+      "cards": ["cards-almanac", "cards-cascade"],
+      "hero": ["hero-mirror-hall"],
+      "features": ["colonnade"],
+      "roadmap": ["roadmap-ascent"],
+      "showcase": ["showcase-equator"]
+    },
+    "needsContentImages": [
+      "cards-almanac",
+      "cards-cascade",
+      "carousel-spotlight",
+      "carousel-under-the-radar",
+      "mirror-hall",
+      "showcase-equator",
+      "slider-slipstream",
+      "slider-spectra"
+    ],
+    "$imagesNote": "Ces Sections référencent des photos en chemin relatif (assets/…) qui ne sont pas livrées avec la source ni exposées sur le CDN. Poser tes propres images à ces chemins, ou changer les chemins dans CONFIG.",
+    "needsNetwork": ["mirror-hall", "hero-mirror-hall"],
+    "$networkNote": "Chargent Three.js r0.143.0 depuis unpkg.com via importmap. Fonctionnent en page locale ou web ordinaire, mais pas dans un contexte qui restreint les CDN.",
+    "catalogIssues": [
+      {
+        "ids": ["hero-mirror-hall", "mirror-hall"],
+        "issue": "Le catalogue renvoie un document strictement identique (44051 octets, md5 4869fc1553b60e71e9527baa7baf55cf) pour ces deux identifiants, alors qu'ils désignent deux Sections différentes (role hero et role carousel).",
+        "verified": "Confirmé en redemandant hero-mirror-hall à l'API et en comparant : la source livrée est identique aux deux fichiers sur disque. Ce n'est pas une erreur d'écriture locale.",
+        "payloadIs": "carousel",
+        "evidence": "Titre 'Section · Mirror Hall', en-tête décrivant un carrousel 3D draggable, clé de stockage getlayers:mirror-hall, drag avec inertie.",
+        "metadataMismatch": "Le contrat annoncé pour hero-mirror-hall mentionne la position du titre dans la grille et un sol teinté rouge. Ni l'un ni l'autre n'existe dans le fichier livré, dont la palette est noir et bleu.",
+        "consequence": "Le carrousel est présent en double, le hero n'a pas été livré.",
+        "actionTaken": "Aucune correction inventée. Les deux fichiers sont conservés tels quels et l'écart est documenté dans sections/README.md et sections/index.html."
+      }
+    ]
+  },
+  "branding": {
+    "logo": "ODORO",
+    "appliedTo": "les 21 Sections + index.html",
+    "placement": "badge fixe, coin haut-gauche, marque + mot",
+    "color": "#F57423",
+    "markers": ["ODORO-BADGE:START", "ODORO-BADGE:END"],
+    "script": "sections/odoro-badge.py",
+    "$scriptNote": "Idempotent. Relancer pour propager un changement sur les 22 fichiers ; --remove pour tout retirer.",
+    "assets": ["sections/assets/odoro/odoro-mark.svg", "sections/assets/odoro/odoro-lockup.svg"],
+    "constraints": {
+      "pointerEvents": "none — plusieurs Sections se pilotent au drag (mirror-hall, slider-spectra, carousel-spotlight), un badge cliquable casserait le geste",
+      "zIndex": "2147483000 — le maximum du lot est 200 sur les rideaux de loader, le badge reste visible pendant le chargement",
+      "offsets": {
+        "loader-flowstate.html": "58px — bouton de rejeu de developpement au coin haut-gauche",
+        "loader-gravity-webgl.html": "clamp(96px, 11vh, 112px) — barre d'en-tete reelle de 80px"
+      }
+    },
+    "reconstruction": {
+      "status": "redessine a partir des deux images fournies, aucun fichier source recu",
+      "markIsExact": "Cercle de centre (50,50) et de rayon 40 dans un carre de 100, quart superieur gauche remplace par un angle droit. Construction identique a l'original, rien d'approxime.",
+      "wordmarkIsApproximate": "Texte vivant dans une pile de grotesques geometriques. La police d'origine n'est pas identifiable depuis une image.",
+      "colorIsApproximate": "#F57423 releve a l'oeil sur les images, pas sur une valeur de charte.",
+      "toReplace": "Remplacer le trace et la couleur dans odoro-badge.py, puis relancer le script."
+    }
+  },
+  "placed": [],
+  "$placedNote": "Vide : rien n'est encore posé dans une page. À remplir section par section au moment de composer."
+}

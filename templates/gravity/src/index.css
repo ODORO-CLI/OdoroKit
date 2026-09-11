@@ -1,0 +1,365 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Raleway:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Raleway", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Raleway", sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-raleway: "Raleway", sans-serif;
+}
+
+/* ----------------------------------------------------------------------------
+   TOKENS DE DESIGN — courbes d'accélération et encres. Les variables d'accent
+   sont injectées à l'exécution par App, pour que la palette d'interface morphe
+   avec la scène 3D (ambre → cuivre → orange ODORO).
+---------------------------------------------------------------------------- */
+/* Enregistrées pour que l'accent puisse INTERPOLER (morph de couleur) au
+   changement d'étape de scène. Sans @property, --accent n'est qu'une chaîne :
+   elle SAUTERAIT d'une étape à l'autre au lieu de fondre. */
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fdba74;
+}
+@property --accent-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b45309;
+}
+
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Encres NEUTRES CHAUDES — les bleu-noir d'origine verdissaient sur un fond
+     orange. Même hiérarchie, température déplacée. */
+  --ink: #1c1310;
+  --ink-soft: #5a4a42;
+  --ink-faint: #9b8a80;
+
+  /* Surchargées en inline par App à chaque étape de scène */
+  --accent: #fdba74;
+  --accent-ink: #b45309;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #fff7f0;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Masquer le curseur natif sur pointeur fin — le curseur maison prend la main */
+  @media (hover: hover) and (pointer: fine) {
+    body { cursor: none; }
+    a, button, [role="button"], .cursor-pointer { cursor: none; }
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Styles recommandés pour le scroll lissé de Lenis */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  .lenis.lenis-stopped { overflow: hidden; }
+  .lenis.lenis-smooth iframe { pointer-events: none; }
+
+  ::-webkit-scrollbar { width: 0; height: 0; }
+}
+
+/* ----------------------------------------------------------------------------
+   UTILITAIRES TYPOGRAPHIQUES
+---------------------------------------------------------------------------- */
+.font-serif-italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* Le titre d'affichage éditorial — serré, assuré */
+.display {
+  font-family: var(--font-raleway);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+/* Le libellé d'index (surtitre) */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Soulignement animé pour les liens de texte et de navigation */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
+}
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ----------------------------------------------------------------------------
+   GRAIN — un grain argentique discret sur toute l'expérience, pour le toucher
+---------------------------------------------------------------------------- */
+.grain {
+  position: fixed;
+  inset: -150%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 6s steps(6) infinite;
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-4%, -4%); }
+  30% { transform: translate(3%, -2%); }
+  50% { transform: translate(-2%, 3%); }
+  70% { transform: translate(4%, 2%); }
+  90% { transform: translate(-3%, 1%); }
+}
+
+/* ----------------------------------------------------------------------------
+   CURSEUR MAISON — un anneau et un point, en fusion, qui semblent vivants
+---------------------------------------------------------------------------- */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 90;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: #fff;
+}
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1px solid #fff;
+  transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out),
+    margin 0.3s var(--ease-out), opacity 0.3s var(--ease-out),
+    background 0.3s var(--ease-out);
+}
+.cursor-ring[data-hover="true"] {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background: rgba(255, 255, 255, 0.12);
+}
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* ----------------------------------------------------------------------------
+   RAIL D'AVANCEMENT — un indicateur vertical minimal, sur le bord droit
+---------------------------------------------------------------------------- */
+.rail {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 140px;
+  width: 1px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  z-index: 25;
+  border-radius: 99px;
+}
+.rail-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  background: var(--accent-ink);
+  border-radius: 99px;
+  box-shadow: 0 0 8px var(--accent);
+  transition: height 0.2s linear;
+}
+
+/* ----------------------------------------------------------------------------
+   CARTE DE VERRE — la surface de verre liquide, partagée par les sections
+---------------------------------------------------------------------------- */
+.glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.25),
+    0 24px 60px -28px rgba(80, 40, 10, 0.4);
+}
+
+/* ----------------------------------------------------------------------------
+   ANIMATION D'ENTRÉE
+---------------------------------------------------------------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.8s var(--ease-out) forwards;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ----------------------------------------------------------------------------
+   LOADER
+---------------------------------------------------------------------------- */
+.loader-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 42%, #ffffff 0%, #fff4e9 45%, #ffe2c8 100%);
+  overflow: hidden;
+  transition: opacity 0.6s var(--ease-in-out);
+}
+.loader-root.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: clamp(220px, 36vw, 320px);
+}
+
+.loader-word {
+  font-family: var(--font-raleway);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  font-size: clamp(40px, 7vw, 68px);
+  line-height: 1;
+  color: var(--ink);
+  display: flex;
+  overflow: hidden;
+}
+.loader-word .ch {
+  display: inline-block;
+}
+
+/* Le sigle mene le lockup du loader. Il est dimensionne en em pour suivre le
+   clamp() de .loader-word — sigle et mot-symbole grandissent donc ensemble et
+   ne peuvent pas se desolidariser aux tailles intermediaires. La marge droite
+   est l'espace du lockup ; le leger decalage vertical pose le sigle sur la
+   ligne de base optique du mot en bas de casse plutot que sur sa boite. */
+.loader-mark {
+  display: inline-block;
+  width: 0.78em;
+  height: 0.78em;
+  margin-right: 0.16em;
+  transform: translateY(0.04em);
+}
+
+.loader-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+.loader-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #b58a6b;
+}
+.loader-pct {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #c2540a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.loader-bar {
+  width: 100%;
+  height: 2px;
+  background: rgba(194, 84, 10, 0.14);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+.loader-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: linear-gradient(90deg, #fdba74 0%, #f97316 55%, #c2540a 100%);
+  border-radius: 99px;
+  transition: width 0.45s var(--ease-out);
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.55);
+}
+
+/* ----------------------------------------------------------------------------
+   BANDEAU — le défilant du pied de page
+---------------------------------------------------------------------------- */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 28s linear infinite;
+}
+
+/* Respect de prefers-reduced-motion. Attention : ce bloc ne couvre PAS la
+   boucle WebGL — un canvas n'est pas concerné par une règle CSS. La scène doit
+   couper son animation elle-même. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .grain,
+  .loader-word .ch { animation: none; }
+  html { scroll-behavior: auto; }
+}

@@ -12,3 +12,10 @@ pnpm-lock.yaml
 packages/odoro-libs/src/styles/generated
 playground/public/registre
 playground/src/docs/catalogue.generated.ts
+
+# Les templates.
+#
+# Ce sont des projets tiers copies tels quels, chacun avec ses propres
+# conventions. Les reformater les ferait diverger de leur source amont sans
+# que personne n'y gagne — et le prochain rafraichissement rouvrirait le diff.
+templates/

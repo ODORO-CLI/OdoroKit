@@ -1,0 +1,22 @@
+{
+  "name": "sections",
+  "title": "Sections autonomes",
+  "order": 5,
+  "kind": "library",
+  "description": "Vingt et une sections en HTML autonome — heros, chargeurs, carrousels, cartes — chacune un document complet qui s ouvre sans rien installer.",
+  "stack": [
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "tags": [
+    "sections",
+    "chargeurs",
+    "autonome",
+    "sans-build"
+  ],
+  "source": "Catalogue GetLayers, recupere tel quel.",
+  "licence": "non declaree",
+  "dev": "Ouvrir index.html",
+  "preview": "preview.jpg"
+}

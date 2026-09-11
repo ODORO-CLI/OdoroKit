@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Odoro">
+  <title>Odoro</title>
+  <!--
+    La marque : un cercle dont le quart supérieur gauche est remplacé par un angle droit.
+    Le tracé est la ligne médiane du contour. Cercle de centre (50,50) et de rayon 40, donc
+    il passe exactement par le milieu du bord haut (50,10) et par le milieu du bord gauche (10,50).
+    De (10,10) on va à droite jusqu'au sommet du cercle, on parcourt 270 degrés dans le sens
+    horaire jusqu'au point gauche, puis Z referme par le segment vertical.
+  -->
+  <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+        fill="none" stroke="#F57423" stroke-width="14" stroke-linejoin="miter"/>
+</svg>

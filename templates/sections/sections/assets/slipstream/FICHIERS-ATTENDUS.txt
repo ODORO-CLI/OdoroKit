@@ -1,0 +1,6 @@
+fauve.webp
+kinetic.webp
+molten.webp
+neon.webp
+prism.webp
+tidepool.webp

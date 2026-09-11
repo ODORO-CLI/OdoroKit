@@ -1,0 +1,25 @@
+{
+  "name": "parfum",
+  "title": "Maison de parfum",
+  "order": 1,
+  "kind": "site",
+  "description": "Un flacon rendu en direct qui traverse la page au defilement, six ecrans, direction artistique officine. Francais.",
+  "stack": [
+    "Next 16",
+    "three.js",
+    "react-spring",
+    "Lenis",
+    "Tailwind v4"
+  ],
+  "tags": [
+    "vitrine",
+    "3d",
+    "produit",
+    "defilement"
+  ],
+  "source": "Starter Next 16 de GetLayers, template Artefakt re-habille.",
+  "licence": "Unlicense",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

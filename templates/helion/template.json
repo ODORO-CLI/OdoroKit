@@ -1,0 +1,25 @@
+{
+  "name": "helion",
+  "title": "Helion",
+  "order": 2,
+  "kind": "site",
+  "description": "Une scene WebGL continue : galaxie, souffle, disque d accretion, puis le sigle assemble en particules.",
+  "stack": [
+    "Next 16",
+    "WebGL",
+    "react-spring",
+    "Lenis",
+    "Tailwind v4"
+  ],
+  "tags": [
+    "landing",
+    "webgl",
+    "particules",
+    "attente"
+  ],
+  "source": "Template Helion de GetLayers, re-teinte.",
+  "licence": "non declaree",
+  "install": "npx yarn@1.22.22 install",
+  "dev": "npx next dev -p 3001",
+  "preview": "preview.jpg"
+}

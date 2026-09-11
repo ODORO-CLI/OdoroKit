@@ -1,10 +1,14 @@
 packages:
   - 'packages/*'
   - 'playground'
-  # Les templates du scaffolder contiennent des package.json qui ne sont PAS
-  # des workspaces : ce sont des fichiers de donnees copies vers le projet
-  # de l'utilisateur final. pnpm ne doit jamais les lier ni les installer.
-  - '!packages/create-odoro/templates/**'
+  # Les templates contiennent des package.json qui ne sont PAS des workspaces.
+  #
+  # Ceux du scaffolder sont des fichiers de donnees copies vers le projet de
+  # l'utilisateur final ; ceux de `templates/` sont des projets de sites
+  # complets, chacun avec sa propre chaine. pnpm ne doit lier ni installer ni
+  # les uns ni les autres.
+  - '!packages/odoro/templates/**'
+  - '!templates/**'
 
 # esbuild (via tsup) doit executer son script postinstall pour deposer son
 # binaire natif. pnpm 10 bloque les scripts de build par defaut.

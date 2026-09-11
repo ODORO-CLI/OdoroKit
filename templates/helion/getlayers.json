@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "project": "ODORO 6 (dossier TemplateODORO5)",
+  "createdAt": "2026-09-11",
+  "brief": {
+    "pitch": "ODORO — un site où quelqu'un qui ne sait pas coder décrit son application dans un chat, en français, et repart avec une vraie application web qui fonctionne. Différenciateur : une CHAÎNE de quatre rôles IA (Architecte → Codeur → Relecteur → Réparateur), pas un modèle unique comme chez Lovable / Base44 / Replit.",
+    "source": "~/Desktop/ODORO.md (cadrage du 23/08/2026)",
+    "audience": "Gens qui ont une idée d'application et pas envie d'apprendre à coder. Interface entièrement en français.",
+    "dimensionality": [
+      "3d"
+    ],
+    "mood": [
+      "technical",
+      "playful"
+    ],
+    "tone": [
+      "dark"
+    ],
+    "motionEnergy": [
+      "lively"
+    ],
+    "density": [
+      "balanced"
+    ],
+    "reglesEditoriales": [
+      "La page n'annonce rien que le produit ne fasse (règle 7 du cadrage). Aucun chiffre de traction inventé.",
+      "Pas de tarifs — le prix n'est pas tranché (section 11).",
+      "Pas de promesse de mise en ligne des apps clientes sur un vrai domaine (section 8).",
+      "On ne demande jamais de clé API à l'utilisateur — c'est un argument, il est dans le sous-titre du hero.",
+      "Pas d'adresse e-mail ni de handle réels — nom de domaine non tranché. @odoro dans site.ts est une valeur d'attente."
+    ]
+  },
+  "templatesDejaUtilises": [
+    "artefakt",
+    "aerra",
+    "evolve",
+    "gravity-webgl",
+    "stride"
+  ],
+  "activeTemplateId": "helion",
+  "template": {
+    "id": "helion",
+    "title": "Helion",
+    "kind": "landing",
+    "preview": "https://www.getlayers.ai/?layer=helion",
+    "takenAs": "downloadProject (zip 2 598 661 octets, taille vérifiée, aucun mediaAsset externe — scène 100 % procédurale)",
+    "takenAt": "2026-09-11",
+    "target": "next",
+    "pourquoi": "Jamais utilisé dans les builds précédents ; une seule scène WebGL continue qui morphe galaxie → burst de plasma → disque d'accrétion → ASSEMBLAGE DU SIGLE DE MARQUE en particules. Le récit colle à ODORO : nuage d'idée → la chaîne au travail → l'ordre qui se forme → le sigle ODORO.",
+    "contract": {
+      "mutable": [
+        "skin"
+      ],
+      "preserve": [
+        "motion",
+        "composition"
+      ],
+      "note": "Chorégraphie des morphs, bindings de scroll, timings de springs intacts. UNE exception assumée (ADR-0045) : la bande 0 du sigle en particules ne tourne plus (0.39 → 0.0 rad/s), parce que le sigle ODORO a une orientation ; une orbite (bande 1) tourne à sa place."
+    }
+  },
+  "styleId": "helion-style",
+  "paletteId": "negantropy-palette",
+  "tokens": {
+    "gl-bg": "#050608",
+    "gl-bg-alt": "#0b0a0c",
+    "gl-surface": "#121014",
+    "gl-surface-raised": "#1b1719",
+    "gl-ink": "#f5ede0",
+    "gl-ink-muted": "#b6ada0",
+    "gl-ink-subtle": "#6b6259",
+    "gl-accent": "#f97316",
+    "gl-accent-ink": "#ffffff",
+    "gl-line": "#2a2320",
+    "gl-glow": "#ffcf7a",
+    "gl-font-display": "'Mulish', ui-sans-serif, system-ui, sans-serif",
+    "gl-font-body": "'Gilroy', ui-sans-serif, system-ui, sans-serif"
+  },
+  "tokenFiles": {
+    "chrome2D": "src/app/globals.css",
+    "sceneGPU": "src/lib/scene/palette.ts",
+    "sceneDefaults": "src/lib/scene/scene-config.ts",
+    "headingStops": "src/components/animation/animated-heading.tsx",
+    "note": "Les trois premiers DOIVENT bouger ensemble (la scène ne lit pas le CSS). palette.ts garde deux divergences volontaires, comme la source : accent900 SATURÉ (flammes des coins), signal* = la chaleur (blanc-or), jamais une seconde teinte."
+  },
+  "brand": {
+    "orange": "#f97316",
+    "orangeNote": "Relevé à l'œil sur les PNG reçus le 2026-09-10 — pas le hex officiel. À remplacer dans --brand-orange, --accent-500, paletteHex.accent500, les SVG de public/assets et app/icon.svg, puis régénérer les rasters.",
+    "mark": {
+      "definition": "Un anneau dont le quart supérieur gauche est remplacé par un angle droit : arc de 270° fermé par deux droites. Purement géométrique — auteuré en code, jamais décalqué.",
+      "source": "src/lib/brand/odoro-mark.ts (markRing / markPath, ratio intérieur 0.7)",
+      "svgPath24": "M2 2H12A10 10 0 1 1 2 12Z M5 5H12A7 7 0 1 1 5 12Z",
+      "fillRule": "evenodd",
+      "placements": [
+        "nav — <LogoMark> 19 px + mot-symbole « odoro » bas de casse, même orange (un seul objet)",
+        "hero — <HeroIcon> : sigle immobile + orbite fine 270° qui tourne (spring loop linéaire)",
+        "scène finale — three/objects/logo-mark.ts : sigle assemblé en particules (bande 0, immobile) + orbite (bande 1, tourne), boîte 140, markSize 14, ORBIT_EVERY 6",
+        "favicon / PWA / Apple / Open Graph — générés depuis la même construction (PIL + Chrome headless)"
+      ]
+    },
+    "wordmark": "« odoro » en bas de casse, même couleur que le sigle."
+  },
+  "placed": [
+    {
+      "slot": 0,
+      "screen": "hero",
+      "file": "src/views/home/sections/hero.tsx",
+      "scenePhase": "galaxie",
+      "odoro": "« Décris ton application. / Elle se construit. » + sous-titre (quatre rôles, sans code, sans clé API) + emblème + formulaire de liste d'attente."
+    },
+    {
+      "slot": 1,
+      "screen": "sitemap",
+      "file": "src/views/home/sections/services.tsx",
+      "scenePhase": "burst de plasma",
+      "odoro": "LA CHAÎNE — « Quatre rôles en chaîne. / Pas une mêlée. » Quatre cellules : 1. Architecte, 2. Codeur, 3. Relecteur, 4. Réparateur (le numéro est le rang). Note de pied : un rôle = un modèle possible (Claude, Gemini, GLM)."
+    },
+    {
+      "slot": 2,
+      "screen": "roadmap",
+      "file": "src/views/home/sections/timeline.tsx",
+      "scenePhase": "disque d'accrétion",
+      "odoro": "LE PARCOURS — « De la phrase / à l'application. » Rail horizontal de cinq stations : Tu décris, Le plan, Les fichiers, L'aperçu, Tu ajustes (cadrage §2 condensé)."
+    },
+    {
+      "slot": 3,
+      "screen": "impact",
+      "file": "src/views/home/sections/logo-particles.tsx",
+      "scenePhase": "assemblage du sigle",
+      "odoro": "« Tout converge / vers ton application. » — le sigle ODORO se forme en particules ; « ODORO n'est pas encore ouvert » + formulaire."
+    }
+  ],
+  "dormant": [
+    "brief",
+    "impact",
+    "sitemap",
+    "footer",
+    "header",
+    "menu",
+    "logo-particle-field.ts",
+    "Cookie"
+  ],
+  "formulaire": {
+    "endpoint": "/api/contact (POST {name, email, message: 'Liste d'attente ODORO'})",
+    "regle": "La confirmation ne s'affiche qu'après un 200 du serveur (ADR-0046). Sans CONTACT_ENDPOINT l'adresse part dans le log serveur — à brancher avant tout lancement."
+  },
+  "environment": {
+    "target": "next",
+    "framework": "next",
+    "stack": "Next 16.2.0 + React 19.2 + Tailwind v4 + Lenis + three 0.162 (rig point-cloud maison, pas R3F) + @react-spring/web 10 + spring-text-engine + zustand + zod",
+    "installedWith": "npx yarn@1.22.22 install (pas de yarn/corepack sur la machine)",
+    "pins": {
+      "tailwindcss / @tailwindcss/postcss": "4.2.4 (exact) — la 4.3.2 du lockfile Helion bloque au chargement sous Node 25.5.0 sur cette machine ; 4.2.4 est la version vérifiée la veille sur Template-Landing-ODORO",
+      "jiti": "2.6.1 via resolutions — même raison"
+    },
+    "devPort": 3001,
+    "devPortNote": "3000 est occupé par ~/ODORO (next 15.5). Lancer : npx next dev -p 3001",
+    "disque": "Le disque était à 99 % (2,8 Go libres) pendant le build — premiers chargements des binaires natifs très lents (lightningcss ~10 s). À libérer."
+  },
+  "notes": "Style engagé = helion-style (tokens, type Gilroy/Lato/Mulish, radius, springs) RE-TEINTÉ sur la palette GetLayers negantropy-palette (fond quasi-noir chaud, encre crème, accent braise) avec l'orange ODORO #f97316 comme accent DOM et GPU. Une seule famille chaude sur toute la page ; l'ancien rose « signal » devient la chaleur (#ffcf7a). Voir obsidian/meta/decisions-log.md ADR-0045 / ADR-0046 et obsidian/meta/changelog.md.",
+  "verification": {
+    "date": "2026-09-11",
+    "http": "GET / → 200 (première compilation Turbopack : 7,4 min, machine saturée)",
+    "html": "<html lang=\"fr\">, <title>ODORO — Décris ton application, elle se construit</title>, og:locale fr_FR, theme-color #050608, favicon + icon.svg servis",
+    "residusAnglais": "aucun dans le HTML servi (Helion, gravity, Send Request, Built to, Discovery, Art Direction, Back to top, View live demo…)",
+    "erreursConsole": "0 pageerror, 0 console.error (Chromium headless via playwright-core, WebGL logiciel), desktop 1440×800 et mobile 390×844",
+    "overflowHorizontal": "0 px desktop, 0 px mobile",
+    "hauteurPage": "7 116 px",
+    "capturesVerifiees": [
+      "hero (galaxie, sigle + orbite, formulaire)",
+      "la chaîne (burst, 4 rôles)",
+      "le parcours (disque, rail 5 stations)",
+      "convergence + finale (sigle ODORO assemblé en particules)",
+      "mobile hero + nav"
+    ],
+    "typecheckLint": "NON TERMINÉS — `tsc --noEmit` et `eslint` n'ont jamais obtenu de CPU (disque à 99 %, swap 10 Go) et ont été arrêtés après 27 min ; à relancer une fois de l'espace libéré : `npx tsc --noEmit && npx eslint`.",
+    "note": "playwright-core installé DANS le scratchpad, pas dans le projet. Aucune dépendance ajoutée à package.json en dehors des pins tailwind/jiti."
+  }
+}

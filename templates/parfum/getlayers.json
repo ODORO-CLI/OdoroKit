@@ -1,0 +1,138 @@
+{
+  "project": "ODORO",
+  "brief": {
+    "pitch": "Maison de parfum ODORO. Page produit immersive lue comme une fiche d'apothicaire. Copie francaise.",
+    "audience": "Acheteurs de parfum de niche, sensibles a l'ingenierie et a la matiere plus qu'au lifestyle.",
+    "axes": {
+      "dimensionality": "3d",
+      "mood": "technical",
+      "tone": "dark",
+      "motionEnergy": "lively",
+      "density": "balanced"
+    }
+  },
+  "committedStyle": {
+    "id": "artefakt-style",
+    "title": "Artefakt",
+    "note": "Style natif du template Artefakt, donc aucune reteinte necessaire. UNE seule police monospace (3270), blanc a quatre alphas, zero arrondi, zero aplat. L'accent azur #2f63ff arrive par la LUMIERE du rendu WebGL, jamais en aplat sur du texte ou une bordure. RE-DRESSED 2026-09-08 to the olive-terracotta palette: light tone, the same one-ink-four-alphas discipline, colour as the only variable.",
+    "tokens": {
+      "gl-bg": "#0d0d0d",
+      "gl-bg-alt": "#000000",
+      "gl-surface": "#0d0d0d",
+      "gl-surface-raised": "#0d0d0d",
+      "gl-ink": "#ffffff",
+      "gl-ink-muted": "#6e6e6e",
+      "gl-ink-subtle": "#4a4a4a",
+      "gl-accent": "#2f63ff",
+      "gl-accent-ink": "#ffffff",
+      "gl-line": "#4a4a4a",
+      "gl-glow": "#ffffff",
+      "gl-font-display": "'3270', ui-monospace, SFMono-Regular, Menlo, monospace",
+      "gl-font-body": "'3270', ui-monospace, SFMono-Regular, Menlo, monospace",
+      "gl-radius": "0",
+      "gl-radius-lg": "0",
+      "gl-duration-fast": "150ms",
+      "gl-duration": "250ms",
+      "gl-ease": "cubic-bezier(0.2, 0, 0, 1)"
+    }
+  },
+  "committedTemplate": {
+    "id": "artefakt",
+    "target": "starter",
+    "sourceFormat": "tree",
+    "takenVia": "downloadProject zip (23199783 bytes), merged over a fresh next16-claude-starter clone",
+    "sections": [
+      "hero",
+      "details",
+      "collections",
+      "technology",
+      "faq",
+      "footer"
+    ]
+  },
+  "environment": {
+    "stack": "Next.js 16.3.1 / React 19.2.8 / Tailwind 4 / three 0.185 / @react-spring/web / spring-text-engine / lenis",
+    "installedWith": "npm (yarn and corepack unavailable on this machine; yarn.lock kept, package-lock.json generated)",
+    "node": "v25.5.0 present, .nvmrc asks for 24.16.0"
+  },
+  "placed": [
+    {
+      "section": "loader",
+      "source": "artefakt template",
+      "composition": "curtain gated on real readiness (fonts + window load + model compile), four corner brackets scaling away"
+    },
+    {
+      "section": "hero",
+      "composition": "artefakt hero — product framed centre, markers left/right, badges at the feet",
+      "assets": [
+        "hero-jacket.glb (PLACEHOLDER)",
+        "hero-wordmark.png (ODORO chrome plate, regenerated)"
+      ]
+    },
+    {
+      "section": "details",
+      "composition": "70px headline column left, product full-bleed behind, five spec rows right"
+    },
+    {
+      "section": "collections",
+      "composition": "four product cards, tilt to cursor, swatches and tag chips",
+      "assets": [
+        "four colourway photographs (PLACEHOLDER — garment, not flacon)"
+      ]
+    },
+    {
+      "section": "technology",
+      "composition": "pinned stage, scroll scrubs a 61-frame reel, a card walks down five layers on a leader line",
+      "assets": [
+        "stack-frames hi/61 lo/41 (PLACEHOLDER — garment materials)"
+      ]
+    },
+    {
+      "section": "faq",
+      "composition": "70px headline, product mirrored left, five question rows right"
+    },
+    {
+      "section": "footer",
+      "composition": "logotype, four nav columns, newsletter, social row"
+    }
+  ],
+  "log": [
+    "Interview: marque produit, ambiance technique, sombre + 3D, starter Next 16.",
+    "Style Artefakt choisi par l'utilisateur parmi Artefakt / Vesper / Vexon / Neural Monitor.",
+    "Produit: parfum / fragrance. Nom de marque: ODORO.",
+    "Template Artefakt materialise en target=starter et fusionne dans le projet.",
+    "Template pris via downloadProject, fusionne sur le starter, npm install (yarn absent).",
+    "Contenu integralement reecrit pour ODORO parfum, aux longueurs de l'artboard.",
+    "Logotype ODORO pose dans la 3270 du site; plaque chromee, logo et open-graph regeneres (ADR-0048).",
+    "Verifie: verify.sh (1 FAIL = faux positif preexistant sur le mot 'anywhere'), eslint propre, next build propre, captures Chrome des 6 sections.",
+    "Retour aux vestes (tous les assets redeviennent justes).",
+    "Palette olive-terracotta choisie par l'utilisateur parmi 4; type conserve (monospace porteuse pour ScrambleText).",
+    "Re-habillage via tiers de tokens + lumiere WebGL + 16 SVG + reel re-cuit + rasters de marque + jeu d'icones. ADR-0049.",
+    "Conversion parfum (ADR-0050): flacon genere -> Meshy image-to-3D -> gltf-transform Draco+WebP (490 Ko); 4 packshots + pyramide detoures; reel en image fixe (count 1); copie integralement francaise; lang=fr."
+  ],
+  "placeholdersToReplace": [
+    {
+      "what": "les quatre prix",
+      "why": "inventes pour l'etat de survol",
+      "fix": "vraies valeurs"
+    },
+    {
+      "what": "assets generes (flacon GLB, 4 packshots, pyramide)",
+      "why": "produits par Higgsfield/Meshy d'apres un prompt",
+      "fix": "verifier les conditions d'usage commercial avant lancement; regenerer avec le vrai flacon si la marque en a un"
+    }
+  ],
+  "committedPalette": {
+    "id": "olive-terracotta",
+    "tone": "light",
+    "temperature": "warm",
+    "roles": {
+      "background": "#efe0cd",
+      "primary": "#7b2524",
+      "secondary": "#607556",
+      "accent": "#b96a4c"
+    },
+    "ink": "#0b0b0e",
+    "note": "Re-tint via paletteId over the committed Artefakt Style. Type system held (3270 mono, load-bearing for ScrambleText). ADR-0049."
+  }
+}

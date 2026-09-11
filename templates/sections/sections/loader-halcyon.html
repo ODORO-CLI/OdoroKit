@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Halcyon Loader</title>
+<!--
+  GetLayers · Section — Halcyon Loader (role: loader)
+
+  The branded entry veil from the Halcyon template, lifted out as a swappable
+  Section, plus the HANDOFF it exists to perform:
+
+      veil up (scroll locked)
+        → wordmark surfaces letter by letter out of an 18px blur
+        → the thing behind it reports ready (min 1600ms hold, 7000ms fallback)
+        → exit spring: veil clears while the mark blurs out, swells and fades
+        → the same instant, the scene behind starts its 2.8s entrance
+        → +500ms the content block arms and springs in word by word,
+          while the veil is still clearing and the entrance still flying
+        → veil spring comes to REST → veil removed, scroll released
+
+  TIMING IS THE ASSET. Every constant below is verbatim from the production
+  build (src/components/experience/scene-loader.tsx, journey-canvas.tsx,
+  narrative-overlay.tsx, src/config/journey.ts). They are collected in the
+  CHOREOGRAPHY block so they are impossible to miss and easy to re-tune.
+
+  Motion is spring-integrated (the production build is @react-spring/web +
+  spring-text-engine; the `Spring` class here is the same tension/friction
+  model, sub-stepped at 240Hz). No CSS keyframes drive any reveal.
+
+  SELF-CONTAINED. No build step, no npm, no WebGL, no base64 payload.
+  STAND-IN: the production loader waits on a fullscreen fragment-shader sea plus
+  an 8.5MB GLTF pocket clock. Neither is shipped here — the backdrop is a small
+  Canvas2D horizon that paints the same shapes (sky ramp, sun, sun-path glitter
+  on the water, a gold gate arc on the waterline, horizon fog) and consumes the
+  REAL entrance easing, and the "asset loaded" signal is a stand-in timer. The
+  loader's own choreography and the gate condition are unchanged.
+
+  RE-SKIN through the --gl-* tokens in :root and nothing else. The blackletter
+  display face and the ink/gold ramp are SKIN — swap them freely.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — the entire skin surface of this Section.
+     ============================================================ */
+  :root {
+    --gl-bg:            #03060f;  /* the veil ground, and the ink the copy is punched in */
+    --gl-ink:           #f4ecda;  /* the wordmark on the veil */
+    --gl-ink-muted:     rgba(244,236,218,0.62);
+    --gl-accent:        #ffe49a;  /* the one hue that carries the brand */
+    --gl-glow:          #fff7e6;  /* emissive / halo */
+
+    --gl-font-display:  "UnifrakturMaguntia", ui-serif, Georgia, serif;
+    --gl-font-body:     "Onest", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --gl-tracking-display: 0.01em;
+    --gl-weight-display: 400;
+
+    --gl-radius:        6px;
+    --gl-duration:      300ms;
+    --gl-ease:          cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  html.-locked, body.-locked { overflow: hidden; }
+  body {
+    background: var(--gl-bg);
+    color: var(--gl-ink);
+    font-family: var(--gl-font-body);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--gl-accent); outline-offset: 3px; }
+
+  /* ---- stand-in backdrop: pinned behind everything ---- */
+  #scene { position: fixed; inset: 0; z-index: 0; display: block; width: 100%; height: 100%; }
+
+  /* ============================================================
+     CONTENT BLOCK — the placeholder the loader hands off to.
+     Pinned dead-centre; words are inline-block spans that spring in
+     on opacity + blur only. Never a block fade, never a translate,
+     never a mid-word split (each line is white-space:nowrap).
+     ============================================================ */
+  .beat {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .beat-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+    width: 100%; padding: 0 6vw; text-align: center;
+    color: var(--gl-bg);                 /* copy is punched in the ground colour */
+    transform: translateY(-180px);       /* lifted to clear the centred focal object */
+  }
+  .kicker {
+    font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.45em; opacity: 0.7;
+  }
+  .title {
+    display: flex; flex-direction: column; align-items: center;
+    font-family: var(--gl-font-display);
+    font-weight: var(--gl-weight-display);
+    letter-spacing: var(--gl-tracking-display);
+    line-height: 1.06; font-size: clamp(2.6rem, 7.4vw, 6rem);
+  }
+  .title .line { display: block; text-align: center; white-space: nowrap; }
+  .word { display: inline-block; opacity: 0; filter: blur(12px); will-change: opacity, filter; }
+
+  .cta-wrap {
+    position: absolute; bottom: 11vh; left: 0; width: 100%;
+    display: flex; justify-content: center;
+    pointer-events: none; opacity: 0; will-change: opacity, transform;
+  }
+  .cta {
+    pointer-events: auto;
+    display: inline-flex; align-items: center; gap: 12px;
+    border-radius: 9999px;
+    background: var(--gl-bg); color: var(--gl-ink);
+    padding: 16px 36px;
+    font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.32em;
+    transition: transform var(--gl-duration) var(--gl-ease), opacity var(--gl-duration) var(--gl-ease);
+  }
+  .cta:hover { transform: scale(1.04); opacity: 0.85; }
+  .cta .arrow { transition: transform var(--gl-duration) var(--gl-ease); }
+  .cta:hover .arrow { transform: translateX(4px); }
+
+  /* ============================================================
+     THE LOADER VEIL.
+     ============================================================ */
+  #veil {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--gl-bg); color: var(--gl-ink);
+  }
+  #veil .mark {
+    display: flex;
+    font-family: var(--gl-font-display);
+    font-weight: var(--gl-weight-display);
+    letter-spacing: var(--gl-tracking-display);
+    font-size: clamp(3.75rem, 9vw, 6rem);
+    will-change: opacity, filter, transform;
+  }
+  #veil .mark span { display: inline-block; opacity: 0; will-change: opacity, filter; }
+
+  /* ---- demo chrome. Delete this block (+ #replay JS) to ship. ---- */
+  #chrome {
+    position: fixed; z-index: 60; right: 14px; bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gl-ink-muted);
+    mix-blend-mode: difference;
+  }
+  #replay {
+    padding: 7px 12px; border-radius: var(--gl-radius);
+    border: 1px solid currentColor; color: var(--gl-ink-muted);
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    transition: color var(--gl-duration) var(--gl-ease);
+  }
+  #replay:hover { color: var(--gl-ink); }
+  /* ---- END demo chrome ---- */
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body class="-locked">
+
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<main>
+  <div class="beat" id="beat">
+    <div class="beat-inner">
+      <p class="kicker" id="kicker"></p>
+      <h2 class="title" id="title"></h2>
+    </div>
+    <div class="cta-wrap" id="cta-wrap">
+      <button type="button" class="cta">Placeholder CTA <span class="arrow" aria-hidden="true">&rarr;</span></button>
+    </div>
+  </div>
+</main>
+
+<div id="veil" role="status" aria-live="polite" aria-label="Loading the scene">
+  <h1 class="mark" id="mark" aria-label="Halcyon"></h1>
+</div>
+
+<div id="chrome"><span id="phase">veil</span><button type="button" id="replay">Replay</button></div>
+
+<script type="module">
+/* ================================================================
+   CHOREOGRAPHY — every number verbatim from the Halcyon template.
+   scene-loader.tsx · journey-canvas.tsx · narrative-overlay.tsx
+================================================================ */
+const WORDMARK = "Halcyon";
+
+/* 1 — letter entrance. INDEPENDENT springs, one per letter (deliberately not a
+   trail: chaining them by priority deadlocks the spring graph). */
+const LETTER_DELAY   = 250;                            // ms before the first letter
+const LETTER_STAGGER = 70;                             // ms per letter index
+const LETTER_CFG     = { tension: 130, friction: 24 };
+const LETTER_BLUR    = 18;                             // px, blurred → crisp
+
+/* 2 — the gate. The veil holds until the thing behind it reports ready, and for
+   at least MIN_DURATION from mount so the letter reveal reads in full. */
+const MIN_DURATION      = 1600;   // ms minimum veil life
+const READY_FALLBACK_MS = 7000;   // ms after which we give up waiting and lift anyway
+const STANDIN_ASSET_MS  = 2200;   // STAND-IN for the real GLTF load
+
+/* 3 — the exit. ONE spring, four independent numeric keys. */
+const EXIT_DELAY = 120;                            // ms
+const EXIT_CFG   = { tension: 55, friction: 26 };
+const EXIT_TO    = { veil: 0, markOpacity: 0, markBlur: 26, markScale: 1.14 };
+
+/* 4 — the scene entrance, cued the instant the exit starts (so it plays UNDER
+   the clearing veil, not after it). Eased with smootherstep, not a spring. */
+const ENTRANCE_DURATION = 2.8;                                  // seconds
+const ENTRANCE_FROM     = { horizon: 0.74, camH: 0.5, fog: 0.85 };
+const CRUISE            = { horizon: 0.435, camH: 0.1, fog: 0.12 };
+
+/* 5 — the content handoff. Arms 500ms after the EXIT BEGINS (not after the veil
+   is gone), so the copy does not pop on top of the scene entrance but still
+   overlaps the last of the veil; then words spring in strictly in reading order. */
+const FIRST_REVEAL_DELAY_MS = 500;                       // ms after the exit begins
+const WORD_STAGGER          = 75;                        // ms between consecutive words
+const DELAY_IN   = { kicker: 0, lineA: 220, lineB: 440 };
+const CFG_KICKER = { tension: 200, friction: 26 };
+const CFG_LINE   = { tension: 150, friction: 26 };
+const WORD_BLUR  = 12;                                   // px, blurred → crisp, in place
+const CTA_DELAY_IN = 400;
+const CTA_CFG      = { tension: 180, friction: 24 };
+const CTA_FROM_Y   = 26;                                 // px
+
+/* Placeholder content. In the template this is a kicker + two authored display
+   lines; the copy itself is content, not part of the Section. */
+const CONTENT = { kicker: "Section Handoff", lineA: "The Gate Lifts", lineB: "The Words Arrive" };
+
+/* ================================================================
+   SPRING — the @react-spring/web tension/friction model, integrated
+   at a fixed 240Hz sub-step so it is frame-rate independent.
+================================================================ */
+class Spring {
+  constructor(x) { this.x = x; this.v = 0; this.target = x; this.tension = 150; this.friction = 26; this.at = -1; }
+  set(target, cfg, at) { this.pendingTarget = target; this.pendingCfg = cfg; this.at = at; }
+  reset(x) { this.x = x; this.v = 0; this.target = x; this.at = -1; }
+  step(nowMs, dt) {
+    if (this.at >= 0 && nowMs >= this.at) {
+      this.target = this.pendingTarget;
+      if (this.pendingCfg) { this.tension = this.pendingCfg.tension; this.friction = this.pendingCfg.friction; }
+      this.at = -1;
+    }
+    let rem = Math.min(dt, 0.064);
+    const h = 1 / 240;
+    while (rem > 0) {
+      const s = Math.min(h, rem);
+      const a = this.tension * (this.target - this.x) - this.friction * this.v;
+      this.v += a * s;
+      this.x += this.v * s;
+      rem -= s;
+    }
+    return this.x;
+  }
+  /* react-spring's own rest test: precision 0.01, restVelocity precision/10. */
+  get atRest() { return this.at < 0 && Math.abs(this.target - this.x) <= 0.01 && Math.abs(this.v) <= 0.001; }
+}
+
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+/* smootherstep — the entrance easing (journey-canvas.tsx) */
+const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+
+/* ================================================================
+   STAND-IN BACKDROP — Canvas2D. Stands in for the fragment-shader
+   sea + GLTF clock. It exists here for ONE reason: to consume the
+   real entrance easing so the handoff is visible.
+================================================================ */
+const tok = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const hex2rgb = (h) => {
+  const n = parseInt(h.replace('#', ''), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+const mixRgb = (a, b, t) => `rgb(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))})`;
+
+/* The stand-in reads only tokens the Section really owns: the ground, the
+   accent and the glow. Its sky ramp is DERIVED from them rather than adding a
+   token that exists purely for a placeholder backdrop. */
+const RGB = {
+  skyHorizon: hex2rgb(tok('--gl-accent')),
+  sun:        hex2rgb(tok('--gl-glow')),
+  deep:       hex2rgb(tok('--gl-bg')),
+};
+RGB.skyTop = hex2rgb('#000000').map((_, i) => Math.round(lerp(RGB.deep[i], RGB.skyHorizon[i], 0.55)));
+const SKY_TOP     = `rgb(${RGB.skyTop.join(',')})`;
+const SKY_HORIZON = `rgb(${RGB.skyHorizon.join(',')})`;
+
+const cv = document.getElementById('scene');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0;
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resize();
+window.addEventListener('resize', resize);
+
+const SUN_Y = 0.82;      // uSunY at scroll 0 (it tracks down the sky on scroll, out of scope here)
+const GATE_R = 0.72;     // introGate radius at scroll 0
+const SWELL = 0.95;      // the first biome's sea state
+
+function drawScene(t, e) {
+  const horizon = lerp(ENTRANCE_FROM.horizon, CRUISE.horizon, e);
+  const camH    = lerp(ENTRANCE_FROM.camH,    CRUISE.camH,    e);
+  const fog     = Math.min(1, CRUISE.fog + (1 - e) * ENTRANCE_FROM.fog);
+  const hy = (1 - horizon) * H;
+
+  /* sky */
+  const sky = ctx.createLinearGradient(0, 0, 0, hy);
+  sky.addColorStop(0, SKY_TOP); sky.addColorStop(1, SKY_HORIZON);
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, Math.max(0, hy));
+
+  /* sun — glow then core */
+  const sx = W * 0.5, sy = (1 - SUN_Y) * H;
+  const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, H * 0.30);
+  glow.addColorStop(0, `rgba(${RGB.sun.join(',')},0.85)`);
+  glow.addColorStop(1, `rgba(${RGB.sun.join(',')},0)`);
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+  /* water — reflection ramp + a wobbling sun path */
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, hy, W, H - hy); ctx.clip();
+  for (let y = hy; y < H; y += 2) {
+    const depth = (y - hy) / H;
+    const fres = Math.exp(-depth * 12);                      // uReflFall
+    ctx.fillStyle = mixRgb(RGB.deep, RGB.skyHorizon, fres);
+    ctx.fillRect(0, y, W, 2);
+    const a = Math.exp(-depth * 7) * 0.5;
+    if (a > 0.004) {
+      const amp = 0.05 * (depth + 0.02) * (1 + SWELL * 1.6) * W;   // uWaveAmp
+      const wob = Math.sin(depth / Math.max(0.02, camH) * 1.4 - t * 1.9) * amp;
+      const half = W * (0.05 + depth * 1.4);
+      const g = ctx.createLinearGradient(sx + wob - half, 0, sx + wob + half, 0);
+      g.addColorStop(0,   `rgba(${RGB.sun.join(',')},0)`);
+      g.addColorStop(0.5, `rgba(${RGB.sun.join(',')},${a})`);
+      g.addColorStop(1,   `rgba(${RGB.sun.join(',')},0)`);
+      ctx.fillStyle = g; ctx.fillRect(0, y, W, 2);
+    }
+  }
+  ctx.restore();
+
+  /* the gate arc standing on the waterline */
+  ctx.save();
+  ctx.beginPath(); ctx.arc(W * 0.5, hy, GATE_R * H, 0, Math.PI * 2);
+  ctx.lineWidth = Math.max(1.5, 0.006 * H * 2);
+  ctx.strokeStyle = `rgba(${RGB.skyHorizon.join(',')},0.9)`;
+  ctx.stroke();
+  ctx.restore();
+
+  /* fog — flat haze + a dense band on the horizon */
+  const fogRgb = mixRgb(RGB.skyHorizon, RGB.sun, 0.35);
+  ctx.fillStyle = fogRgb.replace('rgb(', 'rgba(').replace(')', `,${(fog * 0.45).toFixed(3)})`);
+  ctx.fillRect(0, 0, W, H);
+  const band = ctx.createLinearGradient(0, hy - H * 0.22, 0, hy + H * 0.22);
+  band.addColorStop(0,   fogRgb.replace('rgb(', 'rgba(').replace(')', ',0)'));
+  band.addColorStop(0.5, fogRgb.replace('rgb(', 'rgba(').replace(')', `,${(fog * 0.75).toFixed(3)})`));
+  band.addColorStop(1,   fogRgb.replace('rgb(', 'rgba(').replace(')', ',0)'));
+  ctx.fillStyle = band; ctx.fillRect(0, hy - H * 0.22, W, H * 0.44);
+}
+
+/* ================================================================
+   BUILD THE DOM — loader letters and content words.
+================================================================ */
+const veilEl = document.getElementById('veil');
+const markEl = document.getElementById('mark');
+const letters = [...WORDMARK].map((ch) => {
+  const el = document.createElement('span');
+  el.textContent = ch; el.setAttribute('aria-hidden', 'true');
+  markEl.appendChild(el);
+  return { el, sp: new Spring(0) };
+});
+
+function makeWords(container, text) {
+  const out = [];
+  text.split(/(\s+)/).forEach((w) => {
+    if (/^\s+$/.test(w)) { container.appendChild(document.createTextNode(w)); return; }
+    const el = document.createElement('span');
+    el.className = 'word'; el.textContent = w;
+    container.appendChild(el);
+    out.push({ el, sp: new Spring(0) });
+  });
+  return out;
+}
+const titleEl = document.getElementById('title');
+const lineAEl = document.createElement('span'); lineAEl.className = 'line';
+const lineBEl = document.createElement('span'); lineBEl.className = 'line';
+titleEl.append(lineAEl, lineBEl);
+const words = {
+  kicker: makeWords(document.getElementById('kicker'), CONTENT.kicker),
+  lineA:  makeWords(lineAEl, CONTENT.lineA),
+  lineB:  makeWords(lineBEl, CONTENT.lineB),
+};
+const ALL_WORDS = [...words.kicker, ...words.lineA, ...words.lineB];
+const ctaWrap = document.getElementById('cta-wrap');
+const ctaSpring = new Spring(0);
+
+/* ================================================================
+   STATE MACHINE — the gate.
+
+   veilUp ──(standInReady || 7000ms fallback)──> readyAt
+     └─ hold until MIN_DURATION has elapsed since mount
+        └─ startExit(): exit spring fires (after EXIT_DELAY) AND the
+           scene entrance is cued in the same tick
+           └─ veil spring at REST → veil removed, scroll released
+              └─ +FIRST_REVEAL_DELAY_MS → armed → content springs in
+================================================================ */
+const exit = { veil: new Spring(1), markOpacity: new Spring(1), markBlur: new Spring(0), markScale: new Spring(1) };
+let mountedAt = performance.now();
+let standInReady = false, ready = false, exitStarted = false, veilGone = false, armed = false, contentFired = false;
+let entranceStart = null;
+let standInTimer = null, readyTimer = null, armTimer = null;
+
+function scrollLock(on) {
+  document.documentElement.classList.toggle('-locked', on);
+  document.body.classList.toggle('-locked', on);
+}
+
+function armLetters(now) {
+  letters.forEach((l, i) => l.sp.set(1, LETTER_CFG, now + LETTER_DELAY + i * LETTER_STAGGER));
+}
+
+function startExit(now) {
+  if (exitStarted) return;
+  exitStarted = true;
+  /* the handoff cue: the scene entrance begins NOW, under the clearing veil */
+  entranceStart = now;
+  exit.veil.set(EXIT_TO.veil, EXIT_CFG, now + EXIT_DELAY);
+  exit.markOpacity.set(EXIT_TO.markOpacity, EXIT_CFG, now + EXIT_DELAY);
+  exit.markBlur.set(EXIT_TO.markBlur, EXIT_CFG, now + EXIT_DELAY);
+  exit.markScale.set(EXIT_TO.markScale, EXIT_CFG, now + EXIT_DELAY);
+  /* The content arms from HERE — not from the veil coming to rest. The copy
+     starts materialising while the veil is still ~40% opaque and the scene
+     entrance is mid-flight; that overlap is the whole point of the handoff. */
+  armTimer = setTimeout(() => { armed = true; }, FIRST_REVEAL_DELAY_MS);
+  setPhase('exit');
+}
+
+/* Fired from inside the render loop, exactly as the production canvas does —
+   so "ready" always implies at least one drawn frame. */
+function onReady() {
+  if (ready) return;
+  ready = true;
+  setPhase('ready');
+  const elapsed = performance.now() - mountedAt;
+  readyTimer = setTimeout(() => startExit(performance.now()), Math.max(0, MIN_DURATION - elapsed));
+}
+
+function fireContent(now) {
+  if (contentFired) return;
+  contentFired = true;
+  ['kicker', 'lineA', 'lineB'].forEach((ln) => {
+    words[ln].forEach((w, i) => w.sp.set(1, ln === 'kicker' ? CFG_KICKER : CFG_LINE, now + DELAY_IN[ln] + i * WORD_STAGGER));
+  });
+  ctaSpring.set(1, CTA_CFG, now + CTA_DELAY_IN);
+  setPhase('content');
+}
+
+const phaseEl = document.getElementById('phase');
+const setPhase = (p) => { phaseEl.textContent = p; };
+
+/* ================================================================
+   FRAME.
+================================================================ */
+let prev = performance.now();
+function frame(nowMs) {
+  const dt = Math.max(0.0001, (nowMs - prev) / 1000);
+  prev = nowMs;
+  const t = nowMs / 1000;
+
+  /* entrance progress — smootherstep over ENTRANCE_DURATION */
+  const e = entranceStart === null ? 0 : smoother(Math.min(1, (nowMs - entranceStart) / (ENTRANCE_DURATION * 1000)));
+  drawScene(t, e);
+
+  /* the gate condition, evaluated inside the loop (one frame is drawn by now) */
+  if (!ready && (standInReady || nowMs - mountedAt > READY_FALLBACK_MS)) onReady();
+
+  /* loader */
+  if (!veilGone) {
+    letters.forEach((l) => {
+      const x = clamp01(l.sp.step(nowMs, dt));
+      l.el.style.opacity = x;
+      l.el.style.filter = `blur(${((1 - x) * LETTER_BLUR).toFixed(2)}px)`;
+    });
+    const v  = exit.veil.step(nowMs, dt);
+    const mo = exit.markOpacity.step(nowMs, dt);
+    const mb = exit.markBlur.step(nowMs, dt);
+    const ms = exit.markScale.step(nowMs, dt);
+    veilEl.style.opacity = clamp01(v);
+    markEl.style.opacity = clamp01(mo);
+    markEl.style.filter = `blur(${mb.toFixed(2)}px)`;
+    markEl.style.transform = `scale(${ms.toFixed(4)})`;
+    /* scroll is released on REST, not on exit start — the veil is visually
+       gone long before the spring formally settles, and that tail is deliberate */
+    if (exitStarted && exit.veil.atRest) {
+      veilGone = true;
+      veilEl.style.display = 'none';
+      scrollLock(false);
+    }
+  }
+
+  /* content handoff */
+  if (armed) fireContent(nowMs);
+  ALL_WORDS.forEach((w) => {
+    const x = clamp01(w.sp.step(nowMs, dt));
+    w.el.style.opacity = x;
+    w.el.style.filter = `blur(${((1 - x) * WORD_BLUR).toFixed(2)}px)`;
+  });
+  const c = clamp01(ctaSpring.step(nowMs, dt));
+  ctaWrap.style.opacity = c;
+  ctaWrap.style.transform = `translateY(${((1 - c) * CTA_FROM_Y).toFixed(1)}px)`;
+
+  requestAnimationFrame(frame);
+}
+
+/* ================================================================
+   RUN.
+================================================================ */
+function run() {
+  clearTimeout(standInTimer); clearTimeout(readyTimer); clearTimeout(armTimer);
+  mountedAt = performance.now();
+  standInReady = ready = exitStarted = veilGone = armed = contentFired = false;
+  entranceStart = null;
+  scrollLock(true);
+  veilEl.style.display = '';
+  Object.values(exit).forEach((s, i) => s.reset(i === 2 ? 0 : 1));   // markBlur starts at 0
+  letters.forEach((l) => l.sp.reset(0));
+  ALL_WORDS.forEach((w) => w.sp.reset(0));
+  ctaSpring.reset(0);
+  armLetters(mountedAt);
+  setPhase('veil');
+  /* STAND-IN for the real asset load (a GLTF model in the template). */
+  standInTimer = setTimeout(() => { standInReady = true; }, STANDIN_ASSET_MS);
+}
+run();
+requestAnimationFrame(frame);
+
+/* ---- demo chrome. Delete with the #chrome markup to ship. ---- */
+document.getElementById('replay').addEventListener('click', run);
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

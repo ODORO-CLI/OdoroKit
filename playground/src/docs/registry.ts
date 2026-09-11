@@ -398,6 +398,12 @@ export const DOC_SECTIONS: readonly DocSection[] = [
         description: 'Creer un projet, installer les modules, importer les feuilles.',
         keywords: ['pnpm', 'npm', 'setup', 'demarrage', 'modules', 'engine'],
       },
+      {
+        path: '/docs/templates',
+        title: 'Templates',
+        description: 'Des projets complets, prets a ouvrir, avec leur apercu.',
+        keywords: ['template', 'site', 'landing', 'demarrer', 'exemple', 'vitrine'],
+      },
     ],
   },
   {

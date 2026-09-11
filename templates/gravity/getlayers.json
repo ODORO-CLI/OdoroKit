@@ -1,0 +1,231 @@
+{
+  "project": "ODORO 4",
+  "createdAt": "2026-09-10",
+  "brief": {
+    "pitch": "ODORO. Reprise de la template Gravity, traduite en francais et re-skinnee a la charte de marque ODORO. Le champ de spheres se reassemble en SIGLE ODORO.",
+    "audience": "Acheteurs de parfum de niche, sensibles a l'ingenierie et a la matiere plus qu'au lifestyle.",
+    "axes": {
+      "dimensionality": "3d",
+      "mood": [
+        "luxe",
+        "organic"
+      ],
+      "tone": "light",
+      "motionEnergy": "lively",
+      "density": "balanced"
+    },
+    "note": "Le positionnement d'ODORO n'est PAS fixe : maison de parfum au build 1, promoteur immobilier au build 2. La copie de ce build est donc la copie de Gravity TRADUITE (studio numerique independant), pas une activite inventee. A reorienter quand le metier sera tranche."
+  },
+  "environment": {
+    "target": "other",
+    "framework": "vite",
+    "stack": "Vite 6 + React 19 (SPA) + three 0.184 (rig MeshPhysicalMaterial + physique Verlet a la main, pas R3F) + Lenis + motion/react + Tailwind v4",
+    "installedWith": "npm install (node v25.5.0, npm 11.8.0) — 223 paquets",
+    "devPort": 3001,
+    "devPortNote": "3000 etait occupe (probablement un autre projet ODORO) — Vite a bascule sur 3001.",
+    "typecheck": "npx tsc --noEmit — 0 erreur"
+  },
+  "template": {
+    "id": "gravity-webgl",
+    "title": "Gravity",
+    "kind": "hero",
+    "sectionCount": 3,
+    "preview": "https://www.getlayers.ai/?layer=gravity-webgl",
+    "nativeStyleId": "gravity-webgl-style",
+    "takenAs": "per-file (getlayers_source) — pas de downloadProject sur cette template vite",
+    "takenAt": "2026-09-10",
+    "filesTaken": 12,
+    "filesSkipped": [
+      "README.md",
+      "metadata.json",
+      "package-lock.json"
+    ],
+    "mediaAssets": "aucun — la scene est 100% procedurale, rien a telecharger",
+    "verbatimFirst": true,
+    "note": "Reprise VERBATIM d'abord, verifiee au run. Le re-skin ODORO vient ensuite."
+  },
+  "contract": {
+    "mutable": [
+      "skin"
+    ],
+    "preserve": [
+      "motion",
+      "composition"
+    ],
+    "doNotRewrite": [
+      "la choregraphie cluster -> chute -> coeur -> envol",
+      "les bindings de scroll (window.scrollY / viewport-height -> index de section flottant)",
+      "les constantes de collision/restitution Verlet",
+      "le handshake loader -> reveal"
+    ]
+  },
+  "placed": [
+    {
+      "role": "loader",
+      "file": "src/components/Loader.tsx",
+      "composition": "wordmark masque glyphe par glyphe + barre filaire ; plafond a 92% jusqu'au premier frame WebGL reellement rendu"
+    },
+    {
+      "role": "hero",
+      "file": "src/App.tsx",
+      "composition": "masthead + nav, pilule CTA et surtitre sur le champ de spheres agglutine"
+    },
+    {
+      "role": "features",
+      "file": "src/App.tsx",
+      "composition": "section physique — trois cartes de verre live (Solver / Restitution / Bodies) pendant la chute du champ"
+    },
+    {
+      "role": "showcase",
+      "file": "src/App.tsx",
+      "composition": "Form + Release — reassemblage en coeur, puis envol dans l'objectif"
+    },
+    {
+      "role": "footer",
+      "file": "src/components/Footer.tsx",
+      "composition": "marquee + bloc CTA + trois colonnes de liens + barre basse"
+    }
+  ],
+  "brand": {
+    "source": "Logos fournis par l'utilisateur + charte retrouvee dans TemplateODORO2",
+    "orange": "#f97316",
+    "orangeNote": "Note dans TemplateODORO2/src/app/globals.css : « l'orange du logo fourni par l'agence ». Fait foi — il remplace la palette creme/olive/terracotta reconstituee depuis ODORO 1, qui etait celle d'un autre concept.",
+    "mark": {
+      "definition": "Coin carre en haut a gauche prolonge par un arc de 270 degres, en trait d'epaisseur constante. GEOMETRIQUE, pas vectorise.",
+      "geometry": "Boite 100x100 : contour exterieur = rayon 50 centre (50,50) ; contour interieur = rayon 35 ; d'ou les 15 unites d'epaisseur. fill-rule evenodd.",
+      "path": "M0 0H50A50 50 0 1 1 0 50Z M15 15H50A35 35 0 1 1 15 50Z",
+      "threePlaces": [
+        "src/components/BrandMark.tsx — le SVG (en-tete, loader, pied de page, menu mobile)",
+        "public/assets/mark/odoro-mark.glb — le sigle 3D extrude (5904 sommets), repris de TemplateODORO2",
+        "src/components/FestivityCanvas.tsx — markPoint(), la ligne mediane que les spheres viennent former"
+      ],
+      "invariant": "Les trois partagent UNE definition et ne peuvent pas diverger. Si le trace bouge quelque part, il bouge partout.",
+      "favicon": "Inline en data-URI dans index.html, meme trace."
+    },
+    "wordmark": "« odoro » en bas de casse, sur la meme couleur que le sigle — un seul objet, pas un logo suivi d'un titre."
+  },
+  "palette": {
+    "model": "UNE seule famille chaude, qui SATURE en descendant la page.",
+    "stages": [
+      {
+        "stage": 0,
+        "role": "masthead / agglutination",
+        "hex": "#FDBA74",
+        "nom": "ambre"
+      },
+      {
+        "stage": 1,
+        "role": "la chute",
+        "hex": "#FB923C",
+        "nom": "cuivre"
+      },
+      {
+        "stage": 2,
+        "role": "le sigle + l'envol",
+        "hex": "#F97316",
+        "nom": "ORANGE DE MARQUE"
+      }
+    ],
+    "idea": "L'etape 2 tombe sur l'orange de marque EXACT, et c'est aussi l'etape ou les spheres forment le sigle : la page resout sur la couleur de la marque au moment precis ou la marque apparait.",
+    "accentInk": {
+      "0": "#B45309",
+      "1": "#9A3412",
+      "2": "#7C2D12"
+    },
+    "accentInkNote": "L'encre fonce a mesure que la teinte sature, sinon le texte se delave sur un fond de plus en plus chaud.",
+    "inks": {
+      "--ink": "#1c1310",
+      "--ink-soft": "#5a4a42",
+      "--ink-faint": "#9b8a80"
+    },
+    "inksNote": "Neutres CHAUDS — les bleu-noir d'origine verdissaient sur fond orange.",
+    "ground": "#fff7f0, degrades radiaux blanc -> peche"
+  },
+  "sceneChange": {
+    "what": "La silhouette cible du champ de spheres : COEUR -> SIGLE ODORO.",
+    "file": "src/components/FestivityCanvas.tsx",
+    "preserved": "La choregraphie agglutination -> chute -> mise en forme -> envol, les bindings de scroll, les constantes Verlet, le handshake loader->reveal. Rien de tout cela n'a bouge.",
+    "changed": "Uniquement la FONCTION QUI ASSIGNE shapeTarget.",
+    "method": "Repartition a pas d'arc constant sur la ligne mediane du trait (rayon 0.85), en deux rangees decalees de +/-0.07 qui s'imbriquent en quinconce.",
+    "whyNotRejectionSampling": "Le tirage aleatoire d'origine remplit tres bien une forme PLEINE mais DECHIRE un trait : a 96 spheres l'anneau sortait grumeleux et troue (~60% de couverture), et un logo troue n'est plus un logo. Verifie numeriquement avant d'ecrire le code.",
+    "measured": {
+      "couvertureDuSigle": "97.7%",
+      "debordement": "2.4%",
+      "pasParRangee": "0.119·S",
+      "diametre": "0.18·S",
+      "bandeCouverte": "[0.69, 1.01] pour une bande [0.7, 1.0]"
+    },
+    "bonus": "La nouvelle repartition est DETERMINISTE : au redimensionnement le sigle se reforme a l'identique au lieu de se rebattre."
+  },
+  "i18n": {
+    "lang": "fr",
+    "done": [
+      "index.html — titre, description, OG, Twitter, lang=fr, theme-color, favicon ODORO",
+      "App.tsx — toute la copie des 4 sections, nav desktop et mobile, CTA, aria-labels",
+      "Loader.tsx — statuts, mot-symbole GRAVITY -> sigle + « odoro »",
+      "Footer.tsx — bandeau, colonnes, CTA, barre basse, email",
+      "Commentaires de code traduits dans tous les fichiers"
+    ],
+    "emailPlaceholder": "bonjour@odoro.studio — a remplacer par la vraie adresse."
+  },
+  "knownIssues": [
+    {
+      "issue": "FestivityCanvas ne respecte pas prefers-reduced-motion.",
+      "detail": "Les revelations de texte le respectent via useReducedMotion, mais la boucle WebGL tourne quoi qu'il arrive : ni une regle CSS ni le drapeau d'une bibliotheque d'animation ne couvre un canvas. Un visiteur en mouvement reduit obtient une page figee devant 96 spheres qui degringolent.",
+      "origin": "Defaut d'origine de la template, pas introduit par ce build.",
+      "status": "NON CORRIGE — touche la couche `motion`, que le contrat marque `preserve`. A arbitrer."
+    },
+    {
+      "issue": "THEME_PRESETS n'a aucun selecteur dans l'interface.",
+      "detail": "Les presets ne servent plus que de repli a heroGradient. Vestigial dans la template d'origine aussi.",
+      "status": "Re-teints en ODORO et conserves. Pourraient devenir un vrai selecteur."
+    },
+    {
+      "issue": "`vite build` (production) se bloque indefiniment.",
+      "detail": "Le build s'arrete sur « transforming... » a 0% CPU et ne produit aucun dist/. Reproduit 4 fois, y compris avec le plugin Tailwind retire — ce n'est donc pas Tailwind.",
+      "notTheCause": "Ce n'est pas le code : `npx tsc --noEmit` passe a 0 erreur, et le serveur de dev sert les 7 modules en 200 sans erreur de transformation.",
+      "suspect": "Node v25.5.0. Vite 6 vise Node 18/20/22 ; 25 est une version impaire, hors LTS. Le binaire natif de rollup ou ses workers sont les suspects.",
+      "nextStep": "Reessayer sous Node 22 LTS (nvm use 22) avant de chercher plus loin.",
+      "status": "NON RESOLU — a verifier avant toute mise en production."
+    }
+  ],
+  "verified": {
+    "npmInstall": "223 paquets",
+    "typecheck": "npx tsc --noEmit — 0 erreur",
+    "viteTransform": "les 7 modules servis en 200 par le serveur de dev, aucune erreur de transformation",
+    "devServer": "http://localhost:3001 (3000 occupe)",
+    "silhouette": "Predicat verifie contre la rasterisation du GLB : silhouettes identiques. Couverture a 96 spheres mesuree a 97.7%.",
+    "productionBuild": "ECHEC — `vite build` se bloque sur « transforming » a 0% CPU et ne produit jamais dist/. NON RESOLU."
+  },
+  "updatedAt": "2026-09-10",
+  "repo": {
+    "status": "Pret a etre pousse sur GitHub. Depot local initialise, un commit initial.",
+    "license": "Unlicense (domaine public) — la licence des templates GetLayers, reportee dans LICENSE.md.",
+    "files": [
+      ".gitignore",
+      "LICENSE.md",
+      "README.md"
+    ],
+    "gitignored": "node_modules/, dist/, .env*, .DS_Store, *.tsbuildinfo, caches d'editeurs",
+    "remote": "AUCUN configure — a ajouter par l'utilisateur.",
+    "dependencyCleanup": {
+      "removed": [
+        "@google/genai",
+        "express",
+        "@types/express",
+        "dotenv",
+        "tsx",
+        "esbuild",
+        "autoprefixer"
+      ],
+      "why": "Echafaudage AI Studio dormant herite de la template, plus autoprefixer (aucune config postcss, et Tailwind v4 n'en a pas besoin). Verifie : zero import, zero reference dans les scripts.",
+      "alsoFixed": [
+        "vite etait declare dans dependencies ET devDependencies -> devDependencies seul",
+        "@vitejs/plugin-react deplace en devDependencies (outil de build)",
+        "le script `clean` referencait un server.js inexistant",
+        "name: react-example -> odoro-gravity"
+      ],
+      "result": "223 paquets -> 95 a l'installation, verifie par une reinstallation complete depuis zero."
+    }
+  }
+}

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Flowstate Loader</title>
+<!--
+  GetLayers · Section — Flowstate Loader (role: loader)
+
+  Flowstate has NO curtain, NO percentage counter and NO overlay preloader. Its
+  "loader" is a two-part entrance that runs on first paint and is over in 2.4s:
+
+    1) THE BURST — the generative field detonates the moment it mounts (one dense
+       burst of 34 splats, then 8 queued follow-up waves of 10–19 splats drained
+       one-per-frame), and at t+700ms an invisible auto-cursor takes over and
+       orbits the centre forever. The burst IS the loading screen.
+    2) THE GATE + STAGGER — every content block is mounted pre-hidden and lifts on
+       one shared timeline: nav 150ms, eyebrow 320ms, heading 480ms (+85ms/word),
+       sub 1150ms (+22ms/word), capture bar 1450ms, footer 1650ms.
+
+  Ported verbatim from the source template:
+    src/lib/fluid/fluid-simulation.ts  → burst count, splat-stack, ORBIT_* consts,
+                                         breathing-radius formula, colour band,
+                                         dye dissipation, splat radius
+    src/views/home/hero/*.tsx          → every delayIn / wordStagger / duration
+    src/components/animation/springs/in-view.tsx → the gate ("mode=once", above
+                                         the fold, so all springs fire on mount)
+
+  STAND-IN (declared): the production field is a 1,300-line vendored raw-WebGL
+  fluid solver (Pavel Dobryakov, MIT). Shipping it here would make this section a
+  duplicate of the template's portable.html, so the field below is a lightweight
+  canvas-2D ink stand-in. It is driven by the REAL constants — same burst counts,
+  same 700ms orbit delay, same 0.026 rad/frame, same breathing radius, same HSV
+  colour band, same 0.958/frame dye decay, same splat radius derived from
+  SPLAT_RADIUS 0.22 — so the CHOREOGRAPHY is exact even though the physics is not.
+  Swap `paintField()` for the real solver to get the production surface back.
+
+  Re-skin surface: the --gl-* tokens below. Nothing else carries colour or type.
+-->
+<style>
+/* ---------------------------------------------------------------------------
+   SKIN — canonical GetLayers tokens. Everything visual reads from these.
+   Values here are only a demo default; a Style overwrites them wholesale.
+   --------------------------------------------------------------------------- */
+:root{
+  --gl-bg:#04050c;
+  --gl-surface:rgba(255,255,255,.08);
+  --gl-line:rgba(255,255,255,.16);
+  --gl-ink:#eef0f6;
+  --gl-ink-muted:#b9becf;
+  --gl-accent:#ffffff;             /* the solid pill */
+  --gl-accent-ink:#2f2f33;         /* text on the solid pill */
+  --gl-glow:#8b3ce6;               /* representative stop of the ink band */
+  --gl-font-display:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --gl-font-body:var(--gl-font-display);
+  --gl-tracking-display:-.02em;
+  --gl-weight-display:500;
+  --gl-radius:9999px;
+  --gl-duration-slow:800ms;        /* the shared block reveal (spring t120/f24) */
+  --gl-ease:cubic-bezier(.2,0,0,1);/* --ease-entrance */
+
+  /* the text engine's own curve — easeOutCubic, NOT the block ease */
+  --gl-ease-text:cubic-bezier(.33,1,.68,1);
+
+  /* scrim: opaque at the centre, near-clear at the edges, so the field burns
+     bright in the corners and the type stays legible in the middle */
+  --scrim-strong:rgba(4,5,12,.68);
+  --scrim:rgba(4,5,12,.46);
+  --scrim-soft:rgba(4,5,12,.12);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--gl-bg);color:var(--gl-ink-muted);
+  font-family:var(--gl-font-body);-webkit-font-smoothing:antialiased;overflow:hidden;
+}
+a{color:inherit;text-decoration:none}
+
+/* ---------------------------------------------------------------------------
+   STAGE
+   --------------------------------------------------------------------------- */
+.stage{
+  position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:20px;overflow:hidden;
+}
+#field{position:absolute;inset:0;z-index:0;width:100%;height:100%;pointer-events:none}
+.scrim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(115% 95% at 50% 46%,
+    var(--scrim-strong) 0%,var(--scrim-strong) 24%,
+    var(--scrim) 52%,var(--scrim-soft) 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   THE GATE
+   Production: every block is an <Inview mode="once"> whose spring sits at its
+   `from` value until the observer fires. The hero is above the fold, so that is
+   effectively "on mount" — there is no loaded-flag, no store, no class on <html>.
+   Nothing withholds paint; the content is simply mounted already-hidden and the
+   timeline releases it. Reproduced here with `body.-go` + per-element delays.
+   --------------------------------------------------------------------------- */
+.rv{opacity:0;
+  transition:opacity var(--gl-duration-slow) var(--gl-ease),
+             transform var(--gl-duration-slow) var(--gl-ease)}
+.rv-down{transform:translateY(-.75rem)}   /* nav: from translateY(-0.75rem) */
+.rv-up{transform:translateY(1.25rem)}     /* eyebrow, bar, footer: +1.25rem */
+body.-go .rv{opacity:1;transform:none}
+
+/* per-WORD reveal — spring-text-engine port. Each word is inline-block + nowrap
+   so glyphs animate but words never split across a line. */
+.word{display:inline-block;white-space:nowrap;opacity:0}
+.head .word{transform:translateY(26px);                    /* wordOut y:26 */
+  transition:opacity 720ms var(--gl-ease-text),transform 720ms var(--gl-ease-text)}
+.sub .word{transform:translateY(14px);                     /* wordOut y:14 */
+  transition:opacity 600ms var(--gl-ease-text),transform 600ms var(--gl-ease-text)}
+body.-go .word{opacity:1;transform:none}
+
+/* ---------------------------------------------------------------------------
+   PLACEHOLDER CONTENT — the handoff target. Deliberately generic: this section
+   is the loader, not the hero. Any content block can sit in this slot.
+   --------------------------------------------------------------------------- */
+.nav{
+  position:absolute;inset-inline:0;top:0;z-index:20;display:flex;align-items:center;
+  justify-content:space-between;padding:20px 28px;
+}
+.mark{display:flex;align-items:center;gap:.6rem;font-size:20px;font-weight:500;
+  letter-spacing:-.01em;color:var(--gl-ink)}
+.mark span{display:block;width:20px;height:20px;border-radius:var(--gl-radius);
+  border:2px solid currentColor;opacity:.85}
+.navlinks{
+  position:absolute;left:50%;transform:translateX(-50%);display:flex;height:44px;
+  align-items:center;gap:30px;border-radius:var(--gl-radius);
+  border:1px solid var(--gl-line);background:var(--gl-surface);padding-inline:26px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:14px;
+}
+.pill{
+  display:inline-flex;height:40px;align-items:center;justify-content:center;
+  border-radius:var(--gl-radius);background:var(--gl-accent);padding-inline:18px;
+  font-family:inherit;font-size:14px;font-weight:500;color:var(--gl-accent-ink);
+  border:0;cursor:pointer;
+}
+@media (max-width:720px){.navlinks{display:none}}
+
+.center{position:relative;z-index:10;display:flex;flex-direction:column;
+  align-items:center;width:100%;max-width:820px}
+.eyebrow{display:inline-flex;align-items:center;border-radius:var(--gl-radius);
+  border:1px solid var(--gl-line);background:var(--gl-surface);padding:7px 15px;
+  font-size:13px;color:var(--gl-ink-muted);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+h2.head{margin:26px 0 0;max-width:16ch;font-family:var(--gl-font-display);
+  font-size:clamp(34px,5.4vw,76px);font-weight:var(--gl-weight-display);
+  line-height:1.1;letter-spacing:var(--gl-tracking-display);color:var(--gl-ink)}
+p.sub{margin:18px 0 0;max-width:60ch;font-size:clamp(15px,1.5vw,19px);line-height:1.5}
+.bar{margin-top:38px;display:flex;height:62px;width:min(560px,100%);align-items:center;
+  border-radius:var(--gl-radius);border:1px solid var(--gl-line);
+  background:var(--gl-surface);padding-left:22px;padding-right:6px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.bar input{height:100%;min-width:0;flex:1;background:none;border:0;outline:none;
+  font-family:inherit;font-size:16px;color:var(--gl-ink)}
+.bar input::placeholder{color:var(--gl-ink-muted)}
+footer.legal{position:absolute;inset-inline:0;bottom:0;z-index:20;display:flex;
+  justify-content:center;padding:22px;font-size:13px;color:var(--gl-ink-muted)}
+
+/* replay — dev affordance so the entrance can be re-watched. Delete to ship. */
+.replay{position:fixed;top:14px;left:14px;z-index:40;height:30px;padding-inline:12px;
+  border-radius:var(--gl-radius);border:1px solid var(--gl-line);
+  background:var(--gl-surface);color:var(--gl-ink-muted);font-family:inherit;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:.5}
+.replay:hover{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  .rv,.word{transition:none!important;opacity:1!important;transform:none!important}
+}
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge { --odoro-top: 58px;
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<section class="stage">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <header class="nav rv rv-down">
+    <a class="mark" href="#"><span aria-hidden="true"></span>Placeholder</a>
+    <nav class="navlinks" aria-label="Primary">
+      <a href="#">Link</a><a href="#">Link</a><a href="#">Link</a><a href="#">Link</a>
+    </nav>
+    <button class="pill" type="button">Action</button>
+  </header>
+
+  <div class="center">
+    <p class="eyebrow rv rv-up">Eyebrow label</p>
+    <h2 class="head" data-head>Placeholder heading for the handoff</h2>
+    <p class="sub" data-sub>The loader hands off to whatever content block sits in this slot; the stagger below is the template's, not this copy's.</p>
+    <form class="bar rv rv-up" onsubmit="return false">
+      <input type="email" placeholder="Inline capture field" aria-label="Placeholder field">
+      <button class="pill" type="submit">Submit</button>
+    </form>
+  </div>
+
+  <footer class="legal rv rv-up">Footer line — the last thing to arrive.</footer>
+</section>
+
+<button class="replay" type="button" id="replay">Replay</button>
+
+<script>
+/* ============================================================================
+   1 · THE FIELD — canvas-2D stand-in for the vendored WebGL fluid.
+   Every constant below is lifted from src/lib/fluid/fluid-simulation.ts.
+   ========================================================================== */
+const BACK_COLOR      = { r: 4, g: 5, b: 12 };  // config.BACK_COLOR
+const DENSITY_DISSIPATION = 0.958;              // per-step dye decay
+const SPLAT_RADIUS    = 0.22;                   // config.SPLAT_RADIUS
+const BURST_SPLATS    = 34;                     // multipleSplats(34) on mount
+const BURST_WAVES     = 8;                      // 8 queued follow-up waves…
+const WAVE_MIN        = 10, WAVE_SPAN = 10;     // …of 10 + rand*10 splats each
+const ORBIT_RADIUS      = 300;                  // px
+const ORBIT_SPEED       = 0.026;                // rad/frame → ~4s per loop
+const ORBIT_START_DELAY = 700;                  // ms — burst plays first
+const VCOLOR_INTERVAL   = 120;                  // ms — auto-cursor re-inks
+
+const canvas = document.getElementById('field');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0, splatStack = [], orbitAngle = 0, seeded = false,
+    vPrevX = 0, vPrevY = 0, vColor = null, lastVColor = 0, engineStart = 0;
+
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = `rgb(${BACK_COLOR.r},${BACK_COLOR.g},${BACK_COLOR.b})`;
+  ctx.fillRect(0, 0, W, H);
+}
+
+/* generateColor() — the ink band: HSV hue window 0.50 → 0.92
+   (cyan → blue → violet → magenta), s .95, v 1.0, then ×0.92. */
+function generateColor(){
+  const h = 0.5 + Math.random() * 0.42;
+  const c = HSVtoRGB(h, 0.95, 1.0);
+  return { r: c.r * 0.92, g: c.g * 0.92, b: c.b * 0.92 };
+}
+function HSVtoRGB(h,s,v){
+  const i=Math.floor(h*6), f=h*6-i, p=v*(1-s), q=v*(1-f*s), t=v*(1-(1-f)*s);
+  switch(i%6){
+    case 0: return {r:v,g:t,b:p}; case 1: return {r:q,g:v,b:p};
+    case 2: return {r:p,g:v,b:t}; case 3: return {r:p,g:q,b:v};
+    case 4: return {r:t,g:p,b:v}; default: return {r:v,g:p,b:q};
+  }
+}
+
+/* splat() — the solver deposits exp(-dot(p,p)/radius); with radius =
+   SPLAT_RADIUS/100 that is a gaussian of sigma = sqrt(0.0022) ≈ 0.047 of the
+   frame width. The 2D stand-in draws the same gaussian as a radial gradient.
+   Brightness multipliers (×10 burst, ×3.2 orbit) become alpha here, since a 2D
+   canvas cannot hold HDR dye the way the float framebuffer does. */
+const SIGMA = Math.sqrt(SPLAT_RADIUS / 100);
+function splat(x, y, color, gain){
+  const r = SIGMA * W * 2.5;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  const rgb = (a) => `rgba(${(color.r*255)|0},${(color.g*255)|0},${(color.b*255)|0},${a})`;
+  g.addColorStop(0,    rgb(gain));
+  g.addColorStop(0.40, rgb(gain * 0.45));
+  g.addColorStop(1,    rgb(0));
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+}
+function multipleSplats(n){
+  for (let i = 0; i < n; i++) splat(Math.random()*W, Math.random()*H, generateColor(), 0.85);
+}
+
+/* driveVirtualPointer() — the invisible auto-cursor. Starts ORBIT_START_DELAY
+   after mount (the burst plays first) and then orbits the centre FOREVER; the
+   radius breathes so it sweeps a disc rather than tracing a thin ring. */
+function driveVirtualPointer(now){
+  if (now - engineStart < ORBIT_START_DELAY) return;
+  const cx = W / 2, cy = H / 2;
+  const base = Math.min(ORBIT_RADIUS, W * 0.35, H * 0.35);
+  const r = base * (0.72 + 0.28 * Math.sin(orbitAngle * 0.37));
+  orbitAngle += ORBIT_SPEED;
+  const x = cx + Math.cos(orbitAngle) * r;
+  const y = cy + Math.sin(orbitAngle) * r;
+  if (!seeded){ seeded = true; vPrevX = x; vPrevY = y; return; }  // seed, no splat
+  if (!vColor || now - lastVColor > VCOLOR_INTERVAL){
+    vColor = generateColor(); lastVColor = now;
+  }
+  vPrevX = x; vPrevY = y;
+  splat(x, y, vColor, 0.30);
+}
+
+function paintField(now){
+  // dye dissipation: 0.958 of the frame survives each step
+  ctx.fillStyle = `rgba(${BACK_COLOR.r},${BACK_COLOR.g},${BACK_COLOR.b},${(1 - DENSITY_DISSIPATION).toFixed(3)})`;
+  ctx.fillRect(0, 0, W, H);
+  if (splatStack.length > 0) multipleSplats(splatStack.pop()); // one wave per frame
+  driveVirtualPointer(now);
+  requestAnimationFrame(paintField);
+}
+
+/* burst() — the entrance detonation: one dense burst, then 8 rapid follow-up
+   waves drained one-per-frame, so the load reveal reads as vividly as a cursor
+   sweep. This is the whole "loading screen". */
+function burst(){
+  engineStart = performance.now();
+  orbitAngle = 0; seeded = false; vColor = null; splatStack = [];
+  multipleSplats(BURST_SPLATS);
+  for (let i = 0; i < BURST_WAVES; i++)
+    splatStack.push(WAVE_MIN + Math.floor(Math.random() * WAVE_SPAN));
+}
+
+/* ============================================================================
+   2 · THE STAGGER — spring-text-engine port. Each WORD is an inline-block,
+   nowrap span carrying `base + i*stagger` as its transition-delay.
+   ========================================================================== */
+function buildWords(el, base, step){
+  const words = el.textContent.trim().split(/\s+/);
+  el.setAttribute('aria-label', el.textContent.trim());
+  el.textContent = '';
+  words.forEach((w, i) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = w;
+    span.style.transitionDelay = (base + i * step) + 'ms';
+    el.appendChild(span);
+    if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+  });
+}
+buildWords(document.querySelector('[data-head]'), 480, 85);   // heading: delayIn 480, wordStagger 85
+buildWords(document.querySelector('[data-sub]'),  1150, 22);  // sub:     delayIn 1150, wordStagger 22
+
+// Block reveals — the shared soft spring (tension 120 / friction 24).
+[['.nav', 150], ['.eyebrow', 320], ['.bar', 1450], ['footer.legal', 1650]]
+  .forEach(([sel, d]) => {
+    const n = document.querySelector(sel);
+    if (n) n.style.transitionDelay = d + 'ms';
+  });
+
+/* ============================================================================
+   3 · THE HANDOFF — burst fires, then the gate lifts on the next painted frame.
+   In production this is React mounting the canvas leaf and the `mode="once"`
+   springs resolving on the same tick; the double-rAF reproduces it exactly.
+   ========================================================================== */
+function run(){
+  document.body.classList.remove('-go');
+  resize();
+  burst();
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    document.body.classList.add('-go')));
+}
+
+window.addEventListener('resize', resize);
+document.getElementById('replay').addEventListener('click', run);
+run();
+requestAnimationFrame(paintField);
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

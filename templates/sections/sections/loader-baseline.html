@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Baseline Loader</title>
+<!--
+  GetLayers · Section — Baseline Loader (role: loader)
+
+  The intro curtain lifted out of the `baseline` template, plus the handoff it exists for:
+  curtain holds the page → hairline bar fills → curtain slides off the top → the content
+  underneath plays its words in BEHIND the still-moving curtain.
+
+  THE NUMBERS ARE THE ASSET (ported verbatim from
+  src/components/common/loader/loader.tsx + src/components/ui/stacked-lines.tsx +
+  src/views/home/hero-section.tsx):
+
+    MIN_VISIBLE   1400ms   minimum time on screen (200ms under prefers-reduced-motion)
+    MAX_VISIBLE   2600ms   hard cap — a stalled asset can never trap the visitor
+    EXIT           850ms   curtain translateY 0% → -105%, ease-in-out-cubic
+    bar fill      1280ms   (= MIN_VISIBLE - 120) after a 120ms delay, ease-in-out-cubic
+    wordmark       700ms   opacity+16px rise, ease-out-expo
+    headline      1100ms per word, 140ms word stagger, from y 115% behind a clip
+    tagline lines  900ms per line, 110ms line stagger, 350ms base delay
+    cards          650ms / 780ms delay, y 28px rise
+    carousel      3800ms auto-advance, starts only once `ready` is true
+
+  The production build is spring-based (@react-spring/web + spring-text-engine). Springs
+  are noted inline where a CSS tween stands in for one; the durations above are the real
+  react-spring `duration` configs and are exact.
+
+  Self-contained: no images, no fonts, no libraries. The two hero cards are token-tinted
+  placeholder blocks standing in for the template's photographic cards — the reveal
+  timing on them is the real thing, the imagery is not.
+
+  Re-skin through the --gl-* tokens below. Nothing else carries colour or type.
+-->
+<style>
+:root{
+  /* ── skin surface: the canonical GetLayers tokens ─────────────────────── */
+  --gl-bg:#ffffff;
+  --gl-surface:#f4f4f4;
+  --gl-ink:#0a0a0a;
+  --gl-ink-muted:#717784;
+  --gl-accent:#0f2f63;
+  --gl-accent-ink:#ffffff;
+  --gl-line:#e6e8ec;
+  --gl-font-display:"Onest",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --gl-font-body:"Onest",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --gl-tracking-display:-0.02em;
+  --gl-weight-display:500;
+  --gl-radius:1.5rem;
+  --gl-radius-lg:2rem;
+  --gl-duration-slow:850ms;      /* = EXIT */
+  --gl-ease:cubic-bezier(.16,1,.3,1);          /* ease-out-expo (react-spring) */
+  --gl-ease-inout:cubic-bezier(.65,0,.35,1);   /* ease-in-out-cubic (react-spring) */
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--gl-bg);color:var(--gl-ink);font-family:var(--gl-font-body);
+  -webkit-font-smoothing:antialiased}
+body.-locked{overflow:hidden}
+
+/* ============================================================================
+   THE LOADER — a flat accent curtain over everything, z above all page chrome.
+   It slides off the TOP edge (‑105%, so the trailing edge clears entirely).
+============================================================================ */
+#loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2rem;
+  background:var(--gl-accent);color:var(--gl-accent-ink);
+  transform:translateY(0);
+  transition:transform var(--gl-duration-slow) var(--gl-ease-inout)}
+#loader.-exit{transform:translateY(-105%)}
+#loader.-done{display:none}
+
+/* wordmark — production is a spring (tension 200 / friction 22); 700ms ease-out-expo
+   is the matched tween. */
+.loader-mark{display:flex;align-items:center;gap:.75rem;
+  font-family:var(--gl-font-display);font-size:1.5rem;font-weight:var(--gl-weight-display);
+  letter-spacing:.2em;text-transform:uppercase;
+  opacity:0;transform:translateY(16px);
+  transition:opacity 700ms var(--gl-ease),transform 700ms var(--gl-ease)}
+#loader.-in .loader-mark{opacity:1;transform:none}
+.loader-mark svg{width:1.75rem;height:1.75rem}
+
+/* progress bar — a TIMER, not a readout. 1280ms fill after a 120ms delay lands it
+   flush with the end of the 1400ms minimum-visible window. */
+.loader-bar{height:1px;width:10rem;overflow:hidden;border-radius:62.5rem;
+  background:color-mix(in srgb,var(--gl-accent-ink) 20%,transparent)}
+.loader-bar span{display:block;height:100%;width:100%;background:var(--gl-accent-ink);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform 1280ms var(--gl-ease-inout) 120ms}
+#loader.-in .loader-bar span{transform:scaleX(1)}
+
+/* ============================================================================
+   THE GATE — everything below is withheld until body gets `-ready`, which is set
+   on the SAME frame the curtain starts leaving (never when it finishes).
+============================================================================ */
+.mask{display:block;overflow:hidden;padding-bottom:.14em}
+.mask .word{display:inline-block;white-space:nowrap;transform:translateY(115%);opacity:0}
+
+/* headline: 1100ms per word, ease-out-expo, 140ms stagger (delay set inline) */
+.headline .word{transition:transform 1100ms var(--gl-ease),opacity 1100ms var(--gl-ease)}
+/* tagline lines: 900ms per line, 110ms stagger + 350ms base (delay set inline) */
+.tagline .word{transition:transform 900ms var(--gl-ease),opacity 900ms var(--gl-ease)}
+body.-ready .mask .word{transform:none;opacity:1}
+
+/* cards: spring tension 200 / friction 26 → 700ms ease-out-expo, delays 650 / 780ms */
+.card{opacity:0;transform:translateY(28px);
+  transition:opacity 700ms var(--gl-ease),transform 700ms var(--gl-ease)}
+body.-ready .card{opacity:1;transform:none}
+.card.-b{transition-delay:780ms}
+.card.-a{transition-delay:650ms}
+
+/* ============================================================================
+   PLACEHOLDER CONTENT — a stand-in for whatever the loader is gating. It exists
+   only to show the handoff; the arrangement is the template's hero skeleton.
+============================================================================ */
+main{padding:.75rem}
+.panel{position:relative;display:flex;flex-direction:column;overflow:hidden;
+  min-height:calc(100svh - 1.5rem);border-radius:var(--gl-radius-lg);
+  background:var(--gl-accent);color:var(--gl-accent-ink)}
+/* stand-in for the template's photographic plate + scrim */
+.panel::before{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(120% 80% at 70% 10%,color-mix(in srgb,var(--gl-accent-ink) 16%,transparent),transparent 60%),
+    linear-gradient(to bottom,color-mix(in srgb,var(--gl-ink) 18%,transparent),transparent 45%,color-mix(in srgb,var(--gl-ink) 30%,transparent))}
+.panel>*{position:relative}
+
+.head{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:1.5rem 2.5rem 0;font-size:.75rem}
+.head nav{display:flex;gap:2rem;flex:1}
+.head a{color:inherit;text-decoration:none;opacity:.9}
+.head .wordmark{display:flex;flex:1;justify-content:center;align-items:center;gap:.5rem;
+  font-family:var(--gl-font-display);font-size:1rem;font-weight:var(--gl-weight-display);
+  letter-spacing:.2em;text-transform:uppercase}
+.head .wordmark svg{width:1.25rem;height:1.25rem}
+.head .end{display:flex;flex:1;justify-content:flex-end;gap:1.25rem;align-items:center}
+.head .end span{text-transform:uppercase;letter-spacing:.04em}
+
+.headline{margin:1rem 0 0;padding:0 2.5rem;
+  font-family:var(--gl-font-display);font-size:12.5vw;font-weight:var(--gl-weight-display);
+  line-height:.85;letter-spacing:var(--gl-tracking-display);text-transform:uppercase;
+  white-space:nowrap}
+
+.foot{margin-top:auto;display:flex;flex-wrap:wrap;align-items:flex-end;
+  justify-content:space-between;gap:1.5rem;padding:0 2.5rem 2.5rem}
+.tagline{margin:0;font-family:var(--gl-font-display);font-size:2.4rem;
+  font-weight:var(--gl-weight-display);line-height:.95;letter-spacing:var(--gl-tracking-display);
+  text-transform:uppercase;opacity:.85}
+.cards{display:flex;align-items:flex-end;gap:1rem}
+.card{width:15rem;border-radius:var(--gl-radius);padding:.75rem;
+  border:1px solid color-mix(in srgb,var(--gl-accent-ink) 15%,transparent);
+  background:color-mix(in srgb,var(--gl-accent-ink) 10%,transparent);
+  backdrop-filter:blur(12px)}
+.card .row{display:flex;align-items:center;gap:.75rem;
+  transition:opacity 600ms var(--gl-ease),transform 600ms var(--gl-ease)}
+.card .row.-swap{opacity:0;transform:translateY(16px) scale(.96)}
+.card .thumb{flex:0 0 auto;width:3.5rem;aspect-ratio:1;border-radius:.75rem;
+  background:color-mix(in srgb,var(--gl-accent-ink) 22%,transparent)}
+.card .thumb.-tall{width:4rem;aspect-ratio:3/4}
+.card .lbl{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.card .lbl.-dim{opacity:.8}
+.card .val{display:block;font-family:var(--gl-font-display);font-size:1.875rem;
+  font-weight:var(--gl-weight-display);line-height:1}
+.card .cap{display:block;margin-top:.5rem;font-size:.65rem;opacity:.8}
+.dots{display:flex;gap:.375rem;margin-top:.75rem}
+.dots i{width:.375rem;height:.375rem;border-radius:62.5rem;
+  background:color-mix(in srgb,var(--gl-accent-ink) 35%,transparent);
+  transition:width 400ms var(--gl-ease),background 400ms var(--gl-ease)}
+.dots i.-on{width:1rem;background:var(--gl-accent-ink)}
+
+/* below the fold — proves scroll was locked, and that it isn't any more */
+.after{padding:6rem 2.5rem;background:var(--gl-bg);color:var(--gl-ink)}
+.after p{max-width:34rem;margin:0;color:var(--gl-ink-muted);line-height:1.7;font-size:.95rem}
+.after h2{margin:0 0 1rem;font-family:var(--gl-font-display);font-size:3rem;
+  font-weight:var(--gl-weight-display);letter-spacing:var(--gl-tracking-display);line-height:.95}
+
+.replay{position:fixed;right:1.25rem;bottom:1.25rem;z-index:100;
+  border:1px solid var(--gl-line);border-radius:62.5rem;background:var(--gl-surface);
+  color:var(--gl-ink);font:inherit;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:.625rem 1.125rem;cursor:pointer}
+
+@media (max-width:640px){
+  .head,.headline,.foot{padding-left:1.5rem;padding-right:1.5rem}
+  .tagline{font-size:1.75rem}
+  .cards{width:100%}
+  .card{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;transition-delay:0ms!important}
+}
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body class="-locked">
+
+<!-- ══ THE LOADER ═══════════════════════════════════════════════════════════ -->
+<div id="loader" role="status" aria-live="polite" aria-label="Loading">
+  <span class="loader-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"/><path d="M4.8 5.6A9 9 0 0 0 4.8 18.4"/><path d="M19.2 5.6a9 9 0 0 1 0 12.8"/>
+    </svg>
+    Section
+  </span>
+  <span class="loader-bar"><span></span></span>
+</div>
+
+<!-- ══ WHAT THE LOADER IS GATING ════════════════════════════════════════════ -->
+<main>
+  <section class="panel" aria-labelledby="demo-title">
+    <header class="head">
+      <nav aria-label="Primary"><a href="#after">Placeholder</a><a href="#after">Placeholder</a></nav>
+      <span class="wordmark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M4.8 5.6A9 9 0 0 0 4.8 18.4"/><path d="M19.2 5.6a9 9 0 0 1 0 12.8"/>
+        </svg>
+        Section
+      </span>
+      <span class="end"><span>Call To Action</span></span>
+    </header>
+
+    <h1 class="headline" id="demo-title"><span class="mask" data-words>The Long Game</span></h1>
+
+    <div class="foot">
+      <p class="tagline" data-lines="Built To Last|Made To Move"></p>
+
+      <div class="cards">
+        <div class="card -a">
+          <div class="row" id="swap">
+            <span class="thumb"></span>
+            <span>
+              <span class="lbl">Label</span>
+              <span class="lbl -dim" id="swap-text">Item one</span>
+            </span>
+          </div>
+          <span class="dots" id="dots"><i class="-on"></i><i></i><i></i></span>
+        </div>
+
+        <div class="card -b">
+          <div class="row">
+            <span>
+              <span class="val">00+</span>
+              <span class="cap">Caption line</span>
+            </span>
+            <span class="thumb -tall" style="margin-left:auto"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="after" id="after">
+    <h2>Below the fold</h2>
+    <p>Scroll was locked for the whole time the curtain was up and released on the same
+      frame the curtain began to leave — the same frame the words above started to rise.</p>
+  </section>
+</main>
+
+<button type="button" class="replay" id="replay">Replay</button>
+
+<script>
+/* ============================================================================
+   1 — WORD SPLITTING
+   Each word is its own inline-block inside a clipping mask, so words rise from
+   behind the clip and never split across a line. Stagger is a transition-delay.
+============================================================================ */
+var WORD_STAGGER = 140;   // headline: wordStagger
+var LINE_STAGGER = 110;   // tagline: StackedLines stagger
+var LINE_BASE    = 350;   // tagline: StackedLines baseDelay
+
+function splitWords(mask, base, step){
+  var words = mask.textContent.trim().split(/\s+/);
+  mask.textContent = '';
+  words.forEach(function(w, i){
+    var s = document.createElement('span');
+    s.className = 'word';
+    s.textContent = w;
+    s.style.transitionDelay = (base + i * step) + 'ms';
+    mask.appendChild(s);
+    if (i < words.length - 1) mask.appendChild(document.createTextNode(' '));
+  });
+}
+
+document.querySelectorAll('[data-words]').forEach(function(m){
+  splitWords(m, 0, WORD_STAGGER);
+});
+// [data-lines]: pipe-separated, one clipped line each, whole line moves as a unit
+document.querySelectorAll('[data-lines]').forEach(function(el){
+  el.dataset.lines.split('|').forEach(function(line, i){
+    var mask = document.createElement('span');
+    mask.className = 'mask';
+    var word = document.createElement('span');
+    word.className = 'word';
+    word.textContent = line.trim();
+    word.style.transitionDelay = (LINE_BASE + i * LINE_STAGGER) + 'ms';
+    mask.appendChild(word);
+    el.appendChild(mask);
+  });
+});
+
+/* ============================================================================
+   2 — THE LOADER
+   Mechanic: cover on first paint → fill the bar → slide up. Completion is NOT
+   tied to the bar; the bar is paced to the minimum-visible window. Completion is
+   `document.readyState === 'complete'` (or the `load` event), then the minimum
+   window elapses, with a hard cap so a stalled asset can never hold the page.
+============================================================================ */
+var MIN_VISIBLE = 1400;   // MIN_VISIBLE_MS
+var MAX_VISIBLE = 2600;   // MAX_VISIBLE_MS — hard cap
+var EXIT        = 850;    // EXIT_MS — matches the curtain transition
+
+var loader  = document.getElementById('loader');
+var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var timers  = [];
+var started = false;
+
+function run(){
+  loader.classList.remove('-done', '-exit');
+  document.body.classList.remove('-ready');
+  document.body.classList.add('-locked');
+  started = false;
+  // one frame later, so the from-state is painted before the bar starts
+  requestAnimationFrame(function(){ loader.classList.add('-in'); });
+
+  var minVisible = reduced ? 200 : MIN_VISIBLE;
+
+  function triggerExit(){
+    if (loader.classList.contains('-exit')) return;
+    loader.classList.add('-exit');
+    // THE GATE: `ready` flips as the curtain STARTS to leave, so the content
+    // reveal plays in behind a curtain that is still moving.
+    document.body.classList.add('-ready');
+    document.body.classList.remove('-locked');
+    startCarousel();
+    timers.push(setTimeout(function(){ loader.classList.add('-done'); }, reduced ? 0 : EXIT));
+  }
+
+  function beginCountdown(){
+    if (started) return;
+    started = true;
+    timers.push(setTimeout(triggerExit, minVisible));
+  }
+
+  if (document.readyState === 'complete') beginCountdown();
+  else window.addEventListener('load', beginCountdown, { once: true });
+  timers.push(setTimeout(beginCountdown, MAX_VISIBLE));   // never wait forever
+}
+
+/* ============================================================================
+   3 — WHAT THE GATE HOLDS BACK
+   The carousel is deliberately not started until the gate opens: nothing should
+   have been ticking away behind the curtain.
+============================================================================ */
+var INTERVAL = 3800;      // useCarousel interval
+var labels = ['Item one', 'Item two', 'Item three'];
+var idx = 0, carouselTimer = null;
+
+function startCarousel(){
+  if (carouselTimer) return;
+  carouselTimer = setInterval(function(){
+    idx = (idx + 1) % labels.length;
+    var row = document.getElementById('swap');
+    // cross-fade: out, swap the content at the bottom of the fade, back in
+    row.classList.add('-swap');
+    setTimeout(function(){
+      document.getElementById('swap-text').textContent = labels[idx];
+      row.classList.remove('-swap');
+    }, 200);
+    var dots = document.getElementById('dots').children;
+    for (var i = 0; i < dots.length; i++) dots[i].className = i === idx ? '-on' : '';
+  }, INTERVAL);
+}
+
+/* Replay — demo affordance only; not part of the section. */
+document.getElementById('replay').addEventListener('click', function(){
+  timers.forEach(clearTimeout); timers = [];
+  clearInterval(carouselTimer); carouselTimer = null;
+  loader.classList.remove('-in');
+  window.scrollTo(0, 0);
+  requestAnimationFrame(run);
+});
+
+run();
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>
