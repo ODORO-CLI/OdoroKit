@@ -1,0 +1,72 @@
+{
+  "name": "liquid-glass-button",
+  "category": "ui",
+  "title": "Bouton verre liquide",
+  "description": "Une pastille de verre depoli posee sur la page : le fond se devine a travers, un reflet coule au survol, et la pression l ecrase avant qu elle ne reprenne sa forme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LiquidGlassButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-palette-white", "--o-duration-slow"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "description": "Cible du lien. Avec elle, le bouton est rendu comme un lien."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-brand-500, --o-palette-white",
+      "description": "Tokens de la teinte du verre et de sa lumiere."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Flou du fond vu a travers le verre.",
+      "min": 0,
+      "max": 32,
+      "step": 2
+    },
+    {
+      "name": "tint",
+      "type": "number",
+      "default": 0.18,
+      "description": "Part de teinte dans le verre, de zero a un.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "spring",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du retour elastique apres la pression.",
+      "min": 200,
+      "max": 1400,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre d arriere-plan par bouton, statique : il ne se recalcule que si ce qui est derriere bouge. Les transitions portent sur transform et opacity. Sous mouvement reduit le reflet est pose a sa place d arrivee et la pression ne rebondit plus."
+  }
+}

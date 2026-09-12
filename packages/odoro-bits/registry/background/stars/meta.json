@@ -15,7 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-palette-zinc-950", "--o-palette-zinc-100"],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
   "props": [
     {
       "name": "speed",

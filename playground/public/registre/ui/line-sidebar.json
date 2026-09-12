@@ -1,0 +1,99 @@
+{
+  "name": "line-sidebar",
+  "category": "ui",
+  "title": "Barre laterale en traits",
+  "description": "Une colonne de traits qui s allongent a l approche du pointeur et decouvrent leur libelle ; le trait de la page courante reste long, en teinte de marque.",
+  "engine": {
+    "gsap": [
+      "core"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LineSidebar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-base"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, de haut en bas."
+    },
+    {
+      "name": "side",
+      "type": "'left' | 'right'",
+      "required": false,
+      "default": "left",
+      "description": "Bord de l ecran ou la barre est posee : les traits partent de ce bord.",
+      "options": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "extend",
+      "type": "number",
+      "required": false,
+      "default": 2.4,
+      "description": "Allongement maximal d un trait, atteint sous le pointeur.",
+      "min": 1.2,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "reach",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "px",
+      "description": "Rayon d influence du pointeur. Au-dela, un trait reste au repos.",
+      "min": 30,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "Vitesse a laquelle les traits suivent le pointeur. Plus haut, plus sec.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "required": false,
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Navigation",
+      "description": "Nom du bloc pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle horizontale par trait, ecrite depuis la boucle du moteur tant que le pointeur est dans la barre. Aucun rendu React au survol. Au doigt et sous mouvement reduit, seuls le survol et le focus allongent un trait, par transition."
+  },
+  "id": "ui/line-sidebar",
+  "sources": {
+    "component.tsx": "/**\n * Barre laterale en traits : une colonne de traits qui s'allongent a\n * l'approche du pointeur et decouvrent leur libelle. Le trait de la page\n * courante reste long, en teinte de marque.\n *\n * ## Ce qui la distingue de la barre a loupe\n *\n * La loupe grossit un element entier, vers le haut, dans une barre\n * horizontale. Ici rien ne grossit : un trait s'allonge, sur l'axe qui\n * s'eloigne du bord de l'ecran, et le libelle apparait a son bout. La\n * colonne ne bouge pas d'un pixel — un trait plus long n'a pas de largeur\n * de boite, puisqu'il est une echelle sur sa longueur. C'est la barre d'une\n * page longue : posee sur un bord, muette au repos, lisible des qu'on s'en\n * approche.\n *\n * ## La distance est lue sur un pointeur amorti\n *\n * Le pointeur vient du crochet amorti, dans une ref, lu dans la boucle du\n * moteur. Les traits suivent donc la main avec un leger retard, et se\n * couchent en glissant plutot qu'en sautant. Le profil est une cosinusoide\n * relevee, comme celui de la loupe, et pour la meme raison : plate aux\n * bords, elle ne fait sursauter aucun trait quand le pointeur entre dans son\n * rayon.\n *\n * ## Deux chemins pour la meme forme\n *\n * Hors de la barre, ou sans pointeur fin, ou sous mouvement reduit, les\n * traits ne sont pas ecrits par la boucle : le survol et le focus les\n * allongent par une transition CSS. Le libelle, lui, apparait toujours par\n * la feuille, sur survol, focus et page courante. L'etat final est le meme,\n * seul le trajet change.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\n/** Un element de navigation. */\nexport interface NavItem {\n  /** Libelle affiche. */\n  readonly label: string\n  /** Cible du lien. Sans cible, l'element est un bouton. */\n  readonly href?: string\n  /** Icone placee avant le libelle. */\n  readonly icon?: ReactNode\n}\n\n/** Proprietes propres au composant. */\nexport interface LineSidebarOwnProps {\n  /** Les liens, de haut en bas. */\n  items: readonly NavItem[]\n  /** Bord de l'ecran ou la barre est posee : les traits partent de ce bord. @defaultValue 'left' */\n  side?: 'left' | 'right'\n  /** Allongement maximal d'un trait, atteint sous le pointeur. @defaultValue 2.4 */\n  extend?: number\n  /** Rayon d'influence du pointeur, en pixels. @defaultValue 90 */\n  reach?: number\n  /** Vitesse a laquelle les traits suivent le pointeur. Plus haut, plus sec. @defaultValue 10 */\n  speed?: number\n  /** Index de la page courante. */\n  active?: number\n  /** Appele quand l'utilisateur choisit un lien. */\n  onActiveChange?: (index: number) => void\n  /** Nom du bloc pour les lecteurs d'ecran. @defaultValue 'Navigation' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type LineSidebarProps = Customisable<LineSidebarOwnProps, 'nav'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-line-sidebar'\n\n/** Pose la colonne, les traits et les libelles, une fois par document. */\nfunction ensureLineRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-lines]{display:inline-flex;flex-direction:column;gap:0.25rem;padding:0.5rem 0}',\n    '[data-o-lines] ul{display:contents;margin:0;padding:0;list-style:none}',\n    '[data-o-lines-item]{',\n    'display:flex;align-items:center;gap:0.75rem;',\n    'padding:0.4rem 0.75rem;background:none;border:0;',\n    'color:inherit;text-decoration:none;font:inherit;cursor:pointer;',\n    '}',\n    '[data-o-lines][data-o-lines-right] [data-o-lines-item]{flex-direction:row-reverse}',\n    '[data-o-lines-item]:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}',\n    // Le trait : une echelle sur sa longueur, depuis le bord. La transition\n    // ne sert qu'au survol et au repos ; sous le pointeur, c'est la boucle.\n    '[data-o-lines-bar]{',\n    'display:block;width:1.25rem;height:2px;flex:none;border-radius:1px;',\n    'background:currentColor;opacity:0.5;',\n    'transform-origin:left center;',\n    'transition:transform var(--o-duration-base) cubic-bezier(0.2,0,0,1),opacity var(--o-duration-base) linear;',\n    '}',\n    '[data-o-lines][data-o-lines-right] [data-o-lines-bar]{transform-origin:right center}',\n    '[data-o-lines][data-o-lines-live] [data-o-lines-bar]{transition:opacity var(--o-duration-base) linear}',\n    '[data-o-lines-item]:hover [data-o-lines-bar],[data-o-lines-item]:focus-visible [data-o-lines-bar]{',\n    'transform:scaleX(var(--o-lines-extend));opacity:1;',\n    '}',\n    '[data-o-lines-item][aria-current] [data-o-lines-bar]{',\n    'background:var(--o-palette-brand-500);opacity:1;',\n    'transform:scaleX(var(--o-lines-extend));',\n    '}',\n    '[data-o-lines-label]{',\n    'display:inline-flex;align-items:center;gap:0.4em;',\n    'font-size:0.8rem;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;',\n    'opacity:0;transform:translateX(-6px);',\n    'transition:opacity var(--o-duration-base) linear,transform var(--o-duration-base) cubic-bezier(0.2,0,0,1);',\n    '}',\n    '[data-o-lines][data-o-lines-right] [data-o-lines-label]{transform:translateX(6px)}',\n    '[data-o-lines-item]:hover [data-o-lines-label],',\n    '[data-o-lines-item]:focus-visible [data-o-lines-label],',\n    '[data-o-lines-item][aria-current] [data-o-lines-label],',\n    '[data-o-lines-item][data-o-lines-near] [data-o-lines-label]{opacity:1;transform:none}',\n    '[data-o-lines-item][aria-current] [data-o-lines-label]{color:var(--o-palette-brand-500)}',\n    // Le filet du bord : la barre est posee contre lui.\n    '[data-o-lines]{border-left:1px solid var(--o-theme-line)}',\n    '[data-o-lines][data-o-lines-right]{border-left:0;border-right:1px solid var(--o-theme-line)}',\n    '@media (prefers-reduced-motion:reduce){[data-o-lines-bar],[data-o-lines-label]{transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Colonne de traits qui s'allongent a l'approche du pointeur.\n *\n * @example\n * <LineSidebar\n *   items={[\n *     { label: 'Intro', href: '#intro' },\n *     { label: 'Methode', href: '#methode' },\n *     { label: 'Resultats', href: '#resultats' },\n *     { label: 'Suite', href: '#suite' },\n *   ]}\n *   active={1}\n * />\n *\n * @example\n * // Posee a droite, traits plus longs, rayon plus large.\n * <LineSidebar items={sections} side=\"right\" extend={3} reach={140} />\n */\nexport function LineSidebar({\n  items,\n  side = 'left',\n  extend = 2.4,\n  reach = 90,\n  speed = 10,\n  active,\n  onActiveChange,\n  label = 'Navigation',\n  ...rest\n}: LineSidebarProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const pointer = usePointerDamped({ host, speed, name: 'traits : pointeur' })\n  ensureLineRules()\n\n  const links = (): HTMLElement[] =>\n    Array.from(host?.querySelectorAll<HTMLElement>('[data-o-lines-item]') ?? [])\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return\n\n    let inside = false\n\n    const rest_ = (): void => {\n      host.removeAttribute('data-o-lines-live')\n      for (const link of links()) {\n        link.removeAttribute('data-o-lines-near')\n        const bar = link.querySelector<HTMLElement>('[data-o-lines-bar]')\n        if (bar !== null) bar.style.transform = ''\n      }\n    }\n\n    const onEnter = (): void => {\n      inside = true\n      host.setAttribute('data-o-lines-live', '')\n    }\n    const onLeave = (): void => {\n      inside = false\n      // Le repos est ecrit une fois ; la transition CSS ramene les traits.\n      rest_()\n    }\n\n    const subscription = clock.subscribe(\n      () => {\n        if (!inside) return\n        const box = host.getBoundingClientRect()\n        const y = box.top + ((pointer.current.y + 1) / 2) * box.height\n\n        for (const link of links()) {\n          const bar = link.querySelector<HTMLElement>('[data-o-lines-bar]')\n          if (bar === null) continue\n          const own = link.getBoundingClientRect()\n          const centre = own.top + own.height / 2\n          const t = Math.min(1, Math.abs(y - centre) / reach)\n          // Cosinusoide relevee : plate aux bords, arrondie au sommet.\n          const bump = (Math.cos(t * Math.PI) + 1) / 2\n          const k = 1 + (extend - 1) * bump\n          bar.style.transform = `scaleX(${k.toFixed(3)})`\n          if (bump > 0.55) link.setAttribute('data-o-lines-near', '')\n          else link.removeAttribute('data-o-lines-near')\n        }\n      },\n      { priority: CLOCK_PRIORITY.render, name: 'traits' },\n    )\n\n    host.addEventListener('pointerenter', onEnter, { passive: true })\n    host.addEventListener('pointerleave', onLeave, { passive: true })\n\n    return () => {\n      host.removeEventListener('pointerenter', onEnter)\n      host.removeEventListener('pointerleave', onLeave)\n      subscription.unsubscribe()\n      rest_()\n    }\n  }, [host, reduced, pointer, extend, reach])\n\n  const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {\n    const all = links()\n    const focused = all.findIndex((link) => link === document.activeElement)\n    if (focused < 0) return\n    const last = all.length - 1\n    const moves: Readonly<Record<string, number | undefined>> = {\n      ArrowDown: focused >= last ? 0 : focused + 1,\n      ArrowUp: focused <= 0 ? last : focused - 1,\n      Home: 0,\n      End: last,\n    }\n    const target = moves[event.key]\n    if (target === undefined) return\n    event.preventDefault()\n    all[target]?.focus()\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <nav\n      {...rest}\n      ref={setHost}\n      aria-label={label}\n      data-o-lines=\"\"\n      {...(side === 'right' ? { 'data-o-lines-right': '' } : {})}\n      className={className}\n      style={{ ...style, '--o-lines-extend': String(extend) } as CSSProperties}\n      onKeyDown={(event) => {\n        onKeyDown(event)\n        rest.onKeyDown?.(event)\n      }}\n    >\n      <ul>\n        {items.map((item, index) => {\n          const isCurrent = index === active\n          const content = (\n            <>\n              <span aria-hidden=\"true\" data-o-lines-bar=\"\" />\n              <span data-o-lines-label=\"\">\n                {item.icon !== undefined && <span aria-hidden=\"true\">{item.icon}</span>}\n                {item.label}\n              </span>\n            </>\n          )\n          return (\n            <li key={`${item.label}-${String(index)}`}>\n              {item.href !== undefined ? (\n                <a\n                  href={item.href}\n                  data-o-lines-item=\"\"\n                  aria-current={isCurrent ? 'page' : undefined}\n                  onClick={() => onActiveChange?.(index)}\n                >\n                  {content}\n                </a>\n              ) : (\n                <button\n                  type=\"button\"\n                  data-o-lines-item=\"\"\n                  aria-current={isCurrent ? 'page' : undefined}\n                  onClick={() => onActiveChange?.(index)}\n                >\n                  {content}\n                </button>\n              )}\n            </li>\n          )\n        })}\n      </ul>\n    </nav>\n  )\n}\n"
+  }
+}

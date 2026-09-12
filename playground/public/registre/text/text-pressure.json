@@ -1,0 +1,88 @@
+{
+  "name": "text-pressure",
+  "category": "text",
+  "title": "Pression",
+  "description": "Le pointeur deforme la police elle-meme : l ecart vertical commande la graisse, l ecart horizontal la chasse, avec un repli en graisses discretes.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/TextPressure.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "graisseBasse",
+      "type": "number",
+      "required": false,
+      "default": 200,
+      "description": "Graisse au repos, sur l axe wght.",
+      "min": 100,
+      "max": 900,
+      "step": 25
+    },
+    {
+      "name": "graisseHaute",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "description": "Graisse sous le pointeur, sur l axe wght.",
+      "min": 100,
+      "max": 1000,
+      "step": 25
+    },
+    {
+      "name": "chasse",
+      "type": "number",
+      "required": false,
+      "default": 25,
+      "description": "Etirement maximal sur l axe wdth, en points de chasse.",
+      "min": 0,
+      "max": 50,
+      "step": 1
+    },
+    {
+      "name": "rayon",
+      "type": "number",
+      "required": false,
+      "default": 260,
+      "unit": "px",
+      "description": "Portee de la pression.",
+      "min": 40,
+      "max": 800,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Vitesse de rattrapage du pointeur. Plus haut, plus sec.",
+      "min": 1,
+      "max": 16,
+      "step": 0.5
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de boite par image, plus un reglage d axe par lettre quand il change vraiment. Un changement de graisse recompose la ligne : a reserver aux titres."
+  },
+  "id": "text/text-pressure",
+  "sources": {
+    "component.tsx": "/**\n * Pression : le pointeur deforme la police elle-meme, axe par axe.\n *\n * ## Deux axes, deux distances\n *\n * Une police variable n'a pas des graisses, elle a des axes continus. Les\n * deux plus repandus sont `wght`, la graisse, et `wdth`, la chasse. Ce\n * composant les branche sur deux distances differentes : l'ecart **vertical**\n * au pointeur commande la graisse, l'ecart **horizontal** commande la chasse.\n *\n * Le geste devient alors lisible. Monter ou descendre epaissit ou amincit la\n * ligne entiere ; aller vers la droite etire les lettres qu'on approche et\n * laisse retomber celles qu'on quitte. Brancher les deux axes sur la meme\n * distance radiale aurait donne une simple bosse, et le pointeur n'aurait\n * plus qu'une seule chose a dire.\n *\n * ## La police est sondee, pas supposee\n *\n * `font-variation-settings` est reconnu par tous les navigateurs ; encore\n * faut-il que la police chargee ait les axes. Une reserve invisible est donc\n * posee dans l'element, avec la police heritee, et mesuree a deux extremes de\n * chaque axe. Si la largeur ne bouge pas, l'axe n'existe pas.\n *\n * Sans `wght`, le repli est la graisse discrete : la valeur continue est\n * arrondie a la centaine, et le navigateur choisit la coupe la plus proche\n * dans la famille. Sans `wdth`, la chasse est simplement laissee tranquille —\n * mieux vaut un axe qui ne repond pas qu'un etirement simule qui deformerait\n * les glyphes.\n *\n * ## Une seule mesure de boite par image\n *\n * Les centres des lettres sont releves une fois, en coordonnees de l'element,\n * et remesures quand il change de taille ou quand la police finit d'arriver.\n * Par image, il ne reste qu'une lecture de boite — celle de l'element — et un\n * calcul par lettre. Lire la boite de chaque lettre a chaque image\n * declencherait autant de mises en page forcees qu'il y a de caracteres.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les lettres sont\n * retirees de l'arbre d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * Le texte est rendu tel quel, sans decoupage et sans reglage d'axe : c'est\n * l'etat de repos, celui ou le pointeur n'est nulle part.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface TextPressureOwnProps {\n  /** Texte a mettre sous pression. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Graisse au repos, sur l'axe `wght`. @defaultValue 200 */\n  graisseBasse?: number\n  /** Graisse sous le pointeur, sur l'axe `wght`. @defaultValue 900 */\n  graisseHaute?: number\n  /** Etirement maximal sur l'axe `wdth`, en points de chasse. @defaultValue 25 */\n  chasse?: number\n  /** Portee de la pression, en pixels. @defaultValue 260 */\n  rayon?: number\n  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 6 */\n  speed?: number\n}\n\n/** Toutes les proprietes. */\nexport type TextPressureProps = Customisable<TextPressureOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = ' '\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-text-pressure'\n\n/** Chasse de reference : celle de la coupe normale. */\nconst CHASSE_REPOS = 100\n\n/** Ecart de largeur, en pixels, au-dela duquel un axe est repute exister. */\nconst SONDE_SEUIL = 0.5\n\n/** Pose les regles de la pression, une fois par document. */\nfunction ensurePressureRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pressure]{display:inline-block;position:relative}',\n    '[data-o-pressure-letter]{display:inline-block}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Ce que la sonde a trouve dans la police heritee. */\ninterface Axes {\n  /** L'axe de graisse repond. */\n  readonly graisse: boolean\n  /** L'axe de chasse repond. */\n  readonly chasse: boolean\n}\n\n/**\n * Mesure les axes de la police heritee par un element.\n *\n * La reserve est un enfant de l'element : elle herite donc exactement de la\n * police qui sera deformee, y compris si la page en change plus bas dans\n * l'arbre.\n */\nfunction sonderAxes(hote: HTMLElement): Axes {\n  if (\n    typeof CSS === 'undefined' ||\n    !CSS.supports('font-variation-settings', \"'wght' 400\")\n  ) {\n    return { graisse: false, chasse: false }\n  }\n\n  const sonde = document.createElement('span')\n  sonde.setAttribute('aria-hidden', 'true')\n  sonde.textContent = 'HAMBURGEFONS'\n  sonde.style.cssText =\n    'position:absolute;left:0;top:0;visibility:hidden;white-space:pre;pointer-events:none'\n  hote.append(sonde)\n\n  const mesurer = (reglage: string): number => {\n    sonde.style.fontVariationSettings = reglage\n    return sonde.getBoundingClientRect().width\n  }\n\n  const graisse = Math.abs(mesurer(\"'wght' 900\") - mesurer(\"'wght' 100\")) > SONDE_SEUIL\n  const chasse = Math.abs(mesurer(\"'wdth' 125\") - mesurer(\"'wdth' 75\")) > SONDE_SEUIL\n\n  sonde.remove()\n  return { graisse, chasse }\n}\n\n/**\n * Met un texte sous la pression du pointeur, en police variable.\n *\n * @example\n * <TextPressure as=\"h1\" className=\"o-text-6xl\">\n *   Sous pression\n * </TextPressure>\n *\n * @example\n * // Graisse seule, sur une portee courte.\n * <TextPressure chasse={0} rayon={120} graisseBasse={300}>Serre</TextPressure>\n */\nexport function TextPressure({\n  children,\n  as: Tag = 'span',\n  graisseBasse = 200,\n  graisseHaute = 900,\n  chasse = 25,\n  rayon = 260,\n  speed = 6,\n  ...rest\n}: TextPressureProps): ReactElement {\n  const { reduced } = useMotionState()\n  const hote = useRef<HTMLElement | null>(null)\n\n  ensurePressureRule()\n\n  useEffect(() => {\n    const element = hote.current\n    if (element === null || reduced) return\n\n    const lettres = [...element.querySelectorAll<HTMLElement>('[data-o-pressure-letter]')]\n    if (lettres.length === 0) return\n\n    const axes = sonderAxes(element)\n\n    // Centres en coordonnees de l'element : ils ne bougent ni au defilement\n    // ni quand la page se deplace, seulement quand la ligne se recompose.\n    let centres = lettres.map(() => ({ x: 0, y: 0 }))\n    const relever = (): void => {\n      const cadre = element.getBoundingClientRect()\n      centres = lettres.map((lettre) => {\n        const boite = lettre.getBoundingClientRect()\n        return {\n          x: boite.left - cadre.left + boite.width / 2,\n          y: boite.top - cadre.top + boite.height / 2,\n        }\n      })\n    }\n    relever()\n\n    const observateur = new ResizeObserver(relever)\n    observateur.observe(element)\n    // Une police qui arrive apres coup change toutes les largeurs : sans\n    // cette relecture, la pression viserait a cote pour toujours.\n    void document.fonts?.ready.then(relever)\n\n    // Cible brute et point amorti : le pointeur saute d'un evenement a\n    // l'autre, la pression, elle, glisse.\n    const cible = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }\n    const point = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }\n\n    const bouger = (evenement: PointerEvent): void => {\n      const cadre = element.getBoundingClientRect()\n      cible.x = evenement.clientX - cadre.left\n      cible.y = evenement.clientY - cadre.top\n      if (!Number.isFinite(point.x)) {\n        // Premiere arrivee : la pression se pose la ou elle est, elle ne\n        // traverse pas l'ecran depuis l'infini.\n        point.x = cible.x\n        point.y = cible.y\n      }\n    }\n    window.addEventListener('pointermove', bouger, { passive: true })\n\n    // Dernieres valeurs ecrites par lettre : sans elles, chaque image reecrit\n    // un reglage identique et invalide la mise en forme pour rien.\n    const derniereGraisse = lettres.map(() => Number.NaN)\n    const derniereChasse = lettres.map(() => Number.NaN)\n\n    const abonnement = clock.subscribe(\n      ({ delta }) => {\n        if (!Number.isFinite(point.x)) return\n\n        const facteur = 1 - Math.exp(-speed * delta)\n        point.x += (cible.x - point.x) * facteur\n        point.y += (cible.y - point.y) * facteur\n\n        const portee = Math.max(1, rayon)\n\n        for (let index = 0; index < lettres.length; index += 1) {\n          const lettre = lettres[index]\n          const centre = centres[index]\n          if (lettre === undefined || centre === undefined) continue\n\n          // Vertical pour la graisse, horizontal pour la chasse : voir\n          // l'en-tete du module.\n          const partGraisse = Math.max(0, 1 - Math.abs(point.y - centre.y) / portee)\n          const partChasse = Math.max(0, 1 - Math.abs(point.x - centre.x) / portee)\n\n          const graisse = graisseBasse + (graisseHaute - graisseBasse) * partGraisse\n          const largeur = CHASSE_REPOS + chasse * partChasse\n\n          const bougeGraisse = !(\n            Math.abs(graisse - (derniereGraisse[index] ?? Number.NaN)) < 1\n          )\n          const bougeChasse = !(\n            Math.abs(largeur - (derniereChasse[index] ?? Number.NaN)) < 0.2\n          )\n          if (!bougeGraisse && !bougeChasse) continue\n          derniereGraisse[index] = graisse\n          derniereChasse[index] = largeur\n\n          if (axes.graisse) {\n            lettre.style.fontVariationSettings = axes.chasse\n              ? `'wght' ${graisse.toFixed(0)}, 'wdth' ${largeur.toFixed(1)}`\n              : `'wght' ${graisse.toFixed(0)}`\n          } else {\n            // Repli : la graisse continue est arrondie a la centaine, et la\n            // famille fournit la coupe la plus proche.\n            lettre.style.fontWeight = String(Math.round(graisse / 100) * 100)\n          }\n        }\n      },\n      { name: 'pression du texte', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      abonnement.unsubscribe()\n      observateur.disconnect()\n      window.removeEventListener('pointermove', bouger)\n      for (const lettre of lettres) {\n        lettre.style.removeProperty('font-variation-settings')\n        lettre.style.removeProperty('font-weight')\n      }\n    }\n  }, [reduced, children, graisseBasse, graisseHaute, chasse, rayon, speed])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, au repos, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const lettres = [...children]\n\n  return (\n    <Tag {...rest} ref={hote} className={className} style={style} data-o-pressure=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) => (\n          <span key={`${lettre}-${String(index)}`} data-o-pressure-letter=\"\">\n            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                l'insecable garde sa largeur. */}\n            {lettre === ' ' ? NBSP : lettre}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

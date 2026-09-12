@@ -1,0 +1,80 @@
+{
+  "name": "skeleton-lines",
+  "category": "loader",
+  "title": "Lignes en attente",
+  "description": "Un paragraphe remplace par ses lignes, la derniere plus courte comme une vraie fin de texte, parcourues d un reflet ou pulsees.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "lines",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de lignes.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Epaisseur d une ligne.",
+      "min": 6,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Rayon des angles d une ligne.",
+      "min": 0,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reflet qui traverse les lignes plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement du contenu",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par ligne, ou une opacite : rien ne recalcule la mise en page, aucun JavaScript apres le premier rendu. Lignes pleines et immobiles sous mouvement reduit."
+  }
+}

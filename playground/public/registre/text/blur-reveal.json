@@ -1,0 +1,70 @@
+{
+  "name": "blur-reveal",
+  "category": "text",
+  "title": "Revelation floue",
+  "description": "Les mots passent du flou au net l un apres l autre, quand le texte entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/BlurReveal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "ms",
+      "description": "Delai entre deux mots.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Flou de depart.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree de la revelation d un mot.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une animation Web Animations par mot, jouee une seule fois. Le flou est plus couteux qu une opacite : a reserver aux titres."
+  },
+  "id": "text/blur-reveal",
+  "sources": {
+    "component.tsx": "/**\n * Revelation floue : les mots passent du flou au net, l'un apres l'autre.\n *\n * ## `element.animate` plutot qu'une feuille\n *\n * L'effet ne se joue qu'une fois, quand le texte entre dans le champ. Une\n * animation declarative devrait exister avant de savoir quand partir, et il\n * faudrait la retenir par un attribut puis la lacher au bon moment.\n * L'API Web Animations dit la meme chose en une ligne, au moment exact ou\n * l'observateur signale l'entree — et le navigateur la compose comme\n * n'importe quelle animation CSS.\n *\n * ## Le flou initial n'est pose que si l'effet aura lieu\n *\n * Le piege classique de ce genre d'effet : cacher le texte en CSS et le\n * reveler en JavaScript. Si le JavaScript ne vient jamais — erreur, lecteur\n * sans script, mouvement reduit — le texte reste invisible. Ici l'etat cache\n * est pose par le meme code qui programme la revelation : sans lui, le texte\n * est simplement la, net.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Les mots sont eclates en elements pour recevoir chacun leur delai. Le\n * conteneur porte donc le texte complet pour les lecteurs d'ecran, et les\n * mots eclates sont retires de l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface BlurRevealOwnProps {\n  /** Texte a reveler. */\n  children: string\n  /** Balise rendue. @defaultValue 'p' */\n  as?: ElementType\n  /** Delai entre deux mots, en millisecondes. @defaultValue 90 */\n  step?: number\n  /** Flou de depart, en pixels. @defaultValue 8 */\n  blur?: number\n  /** Duree de la revelation d'un mot, en millisecondes. @defaultValue 600 */\n  duration?: number\n}\n\n/** Toutes les proprietes. */\nexport type BlurRevealProps = Customisable<BlurRevealOwnProps, 'p'>\n\n/**\n * Revele un texte mot a mot, du flou vers le net, a l'entree dans le champ.\n *\n * @example\n * <BlurReveal as=\"h2\" className=\"o-text-3xl o-font-bold\">\n *   Ce qui compte merite d etre lu\n * </BlurReveal>\n *\n * @example\n * // Plus lent, plus flou : pour un titre seul sur son ecran.\n * <BlurReveal step={140} blur={14}>Une entree en matiere</BlurReveal>\n */\nexport function BlurReveal({\n  children,\n  as: Tag = 'p',\n  step = 90,\n  blur = 8,\n  duration = 600,\n  ...rest\n}: BlurRevealProps): ReactElement {\n  const { reduced } = useMotionState()\n  const host = useRef<HTMLElement | null>(null)\n\n  useEffect(() => {\n    const element = host.current\n    if (element === null || reduced) return\n\n    const words = element.querySelectorAll<HTMLElement>('[data-o-blur-word]')\n    if (words.length === 0) return\n\n    // L'etat cache est pose ici, pas dans le rendu : si ce code ne tourne\n    // pas, le texte reste net et visible. Voir l'en-tete du module.\n    for (const word of words) {\n      word.style.opacity = '0'\n    }\n\n    let played = false\n    const animations: Animation[] = []\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        if (played || entries.every((entry) => !entry.isIntersecting)) return\n        played = true\n        observer.disconnect()\n\n        words.forEach((word, index) => {\n          word.style.opacity = ''\n          animations.push(\n            word.animate(\n              [\n                { filter: `blur(${String(blur)}px)`, opacity: 0 },\n                { filter: 'blur(0px)', opacity: 1 },\n              ],\n              {\n                duration,\n                delay: index * step,\n                easing: 'ease-out',\n                fill: 'both',\n              },\n            ),\n          )\n        })\n      },\n      { threshold: 0.4 },\n    )\n\n    observer.observe(element)\n    return () => {\n      observer.disconnect()\n      for (const animation of animations) animation.cancel()\n      for (const word of words) {\n        word.style.opacity = ''\n      }\n    }\n  }, [reduced, children, step, blur, duration])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, net, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const words = children.split(' ').filter((word) => word.length > 0)\n\n  return (\n    <Tag {...rest} ref={host} className={className} style={style}>\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {words.map((word, index) => (\n          <span key={`${word}-${String(index)}`}>\n            <span data-o-blur-word=\"\" style={{ display: 'inline-block' }}>\n              {word}\n            </span>\n            {index < words.length - 1 ? ' ' : null}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

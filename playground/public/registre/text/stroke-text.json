@@ -1,0 +1,74 @@
+{
+  "name": "stroke-text",
+  "category": "text",
+  "title": "Contour qui se remplit",
+  "description": "Un texte en contour dont le remplissage monte du bas quand il entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/StrokeText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-300",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "strokeWidth",
+      "type": "number",
+      "required": false,
+      "default": 1.5,
+      "unit": "px",
+      "description": "Epaisseur du contour.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.5
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree de la montee du remplissage.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "contour",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du contour."
+    },
+    {
+      "name": "remplissage",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du remplissage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une seule animation de clip-path, jouee une fois. Rien ne s execute au repos."
+  },
+  "id": "text/stroke-text",
+  "sources": {
+    "component.tsx": "/**\n * Contour : un texte en fil de fer dont le remplissage monte du bas.\n *\n * ## Deux copies superposees, aucune n'attend l'autre\n *\n * Le texte reel est rendu en contour — `-webkit-text-stroke`, remplissage\n * transparent. Une copie pleine, posee dessus et cachee a l'arbre\n * d'accessibilite, est revelee par un `clip-path` anime qui remonte : le\n * remplissage semble se verser dans les lettres.\n *\n * Le contour n'est qu'un habillage : pour un lecteur d'ecran, le texte de\n * base est un texte ordinaire, il n'y a rien a compenser.\n *\n * ## L'etat cache n'est pose que si la revelation aura lieu\n *\n * La copie pleine n'est clipee que par le code qui programme sa revelation.\n * Si ce code ne tourne jamais — erreur, environnement sans script — le texte\n * apparait rempli, c'est-a-dire dans son etat final : un effet qui ne joue\n * pas vaut toujours mieux qu'un titre ampute.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface StrokeTextOwnProps {\n  /** Texte a remplir. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Epaisseur du contour, en pixels. @defaultValue 1.5 */\n  strokeWidth?: number\n  /** Duree de la montee, en millisecondes. @defaultValue 900 */\n  duration?: number\n  /** Couleur du contour. @defaultValue brand-300 de la palette */\n  contour?: string\n  /** Couleur du remplissage. @defaultValue brand-500 de la palette */\n  remplissage?: string\n}\n\n/** Toutes les proprietes. */\nexport type StrokeTextProps = Customisable<StrokeTextOwnProps, 'span'>\n\n/** Clip qui cache tout : l'inset du haut couvre la hauteur entiere. */\nconst HIDDEN_CLIP = 'inset(100% 0 0 0)'\n\n/**\n * Remplit un texte en contour, du bas vers le haut, a l'entree dans le champ.\n *\n * @example\n * <StrokeText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   MASSIF\n * </StrokeText>\n *\n * @example\n * // Contour epais, montee lente.\n * <StrokeText strokeWidth={3} duration={1800}>Grand titre</StrokeText>\n */\nexport function StrokeText({\n  children,\n  as: Tag = 'span',\n  strokeWidth = 1.5,\n  duration = 900,\n  contour = 'var(--o-palette-brand-300)',\n  remplissage = 'var(--o-palette-brand-500)',\n  ...rest\n}: StrokeTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const layer = useRef<HTMLSpanElement | null>(null)\n  const host = useRef<HTMLElement | null>(null)\n\n  useEffect(() => {\n    const element = host.current\n    const copy = layer.current\n    if (element === null || copy === null || reduced) return\n\n    // L'etat cache est pose ici, pas dans le rendu : sans ce code, le texte\n    // apparait rempli. Voir l'en-tete du module.\n    copy.style.clipPath = HIDDEN_CLIP\n\n    let played = false\n    let animation: Animation | undefined\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        if (played || entries.every((entry) => !entry.isIntersecting)) return\n        played = true\n        observer.disconnect()\n\n        copy.style.clipPath = ''\n        animation = copy.animate(\n          [{ clipPath: HIDDEN_CLIP }, { clipPath: 'inset(0 0 0 0)' }],\n          {\n            duration,\n            easing: 'cubic-bezier(0.2, 0, 0, 1)',\n            fill: 'both',\n          },\n        )\n      },\n      { threshold: 0.4 },\n    )\n\n    observer.observe(element)\n    return () => {\n      observer.disconnect()\n      animation?.cancel()\n      copy.style.clipPath = ''\n    }\n  }, [reduced, children, duration])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, rempli — son etat final, sans copie.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={{ color: remplissage, ...style }}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const outlineStyle = {\n    WebkitTextStroke: `${String(strokeWidth)}px ${contour}`,\n    WebkitTextFillColor: 'transparent',\n  } as CSSProperties\n\n  return (\n    <Tag\n      {...rest}\n      ref={host}\n      className={className}\n      style={{ position: 'relative', display: 'inline-block', ...style }}\n    >\n      <span style={outlineStyle}>{children}</span>\n      {/* La copie pleine, revelee par le clip. Cachee aux lecteurs d'ecran :\n          pour eux, il n'y a qu'un texte. */}\n      <span\n        ref={layer}\n        aria-hidden\n        style={{\n          position: 'absolute',\n          inset: 0,\n          color: remplissage,\n          pointerEvents: 'none',\n          userSelect: 'none',\n        }}\n      >\n        {children}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

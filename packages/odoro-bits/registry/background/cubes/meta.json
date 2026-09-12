@@ -1,0 +1,83 @@
+{
+  "name": "cubes",
+  "category": "background",
+  "title": "Cubes",
+  "description": "Un champ de cubes instancies qui montent et descendent en vague, la hauteur resolue sur le GPU ; la teinte glisse du creux a la crete.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Cubes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-violet-500", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "grid",
+      "type": "number",
+      "default": 18,
+      "description": "Cubes par cote. Retrograde a 10 en qualite basse.",
+      "min": 6,
+      "max": 36,
+      "step": 2
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 0.8,
+      "description": "Hauteur de la vague, en cotes de cube.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.8,
+      "description": "Vitesse de la vague.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "default": 0.9,
+      "description": "Frequence spatiale : plus haut, plus de cretes dans le champ.",
+      "min": 0.2,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 0.2,
+      "description": "Espace entre deux cubes, en fraction du pas.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les creux, les cretes."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Une seule geometrie instanciee, la vague est calculee dans le shader de sommets : la boucle n ecrit qu un temps. Le nombre de cubes suit la qualite retenue ; le rendu se suspend hors du champ."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "name": "elastic-mesh",
+  "category": "background",
+  "title": "Maillage elastique",
+  "description": "Une nappe quadrillee simulee noeud par noeud : le pointeur la tire vers lui, l onde se propage de proche en proche, et la teinte suit la tension ; des gouttes tombent quand personne ne touche a rien.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/ElasticMesh.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped",
+    "hooks/use-poster"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-violet-400"
+  ],
+  "props": [
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 26,
+      "description": "Noeuds par cote du maillage. Retrograde a seize en qualite basse.",
+      "min": 8,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "pull",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Force de traction du pointeur. A zero, seules les gouttes agitent la nappe.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "springiness",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Raideur de la nappe : plus haut, plus l onde court vite.",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "drops",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Gouttes par minute. A zero, la nappe ne bouge que sous le pointeur.",
+      "min": 0,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-violet-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la nappe au repos, la nappe tendue."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. La simulation est lineaire en nombre de noeuds et se paie sur le processeur ; le dessin est un seul appel de segments indexes. Le pas de temps est plafonne a trente millisecondes pour que le schema explicite ne diverge pas. En qualite basse, le cote tombe a seize. Le rendu se suspend hors du champ.",
+    "fallback": "poster"
+  },
+  "id": "background/elastic-mesh",
+  "sources": {
+    "component.tsx": "/**\n * Maillage elastique : une nappe quadrillee que le pointeur tire vers lui, et\n * qui ondule en revenant a plat.\n *\n * ## Pourquoi une simulation, et pas une formule\n *\n * Un relief tire d'un bruit ou d'un sinus de la distance au pointeur suit le\n * curseur mais n'a pas de memoire : la nappe se remet a plat exactement quand\n * le curseur part, sans un pli de retard. Or c'est le retard qui fait\n * l'elastique. Chaque noeud garde donc une vitesse, et son acceleration a\n * trois termes : le laplacien de ses quatre voisins — qui propage l'onde de\n * proche en proche —, un rappel vers le plan, et la traction du pointeur.\n *\n * Le cout est lineaire en nombre de noeuds, et se paie sur le processeur ; il\n * est negligeable devant le dessin de la nappe, qui est un seul appel.\n *\n * ## Pourquoi le pas de temps est plafonne\n *\n * Un schema explicite diverge des que le pas depasse ce que la raideur\n * autorise. Apres un onglet en arriere-plan, la premiere image porte parfois\n * une seconde entiere : sans plafond, la nappe explose au retour et ne\n * revient jamais. Le plafond a trente millisecondes coute un ralenti d'une\n * image, et c'est tout.\n *\n * ## Les gouttes\n *\n * Sans pointeur, une nappe parfaitement plate est un ecran vide. Une\n * impulsion tombe donc de temps en temps sur un noeud tire au hasard, et son\n * onde traverse le maillage. C'est aussi ce qui rend l'elasticite visible\n * quand personne ne touche a rien.\n *\n * ## Sous mouvement reduit\n *\n * La scene est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  type Customisable,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\nimport { usePoster } from '@registre/hooks/usePoster'\n\n/** Proprietes propres au composant. */\nexport interface ElasticMeshOwnProps {\n  /** Noeuds par cote du maillage. @defaultValue 26 */\n  density?: number\n  /** Force de traction du pointeur. @defaultValue 1 */\n  pull?: number\n  /** Raideur de la nappe : plus haut, plus l onde court vite. @defaultValue 1 */\n  springiness?: number\n  /** Gouttes par minute quand le pointeur ne touche a rien. @defaultValue 12 */\n  drops?: number\n  /** Tokens : le fond, la nappe au repos, la nappe tendue. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type ElasticMeshProps = Customisable<ElasticMeshOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-violet-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-violet-100 dark:o-to-violet-950'\n\n/**\n * Noeuds par cote en qualite basse.\n *\n * Le cout est le carre du cote, a la simulation comme au dessin.\n */\nconst LOW_DENSITY = 16\n\n/** Demi-largeur de la nappe, en unites de scene. */\nconst HALF = 1.6\n\n/** Portee de la traction du pointeur, en unites de scene. */\nconst GRIP = 0.55\n\n/** Pas de temps maximal, en secondes. Au-dela, le schema explicite diverge. */\nconst MAX_STEP = 0.03\n\ntype Three = SceneContext['three']\ntype BufferAttribute = InstanceType<Three['BufferAttribute']>\n\n/** Ce que la scene garde entre la construction et les images. */\ninterface Sheet {\n  readonly side: number\n  readonly position: BufferAttribute\n  readonly colour: BufferAttribute\n  /** Deplacement de chaque noeud hors du plan. */\n  readonly height: Float32Array\n  /** Vitesse de chaque noeud. */\n  readonly speed: Float32Array\n  /** Temps restant avant la prochaine goutte, en secondes. */\n  nextDrop: number\n  /** Teintes courantes, relues a chaque bascule de theme. */\n  rest: ShaderColour\n  strained: ShaderColour\n}\n\n/**\n * Maillage elastique.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <ElasticMesh className=\"o-absolute o-inset-0\" />\n *   <div className=\"o-relative o-z-10\">…</div>\n * </div>\n */\nexport function ElasticMesh({\n  density = 26,\n  pull = 1,\n  springiness = 1,\n  drops = 12,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: ElasticMeshProps): ReactElement {\n  const { theme } = useMotionState()\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  const sheet = useRef<Sheet | null>(null)\n  const context = useRef<SceneContext | null>(null)\n\n  const settings = useRef({ pull, springiness, drops })\n  settings.current = { pull, springiness, drops }\n\n  const pointer = usePointerDamped({ host, speed: 6, name: 'elastic-mesh : pointeur' })\n\n  const { ref, ready, refused } = useScene<HTMLDivElement>({\n    name: 'maillage-elastique',\n    setup: (scene: SceneContext) => {\n      context.current = scene\n      const { three, renderer, camera, quality } = scene\n\n      const [bg, calm, strained] = colors.map((token) => readTokenColour(token, ref.current))\n\n      // Le fond de la scene est le fond de la page. Le token est en sRGB et\n      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :\n      // sans la conversion inverse, le fond ressort un cran plus clair.\n      renderer.setClearColor(\n        new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),\n        1,\n      )\n\n      const side = quality === 'low' ? Math.min(density, LOW_DENSITY) : Math.max(density, 4)\n      const count = side * side\n\n      // La camera regarde la nappe de biais : de face, un deplacement hors du\n      // plan ne se lirait qu'a la couleur.\n      camera.position.set(0, -1.35, 1.95)\n      camera.lookAt(0, 0.05, 0)\n\n      const positions = new Float32Array(count * 3)\n      const colours = new Float32Array(count * 3)\n      for (let iy = 0; iy < side; iy += 1) {\n        for (let ix = 0; ix < side; ix += 1) {\n          const index = iy * side + ix\n          positions[index * 3] = (ix / (side - 1)) * 2 * HALF - HALF\n          positions[index * 3 + 1] = (iy / (side - 1)) * 2 * HALF - HALF\n          positions[index * 3 + 2] = 0\n        }\n      }\n\n      // Les segments sont indexes : chaque noeud n'existe qu'une fois, et une\n      // seule ecriture de sa position deplace les quatre traits qui y menent.\n      const indices: number[] = []\n      for (let iy = 0; iy < side; iy += 1) {\n        for (let ix = 0; ix < side; ix += 1) {\n          const index = iy * side + ix\n          if (ix + 1 < side) indices.push(index, index + 1)\n          if (iy + 1 < side) indices.push(index, index + side)\n        }\n      }\n\n      const geometry = new three.BufferGeometry()\n      const position = new three.BufferAttribute(positions, 3)\n      const colour = new three.BufferAttribute(colours, 3)\n      position.setUsage(three.DynamicDrawUsage)\n      colour.setUsage(three.DynamicDrawUsage)\n      geometry.setAttribute('position', position)\n      geometry.setAttribute('color', colour)\n      geometry.setIndex(indices)\n\n      const material = new three.LineBasicMaterial({\n        vertexColors: true,\n        transparent: true,\n        opacity: 0.9,\n      })\n      const lines = new three.LineSegments(geometry, material)\n      lines.name = 'maillage'\n      scene.scene.add(lines)\n\n      sheet.current = {\n        side,\n        position,\n        colour,\n        height: new Float32Array(count),\n        speed: new Float32Array(count),\n        nextDrop: 1,\n        rest: calm ?? [0, 0, 0],\n        strained: strained ?? [0, 0, 0],\n      }\n\n      return () => {\n        scene.scene.remove(lines)\n        sheet.current = null\n      }\n    },\n\n    frame: (_, { deltaRaw }) => {\n      const live = sheet.current\n      if (live === null) return\n\n      const { side, height, speed, position, colour } = live\n      const { pull: force, springiness: stiff, drops: rate } = settings.current\n\n      // Le pas est plafonne : un schema explicite diverge au-dela de ce que\n      // la raideur autorise, et la premiere image apres un onglet cache en\n      // porte facilement dix fois trop.\n      const dt = Math.min(deltaRaw, MAX_STEP)\n\n      // Le pointeur, du repere du hook vers celui de la nappe.\n      const px = pointer.current.x * HALF * 1.1\n      const py = -pointer.current.y * HALF * 1.1\n\n      // La goutte : une impulsion sur un noeud tire au hasard.\n      live.nextDrop -= dt\n      if (rate > 0 && live.nextDrop <= 0) {\n        live.nextDrop = 60 / rate\n        const target = Math.floor(Math.random() * side * side)\n        speed[target] = (speed[target] ?? 0) - 2.4\n      }\n\n      const k = 55 * Math.max(stiff, 0.05)\n      const damping = Math.exp(-2.4 * dt)\n      const positions = position.array as Float32Array\n\n      for (let iy = 0; iy < side; iy += 1) {\n        for (let ix = 0; ix < side; ix += 1) {\n          const index = iy * side + ix\n\n          // Les bords sont cloues : une nappe libre glisserait hors du cadre.\n          if (ix === 0 || iy === 0 || ix === side - 1 || iy === side - 1) {\n            height[index] = 0\n            speed[index] = 0\n            positions[index * 3 + 2] = 0\n            continue\n          }\n\n          const here = height[index] ?? 0\n          const laplacian =\n            (height[index - 1] ?? 0) +\n            (height[index + 1] ?? 0) +\n            (height[index - side] ?? 0) +\n            (height[index + side] ?? 0) -\n            4 * here\n\n          // La traction : une gaussienne de la distance au pointeur, dans le\n          // plan de la nappe.\n          const dx = (positions[index * 3] ?? 0) - px\n          const dy = (positions[index * 3 + 1] ?? 0) - py\n          const grip = Math.exp(-(dx * dx + dy * dy) / (GRIP * GRIP))\n\n          const acceleration = k * laplacian - 7 * here + grip * force * 9\n          const next = ((speed[index] ?? 0) + acceleration * dt) * damping\n          speed[index] = next\n          height[index] = here + next * dt\n          positions[index * 3 + 2] = height[index] ?? 0\n        }\n      }\n\n      // La teinte suit la tension : au repos le filet du theme, tendue la\n      // couleur vive. Le carre resserre la couleur sur les plis marques.\n      const colourArray = colour.array as Float32Array\n      const [r0, g0, b0] = live.rest\n      const [r1, g1, b1] = live.strained\n      for (let index = 0; index < side * side; index += 1) {\n        const strain = Math.min(Math.abs(height[index] ?? 0) * 2.4, 1)\n        const share = strain * strain\n        colourArray[index * 3] = r0 + (r1 - r0) * share\n        colourArray[index * 3 + 1] = g0 + (g1 - g0) * share\n        colourArray[index * 3 + 2] = b0 + (b1 - b0) * share\n      }\n\n      position.needsUpdate = true\n      colour.needsUpdate = true\n    },\n  })\n\n  // Le theme a bascule : les tokens sont relus et les teintes de reference\n  // remplacees. La scene n'est pas reconstruite — la boucle repeint seule.\n  useEffect(() => {\n    const scene = context.current\n    const live = sheet.current\n    if (scene === null || live === null || host === null) return\n    const [bg, calm, strained] = colors.map((token) => readTokenColour(token, host))\n    live.rest = calm ?? live.rest\n    live.strained = strained ?? live.strained\n    scene.renderer.setClearColor(\n      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),\n      1,\n    )\n  }, [theme, colors, host, ready])\n\n  const pending = usePoster({ ready, refused })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {pending.visible ? (\n        <div style={pending.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

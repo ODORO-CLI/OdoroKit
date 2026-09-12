@@ -116,6 +116,28 @@ export function CheckboxDoc(): ReactElement {
               DEFAUTS,
             )} />`
           }
+          variants={[
+            {
+              title: 'Avec description',
+              values: { description: 'Rester connecte sur cet appareil.' },
+            },
+            { title: 'Desactivee', values: { disabled: true } },
+            {
+              title: 'Indeterminee',
+              description: 'Purement visuel : la valeur soumise ne change pas.',
+              values: { indeterminate: true },
+            },
+            {
+              title: 'Cochee',
+              description: 'Etat initial pose par defaultChecked.',
+              node: <Checkbox label="Conditions acceptees" defaultChecked />,
+            },
+            {
+              title: 'Liste de taches',
+              description: 'Un groupe controle, une case par element.',
+              node: <ListeTaches />,
+            },
+          ]}
         />
       </Section>
 

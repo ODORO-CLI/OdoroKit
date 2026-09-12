@@ -1,0 +1,56 @@
+{
+  "name": "use-scroll-progress",
+  "category": "hooks",
+  "title": "Avancee au defilement",
+  "description": "Dit ou en est un element, ou la page, dans le champ visible, sans rendu React par image.",
+  "engine": {
+    "gsap": ["core"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useScrollProgress.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "target",
+      "type": "HTMLElement | null",
+      "description": "Element mesure. Sans lui, c est l avancee du document."
+    },
+    {
+      "name": "scroller",
+      "type": "HTMLElement | null",
+      "description": "Conteneur qui defile, quand ce n est pas la fenetre."
+    },
+    {
+      "name": "range",
+      "type": "'traversee' | 'ancrage'",
+      "default": "traversee",
+      "description": "L element entre et sort du champ, ou le champ le parcourt de l interieur.",
+      "options": ["traversee", "ancrage"]
+    },
+    {
+      "name": "reduced",
+      "type": "'final' | 'suivre'",
+      "default": "final",
+      "description": "Sous mouvement reduit : publier l etat final, ou mesurer quand meme.",
+      "options": ["final", "suivre"]
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "default": "progression-defilement",
+      "description": "Nom affiche dans le panneau de diagnostic."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de rectangle par image, en priorite layout, quel que soit le nombre d elements. Publication bornee a cent paliers."
+  }
+}

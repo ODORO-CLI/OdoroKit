@@ -8,15 +8,18 @@
  * moi ? ». Le fond de la page n'est pas celui du catalogue, la couleur du
  * texte non plus, et le rayon des angles suit une charte.
  *
- * L'atelier expose donc ces trois reglages pour toute preview, plus ceux que
- * la page declare pour son composant. Les valeurs sont appliquees en style en
- * ligne : c'est le seul niveau du contrat qui l'emporte toujours, et c'est
- * exactement ce qu'on veut d'un bac a sable.
+ * ## Le contenu de demonstration est un reglage, pas un interrupteur
  *
- * ## L'interrupteur de contenu
+ * Un fond ne porte pas toujours un hero. L'atelier propose donc plusieurs
+ * maquettes — hero, cartes, formulaire, chiffres, article — et « aucun » pour
+ * juger l'effet nu. Chacune pose une question differente au composant.
  *
- * Un fond juge sur cadre vide ment. Le contenu de demonstration est donc pose
- * par-dessus par defaut, et se coupe d'un clic pour voir l'effet nu.
+ * ## Les couleurs du composant
+ *
+ * Quand une entree declare ses tokens de couleur, l'atelier les expose : un
+ * emplacement par token, et le nuancier complet de la palette pour le
+ * remplacer. C'est la reponse a la vraie question — « et dans ma teinte ? » —
+ * sans quitter la page.
  *
  * @module
  */
@@ -30,7 +33,7 @@ import {
   type ReactNode,
 } from 'react'
 
-import { DemoContent } from './DemoContent.jsx'
+import { DemoContent, type DemoVariant } from './DemoContent.jsx'
 
 /** Un reglage propre au composant presente. */
 export type AtelierControl =
@@ -57,9 +60,18 @@ export type AtelierControl =
       readonly label: string
       readonly value: boolean
     }
+  | {
+      readonly kind: 'colors'
+      readonly name: string
+      readonly label: string
+      /** Tokens de depart, un par emplacement. */
+      readonly value: readonly string[]
+    }
 
 /** Valeurs courantes des reglages, indexees par leur nom. */
-export type AtelierValues = Readonly<Record<string, number | string | boolean>>
+export type AtelierValues = Readonly<
+  Record<string, number | string | boolean | readonly string[]>
+>
 
 /** Etat du cadre, transmis a ce qui est presente. */
 export interface AtelierFrame {
@@ -69,8 +81,10 @@ export interface AtelierFrame {
   readonly color: string
   /** Rayon des angles, en pixels. */
   readonly radius: number
-  /** `true` si le contenu de demonstration est affiche. */
+  /** `true` si une maquette de contenu est affichee. */
   readonly demo: boolean
+  /** Maquette de contenu affichee. */
+  readonly demoVariant: DemoVariant
 }
 
 /** Options de l'atelier. */
@@ -81,9 +95,11 @@ export interface AtelierProps {
   readonly height?: string
   /** Contenu de demonstration affiche par defaut. @defaultValue true */
   readonly demoByDefault?: boolean
-  /** Fond de depart. @defaultValue une nuance neutre foncee */
+  /** Maquette de depart quand le contenu est affiche. @defaultValue 'hero' */
+  readonly demoVariant?: DemoVariant
+  /** Fond de depart. @defaultValue le fond du theme courant */
   readonly background?: string
-  /** Couleur de texte de depart. @defaultValue blanc */
+  /** Couleur de texte de depart. @defaultValue l'encre du theme courant */
   readonly color?: string
   /**
    * Rend la preview differee, derriere un interrupteur.
@@ -98,21 +114,116 @@ export interface AtelierProps {
   readonly children: (values: AtelierValues, frame: AtelierFrame) => ReactNode
 }
 
-/** Fonds proposes : deux neutres, deux teintes, pour couvrir les cas usuels. */
+/** Fonds proposes : le theme courant d'abord, puis trois neutres, deux teintes, le blanc. */
 const BACKGROUNDS: readonly (readonly [string, string])[] = [
+  ['theme', 'var(--o-theme-bg)'],
   ['zinc-950', palette['zinc-950'] ?? '#09090b'],
-  ['zinc-100', palette['zinc-100'] ?? '#f4f4f5'],
+  ['zinc-900', palette['zinc-900'] ?? '#18181b'],
   ['brand-950', palette['brand-950'] ?? '#1e1b4b'],
+  ['zinc-100', palette['zinc-100'] ?? '#f4f4f5'],
+  ['brand-50', palette['brand-50'] ?? '#eef2ff'],
   ['white', palette.white ?? '#ffffff'],
 ]
 
-/** Couleurs de texte proposees. */
+/** Couleurs de texte proposees : le theme courant d'abord. */
 const COLORS: readonly (readonly [string, string])[] = [
+  ['theme', 'var(--o-theme-fg)'],
   ['white', palette.white ?? '#ffffff'],
   ['zinc-900', palette['zinc-900'] ?? '#18181b'],
   ['brand-400', palette['brand-400'] ?? '#818cf8'],
   ['amber-300', palette['amber-300'] ?? '#fcd34d'],
 ]
+
+/** Les maquettes de contenu proposees, dans l'ordre d'affichage. */
+const VARIANTS: readonly (readonly [DemoVariant, string])[] = [
+  ['aucun', 'Aucun'],
+  ['hero', 'Hero'],
+  ['cartes', 'Cartes'],
+  ['formulaire', 'Formulaire'],
+  ['stats', 'Chiffres'],
+  ['article', 'Article'],
+]
+
+/** Teintes de la palette, dans l'ordre du nuancier. */
+const HUES = [
+  'brand',
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose',
+  'slate',
+  'gray',
+  'zinc',
+  'stone',
+] as const
+
+const SHADES = [
+  '50',
+  '100',
+  '200',
+  '300',
+  '400',
+  '500',
+  '600',
+  '700',
+  '800',
+  '900',
+  '950',
+] as const
+
+/** Les variables de theme, dans l'ordre du nuancier. */
+const THEME_KEYS = ['bg', 'surface', 'fg', 'muted', 'line'] as const
+
+/**
+ * Couleur CSS d'un token (`--o-palette-sky-500` -> sa valeur).
+ *
+ * Une variable de theme n'a pas de valeur fixe : elle est lue sur le document,
+ * dans le theme du moment.
+ */
+function tokenColour(token: string): string {
+  if (token.startsWith('--o-theme-') && typeof document !== 'undefined') {
+    const live = getComputedStyle(document.documentElement).getPropertyValue(token).trim()
+    if (live !== '') return live
+  }
+  const key = token.replace('--o-palette-', '')
+  return (palette as Readonly<Record<string, string>>)[key] ?? '#888888'
+}
+
+/** Nom court d'un token (`--o-palette-sky-500` -> `sky-500`, `--o-theme-bg` -> `theme-bg`). */
+function tokenLabel(token: string): string {
+  return token.replace('--o-palette-', '').replace('--o-theme-', 'theme-')
+}
+
+/** Etiquette d'un groupe du panneau. */
+function GroupLabel({ children }: { children: ReactNode }): ReactElement {
+  return (
+    <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
+      {children}
+    </p>
+  )
+}
+
+/** Etiquette de rang, a largeur fixe pour aligner les reglages. */
+function RowLabel({ children }: { children: ReactNode }): ReactElement {
+  return (
+    <span className="o-w-20 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+      {children}
+    </span>
+  )
+}
 
 /** Un rang de pastilles de couleur. */
 function Swatches({
@@ -128,9 +239,7 @@ function Swatches({
 }): ReactElement {
   return (
     <label className="o-flex o-items-center o-gap-2">
-      <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-        {label}
-      </span>
+      <RowLabel>{label}</RowLabel>
       <span className="o-flex o-gap-1.5">
         {options.map(([name, colour]) => (
           <button
@@ -150,7 +259,7 @@ function Swatches({
         ))}
       </span>
       {/*
-        Le selecteur natif couvre ce que quatre pastilles ne peuvent pas : la
+        Le selecteur natif couvre ce que six pastilles ne peuvent pas : la
         couleur exacte d'une charte. Il n'y a pas de classe pour cela, et il
         n'y en aura pas — une feuille statique ne peut pas contenir tous les
         hexadecimaux.
@@ -166,6 +275,176 @@ function Swatches({
   )
 }
 
+/** Interrupteur du panneau. */
+function PanelSwitch({
+  checked,
+  onToggle,
+  label,
+}: {
+  checked: boolean
+  onToggle: () => void
+  label?: string
+}): ReactElement {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      {...(label === undefined ? {} : { 'aria-label': label })}
+      onClick={onToggle}
+      className={`o-h-6 o-w-11 o-shrink-0 o-rounded-full o-border-w-1 o-cursor-pointer o-transition-colors ${
+        checked
+          ? 'o-bg-brand-500 o-border-brand-500'
+          : 'o-bg-zinc-200 dark:o-bg-zinc-800 o-border-zinc-300 dark:o-border-zinc-700'
+      }`}
+    >
+      <span
+        className="o-block o-size-4 o-rounded-full o-bg-white o-transition-transform"
+        style={{ transform: `translateX(${checked ? '22px' : '2px'})` }}
+      />
+    </button>
+  )
+}
+
+/** Rang de boutons a choix unique. */
+function ChoiceRow({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly (readonly [string, string])[]
+  value: string
+  onChange: (next: string) => void
+}): ReactElement {
+  return (
+    <span className="o-flex o-flex-wrap o-gap-1">
+      {options.map(([option, label]) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={value === option}
+          onClick={() => onChange(option)}
+          className={`o-h-7 o-px-2 o-rounded-md o-border-w-1 o-text-xs o-cursor-pointer o-transition-colors ${
+            value === option
+              ? 'o-border-brand-500 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400'
+              : 'o-border-zinc-300 dark:o-border-zinc-700 o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-100'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </span>
+  )
+}
+
+/**
+ * Reglage des couleurs du composant : un emplacement par token, et le
+ * nuancier complet de la palette pour remplacer celui qui est ouvert.
+ */
+function ColourSlots({
+  label,
+  tokens,
+  onChange,
+}: {
+  label: string
+  tokens: readonly string[]
+  onChange: (next: readonly string[]) => void
+}): ReactElement {
+  const [openSlot, setOpenSlot] = useState<number | null>(null)
+
+  const pick = (shadeToken: string): void => {
+    if (openSlot === null) return
+    const next = tokens.map((token, index) => (index === openSlot ? shadeToken : token))
+    onChange(next)
+    setOpenSlot(null)
+  }
+
+  return (
+    <div className="o-flex o-flex-col o-gap-2 md:o-col-span-2">
+      <div className="o-flex o-items-center o-gap-2">
+        <RowLabel>{label}</RowLabel>
+        <span className="o-flex o-flex-wrap o-gap-1.5">
+          {tokens.map((token, index) => (
+            <button
+              key={index}
+              type="button"
+              aria-expanded={openSlot === index}
+              title={tokenLabel(token)}
+              onClick={() => setOpenSlot(openSlot === index ? null : index)}
+              className={`o-inline-flex o-items-center o-gap-1.5 o-rounded-md o-border-w-1 o-py-1 o-pl-1.5 o-pr-2 o-text-xs o-font-mono o-cursor-pointer o-transition-colors ${
+                openSlot === index
+                  ? 'o-border-brand-500 o-text-brand-600 dark:o-text-brand-400'
+                  : 'o-border-zinc-300 dark:o-border-zinc-700 o-text-zinc-500 dark:o-text-zinc-400'
+              }`}
+            >
+              <span
+                className="o-size-4 o-rounded-sm o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700"
+                style={{ backgroundColor: tokenColour(token) }}
+              />
+              {tokenLabel(token)}
+            </button>
+          ))}
+        </span>
+      </div>
+
+      {openSlot === null ? null : (
+        <div className="o-flex o-flex-col o-gap-1 o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-950 o-p-2">
+          {/* Les variables de theme d'abord : c'est ce qu'un fond lit pour
+              suivre la bascule clair / sombre. */}
+          <div className="o-flex o-items-center o-gap-1 o-pb-1 o-mb-1 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
+            <span className="o-w-14 o-shrink-0 o-text-right o-pr-1 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-600">
+              theme
+            </span>
+            {THEME_KEYS.map((key) => {
+              const token = `--o-theme-${key}`
+              const selected = tokens[openSlot] === token
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  title={`theme-${key}`}
+                  aria-label={`theme-${key}`}
+                  aria-pressed={selected}
+                  onClick={() => pick(token)}
+                  className={`o-h-4 o-w-12 o-cursor-pointer o-rounded-sm o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-transition-transform hover:o-scale-110 ${
+                    selected ? 'o-ring' : ''
+                  }`}
+                  style={{ backgroundColor: tokenColour(token) }}
+                />
+              )
+            })}
+          </div>
+          {HUES.map((hue) => (
+            <div key={hue} className="o-flex o-items-center o-gap-1">
+              <span className="o-w-14 o-shrink-0 o-text-right o-pr-1 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-600">
+                {hue}
+              </span>
+              {SHADES.map((shade) => {
+                const token = `--o-palette-${hue}-${shade}`
+                const selected = tokens[openSlot] === token
+                return (
+                  <button
+                    key={shade}
+                    type="button"
+                    title={`${hue}-${shade}`}
+                    aria-label={`${hue}-${shade}`}
+                    aria-pressed={selected}
+                    onClick={() => pick(token)}
+                    className={`o-h-4 o-flex-1 o-cursor-pointer o-rounded-sm o-transition-transform hover:o-scale-110 ${
+                      selected ? 'o-ring' : ''
+                    }`}
+                    style={{ backgroundColor: tokenColour(token) }}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /**
  * Cadre de preview reglable.
  *
@@ -178,8 +457,11 @@ export function Atelier({
   controls = [],
   height = 'o-h-80',
   demoByDefault = true,
-  background = palette['zinc-950'] ?? '#09090b',
-  color = palette.white ?? '#ffffff',
+  demoVariant: initialVariant = 'hero',
+  // Le cadre suit le theme du visiteur : un fond qui lit ses tokens doit se
+  // montrer clair en clair, et le texte de demonstration rester lisible.
+  background = 'var(--o-theme-bg)',
+  color = 'var(--o-theme-fg)',
   deferred,
   children,
 }: AtelierProps): ReactElement {
@@ -187,15 +469,23 @@ export function Atelier({
   const [frameBackground, setBackground] = useState(background)
   const [frameColor, setColor] = useState(color)
   const [radius, setRadius] = useState(12)
-  const [demo, setDemo] = useState(demoByDefault)
+  const [variant, setVariant] = useState<DemoVariant>(
+    demoByDefault ? initialVariant : 'aucun',
+  )
 
   const [values, setValues] = useState<AtelierValues>(() =>
     Object.fromEntries(controls.map((control) => [control.name, control.value])),
   )
 
   const frame = useMemo<AtelierFrame>(
-    () => ({ background: frameBackground, color: frameColor, radius, demo }),
-    [frameBackground, frameColor, radius, demo],
+    () => ({
+      background: frameBackground,
+      color: frameColor,
+      radius,
+      demo: variant !== 'aucun',
+      demoVariant: variant,
+    }),
+    [frameBackground, frameColor, radius, variant],
   )
 
   const surface: CSSProperties = {
@@ -204,7 +494,7 @@ export function Atelier({
     borderRadius: `${String(radius)}px`,
   }
 
-  const set = (name: string, next: number | string | boolean): void => {
+  const set = (name: string, next: AtelierValues[string]): void => {
     setValues((previous) => ({ ...previous, [name]: next }))
   }
 
@@ -224,16 +514,17 @@ export function Atelier({
             </p>
           </div>
         )}
-        {demo ? (
+        {variant === 'aucun' ? null : (
           // Le contenu de demonstration est decoratif : il ne doit jamais
           // intercepter un clic destine a la preview.
           <div className="o-absolute o-inset-0 o-pointer-events-none">
-            <DemoContent color={frameColor} radius={radius} />
+            <DemoContent variant={variant} color={frameColor} radius={radius} />
           </div>
-        ) : null}
+        )}
       </div>
 
       <div className="o-flex o-flex-col o-gap-3 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-4">
+        <GroupLabel>Cadre</GroupLabel>
         <div className="o-grid o-gap-3 md:o-grid-cols-2">
           <Swatches
             label="Fond"
@@ -249,9 +540,7 @@ export function Atelier({
           />
 
           <label className="o-flex o-items-center o-gap-2">
-            <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-              Rayon
-            </span>
+            <RowLabel>Rayon</RowLabel>
             <input
               type="range"
               min={0}
@@ -268,126 +557,87 @@ export function Atelier({
 
           {deferred === undefined ? null : (
             <label className="o-flex o-items-center o-gap-2">
-              <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-                {deferred.label}
-              </span>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={mounted}
-                onClick={() => setMounted(!mounted)}
-                className={`o-h-6 o-w-11 o-rounded-full o-border-w-1 o-cursor-pointer o-transition-colors ${
-                  mounted
-                    ? 'o-bg-brand-500 o-border-brand-500'
-                    : 'o-bg-zinc-200 dark:o-bg-zinc-800 o-border-zinc-300 dark:o-border-zinc-700'
-                }`}
-              >
-                <span
-                  className="o-block o-size-4 o-rounded-full o-bg-white o-transition-transform"
-                  style={{ transform: `translateX(${mounted ? '22px' : '2px'})` }}
-                />
-              </button>
+              <RowLabel>{deferred.label}</RowLabel>
+              <PanelSwitch checked={mounted} onToggle={() => setMounted(!mounted)} />
               <span className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {mounted ? 'montee' : 'non montee'}
               </span>
             </label>
           )}
 
-          <label className="o-flex o-items-center o-gap-2">
-            <span className="o-w-16 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-              Demo
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={demo}
-              onClick={() => setDemo(!demo)}
-              className={`o-h-6 o-w-11 o-rounded-full o-border-w-1 o-cursor-pointer o-transition-colors ${
-                demo
-                  ? 'o-bg-brand-500 o-border-brand-500'
-                  : 'o-bg-zinc-200 dark:o-bg-zinc-800 o-border-zinc-300 dark:o-border-zinc-700'
-              }`}
-            >
-              <span
-                className="o-block o-size-4 o-rounded-full o-bg-white o-transition-transform"
-                style={{ transform: `translateX(${demo ? '22px' : '2px'})` }}
-              />
-            </button>
-            <span className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-              {demo ? 'contenu affiche' : 'effet nu'}
-            </span>
-          </label>
+          <div className="o-flex o-items-center o-gap-2 md:o-col-span-2">
+            <RowLabel>Contenu</RowLabel>
+            <ChoiceRow
+              options={VARIANTS}
+              value={variant}
+              onChange={(next) => setVariant(next as DemoVariant)}
+            />
+          </div>
         </div>
 
         {controls.length === 0 ? null : (
-          <div className="o-grid o-gap-3 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-3 md:o-grid-cols-2">
-            {controls.map((control) => (
-              <label key={control.name} className="o-flex o-items-center o-gap-2">
-                <span className="o-w-24 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-                  {control.label}
-                </span>
-
-                {control.kind === 'range' ? (
-                  <>
-                    <input
-                      type="range"
-                      min={control.min}
-                      max={control.max}
-                      step={control.step}
-                      value={Number(values[control.name] ?? control.value)}
-                      onChange={(event) => set(control.name, Number(event.target.value))}
-                      className="o-flex-1 o-accent-brand-500"
+          <>
+            <div className="o-border-t o-border-zinc-200 dark:o-border-zinc-800" />
+            <GroupLabel>Composant</GroupLabel>
+            <div className="o-grid o-gap-3 md:o-grid-cols-2">
+              {controls.map((control) => {
+                if (control.kind === 'colors') {
+                  const current = values[control.name]
+                  return (
+                    <ColourSlots
+                      key={control.name}
+                      label={control.label}
+                      tokens={Array.isArray(current) ? current : control.value}
+                      onChange={(next) => set(control.name, next)}
                     />
-                    <span className="o-w-14 o-text-right o-font-mono o-text-xs o-tabular-nums">
-                      {String(values[control.name] ?? control.value)}
-                      {control.unit ?? ''}
+                  )
+                }
+
+                return (
+                  <label key={control.name} className="o-flex o-items-center o-gap-2">
+                    <span className="o-w-24 o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                      {control.label}
                     </span>
-                  </>
-                ) : null}
 
-                {control.kind === 'choice' ? (
-                  <span className="o-flex o-flex-wrap o-gap-1">
-                    {control.options.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        aria-pressed={values[control.name] === option}
-                        onClick={() => set(control.name, option)}
-                        className={`o-h-7 o-px-2 o-rounded-md o-border-w-1 o-text-xs o-font-mono o-cursor-pointer o-transition-colors ${
-                          values[control.name] === option
-                            ? 'o-border-brand-500 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400'
-                            : 'o-border-zinc-300 dark:o-border-zinc-700 o-text-zinc-500 dark:o-text-zinc-400'
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </span>
-                ) : null}
+                    {control.kind === 'range' ? (
+                      <>
+                        <input
+                          type="range"
+                          min={control.min}
+                          max={control.max}
+                          step={control.step}
+                          value={Number(values[control.name] ?? control.value)}
+                          onChange={(event) =>
+                            set(control.name, Number(event.target.value))
+                          }
+                          className="o-flex-1 o-accent-brand-500"
+                        />
+                        <span className="o-w-14 o-text-right o-font-mono o-text-xs o-tabular-nums">
+                          {String(values[control.name] ?? control.value)}
+                          {control.unit ?? ''}
+                        </span>
+                      </>
+                    ) : null}
 
-                {control.kind === 'switch' ? (
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={values[control.name] === true}
-                    onClick={() => set(control.name, values[control.name] !== true)}
-                    className={`o-h-6 o-w-11 o-rounded-full o-border-w-1 o-cursor-pointer o-transition-colors ${
-                      values[control.name] === true
-                        ? 'o-bg-brand-500 o-border-brand-500'
-                        : 'o-bg-zinc-200 dark:o-bg-zinc-800 o-border-zinc-300 dark:o-border-zinc-700'
-                    }`}
-                  >
-                    <span
-                      className="o-block o-size-4 o-rounded-full o-bg-white o-transition-transform"
-                      style={{
-                        transform: `translateX(${values[control.name] === true ? '22px' : '2px'})`,
-                      }}
-                    />
-                  </button>
-                ) : null}
-              </label>
-            ))}
-          </div>
+                    {control.kind === 'choice' ? (
+                      <ChoiceRow
+                        options={control.options.map((option) => [option, option])}
+                        value={String(values[control.name] ?? control.value)}
+                        onChange={(next) => set(control.name, next)}
+                      />
+                    ) : null}
+
+                    {control.kind === 'switch' ? (
+                      <PanelSwitch
+                        checked={values[control.name] === true}
+                        onToggle={() => set(control.name, values[control.name] !== true)}
+                      />
+                    ) : null}
+                  </label>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>

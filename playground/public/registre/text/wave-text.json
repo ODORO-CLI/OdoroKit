@@ -1,0 +1,59 @@
+{
+  "name": "wave-text",
+  "category": "text",
+  "title": "Vague",
+  "description": "Chaque lettre monte et descend en decale, sans aucun JavaScript apres le premier rendu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/WaveText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Hauteur de la vague.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d une oscillation complete.",
+      "min": 400,
+      "max": 4000,
+      "step": 100
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation animee par lettre, toutes tenues par le compositeur. A reserver aux titres : un paragraphe entier ferait beaucoup de calques."
+  },
+  "id": "text/wave-text",
+  "sources": {
+    "component.tsx": "/**\n * Vague : chaque lettre monte et descend, decalee de la precedente.\n *\n * ## Le decalage fait la vague, pas le mouvement\n *\n * Toutes les lettres jouent la meme animation ; seule leur phase differe. Le\n * decalage est porte par `animation-delay`, negatif pour que la vague soit\n * deja formee au premier rendu — un delai positif ferait partir les lettres\n * une a une, ce qui est un autre effet.\n *\n * Une fois les delais poses, plus rien ne s'execute : le compositeur anime\n * seul autant de transformations qu'il y a de lettres, ce qui reste dans son\n * registre tant que le texte est un titre et pas un paragraphe.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte est eclate en autant d'elements que de caracteres, ce qui le\n * rendrait illisible a un lecteur d'ecran — il epellerait. Le conteneur porte\n * donc le texte complet en `aria-label`, et les lettres sont cachees a\n * l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface WaveTextOwnProps {\n  /** Texte a faire onduler. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Hauteur de la vague, en pixels. @defaultValue 6 */\n  amplitude?: number\n  /** Duree d'une oscillation complete, en millisecondes. @defaultValue 1400 */\n  speed?: number\n}\n\n/** Toutes les proprietes. */\nexport type WaveTextProps = Customisable<WaveTextOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = '\\u00A0'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-wave-text'\n\n/** Pose l'oscillation, une fois par document. */\nfunction ensureWaveRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // `ease-in-out` sur les deux moities donne le va-et-vient d'une sinusoide,\n    // sans en calculer une seule valeur.\n    '@keyframes o-wave{',\n    '0%,100%{transform:translateY(0)}',\n    '50%{transform:translateY(calc(var(--o-wave-amp) * -1))}',\n    '}',\n    '[data-o-wave-letter]{',\n    'display:inline-block;',\n    'animation:o-wave var(--o-wave-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-wave-delay);',\n    '}',\n    '@media (prefers-reduced-motion:reduce){[data-o-wave-letter]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait onduler un texte, lettre a lettre.\n *\n * @example\n * <WaveText as=\"h1\" className=\"o-text-4xl o-font-bold\">\n *   Bonjour\n * </WaveText>\n *\n * @example\n * // Une houle lente et discrete.\n * <WaveText amplitude={3} speed={2400}>chargement</WaveText>\n */\nexport function WaveText({\n  children,\n  as: Tag = 'span',\n  amplitude = 6,\n  speed = 1400,\n  ...rest\n}: WaveTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureWaveRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est rendu tel quel, sans decoupage. Il n'y a\n  // aucune raison d'imposer un element par lettre a qui n'aura pas la vague.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const letters = [...children]\n\n  const waveStyle = {\n    ...style,\n    '--o-wave-amp': `${String(amplitude)}px`,\n    '--o-wave-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <Tag\n      {...rest}\n      className={className}\n      style={waveStyle}\n      role=\"text\"\n      aria-label={children}\n    >\n      {letters.map((letter, index) => (\n        <span\n          key={`${letter}-${String(index)}`}\n          aria-hidden\n          data-o-wave-letter=\"\"\n          style={\n            {\n              // Delai negatif : la vague est deja en place au premier rendu.\n              // Un dixieme de periode par lettre donne une ondulation lisible\n              // quelle que soit la longueur du mot.\n              '--o-wave-delay': `${String(-(index * speed) / 10)}ms`,\n            } as CSSProperties\n          }\n        >\n          {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n              l'insecable garde sa largeur. */}\n          {letter === ' ' ? NBSP : letter}\n        </span>\n      ))}\n    </Tag>\n  )\n}\n"
+  }
+}

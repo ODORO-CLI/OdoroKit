@@ -87,7 +87,7 @@ export interface AshenPressOwnProps {
 export type AshenPressProps = Customisable<AshenPressOwnProps>
 
 /** Repli par defaut : un degrade fige, dans les memes tons cendres. */
-const DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-stone-800 o-to-stone-950'
+const DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-zinc-200 dark:o-from-stone-800 o-to-zinc-50 dark:o-to-stone-950'
 
 /**
  * Fond `AshenPress`, charge a l'approche du champ.

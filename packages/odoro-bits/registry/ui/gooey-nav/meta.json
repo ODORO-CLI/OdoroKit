@@ -1,0 +1,85 @@
+{
+  "name": "gooey-nav",
+  "category": "ui",
+  "title": "Navigation gluante",
+  "description": "La pastille se detache en gouttes quand elle change de lien : un filtre SVG soude la pastille et ses eclats en une seule matiere.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/GooeyNav.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-500",
+    "--o-palette-zinc-50",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, dans l ordre d affichage."
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante, en mode controle."
+    },
+    {
+      "name": "defaultActive",
+      "type": "number",
+      "description": "Page courante au montage, en mode non controle."
+    },
+    {
+      "name": "onActiveChange",
+      "type": "(index: number) => void",
+      "description": "Appele quand l utilisateur choisit un lien."
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "default": "--o-palette-brand-500,--o-palette-fuchsia-500,--o-palette-sky-500",
+      "description": "Tokens de couleur : le premier remplit la pastille, tous colorent les gouttes."
+    },
+    {
+      "name": "drops",
+      "type": "number",
+      "default": 10,
+      "description": "Nombre de gouttes projetees a chaque changement.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Portee des gouttes.",
+      "min": 16,
+      "max": 120,
+      "step": 4
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Navigation",
+      "description": "Nom du bloc pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le filtre gluant ne couvre que le calque de la pastille, jamais le texte. Les gouttes sont des animations d images cles retirees a leur fin. Sous mouvement reduit la pastille saute, sans goutte."
+  }
+}

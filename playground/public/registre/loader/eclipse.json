@@ -1,0 +1,65 @@
+{
+  "name": "eclipse",
+  "category": "loader",
+  "title": "Eclipse",
+  "description": "Un disque plein se creuse jusqu a ne plus laisser qu un anneau de lumiere, dont le halo s embrase, puis se referme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Eclipse.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d une eclipse complete, ouverture et fermeture comprises.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de l anneau et du halo. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois cercles : un rayon et une epaisseur animes sur le premier, une opacite sur les deux autres, flous une fois pour toutes. Aucune superposition a masquer, aucune couleur de fond supposee. Anneau ouvert et halo allume sous mouvement reduit."
+  },
+  "id": "loader/eclipse",
+  "sources": {
+    "component.tsx": "/**\n * Eclipse : un disque plein se creuse jusqu'a ne plus laisser qu'un anneau\n * de lumiere, dont le halo s'embrase, puis se referme.\n *\n * ## Un seul cercle, pas deux\n *\n * L'occultation naive consiste a poser un second disque par-dessus le\n * premier — mais ce disque devrait etre de la couleur du fond, que le\n * composant ne connait pas et n'a pas a connaitre. La forme visible est\n * donc construite directement : un anneau est un cercle trace, dont le\n * rayon et l'epaisseur bougent ensemble de facon que le bord exterieur ne\n * change jamais. Epaisseur maximale, le trait se rejoint au centre et\n * l'anneau est un disque plein ; epaisseur minimale, il ne reste qu'un\n * filet. Rien n'est masque, rien n'est superpose, et le fond reste ce qu'il\n * est.\n *\n * C'est la seule figure du lot dont le mouvement va vers l'interieur : le\n * trou s'ouvre au centre au lieu que quelque chose s'en echappe.\n *\n * ## Le halo dit le moment\n *\n * Deux cercles flous entourent l'anneau, l'un serre et vif, l'autre large\n * et tenu. Leur opacite ne monte qu'au moment ou le filet est le plus fin :\n * c'est ce qui donne a l'instant un pic, au lieu d'une respiration egale.\n * Le flou est un filtre applique a chacun ; a cette taille il porte sur\n * quelques centaines de pixels.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, l'anneau reste ouvert et le halo allume : c'est\n * l'instant que la figure raconte, fige.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-eclipse'\n\n/** Rayon exterieur de la figure, en unites de la vue. */\nconst OUTER = 34\n\n/** Epaisseur du filet restant a l'ouverture maximale. */\nconst THIN = 4\n\n/** Pose l'anneau, son ouverture et son halo, une fois par document. */\nfunction ensureEclipseRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const disc = `${String(OUTER / 2)}px`\n  const ring = `${String(OUTER - THIN / 2)}px`\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-eclipse]{display:inline-block;line-height:0}',\n    '[data-o-eclipse] svg{display:block}',\n    '[data-o-eclipse-disc]{',\n    'animation:o-eclipse-open var(--o-eclipse-speed) ease-in-out infinite;',\n    '}',\n    // Rayon et epaisseur bougent ensemble : leur somme, le bord exterieur,\n    // reste constante d'un bout a l'autre.\n    '@keyframes o-eclipse-open{',\n    `0%,6%{r:${disc};stroke-width:${String(OUTER)}px}`,\n    `46%,54%{r:${ring};stroke-width:${String(THIN)}px}`,\n    `94%,100%{r:${disc};stroke-width:${String(OUTER)}px}`,\n    '}',\n    '[data-o-eclipse-halo]{',\n    'filter:blur(var(--o-eclipse-blur));',\n    'animation:o-eclipse-flare var(--o-eclipse-speed) ease-in-out infinite;',\n    '}',\n    '@keyframes o-eclipse-flare{',\n    '0%,6%{opacity:0}',\n    '46%,54%{opacity:var(--o-eclipse-peak)}',\n    '94%,100%{opacity:0}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    `[data-o-eclipse-disc]{animation:none;r:${ring};stroke-width:${String(THIN)}px}`,\n    '[data-o-eclipse-halo]{animation:none;opacity:var(--o-eclipse-peak)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface EclipseOwnProps {\n  /** Cote de la zone de dessin, en pixels. @defaultValue 64 */\n  size?: number\n  /** Duree d'une eclipse complete, en millisecondes. @defaultValue 3000 */\n  speed?: number\n  /** Couleur de l'anneau et du halo. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type EclipseProps = Customisable<EclipseOwnProps, 'span'>\n\n/**\n * Signale une attente par un disque qui se creuse en anneau de lumiere.\n *\n * @example\n * <Eclipse />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Eclipse size={96} speed={4500} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Eclipse({\n  size = 64,\n  speed = 3000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: EclipseProps): ReactElement {\n  ensureEclipseRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-eclipse-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-eclipse=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <circle\n          data-o-eclipse-halo=\"\"\n          cx=\"50\"\n          cy=\"50\"\n          r={OUTER + 8}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={12}\n          style={{ '--o-eclipse-blur': '7px', '--o-eclipse-peak': '0.28' } as CSSProperties}\n        />\n        <circle\n          data-o-eclipse-halo=\"\"\n          cx=\"50\"\n          cy=\"50\"\n          r={OUTER}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={5}\n          style={{ '--o-eclipse-blur': '3px', '--o-eclipse-peak': '0.85' } as CSSProperties}\n        />\n        <circle\n          data-o-eclipse-disc=\"\"\n          cx=\"50\"\n          cy=\"50\"\n          r={OUTER / 2}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={OUTER}\n        />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

@@ -71,6 +71,52 @@ export function InputDoc(): ReactElement {
               DEFAUTS,
             )} />`
           }
+          variants={[
+            { title: 'Petit', values: { size: 'sm' } },
+            { title: 'Grand', values: { size: 'lg' } },
+            {
+              title: 'Libelle masque',
+              description: "Le libelle reste dans l'arbre d'accessibilite.",
+              values: { hideLabel: true },
+            },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Avec erreur',
+              description: 'error met le champ en etat invalide.',
+              node: (
+                <Input
+                  label="Adresse e-mail"
+                  type="email"
+                  defaultValue="samy@exemple"
+                  error="Adresse invalide."
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Mot de passe',
+              description: 'Les types natifs sont transmis tels quels.',
+              node: (
+                <Input
+                  label="Mot de passe"
+                  type="password"
+                  autoComplete="current-password"
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Avec aide',
+              description: 'hint relie une aide au champ.',
+              node: (
+                <Input
+                  label="Nom d'utilisateur"
+                  hint="Visible publiquement."
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+          ]}
         />
       </Section>
 

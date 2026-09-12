@@ -58,13 +58,13 @@ export type WavesProps = Customisable<WavesOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
+  '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-brand-900'
+const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-900'
 
 /**
  * Ondes : des bandes qui ondulent et se replient.

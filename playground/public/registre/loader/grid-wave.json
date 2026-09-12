@@ -1,0 +1,65 @@
+{
+  "name": "grid-wave",
+  "category": "loader",
+  "title": "Grille en vague",
+  "description": "Seize points en carre se soulevent et grossissent le long d une diagonale, une vague qui traverse la grille, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GridWave.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point au repos. L ecart et la hauteur de la vague en dependent.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un passage complet de la vague.",
+      "min": 500,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Seize animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Grille plate et immobile sous mouvement reduit."
+  },
+  "id": "loader/grid-wave",
+  "sources": {
+    "component.tsx": "/**\n * Grille en vague : seize points se soulevent et grossissent le long d'une\n * diagonale, une vague qui traverse le carre.\n *\n * ## Sept fronts pour seize points\n *\n * Dans un carre de quatre par quatre, les points d'une meme anti-diagonale\n * — ceux dont la somme ligne plus colonne est egale — forment un front. Il\n * y en a sept, du coin haut gauche au coin bas droit. Le delai d'un point\n * est celui de son front : la vague avance d'un front a la fois, en biais,\n * et non point par point. C'est ce qui la distingue de `grid-fade`, dont\n * l'onde part du centre et ne se deplace pas.\n *\n * La vague souleve les points autant qu'elle les grossit : un simple\n * changement d'echelle se lirait comme un scintillement, la montee donne un\n * relief, une crete qui passe.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les points sont retires\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la grille reste plate, tous les points a leur taille\n * de repos : elle se lit encore comme un chargeur, seule la vague s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-grid-wave'\n\n/** Cote de la grille, en points. */\nconst SIDE = 4\n\n/** Nombre de fronts diagonaux : les sommes ligne plus colonne possibles. */\nconst FRONTS = SIDE * 2 - 1\n\n/** Pose la grille et sa vague, une fois par document. */\nfunction ensureGridWaveRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Un peu de marge en haut : la crete monte dedans sans deborder.\n    '[data-o-grid-wave]{',\n    'display:inline-grid;grid-template-columns:repeat(4,var(--o-gwave-size));',\n    'gap:var(--o-gwave-size);padding-top:var(--o-gwave-size);',\n    '}',\n    '[data-o-grid-wave-dot]{',\n    'width:var(--o-gwave-size);height:var(--o-gwave-size);',\n    'border-radius:50%;background:var(--o-gwave-color);',\n    'animation:o-grid-wave-crest var(--o-gwave-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-gwave-delay);',\n    '}',\n    // La crete est courte : un point n'est souleve qu'un tiers du cycle,\n    // le reste du temps il attend a plat que la vague revienne.\n    '@keyframes o-grid-wave-crest{',\n    '0%,30%,100%{transform:translate3d(0,0,0) scale(1);opacity:0.45}',\n    '15%{transform:translate3d(0,calc(var(--o-gwave-size) * -0.8),0) scale(1.5);opacity:1}',\n    '}',\n    // Une grille plate et pleine : elle dit encore « attente », sans vague.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-grid-wave-dot]{animation:none;transform:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface GridWaveOwnProps {\n  /** Diametre d'un point au repos, en pixels. @defaultValue 6 */\n  size?: number\n  /** Duree d'un passage complet de la vague, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Couleur des points. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type GridWaveProps = Customisable<GridWaveOwnProps, 'span'>\n\n/**\n * Signale une attente par une vague diagonale sur une grille de points.\n *\n * @example\n * <GridWave />\n *\n * @example\n * // Plus gros, plus lent, dans la teinte de marque.\n * <GridWave size={10} speed={2000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function GridWave({\n  size = 6,\n  speed = 1400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: GridWaveProps): ReactElement {\n  ensureGridWaveRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-gwave-size': `${String(size)}px`,\n    '--o-gwave-speed': `${String(speed)}ms`,\n    '--o-gwave-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-grid-wave=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: SIDE * SIDE }, (_, index) => {\n        const front = Math.floor(index / SIDE) + (index % SIDE)\n        return (\n          <span\n            key={index}\n            aria-hidden\n            data-o-grid-wave-dot=\"\"\n            style={\n              {\n                // Le premier front a le plus d'avance, le dernier part de\n                // zero : la vague va du coin haut gauche au coin bas droit,\n                // en negatif pour etre deja en route a la premiere image.\n                '--o-gwave-delay': `${String(Math.round((-speed * (FRONTS - 1 - front)) / FRONTS))}ms`,\n              } as CSSProperties\n            }\n          />\n        )\n      })}\n    </span>\n  )\n}\n"
+  }
+}

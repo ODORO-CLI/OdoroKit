@@ -1,0 +1,65 @@
+{
+  "name": "sun-rays",
+  "category": "loader",
+  "title": "Soleil aux rayons qui tournent",
+  "description": "Un disque fixe, douze rayons qui s allongent en alternance, et une couronne qui tourne huit fois plus lentement qu ils ne respirent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SunRays.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d une respiration de rayon ; le tour de couronne dure huit fois plus.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du soleil. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule regle d animation partagee par douze segments, plus une rotation de groupe, toutes tenues par le compositeur. Rayons a leur longueur de repos et couronne arretee sous mouvement reduit."
+  },
+  "id": "loader/sun-rays",
+  "sources": {
+    "component.tsx": "/**\n * Soleil dont les rayons tournent : un disque fixe, douze rayons qui\n * s'allongent en alternance, et une rotation d'ensemble tres lente.\n *\n * ## Deux rythmes, pas un\n *\n * Un soleil dont tous les rayons pulsent ensemble clignote ; un soleil dont\n * les rayons pulsent en cascade tourne deja, et la rotation d'ensemble\n * n'ajoute rien. En les faisant respirer en alternance — un rayon sur deux\n * en avance d'une demi-periode — la couronne ne se lit ni comme un\n * clignotement ni comme une rotation : elle scintille. La rotation lente,\n * huit fois plus longue qu'une respiration, se pose alors dessus sans\n * entrer en concurrence.\n *\n * Les rayons alternent aussi de longueur au repos, longs et courts : c'est\n * ce qui distingue une couronne solaire d'une roue a rayons.\n *\n * ## Un rayon, une variable\n *\n * Chaque rayon est le meme segment, tourne a sa place. L'angle est une\n * variable CSS lue **dans** les etapes de l'animation : sans cela, la\n * rotation posee en attribut serait ecrasee par la transformation animee,\n * et les douze rayons se superposeraient sur un seul. Une animation, douze\n * elements, aucune duplication de regle.\n *\n * Le disque central ne bouge pas : c'est l'ancre visuelle. Un coeur qui\n * respirerait aussi brouillerait la lecture — rien ne resterait fixe.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les rayons restent a leur longueur de repos et la\n * couronne ne tourne plus : la figure se lit encore comme un soleil, seul\n * le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-sun-rays'\n\n/** Nombre de rayons. Douze : un cadran, et une alternance qui se referme. */\nconst RAYS = 12\n\n/** Pose le soleil, ses rayons et sa rotation, une fois par document. */\nfunction ensureSunRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-sun-rays]{display:inline-block;line-height:0}',\n    '[data-o-sun-rays] svg{display:block}',\n    '[data-o-sun-crown],[data-o-sun-ray]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    '}',\n    '[data-o-sun-crown]{',\n    'animation:o-sun-rays-turn var(--o-sun-turn) linear infinite;',\n    '}',\n    '@keyframes o-sun-rays-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',\n    '[data-o-sun-ray]{',\n    'transform:rotate(var(--o-sun-angle));',\n    'animation:o-sun-rays-reach var(--o-sun-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-sun-delay);',\n    '}',\n    // L'angle est repris dans chaque etape : une animation de transformation\n    // remplace la valeur entiere, pas seulement la fonction qu'elle anime.\n    '@keyframes o-sun-rays-reach{',\n    '0%,100%{transform:rotate(var(--o-sun-angle)) translateY(0);opacity:0.55}',\n    '50%{transform:rotate(var(--o-sun-angle)) translateY(-5px);opacity:1}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-sun-crown]{animation:none;transform:none}',\n    '[data-o-sun-ray]{animation:none;transform:rotate(var(--o-sun-angle));opacity:0.8}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SunRaysOwnProps {\n  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */\n  size?: number\n  /** Duree d'une respiration de rayon, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur du soleil. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SunRaysProps = Customisable<SunRaysOwnProps, 'span'>\n\n/**\n * Signale une attente par un soleil dont la couronne scintille et tourne.\n *\n * @example\n * <SunRays />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <SunRays size={88} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function SunRays({\n  size = 56,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: SunRaysProps): ReactElement {\n  ensureSunRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-sun-speed': `${String(speed)}ms`,\n    // Le tour est huit fois plus long qu'une respiration : assez lent pour\n    // ne pas rivaliser avec le scintillement.\n    '--o-sun-turn': `${String(speed * 8)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-sun-rays=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <circle cx=\"50\" cy=\"50\" r=\"16\" fill=\"currentColor\" />\n        <g data-o-sun-crown=\"\">\n          {Array.from({ length: RAYS }, (_, index) => {\n            const long = index % 2 === 0\n            return (\n              <line\n                key={index}\n                data-o-sun-ray=\"\"\n                x1=\"50\"\n                y1={long ? 26 : 28}\n                x2=\"50\"\n                y2={long ? 8 : 16}\n                stroke=\"currentColor\"\n                strokeWidth={long ? 4 : 3}\n                strokeLinecap=\"round\"\n                style={\n                  {\n                    '--o-sun-angle': `${String((360 / RAYS) * index)}deg`,\n                    // Un rayon sur deux est en avance d'une demi-periode.\n                    // Le delai est negatif : la couronne scintille des la\n                    // premiere image, au lieu d'attendre son tour.\n                    '--o-sun-delay': long ? '0ms' : `${String(Math.round(-speed / 2))}ms`,\n                  } as CSSProperties\n                }\n              />\n            )\n          })}\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

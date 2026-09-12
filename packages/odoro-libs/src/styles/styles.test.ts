@@ -168,6 +168,9 @@ describe('feuille de style produite', () => {
   it('genere le theme sombre en preference systeme et en choix explicite', () => {
     expect(css).toMatch(/@media \(prefers-color-scheme: ?dark\)/)
     expect(css).toContain(':root[data-theme="dark"]')
+    // Les variables de theme basculent avec le document.
+    expect(css).toContain('--o-theme-bg: var(--o-palette-zinc-50)')
+    expect(css).toContain('--o-theme-bg:var(--o-palette-zinc-950)')
   })
 
   it('neutralise les animations sous prefers-reduced-motion', () => {

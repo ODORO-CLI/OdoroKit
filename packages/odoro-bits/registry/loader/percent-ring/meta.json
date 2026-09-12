@@ -1,0 +1,86 @@
+{
+  "name": "percent-ring",
+  "category": "loader",
+  "title": "Anneau de progression",
+  "description": "Un anneau complet qui se remplit depuis le sommet, le pourcentage au centre ; ou un arc qui tourne quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PercentRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 42,
+      "unit": "%",
+      "description": "Progression, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Arc tournant sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 80,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 32,
+      "max": 240,
+      "step": 8
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Epaisseur de l anneau.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour de l arc indetermine.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition sur le decalage du tirete en mode determine, une rotation CSS en mode indetermine ; rien ne recalcule la mise en page. Valeur sautee sans transition, arc immobile au sommet, sous mouvement reduit."
+  }
+}

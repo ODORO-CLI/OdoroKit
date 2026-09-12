@@ -1,0 +1,83 @@
+{
+  "name": "smoke",
+  "category": "background",
+  "title": "Fumee",
+  "description": "Des volutes de bruit fractal advectees par un rotationnel approche, en montee lente.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "smoke.shader.ts",
+      "target": "background/smoke.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Smoke.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-muted",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Vitesse du tourbillon.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Echelle du motif. Plus haut, plus fin.",
+      "min": 0.5,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "lift",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Vitesse de la montee.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-muted, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "notes": "Cinq sommes d octaves par fragment : quatre pour le rotationnel, une pour la matiere. En qualite basse, les octaves tombent a deux.",
+    "fallback": "gradient"
+  },
+  "id": "background/smoke",
+  "sources": {
+    "smoke.shader.ts": "/**\n * Shader des volutes de fumee.\n *\n * ## L'idee mathematique\n *\n * Un bruit fractal advecte par un rotationnel approche : quatre lectures du\n * bruit autour du point donnent son gradient par differences finies, et le\n * gradient tourne d'un quart de tour est un champ sans divergence — un\n * ecoulement qui tourbillonne sans jamais se compresser. La montee lente vient\n * d'un simple decalage du domaine vers le bas au fil du temps.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la teinte du corps de la fumee.\n * - `uColorC` — la teinte des cretes les plus denses.\n * - `uSpeed` — vitesse du tourbillon.\n * - `uScale` — echelle du motif ; plus haut, plus fin.\n * - `uLift` — vitesse de la montee.\n * - `uOctaves` — detail du bruit, et donc son cout.\n */\nexport const SMOKE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uScale;\nuniform float uLift;\nuniform float uOctaves;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat fumeeHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.\nfloat fumeeNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n\n  // 3t2 - 2t3 : derivee nulle aux extremites, donc pas d'arete visible.\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n\n  float a = fumeeHash(cell);\n  float b = fumeeHash(cell + vec2(1.0, 0.0));\n  float c = fumeeHash(cell + vec2(0.0, 1.0));\n  float d = fumeeHash(cell + vec2(1.0, 1.0));\n\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.\nfloat fumeeFbm(vec2 p, int octaves) {\n  float total = 0.0;\n  float amplitude = 0.5;\n  float normalisation = 0.0;\n\n  for (int i = 0; i < 6; i += 1) {\n    if (i >= octaves) break;\n    total += fumeeNoise(p) * amplitude;\n    normalisation += amplitude;\n    p *= 2.0;\n    amplitude *= 0.5;\n  }\n\n  return total / max(normalisation, 0.0001);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  int octaves = int(clamp(uOctaves, 1.0, 6.0));\n\n  // La montee : le domaine glisse vers le bas, donc la matiere semble monter.\n  vec2 p = vec2(vUv.x * aspect, vUv.y - uTime * uLift * 0.1) * max(uScale, 0.1);\n  float t = uTime * uSpeed;\n\n  // Rotationnel approche : le gradient du bruit par differences finies —\n  // deux paires de lectures decalees — tourne d'un quart de tour. Un champ\n  // ainsi construit est sans divergence : il tourbillonne sans compresser.\n  float e = 0.35;\n  float gx = fumeeFbm(p + vec2(e, 0.0), octaves) - fumeeFbm(p - vec2(e, 0.0), octaves);\n  float gy = fumeeFbm(p + vec2(0.0, e), octaves) - fumeeFbm(p - vec2(0.0, e), octaves);\n  vec2 curl = vec2(gy, -gx);\n\n  // La matiere est le meme bruit, lu la ou le rotationnel l'a poussee. Le\n  // temps n'entre que dans le deplacement : la fumee se deforme, elle ne\n  // clignote pas.\n  float densite = fumeeFbm(p + curl * (1.2 + 0.6 * sin(t * 0.5)) + vec2(t * 0.08, 0.0), octaves);\n\n  // Contraste doux : la rampe est large, la fumee n'a pas de bord franc.\n  float corps = smoothstep(0.30, 0.80, densite);\n\n  vec3 colour = mix(uColorA, uColorB, corps);\n  colour = mix(colour, uColorC, smoothstep(0.62, 0.95, densite) * 0.6);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Fumee : des volutes advectees par un rotationnel approche, qui montent.\n *\n * ## Le principe\n *\n * Le gradient du bruit, obtenu par lectures decalees, est tourne d un quart de tour : le champ qui en resulte tourbillonne sans jamais se compresser.\n *\n * Le temps n entre que dans le deplacement, jamais dans la couleur : la fumee se deforme au lieu de clignoter.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SMOKE_FRAGMENT } from './smoke.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SmokeControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SmokeOwnProps {\n  /** Vitesse du tourbillon. @defaultValue 0.15 */\n  speed?: number\n  /** Echelle du motif. Plus haut, plus fin. @defaultValue 2 */\n  scale?: number\n  /** Vitesse de la montee. @defaultValue 0.35 */\n  lift?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SmokeControls>\n}\n\n/** Toutes les proprietes. */\nexport type SmokeProps = Customisable<SmokeOwnProps>\n\n/** Tokens employes par defaut : le fond, le corps de la fumee, ses cretes. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-muted',\n  '--o-theme-fg',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Detail du bruit hors qualite basse.\n *\n * Le rotationnel demande quatre lectures du bruit, plus une pour la matiere :\n * chaque octave se paie donc cinq fois. C'est le seul levier de cout du\n * shader, et il n'a pas besoin d'etre une prop pour etre retrograde.\n */\nconst OCTAVES = 4\n\n/** Detail du bruit en qualite basse. */\nconst LOW_OCTAVES = 2\n\n/**\n * Fumee.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Smoke className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Smoke({\n  speed = 0.15,\n  scale = 2,\n  lift = 0.35,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SmokeProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SMOKE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: scale, uLift: lift, uOctaves: OCTAVES },\n    name: 'smoke',\n    // Les octaves sont le reglage qui pese — chaque octave se paie cinq fois,\n    // quatre pour le rotationnel et une pour la matiere — donc le seul borne.\n    degrade: (quality) => ({\n      uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

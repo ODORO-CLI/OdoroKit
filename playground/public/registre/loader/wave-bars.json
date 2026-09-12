@@ -1,0 +1,65 @@
+{
+  "name": "wave-bars",
+  "category": "loader",
+  "title": "Barres en vague",
+  "description": "Cinq barres fines etirees depuis leur centre par une vague qui les traverse de gauche a droite, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/WaveBars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Largeur d une barre. La hauteur et l ecart en dependent.",
+      "min": 2,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un passage complet de la vague.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS d echelle tenues par le compositeur, aucun JavaScript apres le premier rendu. Cinq barres a mi-hauteur, immobiles, sous mouvement reduit."
+  },
+  "id": "loader/wave-bars",
+  "sources": {
+    "component.tsx": "/**\n * Barres en vague : cinq barres fines s'etirent depuis leur centre, l'une\n * apres l'autre, comme une onde qui traverse la rangee.\n *\n * ## Une echelle, pas une hauteur\n *\n * Chaque barre occupe toute la hauteur du conteneur et n'est etiree que par\n * une echelle verticale, depuis son milieu : la mise en page ne bouge jamais,\n * et la figure reste symetrique autour de sa ligne mediane — c'est ce qui la\n * fait lire comme une forme d'onde plutot que comme un histogramme. Un\n * histogramme, c'est `equalizer`, ancre au sol.\n *\n * Les cinq barres jouent la meme animation avec un cinquieme de cycle\n * d'ecart, en delai negatif : la vague est deja en route a la premiere image,\n * au lieu de partir d'une rangee plate.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les barres sont\n * retirees de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les cinq barres restent a mi-hauteur : la forme\n * d'onde se lit encore, seule la vague s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-wave-bars'\n\n/** Nombre de barres. */\nconst BARS = 5\n\n/** Pose les barres et leur vague, une fois par document. */\nfunction ensureWaveBarsRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-wave-bars]{',\n    'display:inline-flex;align-items:center;',\n    'gap:var(--o-wbars-size);height:calc(var(--o-wbars-size) * 8);',\n    '}',\n    '[data-o-wave-bar]{',\n    'width:var(--o-wbars-size);height:100%;',\n    'border-radius:calc(var(--o-wbars-size) / 2);background:var(--o-wbars-color);',\n    'transform-origin:center;',\n    'animation:o-wave-bars-swell var(--o-wbars-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-wbars-delay);',\n    '}',\n    '@keyframes o-wave-bars-swell{',\n    '0%,100%{transform:scaleY(0.25)}',\n    '50%{transform:scaleY(1)}',\n    '}',\n    // Une rangee a mi-hauteur : la forme d'onde reste dite, sans vague.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-wave-bar]{animation:none;transform:scaleY(0.6)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface WaveBarsOwnProps {\n  /** Largeur d'une barre, en pixels. @defaultValue 4 */\n  size?: number\n  /** Duree d'un passage complet de la vague, en millisecondes. @defaultValue 1000 */\n  speed?: number\n  /** Couleur des barres. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type WaveBarsProps = Customisable<WaveBarsOwnProps, 'span'>\n\n/**\n * Signale une attente par cinq barres traversees d'une vague.\n *\n * @example\n * <WaveBars />\n *\n * @example\n * // Plus large, plus lent, dans la teinte de marque.\n * <WaveBars size={6} speed={1600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function WaveBars({\n  size = 4,\n  speed = 1000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: WaveBarsProps): ReactElement {\n  ensureWaveBarsRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-wbars-size': `${String(size)}px`,\n    '--o-wbars-speed': `${String(speed)}ms`,\n    '--o-wbars-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-wave-bars=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: BARS }, (_, bar) => (\n        <span\n          key={bar}\n          aria-hidden\n          data-o-wave-bar=\"\"\n          style={\n            {\n              // Un cinquieme de cycle d'ecart, en negatif : la vague est deja\n              // en route a la premiere image.\n              '--o-wbars-delay': `${String(Math.round((-speed * bar) / BARS))}ms`,\n            } as CSSProperties\n          }\n        />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

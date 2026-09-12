@@ -1,0 +1,76 @@
+{
+  "name": "ring-spinner",
+  "category": "loader",
+  "title": "Anneau tournant",
+  "description": "Un seul arc court sur une piste attenuee, epaisseur reglable, une rotation CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/RingSpinner.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de l arc. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une rotation CSS sur un seul element, aucun JavaScript apres le premier rendu. Arc immobile en haut de la piste sous mouvement reduit."
+  },
+  "id": "loader/ring-spinner",
+  "sources": {
+    "component.tsx": "/**\n * Anneau tournant : un seul arc court sur une piste attenuee.\n *\n * ## Une piste et un arc sur le meme element\n *\n * Deux bordures, un seul element. La piste est la bordure entiere, peinte a\n * faible opacite sur les quatre cotes ; l'arc est le cote haut, repeint a\n * pleine couleur. Le compositeur fait tourner l'ensemble : la piste est\n * symetrique, on ne voit donc bouger que l'arc. Aucun JavaScript apres le\n * premier rendu, et rien a synchroniser puisqu'il n'y a qu'une animation.\n *\n * La piste n'est pas un ornement : sans elle, un arc seul flotte et l'oeil\n * ne sait pas ou est le centre. Avec elle, la figure est un cercle complet\n * dont une portion s'eclaire — c'est ce que l'on reconnait comme « ca\n * charge » avant meme le premier tour.\n *\n * ## L'epaisseur change le caractere\n *\n * A deux pixels c'est un filet discret dans un bouton ; a huit, une piece\n * d'interface a part entiere au centre d'une page vide. C'est pour cela que\n * l'epaisseur est un reglage et non une constante deduite de la taille.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. L'anneau, lui, est\n * retire de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, l'arc reste en haut de la piste : la figure se lit\n * encore comme un chargeur, seul le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-ring-spinner'\n\n/** Pose l'anneau et sa rotation, une fois par document. */\nfunction ensureRingRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-ring-spinner]{display:inline-block;line-height:0}',\n    '[data-o-ring-arc]{',\n    'display:block;box-sizing:border-box;',\n    'width:var(--o-ring-size);height:var(--o-ring-size);',\n    'border-radius:50%;',\n    'border:var(--o-ring-thickness) solid color-mix(in oklab, var(--o-ring-color) 18%, transparent);',\n    'border-top-color:var(--o-ring-color);',\n    'animation:o-ring-spinner-spin var(--o-ring-speed) linear infinite;',\n    '}',\n    '@keyframes o-ring-spinner-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    // L'arc s'arrete en haut : c'est la position que l'oeil attend d'un\n    // chargeur au repos.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-ring-arc]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface RingSpinnerOwnProps {\n  /** Diametre de l'anneau, en pixels. @defaultValue 40 */\n  size?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un tour, en millisecondes. @defaultValue 900 */\n  speed?: number\n  /** Couleur de l'arc. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type RingSpinnerProps = Customisable<RingSpinnerOwnProps, 'span'>\n\n/**\n * Signale une attente par un arc qui parcourt une piste.\n *\n * @example\n * <RingSpinner />\n *\n * @example\n * // Un filet fin, dans la teinte de marque, pour un bouton.\n * <RingSpinner size={16} thickness={2} color=\"var(--o-palette-brand-500)\" />\n */\nexport function RingSpinner({\n  size = 40,\n  thickness = 4,\n  speed = 900,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: RingSpinnerProps): ReactElement {\n  ensureRingRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-ring-size': `${String(size)}px`,\n    // Deux traits doivent tenir dans le diametre : au-dela, l'anneau se\n    // remplirait et l'arc disparaitrait.\n    '--o-ring-thickness': `${String(Math.min(thickness, size / 2))}px`,\n    '--o-ring-speed': `${String(speed)}ms`,\n    '--o-ring-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-ring-spinner=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-ring-arc=\"\" />\n    </span>\n  )\n}\n"
+  }
+}

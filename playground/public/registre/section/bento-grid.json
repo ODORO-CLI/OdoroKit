@@ -1,0 +1,84 @@
+{
+  "name": "bento-grid",
+  "category": "section",
+  "title": "Grille bento",
+  "description": "Des tuiles de tailles inegales qui donnent une hierarchie, revelees en cascade a l entree.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/BentoGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly BentoItem[]",
+      "required": true,
+      "description": "Les tuiles, dans l ordre de lecture."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "rowHeight",
+      "type": "number",
+      "required": false,
+      "default": 180,
+      "unit": "px",
+      "description": "Hauteur d une rangee.",
+      "min": 80,
+      "max": 360,
+      "step": 10
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 60,
+      "unit": "ms",
+      "description": "Decalage entre deux tuiles a la revelation.",
+      "min": 0,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis des transitions CSS decalees. Aucun JavaScript par image."
+  },
+  "id": "section/bento-grid",
+  "sources": {
+    "component.tsx": "/**\n * Grille bento : des tuiles de tailles inegales, revelees a l'entree.\n *\n * ## Ce qu'une grille bento resout, et ce qu'elle casse\n *\n * Une grille reguliere donne le meme poids a tout : douze arguments valent\n * douze fois rien. Des tuiles inegales retablissent une hierarchie — ce qui\n * compte occupe deux colonnes, le reste s'aligne autour.\n *\n * Le prix est un piege classique : une largeur choisie tuile par tuile finit\n * par produire une rangee incomplete des qu'on en ajoute une. La largeur est\n * donc bornee par le nombre de colonnes disponibles, et une tuile trop large\n * est ramenee a la grille plutot que de la deborder.\n *\n * ## Une seule colonne avant le palier moyen\n *\n * Toutes les tailles sont neutralisees sur petit ecran. Une tuile « deux\n * colonnes sur quatre » posee dans une grille a une colonne ne veut plus rien\n * dire, et la faire survivre au palier produit soit un debordement horizontal,\n * soit une tuile ecrasee.\n *\n * ## La cascade est une transition, pas une animation\n *\n * Chaque tuile fait le meme trajet, decale par un delai. C'est exactement ce\n * qu'une transition CSS sait faire, et le compositeur s'en charge seul : rien\n * ne s'execute en JavaScript pendant la revelation.\n *\n * Sous mouvement reduit, l'attribut de depart n'est jamais pose : les tuiles\n * sont simplement la. Une cascade neutralisee qui laisserait la grille\n * invisible serait un defaut, pas un respect de la preference.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Une tuile de la grille. */\nexport interface BentoItem {\n  /** Identifiant, unique dans la grille. */\n  readonly id: string\n  /** Intitule de la tuile. */\n  readonly title: string\n  /** Ce que la tuile raconte. */\n  readonly body?: ReactNode\n  /** Colonnes occupees. Bornee au nombre de colonnes de la grille. @defaultValue 1 */\n  readonly cols?: number\n  /** Rangees occupees. @defaultValue 1 */\n  readonly rows?: number\n  /** Visuel pose sous le texte : illustration, capture, pictogramme. */\n  readonly media?: ReactNode\n  /** Adresse : la tuile devient alors un lien, et non un bloc inerte. */\n  readonly href?: string\n  /** Met la tuile en avant : fond plein, bordure de marque. */\n  readonly featured?: boolean\n}\n\n/** Proprietes propres au composant. */\nexport interface BentoGridOwnProps {\n  /** Les tuiles, dans l'ordre de lecture. */\n  items: readonly BentoItem[]\n  /** Colonnes au-dela du palier moyen. @defaultValue 4 */\n  columns?: number\n  /** Hauteur d'une rangee, en pixels. @defaultValue 180 */\n  rowHeight?: number\n  /** Decalage entre deux tuiles a la revelation, en millisecondes. @defaultValue 60 */\n  stagger?: number\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BentoGridProps = Customisable<BentoGridOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-bento-grid'\n\n/** Pose les regles de la grille, une fois par document. */\nfunction ensureBentoRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-bento]{display:grid;gap:0.75rem;grid-template-columns:1fr;list-style:none;margin:0;padding:0}',\n    // Les tailles n'existent qu'au-dela du palier : en dessous, la grille a une\n    // colonne et « deux colonnes sur quatre » ne veut plus rien dire.\n    '@media (min-width:48rem){[data-o-bento]{',\n    'grid-template-columns:repeat(var(--o-bento-colonnes),minmax(0,1fr));',\n    'grid-auto-rows:var(--o-bento-rangee)}',\n    '[data-o-bento]>li{grid-column:span var(--o-bento-cols);grid-row:span var(--o-bento-rows)}}',\n\n    '[data-o-bento-tuile]{display:flex;flex-direction:column;height:100%;overflow:hidden}',\n    '[data-o-bento-media]{flex:1;min-height:0;margin-top:0.75rem}',\n\n    '[data-o-bento-cache]>li{',\n    'opacity:0;transform:translateY(14px) scale(0.98);',\n    'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',\n    'transform var(--o-duration-slower) var(--o-ease-entrance);',\n    'transition-delay:var(--o-bento-delai)}',\n    '[data-o-bento-vu]>li{opacity:1;transform:none}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-bento-cache]>li{opacity:1;transform:none;transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Le corps d'une tuile, sans son enveloppe.\n *\n * Il est separe pour que la tuile puisse etre un lien ou un bloc sans que le\n * contenu soit ecrit deux fois — et sans l'element dynamique qui obligerait a\n * mentir sur le type des attributs.\n */\nfunction Corps({ item }: { item: BentoItem }): ReactElement {\n  return (\n    <>\n      <h3 className=\"o-text-base o-font-semibold o-tracking-tight\">{item.title}</h3>\n      {item.body !== undefined && (\n        <div\n          className=\"o-mt-2 o-text-sm o-leading-relaxed\"\n          style={{ color: 'var(--o-theme-muted)' }}\n        >\n          {item.body}\n        </div>\n      )}\n      {item.media !== undefined && (\n        // Le visuel est decoratif : le texte de la tuile dit deja ce qu'elle\n        // raconte, et le faire lire ajouterait du bruit.\n        <div data-o-bento-media=\"\" aria-hidden>\n          {item.media}\n        </div>\n      )}\n    </>\n  )\n}\n\n/** Habillage d'une tuile, selon qu'elle est mise en avant ou non. */\nfunction habillage(item: BentoItem): CSSProperties {\n  return {\n    backgroundColor:\n      item.featured === true\n        ? 'color-mix(in oklab, var(--o-palette-brand-500) 12%, var(--o-theme-surface))'\n        : 'var(--o-theme-surface)',\n    border: `1px solid ${\n      item.featured === true ? 'var(--o-palette-brand-500)' : 'var(--o-theme-line)'\n    }`,\n    color: 'var(--o-theme-fg)',\n    textDecoration: 'none',\n  }\n}\n\n/** Classes communes aux deux enveloppes de tuile. */\nconst TUILE = 'o-rounded-xl o-p-5 focus:o-ring'\n\n/**\n * Une grille bento revelee en cascade.\n *\n * @example\n * <BentoGrid\n *   label=\"Ce que le registre garantit\"\n *   items={[\n *     { id: 'copie', title: 'Le code vous appartient', cols: 2, body: <p>Copie, jamais lie.</p> },\n *     { id: 'repli', title: 'Un repli toujours prevu' },\n *   ]}\n * />\n */\nexport function BentoGrid({\n  items,\n  columns = 4,\n  rowHeight = 180,\n  stagger = 60,\n  label,\n  ...rest\n}: BentoGridProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.15 })\n  ensureBentoRules()\n\n  const colonnes = Math.max(1, Math.round(columns))\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={style as CSSProperties}\n    >\n      <ul\n        data-o-bento=\"\"\n        data-o-bento-cache={reduced ? undefined : ''}\n        data-o-bento-vu={vu && !reduced ? '' : undefined}\n        style={\n          {\n            '--o-bento-colonnes': String(colonnes),\n            '--o-bento-rangee': `${String(rowHeight)}px`,\n          } as CSSProperties\n        }\n      >\n        {items.map((item, index) => {\n          // Une tuile plus large que la grille produirait une rangee que rien\n          // ne remplit : elle est ramenee plutot que laissee deborder.\n          const cols = Math.min(colonnes, Math.max(1, Math.round(item.cols ?? 1)))\n          const rows = Math.max(1, Math.round(item.rows ?? 1))\n\n          return (\n            <li\n              key={item.id}\n              style={\n                {\n                  '--o-bento-cols': String(cols),\n                  '--o-bento-rows': String(rows),\n                  '--o-bento-delai': `${String(index * stagger)}ms`,\n                } as CSSProperties\n              }\n            >\n              {item.href === undefined ? (\n                <div data-o-bento-tuile=\"\" className={TUILE} style={habillage(item)}>\n                  <Corps item={item} />\n                </div>\n              ) : (\n                <a\n                  href={item.href}\n                  data-o-bento-tuile=\"\"\n                  className={TUILE}\n                  style={habillage(item)}\n                >\n                  <Corps item={item} />\n                </a>\n              )}\n            </li>\n          )\n        })}\n      </ul>\n    </section>\n  )\n}\n"
+  }
+}

@@ -20,6 +20,11 @@
  * dark:o-bg-zinc-900`. C'est plus verbeux, et c'est la contrepartie assumee
  * d'un systeme ou l'on voit la couleur qu'on ecrit.
  *
+ * La seule exception est un petit groupe de **variables de theme**
+ * (`--o-theme-*`) : cinq valeurs qui basculent avec `data-theme`, pour ce qui
+ * doit suivre le theme sans passer par une classe — un fond WebGL qui lit ses
+ * couleurs en JavaScript, un rideau, un chargeur.
+ *
  * Rien d'autre dans la librairie ne contient de valeur brute : variables CSS,
  * utilitaires atomiques et composants UI en derivent tous.
  *
@@ -71,21 +76,22 @@ import {
 } from './generated/baseTokens.js'
 
 /**
- * Teinte de marque d'Odoro, declinee sur les memes 11 nuances que le reste de
- * la palette pour rester interchangeable avec n'importe quelle autre teinte.
+ * Teinte de marque d'Odoro : l'orange du logo (`#f97316`, `brand-500`),
+ * decline sur les memes 11 nuances que le reste de la palette pour rester
+ * interchangeable avec n'importe quelle autre teinte.
  */
 export const brand = {
-  'brand-50': 'oklch(97.0% 0.014 275)',
-  'brand-100': 'oklch(93.6% 0.032 275)',
-  'brand-200': 'oklch(87.4% 0.060 275)',
-  'brand-300': 'oklch(79.0% 0.101 275)',
-  'brand-400': 'oklch(69.2% 0.152 275)',
-  'brand-500': 'oklch(59.8% 0.198 275)',
-  'brand-600': 'oklch(52.4% 0.212 275)',
-  'brand-700': 'oklch(44.6% 0.190 275)',
-  'brand-800': 'oklch(37.4% 0.156 275)',
-  'brand-900': 'oklch(31.6% 0.124 275)',
-  'brand-950': 'oklch(22.0% 0.088 275)',
+  'brand-50': 'oklch(98.0% 0.016 73.684)',
+  'brand-100': 'oklch(95.4% 0.038 75.164)',
+  'brand-200': 'oklch(90.1% 0.076 70.697)',
+  'brand-300': 'oklch(83.7% 0.128 66.290)',
+  'brand-400': 'oklch(75.0% 0.183 55.934)',
+  'brand-500': 'oklch(70.5% 0.213 47.604)',
+  'brand-600': 'oklch(64.6% 0.222 41.116)',
+  'brand-700': 'oklch(55.3% 0.195 38.402)',
+  'brand-800': 'oklch(47.0% 0.157 37.304)',
+  'brand-900': 'oklch(40.8% 0.123 38.172)',
+  'brand-950': 'oklch(26.6% 0.079 36.259)',
 } as const
 
 /**
@@ -101,6 +107,44 @@ export const palette = {
   transparent: 'transparent',
   current: 'currentColor',
 } as const
+
+/**
+ * Variables de theme : ce qui bascule quand la page passe en sombre.
+ *
+ * Ce n'est pas une couche semantique — cinq roles, pas une nomenclature —
+ * mais ce qu'un fond WebGL, un rideau ou un chargeur doivent lire pour suivre
+ * le theme du visiteur au lieu d'imposer le leur. Un composant qui pose ses
+ * couleurs par classe n'en a pas besoin : `o-bg-zinc-50 dark:o-bg-zinc-950`
+ * dit la meme chose. Celui qui les lit en JavaScript, ou les ecrit dans une
+ * variable, n'a que ce chemin.
+ *
+ * Le theme clair vit dans `:root` ; le sombre est pose sous `data-theme` et
+ * sous la preference systeme, par le generateur.
+ */
+export const theme = {
+  /** Fond de la page. */
+  bg: 'var(--o-palette-zinc-50)',
+  /** Fond d'une surface posee sur la page. */
+  surface: 'var(--o-palette-white)',
+  /** Encre : le texte courant. */
+  fg: 'var(--o-palette-zinc-900)',
+  /** Encre en sourdine : legendes, traits secondaires. */
+  muted: 'var(--o-palette-zinc-500)',
+  /** Filet : bordures et separateurs. */
+  line: 'var(--o-palette-zinc-200)',
+} as const
+
+/** Les memes roles, en theme sombre. */
+export const themeDark: Readonly<Record<keyof typeof theme, string>> = {
+  bg: 'var(--o-palette-zinc-950)',
+  surface: 'var(--o-palette-zinc-900)',
+  fg: 'var(--o-palette-zinc-50)',
+  muted: 'var(--o-palette-zinc-400)',
+  line: 'var(--o-palette-zinc-800)',
+}
+
+/** Nom d'une variable de theme. */
+export type ThemeToken = keyof typeof theme
 
 /** Nom d'une couleur de la palette brute. */
 export type PaletteToken = keyof typeof palette
@@ -257,6 +301,7 @@ export const tokens = {
   spacing: spacingBase,
   space,
   palette,
+  theme,
   font: fontFamily,
   text: fontSize,
   weight: fontWeight,

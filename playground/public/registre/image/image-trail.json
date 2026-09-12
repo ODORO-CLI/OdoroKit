@@ -1,0 +1,75 @@
+{
+  "name": "image-trail",
+  "category": "image",
+  "title": "Trainee d images",
+  "description": "Le deplacement du pointeur seme des vignettes qui apparaissent au point de passage puis se resorbent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ImageTrail.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "sources",
+      "type": "readonly { src: string; alt: string }[]",
+      "required": true,
+      "description": "Les images semees, en cycle."
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "required": false,
+      "default": 80,
+      "unit": "px",
+      "description": "Distance entre deux semis.",
+      "min": 20,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "life",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de vie d une vignette.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 140,
+      "unit": "px",
+      "description": "Cote d une vignette.",
+      "min": 48,
+      "max": 320,
+      "step": 4
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Contenu affiche sous la trainee."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une vignette creee par franchissement de seuil, animee par element.animate et retiree a la fin : le seuil borne le cout. Zone inerte sous mouvement reduit, premiere image centree en repli."
+  },
+  "id": "image/image-trail",
+  "sources": {
+    "component.tsx": "/**\n * Trainee d'images : le deplacement du pointeur seme des vignettes qui\n * apparaissent au point de passage puis se resorbent.\n *\n * ## Les vignettes ne passent pas par React\n *\n * Chaque vignette vit moins d'une seconde. La monter comme composant\n * demanderait un etat de liste, un rendu par semis et un autre par retrait —\n * pour des elements que rien ne relit jamais. Elles sont donc creees en\n * imperatif, animees par `element.animate`, et retirees du document a la fin\n * de leur course. Le composant garde seulement leur trace pour nettoyer au\n * demontage.\n *\n * ## Le seuil de distance est ce qui fait la trainee\n *\n * Semer a chaque evenement de pointeur donnerait un tapis continu — des\n * dizaines de vignettes par geste, toutes au meme endroit. Une vignette ne\n * nait que lorsque le pointeur s'est eloigne du dernier semis d'une distance\n * donnee : c'est elle qui espace la trainee, et elle qui borne le cout.\n *\n * ## Sous mouvement reduit\n *\n * La zone est inerte et la premiere image s'affiche, centree et fixe : le\n * contenu — montrer ces images — reste, seul le jeu disparait.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type ReactElement, type ReactNode } from 'react'\n\n/** Une image de la trainee. */\nexport interface TrailImage {\n  /** Source. */\n  readonly src: string\n  /** Texte de remplacement, pour l'image de repli sous mouvement reduit. */\n  readonly alt: string\n}\n\n/** Proprietes propres au composant. */\nexport interface ImageTrailOwnProps {\n  /** Les images semees, en cycle. */\n  sources: readonly TrailImage[]\n  /** Distance entre deux semis, en pixels. @defaultValue 80 */\n  threshold?: number\n  /** Duree de vie d'une vignette, en millisecondes. @defaultValue 700 */\n  life?: number\n  /** Cote d'une vignette, en pixels. @defaultValue 140 */\n  size?: number\n  /** Contenu affiche sous la trainee. */\n  children?: ReactNode\n}\n\n/** Toutes les proprietes. */\nexport type ImageTrailProps = Customisable<ImageTrailOwnProps>\n\n/**\n * Seme des vignettes sur le passage du pointeur.\n *\n * @example\n * <ImageTrail\n *   sources={[\n *     { src: '/un.jpg', alt: 'Premiere planche' },\n *     { src: '/deux.jpg', alt: 'Deuxieme planche' },\n *     { src: '/trois.jpg', alt: 'Troisieme planche' },\n *   ]}\n *   className=\"o-h-96\"\n * >\n *   <h2>Nos dernieres planches</h2>\n * </ImageTrail>\n */\nexport function ImageTrail({\n  sources,\n  threshold = 80,\n  life = 700,\n  size = 140,\n  children,\n  ...rest\n}: ImageTrailProps): ReactElement {\n  const { reduced } = useMotionState()\n  const host = useRef<HTMLDivElement | null>(null)\n\n  useEffect(() => {\n    if (reduced || sources.length === 0) return\n\n    const zone = host.current\n    if (zone === null) return\n\n    // Les vignettes vivantes, pour ne rien laisser au demontage.\n    const alive = new Set<HTMLImageElement>()\n    let lastX: number | null = null\n    let lastY: number | null = null\n    let cursor = 0\n\n    const sow = (x: number, y: number): void => {\n      const source = sources[cursor % sources.length]\n      if (source === undefined) return\n      cursor += 1\n\n      const thumb = document.createElement('img')\n      thumb.src = source.src\n      // La vignette est un eclat decoratif : le contenu est deja porte par\n      // l'image de repli et par ce que la zone affiche.\n      thumb.alt = ''\n      thumb.setAttribute('aria-hidden', 'true')\n      thumb.className =\n        'o-absolute o-object-cover o-rounded-lg o-pointer-events-none o-select-none'\n      thumb.style.width = `${String(size)}px`\n      thumb.style.height = `${String(size)}px`\n      thumb.style.left = `${String(x)}px`\n      thumb.style.top = `${String(y)}px`\n\n      zone.append(thumb)\n      alive.add(thumb)\n\n      const animation = thumb.animate(\n        [\n          { opacity: 0, transform: 'translate(-50%, -50%) scale(0.5)' },\n          {\n            opacity: 1,\n            transform: 'translate(-50%, -50%) scale(1)',\n            offset: 0.25,\n          },\n          { opacity: 0, transform: 'translate(-50%, -50%) scale(1.06)' },\n        ],\n        { duration: life, easing: 'cubic-bezier(0.2, 0, 0, 1)' },\n      )\n\n      // L'animation finit a opacite nulle : le retrait ne se voit pas, il ne\n      // fait que rendre la memoire.\n      animation.onfinish = () => {\n        alive.delete(thumb)\n        thumb.remove()\n      }\n    }\n\n    const onMove = (event: PointerEvent): void => {\n      const box = zone.getBoundingClientRect()\n      const x = event.clientX - box.left\n      const y = event.clientY - box.top\n\n      if (lastX !== null && lastY !== null) {\n        // Le seuil espace la trainee et borne le cout : voir l'en-tete.\n        if (Math.hypot(x - lastX, y - lastY) < threshold) return\n      }\n\n      lastX = x\n      lastY = y\n      sow(x, y)\n    }\n\n    const onLeave = (): void => {\n      // Le prochain passage resemera des l'entree, sans attendre le seuil.\n      lastX = null\n      lastY = null\n    }\n\n    zone.addEventListener('pointermove', onMove, { passive: true })\n    zone.addEventListener('pointerleave', onLeave, { passive: true })\n\n    return () => {\n      zone.removeEventListener('pointermove', onMove)\n      zone.removeEventListener('pointerleave', onLeave)\n      for (const thumb of alive) thumb.remove()\n      alive.clear()\n    }\n  }, [reduced, sources, threshold, life, size])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const first = sources[0]\n\n  return (\n    <div {...rest} ref={host} className={className} style={style}>\n      {children}\n\n      {/* Sous mouvement reduit, la zone est inerte : la premiere image,\n          centree et fixe, porte le contenu que la trainee aurait montre. */}\n      {reduced && first !== undefined ? (\n        <div className=\"o-absolute o-inset-0 o-flex o-items-center o-justify-center o-pointer-events-none\">\n          <img\n            src={first.src}\n            alt={first.alt}\n            className=\"o-object-cover o-rounded-lg\"\n            style={{ width: `${String(size)}px`, height: `${String(size)}px` }}\n          />\n        </div>\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

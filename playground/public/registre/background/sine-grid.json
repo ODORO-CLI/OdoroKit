@@ -1,0 +1,93 @@
+{
+  "name": "sine-grid",
+  "category": "background",
+  "title": "Grille sinusoidale",
+  "description": "Une grille lue sur un domaine deforme en sinus : chaque noeud decrit une boucle, et une seconde grille tournee de quelques degres pose un moire leger dont les franges glissent lentement.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "sine-grid.shader.ts",
+      "target": "background/sine-grid.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/SineGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Nombre de cellules sur la hauteur. Borne a quarante par le shader.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.18,
+      "description": "Course de l oscillation, en cellules.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Vitesse de l oscillation.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "moire",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Poids de la seconde grille, celle du moire. Zero l eteint.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les lignes, les noeuds."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux lectures de grille et quatre sinus par fragment. En qualite basse, la seconde grille s eteint : ses franges scintillent a densite de pixels reduite.",
+    "fallback": "static"
+  },
+  "id": "background/sine-grid",
+  "sources": {
+    "sine-grid.shader.ts": "/**\n * Shader de la grille sinusoidale.\n *\n * ## L'idee mathematique\n *\n * Une grille n'est pas dessinee, elle est lue : la distance a la ligne la\n * plus proche est la partie fractionnaire des coordonnees, recentree. Pour\n * faire osciller chaque noeud, on ne deplace pas les noeuds — on deforme le\n * domaine avant de le lire. Un decalage en sinus de y sur x, et en sinus de x\n * sur y, avec le temps dans la phase : chaque noeud decrit une petite boucle,\n * et les lignes qui le joignent se courbent avec lui.\n *\n * Le moire vient d'une seconde grille, lue sur le meme domaine mais un peu\n * plus fine, tournee de quelques degres et deformee en contre-phase. La ou\n * les deux reseaux coincident, les traits s'additionnent ; la ou ils se\n * decalent, ils s'annulent a moitie. Les franges qui en resultent se\n * deplacent lentement — bien plus lentement que les noeuds — parce qu'elles\n * dependent de la difference des deux deformations, pas de leur somme.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les lignes.\n * - `uColorC` — les noeuds.\n * - `uCells` — nombre de cellules sur la hauteur.\n * - `uAmplitude` — course de l'oscillation, en cellules.\n * - `uSpeed` — vitesse de l'oscillation.\n * - `uMoire` — poids de la seconde grille.\n */\nexport const SINE_GRID_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uCells;\nuniform float uAmplitude;\nuniform float uSpeed;\nuniform float uMoire;\n\n// Distance a la ligne la plus proche d'une grille unitaire.\nfloat grille(vec2 q) {\n  vec2 local = abs(fract(q + 0.5) - 0.5);\n  return min(local.x, local.y);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float cells = clamp(uCells, 2.0, 40.0);\n  vec2 p = vUv * vec2(aspect, 1.0) * cells;\n  float t = uTime * uSpeed;\n\n  // Un pixel, en unites de cellule.\n  float px = cells / max(uResolution.y, 1.0);\n  float amplitude = clamp(uAmplitude, 0.0, 0.5);\n\n  // Le domaine est deforme avant lecture : chaque noeud decrit une boucle.\n  vec2 q = p + amplitude * vec2(sin(p.y * 1.1 + t), sin(p.x * 0.9 - t * 1.3));\n\n  float lines = 1.0 - smoothstep(px * 0.5, px * 1.5, grille(q));\n  float node = 1.0 - smoothstep(px * 2.0, px * 3.5, length(fract(q + 0.5) - 0.5));\n\n  // La seconde grille : un peu plus fine, tournee, deformee en contre-phase.\n  float angle = 0.07;\n  mat2 turn = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));\n  vec2 r = turn * p * 1.04;\n  vec2 q2 = r + amplitude * vec2(sin(r.y * 1.1 - t), sin(r.x * 0.9 + t * 1.3));\n  float lines2 = 1.0 - smoothstep(px * 0.5, px * 1.5, grille(q2));\n\n  float ink = clamp(lines * 0.7 + lines2 * uMoire * 0.5, 0.0, 1.0);\n\n  vec3 colour = mix(uColorA, uColorB, ink);\n  colour = mix(colour, uColorC, node);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Grille sinusoidale : une grille dont chaque noeud oscille, et un moire leger.\n *\n * ## Le principe\n *\n * Les noeuds ne sont pas deplaces : le domaine est deforme en sinus avant que\n * la grille y soit lue, et chaque noeud decrit une petite boucle avec les\n * lignes qui le joignent. Une seconde grille, un peu plus fine et tournee de\n * quelques degres, se superpose en contre-phase : ses franges de moire se\n * deplacent bien plus lentement que les noeuds.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SINE_GRID_FRAGMENT } from './sine-grid.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SineGridControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SineGridOwnProps {\n  /** Nombre de cellules sur la hauteur. Borne a quarante par le shader. @defaultValue 12 */\n  cells?: number\n  /** Course de l'oscillation, en cellules. @defaultValue 0.18 */\n  amplitude?: number\n  /** Vitesse de l'oscillation. @defaultValue 0.8 */\n  speed?: number\n  /** Poids de la seconde grille, celle du moire. Zero l'eteint. @defaultValue 0.6 */\n  moire?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SineGridControls>\n}\n\n/** Toutes les proprietes. */\nexport type SineGridProps = Customisable<SineGridOwnProps>\n\n/** Tokens employes par defaut : le fond, les lignes, les noeuds. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-brand-500',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Grille sinusoidale.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <SineGrid className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function SineGrid({\n  cells = 12,\n  amplitude = 0.18,\n  speed = 0.8,\n  moire = 0.6,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SineGridProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SINE_GRID_FRAGMENT,\n    colors,\n    uniforms: { uCells: cells, uAmplitude: amplitude, uSpeed: speed, uMoire: moire },\n    name: 'sine-grid',\n    // La seconde grille double les lectures et, a densite de pixels reduite,\n    // ses franges scintillent : en qualite basse elle s'eteint.\n    degrade: (quality) => ({ uMoire: quality === 'low' ? 0 : moire }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

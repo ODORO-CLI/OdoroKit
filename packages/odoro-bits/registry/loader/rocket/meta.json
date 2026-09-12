@@ -1,0 +1,57 @@
+{
+  "name": "rocket",
+  "category": "loader",
+  "title": "Fusee",
+  "description": "Une fusee arrive en freinant par le bas, s appuie, puis quitte la vue par le haut en accelerant ; sa flamme s allonge et vacille a deux rythmes distincts.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Rocket.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 72,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 32,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree d un decollage complet. Le vacillement de la flamme en est le quatorzieme.",
+      "min": 1000,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la fusee et de sa flamme. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Fusee posee et flamme stable sous mouvement reduit."
+  }
+}

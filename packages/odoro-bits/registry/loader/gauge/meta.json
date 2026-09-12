@@ -1,0 +1,86 @@
+{
+  "name": "gauge",
+  "category": "loader",
+  "title": "Jauge",
+  "description": "Un arc de trois quarts de tour, gradue, qui se remplit jusqu a la valeur et l affiche ; ou balaye en attente quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Gauge.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 64,
+      "unit": "%",
+      "description": "Valeur, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Balayage sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Largeur de la jauge.",
+      "min": 40,
+      "max": 240,
+      "step": 8
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Epaisseur de l arc.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un aller du balayage indetermine.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition sur le decalage du tirete en mode determine, une animation CSS en mode indetermine ; rien ne recalcule la mise en page. Valeur sautee sans transition, balayage arrete a mi-course, sous mouvement reduit."
+  }
+}

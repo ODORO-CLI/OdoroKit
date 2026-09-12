@@ -1,0 +1,72 @@
+{
+  "name": "loading-dots-text",
+  "category": "loader",
+  "title": "Chargement, puis des points",
+  "description": "Le mot reste ; trois points s ajoutent l un apres l autre, puis disparaissent ensemble, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LoadingDotsText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Le mot affiche, avant les points."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un cycle, du mot seul aux trois points.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du texte. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations d opacite par paliers, aucun JavaScript apres le premier rendu. Le mot et ses trois points, immobiles, sous mouvement reduit."
+  },
+  "id": "loader/loading-dots-text",
+  "sources": {
+    "component.tsx": "/**\n * Chargement, puis des points : le mot reste, trois points s'ajoutent l'un\n * apres l'autre, puis disparaissent ensemble.\n *\n * ## Les points s'ajoutent, ils ne clignotent pas\n *\n * La version naive fait clignoter chaque point a sa cadence : trois lueurs\n * independantes, qui ne racontent rien. Ici la sequence est celle qu'on\n * ecrirait a la main — « Chargement », « Chargement. », « Chargement.. »,\n * « Chargement... » — puis la ligne revient au mot seul. C'est une phrase\n * qui se complete, pas un signal qui bat.\n *\n * Chaque point porte sa propre animation par paliers : le premier s'allume\n * au quart du cycle, le deuxieme a la moitie, le troisieme aux trois quarts,\n * et tous s'eteignent a la fin. Trois jeux d'images-cles plutot qu'un seul\n * decale : un delai ne suffirait pas, parce que la duree d'allumage differe\n * d'un point a l'autre.\n *\n * Les points sont dans le flux, a leur largeur reelle, meme invisibles : la\n * ligne ne change pas de longueur, et ce qui suit ne bouge pas.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran.\n * Le texte peint est retire de l'arbre d'accessibilite : un lecteur d'ecran\n * qui suivrait les points annoncerait la ligne a chaque changement.\n *\n * Sous mouvement reduit, les trois points restent affiches : « Chargement... »\n * se lit encore comme une attente, seul le rythme s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-loading-dots-text'\n\n/** Pose la ligne et ses trois paliers, une fois par document. */\nfunction ensureLoadingDotsTextRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-ldt]{',\n    'display:inline-block;white-space:nowrap;',\n    'font-size:var(--o-ldt-size);color:var(--o-ldt-color);',\n    '}',\n    '[data-o-ldt-dot]{',\n    'display:inline-block;',\n    'animation-duration:var(--o-ldt-speed);',\n    'animation-timing-function:steps(1,end);',\n    'animation-iteration-count:infinite;',\n    '}',\n    // Trois jeux d'images-cles : chaque point s'allume a son quart et reste\n    // allume jusqu'a la fin du cycle. Un seul jeu decale ne convient pas,\n    // la duree d'allumage n'est pas la meme pour les trois.\n    '[data-o-ldt-dot=\"1\"]{animation-name:o-ldt-dot-1}',\n    '[data-o-ldt-dot=\"2\"]{animation-name:o-ldt-dot-2}',\n    '[data-o-ldt-dot=\"3\"]{animation-name:o-ldt-dot-3}',\n    '@keyframes o-ldt-dot-1{0%{opacity:0}25%,100%{opacity:1}}',\n    '@keyframes o-ldt-dot-2{0%,25%{opacity:0}50%,100%{opacity:1}}',\n    '@keyframes o-ldt-dot-3{0%,50%{opacity:0}75%,100%{opacity:1}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-ldt-dot]{animation:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface LoadingDotsTextOwnProps {\n  /** Le mot affiche, avant les points. @defaultValue 'Chargement' */\n  text?: string\n  /** Corps du texte, en pixels. @defaultValue 16 */\n  size?: number\n  /** Duree d'un cycle, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Couleur du texte. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type LoadingDotsTextProps = Customisable<LoadingDotsTextOwnProps, 'span'>\n\n/**\n * Signale une attente par un mot que des points viennent completer.\n *\n * @example\n * <LoadingDotsText />\n *\n * @example\n * // Un autre mot, plus lent, dans la teinte de marque.\n * <LoadingDotsText text=\"Envoi\" speed={2400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function LoadingDotsText({\n  text = 'Chargement',\n  size = 16,\n  speed = 1600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: LoadingDotsTextProps): ReactElement {\n  ensureLoadingDotsTextRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-ldt-size': `${String(size)}px`,\n    '--o-ldt-speed': `${String(speed)}ms`,\n    '--o-ldt-color': color,\n  } as CSSProperties\n\n  return (\n    <span {...rest} className={className} style={loaderStyle} data-o-ldt=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden>\n        {text}\n        <span data-o-ldt-dot=\"1\">.</span>\n        <span data-o-ldt-dot=\"2\">.</span>\n        <span data-o-ldt-dot=\"3\">.</span>\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

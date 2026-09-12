@@ -1,0 +1,66 @@
+{
+  "name": "hover-zoom",
+  "category": "image",
+  "title": "Zoom au survol",
+  "description": "L image grossit doucement dans son cadre et regarde vers le pointeur, sans jamais bouger la mise en page.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/HoverZoom.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-base", "--o-ease-standard"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 1.15,
+      "description": "Echelle atteinte au survol.",
+      "min": 1.05,
+      "max": 1.6,
+      "step": 0.05
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 480,
+      "unit": "ms",
+      "description": "Duree de l agrandissement.",
+      "min": 120,
+      "max": 1200,
+      "step": 20
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux variables CSS ecrites au deplacement du pointeur, une transition tenue par le compositeur. Aucun rendu React pendant le survol ; fige sous mouvement reduit."
+  }
+}

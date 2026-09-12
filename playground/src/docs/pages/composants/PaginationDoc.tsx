@@ -84,6 +84,28 @@ const [page, setPage] = useState(6)
   pageCount={12}${Number(values['siblingCount']) === 1 ? '' : `\n  siblingCount={${Number(values['siblingCount'])}}`}
   onPageChange={setPage}
 />`}
+          variants={[
+            {
+              title: 'Fenetre minimale',
+              description: 'siblingCount 0, la page courante seule.',
+              values: { siblingCount: 0 },
+            },
+            {
+              title: 'Fenetre large',
+              description: 'siblingCount 2, deux voisins de chaque cote.',
+              values: { siblingCount: 2 },
+            },
+            {
+              title: 'Cinq pages',
+              description: 'Tout tient dans la fenetre, aucune ellipse.',
+              node: <FewPagesDemo />,
+            },
+            {
+              title: 'Cent vingt pages',
+              description: 'Une ellipse de chaque cote de la fenetre.',
+              node: <ManyPagesDemo />,
+            },
+          ]}
         />
         <Callout>
           La page courante porte{' '}

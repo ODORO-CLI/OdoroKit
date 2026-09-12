@@ -1,0 +1,65 @@
+{
+  "name": "orbit-loader",
+  "category": "loader",
+  "title": "Chargeur orbital",
+  "description": "Trois arcs concentriques tournent a contresens, sans rien pretendre compter.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/OrbitLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau exterieur.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree d un tour de l anneau exterieur.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des arcs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois rotations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Sous mouvement reduit les arcs restent en place."
+  },
+  "id": "loader/orbit-loader",
+  "sources": {
+    "component.tsx": "/**\n * Chargeur orbital : trois arcs concentriques tournent a contresens.\n *\n * ## Trois bordures, aucun JavaScript\n *\n * Chaque arc est un anneau dont une seule portion de bordure est peinte —\n * le reste est transparent — et que le compositeur fait tourner. Trois\n * rotations declarees une fois, a des vitesses et des sens alternes : le\n * croisement des arcs suffit a dire « quelque chose travaille », sans une\n * ligne de JavaScript apres le premier rendu.\n *\n * Ce chargeur ne compte rien, et ne pretend pas compter : c'est un signe\n * d'attente, pas une mesure. Quand il y a une vraie progression a montrer,\n * `counter-gate` est le bon outil.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les arcs, eux, sont\n * retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les arcs restent en place : la figure — trois\n * portions d'anneaux decalees — se lit encore comme un chargeur, seul le\n * mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface OrbitLoaderOwnProps {\n  /** Diametre de l'anneau exterieur, en pixels. @defaultValue 48 */\n  size?: number\n  /** Duree d'un tour de l'anneau exterieur, en millisecondes. @defaultValue 1200 */\n  speed?: number\n  /** Couleur des arcs. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type OrbitLoaderProps = Customisable<OrbitLoaderOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-orbit-loader'\n\n/** Pose les anneaux et leur rotation, une fois par document. */\nfunction ensureLoaderRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-orbit-loader]{position:relative;display:inline-block}',\n    '[data-o-orbit-ring]{',\n    'position:absolute;inset:var(--o-loader-inset);',\n    'border-radius:50%;',\n    'border:2px solid transparent;',\n    'border-top-color:var(--o-loader-color);',\n    'opacity:var(--o-loader-opacity);',\n    'animation:o-orbit-loader-spin var(--o-loader-speed) linear infinite;',\n    'animation-direction:var(--o-loader-direction);',\n    '}',\n    '@keyframes o-orbit-loader-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    // Les arcs figes restent decales d'un tiers de tour : la figure se lit\n    // encore comme un chargeur.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-orbit-ring]{animation:none;transform:rotate(var(--o-loader-rest))}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Signale une attente par trois arcs qui tournent a contresens.\n *\n * @example\n * <OrbitLoader />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <OrbitLoader size={72} speed={2000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function OrbitLoader({\n  size = 48,\n  speed = 1200,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: OrbitLoaderProps): ReactElement {\n  ensureLoaderRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    '--o-loader-color': color,\n  } as CSSProperties\n\n  // Trois anneaux : chacun plus petit, plus rapide, et a contresens du\n  // precedent. L'inertie visuelle vient du croisement, pas de la vitesse.\n  const rings = [0, 1, 2].map((ring) => ({\n    inset: `${String(ring * 16)}%`,\n    speed: Math.round(speed * (1 + ring * 0.5)),\n    direction: ring % 2 === 1 ? 'reverse' : 'normal',\n    opacity: 1 - ring * 0.25,\n    rest: `${String(ring * 120)}deg`,\n  }))\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-orbit-loader=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {rings.map((ring, index) => (\n        <span\n          key={index}\n          aria-hidden\n          data-o-orbit-ring=\"\"\n          style={\n            {\n              '--o-loader-inset': ring.inset,\n              '--o-loader-speed': `${String(ring.speed)}ms`,\n              '--o-loader-direction': ring.direction,\n              '--o-loader-opacity': String(ring.opacity),\n              '--o-loader-rest': ring.rest,\n            } as CSSProperties\n          }\n        />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

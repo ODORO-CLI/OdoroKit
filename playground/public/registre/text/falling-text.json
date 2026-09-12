@@ -1,0 +1,66 @@
+{
+  "name": "falling-text",
+  "category": "text",
+  "title": "Lettres qui tombent",
+  "description": "Chaque lettre tombe en place depuis le haut avec un leger depassement, a l entree dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/FallingText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 45,
+      "unit": "ms",
+      "description": "Delai entre deux lettres.",
+      "min": 0,
+      "max": 300,
+      "step": 5
+    },
+    {
+      "name": "drop",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "unit": "em",
+      "description": "Hauteur de la chute.",
+      "min": 0.2,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "once",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Ne jouer qu une fois, ou rejouer a chaque retour dans le champ."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une animation Web Animations par lettre, tenue par le compositeur. A reserver aux titres : un paragraphe ferait beaucoup de calques."
+  },
+  "id": "text/falling-text",
+  "sources": {
+    "component.tsx": "/**\n * Chute : chaque lettre tombe en place depuis le haut, avec un leger rebond.\n *\n * ## Un depassement, pas un rebond complet\n *\n * Une lettre qui tombe et s'arrete net a l'air posee ; une lettre qui rebondit\n * plusieurs fois a l'air de faire un numero. Entre les deux, une courbe qui\n * depasse une seule fois la ligne de base avant de s'y ranger — c'est le\n * profil « emphase » des systemes de mouvement, obtenu ici par un\n * `cubic-bezier` dont la sortie franchit 1.\n *\n * ## `element.animate`, arme par l'observateur\n *\n * L'effet ne se joue qu'a l'entree dans le champ. L'etat cache — les lettres\n * en opacite nulle — est pose par le meme code qui programme la chute : si ce\n * code ne tourne jamais, le texte est simplement la. Voir blur-reveal, qui a\n * essuye les platres de ce piege.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte est eclate en lettres pour que chacune recoive son delai. Le\n * conteneur porte donc le texte complet pour les lecteurs d'ecran, et les\n * lettres sont retirees de l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface FallingTextOwnProps {\n  /** Texte a faire tomber. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Delai entre deux lettres, en millisecondes. @defaultValue 45 */\n  step?: number\n  /** Hauteur de la chute, en em. @defaultValue 1.2 */\n  drop?: number\n  /**\n   * Ne jouer qu'une fois.\n   *\n   * A `false`, la chute se rejoue a chaque retour dans le champ — a reserver\n   * aux textes qu'on ne recroise pas par hasard.\n   *\n   * @defaultValue true\n   */\n  once?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type FallingTextProps = Customisable<FallingTextOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = '\\u00A0'\n\n/** Duree de la chute d'une lettre, en millisecondes. */\nconst FALL_MS = 550\n\n/**\n * Sortie avec depassement : la lettre franchit sa ligne d'arrivee d'un cheveu,\n * puis s'y range. C'est le depassement qui donne le poids.\n */\nconst OVERSHOOT = 'cubic-bezier(0.34, 1.56, 0.64, 1)'\n\n/**\n * Fait tomber un texte en place, lettre a lettre, a l'entree dans le champ.\n *\n * @example\n * <FallingText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   Ca tombe bien\n * </FallingText>\n *\n * @example\n * // Une chute plus haute, rejouee a chaque passage.\n * <FallingText drop={2.5} once={false}>Encore</FallingText>\n */\nexport function FallingText({\n  children,\n  as: Tag = 'span',\n  step = 45,\n  drop = 1.2,\n  once = true,\n  ...rest\n}: FallingTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const host = useRef<HTMLElement | null>(null)\n\n  useEffect(() => {\n    const element = host.current\n    if (element === null || reduced) return\n\n    const letters = element.querySelectorAll<HTMLElement>('[data-o-fall-letter]')\n    if (letters.length === 0) return\n\n    // L'etat cache est pose ici, pas dans le rendu : sans ce code, le texte\n    // reste visible. Voir l'en-tete du module.\n    for (const letter of letters) {\n      letter.style.opacity = '0'\n    }\n\n    let animations: Animation[] = []\n\n    const play = (): void => {\n      for (const animation of animations) animation.cancel()\n      animations = []\n\n      letters.forEach((letter, index) => {\n        letter.style.opacity = ''\n        animations.push(\n          letter.animate(\n            [\n              { transform: `translateY(${String(-drop)}em)`, opacity: 0 },\n              { transform: 'translateY(0)', opacity: 1 },\n            ],\n            {\n              duration: FALL_MS,\n              delay: index * step,\n              easing: OVERSHOOT,\n              fill: 'both',\n            },\n          ),\n        )\n      })\n    }\n\n    const observer = new IntersectionObserver(\n      (entries) => {\n        if (entries.every((entry) => !entry.isIntersecting)) return\n        play()\n        if (once) observer.disconnect()\n      },\n      { threshold: 0.4 },\n    )\n\n    observer.observe(element)\n    return () => {\n      observer.disconnect()\n      for (const animation of animations) animation.cancel()\n      for (const letter of letters) {\n        letter.style.opacity = ''\n      }\n    }\n  }, [reduced, children, step, drop, once])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, entier, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const letters = [...children]\n\n  return (\n    <Tag {...rest} ref={host} className={className} style={style}>\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {letters.map((letter, index) => (\n          <span\n            key={`${letter}-${String(index)}`}\n            data-o-fall-letter=\"\"\n            style={{ display: 'inline-block' }}\n          >\n            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                l'insecable garde sa largeur. */}\n            {letter === ' ' ? NBSP : letter}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

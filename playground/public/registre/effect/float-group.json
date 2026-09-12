@@ -1,0 +1,52 @@
+{
+  "name": "float-group",
+  "category": "effect",
+  "title": "Flottement",
+  "description": "Chaque enfant direct flotte doucement sur sa propre cadence, duree et phase derivees de l index — jamais les memes pour deux voisins.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/FloatGroup.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Amplitude de l oscillation.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree de reference d un aller-retour.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS par enfant, toutes tenues par le compositeur, delais negatifs pour desynchroniser les departs. Animation suspendue sous mouvement reduit."
+  },
+  "id": "effect/float-group",
+  "sources": {
+    "component.tsx": "/**\n * Flottement : chaque enfant direct oscille doucement, jamais en choeur.\n *\n * ## La cadence vient de l'index, pas du hasard\n *\n * Duree et phase de chaque enfant sont derivees de sa position par la meme\n * suite deterministe que la pluie de meteores. `Math.random()` au rendu\n * donnerait deux flottements differents entre le serveur et le client — une\n * erreur d'hydratation par enfant — et un flottement nouveau a chaque rendu\n * du parent. La graine par index garantit surtout ce qui fait l'effet : deux\n * voisins n'ont jamais ni la meme duree ni la meme phase, et le groupe\n * respire au lieu de sauter a l'unisson.\n *\n * ## Le compositeur porte tout\n *\n * Chaque enfant est enveloppe d'un `span` qui porte une seule animation CSS\n * — une translation verticale sinusoidale — reglee par variables. Aucun\n * JavaScript ne s'execute pendant le flottement ; le delai negatif fait que\n * chacun est deja quelque part sur sa course au premier regard.\n *\n * Les enveloppes ne portent pas d'`aria-hidden` : elles contiennent du vrai\n * contenu — badges, vignettes — que le flottement ne doit pas faire taire.\n * Sous mouvement reduit, l'animation est suspendue : tout reste en place.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { Children, type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface FloatGroupOwnProps {\n  /** Elements qui flottent, chacun sur sa propre cadence. */\n  children: ReactNode\n  /** Amplitude de l'oscillation, en pixels. @defaultValue 8 */\n  amplitude?: number\n  /** Duree de reference d'un aller-retour, en millisecondes. @defaultValue 3000 */\n  duration?: number\n}\n\n/** Toutes les proprietes. */\nexport type FloatGroupProps = Customisable<FloatGroupOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-float-group'\n\n/**\n * Valeur pseudo-aleatoire dans [0, 1), stable pour un couple index-canal.\n *\n * Une congruence suffit : il ne s'agit pas de cryptographie, seulement de\n * garantir que deux voisins ne partagent jamais leur cadence.\n */\nfunction seeded(index: number, channel: number): number {\n  const value = Math.sin(index * 127.1 + channel * 311.7) * 43758.5453\n  return value - Math.floor(value)\n}\n\n/** Pose l'oscillation, une fois par document. */\nfunction ensureFloatRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-float]{',\n    'display:inline-block;',\n    'animation:o-float-drift var(--o-float-duration) ease-in-out infinite;',\n    'animation-delay:var(--o-float-phase);',\n    'will-change:transform;',\n    '}',\n    // Une sinusoide en trois points : l'aller-retour est symetrique, et\n    // ease-in-out arrondit les extremes comme un vrai flotteur.\n    '@keyframes o-float-drift{',\n    '0%,100%{transform:translateY(0)}',\n    '50%{transform:translateY(calc(var(--o-float-amplitude) * -1))}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){[data-o-float]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait flotter chacun de ses enfants directs, pour badges et vignettes.\n *\n * La mise en page du groupe appartient a l'appelant : une rangee, une\n * grille, un nuage — le composant ne fait qu'envelopper chaque enfant.\n *\n * @example\n * <FloatGroup className=\"o-flex o-items-center o-gap-6\">\n *   <Badge>Nouveau</Badge>\n *   <Badge>Sans engagement</Badge>\n *   <Badge>Ouvert la nuit</Badge>\n * </FloatGroup>\n *\n * @example\n * // Un flottement ample et lent, pour de grandes vignettes.\n * <FloatGroup amplitude={16} duration={5000} className=\"o-grid o-grid-cols-3 o-gap-8\">\n *   {vignettes}\n * </FloatGroup>\n */\nexport function FloatGroup({\n  children,\n  amplitude = 8,\n  duration = 3000,\n  ...rest\n}: FloatGroupProps): ReactElement {\n  ensureFloatRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div {...rest} className={className} style={style}>\n      {Children.map(children, (child, index) => {\n        // Duree etalee autour de la reference, phase portee par un delai\n        // negatif : voir l'en-tete du module.\n        const own = duration * (0.85 + seeded(index, 0) * 0.4)\n        return (\n          <span\n            data-o-float=\"\"\n            style={\n              {\n                '--o-float-amplitude': `${String(amplitude)}px`,\n                '--o-float-duration': `${String(Math.round(own))}ms`,\n                '--o-float-phase': `${String(-Math.round(seeded(index, 1) * own))}ms`,\n              } as CSSProperties\n            }\n          >\n            {child}\n          </span>\n        )\n      })}\n    </div>\n  )\n}\n"
+  }
+}

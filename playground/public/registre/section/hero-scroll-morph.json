@@ -1,0 +1,85 @@
+{
+  "name": "hero-scroll-morph",
+  "category": "section",
+  "title": "Hero qui s ouvre au defilement",
+  "description": "Un hero dont la fenetre sur le media s elargit au fil du defilement, sans jamais recalculer la mise en page.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/HeroScrollMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-radius-3xl"
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Titre du hero."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Le media : image, video, capture, scene."
+    },
+    {
+      "name": "subtitle",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Phrase sous le titre."
+    },
+    {
+      "name": "caption",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Legende sous le media, qui apparait a mesure que la fenetre s ouvre."
+    },
+    {
+      "name": "startWidth",
+      "type": "number",
+      "required": false,
+      "default": 62,
+      "unit": "%",
+      "description": "Largeur visible du media au repos.",
+      "min": 20,
+      "max": 100,
+      "step": 2
+    },
+    {
+      "name": "travel",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Part de la hauteur de la section sur laquelle la transformation s acheve.",
+      "min": 0.2,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une mesure par image et une ecriture de variable seulement quand le centieme change. La transformation passe par clip-path et transform : aucun recalcul de mise en page. Rien ne tourne sous mouvement reduit."
+  },
+  "id": "section/hero-scroll-morph",
+  "sources": {
+    "component.tsx": "/**\n * Hero dont le media s'ouvre au fil du defilement.\n *\n * ## Le media ne change pas de largeur : il change de fenetre\n *\n * La version evidente anime `width`, et c'est celle qu'il faut ecarter. Une\n * largeur est une propriete de mise en page : le navigateur recalcule la\n * position de tout ce qui suit, a chaque image, pendant tout le defilement.\n * Sur une page longue, cela se sent avant meme de profiler.\n *\n * Le media garde donc sa taille, et c'est la **fenetre** par laquelle on le\n * voit qui s'ouvre — un `clip-path` en `inset`, que le navigateur traite au\n * dessin et non a la mise en page. Le resultat est le meme a l'oeil, et rien\n * ne bouge autour.\n *\n * ## La progression est lue dans la boucle, pas rendue\n *\n * Une valeur qui change a chaque image n'a rien a faire dans un etat React :\n * elle provoquerait un rendu complet par image, pour ecrire un nombre dans une\n * variable CSS. Elle est donc lue a la priorite des mesures, arrondie au\n * centieme, et n'est ecrite que lorsqu'elle change vraiment.\n *\n * ## Le champ n'est pas toujours la fenetre\n *\n * Pose dans un panneau a debordement — un apercu, un tiroir — le hero se\n * mesure par rapport a ce panneau. Le conteneur qui defile est cherche une\n * fois au montage : `getComputedStyle` par image couterait plus cher que tout\n * le reste du composant.\n *\n * ## Ce que le mouvement reduit donne\n *\n * L'etat d'arrivee : le media pleinement ouvert, la legende visible. Un hero\n * fige a son etat de depart montrerait un media rogne et une legende absente,\n * c'est-a-dire un contenu incomplet — ce qui n'est pas ce que la preference\n * demande.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface HeroScrollMorphOwnProps {\n  /** Titre du hero. */\n  title: ReactNode\n  /** Le media : image, video, capture, scene. */\n  children: ReactNode\n  /** Phrase sous le titre. */\n  subtitle?: ReactNode\n  /** Legende sous le media, qui apparait a mesure que la fenetre s'ouvre. */\n  caption?: ReactNode\n  /**\n   * Largeur visible du media au repos, en pourcentage de sa largeur pleine.\n   *\n   * @defaultValue 62\n   */\n  startWidth?: number\n  /**\n   * Part de la hauteur de la section sur laquelle la transformation s'acheve.\n   *\n   * `0.6` la termine avant que la section quitte le champ, ce qui laisse voir\n   * le media ouvert. Une valeur de 1 la fait finir au moment ou l'on ne la\n   * regarde plus.\n   *\n   * @defaultValue 0.6\n   */\n  travel?: number\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type HeroScrollMorphProps = Customisable<HeroScrollMorphOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-hero-scroll-morph'\n\n/** Pose les regles du hero, une fois par document. */\nfunction ensureMorphRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-hsm]{--o-hsm-reste:1}',\n    // Tout est exprime en « ce qu'il reste a parcourir » : a l'arrivee la\n    // valeur vaut zero, et chaque calcul se lit comme « rien de plus ».\n    '[data-o-hsm-media]{',\n    'clip-path:inset(',\n    'calc(var(--o-hsm-marge-y) * var(--o-hsm-reste))',\n    'calc(var(--o-hsm-marge-x) * var(--o-hsm-reste))',\n    'round calc(var(--o-radius-3xl) * var(--o-hsm-reste)));',\n    'transform:scale(calc(1 - 0.05 * var(--o-hsm-reste)));',\n    'will-change:clip-path,transform}',\n\n    '[data-o-hsm-legende]{opacity:calc(1 - var(--o-hsm-reste))}',\n\n    // L'etat d'arrivee, et non l'etat de depart : un media rogne serait un\n    // contenu incomplet, pas une animation neutralisee.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-hsm]{--o-hsm-reste:0}',\n    '[data-o-hsm-media]{will-change:auto}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Trouve le conteneur qui defile autour d'un element.\n *\n * Appele une seule fois, au montage : `getComputedStyle` force un calcul de\n * style, et le repeter par image annulerait le soin pris ailleurs.\n */\nfunction conteneurDefilant(element: Element): HTMLElement | null {\n  let parent = element.parentElement\n  while (parent !== null) {\n    const debordement = getComputedStyle(parent).overflowY\n    if (debordement === 'auto' || debordement === 'scroll') return parent\n    parent = parent.parentElement\n  }\n  return null\n}\n\n/**\n * Hero dont le media s'ouvre au defilement.\n *\n * @example\n * <HeroScrollMorph\n *   title=\"Le registre, en clair\"\n *   subtitle=\"Des composants copies chez vous, pas lies.\"\n *   caption=\"Capture de la commande d installation\"\n * >\n *   <img src=\"/apercu.png\" alt=\"\" className=\"o-size-full o-object-cover\" />\n * </HeroScrollMorph>\n */\nexport function HeroScrollMorph({\n  title,\n  children,\n  subtitle,\n  caption,\n  startWidth = 62,\n  travel = 0.6,\n  label,\n  ...rest\n}: HeroScrollMorphProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [hote, setHote] = useState<HTMLElement | null>(null)\n  const dernier = useRef(-1)\n\n  ensureMorphRules()\n\n  useEffect(() => {\n    if (hote === null || reduced) return\n\n    const conteneur = conteneurDefilant(hote)\n    const course = Math.max(0.05, travel)\n\n    const subscription = clock.subscribe(\n      () => {\n        const boite = hote.getBoundingClientRect()\n        if (boite.height === 0) return\n\n        const hautDuChamp = conteneur === null ? 0 : conteneur.getBoundingClientRect().top\n\n        // « Combien de moi est deja passe au-dessus du champ », rapporte a la\n        // course voulue. A l'arrivee de la page, la valeur vaut zero : le hero\n        // demarre donc ferme, ce qui est le seul depart qui ait du sens.\n        const p = Math.min(\n          1,\n          Math.max(0, (hautDuChamp - boite.top) / (boite.height * course)),\n        )\n\n        const centieme = Math.round(p * 100)\n        if (centieme === dernier.current) return\n        dernier.current = centieme\n        hote.style.setProperty('--o-hsm-reste', (1 - centieme / 100).toFixed(2))\n      },\n      { name: 'hero au defilement', priority: CLOCK_PRIORITY.layout },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [hote, reduced, travel])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-items-center o-gap-8 o-py-16' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={setHote}\n      aria-label={label}\n      data-o-hsm=\"\"\n      className={className}\n      style={\n        {\n          ...style,\n          // La marge de depart se deduit de la largeur voulue : une fenetre a\n          // 62 % laisse 19 % de chaque cote.\n          '--o-hsm-marge-x': `${((100 - startWidth) / 2).toFixed(2)}%`,\n          '--o-hsm-marge-y': `${((100 - startWidth) / 4).toFixed(2)}%`,\n        } as CSSProperties\n      }\n    >\n      <div className=\"o-flex o-max-w-2xl o-flex-col o-gap-4 o-px-6 o-text-center\">\n        <h1\n          className=\"o-text-4xl o-font-bold o-tracking-tight o-text-balance\"\n          style={{ color: 'var(--o-theme-fg)' }}\n        >\n          {title}\n        </h1>\n        {subtitle !== undefined && (\n          <p\n            className=\"o-text-base o-leading-relaxed\"\n            style={{ color: 'var(--o-theme-muted)' }}\n          >\n            {subtitle}\n          </p>\n        )}\n      </div>\n\n      <figure className=\"o-m-0 o-w-full\">\n        <div data-o-hsm-media=\"\" className=\"o-w-full\">\n          {children}\n        </div>\n        {caption !== undefined && (\n          <figcaption\n            data-o-hsm-legende=\"\"\n            className=\"o-mt-3 o-text-center o-text-xs\"\n            style={{ color: 'var(--o-theme-muted)' }}\n          >\n            {caption}\n          </figcaption>\n        )}\n      </figure>\n    </section>\n  )\n}\n"
+  }
+}

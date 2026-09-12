@@ -1,0 +1,82 @@
+{
+  "name": "progress-bar",
+  "category": "loader",
+  "title": "Barre de progression",
+  "description": "Une barre dans le flux, avec son etiquette et sa valeur, remplie par une progression reelle ou parcourue d un segment qui respire quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ProgressBar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 42,
+      "unit": "%",
+      "description": "Progression, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Segment qui parcourt la piste sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "showLabel",
+      "type": "boolean",
+      "default": true,
+      "description": "Afficher l etiquette et la valeur au-dessus de la piste."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Epaisseur de la piste.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un aller du segment indetermine.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Etiquette affichee et annoncee aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle de transformation en mode determine, une animation CSS en mode indetermine : rien ne recalcule la mise en page. Valeur sautee sans transition, piste pleine et attenuee, sous mouvement reduit."
+  }
+}

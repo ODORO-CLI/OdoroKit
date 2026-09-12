@@ -1,0 +1,103 @@
+{
+  "name": "prism",
+  "category": "background",
+  "title": "Prisme",
+  "description": "Un faisceau blanc entre par la gauche, traverse un prisme et ressort en eventail, disperse entre deux teintes du projet.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "prism.shader.ts",
+      "target": "background/prism.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Prism.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-violet-500",
+    "--o-palette-amber-400"
+  ],
+  "props": [
+    {
+      "name": "x",
+      "type": "number",
+      "required": false,
+      "default": 0.42,
+      "description": "Position horizontale du prisme, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "y",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Position verticale du prisme, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Ouverture de l eventail, en radians.",
+      "min": 0.1,
+      "max": 1.4,
+      "step": 0.05
+    },
+    {
+      "name": "bands",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Nombre de raies dans le spectre.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de la respiration et du scintillement.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, le debut et la fin du spectre."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Deux distances, un triangle et un atan par fragment, sans boucle. En qualite basse, seul l eventail est dessine.",
+    "fallback": "gradient"
+  },
+  "id": "background/prism",
+  "sources": {
+    "prism.shader.ts": "/**\n * Shader du prisme.\n *\n * ## L'idee mathematique\n *\n * Trois pieces, dans l'ordre ou la lumiere les traverse. Un faisceau entrant :\n * la distance a un segment, avec un coeur gaussien et une aureole. Un prisme :\n * un triangle equilateral par sa distance signee, dont seule l'arete brille.\n * Une dispersion : un eventail d'angles a la sortie, ou la teinte tourne d'un\n * token a l'autre selon la position dans l'eventail — un spectre entre deux\n * couleurs du projet, pas un arc-en-ciel ecrit en dur — et ou un cosinus\n * dessine des raies, comme les raies d'un vrai spectre.\n *\n * L'ouverture de l'eventail respire lentement, et un scintillement glisse\n * le long des rais, pour que la scene ne soit pas une image fixe.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le debut du spectre.\n * - `uColorC` — la fin du spectre.\n * - `uX`, `uY` — position du prisme, en fraction du cadre.\n * - `uSpread` — ouverture de l'eventail, en radians.\n * - `uBands` — nombre de raies dans le spectre.\n * - `uSpeed` — vitesse de la respiration et du scintillement.\n * - `uDetail` — pieces dessinees : 1 l'eventail seul, 3 tout.\n */\nexport const PRISM_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uX;\nuniform float uY;\nuniform float uSpread;\nuniform float uBands;\nuniform float uSpeed;\nuniform float uDetail;\n\n// Distance a un segment.\nfloat prismeSegment(vec2 p, vec2 a, vec2 b) {\n  vec2 pa = p - a;\n  vec2 ba = b - a;\n  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);\n  return length(pa - ba * h);\n}\n\n// Distance signee a un triangle equilateral de demi-cote donne, pointe en\n// haut : negative dedans, positive dehors.\nfloat prismeTriangle(vec2 p, float cote) {\n  const float k = 1.7320508;\n  p.x = abs(p.x) - cote;\n  p.y = p.y + cote / k;\n  if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) * 0.5;\n  p.x -= clamp(p.x, -2.0 * cote, 0.0);\n  return -length(p) * sign(p.y);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  vec2 centre = vec2(uX * aspect, uY);\n  float t = uTime * uSpeed;\n  int pieces = int(clamp(uDetail, 1.0, 3.0));\n\n  float cote = 0.13;\n  vec2 entree = centre + vec2(-cote * 0.55, cote * 0.1);\n  vec2 sortie = centre + vec2(cote * 0.55, -cote * 0.05);\n  vec3 blanc = mix(uColorB, uColorC, 0.5);\n\n  vec3 colour = uColorA;\n\n  // Le faisceau entrant : il vient de la gauche, en descendant un peu.\n  if (pieces >= 2) {\n    float d = prismeSegment(p, vec2(-1.0, uY + 0.45), entree);\n    float coeur = exp(-(d * d) / 0.00004);\n    float aureole = exp(-d / 0.035) * 0.35;\n    colour = mix(colour, blanc, clamp(aureole + coeur, 0.0, 1.0));\n    colour += blanc * coeur * 0.3;\n  }\n\n  // Le prisme : l'interieur a peine teinte, l'arete qui brille.\n  if (pieces >= 3) {\n    float sd = prismeTriangle(p - centre, cote);\n    float interieur = 1.0 - smoothstep(-0.004, 0.004, sd);\n    float arete = exp(-abs(sd) / 0.004);\n    colour = mix(colour, blanc, interieur * 0.08);\n    colour = mix(colour, uColorC, arete * 0.6);\n  }\n\n  // L'eventail : l'angle depuis la sortie, rapporte a l'ouverture.\n  vec2 ecart = p - sortie;\n  float rayon = length(ecart);\n  float angle = atan(ecart.y, ecart.x);\n  float ouverture = max(uSpread, 0.05) * (1.0 + 0.12 * sin(t * 0.7));\n  float bas = -0.12 - ouverture * 0.5;\n  float frac = (angle - bas) / ouverture;\n\n  float dedans = smoothstep(-0.03, 0.06, frac) * smoothstep(1.03, 0.94, frac);\n  float devant = smoothstep(0.0, 0.03, ecart.x);\n  float attenuation = exp(-rayon * 1.1);\n  float scintillement = 0.85 + 0.15 * sin(rayon * 24.0 - t * 3.0 + frac * 6.0);\n\n  // Le spectre : la teinte tourne d'un token a l'autre ; le cosinus dessine\n  // les raies qui le rendent lisible comme un spectre.\n  vec3 teinte = mix(uColorB, uColorC, clamp(frac, 0.0, 1.0));\n  float raies = 0.6 + 0.4 * cos(frac * uBands * 6.2831853);\n\n  float eventail = dedans * devant * attenuation * raies * scintillement;\n  colour = mix(colour, teinte, clamp(eventail, 0.0, 1.0));\n  colour += teinte * eventail * 0.2;\n\n  gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Prisme : un faisceau blanc entre par la gauche, traverse un prisme et ressort en eventail, disperse entre deux teintes du projet.\n *\n * ## Le principe\n *\n * Trois pieces dans l'ordre ou la lumiere les traverse : un faisceau,\n * distance a un segment ; un prisme, distance signee a un triangle dont\n * seule l'arete brille ; une dispersion, eventail d'angles a la sortie ou\n * la teinte tourne d'un token a l'autre — un spectre entre deux couleurs\n * du projet, pas un arc-en-ciel ecrit en dur.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { PRISM_FRAGMENT } from './prism.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface PrismControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface PrismOwnProps {\n  /** Position horizontale du prisme, en fraction du cadre. @defaultValue 0.42 */\n  x?: number\n  /** Position verticale du prisme, en fraction du cadre. @defaultValue 0.5 */\n  y?: number\n  /** Ouverture de l eventail, en radians. @defaultValue 0.6 */\n  spread?: number\n  /** Nombre de raies dans le spectre. @defaultValue 6 */\n  bands?: number\n  /** Vitesse de la respiration et du scintillement. @defaultValue 0.5 */\n  speed?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<PrismControls>\n}\n\n/** Toutes les proprietes. */\nexport type PrismProps = Customisable<PrismOwnProps>\n\n/** Tokens employes par defaut : le fond, le debut et la fin du spectre. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-violet-500',\n  '--o-palette-amber-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-200 dark:o-via-violet-900 o-to-amber-200 dark:o-to-amber-900'\n\n/**\n * Detail hors qualite basse.\n *\n * L'eventail est l'essentiel ; le faisceau et le prisme sont deux\n * distances de plus, et ce sont elles qui tombent en qualite basse.\n */\nconst DETAIL = 3\n\n/** Detail en qualite basse. */\nconst LOW_DETAIL = 1\n\n/**\n * Prisme.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Prism className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Prism({\n  x = 0.42,\n  y = 0.5,\n  spread = 0.6,\n  bands = 6,\n  speed = 0.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: PrismProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: PRISM_FRAGMENT,\n    colors,\n    uniforms: {\n      uX: x,\n      uY: y,\n      uSpread: spread,\n      uBands: bands,\n      uSpeed: speed,\n      uDetail: DETAIL,\n    },\n    name: 'prism',\n    degrade: (quality) => ({\n      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

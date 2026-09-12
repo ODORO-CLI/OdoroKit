@@ -12,8 +12,10 @@ import { OdoroDebugPanel, OdoroEngine, isDebugRequested } from '@odoro-cli/engin
 
 import { Shell } from './docs/components/Shell.jsx'
 import { Accueil } from './docs/pages/Accueil.jsx'
-import { Installation } from './docs/pages/Installation.jsx'
+import { Landing } from './docs/pages/Landing.jsx'
 import { Templates } from './docs/pages/Templates.jsx'
+import { VitrineRoute } from './docs/pages/VitrineRoute.jsx'
+import { Installation } from './docs/pages/Installation.jsx'
 import { StylesOverview } from './docs/pages/StylesOverview.jsx'
 import { Couleurs } from './docs/pages/Couleurs.jsx'
 import { Typographie } from './docs/pages/Typographie.jsx'
@@ -105,7 +107,13 @@ export function App(): ReactElement {
                 <p className="o-text-zinc-500 dark:o-text-zinc-400">Chargement...</p>
               }
             >
-              <Route index element={<Accueil />} />
+              {/* La racine vend le produit ; l'accueil d'avant devient le
+                  point d'entree de la documentation. Deux publics distincts :
+                  le visiteur qui decouvre, le developpeur qui cherche. */}
+              <Route index element={<Landing />} />
+              <Route path="docs" element={<Accueil />} />
+              <Route path="templates" element={<Templates />} />
+              <Route path="templates/:slug" element={<VitrineRoute />} />
               <Route path="docs/installation" element={<Installation />} />
               <Route path="docs/templates" element={<Templates />} />
               <Route path="docs/styles" element={<StylesOverview />} />

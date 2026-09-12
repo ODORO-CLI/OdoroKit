@@ -1,0 +1,72 @@
+{
+  "name": "text-shimmer-loader",
+  "category": "loader",
+  "title": "Texte en attente, balaye",
+  "description": "Un mot eteint, qu une bande de pleine encre traverse en boucle : l attente se lit dans le texte lui-meme, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/TextShimmerLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Le texte affiche."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un passage de la bande.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du texte et de la bande. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation de position de fond decoupee par le texte, aucun JavaScript apres le premier rendu. Texte plein et immobile sous mouvement reduit."
+  },
+  "id": "loader/text-shimmer-loader",
+  "sources": {
+    "component.tsx": "/**\n * Texte en attente, balaye : un mot eteint qu'une bande de pleine encre\n * traverse en boucle.\n *\n * ## Le texte est eteint, pas le reflet\n *\n * Un reflet sur un titre ajoute une lueur a un texte deja plein : c'est un\n * ornement. Ici c'est l'inverse, et c'est ce qui en fait un etat d'attente :\n * le texte est peint a un tiers de son encre, et la seule chose pleine est la\n * bande qui le traverse. Tant qu'elle passe, le mot n'est pas « la ». Le\n * meme mecanisme, lu a l'envers, dit une autre chose.\n *\n * Le degrade est le fond de l'element, decoupe par ses glyphes ; seule sa\n * position bouge. La bande est etroite et ses bords sont doux : une bande\n * franche se lirait comme un curseur, et un curseur promet une position.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran.\n * Le texte peint est retire de l'arbre d'accessibilite, parce que sa couleur\n * est transparente : il ne serait annonce que comme un doublon du libelle.\n *\n * Sous mouvement reduit, le texte revient a sa pleine encre, sans bande :\n * un mot eteint et fige ne dirait plus l'attente, il dirait « desactive ».\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-text-shimmer-loader'\n\n/** Pose le texte eteint et sa bande, une fois par document. */\nfunction ensureTextShimmerLoaderRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-tsl]{',\n    'display:inline-block;white-space:nowrap;font-weight:600;',\n    'font-size:var(--o-tsl-size);color:var(--o-tsl-color);',\n    '}',\n    '[data-o-tsl-text]{',\n    'display:inline-block;',\n    // Le fond porte l'encre : le texte lui-meme est transparent et ne sert\n    // que de pochoir. La bande est a 50 % de l'image, ses bords a 12 %\n    // de part et d'autre.\n    '--o-tsl-dim:color-mix(in oklab,var(--o-tsl-color) 32%,transparent);',\n    'background-image:linear-gradient(100deg,var(--o-tsl-dim) 0 38%,var(--o-tsl-color) 50%,var(--o-tsl-dim) 62% 100%);',\n    'background-size:250% 100%;background-repeat:no-repeat;',\n    '-webkit-background-clip:text;background-clip:text;',\n    'color:transparent;',\n    'animation:o-tsl-sweep var(--o-tsl-speed) linear infinite;',\n    '}',\n    // De 100 % a 0 % : l'image glisse vers la droite, la bande traverse le\n    // mot de gauche a droite.\n    '@keyframes o-tsl-sweep{from{background-position:100% 0}to{background-position:0% 0}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-tsl-text]{animation:none;background-image:none;color:var(--o-tsl-color)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface TextShimmerLoaderOwnProps {\n  /** Le texte affiche. @defaultValue 'Chargement' */\n  text?: string\n  /** Corps du texte, en pixels. @defaultValue 16 */\n  size?: number\n  /** Duree d'un passage de la bande, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur du texte et de la bande. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type TextShimmerLoaderProps = Customisable<TextShimmerLoaderOwnProps, 'span'>\n\n/**\n * Signale une attente par un texte eteint qu'une bande d'encre traverse.\n *\n * @example\n * <TextShimmerLoader />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <TextShimmerLoader size={24} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function TextShimmerLoader({\n  text = 'Chargement',\n  size = 16,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: TextShimmerLoaderProps): ReactElement {\n  ensureTextShimmerLoaderRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-tsl-size': `${String(size)}px`,\n    '--o-tsl-speed': `${String(speed)}ms`,\n    '--o-tsl-color': color,\n  } as CSSProperties\n\n  return (\n    <span {...rest} className={className} style={loaderStyle} data-o-tsl=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-tsl-text=\"\">\n        {text}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

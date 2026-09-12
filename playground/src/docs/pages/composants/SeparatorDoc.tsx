@@ -73,6 +73,48 @@ export function SeparatorDoc(): ReactElement {
               DEFAUTS,
             )}${labelAttr} />`
           }}
+          variants={[
+            {
+              title: 'Vertical',
+              description: 'Le filet s\'etire sur la hauteur de la rangee.',
+              values: { orientation: 'vertical' },
+            },
+            {
+              title: 'Sans libelle',
+              description: 'Le filet nu, sans texte au centre.',
+              values: { label: '' },
+            },
+            {
+              title: 'Avec libelle',
+              values: { label: 'Section' },
+            },
+            {
+              title: 'Choix alternatif',
+              description: 'Le « ou » classique entre deux actions.',
+              node: (
+                <div className="o-flex o-flex-col o-items-stretch o-gap-3 o-w-56">
+                  <Button size="sm">Se connecter</Button>
+                  <Separator label="ou" />
+                  <Button tone="secondary" size="sm">
+                    Creer un compte
+                  </Button>
+                </div>
+              ),
+            },
+            {
+              title: 'Dans une liste',
+              description: 'Un filet entre chaque rangee.',
+              node: (
+                <div className="o-flex o-flex-col o-items-stretch o-gap-2 o-w-56 o-text-sm o-text-zinc-900 dark:o-text-zinc-50">
+                  <span>Profil</span>
+                  <Separator />
+                  <span>Notifications</span>
+                  <Separator />
+                  <span>Securite</span>
+                </div>
+              ),
+            },
+          ]}
         />
         <Callout>
           Le libelle n'est rendu qu'en orientation horizontale : un libelle sur un filet

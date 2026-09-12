@@ -293,8 +293,10 @@ void main() {
   float rayon = length(local);
 
   // 0.5 est le rayon a couverture totale d'une maille de cote un : au-dela
-  // les disques se recouvrent et la nuance cesse de progresser.
-  float cible = lumiere * 0.5;
+  // les disques se recouvrent et la nuance cesse de progresser. Le champ est
+  // eleve au carre : sans cette compression, la moitie des mailles depasse la
+  // demi-couverture et la trame devient un aplat ou rien ne se pose.
+  float cible = 0.5 * lumiere * lumiere;
 
   // La largeur du degrade est fixe en unites de maille : le point reste net a
   // toute densite au lieu de s'adoucir quand la trame se resserre.

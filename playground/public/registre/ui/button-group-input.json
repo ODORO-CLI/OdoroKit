@@ -1,0 +1,124 @@
+{
+  "name": "button-group-input",
+  "category": "ui",
+  "title": "Groupe bouton et champ",
+  "description": "Un champ et son bouton soudes dans une meme pilule ; Entree envoie, et le bouton fait glisser une confirmation avant de revenir.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ButtonGroupInput.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-zinc-50",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du champ pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Texte du champ, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Texte au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "required": false,
+      "description": "Appele a chaque frappe."
+    },
+    {
+      "name": "onSubmit",
+      "type": "(value: string) => void | Promise<unknown>",
+      "required": false,
+      "description": "Appele a l envoi. Une promesse tient le bouton occupe jusqu a sa fin."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "description": "Texte d attente du champ."
+    },
+    {
+      "name": "buttonLabel",
+      "type": "string",
+      "required": false,
+      "default": "Envoyer",
+      "description": "Libelle du bouton au repos."
+    },
+    {
+      "name": "doneLabel",
+      "type": "string",
+      "required": false,
+      "default": "Envoye",
+      "description": "Libelle glisse dans le bouton apres l envoi."
+    },
+    {
+      "name": "prefix",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui precede le champ dans la pilule : une icone, un prefixe d adresse."
+    },
+    {
+      "name": "type",
+      "type": "'text' | 'email' | 'url' | 'search'",
+      "required": false,
+      "default": "text",
+      "description": "Type du champ.",
+      "options": [
+        "text",
+        "email",
+        "url",
+        "search"
+      ]
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Temps pendant lequel la confirmation reste affichee.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Neutralise le champ et le bouton."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React a l envoi et un au retour, rien entre les deux ; la confirmation glisse par une transition de transformation. Sous mouvement reduit les libelles se remplacent sans glisser."
+  },
+  "id": "ui/button-group-input",
+  "sources": {
+    "component.tsx": "/**\n * Groupe bouton et champ : un champ et son bouton soudes dans une meme\n * pilule, avec une confirmation qui glisse dans le bouton apres l'envoi.\n *\n * ## Pas de formulaire dans le composant\n *\n * Un champ avec un bouton d'envoi appelle un `form`. Mais ce groupe se pose\n * le plus souvent dans un formulaire qui existe deja — une inscription au\n * pied d'une page, une recherche dans un en-tete — et deux formulaires\n * imbriques sont invalides. Le groupe est donc un `role=\"group\"`, et Entree\n * dans le champ fait ce que le bouton fait ; le formulaire, s'il y en a un,\n * reste celui de la page.\n *\n * ## Le bouton a deux faces\n *\n * Le libelle de repos et la confirmation sont deux lignes superposees dans\n * un bouton qui n'en montre qu'une. A l'envoi, la pile glisse d'une ligne :\n * le libelle monte, la confirmation arrive par le bas. La largeur du bouton\n * est celle de la plus longue des deux, mesuree par le navigateur — le\n * bouton ne change pas de taille en cours de route.\n *\n * ## Une promesse tient le bouton occupe\n *\n * Si `onSubmit` rend une promesse, la confirmation attend sa fin, et le\n * bouton est marque occupe entre-temps : on ne confirme pas ce qui n'est\n * pas parti. Un rejet ramene le bouton au repos sans confirmer.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ButtonGroupInputOwnProps {\n  /** Nom du champ pour les lecteurs d'ecran. */\n  label: string\n  /** Texte du champ, en mode controle. */\n  value?: string\n  /** Texte au montage, en mode non controle. @defaultValue '' */\n  defaultValue?: string\n  /** Appele a chaque frappe. */\n  onChange?: (value: string) => void\n  /** Appele a l'envoi. Une promesse tient le bouton occupe jusqu'a sa fin. */\n  onSubmit?: (value: string) => void | Promise<unknown>\n  /** Texte d'attente du champ. */\n  placeholder?: string\n  /** Libelle du bouton au repos. @defaultValue 'Envoyer' */\n  buttonLabel?: string\n  /** Libelle glisse dans le bouton apres l'envoi. @defaultValue 'Envoye' */\n  doneLabel?: string\n  /** Ce qui precede le champ dans la pilule : une icone, un prefixe d'adresse. */\n  prefix?: ReactNode\n  /** Type du champ. @defaultValue 'text' */\n  type?: 'text' | 'email' | 'url' | 'search'\n  /** Temps pendant lequel la confirmation reste affichee, en millisecondes. @defaultValue 1800 */\n  hold?: number\n  /** Neutralise le champ et le bouton. @defaultValue false */\n  disabled?: boolean\n  /** Nom du champ, transmis a l'input pour un formulaire englobant. */\n  name?: string\n}\n\n/** Toutes les proprietes. */\nexport type ButtonGroupInputProps = Customisable<ButtonGroupInputOwnProps>\n\n/** Ou en est le bouton. */\ntype Phase = 'idle' | 'busy' | 'done'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-button-group-input'\n\n/** Pose la pilule, le champ et les deux faces du bouton, une fois par document. */\nfunction ensureGroupRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-bgi]{',\n    'position:relative;display:inline-flex;align-items:stretch;padding:4px;border-radius:999px;',\n    'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',\n    'transition:border-color var(--o-duration-slow) linear,box-shadow var(--o-duration-slow) linear;',\n    '}',\n    // Le focus est celui de la pilule entiere : c'est elle que l'on remplit.\n    '[data-o-bgi]:focus-within{border-color:var(--o-bgi-accent);',\n    'box-shadow:0 0 0 3px color-mix(in oklab,var(--o-bgi-accent) 25%,transparent)}',\n    '[data-o-bgi][data-o-bgi-disabled]{opacity:0.5;pointer-events:none}',\n    '[data-o-bgi-live]{position:absolute;width:1px;height:1px;overflow:hidden;',\n    'clip-path:inset(50%);white-space:nowrap}',\n    '[data-o-bgi-prefix]{display:inline-flex;align-items:center;padding-inline:0.9rem 0;opacity:0.6}',\n    '[data-o-bgi] input{',\n    'min-width:0;flex:1 1 auto;border:0;background:transparent;outline:none;',\n    'font:inherit;color:inherit;padding:0.5rem 0.9rem;',\n    '}',\n    '[data-o-bgi] input::placeholder{color:inherit;opacity:0.5}',\n    // Le bouton : une fenetre d'une ligne sur une pile de deux.\n    '[data-o-bgi-button]{',\n    'position:relative;overflow:hidden;cursor:pointer;flex:0 0 auto;',\n    'display:inline-grid;align-items:center;padding:0.5rem 1.1rem;border:0;border-radius:999px;',\n    'font:inherit;font-weight:500;color:var(--o-bgi-ink);background:var(--o-bgi-accent);',\n    'transition:background-color var(--o-duration-slow) linear,transform var(--o-duration-slow) linear;',\n    '}',\n    '[data-o-bgi-button]:focus-visible{outline:2px solid var(--o-bgi-accent);outline-offset:2px}',\n    '[data-o-bgi-button]:active{transform:scale(0.97)}',\n    '[data-o-bgi-button][data-o-bgi-phase=\"busy\"]{cursor:progress}',\n    '[data-o-bgi-button][data-o-bgi-phase=\"done\"]{background:var(--o-bgi-done)}',\n    // Les deux faces occupent la meme cellule de grille : la largeur est\n    // celle de la plus longue, et la pile glisse d'une ligne.\n    '[data-o-bgi-face]{',\n    'grid-area:1/1;white-space:nowrap;text-align:center;',\n    'transition:transform var(--o-duration-slow) cubic-bezier(0.2,0,0,1),opacity var(--o-duration-slow) linear;',\n    '}',\n    '[data-o-bgi-face=\"done\"]{transform:translateY(120%);opacity:0}',\n    '[data-o-bgi-button][data-o-bgi-phase=\"busy\"] [data-o-bgi-face=\"idle\"]{opacity:0.5}',\n    '[data-o-bgi-button][data-o-bgi-phase=\"done\"] [data-o-bgi-face=\"idle\"]{transform:translateY(-120%);opacity:0}',\n    '[data-o-bgi-button][data-o-bgi-phase=\"done\"] [data-o-bgi-face=\"done\"]{transform:translateY(0);opacity:1}',\n    '@media (prefers-reduced-motion:reduce){[data-o-bgi-face]{transition:opacity 0ms linear}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Champ et bouton dans une meme pilule.\n *\n * @example\n * <ButtonGroupInput\n *   label=\"Adresse de courriel\"\n *   type=\"email\"\n *   placeholder=\"vous@exemple.fr\"\n *   buttonLabel=\"S'inscrire\"\n *   doneLabel=\"Inscrit\"\n *   onSubmit={inscrire}\n * />\n *\n * @example\n * // Mode controle, avec un prefixe d'adresse.\n * <ButtonGroupInput\n *   label=\"Nom du site\"\n *   prefix=\"https://\"\n *   value={site}\n *   onChange={setSite}\n *   buttonLabel=\"Verifier\"\n *   doneLabel=\"Verifie\"\n *   onSubmit={verifier}\n * />\n */\nexport function ButtonGroupInput({\n  label,\n  value,\n  defaultValue = '',\n  onChange,\n  onSubmit,\n  placeholder,\n  buttonLabel = 'Envoyer',\n  doneLabel = 'Envoye',\n  prefix,\n  type = 'text',\n  hold = 1800,\n  disabled = false,\n  name,\n  ...rest\n}: ButtonGroupInputProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [internal, setInternal] = useState(defaultValue)\n  const [phase, setPhase] = useState<Phase>('idle')\n  const timer = useRef<number | undefined>(undefined)\n  const mounted = useRef(true)\n  ensureGroupRules()\n\n  const text = value ?? internal\n\n  useEffect(() => {\n    mounted.current = true\n    return () => {\n      mounted.current = false\n      if (timer.current !== undefined) window.clearTimeout(timer.current)\n    }\n  }, [])\n\n  const edit = (next: string): void => {\n    if (value === undefined) setInternal(next)\n    onChange?.(next)\n  }\n\n  /** Apres la confirmation, le bouton revient au repos. */\n  const settle = (): void => {\n    if (timer.current !== undefined) window.clearTimeout(timer.current)\n    timer.current = window.setTimeout(() => {\n      if (mounted.current) setPhase('idle')\n    }, hold)\n  }\n\n  const submit = (): void => {\n    if (disabled || phase !== 'idle') return\n    const result = onSubmit?.(text)\n    if (result instanceof Promise) {\n      setPhase('busy')\n      result.then(\n        () => {\n          if (!mounted.current) return\n          setPhase('done')\n          settle()\n        },\n        () => {\n          if (mounted.current) setPhase('idle')\n        },\n      )\n      return\n    }\n    setPhase('done')\n    settle()\n  }\n\n  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {\n    if (event.key !== 'Enter') return\n    event.preventDefault()\n    submit()\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      role=\"group\"\n      aria-label={label}\n      data-o-bgi=\"\"\n      data-o-bgi-disabled={disabled ? '' : undefined}\n      className={className}\n      style={\n        {\n          '--o-bgi-accent': 'var(--o-palette-brand-500)',\n          '--o-bgi-done': 'var(--o-palette-emerald-500)',\n          '--o-bgi-ink': 'var(--o-palette-zinc-50)',\n          ...(reduced ? { '--o-duration-slow': '0ms' } : {}),\n          ...style,\n        } as CSSProperties\n      }\n    >\n      {prefix !== undefined && <span data-o-bgi-prefix=\"\">{prefix}</span>}\n      <input\n        type={type}\n        name={name}\n        value={text}\n        placeholder={placeholder}\n        aria-label={label}\n        disabled={disabled}\n        onChange={(event) => {\n          edit(event.target.value)\n        }}\n        onKeyDown={onKeyDown}\n      />\n      <button\n        type=\"button\"\n        data-o-bgi-button=\"\"\n        data-o-bgi-phase={phase}\n        aria-busy={phase === 'busy' ? 'true' : undefined}\n        disabled={disabled}\n        onClick={submit}\n      >\n        <span data-o-bgi-face=\"idle\">{buttonLabel}</span>\n        <span data-o-bgi-face=\"done\" aria-hidden=\"true\">\n          {doneLabel}\n        </span>\n      </button>\n      {/* La confirmation est annoncee quand elle arrive, par une zone vive\n          hors ecran : les deux faces visibles sont du decor. */}\n      <span data-o-bgi-live=\"\" role=\"status\">\n        {phase === 'done' ? doneLabel : ''}\n      </span>\n    </div>\n  )\n}\n"
+  }
+}

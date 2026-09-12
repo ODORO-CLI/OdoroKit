@@ -1,0 +1,57 @@
+{
+  "name": "meteors",
+  "category": "effect",
+  "title": "Meteores",
+  "description": "Des traits obliques tombent en boucle a travers la zone, chacun sur sa propre cadence.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Meteors.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Nombre de meteores.",
+      "min": 1,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 215,
+      "unit": "deg",
+      "description": "Angle de la chute.",
+      "min": 180,
+      "max": 270,
+      "step": 5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS par meteore, toutes tenues par le compositeur. Rien n est rendu sous mouvement reduit."
+  },
+  "id": "effect/meteors",
+  "sources": {
+    "component.tsx": "/**\n * Meteores : des traits obliques tombent en boucle a travers la zone.\n *\n * ## Un hasard qui n'en est pas un\n *\n * Position, delai et duree de chaque meteore paraissent aleatoires, mais\n * sont derives de son index par une suite deterministe. `Math.random()` au\n * rendu ferait deux pluies differentes entre le serveur et le client — une\n * erreur d'hydratation par meteore — et une pluie nouvelle a chaque rendu\n * du parent. La graine par index donne la meme pluie partout, toujours.\n *\n * ## Le compositeur fait tomber la pluie\n *\n * Chaque meteore est une seule animation CSS — translation le long de sa\n * pente et fondu — qui boucle avec un delai negatif : la pluie est deja en\n * cours au premier regard, personne n'assiste au depart groupe.\n *\n * La zone est purement decorative : elle est retiree de l'arbre\n * d'accessibilite, et sous mouvement reduit elle n'est pas rendue du tout.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface MeteorsOwnProps {\n  /** Nombre de meteores. @defaultValue 12 */\n  count?: number\n  /** Angle de la chute, en degres. @defaultValue 215 */\n  angle?: number\n  /** Couleur des traits. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type MeteorsProps = Customisable<MeteorsOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-meteors'\n\n/**\n * Valeur pseudo-aleatoire dans [0, 1), stable pour un couple index-canal.\n *\n * Une congruence suffit : il ne s'agit pas de cryptographie, seulement de\n * casser les alignements visibles entre meteores voisins.\n */\nfunction seeded(index: number, channel: number): number {\n  const value = Math.sin(index * 127.1 + channel * 311.7) * 43758.5453\n  return value - Math.floor(value)\n}\n\n/** Pose la chute, une fois par document. */\nfunction ensureMeteorRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-meteors]{position:absolute;inset:0;overflow:hidden;pointer-events:none}',\n    '[data-o-meteor]{',\n    'position:absolute;top:-10%;width:var(--o-meteor-length);height:1px;',\n    // Le trait est un degrade : tete pleine, queue qui s'efface.\n    'background:linear-gradient(90deg,var(--o-meteor-color),transparent);',\n    'rotate:var(--o-meteor-angle);',\n    'animation:o-meteor-fall var(--o-meteor-duration) linear infinite;',\n    'animation-delay:var(--o-meteor-delay);',\n    'opacity:0;',\n    '}',\n    // La translation suit l'axe du trait : `rotate` a deja oriente le\n    // repere, tomber revient a avancer sur son propre X.\n    '@keyframes o-meteor-fall{',\n    '0%{transform:translateX(0);opacity:0}',\n    '8%{opacity:var(--o-meteor-opacity)}',\n    '75%{opacity:var(--o-meteor-opacity)}',\n    '100%{transform:translateX(var(--o-meteor-travel));opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Remplit sa zone d'une pluie de meteores.\n *\n * Le parent doit etre en position relative : la pluie epouse ses bords.\n *\n * @example\n * <div className=\"o-relative o-overflow-hidden o-rounded-xl o-p-8\">\n *   <Meteors />\n *   <h3>Un coin de ciel</h3>\n * </div>\n *\n * @example\n * // Une pluie dense, presque verticale.\n * <Meteors count={24} angle={245} />\n */\nexport function Meteors({\n  count = 12,\n  angle = 215,\n  color = 'currentColor',\n  ...rest\n}: MeteorsProps): ReactElement | null {\n  const { reduced } = useMotionState()\n  ensureMeteorRule()\n\n  // Purement decoratif : sous mouvement reduit, une pluie figee ne serait\n  // qu'un bruit de traits. Rien n'est rendu.\n  if (reduced) return null\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const zoneStyle = {\n    ...style,\n    '--o-meteor-color': color,\n    '--o-meteor-angle': `${String(angle)}deg`,\n  } as CSSProperties\n\n  return (\n    <div {...rest} aria-hidden className={className} style={zoneStyle} data-o-meteors=\"\">\n      {Array.from({ length: count }, (_, index) => {\n        const duration = 2400 + seeded(index, 1) * 3200\n        return (\n          <span\n            key={index}\n            data-o-meteor=\"\"\n            style={\n              {\n                left: `${String(seeded(index, 0) * 100)}%`,\n                '--o-meteor-duration': `${String(Math.round(duration))}ms`,\n                // Delai negatif : chaque meteore est deja quelque part sur\n                // sa course au premier rendu.\n                '--o-meteor-delay': `${String(-Math.round(seeded(index, 2) * duration))}ms`,\n                '--o-meteor-length': `${String(Math.round(60 + seeded(index, 3) * 90))}px`,\n                '--o-meteor-travel': `${String(Math.round(400 + seeded(index, 4) * 400))}px`,\n                '--o-meteor-opacity': String(0.35 + seeded(index, 5) * 0.55),\n              } as CSSProperties\n            }\n          />\n        )\n      })}\n    </div>\n  )\n}\n"
+  }
+}

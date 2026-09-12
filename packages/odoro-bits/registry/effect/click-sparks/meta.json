@@ -1,0 +1,60 @@
+{
+  "name": "click-sparks",
+  "category": "effect",
+  "title": "Etincelles",
+  "description": "De petits traits jaillissent radialement du point d appui a chaque clic, puis s eteignent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ClickSparks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de traits par clic.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Portee du jaillissement.",
+      "min": 16,
+      "max": 120,
+      "step": 4
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 500,
+      "unit": "ms",
+      "description": "Duree de la rafale.",
+      "min": 150,
+      "max": 1500,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quelques elements crees par clic, animes par Web Animations, retires a la fin. Rien au repos, rien sous mouvement reduit."
+  }
+}

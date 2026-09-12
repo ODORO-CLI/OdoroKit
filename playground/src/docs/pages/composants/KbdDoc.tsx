@@ -47,6 +47,32 @@ export function KbdDoc(): ReactElement {
               .map((touche) => `'${touche}'`)
               .join(', ')}]} />`
           }
+          variants={[
+            {
+              title: 'Touche seule',
+              values: { keys: 'Echap' },
+            },
+            {
+              title: 'Envoi direct',
+              values: { keys: 'Ctrl,Entree' },
+            },
+            {
+              title: 'Recherche rapide',
+              node: <Kbd keys={['Ctrl', 'K']} />,
+            },
+            {
+              title: 'Palette de commandes',
+              node: <Kbd keys={['Cmd', 'Maj', 'P']} />,
+            },
+            {
+              title: 'Dans une phrase',
+              node: (
+                <p className="o-text-sm o-text-zinc-900 dark:o-text-zinc-50">
+                  Appuyez sur <Kbd>Echap</Kbd> pour fermer.
+                </p>
+              ),
+            },
+          ]}
         />
         <Callout>
           Sans <code className="o-font-mono o-text-sm">keys</code>,{' '}

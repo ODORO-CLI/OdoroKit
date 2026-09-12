@@ -1,0 +1,69 @@
+{
+  "name": "tiles-flip",
+  "category": "background",
+  "title": "Tuiles qui se retournent",
+  "description": "Une grille de tuiles a deux faces qui se retournent en ondes concentriques autour du pointeur amorti, et retombent a plat des qu il s eloigne.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "tiles-flip.shader.ts",
+      "target": "background/tiles-flip.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/TilesFlip.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-teal-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de propagation des ondes.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de tuiles sur la hauteur.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 0.4,
+      "description": "Portee des ondes autour du pointeur, en hauteurs de cadre.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-teal-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la face avant, la face arriere."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Une tuile evaluee par fragment, un sinus et une distance au pointeur. Le pointeur est mute en place, sans rendu React par image."
+  }
+}

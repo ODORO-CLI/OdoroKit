@@ -1,0 +1,67 @@
+{
+  "name": "hex-spinner",
+  "category": "loader",
+  "title": "Hexagone tournant",
+  "description": "Un hexagone en trait tourne par crans d un sixieme de tour tandis qu un hexagone plein pulse en son centre, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/HexSpinner.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Largeur de l hexagone, pointe en haut.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur du trait exterieur.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree de deux crans, soit un tiers de tour.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des deux hexagones. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux groupes SVG, deux animations de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Hexagones alignes et immobiles sous mouvement reduit."
+  }
+}

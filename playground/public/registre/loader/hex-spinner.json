@@ -1,0 +1,76 @@
+{
+  "name": "hex-spinner",
+  "category": "loader",
+  "title": "Hexagone tournant",
+  "description": "Un hexagone en trait tourne par crans d un sixieme de tour tandis qu un hexagone plein pulse en son centre, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/HexSpinner.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 44,
+      "unit": "px",
+      "description": "Largeur de l hexagone, pointe en haut.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur du trait exterieur.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree de deux crans, soit un tiers de tour.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des deux hexagones. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux groupes SVG, deux animations de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Hexagones alignes et immobiles sous mouvement reduit."
+  },
+  "id": "loader/hex-spinner",
+  "sources": {
+    "component.tsx": "/**\n * Hexagone tournant : un hexagone en trait tourne par crans d'un sixieme de\n * tour tandis qu'un hexagone plein pulse en son centre.\n *\n * ## Tourner par crans\n *\n * Un hexagone qui tourne en continu ressemble a un rond qui tourne : rien\n * ne permet de suivre le mouvement. Par crans, chaque sixieme de tour\n * ramene la figure sur elle-meme et l'oeil voit un declic, puis un temps\n * d'arret, puis un autre declic. C'est le mouvement d'un ecrou qu'on visse,\n * pas celui d'une roue.\n *\n * Deux crans par cycle, et le cycle couvre un tiers de tour : un hexagone\n * est identique a lui-meme tous les sixiemes de tour, la boucle est donc\n * invisible quel que soit le nombre de crans. Deux suffisent a garder le\n * cycle court et les delais lisibles.\n *\n * Le noyau plein pulse en contretemps : il se gonfle pendant l'arret du\n * cadre et se retracte pendant le cran. Sans lui, la figure est un simple\n * contour ; avec lui, elle a un coeur qui bat.\n *\n * Les deux animations sont des transformations sur des groupes SVG, tenues\n * par le compositeur. Aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les deux hexagones restent alignes, pointe en\n * haut : la figure se lit encore comme un chargeur, seul le mouvement\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-hex-spinner'\n\n/**\n * Sommets d'un hexagone pointe en haut, de rayon donne, autour de (50, 50).\n *\n * Calcules une fois par rayon : le contour et le noyau ont le leur.\n */\nfunction hexagon(radius: number): string {\n  return Array.from({ length: 6 }, (_, index) => {\n    const angle = (Math.PI / 3) * index - Math.PI / 2\n    const x = 50 + radius * Math.cos(angle)\n    const y = 50 + radius * Math.sin(angle)\n    return `${x.toFixed(2)},${y.toFixed(2)}`\n  }).join(' ')\n}\n\n/** Le noyau plein occupe un peu moins de la moitie du contour. */\nconst CORE = hexagon(21)\n\n/** Pose les hexagones, leurs crans et leur pulsation, une fois par document. */\nfunction ensureHexRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-hex-spinner]{display:inline-block;line-height:0}',\n    '[data-o-hex-spinner] svg{display:block}',\n    // L'origine est le centre de la vue, en unites de la vue : c'est ce que\n    // `transform-box:view-box` garantit quelle que soit la taille rendue.\n    '[data-o-hex-frame],[data-o-hex-core]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    '}',\n    '[data-o-hex-frame]{',\n    'animation:o-hex-spinner-notch var(--o-hex-speed) ease-in-out infinite;',\n    '}',\n    '[data-o-hex-core]{',\n    'animation:o-hex-spinner-beat var(--o-hex-speed) ease-in-out infinite;',\n    '}',\n    // Deux crans, deux arrets. Un cran dure un peu moins que l'arret qui le\n    // suit : le declic est net, la pause est lisible.\n    '@keyframes o-hex-spinner-notch{',\n    '0%,12%{transform:rotate(0deg)}',\n    '40%,62%{transform:rotate(60deg)}',\n    '90%,100%{transform:rotate(120deg)}',\n    '}',\n    // Le noyau se gonfle pendant les arrets du cadre et se retracte pendant\n    // les crans : les deux mouvements se relaient au lieu de se superposer.\n    '@keyframes o-hex-spinner-beat{',\n    '0%,12%{transform:scale(1);opacity:1}',\n    '26%{transform:scale(0.55);opacity:0.5}',\n    '40%,62%{transform:scale(1);opacity:1}',\n    '76%{transform:scale(0.55);opacity:0.5}',\n    '90%,100%{transform:scale(1);opacity:1}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-hex-frame],[data-o-hex-core]{animation:none;transform:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface HexSpinnerOwnProps {\n  /** Largeur de l'hexagone, en pixels. @defaultValue 44 */\n  size?: number\n  /** Epaisseur du trait exterieur, en pixels. @defaultValue 3 */\n  thickness?: number\n  /** Duree de deux crans, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Couleur des deux hexagones. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type HexSpinnerProps = Customisable<HexSpinnerOwnProps, 'span'>\n\n/**\n * Signale une attente par un hexagone qui tourne par crans.\n *\n * @example\n * <HexSpinner />\n *\n * @example\n * // Un trait fin, plus lent, dans la teinte de marque.\n * <HexSpinner thickness={2} speed={2400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function HexSpinner({\n  size = 44,\n  thickness = 3,\n  speed = 1600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: HexSpinnerProps): ReactElement {\n  ensureHexRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en\n  // pixels est convertie pour que le trait garde sa mesure a toute taille,\n  // et le contour recule d'une demi-epaisseur pour ne pas etre rogne.\n  const stroke = Math.min((thickness / size) * 100, 20)\n  const frame = hexagon(48 - stroke / 2)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-hex-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-hex-spinner=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <g data-o-hex-frame=\"\">\n          <polygon\n            points={frame}\n            fill=\"none\"\n            stroke=\"currentColor\"\n            strokeWidth={stroke}\n            strokeLinejoin=\"round\"\n          />\n        </g>\n        <g data-o-hex-core=\"\">\n          <polygon points={CORE} fill=\"currentColor\" />\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

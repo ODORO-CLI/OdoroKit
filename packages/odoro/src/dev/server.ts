@@ -44,6 +44,7 @@ import {
   ASSET_EXTENSIONS,
   DEPS_PREFIX,
   INTERNAL_PREFIX,
+  SOURCE_EXTENSIONS,
   STYLE_EXTENSIONS,
   depFileName,
   fileToUrl,
@@ -435,7 +436,17 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
         }
         const boundaries = graph.invalidate(file)
         if (boundaries.length === 0) {
-          if (graph.get(file) !== undefined) reload = true
+          if (graph.get(file) !== undefined) {
+            reload = true
+          } else if (SOURCE_EXTENSIONS.some((ext) => file.endsWith(ext))) {
+            // Un fichier source que le graphe ne connait pas vient d'apparaitre.
+            // Un module compile avant lui a pu echouer a le resoudre et garder
+            // cet echec en cache : le graphe entier est donc oublie, faute de
+            // savoir qui attendait ce fichier. C'est rare, et le cout est une
+            // recompilation a la demande.
+            graph.clear()
+            reload = true
+          }
           continue
         }
         for (const boundary of boundaries) {

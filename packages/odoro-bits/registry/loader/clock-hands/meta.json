@@ -1,0 +1,57 @@
+{
+  "name": "clock-hands",
+  "category": "loader",
+  "title": "Aiguilles",
+  "description": "Une horloge dont la grande aiguille saute de cran en cran et tremble en se posant, la petite avancant d un cran a chaque tour, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ClockHands.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du cadran.",
+      "min": 24,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour de la grande aiguille, soit douze crans.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du cadran et des aiguilles. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS sur des groupes SVG, tenues par le compositeur ; les reperes du cadran sont calcules une fois au chargement du module. Aiguilles a midi, immobiles, sous mouvement reduit."
+  }
+}

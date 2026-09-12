@@ -156,8 +156,8 @@ function ensureCounterGateRule(): void {
  * <CounterGate ready={sceneDessinee} onDone={ouvrir} />
  */
 export function CounterGate({
-  background = 'var(--o-palette-zinc-950)',
-  ink = 'var(--o-palette-zinc-50)',
+  background = 'var(--o-theme-bg)',
+  ink = 'var(--o-theme-fg)',
   ready = true,
   label,
   minVisibleMs = 900,
@@ -227,7 +227,15 @@ export function CounterGate({
         setPourcent(valeur)
       }
 
-      if (valeur >= 100) return
+      // La derniere valeur est poussee SANS passer par le test de l'entier.
+      // Sans cela, une valeur de 99,6 s'arrondit deja a cent et fige `affiche` ;
+      // le saut final a cent ne change alors plus l'entier, `setPourcent(100)`
+      // n'est jamais appele, et la sortie — qui n'attend que cela — ne part
+      // jamais. Le rideau reste sur un compteur a cent, indefiniment.
+      if (valeur >= 100) {
+        setPourcent(100)
+        return
+      }
 
       image = requestAnimationFrame(pas)
     }

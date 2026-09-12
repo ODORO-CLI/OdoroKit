@@ -1,0 +1,93 @@
+{
+  "name": "newsletter",
+  "category": "section",
+  "title": "Inscription a une lettre",
+  "description": "Un formulaire a quatre etats — repos, envoi, succes, erreur — annonces dans une region qui existe avant son message.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/Newsletter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-600",
+    "--o-palette-white",
+    "--o-palette-rose-600",
+    "--o-palette-emerald-600",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "onSubmit",
+      "type": "(email: string) => void | Promise<void>",
+      "required": false,
+      "description": "Envoie l adresse. Une promesse rejetee vaut echec, et son message est affiche."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Titre de la section."
+    },
+    {
+      "name": "body",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce que la lettre contient, et a quelle frequence."
+    },
+    {
+      "name": "fieldLabel",
+      "type": "string",
+      "required": false,
+      "default": "Adresse e-mail",
+      "description": "Libelle du champ."
+    },
+    {
+      "name": "cta",
+      "type": "string",
+      "required": false,
+      "default": "S inscrire",
+      "description": "Ce qui est ecrit sur le bouton."
+    },
+    {
+      "name": "messages",
+      "type": "NewsletterMessages",
+      "required": false,
+      "description": "Les phrases affichees dans la region d annonce."
+    },
+    {
+      "name": "note",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Mention sous le formulaire : frequence, desinscription, donnees."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu par changement d etat, et une rotation CSS pendant le seul envoi. Rien ne tourne au repos."
+  },
+  "id": "section/newsletter",
+  "sources": {
+    "component.tsx": "/**\n * Inscription a une lettre, avec ses quatre etats.\n *\n * ## Les quatre etats existent, et ils sont nommes\n *\n * Repos, envoi, succes, erreur. La plupart des formulaires n'en implementent\n * que deux — avant et apres — et laissent le troisieme au hasard du reseau :\n * on clique, rien ne bouge, on reclique, et deux inscriptions partent. L'etat\n * d'envoi n'est donc pas une decoration : c'est lui qui empeche le second clic.\n *\n * L'erreur est le quatrieme, et elle est distincte du repos : revenir au repos\n * apres un echec efface la seule information utile de la seconde precedente.\n *\n * ## La region d'annonce existe avant le message\n *\n * C'est le detail qui fait echouer la moitie des implementations : une region\n * `role=\"status\"` **inseree** en meme temps que son contenu n'est pas annoncee.\n * Le navigateur doit l'observer avant qu'elle change. Elle est donc toujours\n * dans le document, vide au repos, et c'est son texte qui change.\n *\n * ## La validation est celle du navigateur, pas une expression reguliere\n *\n * `type=\"email\"` et `required` valident deja — mieux, et dans la langue de\n * l'utilisateur. Le composant lit `validity` plutot que de reecrire une regle\n * qui refusera un jour une adresse parfaitement valide. Il retient seulement\n * l'envoi par defaut, pour montrer le message a sa place plutot que dans une\n * bulle native qui disparait au premier clic.\n *\n * ## Une reponse en retard ne doit pas ecraser l'etat courant\n *\n * Deux envois successifs, le premier plus lent que le second : sans garde, la\n * reponse du premier arrive apres et remplace le resultat du second. Chaque\n * envoi porte donc un numero, et seule la reponse du dernier est retenue.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useId,\n  useRef,\n  useState,\n  type CSSProperties,\n  type FormEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Etat du formulaire. */\nexport type NewsletterStatus = 'repos' | 'envoi' | 'succes' | 'erreur'\n\n/** Les phrases affichees dans la region d'annonce. */\nexport interface NewsletterMessages {\n  /** Pendant l'envoi. */\n  readonly envoi?: string\n  /** Apres une inscription reussie. */\n  readonly succes?: string\n  /** Apres un echec du service. */\n  readonly erreur?: string\n  /** Quand l'adresse saisie n'est pas valide. */\n  readonly invalide?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface NewsletterOwnProps {\n  /**\n   * Envoie l'adresse. La promesse rejetee vaut echec, et son message est\n   * affiche s'il y en a un.\n   *\n   * Sans cette fonction, le formulaire n'aboutit jamais : c'est voulu, un\n   * faux succes serait pire qu'un bouton inerte.\n   */\n  onSubmit?: (email: string) => void | Promise<void>\n  /** Titre de la section. */\n  title?: ReactNode\n  /** Ce que la lettre contient, et a quelle frequence. */\n  body?: ReactNode\n  /** Libelle du champ. @defaultValue 'Adresse e-mail' */\n  fieldLabel?: string\n  /** Ce qui est ecrit sur le bouton. @defaultValue 'S inscrire' */\n  cta?: string\n  /** Les phrases affichees dans la region d'annonce. */\n  messages?: NewsletterMessages\n  /** Mention sous le formulaire : frequence, desinscription, donnees. */\n  note?: ReactNode\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type NewsletterProps = Customisable<NewsletterOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-newsletter'\n\n/** Phrases par defaut, remplacables une a une. */\nconst PAR_DEFAUT: Required<NewsletterMessages> = {\n  envoi: 'Envoi en cours',\n  succes: 'C est fait : verifiez votre boite pour confirmer.',\n  erreur: 'L inscription n a pas abouti. Reessayez dans un instant.',\n  invalide: 'Cette adresse ne semble pas valide.',\n}\n\n/** Pose les regles du formulaire, une fois par document. */\nfunction ensureNewsletterRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-news-ligne]{display:flex;flex-wrap:wrap;gap:0.5rem}',\n    '[data-o-news-champ]{flex:1 1 14rem;min-width:0}',\n\n    // Le disque qui tourne pendant l'envoi. Il est decoratif : c'est la region\n    // d'annonce qui dit ce qui se passe.\n    '[data-o-news-rouet]{',\n    'display:inline-block;width:0.85em;height:0.85em;border-radius:9999px;',\n    'border:2px solid currentColor;border-top-color:transparent;',\n    'animation:o-news-tourne 0.7s linear infinite}',\n    '@keyframes o-news-tourne{to{transform:rotate(1turn)}}',\n\n    '[data-o-news-annonce]{min-height:1.25rem}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    // Sans rotation, le disque garde sa forme : il reste le signe visible que\n    // quelque chose est en cours, ce que retirer l'element supprimerait.\n    '[data-o-news-rouet]{animation:none;border-top-color:currentColor;opacity:0.5}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Formulaire d'inscription a une lettre.\n *\n * @example\n * <Newsletter\n *   title=\"La lettre du registre\"\n *   body=\"Une fois par mois, les entrees ajoutees et ce qu elles ont appris.\"\n *   onSubmit={async (email) => { await api.inscrire(email) }}\n * />\n */\nexport function Newsletter({\n  onSubmit,\n  title,\n  body,\n  fieldLabel = 'Adresse e-mail',\n  cta = 'S inscrire',\n  messages,\n  note,\n  label,\n  ...rest\n}: NewsletterProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.2 })\n  const base = useId().replace(/[^a-zA-Z0-9]/g, '')\n  const [etat, setEtat] = useState<NewsletterStatus>('repos')\n  const [annonce, setAnnonce] = useState('')\n  const champ = useRef<HTMLInputElement | null>(null)\n\n  // Chaque envoi porte un numero : une reponse en retard ne peut pas ecraser\n  // le resultat d'un envoi plus recent.\n  const envoi = useRef(0)\n  const monte = useRef(true)\n\n  ensureNewsletterRules()\n\n  useEffect(() => {\n    monte.current = true\n    return () => {\n      monte.current = false\n    }\n  }, [])\n\n  const phrases = { ...PAR_DEFAUT, ...messages }\n\n  const soumettre = (event: FormEvent<HTMLFormElement>): void => {\n    // Retenu pour montrer le message a sa place : la bulle native disparait au\n    // premier clic et ne laisse rien derriere elle.\n    event.preventDefault()\n    const element = champ.current\n    if (element === null) return\n\n    if (!element.validity.valid) {\n      setEtat('erreur')\n      setAnnonce(phrases.invalide)\n      element.focus()\n      return\n    }\n\n    const adresse = element.value.trim()\n    const numero = envoi.current + 1\n    envoi.current = numero\n\n    setEtat('envoi')\n    setAnnonce(phrases.envoi)\n\n    void Promise.resolve(onSubmit?.(adresse)).then(\n      () => {\n        if (!monte.current || envoi.current !== numero) return\n        setEtat('succes')\n        setAnnonce(phrases.succes)\n        element.value = ''\n      },\n      (raison: unknown) => {\n        if (!monte.current || envoi.current !== numero) return\n        setEtat('erreur')\n        setAnnonce(\n          raison instanceof Error && raison.message !== ''\n            ? raison.message\n            : phrases.erreur,\n        )\n      },\n    )\n  }\n\n  const teinte =\n    etat === 'succes'\n      ? 'color-mix(in oklab, var(--o-palette-emerald-600) 70%, var(--o-theme-fg))'\n      : 'color-mix(in oklab, var(--o-palette-rose-600) 70%, var(--o-theme-fg))'\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-5' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={\n        {\n          ...style,\n          opacity: reduced || vu ? 1 : 0,\n          transform: reduced || vu ? 'none' : 'translateY(12px)',\n          transition:\n            'opacity var(--o-duration-slower) var(--o-ease-entrance), transform var(--o-duration-slower) var(--o-ease-entrance)',\n        } as CSSProperties\n      }\n    >\n      {title === undefined ? null : (\n        <h2\n          className=\"o-text-2xl o-font-semibold o-tracking-tight\"\n          style={{ color: 'var(--o-theme-fg)' }}\n        >\n          {title}\n        </h2>\n      )}\n\n      {body !== undefined && (\n        <p\n          className=\"o-max-w-xl o-text-sm o-leading-relaxed\"\n          style={{ color: 'var(--o-theme-muted)' }}\n        >\n          {body}\n        </p>\n      )}\n\n      {/*\n        `noValidate` ne desactive que la bulle native, jamais le calcul : le\n        champ garde son `validity`, que le composant lit pour afficher le\n        message a un endroit qui ne disparait pas au premier clic.\n      */}\n      <form onSubmit={soumettre} noValidate data-o-news-ligne=\"\">\n        <div data-o-news-champ=\"\">\n          <label\n            htmlFor={`${base}-email`}\n            className=\"o-mb-1 o-block o-text-xs o-font-medium\"\n            style={{ color: 'var(--o-theme-muted)' }}\n          >\n            {fieldLabel}\n          </label>\n          <input\n            ref={champ}\n            id={`${base}-email`}\n            name=\"email\"\n            type=\"email\"\n            required\n            autoComplete=\"email\"\n            inputMode=\"email\"\n            placeholder=\"prenom@exemple.fr\"\n            disabled={etat === 'envoi'}\n            aria-invalid={etat === 'erreur'}\n            aria-describedby={`${base}-annonce`}\n            className=\"o-w-full o-rounded-lg o-px-3 o-py-2 o-text-sm focus:o-ring\"\n            style={{\n              backgroundColor: 'var(--o-theme-surface)',\n              border: `1px solid ${\n                etat === 'erreur' ? 'var(--o-palette-rose-600)' : 'var(--o-theme-line)'\n              }`,\n              color: 'var(--o-theme-fg)',\n            }}\n          />\n        </div>\n\n        <button\n          type=\"submit\"\n          // Le seul role de l'etat d'envoi : empecher le second clic, et donc\n          // la seconde inscription.\n          disabled={etat === 'envoi'}\n          className=\"o-inline-flex o-items-center o-gap-2 o-self-end o-rounded-lg o-px-5 o-py-2 o-text-sm o-font-medium focus:o-ring\"\n          style={{\n            backgroundColor: 'var(--o-palette-brand-600)',\n            color: 'var(--o-palette-white)',\n            border: '1px solid transparent',\n            cursor: etat === 'envoi' ? 'progress' : 'pointer',\n            opacity: etat === 'envoi' ? 0.75 : 1,\n          }}\n        >\n          {etat === 'envoi' && <span aria-hidden data-o-news-rouet=\"\" />}\n          {cta}\n        </button>\n      </form>\n\n      {/*\n        Toujours presente, vide au repos : une region inseree en meme temps que\n        son message ne serait pas annoncee.\n      */}\n      <p\n        id={`${base}-annonce`}\n        role=\"status\"\n        data-o-news-annonce=\"\"\n        className=\"o-text-xs\"\n        style={{ color: etat === 'repos' ? 'var(--o-theme-muted)' : teinte }}\n      >\n        {annonce}\n      </p>\n\n      {note !== undefined && (\n        <p className=\"o-text-xs\" style={{ color: 'var(--o-theme-muted)' }}>\n          {note}\n        </p>\n      )}\n    </section>\n  )\n}\n"
+  }
+}

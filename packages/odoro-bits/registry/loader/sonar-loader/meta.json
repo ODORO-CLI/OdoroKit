@@ -1,0 +1,57 @@
+{
+  "name": "sonar-loader",
+  "category": "loader",
+  "title": "Balayage radar",
+  "description": "Un faisceau tourne sur un cadran gradue et rallume deux echos au moment exact ou il les atteint, la traine faite de secteurs empiles.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SonarLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 72,
+      "unit": "px",
+      "description": "Cote du cadran.",
+      "min": 32,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un tour de faisceau.",
+      "min": 800,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du cadran, du faisceau et des echos. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une rotation de groupe et deux opacites, tenues par le compositeur ; les huit secteurs de la traine sont traces une fois au chargement du module. Faisceau arrete en travers du cadran et echos allumes sous mouvement reduit."
+  }
+}

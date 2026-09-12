@@ -1,0 +1,62 @@
+{
+  "name": "card-swap",
+  "category": "ui",
+  "title": "Echange de cartes",
+  "description": "Une pile dont la carte de devant saute a l arriere a intervalle regulier, les autres avancant d un rang.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CardSwap.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes, de deux a cinq. La premiere donne sa taille a la pile."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Temps entre deux echanges.",
+      "min": 1000,
+      "max": 8000,
+      "step": 250
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree d un echange.",
+      "min": 200,
+      "max": 1500,
+      "step": 50
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Decalage entre deux rangs.",
+      "min": 6,
+      "max": 40,
+      "step": 2
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React par echange, jamais par image ; les trajets sont des transitions et une animation d images cles, tenues par le compositeur. La pile se fige sous le pointeur et sous mouvement reduit."
+  }
+}

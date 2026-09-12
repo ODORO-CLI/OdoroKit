@@ -7,7 +7,7 @@
   "files": [{ "path": "component.tsx", "target": "section/PricingTiers.tsx" }],
   "dependencies": [],
   "registryDependencies": ["text/count-up"],
-  "tokens": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
   "props": [
     { "name": "tiers", "type": "readonly Tier[]", "required": true, "description": "Les offres, dans l ordre d affichage." },
     { "name": "as", "type": "ElementType", "default": "section", "description": "Balise rendue." },

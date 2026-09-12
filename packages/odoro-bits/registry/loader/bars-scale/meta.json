@@ -1,0 +1,57 @@
+{
+  "name": "bars-scale",
+  "category": "loader",
+  "title": "Barres en cascade",
+  "description": "Cinq barres poussent du sol l une apres l autre, tiennent, puis retombent ensemble, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BarsScale.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Largeur d une barre. La hauteur et l ecart en dependent.",
+      "min": 2,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, montee des cinq barres et chute comprises.",
+      "min": 800,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS d echelle tenues par le compositeur, aucun JavaScript apres le premier rendu. Cinq barres pleines et immobiles sous mouvement reduit."
+  }
+}

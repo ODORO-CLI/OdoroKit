@@ -1,0 +1,93 @@
+{
+  "name": "triangles",
+  "category": "background",
+  "title": "Triangulation",
+  "description": "Un pavage de facettes triangulaires, diagonales alternees en damier, dont l eclairage compose une respiration propre a chaque facette et un balayage qui traverse le pavage ; les plus vives prennent une teinte.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "triangles.shader.ts",
+      "target": "background/triangles.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Triangles.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-violet-500"
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 7,
+      "description": "Nombre de cases sur la hauteur. Borne a quarante par le shader, a six en qualite basse.",
+      "min": 2,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de l eclairage.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "contrast",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Ecart entre facettes sombres et claires.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "tint",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Poids de la teinte sur les facettes les plus vives. Zero l eteint.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-violet-500",
+      "description": "Tokens dont les couleurs sont lues : le fond et les joints, les facettes eclairees, la teinte des plus vives."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux sinus, une puissance et un tirage par fragment. En qualite basse, les cases s elargissent : des joints fins scintillent a densite de pixels reduite.",
+    "fallback": "static"
+  },
+  "id": "background/triangles",
+  "sources": {
+    "triangles.shader.ts": "/**\n * Shader de la triangulation.\n *\n * ## L'idee mathematique\n *\n * Une grille de cases, chacune coupee en deux par une diagonale. La\n * diagonale alterne d'une case a l'autre — en damier — sans quoi le pavage\n * aurait un sens dominant et les facettes formeraient des rayures. Le cote\n * de la diagonale ou tombe le fragment donne la facette ; un tirage stable\n * sur l'identifiant de la facette donne sa phase.\n *\n * L'eclairage compose deux mouvements : une lente respiration propre a\n * chaque facette, et un balayage diagonal qui traverse le pavage — comme un\n * reflet qui glisse sur un cristal. Le premier seul ferait un scintillement\n * sans direction ; le second seul, une simple vague. Ensemble, les facettes\n * semblent recevoir une lumiere qui bouge, et y repondre chacune a sa maniere.\n *\n * Les aretes sont lues par distance : a la diagonale, aux bords de la case.\n * Elles sont teintees vers le fond, pour se lire comme des joints, non comme\n * des traits.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond, et les joints.\n * - `uColorB` — les facettes eclairees.\n * - `uColorC` — la teinte des facettes les plus vives.\n * - `uSize` — nombre de cases sur la hauteur.\n * - `uSpeed` — vitesse de l'eclairage.\n * - `uContrast` — ecart entre facettes sombres et claires.\n * - `uTint` — poids de la teinte sur les facettes les plus vives.\n */\nexport const TRIANGLES_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSize;\nuniform float uSpeed;\nuniform float uContrast;\nuniform float uTint;\n\n// Nombre pseudo-aleatoire, stable par facette.\nfloat hash(vec2 cell) {\n  return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float size = clamp(uSize, 2.0, 40.0);\n  vec2 p = vUv * vec2(aspect, 1.0) * size;\n\n  // Un pixel, en unites de case.\n  float px = size / max(uResolution.y, 1.0);\n\n  vec2 id = floor(p);\n  vec2 f = fract(p);\n\n  // La diagonale alterne en damier : le pavage n'a pas de sens dominant.\n  float flip = mod(id.x + id.y, 2.0);\n  float diagonal = mix(f.x - f.y, f.x + f.y - 1.0, flip);\n  float side = step(0.0, diagonal);\n  vec2 facet = id * 2.0 + vec2(side, 0.0);\n  float seed = hash(facet);\n\n  // L'eclairage : une respiration propre a la facette, et un balayage\n  // diagonal qui traverse le pavage.\n  float own = 0.5 + 0.5 * sin(uTime * uSpeed * (0.4 + 0.6 * seed) + seed * 6.2832);\n  float sweep = 0.5 + 0.5 * sin((id.x - id.y * 0.6) * 0.5 - uTime * uSpeed * 0.8);\n  float light = mix(own, sweep, 0.45);\n\n  // Les aretes : la diagonale et les bords de la case, un filet fin.\n  float toDiagonal = abs(diagonal) * 0.7071;\n  vec2 toEdge = min(f, 1.0 - f);\n  float edge = min(toDiagonal, min(toEdge.x, toEdge.y));\n  float joint = 1.0 - smoothstep(px * 0.3, px * 1.2, edge);\n\n  float contrast = clamp(uContrast, 0.0, 1.0);\n  vec3 colour = mix(uColorA, uColorB, (0.15 + 0.85 * light) * contrast);\n  colour = mix(colour, uColorC, clamp(uTint, 0.0, 1.0) * pow(light, 4.0) * (0.4 + 0.6 * seed));\n  colour = mix(colour, uColorA, joint * 0.6);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Triangulation : un pavage de facettes triangulaires dont l'eclairage\n * bouge, comme une lumiere qui glisse sur un cristal.\n *\n * ## Le principe\n *\n * Chaque case de la grille est coupee par une diagonale, alternee en damier\n * pour que le pavage n'ait pas de sens dominant. L'eclairage d'une facette\n * compose une respiration qui lui est propre et un balayage diagonal qui\n * traverse tout le pavage ; les plus vives prennent une teinte.\n *\n * Ce qui distingue cette entree de `mosaic` et de `cells` : les facettes\n * sont des triangles fixes, et c'est la lumiere qui bouge, pas le pavage.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { TRIANGLES_FRAGMENT } from './triangles.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface TrianglesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface TrianglesOwnProps {\n  /** Nombre de cases sur la hauteur. Borne a quarante par le shader. @defaultValue 7 */\n  size?: number\n  /** Vitesse de l'eclairage. @defaultValue 0.5 */\n  speed?: number\n  /** Ecart entre facettes sombres et claires. @defaultValue 0.8 */\n  contrast?: number\n  /** Poids de la teinte sur les facettes les plus vives. @defaultValue 0.6 */\n  tint?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<TrianglesControls>\n}\n\n/** Toutes les proprietes. */\nexport type TrianglesProps = Customisable<TrianglesOwnProps>\n\n/** Tokens employes par defaut : le fond, les facettes, la teinte des plus vives. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-violet-500',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Triangulation.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Triangles className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Triangles({\n  size = 7,\n  speed = 0.5,\n  contrast = 0.8,\n  tint = 0.6,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: TrianglesProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: TRIANGLES_FRAGMENT,\n    colors,\n    uniforms: { uSize: size, uSpeed: speed, uContrast: contrast, uTint: tint },\n    name: 'triangles',\n    // Des joints fins entre des facettes petites scintillent a densite de\n    // pixels reduite : en qualite basse, les cases s'elargissent.\n    degrade: (quality) => ({\n      uSize: quality === 'low' ? Math.min(size, 6) : size,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

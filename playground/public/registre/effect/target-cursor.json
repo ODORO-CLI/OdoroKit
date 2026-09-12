@@ -1,0 +1,101 @@
+{
+  "name": "target-cursor",
+  "category": "effect",
+  "title": "Viseur",
+  "description": "Quatre crochets tournent autour du pointeur, puis s ecartent jusqu aux coins de l element survole pour l encadrer.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/TargetCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 32,
+      "unit": "px",
+      "description": "Cote du carre au repos.",
+      "min": 12,
+      "max": 80,
+      "step": 2
+    },
+    {
+      "name": "corner",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Longueur d un crochet.",
+      "min": 6,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "padding",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Marge laissee autour de la cible encadree.",
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 3,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Rotation au repos, en tours par seconde.",
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "name": "targets",
+      "type": "string",
+      "required": false,
+      "description": "Le selecteur de ce que le viseur encadre."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des crochets. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Zone visee. Absente, le viseur prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq elements, cinq transformations par image, et une mesure de la cible seulement quand elle change. Rien sans pointeur fin ni sous mouvement reduit."
+  },
+  "id": "effect/target-cursor",
+  "sources": {
+    "component.tsx": "/**\n * Viseur : quatre crochets qui se calent sur ce que le pointeur survole.\n *\n * ## Le curseur devient une mesure\n *\n * Au repos, les quatre crochets forment un petit carre autour du pointeur et\n * tournent lentement : un viseur qui cherche. Des que le pointeur entre sur une\n * cible, ils s'ecartent jusqu'aux coins de sa boite, la rotation s'annule, et\n * l'element se trouve encadre. Le curseur ne dit plus « je suis ici » mais\n * « c'est ceci » — et c'est ce qui le distingue des curseurs qui grossissent au\n * survol sans jamais designer.\n *\n * ## Un seul groupe, quatre coins derives\n *\n * Le centre, la largeur et la hauteur sont amortis ; les crochets ne font\n * qu'appliquer la demi-largeur et la demi-hauteur du moment. Animer quatre\n * positions independantes aurait laisse le cadre se deformer pendant la\n * transition — un coin arrive avant l'autre — au lieu de rester un rectangle.\n *\n * La rotation est portee par le groupe, jamais par les crochets : sinon\n * chacun tournerait sur lui-meme et le cadre se disloquerait.\n *\n * ## La boite de la cible est mesuree quand elle change, pas par image\n *\n * `getBoundingClientRect` force une mise en page. Elle est appelee a l'entree\n * sur une cible, puis seulement si la page defile ou se redimensionne. Entre\n * ces moments, la boite ne bouge pas.\n *\n * ## Ou il ne se montre pas\n *\n * Sans pointeur fin, aucun crochet n'est cree. Sous mouvement reduit non\n * plus : le viseur est un mouvement continu, et il n'en reste pas d'etat\n * final a poser. Le curseur du systeme reste visible — c'est lui qui porte\n * encore le signe du lien.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface TargetCursorOwnProps {\n  /**\n   * Zone visee.\n   *\n   * Fournie, le viseur n'ecoute qu'elle et y est coupe. Absente, il prend la\n   * page entiere, en couche fixe qui n'intercepte rien.\n   */\n  children?: ReactNode\n  /** Cote du carre au repos, en pixels. @defaultValue 32 */\n  size?: number\n  /** Longueur d un crochet, en pixels. @defaultValue 12 */\n  corner?: number\n  /** Marge laissee autour de la cible encadree, en pixels. @defaultValue 8 */\n  padding?: number\n  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 14 */\n  speed?: number\n  /** Rotation au repos, en tours par seconde. @defaultValue 0.12 */\n  spin?: number\n  /**\n   * Ce que le viseur encadre.\n   *\n   * @defaultValue 'a, button, [role=\"button\"], [data-o-target]'\n   */\n  targets?: string\n  /** Couleur des crochets. Une valeur, pas un role. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type TargetCursorProps = Customisable<TargetCursorOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-target-cursor'\n\n/** Pose les regles du viseur, une fois par document. */\nfunction ensureTargetCursorRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La position de la zone vit dans une regle sans specificite : une\n    // classe de l appelant — `o-absolute` pour la poser dans un cadre —\n    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.\n    ':where([data-o-target-host=\"zone\"]){position:relative;overflow:hidden}',\n    ':where([data-o-target-host=\"page\"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',\n    '[data-o-target-layer]{',\n    'position:absolute;inset:0;overflow:hidden;pointer-events:none;',\n    'opacity:0;transition:opacity 160ms linear;',\n    '}',\n    '[data-o-target-group]{position:absolute;left:0;top:0;will-change:transform}',\n    '[data-o-target-corner]{position:absolute;left:0;top:0;will-change:transform}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Pose un viseur qui se cale sur les elements survoles.\n *\n * @example\n * // Sur la page entiere.\n * <TargetCursor />\n *\n * @example\n * // Sur une galerie, ou seules les vignettes sont des cibles.\n * <TargetCursor targets=\"[data-o-target]\" padding={14} spin={0}>\n *   <ul className=\"o-grid o-grid-cols-3 o-gap-4\">…</ul>\n * </TargetCursor>\n */\nexport function TargetCursor({\n  children,\n  size = 32,\n  corner = 12,\n  padding = 8,\n  speed = 14,\n  spin = 0.12,\n  targets = 'a, button, [role=\"button\"], [data-o-target]',\n  color = 'currentColor',\n  ...rest\n}: TargetCursorProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const wrapping = children !== undefined\n\n  ensureTargetCursorRule()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (typeof window === 'undefined') return\n    // Pointeur grossier : il n'y a rien a viser, et rien n'est cree.\n    if (!window.matchMedia('(pointer: fine)').matches) return\n\n    const layer = document.createElement('div')\n    layer.setAttribute('data-o-target-layer', '')\n    layer.setAttribute('aria-hidden', 'true')\n    host.append(layer)\n\n    const group = document.createElement('span')\n    group.setAttribute('data-o-target-group', '')\n    layer.append(group)\n\n    const corners: HTMLElement[] = []\n    for (let index = 0; index < 4; index += 1) {\n      const node = document.createElement('span')\n      node.setAttribute('data-o-target-corner', '')\n      node.style.width = `${String(corner)}px`\n      node.style.height = `${String(corner)}px`\n      node.style.margin = `${String(-corner / 2)}px`\n      // Un seul dessin — deux bords — que la rotation suffit a decliner aux\n      // quatre coins.\n      node.style.borderTop = `2px solid ${color}`\n      node.style.borderLeft = `2px solid ${color}`\n      group.append(node)\n      corners.push(node)\n    }\n\n    let box = host.getBoundingClientRect()\n    let locked: Element | null = null\n    let seen = false\n\n    // Cible du cadre, en coordonnees de la zone.\n    let wantX = -size * 4\n    let wantY = -size * 4\n    let wantW = size\n    let wantH = size\n\n    let centreX = wantX\n    let centreY = wantY\n    let width = size\n    let height = size\n    let angle = 0\n\n    let pointerX = wantX\n    let pointerY = wantY\n\n    /** Recalcule la cible : la boite verrouillee, ou le carre au pointeur. */\n    const aim = (): void => {\n      if (locked === null) {\n        wantX = pointerX\n        wantY = pointerY\n        wantW = size\n        wantH = size\n        return\n      }\n      const rect = locked.getBoundingClientRect()\n      wantX = rect.left - box.left + rect.width / 2\n      wantY = rect.top - box.top + rect.height / 2\n      wantW = rect.width + padding * 2\n      wantH = rect.height + padding * 2\n    }\n\n    const onFrameChange = (): void => {\n      box = host.getBoundingClientRect()\n      aim()\n    }\n\n    const onMove = (event: Event): void => {\n      const pointer = event as PointerEvent\n      if (pointer.pointerType === 'touch') return\n      pointerX = pointer.clientX - box.left\n      pointerY = pointer.clientY - box.top\n      if (!seen) {\n        centreX = pointerX\n        centreY = pointerY\n        seen = true\n        layer.style.opacity = '1'\n      }\n      if (locked === null) aim()\n    }\n\n    const onOver = (event: Event): void => {\n      const node = event.target\n      // `closest` plutot que l'element lui-meme : le pointeur survole souvent\n      // le texte d'un bouton, pas le bouton.\n      locked = node instanceof Element ? node.closest(targets) : null\n      aim()\n    }\n\n    const onLeave = (): void => {\n      layer.style.opacity = '0'\n      locked = null\n      seen = false\n    }\n\n    const surface: HTMLElement | Window = wrapping ? host : window\n    surface.addEventListener('pointermove', onMove, { passive: true })\n    surface.addEventListener('pointerover', onOver, { passive: true })\n    surface.addEventListener('pointerleave', onLeave)\n    window.addEventListener('resize', onFrameChange, { passive: true })\n    window.addEventListener('scroll', onFrameChange, { passive: true, capture: true })\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        if (!seen) return\n        const factor = 1 - Math.exp(-speed * delta)\n        centreX += (wantX - centreX) * factor\n        centreY += (wantY - centreY) * factor\n        width += (wantW - width) * factor\n        height += (wantH - height) * factor\n\n        // La rotation ne vit qu'au repos : sur une cible, un cadre penche ne\n        // designerait plus rien.\n        const wanted = locked === null ? angle + spin * 360 * delta : 0\n        angle += (wanted - angle) * factor\n\n        group.style.transform = `translate3d(${centreX.toFixed(1)}px,${centreY.toFixed(1)}px,0) rotate(${angle.toFixed(2)}deg)`\n\n        const halfW = width / 2\n        const halfH = height / 2\n        let index = 0\n        for (const node of corners) {\n          const signX = index === 0 || index === 3 ? -1 : 1\n          const signY = index < 2 ? -1 : 1\n          node.style.transform = `translate(${(signX * halfW).toFixed(1)}px,${(signY * halfH).toFixed(1)}px) rotate(${String(index * 90)}deg)`\n          index += 1\n        }\n      },\n      { name: 'target-cursor : viseur', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      surface.removeEventListener('pointermove', onMove)\n      surface.removeEventListener('pointerover', onOver)\n      surface.removeEventListener('pointerleave', onLeave)\n      window.removeEventListener('resize', onFrameChange)\n      window.removeEventListener('scroll', onFrameChange, { capture: true })\n      subscription.unsubscribe()\n      layer.remove()\n    }\n  }, [host, reduced, size, corner, padding, speed, spin, targets, color, wrapping])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={style as CSSProperties}\n      data-o-target-host={wrapping ? 'zone' : 'page'}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

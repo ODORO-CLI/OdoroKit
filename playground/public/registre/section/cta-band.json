@@ -1,0 +1,85 @@
+{
+  "name": "cta-band",
+  "category": "section",
+  "title": "Bandeau d appel a l action",
+  "description": "Un appel principal, une action secondaire discrete, et un reflet qui passe une seule fois a l entree.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/CtaBand.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-400",
+    "--o-palette-brand-500",
+    "--o-palette-brand-600",
+    "--o-palette-white",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Ce qu on propose, en une phrase."
+    },
+    {
+      "name": "primary",
+      "type": "CtaAction",
+      "required": true,
+      "description": "L action principale : une adresse ou une fonction."
+    },
+    {
+      "name": "body",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Une precision sous le titre."
+    },
+    {
+      "name": "secondary",
+      "type": "CtaAction",
+      "required": false,
+      "description": "Une seconde action, discrete."
+    },
+    {
+      "name": "headingLevel",
+      "type": "'h2' | 'h3'",
+      "required": false,
+      "default": "h2",
+      "description": "Niveau de titre rendu, selon la place du bandeau dans le plan de la page.",
+      "options": [
+        "h2",
+        "h3"
+      ]
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, une transition et une animation jouee une seule fois. Rien ne tourne ensuite."
+  },
+  "id": "section/cta-band",
+  "sources": {
+    "component.tsx": "/**\n * Bandeau d'appel a l'action.\n *\n * ## Un appel, pas deux\n *\n * Le bandeau accepte une action principale et, au plus, une secondaire — et\n * elles ne se ressemblent pas. Deux boutons de meme poids ne posent pas une\n * question, ils la reportent : la personne choisit de ne rien faire, ce qui\n * est le seul choix qui ne demande pas de trancher.\n *\n * ## Un lien reste un lien, un bouton reste un bouton\n *\n * L'action porte une adresse ou une fonction, jamais les deux au hasard. Ce\n * n'est pas une coquetterie de balisage : un lien s'ouvre dans un nouvel\n * onglet, se copie, s'annonce comme « lien » ; un bouton fait quelque chose ici\n * et maintenant. Un `<div onClick>` ne fait ni l'un ni l'autre, et se voit tout\n * de suite au clavier.\n *\n * ## Le reflet passe une fois\n *\n * Il balaie le bandeau a l'entree dans le champ, puis s'arrete. Une brillance\n * en boucle sur un appel a l'action attire l'oeil en permanence sur un objet\n * qui n'a plus rien a dire une fois lu : c'est ce qui fait qu'on cesse de le\n * voir. Sous mouvement reduit, il ne passe pas du tout.\n *\n * ## Le titre est un vrai titre\n *\n * Le bandeau ouvre un niveau de titre, parce qu'il en est un dans le plan de la\n * page. Ecrit en gros texte, il serait invisible dans le sommaire qu'un lecteur\n * d'ecran fabrique — et c'est ainsi que l'on navigue quand on n'y voit pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Une action du bandeau. */\nexport interface CtaAction {\n  /** Ce qui est ecrit dessus. */\n  readonly label: string\n  /** Adresse : l'action est alors un lien. */\n  readonly href?: string\n  /** Fonction : l'action est alors un bouton. */\n  readonly onClick?: () => void\n}\n\n/** Proprietes propres au composant. */\nexport interface CtaBandOwnProps {\n  /** Ce qu'on propose, en une phrase. */\n  title: ReactNode\n  /** L'action principale. */\n  primary: CtaAction\n  /** Une precision sous le titre. */\n  body?: ReactNode\n  /** Une seconde action, discrete. */\n  secondary?: CtaAction\n  /** Niveau de titre rendu. @defaultValue 'h2' */\n  headingLevel?: 'h2' | 'h3'\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type CtaBandProps = Customisable<CtaBandOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-cta-band'\n\n/** Pose les regles du bandeau, une fois par document. */\nfunction ensureCtaRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cta]{position:relative;overflow:hidden;isolation:isolate}',\n    '[data-o-cta-reflet]{',\n    'position:absolute;inset:0;pointer-events:none;z-index:-1;',\n    'transform:translateX(-100%);opacity:0}',\n    // `forwards` retient l'etat de fin : sans lui, le reflet reviendrait a sa\n    // position de depart et clignoterait a la derniere image.\n    '[data-o-cta-vu] [data-o-cta-reflet]{',\n    'animation:o-cta-balayage 1.4s var(--o-ease-standard) 0.15s forwards}',\n    '@keyframes o-cta-balayage{',\n    '0%{transform:translateX(-100%);opacity:0}',\n    '25%{opacity:1}',\n    '100%{transform:translateX(100%);opacity:0}}',\n\n    '[data-o-cta-corps]{',\n    'opacity:0;transform:translateY(12px);',\n    'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',\n    'transform var(--o-duration-slower) var(--o-ease-entrance)}',\n    '[data-o-cta-vu] [data-o-cta-corps]{opacity:1;transform:none}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-cta-reflet]{display:none}',\n    '[data-o-cta-corps]{opacity:1;transform:none;transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Rend une action, en lien ou en bouton selon ce qu'elle porte. */\nfunction Action({\n  action,\n  principale,\n}: {\n  action: CtaAction\n  principale: boolean\n}): ReactElement {\n  const classes = [\n    'o-inline-flex o-items-center o-justify-center o-rounded-lg o-px-5 o-py-2.5',\n    'o-text-sm o-font-medium focus:o-ring',\n  ].join(' ')\n\n  const habillage: CSSProperties = principale\n    ? {\n        backgroundColor: 'var(--o-palette-brand-600)',\n        color: 'var(--o-palette-white)',\n        textDecoration: 'none',\n        border: '1px solid transparent',\n        cursor: 'pointer',\n      }\n    : {\n        backgroundColor: 'transparent',\n        color: 'var(--o-theme-fg)',\n        textDecoration: 'none',\n        border: '1px solid var(--o-theme-line)',\n        cursor: 'pointer',\n      }\n\n  if (action.href !== undefined) {\n    return (\n      <a href={action.href} className={classes} style={habillage}>\n        {action.label}\n      </a>\n    )\n  }\n\n  return (\n    <button type=\"button\" onClick={action.onClick} className={classes} style={habillage}>\n      {action.label}\n    </button>\n  )\n}\n\n/**\n * Un bandeau d'appel a l'action.\n *\n * @example\n * <CtaBand\n *   title=\"Installez la premiere entree en une commande\"\n *   body=\"Le code est copie chez vous : il vous appartient des la premiere seconde.\"\n *   primary={{ label: 'Commencer', href: '/installation' }}\n *   secondary={{ label: 'Lire le contrat', href: '/contrat' }}\n * />\n */\nexport function CtaBand({\n  title,\n  primary,\n  body,\n  secondary,\n  headingLevel = 'h2',\n  label,\n  ...rest\n}: CtaBandProps): ReactElement {\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.25 })\n  const Titre = headingLevel\n\n  ensureCtaRules()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-rounded-2xl o-px-8 o-py-12' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      data-o-cta=\"\"\n      data-o-cta-vu={vu ? '' : undefined}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundColor:\n            'color-mix(in oklab, var(--o-palette-brand-500) 10%, var(--o-theme-surface))',\n          border:\n            '1px solid color-mix(in oklab, var(--o-palette-brand-500) 35%, transparent)',\n        } as CSSProperties\n      }\n    >\n      <span\n        aria-hidden\n        data-o-cta-reflet=\"\"\n        style={{\n          backgroundImage:\n            'linear-gradient(100deg, transparent 30%, color-mix(in oklab, var(--o-palette-brand-400) 45%, transparent) 50%, transparent 70%)',\n        }}\n      />\n\n      <div\n        data-o-cta-corps=\"\"\n        className=\"o-flex o-flex-col o-items-center o-gap-6 o-text-center\"\n      >\n        <div className=\"o-flex o-max-w-2xl o-flex-col o-gap-3\">\n          <Titre\n            className=\"o-text-2xl o-font-bold o-tracking-tight o-text-balance\"\n            style={{ color: 'var(--o-theme-fg)' }}\n          >\n            {title}\n          </Titre>\n          {body !== undefined && (\n            <p\n              className=\"o-text-sm o-leading-relaxed\"\n              style={{ color: 'var(--o-theme-muted)' }}\n            >\n              {body}\n            </p>\n          )}\n        </div>\n\n        <div className=\"o-flex o-flex-wrap o-items-center o-justify-center o-gap-3\">\n          <Action action={primary} principale />\n          {secondary !== undefined && <Action action={secondary} principale={false} />}\n        </div>\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

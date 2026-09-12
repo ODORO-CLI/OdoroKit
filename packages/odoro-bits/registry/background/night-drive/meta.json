@@ -1,0 +1,78 @@
+{
+  "name": "night-drive",
+  "category": "background",
+  "title": "Route de nuit",
+  "description": "Un sol projete en z = 1/y : deux bords qui convergent vers l horizon, un axe en tirets qui defile, et une file de lampadaires qui approchent lentement de loin puis filent en passant, halo, mat et flaque au sol.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "night-drive.shader.ts",
+      "target": "background/night-drive.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/NightDrive.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-muted", "--o-palette-amber-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de la route.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 1,
+      "description": "Demi-largeur de la route, en unites du monde.",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "lamps",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de lampadaires par cote. Borne a douze par le shader, a cinq en qualite basse.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 0.8,
+      "description": "Hauteur des lampadaires, en unites du monde.",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, les lignes de la route et les mats, les lampes."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Une boucle bornee a douze lampadaires, deux exponentielles et une distance par lampe et par cote. En qualite basse, la file tombe a cinq."
+  }
+}

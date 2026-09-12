@@ -1,0 +1,92 @@
+{
+  "name": "toast-stack",
+  "category": "ui",
+  "title": "Pile de notifications",
+  "description": "Des notifications qui s empilent l une devant l autre, s etalent au survol, et se retirent apres un delai que le survol met en pause.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ToastStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-amber-500",
+    "--o-palette-rose-500",
+    "--o-duration-fast",
+    "--o-duration-slow",
+    "--o-ease-emphasized",
+    "--o-z-toast"
+  ],
+  "props": [
+    {
+      "name": "toasts",
+      "type": "readonly { id: string; title: string; description?: string; tone?: 'info' | 'succes' | 'alerte' | 'erreur' }[]",
+      "required": true,
+      "description": "Les notifications, de la plus ancienne a la plus recente."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Notifications",
+      "description": "Nom de la region pour les lecteurs d ecran."
+    },
+    {
+      "name": "onDismiss",
+      "type": "(id: string) => void",
+      "required": false,
+      "description": "Appele quand une notification se retire, d elle-meme ou a la main."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 4000,
+      "unit": "ms",
+      "description": "Delai avant retrait. Zero laisse la notification jusqu au clic.",
+      "min": 0,
+      "max": 10000,
+      "step": 500
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de notifications visibles dans le paquet.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "side",
+      "type": "string",
+      "required": false,
+      "default": "bottom",
+      "description": "Cote ou la pile est ancree.",
+      "options": [
+        "bottom",
+        "top"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les decalages sont mesures apres le rendu et ecrits en variables sur les elements ; les cartes se deplacent par transformation. Une minuterie par carte, mise en pause avec la barre de vie. Sous mouvement reduit, les cartes paraissent en place et le retrait reste."
+  },
+  "id": "ui/toast-stack",
+  "sources": {
+    "component.tsx": "/**\n * Pile de notifications : les nouvelles se posent devant, les anciennes\n * reculent, et le survol etale le paquet.\n *\n * ## Trois notifications a la fois, pas trente\n *\n * Une pile qui grandit sans limite finit par couvrir la page qu'elle\n * commente. Au-dela de `max`, les plus anciennes sortent du paquet — elles\n * restent dans la liste que la page tient, mais cessent d'occuper l'ecran.\n *\n * ## Les decalages sont mesures, pas devines\n *\n * Etale, chaque carte se pose au-dessus de la precedente : le decalage vaut\n * donc la somme des hauteurs reelles, qui dependent du texte. Les hauteurs\n * sont relevees apres le rendu et ecrites en variables sur les elements — pas\n * en etat React, qui redemanderait un rendu a chaque mesure, donc une mesure\n * a chaque rendu.\n *\n * ## Le compte a rebours est une animation, et il se met en pause\n *\n * La barre de vie est une animation CSS dont la duree est celle de la\n * minuterie. Survoler ou entrer au clavier met les deux en pause d'un coup :\n * on ne perd pas une notification pendant qu'on la lit.\n *\n * ## Une region d'etat, pas une alerte\n *\n * `role=\"status\"` est poli : le lecteur d'ecran finit sa phrase avant\n * d'annoncer. `aria-atomic=\"false\"` limite l'annonce a ce qui vient\n * d'arriver, sinon les trois cartes seraient relues a chaque nouvelle.\n *\n * ## Mouvement reduit\n *\n * Les cartes paraissent en place et la barre de vie disparait ; le retrait\n * apres delai, lui, reste — c'est un comportement, pas une animation.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useLayoutEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n} from 'react'\n\n/** Nature d'une notification, qui donne sa teinte au filet. */\nexport type ToastTone = 'info' | 'succes' | 'alerte' | 'erreur'\n\n/** Une notification. */\nexport interface ToastItem {\n  /** Identifiant, unique dans la pile. */\n  readonly id: string\n  /** Titre, lu en premier. */\n  readonly title: string\n  /** Precision affichee sous le titre. */\n  readonly description?: string\n  /** Nature de la notification. @defaultValue 'info' */\n  readonly tone?: ToastTone\n}\n\n/** Proprietes propres au composant. */\nexport interface ToastStackOwnProps {\n  /** Les notifications, de la plus ancienne a la plus recente. */\n  toasts: readonly ToastItem[]\n  /** Nom de la region pour les lecteurs d'ecran. @defaultValue 'Notifications' */\n  label?: string\n  /** Appele quand une notification se retire, d'elle-meme ou a la main. */\n  onDismiss?: (id: string) => void\n  /** Delai avant retrait. Zero laisse la notification jusqu'au clic. @defaultValue 4000 */\n  duration?: number\n  /** Nombre de notifications visibles dans le paquet. @defaultValue 3 */\n  max?: number\n  /** Cote ou la pile est ancree. @defaultValue 'bottom' */\n  side?: 'top' | 'bottom'\n}\n\n/** Toutes les proprietes. */\nexport type ToastStackProps = Customisable<ToastStackOwnProps>\n\n/** Teinte de chaque nature, en tokens de la palette. */\nconst TONES: Readonly<Record<ToastTone, string>> = {\n  info: 'var(--o-palette-brand-500)',\n  succes: 'var(--o-palette-emerald-500)',\n  alerte: 'var(--o-palette-amber-500)',\n  erreur: 'var(--o-palette-rose-500)',\n}\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-toast-stack'\n\n/** Pose la pile, les cartes et la barre de vie, une fois par document. */\nfunction ensureToastRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-toasts]{position:relative;z-index:var(--o-z-toast);width:min(22rem,100%)}',\n    '[data-o-toasts] ol{position:relative;margin:0;padding:0;list-style:none;height:0}',\n    '[data-o-toast]{',\n    'position:absolute;left:0;right:0;',\n    'display:flex;align-items:flex-start;gap:0.6rem;overflow:hidden;',\n    'padding:0.7rem 0.8rem;border-radius:0.8rem;text-align:left;',\n    'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',\n    'box-shadow:0 10px 30px color-mix(in oklab,currentColor 14%,transparent);',\n    'transform:translateY(var(--o-toast-y)) scale(var(--o-toast-scale));',\n    'opacity:var(--o-toast-opacity);',\n    'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',\n    'opacity var(--o-duration-slow) linear;',\n    'animation:o-toast-in var(--o-duration-slow) var(--o-ease-emphasized) both;',\n    '}',\n    '[data-o-toasts][data-o-toasts-side=\"bottom\"] [data-o-toast]{bottom:0;transform-origin:bottom center}',\n    '[data-o-toasts][data-o-toasts-side=\"top\"] [data-o-toast]{top:0;transform-origin:top center}',\n    // Le filet de nature, sur la tranche gauche.\n    '[data-o-toast]::before{',\n    'content:\"\";position:absolute;inset-block:0;left:0;width:3px;background:var(--o-toast-tone)}',\n    '[data-o-toast-body]{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:0.15rem}',\n    '[data-o-toast-title]{font-weight:600;font-size:0.9375em}',\n    '[data-o-toast-text]{font-size:0.875em;opacity:0.7}',\n    '[data-o-toast-close]{',\n    'flex:none;display:inline-grid;place-items:center;width:1.5em;height:1.5em;',\n    'border:0;border-radius:999px;background:transparent;color:inherit;font:inherit;',\n    'cursor:pointer;opacity:0.5;transition:opacity var(--o-duration-fast) linear;',\n    '}',\n    '[data-o-toast-close]:is(:hover,:focus-visible){opacity:1}',\n    '[data-o-toast-close]:focus-visible{outline:2px solid var(--o-toast-tone);outline-offset:1px}',\n    // La barre de vie : sa duree est celle de la minuterie, sa pause aussi.\n    '[data-o-toast-life]{',\n    'position:absolute;left:0;bottom:0;height:2px;width:100%;',\n    'background:var(--o-toast-tone);transform-origin:left center;',\n    'animation:o-toast-life var(--o-toast-duration) linear forwards;',\n    '}',\n    '[data-o-toasts][data-o-toasts-paused] [data-o-toast-life]{animation-play-state:paused}',\n    '@keyframes o-toast-life{from{transform:scaleX(1)}to{transform:scaleX(0)}}',\n    // L'entree ne touche ni a `opacity` ni a `transform` : ces deux-la portent\n    // la place de la carte dans le paquet, et une animation remplie vers l'avant\n    // les figerait a leur valeur d'arrivee.\n    '@keyframes o-toast-in{from{scale:0.9;translate:0 14px}to{scale:1;translate:none}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-toast]{animation:none;transition:none}',\n    '[data-o-toast-life]{display:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Une carte, avec sa minuterie propre. */\nfunction ToastCard({\n  toast,\n  paused,\n  duration,\n  onDone,\n}: {\n  toast: ToastItem\n  paused: boolean\n  duration: number\n  onDone: () => void\n}): ReactElement {\n  const left = useRef(duration)\n  const startedAt = useRef(0)\n  const done = useRef(onDone)\n\n  // La derniere fonction connue, sans relancer la minuterie pour autant : la\n  // remettre a zero a chaque rendu du parent ne laisserait jamais expirer.\n  useEffect(() => {\n    done.current = onDone\n  })\n\n  useEffect(() => {\n    if (duration <= 0 || paused || left.current <= 0) return\n    startedAt.current = Date.now()\n    const timer = setTimeout(() => {\n      done.current()\n    }, left.current)\n    return () => {\n      clearTimeout(timer)\n      left.current = Math.max(0, left.current - (Date.now() - startedAt.current))\n    }\n  }, [paused, duration])\n\n  return (\n    <li\n      data-o-toast=\"\"\n      data-o-toast-id={toast.id}\n      style={\n        {\n          '--o-toast-tone': TONES[toast.tone ?? 'info'],\n          '--o-toast-duration': `${String(duration)}ms`,\n        } as CSSProperties\n      }\n    >\n      <span data-o-toast-body=\"\">\n        <span data-o-toast-title=\"\">{toast.title}</span>\n        {toast.description !== undefined && (\n          <span data-o-toast-text=\"\">{toast.description}</span>\n        )}\n      </span>\n      <button\n        type=\"button\"\n        data-o-toast-close=\"\"\n        aria-label={`Fermer ${toast.title}`}\n        onClick={() => {\n          done.current()\n        }}\n      >\n        <span aria-hidden=\"true\">{'×'}</span>\n      </button>\n      {duration > 0 && <span data-o-toast-life=\"\" aria-hidden=\"true\" />}\n    </li>\n  )\n}\n\n/**\n * Pile de notifications empilees, retirees apres un delai.\n *\n * @example\n * <ToastStack\n *   toasts={[{ id: '1', title: 'Brouillon enregistre', tone: 'succes' }]}\n *   onDismiss={(id) => { retirer(id) }}\n * />\n *\n * @example\n * // Ancree en haut, quatre cartes visibles, sans retrait automatique.\n * <ToastStack toasts={avis} onDismiss={retirer} side=\"top\" max={4} duration={0} />\n */\nexport function ToastStack({\n  toasts,\n  label = 'Notifications',\n  onDismiss,\n  duration = 4000,\n  max = 3,\n  side = 'bottom',\n  ...rest\n}: ToastStackProps): ReactElement {\n  const listRef = useRef<HTMLOListElement | null>(null)\n  const [retired, setRetired] = useState<readonly string[]>([])\n  // Un seul etat pour deux effets : la main posee sur la pile arrete les\n  // minuteries et etale le paquet. Ce sont les deux moities du meme geste.\n  const [paused, setPaused] = useState(false)\n  ensureToastRules()\n\n  // Retirees a l'ecran, mais peut-etre encore dans la liste de la page : la\n  // pile n'efface rien chez elle, elle cesse seulement de le montrer.\n  const alive = toasts.filter((toast) => !retired.includes(toast.id))\n  // Une carte de plus que le paquet n'en montre : c'est elle qui s'efface\n  // derriere les autres quand une nouvelle arrive.\n  const shown = alive.slice(-(max + 1))\n\n  const dismiss = (id: string): void => {\n    setRetired((previous) => [...previous.filter((entry) => entry !== id), id])\n    onDismiss?.(id)\n  }\n\n  // Les identifiants disparus de la liste n'ont plus a etre retenus.\n  useEffect(() => {\n    setRetired((previous) => {\n      const kept = previous.filter((id) => toasts.some((toast) => toast.id === id))\n      return kept.length === previous.length ? previous : kept\n    })\n  }, [toasts])\n\n  // Les decalages : mesures apres le rendu, ecrits sur les elements.\n  useLayoutEffect(() => {\n    const cards = Array.from(\n      listRef.current?.querySelectorAll<HTMLLIElement>('[data-o-toast]') ?? [],\n    ).reverse()\n    const sign = side === 'bottom' ? -1 : 1\n    let offset = 0\n\n    for (const [depth, card] of cards.entries()) {\n      // Etalee, la carte se pose derriere la precedente ; empilee, elle\n      // depasse d'une lisiere et recule d'un cran.\n      const shift = paused ? offset : depth * 10\n      card.style.setProperty('--o-toast-y', `${String(sign * shift)}px`)\n      card.style.setProperty('--o-toast-scale', String(paused ? 1 : 1 - depth * 0.05))\n      card.style.setProperty('--o-toast-opacity', String(depth >= max ? 0 : 1))\n      card.style.zIndex = String(cards.length - depth)\n      offset += card.offsetHeight + 8\n    }\n  })\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      role=\"status\"\n      aria-atomic=\"false\"\n      aria-label={label}\n      data-o-toasts=\"\"\n      data-o-toasts-side={side}\n      data-o-toasts-paused={paused ? '' : undefined}\n      className={className}\n      style={style as CSSProperties}\n      onPointerEnter={(event) => {\n        setPaused(true)\n        rest.onPointerEnter?.(event)\n      }}\n      onPointerLeave={(event) => {\n        setPaused(false)\n        rest.onPointerLeave?.(event)\n      }}\n      onFocusCapture={(event) => {\n        setPaused(true)\n        rest.onFocusCapture?.(event)\n      }}\n      onBlurCapture={(event) => {\n        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false)\n        rest.onBlurCapture?.(event)\n      }}\n    >\n      <ol ref={listRef}>\n        {shown.map((toast) => (\n          <ToastCard\n            key={toast.id}\n            toast={toast}\n            paused={paused}\n            duration={duration}\n            onDone={() => {\n              dismiss(toast.id)\n            }}\n          />\n        ))}\n      </ol>\n    </div>\n  )\n}\n"
+  }
+}

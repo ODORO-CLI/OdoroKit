@@ -1,0 +1,57 @@
+{
+  "name": "spiral-dots",
+  "category": "loader",
+  "title": "Points en spirale",
+  "description": "Quatorze points poses le long d une spirale s allument tour a tour du centre vers l exterieur, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SpiralDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Cote du dessin. Les points grandissent avec lui.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un parcours complet de la spirale.",
+      "min": 600,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un SVG de quatorze cercles, animes en opacite et en echelle par CSS. La spirale reste dessinee, en degrade fixe du centre vers l exterieur, sous mouvement reduit."
+  }
+}

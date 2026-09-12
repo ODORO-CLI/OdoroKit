@@ -1,0 +1,74 @@
+{
+  "name": "dna-helix",
+  "category": "background",
+  "title": "Double helice",
+  "description": "Deux brins de points opposes d un demi-tour, relies par des barreaux a intervalle regle, qui tournent autour d un axe legerement incline.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/DnaHelix.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-sky-400", "--o-palette-rose-400"],
+  "props": [
+    {
+      "name": "turns",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de tours de l helice sur toute sa hauteur.",
+      "min": 0.5,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "points",
+      "type": "number",
+      "default": 220,
+      "description": "Points par brin. Retrograde a quatre-vingt-dix en qualite basse.",
+      "min": 30,
+      "max": 600,
+      "step": 10
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 3,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "rungs",
+      "type": "number",
+      "default": 6,
+      "description": "Un barreau tous les combien de points. A zero, les barreaux disparaissent.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-sky-400, --o-palette-rose-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, le premier brin, le second brin. Les barreaux prennent la moyenne des deux."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Trois appels de dessin, geometrie construite une fois ; la boucle ne touche qu une rotation de groupe. Le nombre de points suit la qualite retenue. Le rendu se suspend hors du champ."
+  }
+}

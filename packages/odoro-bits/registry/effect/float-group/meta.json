@@ -1,0 +1,46 @@
+{
+  "name": "float-group",
+  "category": "effect",
+  "title": "Flottement",
+  "description": "Chaque enfant direct flotte doucement sur sa propre cadence, duree et phase derivees de l index — jamais les memes pour deux voisins.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/FloatGroup.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Amplitude de l oscillation.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree de reference d un aller-retour.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS par enfant, toutes tenues par le compositeur, delais negatifs pour desynchroniser les departs. Animation suspendue sous mouvement reduit."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "liquid-button",
+  "category": "ui",
+  "title": "Bouton a maree",
+  "description": "Un calque colore monte derriere le libelle au survol, avec un leger deborde elastique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LiquidButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-palette-zinc-50"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 450,
+      "unit": "ms",
+      "description": "Duree de la montee du calque.",
+      "min": 150,
+      "max": 1200,
+      "step": 50
+    },
+    {
+      "name": "direction",
+      "type": "'up' | 'left'",
+      "default": "up",
+      "description": "Sens d arrivee du calque colore.",
+      "options": ["up", "left"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation et une de couleur, tenues par le compositeur. Sous mouvement reduit la montee devient un fondu."
+  }
+}

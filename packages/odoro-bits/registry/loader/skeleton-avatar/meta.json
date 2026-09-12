@@ -1,0 +1,89 @@
+{
+  "name": "skeleton-avatar",
+  "category": "loader",
+  "title": "Avatar en attente",
+  "description": "Un disque et ses lignes a cote, nom puis role, repetable en liste de membres : le motif d une identite qui n est pas encore arrivee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonAvatar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "default": 1,
+      "description": "Nombre de personnes en attente.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "lines",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de lignes a cote du disque.",
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Diametre du disque.",
+      "min": 20,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Rayon des angles des lignes.",
+      "min": 0,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reflet qui traverse les blocs plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement du profil",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par bloc, ou une opacite, aucun JavaScript apres le premier rendu. Blocs pleins et immobiles sous mouvement reduit."
+  }
+}

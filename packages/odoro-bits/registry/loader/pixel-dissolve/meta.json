@@ -1,0 +1,111 @@
+{
+  "name": "pixel-dissolve",
+  "category": "loader",
+  "title": "Dissolution en carreaux",
+  "description": "Un rideau qui se troue carreau par carreau, dans un desordre calcule par pas d or plutot que tire au sort.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PixelDissolve.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond des carreaux."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 20,
+      "description": "Nombre de colonnes.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "rows",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de rangees.",
+      "min": 3,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "spreadMs",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Etalement des departs entre le premier carreau et le dernier.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps la grille reste pleine.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 420,
+      "unit": "ms",
+      "description": "Duree de disparition d un carreau.",
+      "min": 120,
+      "max": 1500,
+      "step": 20
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : la grille couvre tant que c est vrai, et se dissout au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de la dissolution, pour que le contenu se decouvre a travers elle."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un element par carreau : deux cent quarante aux valeurs par defaut, six cents au maximum des bornes. Opacite et echelle seulement, aucun JavaScript par image."
+  }
+}

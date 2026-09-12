@@ -1,0 +1,78 @@
+{
+  "name": "pollen",
+  "category": "background",
+  "title": "Pollen",
+  "description": "Des grains lents sur deux plans — le lointain net et serre, le proche flou et lache — que le pointeur decale en parallaxe.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "pollen.shader.ts",
+      "target": "background/pollen.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Pollen.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-lime-400", "--o-palette-amber-300"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.35,
+      "description": "Vitesse de la derive.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 11,
+      "description": "Densite du plan lointain : cellules sur la hauteur.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 0.6,
+      "description": "Flou du plan proche. Plus haut, plus large et plus pale.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 1,
+      "description": "Amplitude du decalage sous le pointeur. Zero le fige.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-lime-400, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les grains lointains, les grains proches."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Deux plans, neuf cellules par plan et par fragment. En qualite basse, une seule cellule par plan. Le pointeur est mute en place, sans rendu React par image."
+  }
+}

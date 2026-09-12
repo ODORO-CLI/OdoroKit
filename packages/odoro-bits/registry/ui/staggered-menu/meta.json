@@ -1,0 +1,78 @@
+{
+  "name": "staggered-menu",
+  "category": "ui",
+  "title": "Menu decale",
+  "description": "Un menu plein ecran ouvert par un bouton : des bandes de couleur balaient l ecran, le panneau les suit, et les liens montent un a un.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/StaggeredMenu.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, dans l ordre d affichage."
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "default": "--o-palette-brand-500,--o-theme-fg",
+      "description": "Tokens des bandes qui precedent le panneau, dans l ordre de passage."
+    },
+    {
+      "name": "side",
+      "type": "'right' | 'left'",
+      "default": "right",
+      "description": "Bord par lequel bandes et panneau entrent.",
+      "options": ["right", "left"]
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 70,
+      "unit": "ms",
+      "description": "Decalage entre deux liens.",
+      "min": 0,
+      "max": 200,
+      "step": 10
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre. Utile dans une maquette."
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Menu",
+      "description": "Nom du bloc de navigation pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Bandes, panneau et liens sont des transitions de transformation, chacune avec son retard ; un rendu React par ouverture. Le defilement de la page est bloque tant que le menu couvre la fenetre. Sous mouvement reduit tout apparait d un coup."
+  }
+}

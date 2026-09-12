@@ -1,0 +1,78 @@
+{
+  "name": "led-wall",
+  "category": "background",
+  "title": "Mur de LED",
+  "description": "Une matrice de pastilles arrondies qui affiche un degrade lent echantillonne au centre de chaque pastille — une couleur par diode — avec le boitier visible entre elles, un halo court et une luminance inegale.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "led-wall.shader.ts",
+      "target": "background/led-wall.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LedWall.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-rose-500", "--o-palette-amber-300"],
+  "props": [
+    {
+      "name": "pixels",
+      "type": "number",
+      "default": 32,
+      "description": "Nombre de pastilles sur la hauteur. Borne a cent vingt par le shader, a vingt en qualite basse.",
+      "min": 4,
+      "max": 120,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.4,
+      "description": "Vitesse du degrade.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 0.25,
+      "description": "Espace entre les pastilles, en fraction de pastille.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "bloom",
+      "type": "number",
+      "default": 0.5,
+      "description": "Poids du halo autour de chaque pastille. Zero l eteint ; il s eteint aussi en qualite basse.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-rose-500, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues : le boitier entre les pastilles, la premiere couleur du degrade, la seconde."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Quatre sinus, une distance signee et une exponentielle par fragment. En qualite basse, les pastilles s elargissent et le halo s eteint."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "name": "skeleton-card",
+  "category": "loader",
+  "title": "Carte en attente",
+  "description": "La carte est deja dessinee, surface et filet compris ; seuls son image, son titre, ses lignes et son pied restent des blocs vides.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "lines",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de lignes de texte sous le titre.",
+      "min": 0,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "media",
+      "type": "boolean",
+      "default": true,
+      "description": "Reserver la place d une image en haut de la carte."
+    },
+    {
+      "name": "footer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reserver la place d un pied : pastille et legende."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Rayon des angles de la carte.",
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reflet qui traverse les blocs plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement de la carte",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par bloc, ou une opacite : la carte elle-meme ne bouge jamais, aucun JavaScript apres le premier rendu. Blocs pleins et immobiles sous mouvement reduit."
+  }
+}

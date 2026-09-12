@@ -1,0 +1,65 @@
+{
+  "name": "cube-fold",
+  "category": "loader",
+  "title": "Carre qui se plie",
+  "description": "Un patron en croix dont les quatre volets se relevent un a un pour fermer une boite, puis se rabattent, en CSS 3D.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CubeFold.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "unit": "px",
+      "description": "Cote d une face. Le patron deplie en occupe trois.",
+      "min": 8,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle : pliage, tenue, depliage.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des faces ; les volets en sont une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq faces plates, quatre animations de rotation 3D tenues par le compositeur, aucun JavaScript apres le premier rendu. Boite fermee et immobile sous mouvement reduit."
+  },
+  "id": "loader/cube-fold",
+  "sources": {
+    "component.tsx": "/**\n * Carre qui se plie : un patron en croix dont les quatre volets se relevent\n * un a un pour fermer une boite, puis se rabattent.\n *\n * ## Un volet tourne sur sa charniere\n *\n * Le patron est une face centrale et quatre volets colles a ses cotes.\n * Chaque volet pivote autour du cote qu'il partage avec le centre — son\n * origine de transformation est cette arete, pas son milieu. Une rotation\n * centree ferait passer le volet a travers le centre ; depuis l'arete, il\n * se releve comme un rabat de carton.\n *\n * Les quatre volets jouent la meme animation, mais chacun sur son axe et\n * dans son sens : la rotation est ecrite `rotate3d` avec des variables par\n * volet, que l'image cle resout element par element. Une animation, quatre\n * charnieres. Les delais sont negatifs et decales d'un volet a l'autre : le\n * pliage est en cours des la premiere image, et les volets se relevent en\n * tournant autour de la boite plutot que tous ensemble.\n *\n * Les volets se plient vers l'arriere, loin du regard : on voit l'exterieur\n * de la boite, avec ses faces ombrees, et non l'interieur d'un puits.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le patron est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la boite reste fermee : c'est l'etat ou le pliage\n * aboutit, et le seul ou la figure est un cube.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-cube-fold'\n\n/**\n * Les quatre volets : place dans le patron, charniere, axe et sens.\n *\n * La place est comptee en faces : le centre est en (1, 1). Le sens est\n * choisi pour que chaque volet se replie vers l'arriere : autour de X dans\n * le sens positif pour le volet du haut, negatif pour celui du bas, et de\n * meme sur Y pour la droite et la gauche. L'ordre de la liste est l'ordre\n * de pliage, dans le sens horaire.\n */\nconst FLAPS: ReadonlyArray<{\n  readonly row: number\n  readonly column: number\n  readonly hinge: string\n  readonly axis: string\n  readonly turn: number\n}> = [\n  { row: 0, column: 1, hinge: 'bottom center', axis: '1,0,0', turn: 90 },\n  { row: 1, column: 2, hinge: 'left center', axis: '0,1,0', turn: 90 },\n  { row: 2, column: 1, hinge: 'top center', axis: '1,0,0', turn: -90 },\n  { row: 1, column: 0, hinge: 'right center', axis: '0,1,0', turn: -90 },\n]\n\n/** Pose le patron et son pliage, une fois par document. */\nfunction ensureCubeFoldRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cube-fold]{',\n    'display:inline-block;line-height:0;',\n    'width:calc(var(--o-fold-size) * 3);height:calc(var(--o-fold-size) * 3);',\n    'perspective:calc(var(--o-fold-size) * 12);',\n    '}',\n    // Une inclinaison fixe : de face, les volets replies disparaitraient\n    // derriere le centre et le pliage se lirait comme un retrecissement.\n    '[data-o-cube-fold-tilt]{',\n    'display:block;position:relative;width:100%;height:100%;',\n    'transform-style:preserve-3d;',\n    'transform:rotateX(-28deg) rotateY(-34deg);',\n    '}',\n    '[data-o-cube-fold-face]{',\n    'position:absolute;width:var(--o-fold-size);height:var(--o-fold-size);',\n    'top:calc(var(--o-fold-size) * var(--o-fold-row));',\n    'left:calc(var(--o-fold-size) * var(--o-fold-column));',\n    'backface-visibility:hidden;',\n    'background:color-mix(in oklab, var(--o-fold-color) var(--o-fold-shade), transparent);',\n    '}',\n    '[data-o-cube-fold-flap]{',\n    'transform-origin:var(--o-fold-hinge);',\n    'animation:o-cube-fold-close var(--o-fold-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-fold-delay);',\n    '}',\n    // Plie, tient, deplie. Les variables d'axe et d'angle sont celles du\n    // volet : une seule animation, quatre charnieres.\n    '@keyframes o-cube-fold-close{',\n    '0%,12%{transform:rotate3d(var(--o-fold-axis),0deg)}',\n    '38%,62%{transform:rotate3d(var(--o-fold-axis),var(--o-fold-turn))}',\n    '88%,100%{transform:rotate3d(var(--o-fold-axis),0deg)}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-cube-fold-flap]{animation:none;transform:rotate3d(var(--o-fold-axis),var(--o-fold-turn))}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface CubeFoldOwnProps {\n  /** Cote d'une face, en pixels. Le patron deplie en occupe trois. @defaultValue 20 */\n  size?: number\n  /** Duree d'un cycle de pliage et depliage, en millisecondes. @defaultValue 2600 */\n  speed?: number\n  /** Couleur des faces. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type CubeFoldProps = Customisable<CubeFoldOwnProps, 'span'>\n\n/**\n * Signale une attente par un patron qui se plie en boite.\n *\n * @example\n * <CubeFold />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <CubeFold size={32} speed={4000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function CubeFold({\n  size = 20,\n  speed = 2600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: CubeFoldProps): ReactElement {\n  ensureCubeFoldRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-fold-size': `${String(size)}px`,\n    '--o-fold-speed': `${String(speed)}ms`,\n    '--o-fold-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-cube-fold=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-cube-fold-tilt=\"\">\n        <span\n          data-o-cube-fold-face=\"\"\n          style={\n            {\n              '--o-fold-row': 1,\n              '--o-fold-column': 1,\n              '--o-fold-shade': '100%',\n            } as CSSProperties\n          }\n        />\n        {FLAPS.map((flap, index) => (\n          <span\n            key={flap.hinge}\n            data-o-cube-fold-face=\"\"\n            data-o-cube-fold-flap=\"\"\n            style={\n              {\n                '--o-fold-row': flap.row,\n                '--o-fold-column': flap.column,\n                '--o-fold-shade': '66%',\n                '--o-fold-hinge': flap.hinge,\n                '--o-fold-axis': flap.axis,\n                '--o-fold-turn': `${String(flap.turn)}deg`,\n                // Un dixieme de cycle entre deux volets, en negatif : le\n                // premier volet est deja releve quand le dernier commence,\n                // et le pliage tourne autour de la boite.\n                '--o-fold-delay': `${String(Math.round(-speed * index * 0.1))}ms`,\n              } as CSSProperties\n            }\n          />\n        ))}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

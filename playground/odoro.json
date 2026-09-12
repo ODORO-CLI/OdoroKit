@@ -6,71 +6,377 @@
     "directory": "src/odoro"
   },
   "installed": {
+    "background/acid-squares": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/acid-squares.shader.ts",
+          "hash": "13fb7ad6be1466b3"
+        },
+        {
+          "path": "src/odoro/background/AcidSquares.tsx",
+          "hash": "8e4bfafde63991f8"
+        }
+      ]
+    },
+    "background/ascii-field": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ascii-field.shader.ts",
+          "hash": "17bff372f21b933c"
+        },
+        {
+          "path": "src/odoro/background/AsciiField.tsx",
+          "hash": "307c9299991b2afe"
+        }
+      ]
+    },
     "background/ashen-press": {
-      "installedAt": "2026-09-04T12:20:37.702Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/AshenPress.tsx",
-          "hash": "367a8c06ada4b35d"
+          "hash": "b777d286833f16e8"
+        }
+      ]
+    },
+    "background/audio-bars": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/audio-bars.shader.ts",
+          "hash": "436420aab523ca8b"
+        },
+        {
+          "path": "src/odoro/background/AudioBars.tsx",
+          "hash": "0de856c1c5edf952"
         }
       ]
     },
     "background/aurora": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Aurora.tsx",
-          "hash": "986f90c2b085866d"
+          "hash": "cce793f441c92164"
+        }
+      ]
+    },
+    "background/ballpit": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Ballpit.tsx",
+          "hash": "d97471b6f36ed37d"
         }
       ]
     },
     "background/beams": {
-      "installedAt": "2026-08-29T03:15:27.669Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Beams.tsx",
-          "hash": "00b7f5e5a5befed3"
+          "hash": "2c68aeaf3c459f16"
+        }
+      ]
+    },
+    "background/blob-morph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/blob-morph.shader.ts",
+          "hash": "10e99ddf5b12f7c5"
+        },
+        {
+          "path": "src/odoro/background/BlobMorph.tsx",
+          "hash": "3c721378234e4d3a"
+        }
+      ]
+    },
+    "background/blueprint": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Blueprint.tsx",
+          "hash": "e17c02a8a4fb76d9"
+        }
+      ]
+    },
+    "background/bokeh": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/bokeh.shader.ts",
+          "hash": "1f89e8daea3e298e"
+        },
+        {
+          "path": "src/odoro/background/Bokeh.tsx",
+          "hash": "4bae25c14ab602d7"
         }
       ]
     },
     "background/bubbles": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Bubbles.tsx",
-          "hash": "114a7a66a9e4082a"
+          "hash": "b4768773ddd3d7cd"
         }
       ]
     },
     "background/caustics": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Caustics.tsx",
-          "hash": "2ecdc9b7b00f2028"
+          "hash": "91692c8f0875c1db"
         }
       ]
     },
     "background/cells": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Cells.tsx",
-          "hash": "e6d045fc737f260d"
+          "hash": "b9f56d98e94e744e"
+        }
+      ]
+    },
+    "background/checker": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Checker.tsx",
+          "hash": "c4a2e1d362385cf6"
+        }
+      ]
+    },
+    "background/circuit": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/circuit.shader.ts",
+          "hash": "fc09e5e547f908ae"
+        },
+        {
+          "path": "src/odoro/background/Circuit.tsx",
+          "hash": "cf309ca59498433b"
+        }
+      ]
+    },
+    "background/city-blocks": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/CityBlocks.tsx",
+          "hash": "d3b71f07013847f8"
+        }
+      ]
+    },
+    "background/click-waves": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/click-waves.shader.ts",
+          "hash": "70678fdfdeac7407"
+        },
+        {
+          "path": "src/odoro/background/ClickWaves.tsx",
+          "hash": "a4f785e7701059bb"
+        }
+      ]
+    },
+    "background/cloud-layer": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/cloud-layer.shader.ts",
+          "hash": "2f3aa94ebf855303"
+        },
+        {
+          "path": "src/odoro/background/CloudLayer.tsx",
+          "hash": "784cc285266d87b7"
+        }
+      ]
+    },
+    "background/code-rain": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/code-rain.shader.ts",
+          "hash": "28729cf7826951f9"
+        },
+        {
+          "path": "src/odoro/background/CodeRain.tsx",
+          "hash": "0f2fb4d01eb0b0b5"
+        }
+      ]
+    },
+    "background/color-bends": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/color-bends.shader.ts",
+          "hash": "03a2bc02e2ad7e00"
+        },
+        {
+          "path": "src/odoro/background/ColorBends.tsx",
+          "hash": "b6dd5fa6657922f6"
+        }
+      ]
+    },
+    "background/comet": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/comet.shader.ts",
+          "hash": "809e34896d0bbff4"
+        },
+        {
+          "path": "src/odoro/background/Comet.tsx",
+          "hash": "795666994602e15a"
+        }
+      ]
+    },
+    "background/constellation": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Constellation.tsx",
+          "hash": "d55d1a312ccaedc1"
         }
       ]
     },
     "background/contour": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Contour.tsx",
-          "hash": "2ff6a9c0fef1a293"
+          "hash": "704e9378123ecfe5"
+        }
+      ]
+    },
+    "background/crosshatch": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Crosshatch.tsx",
+          "hash": "dc0fb38be0e76d78"
+        }
+      ]
+    },
+    "background/crt-warp": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/crt-warp.shader.ts",
+          "hash": "b4dea36d79bfcfdc"
+        },
+        {
+          "path": "src/odoro/background/CrtWarp.tsx",
+          "hash": "173990f222fa6425"
+        }
+      ]
+    },
+    "background/crystal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/crystal.shader.ts",
+          "hash": "eab84f0efab85ed1"
+        },
+        {
+          "path": "src/odoro/background/Crystal.tsx",
+          "hash": "add96ec83b63ea39"
+        }
+      ]
+    },
+    "background/cubes": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Cubes.tsx",
+          "hash": "4cd93c281a96de57"
+        }
+      ]
+    },
+    "background/currents": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/currents.shader.ts",
+          "hash": "f32f04841c7c3f28"
+        },
+        {
+          "path": "src/odoro/background/Currents.tsx",
+          "hash": "845dc504ecb82979"
+        }
+      ]
+    },
+    "background/cursor-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/cursor-grid.shader.ts",
+          "hash": "b3e910a9e7016fa9"
+        },
+        {
+          "path": "src/odoro/background/CursorGrid.tsx",
+          "hash": "8c7f955a39c82c57"
+        }
+      ]
+    },
+    "background/dark-veil": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/dark-veil.shader.ts",
+          "hash": "01cd8896a74696ca"
+        },
+        {
+          "path": "src/odoro/background/DarkVeil.tsx",
+          "hash": "65a0de1a1d2cefef"
+        }
+      ]
+    },
+    "background/data-stream": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/data-stream.shader.ts",
+          "hash": "e80b941d5a3cd497"
+        },
+        {
+          "path": "src/odoro/background/DataStream.tsx",
+          "hash": "8f1737fd46307632"
+        }
+      ]
+    },
+    "background/dither": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/dither.shader.ts",
+          "hash": "a65a6bfd8460dfac"
+        },
+        {
+          "path": "src/odoro/background/Dither.tsx",
+          "hash": "e59a573cd01ae18c"
+        }
+      ]
+    },
+    "background/dna-helix": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/DnaHelix.tsx",
+          "hash": "6a2455eb5ffa683f"
         }
       ]
     },
     "background/dot-matrix": {
-      "installedAt": "2026-09-03T12:51:53.097Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/dot-matrix.shader.ts",
@@ -78,21 +384,247 @@
         },
         {
           "path": "src/odoro/background/DotMatrix.tsx",
-          "hash": "e862248ed153b89a"
+          "hash": "2d0938e87b6c4337"
         }
       ]
     },
     "background/dots": {
-      "installedAt": "2026-08-29T03:15:27.669Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Dots.tsx",
-          "hash": "9393855654f41fd5"
+          "hash": "73fdfe9e75a5d5e5"
+        }
+      ]
+    },
+    "background/dunes": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/dunes.shader.ts",
+          "hash": "3124c574bb481ad9"
+        },
+        {
+          "path": "src/odoro/background/Dunes.tsx",
+          "hash": "17fcc04e6bad6619"
+        }
+      ]
+    },
+    "background/dust": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/dust.shader.ts",
+          "hash": "2a025f4f7fec2bba"
+        },
+        {
+          "path": "src/odoro/background/Dust.tsx",
+          "hash": "9f9dbe380ea22cd2"
+        }
+      ]
+    },
+    "background/elastic-mesh": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ElasticMesh.tsx",
+          "hash": "7b30609cfd9b1d29"
+        }
+      ]
+    },
+    "background/electric-field": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/electric-field.shader.ts",
+          "hash": "2648a47ee0770d1c"
+        },
+        {
+          "path": "src/odoro/background/ElectricField.tsx",
+          "hash": "11b28fac373b5a5a"
+        }
+      ]
+    },
+    "background/embers": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/embers.shader.ts",
+          "hash": "59f5d04abf98a534"
+        },
+        {
+          "path": "src/odoro/background/Embers.tsx",
+          "hash": "7b89d374ccca241d"
+        }
+      ]
+    },
+    "background/eye-follow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/eye-follow.shader.ts",
+          "hash": "51995d8155a1ddb1"
+        },
+        {
+          "path": "src/odoro/background/EyeFollow.tsx",
+          "hash": "f38e4a4055268472"
+        }
+      ]
+    },
+    "background/faulty-terminal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/faulty-terminal.shader.ts",
+          "hash": "4dab6f8db4f546d1"
+        },
+        {
+          "path": "src/odoro/background/FaultyTerminal.tsx",
+          "hash": "d9a822dc4fbfbbb3"
+        }
+      ]
+    },
+    "background/ferrofluid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ferrofluid.shader.ts",
+          "hash": "1521de313255f4d3"
+        },
+        {
+          "path": "src/odoro/background/Ferrofluid.tsx",
+          "hash": "4ae80fbc7abd3a3e"
+        }
+      ]
+    },
+    "background/fire": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/fire.shader.ts",
+          "hash": "4f0359e50919308b"
+        },
+        {
+          "path": "src/odoro/background/Fire.tsx",
+          "hash": "95e677e966072500"
+        }
+      ]
+    },
+    "background/fireflies": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/fireflies.shader.ts",
+          "hash": "cca6c25d438e3192"
+        },
+        {
+          "path": "src/odoro/background/Fireflies.tsx",
+          "hash": "1dda8bd3fff74cb7"
+        }
+      ]
+    },
+    "background/fireworks": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/fireworks.shader.ts",
+          "hash": "5fc65d41a8d7b692"
+        },
+        {
+          "path": "src/odoro/background/Fireworks.tsx",
+          "hash": "39e043e36d890fe5"
+        }
+      ]
+    },
+    "background/floating-lines": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/floating-lines.shader.ts",
+          "hash": "ed18bd3e4b730b03"
+        },
+        {
+          "path": "src/odoro/background/FloatingLines.tsx",
+          "hash": "9ebc732243417660"
+        }
+      ]
+    },
+    "background/floating-shapes": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/FloatingShapes.tsx",
+          "hash": "da3fc7d029717fa4"
+        }
+      ]
+    },
+    "background/flow-field": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/flow-field.shader.ts",
+          "hash": "4adb258a3740cdf8"
+        },
+        {
+          "path": "src/odoro/background/FlowField.tsx",
+          "hash": "282133f276c008d6"
+        }
+      ]
+    },
+    "background/fog-drift": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/fog-drift.shader.ts",
+          "hash": "8724e57a6bde2809"
+        },
+        {
+          "path": "src/odoro/background/FogDrift.tsx",
+          "hash": "3f4475079866d6c8"
+        }
+      ]
+    },
+    "background/galaxy-spiral": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/galaxy-spiral.shader.ts",
+          "hash": "1780bd5ed194761c"
+        },
+        {
+          "path": "src/odoro/background/GalaxySpiral.tsx",
+          "hash": "70f030ee3200daee"
+        }
+      ]
+    },
+    "background/ghost-fibers": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ghost-fibers.shader.ts",
+          "hash": "f515c9000972febc"
+        },
+        {
+          "path": "src/odoro/background/GhostFibers.tsx",
+          "hash": "5cd49c34dee27de5"
+        }
+      ]
+    },
+    "background/glitch-blocks": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/glitch-blocks.shader.ts",
+          "hash": "d5f56711005cb359"
+        },
+        {
+          "path": "src/odoro/background/GlitchBlocks.tsx",
+          "hash": "51795966c1e4557a"
         }
       ]
     },
     "background/globe-mesh": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/globe-mesh.shader.ts",
@@ -100,174 +632,1354 @@
         },
         {
           "path": "src/odoro/background/GlobeMesh.tsx",
-          "hash": "1224008d1408497f"
+          "hash": "a2383b6429bac754"
+        }
+      ]
+    },
+    "background/gradient-blinds": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/gradient-blinds.shader.ts",
+          "hash": "64a4ab4c54478062"
+        },
+        {
+          "path": "src/odoro/background/GradientBlinds.tsx",
+          "hash": "6369d9984bac7661"
+        }
+      ]
+    },
+    "background/gradient-waves": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/gradient-waves.shader.ts",
+          "hash": "5a843e434b65b81e"
+        },
+        {
+          "path": "src/odoro/background/GradientWaves.tsx",
+          "hash": "89a1a5c7f2943700"
+        }
+      ]
+    },
+    "background/grainient": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/grainient.shader.ts",
+          "hash": "05ac9db9dfc5e249"
+        },
+        {
+          "path": "src/odoro/background/Grainient.tsx",
+          "hash": "c1f2f6f837f40d53"
+        }
+      ]
+    },
+    "background/graph-paper": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/GraphPaper.tsx",
+          "hash": "a40c7dfdb71ec9ac"
+        }
+      ]
+    },
+    "background/grid-distortion": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/grid-distortion.shader.ts",
+          "hash": "6a917055f3782b79"
+        },
+        {
+          "path": "src/odoro/background/GridDistortion.tsx",
+          "hash": "600d7d60e2762d84"
         }
       ]
     },
     "background/grid-lines": {
-      "installedAt": "2026-08-29T03:15:27.669Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/GridLines.tsx",
-          "hash": "d84708fb2a905d7c"
+          "hash": "c9018d737bb35ff8"
+        }
+      ]
+    },
+    "background/grid-motion": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/grid-motion.shader.ts",
+          "hash": "8e5333a68c5d157b"
+        },
+        {
+          "path": "src/odoro/background/GridMotion.tsx",
+          "hash": "77d01da7b8dd6ec5"
+        }
+      ]
+    },
+    "background/grid-scan": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/grid-scan.shader.ts",
+          "hash": "ee9a48d077b12263"
+        },
+        {
+          "path": "src/odoro/background/GridScan.tsx",
+          "hash": "c7f70d90b74dc08f"
         }
       ]
     },
     "background/halftone": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Halftone.tsx",
-          "hash": "9a759779c22d409b"
+          "hash": "d9b03f2825d8e917"
+        }
+      ]
+    },
+    "background/halo-pulse": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/halo-pulse.shader.ts",
+          "hash": "5409621fc6023a91"
+        },
+        {
+          "path": "src/odoro/background/HaloPulse.tsx",
+          "hash": "c40f33bd0e4db739"
         }
       ]
     },
     "background/hex": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Hex.tsx",
-          "hash": "d5a9b354f3a61e71"
+          "hash": "3f34e62cb4cbed9c"
+        }
+      ]
+    },
+    "background/hex-wave": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/hex-wave.shader.ts",
+          "hash": "c8cc94fa379aa254"
+        },
+        {
+          "path": "src/odoro/background/HexWave.tsx",
+          "hash": "7c0faba3de4d9001"
+        }
+      ]
+    },
+    "background/hologram": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/hologram.shader.ts",
+          "hash": "0c5eafebeea5386d"
+        },
+        {
+          "path": "src/odoro/background/Hologram.tsx",
+          "hash": "321b57b7b3ba1114"
+        }
+      ]
+    },
+    "background/hyperspace": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/hyperspace.shader.ts",
+          "hash": "c63d1d7e57198cdc"
+        },
+        {
+          "path": "src/odoro/background/Hyperspace.tsx",
+          "hash": "f6ef5ddd3241f645"
+        }
+      ]
+    },
+    "background/ink": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ink.shader.ts",
+          "hash": "778594d7076417bf"
+        },
+        {
+          "path": "src/odoro/background/Ink.tsx",
+          "hash": "8ec29b21c54a1b0f"
+        }
+      ]
+    },
+    "background/interference": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/interference.shader.ts",
+          "hash": "0fd1d531a8930b6e"
+        },
+        {
+          "path": "src/odoro/background/Interference.tsx",
+          "hash": "dcd8d53f978c0d3c"
+        }
+      ]
+    },
+    "background/iridescence": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/iridescence.shader.ts",
+          "hash": "3cce10dab03245fe"
+        },
+        {
+          "path": "src/odoro/background/Iridescence.tsx",
+          "hash": "a16f553c2c915f1e"
+        }
+      ]
+    },
+    "background/isometric-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/isometric-grid.shader.ts",
+          "hash": "9e9ae4c351c863d3"
+        },
+        {
+          "path": "src/odoro/background/IsometricGrid.tsx",
+          "hash": "d73a7406be942bef"
+        }
+      ]
+    },
+    "background/jelly": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/jelly.shader.ts",
+          "hash": "26e2c731322ea7b3"
+        },
+        {
+          "path": "src/odoro/background/Jelly.tsx",
+          "hash": "d0367c9136848789"
+        }
+      ]
+    },
+    "background/kaleidoscope": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/kaleidoscope.shader.ts",
+          "hash": "98ed212e6c9f5b6f"
+        },
+        {
+          "path": "src/odoro/background/Kaleidoscope.tsx",
+          "hash": "e1f1226fdf8508be"
+        }
+      ]
+    },
+    "background/lava": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/lava.shader.ts",
+          "hash": "fab19305d43e2793"
+        },
+        {
+          "path": "src/odoro/background/Lava.tsx",
+          "hash": "61e3ba2ca4b87b8b"
+        }
+      ]
+    },
+    "background/lava-lamp": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/lava-lamp.shader.ts",
+          "hash": "d2b495b16d11ab46"
+        },
+        {
+          "path": "src/odoro/background/LavaLamp.tsx",
+          "hash": "43375522891ae371"
+        }
+      ]
+    },
+    "background/led-wall": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/led-wall.shader.ts",
+          "hash": "06bf16f797831e21"
+        },
+        {
+          "path": "src/odoro/background/LedWall.tsx",
+          "hash": "979e5f7a52049a69"
+        }
+      ]
+    },
+    "background/lens-flare": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/lens-flare.shader.ts",
+          "hash": "adbdaacbfbd1a53b"
+        },
+        {
+          "path": "src/odoro/background/LensFlare.tsx",
+          "hash": "6f9b3bcf933f11c5"
+        }
+      ]
+    },
+    "background/light-pillar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/light-pillar.shader.ts",
+          "hash": "d8f14b854ed14853"
+        },
+        {
+          "path": "src/odoro/background/LightPillar.tsx",
+          "hash": "43d5d4127cb582cf"
+        }
+      ]
+    },
+    "background/lightfall": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/lightfall.shader.ts",
+          "hash": "6c82a9f75f44ae18"
+        },
+        {
+          "path": "src/odoro/background/Lightfall.tsx",
+          "hash": "820a27137352d04c"
+        }
+      ]
+    },
+    "background/lightning": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/lightning.shader.ts",
+          "hash": "749c457e35762b4e"
+        },
+        {
+          "path": "src/odoro/background/Lightning.tsx",
+          "hash": "078d36efdea3d8e8"
+        }
+      ]
+    },
+    "background/line-waves": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/line-waves.shader.ts",
+          "hash": "5a706d7857dc1cf0"
+        },
+        {
+          "path": "src/odoro/background/LineWaves.tsx",
+          "hash": "1f6b47d1dbe676e1"
+        }
+      ]
+    },
+    "background/liquid-chrome": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/liquid-chrome.shader.ts",
+          "hash": "fc5b627de2da63df"
+        },
+        {
+          "path": "src/odoro/background/LiquidChrome.tsx",
+          "hash": "0a842c9d078a210a"
+        }
+      ]
+    },
+    "background/liquid-ether": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/liquid-ether.shader.ts",
+          "hash": "c14a5fe1f4557517"
+        },
+        {
+          "path": "src/odoro/background/LiquidEther.tsx",
+          "hash": "f346e81873980556"
+        }
+      ]
+    },
+    "background/magnet-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/magnet-grid.shader.ts",
+          "hash": "e3454c2eca9bbc00"
+        },
+        {
+          "path": "src/odoro/background/MagnetGrid.tsx",
+          "hash": "ec89ebaa7dc8ce33"
+        }
+      ]
+    },
+    "background/magnetic-lines": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/magnetic-lines.shader.ts",
+          "hash": "ff57cf30b2ec0bef"
+        },
+        {
+          "path": "src/odoro/background/MagneticLines.tsx",
+          "hash": "419cffc522537dd4"
+        }
+      ]
+    },
+    "background/marble": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/marble.shader.ts",
+          "hash": "c6f3568b12654a93"
+        },
+        {
+          "path": "src/odoro/background/Marble.tsx",
+          "hash": "a9ba17a34720dbf8"
+        }
+      ]
+    },
+    "background/maze": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/maze.shader.ts",
+          "hash": "8d7a725c9bdb667f"
+        },
+        {
+          "path": "src/odoro/background/Maze.tsx",
+          "hash": "db4551665730cf75"
         }
       ]
     },
     "background/mesh": {
-      "installedAt": "2026-08-29T03:15:27.669Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Mesh.tsx",
-          "hash": "f7b68ddbb8c61023"
+          "hash": "ce4563cb689e7b1a"
+        }
+      ]
+    },
+    "background/mesh-static": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/MeshStatic.tsx",
+          "hash": "dfefa6d52c81490f"
+        }
+      ]
+    },
+    "background/metaballs": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/metaballs.shader.ts",
+          "hash": "9c2964d64a413256"
+        },
+        {
+          "path": "src/odoro/background/Metaballs.tsx",
+          "hash": "ed4b6b30b89998f4"
+        }
+      ]
+    },
+    "background/metallic-paint": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/metallic-paint.shader.ts",
+          "hash": "a1df9747a0c6bcff"
+        },
+        {
+          "path": "src/odoro/background/MetallicPaint.tsx",
+          "hash": "a58d34c7eafc26f7"
+        }
+      ]
+    },
+    "background/molten-metal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/molten-metal.shader.ts",
+          "hash": "0797ac9acf06f0df"
+        },
+        {
+          "path": "src/odoro/background/MoltenMetal.tsx",
+          "hash": "c613cbae89c8d5b8"
         }
       ]
     },
     "background/mosaic": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Mosaic.tsx",
-          "hash": "90acdd9268d7cca8"
+          "hash": "578d01d293176ac9"
+        }
+      ]
+    },
+    "background/nebula": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/nebula.shader.ts",
+          "hash": "114e17936a0866d8"
+        },
+        {
+          "path": "src/odoro/background/Nebula.tsx",
+          "hash": "2dfb11ed2582d297"
+        }
+      ]
+    },
+    "background/neon-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/neon-grid.shader.ts",
+          "hash": "4bf3a6489f806abe"
+        },
+        {
+          "path": "src/odoro/background/NeonGrid.tsx",
+          "hash": "8173d13b52ddc1e5"
+        }
+      ]
+    },
+    "background/night-drive": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/night-drive.shader.ts",
+          "hash": "3b23ce1f248608cd"
+        },
+        {
+          "path": "src/odoro/background/NightDrive.tsx",
+          "hash": "a3400c305dd05579"
+        }
+      ]
+    },
+    "background/noise": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Noise.tsx",
+          "hash": "e8fa5736ed4bc93d"
+        }
+      ]
+    },
+    "background/oil-slick": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/oil-slick.shader.ts",
+          "hash": "b0e735c88f1f1290"
+        },
+        {
+          "path": "src/odoro/background/OilSlick.tsx",
+          "hash": "c4370fd9854bc99e"
+        }
+      ]
+    },
+    "background/orbit-rings": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/OrbitRings.tsx",
+          "hash": "70f11341bfc81e4d"
         }
       ]
     },
     "background/orbital-sphere": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/OrbitalSphere.tsx",
-          "hash": "3010c87969052f55"
+          "hash": "5fb63eb610717381"
+        }
+      ]
+    },
+    "background/oscilloscope": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/oscilloscope.shader.ts",
+          "hash": "cc1dac99cd3eb652"
+        },
+        {
+          "path": "src/odoro/background/Oscilloscope.tsx",
+          "hash": "13cff403d4ec85f8"
+        }
+      ]
+    },
+    "background/particle-field": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/particle-field.shader.ts",
+          "hash": "f6d829bece5b27c3"
+        },
+        {
+          "path": "src/odoro/background/ParticleField.tsx",
+          "hash": "68b141e3548892c8"
+        }
+      ]
+    },
+    "background/particle-sphere": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/particle-sphere.shader.ts",
+          "hash": "c9bbd05e747761b6"
+        },
+        {
+          "path": "src/odoro/background/ParticleSphere.tsx",
+          "hash": "c7877be50cc167e9"
+        }
+      ]
+    },
+    "background/pixel-blast": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/pixel-blast.shader.ts",
+          "hash": "0915f9a051129928"
+        },
+        {
+          "path": "src/odoro/background/PixelBlast.tsx",
+          "hash": "8d57b114974237e8"
+        }
+      ]
+    },
+    "background/pixel-sort": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/pixel-sort.shader.ts",
+          "hash": "da8f46184b834228"
+        },
+        {
+          "path": "src/odoro/background/PixelSort.tsx",
+          "hash": "0a04082a2831158c"
+        }
+      ]
+    },
+    "background/pixel-trail": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/pixel-trail.shader.ts",
+          "hash": "27f14109a36bf5e5"
+        },
+        {
+          "path": "src/odoro/background/PixelTrail.tsx",
+          "hash": "083f2a274e00cbf2"
         }
       ]
     },
     "background/plasma": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Plasma.tsx",
-          "hash": "bd437e96774298df"
+          "hash": "43fc54a44d9cb56c"
+        }
+      ]
+    },
+    "background/plasma-ball": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/plasma-ball.shader.ts",
+          "hash": "91f06f827ee198b3"
+        },
+        {
+          "path": "src/odoro/background/PlasmaBall.tsx",
+          "hash": "35a290ed9088e726"
+        }
+      ]
+    },
+    "background/pollen": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/pollen.shader.ts",
+          "hash": "16cc8897b0641e87"
+        },
+        {
+          "path": "src/odoro/background/Pollen.tsx",
+          "hash": "a6c3d9c94709646f"
+        }
+      ]
+    },
+    "background/prism": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/prism.shader.ts",
+          "hash": "e7c6cc3b35c4bc41"
+        },
+        {
+          "path": "src/odoro/background/Prism.tsx",
+          "hash": "b928654445c9d27d"
+        }
+      ]
+    },
+    "background/prismatic-burst": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/prismatic-burst.shader.ts",
+          "hash": "268c36cd8a39ea02"
+        },
+        {
+          "path": "src/odoro/background/PrismaticBurst.tsx",
+          "hash": "77e90d36dd1b8e81"
+        }
+      ]
+    },
+    "background/radar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/radar.shader.ts",
+          "hash": "a5a26c22ff057539"
+        },
+        {
+          "path": "src/odoro/background/Radar.tsx",
+          "hash": "c306c7899ba2e113"
+        }
+      ]
+    },
+    "background/radial-glow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/RadialGlow.tsx",
+          "hash": "46655ccfddae2d19"
         }
       ]
     },
     "background/rain": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Rain.tsx",
-          "hash": "09658240ef4ee227"
+          "hash": "0120bdf21a2eeb97"
+        }
+      ]
+    },
+    "background/rays": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/rays.shader.ts",
+          "hash": "faeb34c501a88054"
+        },
+        {
+          "path": "src/odoro/background/Rays.tsx",
+          "hash": "ea07733d8bffd789"
+        }
+      ]
+    },
+    "background/ribbons": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ribbons.shader.ts",
+          "hash": "796244da9d95f159"
+        },
+        {
+          "path": "src/odoro/background/Ribbons.tsx",
+          "hash": "a59e1327d1f1b256"
+        }
+      ]
+    },
+    "background/rings": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Rings.tsx",
+          "hash": "5d4781ee43eba819"
         }
       ]
     },
     "background/ripple-grid": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/RippleGrid.tsx",
-          "hash": "11dd8ed0b059fcf5"
+          "hash": "686b4f9f364f0419"
+        }
+      ]
+    },
+    "background/ripples": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/ripples.shader.ts",
+          "hash": "8901da0c6e39d6fd"
+        },
+        {
+          "path": "src/odoro/background/Ripples.tsx",
+          "hash": "794e9dbdfba7e1cd"
+        }
+      ]
+    },
+    "background/sand-flow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/sand-flow.shader.ts",
+          "hash": "2c4fd2dec0011d47"
+        },
+        {
+          "path": "src/odoro/background/SandFlow.tsx",
+          "hash": "2d893da615efccd6"
+        }
+      ]
+    },
+    "background/scanlines": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/scanlines.shader.ts",
+          "hash": "40b6a806791ea7fa"
+        },
+        {
+          "path": "src/odoro/background/Scanlines.tsx",
+          "hash": "d71ce2fbc39aa568"
+        }
+      ]
+    },
+    "background/seismograph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/seismograph.shader.ts",
+          "hash": "8b4f3969ec00dcae"
+        },
+        {
+          "path": "src/odoro/background/Seismograph.tsx",
+          "hash": "e8ad842a40fe216c"
+        }
+      ]
+    },
+    "background/shape-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/shape-grid.shader.ts",
+          "hash": "948af9d24605885d"
+        },
+        {
+          "path": "src/odoro/background/ShapeGrid.tsx",
+          "hash": "bf2e633c414c09fd"
         }
       ]
     },
     "background/silk": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Silk.tsx",
-          "hash": "2e3fdb661b315432"
+          "hash": "dc84f271c71a7521"
+        }
+      ]
+    },
+    "background/sine-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/sine-grid.shader.ts",
+          "hash": "a5332b82c0116a7b"
+        },
+        {
+          "path": "src/odoro/background/SineGrid.tsx",
+          "hash": "e69ce4710379853a"
+        }
+      ]
+    },
+    "background/sliced-waves": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/sliced-waves.shader.ts",
+          "hash": "4512bfbe451613a7"
+        },
+        {
+          "path": "src/odoro/background/SlicedWaves.tsx",
+          "hash": "bf49a580a2035262"
+        }
+      ]
+    },
+    "background/smoke": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/smoke.shader.ts",
+          "hash": "091d9c2181937f32"
+        },
+        {
+          "path": "src/odoro/background/Smoke.tsx",
+          "hash": "194f8982584a4c8b"
+        }
+      ]
+    },
+    "background/snow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/snow.shader.ts",
+          "hash": "f4ab486eac11c3f7"
+        },
+        {
+          "path": "src/odoro/background/Snow.tsx",
+          "hash": "fa4b1dc27abf6500"
+        }
+      ]
+    },
+    "background/soap-film": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/soap-film.shader.ts",
+          "hash": "55c4509dca6c0689"
+        },
+        {
+          "path": "src/odoro/background/SoapFilm.tsx",
+          "hash": "a2bb4b630d00afc4"
+        }
+      ]
+    },
+    "background/sonar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/sonar.shader.ts",
+          "hash": "4dd55ed493db3947"
+        },
+        {
+          "path": "src/odoro/background/Sonar.tsx",
+          "hash": "dd99d09bca045ed1"
         }
       ]
     },
     "background/spectrum": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Spectrum.tsx",
-          "hash": "e7e99e6cbd87a2a2"
+          "hash": "240ab6f0f75ca4e0"
+        }
+      ]
+    },
+    "background/splash-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/splash-cursor.shader.ts",
+          "hash": "e0d66552c3ccc504"
+        },
+        {
+          "path": "src/odoro/background/SplashCursor.tsx",
+          "hash": "8803d215ef4aa1f2"
+        }
+      ]
+    },
+    "background/spot-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/SpotGrid.tsx",
+          "hash": "e7e618be8f65afeb"
         }
       ]
     },
     "background/stars": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Stars.tsx",
-          "hash": "aa7d0eb2ce5a1527"
+          "hash": "55357802ce78e3ac"
+        }
+      ]
+    },
+    "background/strands": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/strands.shader.ts",
+          "hash": "35a619bdc4ed2d47"
+        },
+        {
+          "path": "src/odoro/background/Strands.tsx",
+          "hash": "7ee987ee479040ac"
+        }
+      ]
+    },
+    "background/stripes": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Stripes.tsx",
+          "hash": "7f2e873a21bb4a17"
+        }
+      ]
+    },
+    "background/swarm": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/Swarm.tsx",
+          "hash": "5731bd64c8f8113e"
+        }
+      ]
+    },
+    "background/terrain-wireframe": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/TerrainWireframe.tsx",
+          "hash": "288ba89c620216b0"
         }
       ]
     },
     "background/threads": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Threads.tsx",
-          "hash": "a6bffa165a85f596"
+          "hash": "0f47ce173bf6b0ac"
+        }
+      ]
+    },
+    "background/tiles-flip": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/tiles-flip.shader.ts",
+          "hash": "804f6a5a996f516f"
+        },
+        {
+          "path": "src/odoro/background/TilesFlip.tsx",
+          "hash": "3313ee5a51a2c4c7"
+        }
+      ]
+    },
+    "background/torch": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/torch.shader.ts",
+          "hash": "eae1355171216794"
+        },
+        {
+          "path": "src/odoro/background/Torch.tsx",
+          "hash": "1643cd49f4f7f35b"
+        }
+      ]
+    },
+    "background/torus-knot": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/TorusKnot.tsx",
+          "hash": "d9b1a130b70c5521"
+        }
+      ]
+    },
+    "background/triangles": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/triangles.shader.ts",
+          "hash": "be68af503f9f8ee2"
+        },
+        {
+          "path": "src/odoro/background/Triangles.tsx",
+          "hash": "18be1817719e8af2"
+        }
+      ]
+    },
+    "background/truchet": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/truchet.shader.ts",
+          "hash": "b615e766d07fe204"
+        },
+        {
+          "path": "src/odoro/background/Truchet.tsx",
+          "hash": "095cfd908cfe914d"
         }
       ]
     },
     "background/tunnel": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Tunnel.tsx",
-          "hash": "3cc192b5fe03fa22"
+          "hash": "c52bf86c4c55cf41"
+        }
+      ]
+    },
+    "background/tv-static": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/tv-static.shader.ts",
+          "hash": "4e8b080d14198380"
+        },
+        {
+          "path": "src/odoro/background/TvStatic.tsx",
+          "hash": "92f788f5c65a5c1d"
+        }
+      ]
+    },
+    "background/underwater": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/underwater.shader.ts",
+          "hash": "e7ddd1f0dcfa2e20"
+        },
+        {
+          "path": "src/odoro/background/Underwater.tsx",
+          "hash": "2053e74557ca5593"
+        }
+      ]
+    },
+    "background/veil-parallax": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/veil-parallax.shader.ts",
+          "hash": "fc617744fd98449c"
+        },
+        {
+          "path": "src/odoro/background/VeilParallax.tsx",
+          "hash": "68d8a88278f03699"
+        }
+      ]
+    },
+    "background/vhs-tracking": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/vhs-tracking.shader.ts",
+          "hash": "4c2866a10402cf1e"
+        },
+        {
+          "path": "src/odoro/background/VhsTracking.tsx",
+          "hash": "c360d280e8675663"
+        }
+      ]
+    },
+    "background/volumetric-rays": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/volumetric-rays.shader.ts",
+          "hash": "4c691b63fe564089"
+        },
+        {
+          "path": "src/odoro/background/VolumetricRays.tsx",
+          "hash": "bf87f8efe5dc5d9f"
+        }
+      ]
+    },
+    "background/voronoi": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/voronoi.shader.ts",
+          "hash": "98bf493bd1992d97"
+        },
+        {
+          "path": "src/odoro/background/Voronoi.tsx",
+          "hash": "b6fce58104ee12b6"
         }
       ]
     },
     "background/vortex": {
-      "installedAt": "2026-08-29T12:06:24.873Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Vortex.tsx",
-          "hash": "4be7484bc4bf5624"
+          "hash": "3ac9f9a9857ab134"
+        }
+      ]
+    },
+    "background/wake": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/wake.shader.ts",
+          "hash": "e479bfddb20ead10"
+        },
+        {
+          "path": "src/odoro/background/Wake.tsx",
+          "hash": "1fe4f8e2651959e6"
+        }
+      ]
+    },
+    "background/warp": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/warp.shader.ts",
+          "hash": "3aacdced0f4a72a3"
+        },
+        {
+          "path": "src/odoro/background/Warp.tsx",
+          "hash": "e1da2c87bdee316c"
+        }
+      ]
+    },
+    "background/water-surface": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/water-surface.shader.ts",
+          "hash": "651ad0e6f6ee137b"
+        },
+        {
+          "path": "src/odoro/background/WaterSurface.tsx",
+          "hash": "1de3076d10323e64"
+        }
+      ]
+    },
+    "background/watercolor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/watercolor.shader.ts",
+          "hash": "ff5a59a93ef12e52"
+        },
+        {
+          "path": "src/odoro/background/Watercolor.tsx",
+          "hash": "c1e1c0c5097f0d91"
         }
       ]
     },
     "background/waves": {
-      "installedAt": "2026-08-29T03:15:27.669Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/background/Waves.tsx",
-          "hash": "1dbc01aa7a2d5517"
+          "hash": "3a8f0c6c7bb982f9"
+        }
+      ]
+    },
+    "background/web-threads": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/WebThreads.tsx",
+          "hash": "489888f05d743e49"
+        }
+      ]
+    },
+    "background/wind-field": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/wind-field.shader.ts",
+          "hash": "e9e94158ea70ce24"
+        },
+        {
+          "path": "src/odoro/background/WindField.tsx",
+          "hash": "a1b5f145e4638275"
+        }
+      ]
+    },
+    "background/wormhole": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/background/wormhole.shader.ts",
+          "hash": "695b379d017fbbf9"
+        },
+        {
+          "path": "src/odoro/background/Wormhole.tsx",
+          "hash": "2896d51677551be9"
+        }
+      ]
+    },
+    "effect/beam-connect": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/BeamConnect.tsx",
+          "hash": "c8087e7c65a6da86"
+        }
+      ]
+    },
+    "effect/blob-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/BlobCursor.tsx",
+          "hash": "1baeba30cdb9782f"
         }
       ]
     },
     "effect/border-beam": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/BorderBeam.tsx",
-          "hash": "f8b4a976a87d48e3"
+          "hash": "dab93ca43acb1d9c"
         }
       ]
     },
     "effect/carousel": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Carousel.tsx",
-          "hash": "0e754df02a397678"
+          "hash": "c5eb9cca0ce5328b"
+        }
+      ]
+    },
+    "effect/click-sparks": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/ClickSparks.tsx",
+          "hash": "2df9a295e8019898"
+        }
+      ]
+    },
+    "effect/crosshair": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Crosshair.tsx",
+          "hash": "dcbe9ff082fc5ada"
+        }
+      ]
+    },
+    "effect/cursor-grid-dom": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/CursorGridDom.tsx",
+          "hash": "cdb3b1e71f0f6451"
         }
       ]
     },
     "effect/cursor-halo": {
-      "installedAt": "2026-09-06T16:02:08.531Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/CursorHalo.tsx",
@@ -275,17 +1987,125 @@
         }
       ]
     },
+    "effect/cursor-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/CursorRing.tsx",
+          "hash": "f3081124f8b7b9aa"
+        }
+      ]
+    },
     "effect/deform": {
-      "installedAt": "2026-08-29T11:41:15.953Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Deform.tsx",
-          "hash": "0802f2d8fe8ee1e0"
+          "hash": "6c6865d74cd67f21"
+        }
+      ]
+    },
+    "effect/float-group": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/FloatGroup.tsx",
+          "hash": "ae00f133ad9720a6"
+        }
+      ]
+    },
+    "effect/ghost-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/GhostCursor.tsx",
+          "hash": "f89cc3daafaec528"
+        }
+      ]
+    },
+    "effect/glare-hover": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/GlareHover.tsx",
+          "hash": "f5cbbeff644894b1"
+        }
+      ]
+    },
+    "effect/glitch-hover": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/GlitchHover.tsx",
+          "hash": "a641e3dad9a90c35"
+        }
+      ]
+    },
+    "effect/glow-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/GlowCursor.tsx",
+          "hash": "fc851c4a0266b00a"
+        }
+      ]
+    },
+    "effect/gradual-blur": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/GradualBlur.tsx",
+          "hash": "98ffa155e997cc38"
+        }
+      ]
+    },
+    "effect/halftone-reveal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/HalftoneReveal.tsx",
+          "hash": "94a8de3759854d5b"
+        }
+      ]
+    },
+    "effect/inertia-drag": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/InertiaDrag.tsx",
+          "hash": "ad2378e75f7ef1df"
+        }
+      ]
+    },
+    "effect/laser-flow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/LaserFlow.tsx",
+          "hash": "5b79a4b081f41195"
+        }
+      ]
+    },
+    "effect/magic-rings": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/MagicRings.tsx",
+          "hash": "340024c1d42e8e00"
+        }
+      ]
+    },
+    "effect/magnet-lines": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/MagnetLines.tsx",
+          "hash": "40b254b3be737950"
         }
       ]
     },
     "effect/magnetic": {
-      "installedAt": "2026-09-03T12:33:18.780Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Magnetic.tsx",
@@ -294,7 +2114,7 @@
       ]
     },
     "effect/marquee": {
-      "installedAt": "2026-09-03T12:33:18.780Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Marquee.tsx",
@@ -302,44 +2122,174 @@
         }
       ]
     },
+    "effect/meteors": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/Meteors.tsx",
+          "hash": "3aab7e0a9986db19"
+        }
+      ]
+    },
     "effect/neon-border": {
-      "installedAt": "2026-09-04T13:06:02.628Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/NeonBorder.tsx",
-          "hash": "78571ec56b08194b"
+          "hash": "df574b0cc2f9fb4d"
+        }
+      ]
+    },
+    "effect/orbiting-dots": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/OrbitingDots.tsx",
+          "hash": "2642ad9ba4d89323"
         }
       ]
     },
     "effect/parallax": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Parallax.tsx",
-          "hash": "9a6f5a1db13c8916"
+          "hash": "522cc532347cc1c1"
+        }
+      ]
+    },
+    "effect/pixel-swap": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/PixelSwap.tsx",
+          "hash": "7ba03f49cfa8da72"
+        }
+      ]
+    },
+    "effect/pixel-transition": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/PixelTransition.tsx",
+          "hash": "95e7b17d182482dd"
+        }
+      ]
+    },
+    "effect/reveal-mask": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/RevealMask.tsx",
+          "hash": "4ca1a30f3e50e061"
+        }
+      ]
+    },
+    "effect/ripple-click": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/RippleClick.tsx",
+          "hash": "b8ba4e60f75864e1"
+        }
+      ]
+    },
+    "effect/ripple-distortion": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/ripple-distortion.shader.ts",
+          "hash": "3b24c854e4d27a01"
+        },
+        {
+          "path": "src/odoro/effect/RippleDistortion.tsx",
+          "hash": "e204cf3c08b228ab"
         }
       ]
     },
     "effect/scroll-progress": {
-      "installedAt": "2026-08-29T14:01:24.329Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/ScrollProgress.tsx",
-          "hash": "407f8f5219be01eb"
+          "hash": "8ffc31171f9cf9a0"
+        }
+      ]
+    },
+    "effect/scroll-velocity": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/ScrollVelocity.tsx",
+          "hash": "9f37d74195f0b26d"
+        }
+      ]
+    },
+    "effect/shape-blur": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/ShapeBlur.tsx",
+          "hash": "a8ee9832f248c163"
+        }
+      ]
+    },
+    "effect/splash-pointer": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/SplashPointer.tsx",
+          "hash": "09ebb8e04634394a"
         }
       ]
     },
     "effect/spotlight": {
-      "installedAt": "2026-08-29T02:52:09.485Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/effect/Spotlight.tsx",
-          "hash": "988a4d29e27f608d"
+          "hash": "5a35499e3295eef1"
+        }
+      ]
+    },
+    "effect/sticker-peel": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/StickerPeel.tsx",
+          "hash": "f90706eeb044203e"
+        }
+      ]
+    },
+    "effect/sticky-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/StickyCursor.tsx",
+          "hash": "0dbfd4d4089d04b4"
+        }
+      ]
+    },
+    "effect/swarm-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/SwarmCursor.tsx",
+          "hash": "7b61f87c5ab852b2"
+        }
+      ]
+    },
+    "effect/target-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/effect/TargetCursor.tsx",
+          "hash": "9831f7cd3d1db5fc"
         }
       ]
     },
     "hero/molten": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hero/molten.shader.ts",
@@ -347,30 +2297,52 @@
         },
         {
           "path": "src/odoro/hero/Molten.tsx",
-          "hash": "98db2231f343ad8a"
+          "hash": "51962682eba9bfdc"
         }
       ]
     },
     "hero/scroll-video": {
-      "installedAt": "2026-09-03T12:33:18.780Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hero/ScrollVideo.tsx",
-          "hash": "4ae246016c9c47e6"
+          "hash": "c7d53777f811b684"
         }
       ]
     },
     "hero/spline-scene": {
-      "installedAt": "2026-09-03T16:48:13.203Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hero/SplineScene.tsx",
-          "hash": "016e2a21e937b2ce"
+          "hash": "a5fa25f6e0f092a0"
+        }
+      ]
+    },
+    "hero/tide": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hero/tide.shader.ts",
+          "hash": "398b578de40b80fe"
+        },
+        {
+          "path": "src/odoro/hero/Tide.tsx",
+          "hash": "3d8eea1c676e60a0"
+        }
+      ]
+    },
+    "hooks/use-copy": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useCopy.ts",
+          "hash": "bf7594f100503aff"
         }
       ]
     },
     "hooks/use-in-view": {
-      "installedAt": "2026-09-06T16:34:06.042Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hooks/useInView.ts",
@@ -378,17 +2350,53 @@
         }
       ]
     },
+    "hooks/use-interval-clock": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useIntervalClock.ts",
+          "hash": "9ee289a63e970088"
+        }
+      ]
+    },
+    "hooks/use-keyboard-list": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useKeyboardList.ts",
+          "hash": "b2593c5ee2b42ddb"
+        }
+      ]
+    },
+    "hooks/use-measure": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useMeasure.ts",
+          "hash": "49bd28cd139a9d47"
+        }
+      ]
+    },
+    "hooks/use-media-query": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useMediaQuery.ts",
+          "hash": "73312531a21b062e"
+        }
+      ]
+    },
     "hooks/use-pointer-damped": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hooks/usePointerDamped.ts",
-          "hash": "4ef31645e5b315ef"
+          "hash": "d374cf0b2a38f6eb"
         }
       ]
     },
     "hooks/use-poster": {
-      "installedAt": "2026-09-04T12:20:37.702Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/hooks/usePoster.ts",
@@ -396,98 +2404,1254 @@
         }
       ]
     },
+    "hooks/use-scroll-progress": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/hooks/useScrollProgress.ts",
+          "hash": "c2c3653b6223859e"
+        }
+      ]
+    },
+    "image/ascii-image": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/AsciiImage.tsx",
+          "hash": "72a7911d23b73c4b"
+        }
+      ]
+    },
+    "image/color-shift": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ColorShift.tsx",
+          "hash": "e9bf0fb9c7443056"
+        }
+      ]
+    },
     "image/compare": {
-      "installedAt": "2026-08-29T03:48:36.180Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/image/Compare.tsx",
-          "hash": "15c2a42d2436dc3b"
+          "hash": "c0f799ada80f2a77"
+        }
+      ]
+    },
+    "image/duotone": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/Duotone.tsx",
+          "hash": "9dd01c239ae8c194"
         }
       ]
     },
     "image/frame": {
-      "installedAt": "2026-08-29T03:48:36.180Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/image/Frame.tsx",
-          "hash": "1de4a28fd33852de"
+          "hash": "b359bc6ece5dd202"
+        }
+      ]
+    },
+    "image/hover-zoom": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/HoverZoom.tsx",
+          "hash": "9bd92bacc82edb18"
+        }
+      ]
+    },
+    "image/image-glitch": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ImageGlitch.tsx",
+          "hash": "1d263795cb19bdaa"
+        }
+      ]
+    },
+    "image/image-mask-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ImageMaskText.tsx",
+          "hash": "e86b59c7ecf6056e"
+        }
+      ]
+    },
+    "image/image-particles": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/image-particles.shader.ts",
+          "hash": "4d2810138a9b14b6"
+        },
+        {
+          "path": "src/odoro/image/ImageParticles.tsx",
+          "hash": "b3071216d61f3544"
+        }
+      ]
+    },
+    "image/image-stack-swipe": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ImageStackSwipe.tsx",
+          "hash": "86050d62f2b0e165"
+        }
+      ]
+    },
+    "image/image-trail": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ImageTrail.tsx",
+          "hash": "21b0c65d074ef3ca"
+        }
+      ]
+    },
+    "image/ken-burns": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/KenBurns.tsx",
+          "hash": "b8d46c871ed6076c"
+        }
+      ]
+    },
+    "image/lens-zoom": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/LensZoom.tsx",
+          "hash": "01e0dd41cc327885"
+        }
+      ]
+    },
+    "image/parallax-image": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ParallaxImage.tsx",
+          "hash": "e0ecf1e2c041a362"
         }
       ]
     },
     "image/player": {
-      "installedAt": "2026-08-29T13:29:42.955Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/image/Player.tsx",
-          "hash": "0607a66bd82103d0"
+          "hash": "fe4fe2f37095ad4c"
+        }
+      ]
+    },
+    "image/reveal-image": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/RevealImage.tsx",
+          "hash": "6797bd67d9d07f5e"
+        }
+      ]
+    },
+    "image/scroll-reveal-image": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/ScrollRevealImage.tsx",
+          "hash": "399c5c49d0a84603"
+        }
+      ]
+    },
+    "image/tilt-glare": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/image/TiltGlare.tsx",
+          "hash": "a92d9c85bed6968a"
         }
       ]
     },
     "image/video": {
-      "installedAt": "2026-08-29T11:48:48.056Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/image/Video.tsx",
-          "hash": "4c8cf06edd41091c"
+          "hash": "9199ee1178e7cba2"
+        }
+      ]
+    },
+    "loader/arc-trio": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ArcTrio.tsx",
+          "hash": "76df1185deeb7940"
+        }
+      ]
+    },
+    "loader/bar-gate": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BarGate.tsx",
+          "hash": "475b04630d409fd3"
+        }
+      ]
+    },
+    "loader/bars-scale": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BarsScale.tsx",
+          "hash": "42593623f27d3810"
+        }
+      ]
+    },
+    "loader/battery-fill": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BatteryFill.tsx",
+          "hash": "d0d0772abd32a6f7"
+        }
+      ]
+    },
+    "loader/blinds": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Blinds.tsx",
+          "hash": "4547085eaec2c361"
+        }
+      ]
+    },
+    "loader/blob-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BlobLoader.tsx",
+          "hash": "9afb9998ccc443f0"
+        }
+      ]
+    },
+    "loader/blocks-stack": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BlocksStack.tsx",
+          "hash": "78f4d52f1d9945e6"
+        }
+      ]
+    },
+    "loader/bouncing-ball": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BouncingBall.tsx",
+          "hash": "8862fbb5194ed6de"
+        }
+      ]
+    },
+    "loader/bouncing-dots": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/BouncingDots.tsx",
+          "hash": "26cd66f7f345b2b5"
+        }
+      ]
+    },
+    "loader/bricks": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Bricks.tsx",
+          "hash": "cb602703f26d7ade"
+        }
+      ]
+    },
+    "loader/chasing-dots": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ChasingDots.tsx",
+          "hash": "a3e08ea66a84351d"
+        }
+      ]
+    },
+    "loader/checkmark-success": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CheckmarkSuccess.tsx",
+          "hash": "d7648038cc8e80d4"
+        }
+      ]
+    },
+    "loader/clock-hands": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ClockHands.tsx",
+          "hash": "8760911d424e11d2"
+        }
+      ]
+    },
+    "loader/comet-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CometRing.tsx",
+          "hash": "ae4390ee7e115078"
+        }
+      ]
+    },
+    "loader/content-fade": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ContentFade.tsx",
+          "hash": "4a187ce7d91cfe29"
         }
       ]
     },
     "loader/counter-gate": {
-      "installedAt": "2026-09-06T16:13:32.082Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/loader/CounterGate.tsx",
-          "hash": "1c98f3e63662acde"
+          "hash": "95766941e7e65b15"
+        }
+      ]
+    },
+    "loader/counter-roll-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CounterRollLoader.tsx",
+          "hash": "543e4a9b32a0c0f5"
+        }
+      ]
+    },
+    "loader/cube-flip": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CubeFlip.tsx",
+          "hash": "8ba18cce78919c22"
+        }
+      ]
+    },
+    "loader/cube-fold": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/CubeFold.tsx",
+          "hash": "57c3c7e2bd55fc4c"
         }
       ]
     },
     "loader/curtain-wipe": {
-      "installedAt": "2026-09-06T16:13:32.082Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/loader/CurtainWipe.tsx",
-          "hash": "4dce402061d8cca9"
+          "hash": "2b38904f5eac5340"
+        }
+      ]
+    },
+    "loader/dash-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DashRing.tsx",
+          "hash": "e578a2634d15353c"
+        }
+      ]
+    },
+    "loader/dna-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DnaLoader.tsx",
+          "hash": "18a9e6a7bfed33fc"
+        }
+      ]
+    },
+    "loader/domino": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Domino.tsx",
+          "hash": "03cb3adcb3f584e5"
+        }
+      ]
+    },
+    "loader/dot-matrix-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DotMatrixText.tsx",
+          "hash": "eaca1678bc8a63e0"
+        }
+      ]
+    },
+    "loader/dots-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DotsLoader.tsx",
+          "hash": "47b83cb4b39b1391"
+        }
+      ]
+    },
+    "loader/dots-orbit": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DotsOrbit.tsx",
+          "hash": "8bb9e7bf36feda1b"
+        }
+      ]
+    },
+    "loader/dual-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/DualRing.tsx",
+          "hash": "557cd8e51b275ea8"
+        }
+      ]
+    },
+    "loader/eclipse": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Eclipse.tsx",
+          "hash": "75acebc9bf74c11f"
+        }
+      ]
+    },
+    "loader/envelope": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Envelope.tsx",
+          "hash": "10216acaabb39f95"
+        }
+      ]
+    },
+    "loader/equalizer": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Equalizer.tsx",
+          "hash": "073e707e20d84dca"
+        }
+      ]
+    },
+    "loader/fade-gate": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/FadeGate.tsx",
+          "hash": "80d8f96f60407d80"
+        }
+      ]
+    },
+    "loader/fan-blades": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/FanBlades.tsx",
+          "hash": "d6db27a0b0b970db"
+        }
+      ]
+    },
+    "loader/flower-petals": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/FlowerPetals.tsx",
+          "hash": "9033a8ed6ea4e66a"
+        }
+      ]
+    },
+    "loader/gauge": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Gauge.tsx",
+          "hash": "88f0569b984a6bf3"
+        }
+      ]
+    },
+    "loader/gear-pair": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/GearPair.tsx",
+          "hash": "df67650046123d35"
+        }
+      ]
+    },
+    "loader/gradient-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/GradientRing.tsx",
+          "hash": "33d68674b0babd00"
+        }
+      ]
+    },
+    "loader/grid-fade": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/GridFade.tsx",
+          "hash": "85554724456e7463"
+        }
+      ]
+    },
+    "loader/grid-wave": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/GridWave.tsx",
+          "hash": "55d1171531a63b06"
+        }
+      ]
+    },
+    "loader/heartbeat": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Heartbeat.tsx",
+          "hash": "c3e6c8a34b88c995"
+        }
+      ]
+    },
+    "loader/hex-spinner": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/HexSpinner.tsx",
+          "hash": "52ae3622b61f1e44"
+        }
+      ]
+    },
+    "loader/hourglass": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Hourglass.tsx",
+          "hash": "abc195fe6aa40a49"
+        }
+      ]
+    },
+    "loader/infinity-loop": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/InfinityLoop.tsx",
+          "hash": "f7cffeff8673d890"
+        }
+      ]
+    },
+    "loader/iris-open": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/IrisOpen.tsx",
+          "hash": "da0731ad6a63ef64"
+        }
+      ]
+    },
+    "loader/jelly-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/JellyLoader.tsx",
+          "hash": "47067738663cbcec"
+        }
+      ]
+    },
+    "loader/juggling": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Juggling.tsx",
+          "hash": "3ad069a1e330be2e"
+        }
+      ]
+    },
+    "loader/lazy-block": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LazyBlock.tsx",
+          "hash": "170c8d598ea67f68"
+        }
+      ]
+    },
+    "loader/letters-bounce": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LettersBounce.tsx",
+          "hash": "3c9407bfb9737f2a"
+        }
+      ]
+    },
+    "loader/letters-gate": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LettersGate.tsx",
+          "hash": "e742d98b6ed4589e"
+        }
+      ]
+    },
+    "loader/liquid-fill": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LiquidFill.tsx",
+          "hash": "9950abbda3b72844"
+        }
+      ]
+    },
+    "loader/loading-dots-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LoadingDotsText.tsx",
+          "hash": "610fb79600c18754"
+        }
+      ]
+    },
+    "loader/logo-draw": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/LogoDraw.tsx",
+          "hash": "540e35ff826eb7d8"
+        }
+      ]
+    },
+    "loader/matrix-digits": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/MatrixDigits.tsx",
+          "hash": "76967f71dbe32465"
+        }
+      ]
+    },
+    "loader/moon-phases": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/MoonPhases.tsx",
+          "hash": "a46256b042edc500"
+        }
+      ]
+    },
+    "loader/newton-cradle": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/NewtonCradle.tsx",
+          "hash": "faa87d22e855ff7d"
+        }
+      ]
+    },
+    "loader/orbit-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/OrbitLoader.tsx",
+          "hash": "bc57f63c28eddc71"
+        }
+      ]
+    },
+    "loader/paper-plane": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PaperPlane.tsx",
+          "hash": "b393cd5601cd8cee"
+        }
+      ]
+    },
+    "loader/pendulum": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Pendulum.tsx",
+          "hash": "38a88086a13f6303"
+        }
+      ]
+    },
+    "loader/percent-counter": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PercentCounter.tsx",
+          "hash": "34eb619182f4665b"
+        }
+      ]
+    },
+    "loader/percent-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PercentRing.tsx",
+          "hash": "95a0f572ff652ebf"
+        }
+      ]
+    },
+    "loader/pinwheel": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Pinwheel.tsx",
+          "hash": "09e3b122c6338e44"
+        }
+      ]
+    },
+    "loader/pixel-dissolve": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PixelDissolve.tsx",
+          "hash": "98c3fff49fd5b862"
+        }
+      ]
+    },
+    "loader/placeholder-image": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PlaceholderImage.tsx",
+          "hash": "1c57c18d5cae2f44"
+        }
+      ]
+    },
+    "loader/polygon-morph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PolygonMorph.tsx",
+          "hash": "eb26fc7dc94f56bf"
+        }
+      ]
+    },
+    "loader/progress-bar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ProgressBar.tsx",
+          "hash": "fad111ad0d53bb5a"
+        }
+      ]
+    },
+    "loader/progress-steps": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ProgressSteps.tsx",
+          "hash": "b9506fb54d0c15eb"
+        }
+      ]
+    },
+    "loader/pulse-block": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PulseBlock.tsx",
+          "hash": "c7b11a26f45678f6"
+        }
+      ]
+    },
+    "loader/pulse-dot": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/PulseDot.tsx",
+          "hash": "a3d6b8a4775cf324"
+        }
+      ]
+    },
+    "loader/ring-dots": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/RingDots.tsx",
+          "hash": "e617ac728e37c523"
+        }
+      ]
+    },
+    "loader/ring-spinner": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/RingSpinner.tsx",
+          "hash": "d0b5f1fc6c98aa2d"
+        }
+      ]
+    },
+    "loader/ripple-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/RippleLoader.tsx",
+          "hash": "8541232545ba9bb1"
+        }
+      ]
+    },
+    "loader/rocket": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Rocket.tsx",
+          "hash": "b1caa0bf5995d61d"
+        }
+      ]
+    },
+    "loader/route-path": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/RoutePath.tsx",
+          "hash": "80c7fa6a662b36a7"
+        }
+      ]
+    },
+    "loader/scanner-line": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ScannerLine.tsx",
+          "hash": "df0bd42b3b7e11b1"
+        }
+      ]
+    },
+    "loader/scramble-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ScrambleLoader.tsx",
+          "hash": "f2aef5d6848d9338"
+        }
+      ]
+    },
+    "loader/segment-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SegmentRing.tsx",
+          "hash": "2daceb8aab8a8538"
+        }
+      ]
+    },
+    "loader/shape-morph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ShapeMorph.tsx",
+          "hash": "227ccf08c9d75603"
+        }
+      ]
+    },
+    "loader/shimmer-block": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ShimmerBlock.tsx",
+          "hash": "fb7488706537f88b"
+        }
+      ]
+    },
+    "loader/shutter": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Shutter.tsx",
+          "hash": "de7085d224728bf3"
+        }
+      ]
+    },
+    "loader/signal-bars": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SignalBars.tsx",
+          "hash": "04512240bf75784c"
+        }
+      ]
+    },
+    "loader/skeleton-avatar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SkeletonAvatar.tsx",
+          "hash": "5c0228fb5db17be2"
+        }
+      ]
+    },
+    "loader/skeleton-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SkeletonCard.tsx",
+          "hash": "e5325492e3516e14"
+        }
+      ]
+    },
+    "loader/skeleton-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SkeletonGrid.tsx",
+          "hash": "1fc4934f2ac4fb43"
+        }
+      ]
+    },
+    "loader/skeleton-lines": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SkeletonLines.tsx",
+          "hash": "e0e7563f215421f1"
+        }
+      ]
+    },
+    "loader/skeleton-table": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SkeletonTable.tsx",
+          "hash": "fefcb589171c9c8c"
+        }
+      ]
+    },
+    "loader/snake": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Snake.tsx",
+          "hash": "adcdd8a70a4d944d"
+        }
+      ]
+    },
+    "loader/sonar-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SonarLoader.tsx",
+          "hash": "a349460813407c4f"
+        }
+      ]
+    },
+    "loader/spinner-to-check": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SpinnerToCheck.tsx",
+          "hash": "0fe83c70a9a9360d"
+        }
+      ]
+    },
+    "loader/spiral-dots": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SpiralDots.tsx",
+          "hash": "77da934705a95033"
+        }
+      ]
+    },
+    "loader/split-curtain": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SplitCurtain.tsx",
+          "hash": "6f9a4693990ddbb8"
+        }
+      ]
+    },
+    "loader/square-morph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SquareMorph.tsx",
+          "hash": "4fa141559633c7da"
+        }
+      ]
+    },
+    "loader/stairs": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Stairs.tsx",
+          "hash": "dad17a21765f1afe"
+        }
+      ]
+    },
+    "loader/sun-rays": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/SunRays.tsx",
+          "hash": "0267c20b5d48d3a3"
+        }
+      ]
+    },
+    "loader/tetris": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Tetris.tsx",
+          "hash": "6f3f5726f59ecb4f"
+        }
+      ]
+    },
+    "loader/text-shimmer-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/TextShimmerLoader.tsx",
+          "hash": "c518f459bbafd131"
+        }
+      ]
+    },
+    "loader/top-loader": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/TopLoader.tsx",
+          "hash": "312af056863a0bca"
+        }
+      ]
+    },
+    "loader/triangle-spinner": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/TriangleSpinner.tsx",
+          "hash": "67d6304453963a67"
+        }
+      ]
+    },
+    "loader/typing-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/TypingCursor.tsx",
+          "hash": "38de060aa12a4e83"
+        }
+      ]
+    },
+    "loader/water-drop": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/WaterDrop.tsx",
+          "hash": "108c05e2d142caee"
+        }
+      ]
+    },
+    "loader/wave-bars": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/WaveBars.tsx",
+          "hash": "8986763c28899d06"
+        }
+      ]
+    },
+    "loader/wifi-pulse": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/WifiPulse.tsx",
+          "hash": "22af4c678bafb3ca"
+        }
+      ]
+    },
+    "loader/windmill": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/Windmill.tsx",
+          "hash": "8bd9d83226e75408"
+        }
+      ]
+    },
+    "loader/wipe-diagonal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/WipeDiagonal.tsx",
+          "hash": "a0b83772255195eb"
+        }
+      ]
+    },
+    "loader/word-flip": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/WordFlip.tsx",
+          "hash": "7fac42dee7ac4d31"
+        }
+      ]
+    },
+    "loader/yin-yang": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/YinYang.tsx",
+          "hash": "991019864d6fe1f8"
+        }
+      ]
+    },
+    "loader/zoom-gate": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/loader/ZoomGate.tsx",
+          "hash": "a2a0a70be476dbc0"
+        }
+      ]
+    },
+    "section/bento-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/BentoGrid.tsx",
+          "hash": "1c42fd168319cb48"
         }
       ]
     },
     "section/book-shelf": {
-      "installedAt": "2026-09-04T12:20:37.702Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/BookShelf.tsx",
-          "hash": "d740bc64130b8fab"
+          "hash": "fbfecfe0d15627ac"
+        }
+      ]
+    },
+    "section/changelog": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/Changelog.tsx",
+          "hash": "2cbdf84a98a3a8b3"
         }
       ]
     },
     "section/cinematic-footer": {
-      "installedAt": "2026-09-03T12:33:18.780Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/CinematicFooter.tsx",
-          "hash": "3d4a2061755b833b"
+          "hash": "c4c108248c26e148"
+        }
+      ]
+    },
+    "section/coming-soon": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/ComingSoon.tsx",
+          "hash": "6554a64a6438c25f"
+        }
+      ]
+    },
+    "section/comparison-table": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/ComparisonTable.tsx",
+          "hash": "96f43b0cf1cf8662"
+        }
+      ]
+    },
+    "section/container-scroll": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/ContainerScroll.tsx",
+          "hash": "6e8ef3cb41c98f43"
+        }
+      ]
+    },
+    "section/cta-band": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/CtaBand.tsx",
+          "hash": "fea379495f386a4e"
         }
       ]
     },
     "section/faq": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/Faq.tsx",
-          "hash": "33437ef5aeb9d757"
+          "hash": "91f7c75fd30ee62b"
+        }
+      ]
+    },
+    "section/feature-tabs": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/FeatureTabs.tsx",
+          "hash": "924bf9c199d3d85b"
+        }
+      ]
+    },
+    "section/hero-scroll-morph": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/HeroScrollMorph.tsx",
+          "hash": "10a9ea5e17e838ed"
         }
       ]
     },
     "section/logo-band": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/LogoBand.tsx",
-          "hash": "6b2bbd5445fcfbea"
+          "hash": "5e456c2eb9e8b0ef"
+        }
+      ]
+    },
+    "section/newsletter": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/Newsletter.tsx",
+          "hash": "6f51275f9d2ccadd"
         }
       ]
     },
     "section/orbital-timeline": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/OrbitalTimeline.tsx",
@@ -496,43 +3660,43 @@
       ]
     },
     "section/pricing-tiers": {
-      "installedAt": "2026-09-06T16:34:06.042Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/PricingTiers.tsx",
-          "hash": "18b22e4483f4dbca"
+          "hash": "1c6a08dd804112ec"
         }
       ]
     },
     "section/reveal-grid": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/RevealGrid.tsx",
-          "hash": "4104ac0d66ff5e74"
+          "hash": "c342de9a46eaf51f"
         }
       ]
     },
     "section/scroll-steps": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/ScrollSteps.tsx",
-          "hash": "a0b8a0a96abecf60"
+          "hash": "eeea9cff0e1d1535"
         }
       ]
     },
     "section/sign-in": {
-      "installedAt": "2026-09-03T12:33:18.780Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/SignIn.tsx",
-          "hash": "fd761b47d8815d52"
+          "hash": "95294e8302b60f21"
         }
       ]
     },
     "section/stat-band": {
-      "installedAt": "2026-09-06T16:34:06.042Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/StatBand.tsx",
@@ -541,16 +3705,79 @@
       ]
     },
     "section/sticky-stack": {
-      "installedAt": "2026-08-29T09:05:21.378Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/section/StickyStack.tsx",
-          "hash": "ca5ed78a39bf840b"
+          "hash": "1bb2cab853273ece"
+        }
+      ]
+    },
+    "section/team-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/TeamGrid.tsx",
+          "hash": "29099ead94a75912"
+        }
+      ]
+    },
+    "section/testimonials-columns": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/TestimonialsColumns.tsx",
+          "hash": "d2408178d298688e"
+        }
+      ]
+    },
+    "section/timeline": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/section/Timeline.tsx",
+          "hash": "469f3a5ae72be415"
+        }
+      ]
+    },
+    "text/ascii-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/AsciiText.tsx",
+          "hash": "29a647997ee4714d"
+        }
+      ]
+    },
+    "text/blur-reveal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/BlurReveal.tsx",
+          "hash": "7e79215b9362bff5"
+        }
+      ]
+    },
+    "text/blur-words": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/BlurWords.tsx",
+          "hash": "40061abc73abea70"
+        }
+      ]
+    },
+    "text/circular-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/CircularText.tsx",
+          "hash": "1b29074ab5f8dd02"
         }
       ]
     },
     "text/count-up": {
-      "installedAt": "2026-09-06T16:34:06.042Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/CountUp.tsx",
@@ -558,17 +3785,107 @@
         }
       ]
     },
+    "text/counter-roll": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/CounterRoll.tsx",
+          "hash": "e019603d2ee664fd"
+        }
+      ]
+    },
+    "text/curved-loop": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/CurvedLoop.tsx",
+          "hash": "85c55bc3757a141b"
+        }
+      ]
+    },
     "text/decode-text": {
-      "installedAt": "2026-08-29T02:35:09.997Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/DecodeText.tsx",
-          "hash": "01de5720a0c37d5f"
+          "hash": "a8d4c600bc8c1f49"
+        }
+      ]
+    },
+    "text/depth-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/DepthText.tsx",
+          "hash": "9667d0f144aa1522"
+        }
+      ]
+    },
+    "text/echo-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/EchoText.tsx",
+          "hash": "83516b272ee50f0e"
+        }
+      ]
+    },
+    "text/falling-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/FallingText.tsx",
+          "hash": "716b0b05cc5d8a80"
+        }
+      ]
+    },
+    "text/fold-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/FoldText.tsx",
+          "hash": "84fb5a8924265910"
+        }
+      ]
+    },
+    "text/fuzzy-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/FuzzyText.tsx",
+          "hash": "e8d9c3d9c2750052"
+        }
+      ]
+    },
+    "text/glitch-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/GlitchText.tsx",
+          "hash": "e191832964cfecbf"
+        }
+      ]
+    },
+    "text/gradient-flow": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/GradientFlow.tsx",
+          "hash": "e612d8be8219b49a"
+        }
+      ]
+    },
+    "text/hand-written": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/HandWritten.tsx",
+          "hash": "527fa953f32a6f33"
         }
       ]
     },
     "text/highlight-sweep": {
-      "installedAt": "2026-09-04T15:31:38.450Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/HighlightSweep.tsx",
@@ -576,8 +3893,44 @@
         }
       ]
     },
+    "text/letter-swap": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/LetterSwap.tsx",
+          "hash": "cab8ecc55e9ecbd7"
+        }
+      ]
+    },
+    "text/masked-heading": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/MaskedHeading.tsx",
+          "hash": "0ef698bdb5ea14c5"
+        }
+      ]
+    },
+    "text/morph-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/MorphText.tsx",
+          "hash": "bcacf57886558b15"
+        }
+      ]
+    },
+    "text/particle-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/ParticleText.tsx",
+          "hash": "1b322fc961341683"
+        }
+      ]
+    },
     "text/rotating-words": {
-      "installedAt": "2026-09-04T15:31:38.450Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/RotatingWords.tsx",
@@ -585,17 +3938,53 @@
         }
       ]
     },
+    "text/scroll-float": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/ScrollFloat.tsx",
+          "hash": "5d3dbc4f93b0a14d"
+        }
+      ]
+    },
+    "text/scroll-reveal": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/ScrollReveal.tsx",
+          "hash": "4868a52480dc2a19"
+        }
+      ]
+    },
     "text/shine-text": {
-      "installedAt": "2026-08-29T02:35:09.997Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/ShineText.tsx",
-          "hash": "c760a5d1b419a9ad"
+          "hash": "f0f2b662c131b603"
+        }
+      ]
+    },
+    "text/shuffle": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/Shuffle.tsx",
+          "hash": "cdecbbb3b9ea2d9d"
+        }
+      ]
+    },
+    "text/split-flap": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/SplitFlap.tsx",
+          "hash": "6b7da59e0b5e3543"
         }
       ]
     },
     "text/split-lines": {
-      "installedAt": "2026-09-04T15:31:38.450Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/SplitLines.tsx",
@@ -604,25 +3993,160 @@
       ]
     },
     "text/split-reveal": {
-      "installedAt": "2026-08-29T02:23:39.104Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/SplitReveal.tsx",
-          "hash": "c6d257a0649230bf"
+          "hash": "0bddcf4942cc005e"
+        }
+      ]
+    },
+    "text/spotlight-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/SpotlightText.tsx",
+          "hash": "560d18b7e2d86fa1"
+        }
+      ]
+    },
+    "text/stroke-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/StrokeText.tsx",
+          "hash": "f12cd803c9dca9f0"
+        }
+      ]
+    },
+    "text/text-cursor": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/TextCursor.tsx",
+          "hash": "a5b8e269cd8c4a2b"
+        }
+      ]
+    },
+    "text/text-loop": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/TextLoop.tsx",
+          "hash": "38d1fca2dc00811b"
+        }
+      ]
+    },
+    "text/text-pressure": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/TextPressure.tsx",
+          "hash": "94051d1b8dc68df3"
+        }
+      ]
+    },
+    "text/true-focus": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/TrueFocus.tsx",
+          "hash": "76840390e73a792d"
         }
       ]
     },
     "text/typewriter": {
-      "installedAt": "2026-08-29T02:35:09.997Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/text/Typewriter.tsx",
-          "hash": "9937b746b7ef93d0"
+          "hash": "fc47917d8183d3da"
+        }
+      ]
+    },
+    "text/underline-draw": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/UnderlineDraw.tsx",
+          "hash": "ae3005ab919b4019"
+        }
+      ]
+    },
+    "text/variable-proximity": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/VariableProximity.tsx",
+          "hash": "84db5968079b9879"
+        }
+      ]
+    },
+    "text/warp-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/WarpText.tsx",
+          "hash": "08f79f8770329408"
+        }
+      ]
+    },
+    "text/wave-text": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/text/WaveText.tsx",
+          "hash": "2d1d3c2fc287f912"
+        }
+      ]
+    },
+    "ui/animated-list": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/AnimatedList.tsx",
+          "hash": "34a5cf6d71c07006"
+        }
+      ]
+    },
+    "ui/avatar-stack": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/AvatarStack.tsx",
+          "hash": "5e49b0d3271b405a"
+        }
+      ]
+    },
+    "ui/bounce-cards": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/BounceCards.tsx",
+          "hash": "bf68d2bd47c516be"
+        }
+      ]
+    },
+    "ui/bubble-menu": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/BubbleMenu.tsx",
+          "hash": "b746d855ade93325"
+        }
+      ]
+    },
+    "ui/button-group-input": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ButtonGroupInput.tsx",
+          "hash": "8aa09202537313d1"
         }
       ]
     },
     "ui/card-form": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/CardForm.tsx",
@@ -630,8 +4154,197 @@
         }
       ]
     },
+    "ui/card-nav": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CardNav.tsx",
+          "hash": "72d8a42c0ccf8aee"
+        }
+      ]
+    },
+    "ui/card-swap": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CardSwap.tsx",
+          "hash": "7bce825626f19b09"
+        }
+      ]
+    },
+    "ui/chroma-grid": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ChromaGrid.tsx",
+          "hash": "44367bf803d0520a"
+        }
+      ]
+    },
+    "ui/circular-gallery": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CircularGallery.tsx",
+          "hash": "10f98c3a614b33e6"
+        }
+      ]
+    },
+    "ui/code-input": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CodeInput.tsx",
+          "hash": "25d12b20695a0f16"
+        }
+      ]
+    },
+    "ui/command-palette": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CommandPalette.tsx",
+          "hash": "e5b34b1773e2ae1b"
+        }
+      ]
+    },
+    "ui/copy-button": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/CopyButton.tsx",
+          "hash": "076371afc94ed66a"
+        }
+      ]
+    },
+    "ui/decay-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/DecayCard.tsx",
+          "hash": "57a815a79017e16d"
+        }
+      ]
+    },
+    "ui/depth-carousel": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/DepthCarousel.tsx",
+          "hash": "516c37088089b411"
+        }
+      ]
+    },
+    "ui/dome-gallery": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/DomeGallery.tsx",
+          "hash": "01519b4511a2fd3d"
+        }
+      ]
+    },
+    "ui/elastic-slider": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ElasticSlider.tsx",
+          "hash": "a15cdf1f808f6bff"
+        }
+      ]
+    },
+    "ui/electric-border": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ElectricBorder.tsx",
+          "hash": "162569aee1a3cf7a"
+        }
+      ]
+    },
+    "ui/file-drop": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/FileDrop.tsx",
+          "hash": "a4341868f56ef1f9"
+        }
+      ]
+    },
+    "ui/flip-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/FlipCard.tsx",
+          "hash": "2100a1f77355545a"
+        }
+      ]
+    },
+    "ui/flowing-menu": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/FlowingMenu.tsx",
+          "hash": "e930717dbf3ecd8c"
+        }
+      ]
+    },
+    "ui/flying-posters": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/FlyingPosters.tsx",
+          "hash": "a98bf1b77c9c7c8f"
+        }
+      ]
+    },
+    "ui/folder": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/Folder.tsx",
+          "hash": "79f900e4a2575e57"
+        }
+      ]
+    },
+    "ui/glass-icons": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/GlassIcons.tsx",
+          "hash": "5081eb9419be9930"
+        }
+      ]
+    },
+    "ui/glass-surface": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/GlassSurface.tsx",
+          "hash": "bbcaa36ab1e3df61"
+        }
+      ]
+    },
+    "ui/glow-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/GlowCard.tsx",
+          "hash": "209a7617be232c9a"
+        }
+      ]
+    },
+    "ui/gooey-nav": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/GooeyNav.tsx",
+          "hash": "aabc63dfc694f178"
+        }
+      ]
+    },
     "ui/hover-reveal-button": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/HoverRevealButton.tsx",
@@ -639,8 +4352,44 @@
         }
       ]
     },
+    "ui/infinite-menu": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/InfiniteMenu.tsx",
+          "hash": "98ad66eaa12fd076"
+        }
+      ]
+    },
+    "ui/line-sidebar": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/LineSidebar.tsx",
+          "hash": "76eae47e6efcc12d"
+        }
+      ]
+    },
+    "ui/liquid-button": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/LiquidButton.tsx",
+          "hash": "6291276ce9f243ee"
+        }
+      ]
+    },
+    "ui/liquid-glass-button": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/LiquidGlassButton.tsx",
+          "hash": "2405c98e9b3044e4"
+        }
+      ]
+    },
     "ui/magnify-dock": {
-      "installedAt": "2026-09-06T16:23:29.086Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/MagnifyDock.tsx",
@@ -648,8 +4397,26 @@
         }
       ]
     },
+    "ui/masonry": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/Masonry.tsx",
+          "hash": "5e2c5571dd791589"
+        }
+      ]
+    },
+    "ui/option-wheel": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/OptionWheel.tsx",
+          "hash": "446021b5bf0f9de3"
+        }
+      ]
+    },
     "ui/pearl-button": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/PearlButton.tsx",
@@ -657,8 +4424,53 @@
         }
       ]
     },
+    "ui/pill-nav": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/PillNav.tsx",
+          "hash": "1c690d2b643a7d4a"
+        }
+      ]
+    },
+    "ui/pill-tabs": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/PillTabs.tsx",
+          "hash": "4238a1b776dfb644"
+        }
+      ]
+    },
+    "ui/pixel-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/PixelCard.tsx",
+          "hash": "4817a884213ebe78"
+        }
+      ]
+    },
+    "ui/profile-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ProfileCard.tsx",
+          "hash": "ea8f433dbf493270"
+        }
+      ]
+    },
+    "ui/progress-ring": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ProgressRing.tsx",
+          "hash": "2a087994a8709f64"
+        }
+      ]
+    },
     "ui/prompt-input": {
-      "installedAt": "2026-09-04T13:06:02.628Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/PromptInput.tsx",
@@ -666,8 +4478,35 @@
         }
       ]
     },
+    "ui/rating-stars": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/RatingStars.tsx",
+          "hash": "e4e3138788fb9fb5"
+        }
+      ]
+    },
+    "ui/reflective-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ReflectiveCard.tsx",
+          "hash": "d1e7cec0e9da72bb"
+        }
+      ]
+    },
+    "ui/segmented-control": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/SegmentedControl.tsx",
+          "hash": "8be5f4eadba5c511"
+        }
+      ]
+    },
     "ui/shiny-button": {
-      "installedAt": "2026-09-03T16:23:16.832Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/ShinyButton.tsx",
@@ -675,12 +4514,120 @@
         }
       ]
     },
+    "ui/sortable-list": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/SortableList.tsx",
+          "hash": "996790332e7e61b6"
+        }
+      ]
+    },
+    "ui/specular-button": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/SpecularButton.tsx",
+          "hash": "47f33d6a7c5b151b"
+        }
+      ]
+    },
+    "ui/spotlight-card": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/SpotlightCard.tsx",
+          "hash": "f63620a2ca35f3cb"
+        }
+      ]
+    },
+    "ui/stacked-cards": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/StackedCards.tsx",
+          "hash": "6744aa47f5b4bab1"
+        }
+      ]
+    },
+    "ui/staggered-menu": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/StaggeredMenu.tsx",
+          "hash": "8a20174b7a0e96a1"
+        }
+      ]
+    },
+    "ui/star-border": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/StarBorder.tsx",
+          "hash": "85759e273a98be84"
+        }
+      ]
+    },
+    "ui/stepper": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/Stepper.tsx",
+          "hash": "07d04d3ded82f511"
+        }
+      ]
+    },
+    "ui/tag-input": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/TagInput.tsx",
+          "hash": "c0b04bbb86ece295"
+        }
+      ]
+    },
+    "ui/text-fall-button": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/TextFallButton.tsx",
+          "hash": "1cb9039aa4b1d474"
+        }
+      ]
+    },
+    "ui/theme-switch": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ThemeSwitch.tsx",
+          "hash": "5e8418ea85f2684e"
+        }
+      ]
+    },
     "ui/tilt-card": {
-      "installedAt": "2026-09-06T16:23:29.086Z",
+      "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
         {
           "path": "src/odoro/ui/TiltCard.tsx",
           "hash": "7b5110da72a0b033"
+        }
+      ]
+    },
+    "ui/toast-stack": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/ToastStack.tsx",
+          "hash": "5d98763d24ec2d63"
+        }
+      ]
+    },
+    "ui/tree-view": {
+      "installedAt": "2026-09-09T01:39:44.953Z",
+      "files": [
+        {
+          "path": "src/odoro/ui/TreeView.tsx",
+          "hash": "96f34261753d82f9"
         }
       ]
     }

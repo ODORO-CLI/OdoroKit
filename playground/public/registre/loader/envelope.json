@@ -1,0 +1,67 @@
+{
+  "name": "envelope",
+  "category": "loader",
+  "title": "Enveloppe",
+  "description": "Le rabat bascule autour de sa charniere, la lettre monte hors de l enveloppe, redescend, et le rabat se referme, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Envelope.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle : ouverture, sortie, retour, fermeture.",
+      "min": 1200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits de l enveloppe. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG et une decoupe statique, tenues par le compositeur, aucun JavaScript apres le premier rendu. Enveloppe ouverte et lettre sortie sous mouvement reduit."
+  },
+  "id": "loader/envelope",
+  "sources": {
+    "component.tsx": "/**\n * Enveloppe : le rabat s'ouvre, la lettre sort, redescend, et le rabat se\n * referme.\n *\n * ## Un rabat se retourne, il ne se plie pas en deux\n *\n * Le rabat n'a pas besoin de perspective pour s'ouvrir. Vu de face, un\n * rabat qui bascule autour de sa charniere n'est rien d'autre que le meme\n * triangle retourne autour de cette ligne : une symetrie verticale, dont\n * l'origine est posee sur la charniere. `scaleY(-1)` fait exactement cela,\n * et le passage de un a moins un donne le mouvement d'ouverture — le\n * triangle s'aplatit sur la charniere a mi-course, comme un rabat vu de\n * profil. Une rotation en trois dimensions couterait une couche de\n * composition pour le meme resultat.\n *\n * La lettre ne sort pas de nulle part : elle est decoupee sur la ligne de\n * la charniere, et glisse vers le haut derriere cette decoupe. Rien ne la\n * cache — il n'y a simplement rien a voir en dessous. La decoupe est posee\n * sur un groupe distinct de celui qui bouge : sur le meme, elle suivrait le\n * mouvement, et la lettre serait toujours coupee au meme endroit d'elle.\n *\n * La lettre est peinte dans la couleur de surface du theme, celle d'une\n * feuille posee sur la page : c'est ce qui la fait passer devant le rabat\n * ouvert au lieu de se confondre avec lui.\n *\n * Deux animations CSS sur des elements SVG, tenues par le compositeur,\n * aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, l'enveloppe est ouverte et la lettre sortie : de\n * tous les moments du cycle, c'est celui qui dit ce que fait la figure.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { useId, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-envelope'\n\n/** Hauteur de la charniere, dans une vue de 100 unites. */\nconst HINGE = 34\n\n/** Course de la lettre, en unites de la vue. */\nconst RISE = 32\n\n/** Le corps de l'enveloppe. */\nconst BODY = 'M 12 34 L 88 34 L 88 84 Q 88 88 84 88 L 16 88 Q 12 88 12 84 Z'\n\n/** Le rabat, ferme : un triangle qui pointe vers le bas. */\nconst FLAP = 'M 12 34 L 50 62 L 88 34'\n\n/** Pose l'enveloppe, son rabat et sa lettre, une fois par document. */\nfunction ensureEnvelopeRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-envelope]{display:inline-block;line-height:0}',\n    '[data-o-envelope] svg{display:block}',\n    '[data-o-envelope-flap],[data-o-envelope-letter]{',\n    'transform-box:view-box;',\n    'animation-duration:var(--o-envelope-speed);animation-iteration-count:infinite;',\n    '}',\n    `[data-o-envelope-flap]{transform-origin:50px ${String(HINGE)}px;animation-name:o-envelope-flap}`,\n    '[data-o-envelope-letter]{transform-origin:50px 50px;animation-name:o-envelope-letter}',\n    // Le rabat bascule autour de sa charniere : de un a moins un, en\n    // passant par zero, ou il est vu de profil.\n    '@keyframes o-envelope-flap{',\n    '0%{transform:scaleY(1);animation-timing-function:ease-in-out}',\n    '18%,82%{transform:scaleY(-1);animation-timing-function:ease-in-out}',\n    '100%{transform:scaleY(1)}',\n    '}',\n    // La lettre attend que le rabat soit ouvert, monte d'un trait, tient,\n    // puis redescend avant que le rabat ne se referme sur elle.\n    '@keyframes o-envelope-letter{',\n    '0%,18%{transform:translateY(0);animation-timing-function:cubic-bezier(0.2,0.8,0.3,1)}',\n    `38%,62%{transform:translateY(-${String(RISE)}px);animation-timing-function:ease-in}`,\n    '82%,100%{transform:translateY(0)}',\n    '}',\n    // Enveloppe ouverte, lettre sortie : le moment qui dit tout le cycle.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-envelope-flap]{animation:none;transform:scaleY(-1)}',\n    `[data-o-envelope-letter]{animation:none;transform:translateY(-${String(RISE)}px)}`,\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface EnvelopeOwnProps {\n  /** Cote du dessin, en pixels. @defaultValue 64 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2600 */\n  speed?: number\n  /** Couleur des traits de l'enveloppe. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type EnvelopeProps = Customisable<EnvelopeOwnProps, 'span'>\n\n/**\n * Signale une attente par une enveloppe qui s'ouvre et livre sa lettre.\n *\n * @example\n * <Envelope />\n *\n * @example\n * // Plus grande, plus lente, dans la teinte de marque.\n * <Envelope size={96} speed={3600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Envelope({\n  size = 64,\n  speed = 2600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: EnvelopeProps): ReactElement {\n  ensureEnvelopeRule()\n\n  // La decoupe est referencee par identifiant dans le document : deux\n  // enveloppes sur la meme page ne doivent pas se partager le meme.\n  const id = useId().replace(/[^a-zA-Z0-9_-]/g, '')\n  const mouth = `o-envelope-mouth-${id}`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-envelope-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-envelope=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <defs>\n          <clipPath id={mouth}>\n            {/* Tout ce qui est au-dessus de la charniere : la lettre n'est\n                visible que sortie. */}\n            <rect x={0} y={0} width={100} height={HINGE} />\n          </clipPath>\n        </defs>\n        <path\n          d={BODY}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={4}\n          strokeLinejoin=\"round\"\n        />\n        <path\n          data-o-envelope-flap=\"\"\n          d={FLAP}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={4}\n          strokeLinejoin=\"round\"\n          strokeLinecap=\"round\"\n        />\n        <g clipPath={`url(#${mouth})`}>\n          <g data-o-envelope-letter=\"\">\n            {/* La lettre est plus etroite que le rabat : ses deux obliques\n                restent visibles de part et d'autre, sinon l'ouverture\n                passerait entierement derriere la feuille. */}\n            <rect\n              x={30}\n              y={HINGE}\n              width={40}\n              height={44}\n              rx={3}\n              fill=\"var(--o-theme-surface)\"\n              stroke=\"currentColor\"\n              strokeWidth={4}\n            />\n            <line x1={38} y1={44} x2={62} y2={44} stroke=\"currentColor\" strokeWidth={4} />\n            <line x1={38} y1={54} x2={62} y2={54} stroke=\"currentColor\" strokeWidth={4} />\n          </g>\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

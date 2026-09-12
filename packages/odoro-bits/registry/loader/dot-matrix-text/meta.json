@@ -1,0 +1,63 @@
+{
+  "name": "dot-matrix-text",
+  "category": "loader",
+  "title": "Texte en matrice de points",
+  "description": "Un mot dessine sur une grille de points 5x7, dont les points s allument de gauche a droite puis s eteignent dans le meme sens, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DotMatrixText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Le texte dessine. Lettres, chiffres et ponctuation courante ; les accents sont retires."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Pas de la grille, d un point au suivant.",
+      "min": 2,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un cycle, allumage et extinction compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation d opacite par point allume, dans un SVG de quelques centaines de cercles, aucun JavaScript apres le premier rendu. Tous les points du mot allumes et immobiles sous mouvement reduit."
+  }
+}

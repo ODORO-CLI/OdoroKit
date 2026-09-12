@@ -1,0 +1,69 @@
+{
+  "name": "embers",
+  "category": "background",
+  "title": "Braises",
+  "description": "Des braises qui montent sur trois profondeurs, scintillent a leur propre phase et s eteignent avec la hauteur ; une lueur de foyer au bas du cadre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "embers.shader.ts",
+      "target": "background/embers.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Embers.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-orange-500", "--o-palette-amber-200"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.5,
+      "description": "Vitesse de la montee.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 9,
+      "description": "Densite du semis : cellules sur la hauteur de la couche proche.",
+      "min": 3,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 1,
+      "description": "Portee du halo doux autour de chaque braise.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-orange-500, --o-palette-amber-200",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps des braises, leur pointe chaude."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois couches, neuf cellules par couche et par fragment, deux exponentielles par cellule. En qualite basse, la couche lointaine est retiree."
+  }
+}

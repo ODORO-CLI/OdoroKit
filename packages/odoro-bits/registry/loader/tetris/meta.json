@@ -1,0 +1,57 @@
+{
+  "name": "tetris",
+  "category": "loader",
+  "title": "Tetris",
+  "description": "Trois pieces tombent cran par cran dans un puits de quatre cases, completent trois lignes qui clignotent et s effacent, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Tetris.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Cote d une case. Le puits en fait quatre de large et quatre de haut.",
+      "min": 4,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, chute des trois pieces et effacement compris.",
+      "min": 1200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des pieces. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS de translation par paliers tenues par le compositeur, aucun JavaScript apres le premier rendu. Puits rempli et immobile sous mouvement reduit."
+  }
+}

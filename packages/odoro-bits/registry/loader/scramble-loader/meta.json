@@ -1,0 +1,63 @@
+{
+  "name": "scramble-loader",
+  "category": "loader",
+  "title": "Texte brouille qui se resout",
+  "description": "Un mot brouille de signes qui se resout caractere par caractere dans un ordre aleatoire, tient en tremblant, puis se brouille de nouveau.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ScrambleLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-font-mono"],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Le texte qui se resout."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree de la resolution, du brouillage complet au texte net.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du texte. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle du moteur qui ecrit les caracteres directement dans le DOM, une vingtaine de fois par seconde, sans rendu React par image. Texte net et immobile sous mouvement reduit."
+  }
+}

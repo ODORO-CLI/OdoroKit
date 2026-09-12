@@ -1,0 +1,68 @@
+{
+  "name": "percent-counter",
+  "category": "loader",
+  "title": "Compteur en pourcentage",
+  "description": "Un chiffre qui monte de zero a cent avec une acceleration douce, tient, et repart ; ou qui rejoint la valeur qu on lui donne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PercentCounter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "La legende sous le chiffre. Chaine vide pour ne garder que le chiffre."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "description": "Progression reelle, de 0 a 100. Sans elle, le compteur boucle."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Corps de reference ; le chiffre en fait deux fois et demie.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une montee de zero a cent, ou d un rattrapage de valeur.",
+      "min": 600,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du chiffre et de la legende. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle du moteur qui ecrit le chiffre directement dans le DOM, sans rendu React par image. Chiffre fige sous mouvement reduit."
+  }
+}

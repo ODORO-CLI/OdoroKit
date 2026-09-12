@@ -1,0 +1,85 @@
+{
+  "name": "comparison-table",
+  "category": "section",
+  "title": "Tableau comparatif",
+  "description": "Un vrai tableau a en-tete colle et premiere colonne collee, dont la zone de defilement s atteint au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/ComparisonTable.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-600",
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "columns",
+      "type": "readonly ComparisonColumn[]",
+      "required": true,
+      "description": "Les colonnes comparees."
+    },
+    {
+      "name": "rows",
+      "type": "readonly ComparisonRow[]",
+      "required": true,
+      "description": "Les lignes, dans l ordre d affichage."
+    },
+    {
+      "name": "caption",
+      "type": "string",
+      "required": true,
+      "description": "Legende du tableau. Elle est affichee, et elle nomme la zone qui defile."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "required": false,
+      "default": 480,
+      "unit": "px",
+      "description": "Hauteur maximale de la zone qui defile.",
+      "min": 200,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "yesLabel",
+      "type": "string",
+      "required": false,
+      "default": "Compris",
+      "description": "Ce qui est dit d une valeur vraie."
+    },
+    {
+      "name": "noLabel",
+      "type": "string",
+      "required": false,
+      "default": "Non compris",
+      "description": "Ce qui est dit d une valeur fausse."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une transition par rangee. Le collage est natif : aucune mesure, aucun JavaScript par image."
+  },
+  "id": "section/comparison-table",
+  "sources": {
+    "component.tsx": "/**\n * Tableau comparatif.\n *\n * ## Une zone qui defile doit pouvoir recevoir le focus\n *\n * C'est la regle la moins connue de l'accessibilite des tableaux larges : un\n * conteneur a debordement n'est atteignable qu'a la souris ou au doigt tant\n * qu'il ne peut pas recevoir le focus. Quelqu'un qui navigue au clavier ne peut\n * alors pas voir les colonnes de droite — le contenu existe et lui reste\n * inaccessible.\n *\n * L'enveloppe porte donc `tabindex`, un role de region et un nom. Une fois\n * dedans, les fleches font defiler, comme partout ailleurs.\n *\n * ## Ce qui colle, et pourquoi deux fois\n *\n * L'en-tete colle en haut : sans lui, on lit une coche sans savoir de quelle\n * offre elle parle. La premiere colonne colle a gauche : sans elle, on lit une\n * coche sans savoir de quel critere il s'agit. Les deux defauts sont\n * symetriques, et un tableau comparatif large a besoin des deux.\n *\n * La cellule du coin colle dans les deux sens, faute de quoi elle passerait\n * sous ses voisines a la premiere diagonale.\n *\n * ## Une coche est un mot, pas un dessin\n *\n * Un « ✓ » lu par une synthese vocale donne « coche », ou rien du tout selon la\n * police et le reglage. Le signe est donc decoratif, et un texte cache dit\n * « compris » ou « non compris ». C'est ce texte qui est annonce, et c'est lui\n * qu'une recherche dans la page trouvera.\n *\n * ## La cascade est par rangee\n *\n * Une revelation par cellule ferait scintiller le tableau ; par colonne, elle\n * demanderait un delai sur chaque cellule d'une meme colonne, donc une valeur\n * ecrite autant de fois qu'il y a de lignes. La rangee est la seule unite qui\n * se lit et qui se decale a peu de frais.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { Fragment, useId, type CSSProperties, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Une colonne comparee. */\nexport interface ComparisonColumn {\n  /** Ce que la colonne designe : une offre, un produit, une version. */\n  readonly name: string\n  /** Une precision sous le nom. */\n  readonly note?: string\n  /** Met la colonne en avant. Une seule le devrait. */\n  readonly featured?: boolean\n}\n\n/** Une ligne comparee. */\nexport interface ComparisonRow {\n  /** Le critere compare. */\n  readonly label: string\n  /**\n   * Une valeur par colonne, dans le meme ordre.\n   *\n   * Un booleen devient une coche ou un tiret accompagnes de leur texte ; tout\n   * le reste est affiche tel quel.\n   */\n  readonly values: readonly (boolean | string)[]\n  /** Groupe auquel la ligne appartient. Les lignes d'un meme groupe se suivent. */\n  readonly group?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface ComparisonTableOwnProps {\n  /** Les colonnes comparees. */\n  columns: readonly ComparisonColumn[]\n  /** Les lignes, dans l'ordre d'affichage. */\n  rows: readonly ComparisonRow[]\n  /** Legende du tableau. Elle est affichee, et elle nomme la zone qui defile. */\n  caption: string\n  /** Hauteur maximale de la zone qui defile, en pixels. @defaultValue 480 */\n  maxHeight?: number\n  /** Ce qui est dit d'une valeur vraie. @defaultValue 'Compris' */\n  yesLabel?: string\n  /** Ce qui est dit d'une valeur fausse. @defaultValue 'Non compris' */\n  noLabel?: string\n}\n\n/** Toutes les proprietes. */\nexport type ComparisonTableProps = Customisable<ComparisonTableOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-comparison-table'\n\n/** Pose les regles du tableau, une fois par document. */\nfunction ensureComparisonRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cmp-zone]{overflow:auto;max-height:var(--o-cmp-hauteur);border-radius:0.75rem;',\n    'border:1px solid var(--o-theme-line)}',\n    '[data-o-cmp-zone]:focus-visible{outline:2px solid var(--o-palette-brand-500);outline-offset:2px}',\n\n    '[data-o-cmp]{border-collapse:separate;border-spacing:0;width:100%;min-width:36rem}',\n    '[data-o-cmp] th,[data-o-cmp] td{',\n    'padding:0.7rem 1rem;text-align:left;font-size:0.8125rem;',\n    'border-bottom:1px solid var(--o-theme-line);background-color:var(--o-theme-surface)}',\n\n    // L'en-tete colle en haut, la premiere colonne a gauche. Les deux manques\n    // sont symetriques : sans l'un on ignore de quelle offre il s'agit, sans\n    // l'autre de quel critere.\n    '[data-o-cmp] thead th{position:sticky;top:0;z-index:2;font-weight:600}',\n    '[data-o-cmp] [data-o-cmp-critere]{position:sticky;left:0;z-index:1;font-weight:500}',\n    // Le coin colle dans les deux sens : sinon il passe sous ses voisines a la\n    // premiere diagonale.\n    '[data-o-cmp] thead [data-o-cmp-critere]{z-index:3}',\n\n    '[data-o-cmp] [data-o-cmp-groupe]{',\n    'font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.06em;',\n    'background-color:var(--o-theme-bg)}',\n\n    '[data-o-cmp-cache] tbody tr{',\n    'opacity:0;transform:translateY(8px);',\n    'transition:opacity var(--o-duration-slow) var(--o-ease-entrance),',\n    'transform var(--o-duration-slow) var(--o-ease-entrance);',\n    'transition-delay:var(--o-cmp-delai)}',\n    '[data-o-cmp-vu] tbody tr{opacity:1;transform:none}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-cmp-cache] tbody tr{opacity:1;transform:none;transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Rend une valeur de cellule, signe et texte compris. */\nfunction Valeur({\n  valeur,\n  oui,\n  non,\n}: {\n  valeur: boolean | string\n  oui: string\n  non: string\n}): ReactElement {\n  if (typeof valeur === 'string') return <>{valeur}</>\n\n  return (\n    <>\n      {/*\n        Le signe est decoratif : selon la police et le reglage, une synthese\n        vocale dit « coche », « check mark » ou rien. C'est le texte cache qui\n        porte le sens, et c'est lui que la recherche dans la page trouve.\n      */}\n      <span\n        aria-hidden\n        style={{\n          color: valeur\n            ? 'var(--o-palette-emerald-600)'\n            : 'color-mix(in oklab, var(--o-theme-muted) 70%, transparent)',\n        }}\n      >\n        {valeur ? '✓' : '—'}\n      </span>\n      <span className=\"o-sr-only\">{valeur ? oui : non}</span>\n    </>\n  )\n}\n\n/**\n * Un tableau comparatif a en-tete colle et defilement au clavier.\n *\n * @example\n * <ComparisonTable\n *   caption=\"Ce que chaque offre comprend\"\n *   columns={[{ name: 'Depart' }, { name: 'Studio', featured: true }, { name: 'Agence' }]}\n *   rows={[\n *     { label: 'Projets', values: ['1', '10', 'Illimite'] },\n *     { label: 'Registre prive', values: [false, false, true] },\n *   ]}\n * />\n */\nexport function ComparisonTable({\n  columns,\n  rows,\n  caption,\n  maxHeight = 480,\n  yesLabel = 'Compris',\n  noLabel = 'Non compris',\n  ...rest\n}: ComparisonTableProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.1 })\n  const titre = `${useId().replace(/[^a-zA-Z0-9]/g, '')}-titre`\n\n  ensureComparisonRules()\n\n  /** Fond d'une cellule, teinte si sa colonne est mise en avant. */\n  const fond = (index: number): string =>\n    columns[index]?.featured === true\n      ? 'color-mix(in oklab, var(--o-palette-brand-500) 8%, var(--o-theme-surface))'\n      : 'var(--o-theme-surface)'\n\n  let groupeCourant: string | undefined\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-4' },\n    rest,\n  )\n\n  return (\n    <section {...rest} ref={ref} className={className} style={style as CSSProperties}>\n      {/*\n        Une seule phrase nomme les deux objets : la zone qu'on peut faire\n        defiler et le tableau qu'elle contient. Une `caption` cachee en plus\n        ferait entendre le meme texte deux fois de suite.\n      */}\n      <p\n        id={titre}\n        className=\"o-text-sm o-font-medium\"\n        style={{ color: 'var(--o-theme-fg)' }}\n      >\n        {caption}\n      </p>\n\n      {/*\n        La zone recoit le focus : sans cela, les colonnes de droite sont hors\n        d'atteinte pour qui navigue au clavier.\n      */}\n      <div\n        data-o-cmp-zone=\"\"\n        role=\"region\"\n        aria-labelledby={titre}\n        tabIndex={0}\n        style={{ '--o-cmp-hauteur': `${String(maxHeight)}px` } as CSSProperties}\n      >\n        <table\n          data-o-cmp=\"\"\n          aria-labelledby={titre}\n          data-o-cmp-cache={reduced ? undefined : ''}\n          data-o-cmp-vu={vu && !reduced ? '' : undefined}\n        >\n          <thead>\n            <tr>\n              <th\n                scope=\"col\"\n                data-o-cmp-critere=\"\"\n                style={{ color: 'var(--o-theme-muted)' }}\n              >\n                Critere\n              </th>\n              {columns.map((colonne, index) => (\n                <th\n                  key={colonne.name}\n                  scope=\"col\"\n                  style={{ backgroundColor: fond(index), color: 'var(--o-theme-fg)' }}\n                >\n                  {colonne.name}\n                  {colonne.note !== undefined && (\n                    <span\n                      className=\"o-block o-text-xs o-font-normal\"\n                      style={{ color: 'var(--o-theme-muted)' }}\n                    >\n                      {colonne.note}\n                    </span>\n                  )}\n                </th>\n              ))}\n            </tr>\n          </thead>\n\n          <tbody>\n            {rows.map((ligne, rang) => {\n              const ouvreGroupe =\n                ligne.group !== undefined && ligne.group !== groupeCourant\n              if (ligne.group !== undefined) groupeCourant = ligne.group\n\n              return (\n                <Fragment key={ligne.label}>\n                  {ouvreGroupe && (\n                    <tr\n                      style={\n                        { '--o-cmp-delai': `${String(rang * 40)}ms` } as CSSProperties\n                      }\n                    >\n                      <th\n                        scope=\"colgroup\"\n                        colSpan={columns.length + 1}\n                        data-o-cmp-groupe=\"\"\n                        style={{ color: 'var(--o-theme-muted)' }}\n                      >\n                        {ligne.group}\n                      </th>\n                    </tr>\n                  )}\n                  <tr\n                    style={{ '--o-cmp-delai': `${String(rang * 40)}ms` } as CSSProperties}\n                  >\n                    <th\n                      scope=\"row\"\n                      data-o-cmp-critere=\"\"\n                      style={{ color: 'var(--o-theme-fg)' }}\n                    >\n                      {ligne.label}\n                    </th>\n                    {columns.map((colonne, index) => (\n                      <td\n                        key={colonne.name}\n                        style={{\n                          backgroundColor: fond(index),\n                          color: 'var(--o-theme-fg)',\n                        }}\n                      >\n                        <Valeur\n                          valeur={ligne.values[index] ?? false}\n                          oui={yesLabel}\n                          non={noLabel}\n                        />\n                      </td>\n                    ))}\n                  </tr>\n                </Fragment>\n              )\n            })}\n          </tbody>\n        </table>\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

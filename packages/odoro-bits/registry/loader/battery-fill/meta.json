@@ -1,0 +1,76 @@
+{
+  "name": "battery-fill",
+  "category": "loader",
+  "title": "Batterie qui se charge",
+  "description": "Un boitier a plot dont le niveau se remplit par la gauche, ou balaye sans fin sous un eclair quand la charge n est pas mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BatteryFill.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 58,
+      "unit": "%",
+      "description": "Charge, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Charge en cours, sans valeur : le niveau balaye le boitier sous un eclair."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Largeur de la batterie ; la hauteur suit la vue.",
+      "min": 40,
+      "max": 240,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une charge complete, en mode indetermine.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du boitier et du niveau. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle horizontale sur un rectangle, jamais une largeur animee : rien ne recalcule la geometrie. Valeur posee sans transition et charge arretee a mi-course sous mouvement reduit."
+  }
+}

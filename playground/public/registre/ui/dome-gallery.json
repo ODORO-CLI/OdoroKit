@@ -1,0 +1,90 @@
+{
+  "name": "dome-gallery",
+  "category": "ui",
+  "title": "Galerie en dome",
+  "description": "Les images sont collees sur l interieur d un dome que l on fait tourner au doigt ou aux fleches ; celles qui passent derriere disparaissent d elles-memes.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/DomeGallery.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les images posees sur le dome, dans l ordre. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la galerie, annonce aux technologies d assistance."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 360,
+      "unit": "px",
+      "description": "Rayon du dome. Plus il est grand, plus la courbure est douce.",
+      "min": 220,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Nombre d images par rangee. Une rangee incomplete se repartit sur son propre compte.",
+      "min": 3,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "pitch",
+      "type": "number",
+      "required": false,
+      "default": 34,
+      "unit": "deg",
+      "description": "Angle entre deux rangees.",
+      "min": 10,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "tile",
+      "type": "number",
+      "required": false,
+      "default": 180,
+      "unit": "px",
+      "description": "Largeur d une image sur le dome.",
+      "min": 100,
+      "max": 320,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Chaque image porte une transformation fixe, ecrite une fois au rendu ; la boucle n ecrit qu une rotation, celle du dome entier. Elle s arrete des que le dome est cale. Les images qui passent derriere sont retirees du rendu par la face cachee, sans calcul. Sous mouvement reduit, le dome saute a sa position sans amortissement."
+  },
+  "id": "ui/dome-gallery",
+  "sources": {
+    "component.tsx": "/**\n * Galerie en dome : les images sont collees sur une calotte que l'on fait\n * tourner au doigt ou aux fleches.\n *\n * ## La geometrie est ecrite une fois, la rotation est le seul mouvement\n *\n * Chaque image occupe une case de la calotte : un angle de colonne, un angle\n * de rangee, puis un eloignement du centre — `rotateY`, `rotateX`,\n * `translateZ`. Cette transformation-la ne change jamais ; elle est posee au\n * rendu et le navigateur n'y revient plus.\n *\n * Ce qui bouge, c'est le dome : **un seul** element porte la rotation que la\n * boucle ecrit. Faire tourner cinquante images revient donc a ecrire une\n * chaine de caracteres par image d'ecran, quel que soit leur nombre. Ecrire\n * une transformation par image couterait cinquante fois plus, pour le meme\n * resultat.\n *\n * ## Ce qui passe derriere disparait sans qu'on le calcule\n *\n * Une image de l'autre cote du dome est retournee face contre nous.\n * `backface-visibility: hidden` la retire du rendu — pas d'opacite a\n * calculer, pas de tri en profondeur, pas de liste a tenir a jour. La\n * geometrie fait le travail que du code ferait moins bien.\n *\n * ## Ce n'est pas le menu infini\n *\n * Le menu infini est un cylindre de liens que l'on parcourt sur un seul axe,\n * et dont chaque cran est une cible a activer. Le dome est un volume : deux\n * axes, des images plutot que des liens, et rien a activer — on regarde. Le\n * clavier y tourne la vue, il n'y promene pas un focus.\n *\n * ## Ce que le pointeur ne doit pas emporter\n *\n * Le glisser est capte sur l'element, pas sur la fenetre : relacher le doigt\n * hors du cadre termine le geste proprement, grace a la capture de pointeur.\n * Sans elle, un geste rapide laisse le dome accroche au pointeur alors qu'on\n * a lache depuis longtemps.\n *\n * ## Mouvement reduit\n *\n * Plus d'amortissement : le dome est a sa position visee des qu'on la change.\n * Tourner reste possible — c'est le seul moyen de voir les images du fond.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useCallback,\n  useEffect,\n  useRef,\n  type CSSProperties,\n  type KeyboardEvent,\n  type PointerEvent as ReactPointerEvent,\n  type ReactElement,\n} from 'react'\n\n/** Une image du dome. */\nexport interface DomeGalleryItem {\n  /** Source de l'image. */\n  readonly src: string\n  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */\n  readonly alt: string\n  /** Legende affichee sous l'image. */\n  readonly caption?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface DomeGalleryOwnProps {\n  /** Les images posees sur le dome, dans l'ordre. */\n  items: readonly DomeGalleryItem[]\n  /** Nom de la galerie, annonce aux technologies d'assistance. */\n  label: string\n  /** Rayon du dome, en pixels. @defaultValue 360 */\n  radius?: number\n  /** Nombre d'images par rangee. @defaultValue 8 */\n  columns?: number\n  /** Angle entre deux rangees, en degres. @defaultValue 34 */\n  pitch?: number\n  /** Largeur d'une image sur le dome, en pixels. @defaultValue 180 */\n  tile?: number\n}\n\n/** Toutes les proprietes. */\nexport type DomeGalleryProps = Customisable<DomeGalleryOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-dome-gallery'\n\n/** Degres parcourus pour cent pixels de glisser. */\nconst SENSIBILITE = 0.28\n\n/** Pose la scene, le dome et ses cases, une fois par document. */\nfunction ensureDomeRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-dome]{',\n    'position:relative;display:block;overflow:hidden;touch-action:none;cursor:grab;',\n    'perspective:var(--o-dome-vue);perspective-origin:50% 50%;',\n    '}',\n    '[data-o-dome][data-o-dome-tire]{cursor:grabbing}',\n    '[data-o-dome]:focus-visible{outline:2px solid var(--o-dome-accent);outline-offset:-2px}',\n    // La scene recule le centre du dome d'un rayon : la case de devant se\n    // retrouve alors dans le plan de l'ecran, a son echelle exacte. Sans ce\n    // recul, elle arriverait sur l'oeil et s'etirerait a l'infini.\n    '[data-o-dome-scene]{',\n    'position:absolute;inset:0;transform-style:preserve-3d;',\n    'transform:translateZ(var(--o-dome-recul));',\n    '}',\n    '[data-o-dome-calotte]{',\n    'position:absolute;left:50%;top:50%;width:0;height:0;',\n    'transform-style:preserve-3d;will-change:transform;',\n    '}',\n    '[data-o-dome-case]{',\n    'position:absolute;top:0;left:0;margin:0;',\n    'width:var(--o-dome-tuile);translate:-50% -50%;',\n    // La face cachee retire d'elle-meme ce qui est passe derriere.\n    'backface-visibility:hidden;',\n    '}',\n    '[data-o-dome-case] img{',\n    'display:block;width:100%;aspect-ratio:4 / 3;object-fit:cover;',\n    'border-radius:0.7rem;background:var(--o-theme-surface);',\n    'box-shadow:0 0 0 1px var(--o-theme-line);',\n    '}',\n    '[data-o-dome-case] figcaption{',\n    'margin-top:0.4rem;text-align:center;font-size:0.75em;color:var(--o-theme-muted);',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Dome d'images, au glisser comme au clavier.\n *\n * @example\n * <DomeGallery\n *   label=\"Panorama de l atelier\"\n *   items={[\n *     { src: '/dome/etabli.jpg', alt: 'Etabli couvert d outils' },\n *     { src: '/dome/four.jpg', alt: 'Four a ceramique ouvert' },\n *   ]}\n *   className=\"o-h-96\"\n * />\n *\n * @example\n * // Un dome plus serre, en dix images par rangee.\n * <DomeGallery label=\"Mur d images\" items={photos} radius={300} columns={10} tile={140} />\n */\nexport function DomeGallery({\n  items,\n  label,\n  radius = 360,\n  columns = 8,\n  pitch = 34,\n  tile = 180,\n  ...rest\n}: DomeGalleryProps): ReactElement {\n  const { reduced } = useMotionState()\n  const calotte = useRef<HTMLDivElement | null>(null)\n  /** Angle vise et angle affiche, en degres — lacet puis tangage. */\n  const vise = useRef({ lacet: 0, tangage: 0 })\n  const pose = useRef({ lacet: 0, tangage: 0 })\n  const frame = useRef(0)\n  const instant = useRef(0)\n  ensureDomeRules()\n\n  const parRangee = Math.max(1, Math.round(columns))\n  const rangees = Math.max(1, Math.ceil(items.length / parRangee))\n  /** Au-dela, le dome basculerait sur le dos. */\n  const limite = ((rangees - 1) / 2) * pitch + 20\n\n  /** Rapproche l'angle affiche de l'angle vise, et ecrit le dome. */\n  const boucle = useCallback((): void => {\n    frame.current = 0\n    const cible = calotte.current\n    if (cible === null) return\n\n    const maintenant = typeof performance === 'undefined' ? 0 : performance.now()\n    const dt = Math.min(0.05, (maintenant - instant.current) / 1000)\n    instant.current = maintenant\n\n    // Amortissement exponentiel : le meme mouvement quelle que soit la\n    // cadence d'affichage, contrairement a un pas fixe par image.\n    const k = reduced ? 1 : 1 - Math.exp(-9 * dt)\n    pose.current.lacet += (vise.current.lacet - pose.current.lacet) * k\n    pose.current.tangage += (vise.current.tangage - pose.current.tangage) * k\n\n    cible.style.transform = `rotateX(${pose.current.tangage.toFixed(2)}deg) rotateY(${pose.current.lacet.toFixed(2)}deg)`\n\n    const reste =\n      Math.abs(vise.current.lacet - pose.current.lacet) +\n      Math.abs(vise.current.tangage - pose.current.tangage)\n    // Rien n'est ecrit quand rien ne bouge : la boucle s'arrete d'elle-meme.\n    if (reste > 0.02 && typeof requestAnimationFrame === 'function') {\n      frame.current = requestAnimationFrame(boucle)\n    }\n  }, [reduced])\n\n  const relancer = useCallback((): void => {\n    if (frame.current !== 0 || typeof requestAnimationFrame !== 'function') return\n    instant.current = typeof performance === 'undefined' ? 0 : performance.now()\n    frame.current = requestAnimationFrame(boucle)\n  }, [boucle])\n\n  useEffect(() => {\n    relancer()\n    return () => {\n      if (frame.current !== 0) cancelAnimationFrame(frame.current)\n      frame.current = 0\n    }\n  }, [relancer, radius, pitch, columns, items])\n\n  const tirer = useRef<{ x: number; y: number; id: number } | null>(null)\n\n  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    if (event.button !== 0 && event.pointerType === 'mouse') return\n    tirer.current = { x: event.clientX, y: event.clientY, id: event.pointerId }\n    event.currentTarget.setPointerCapture(event.pointerId)\n    event.currentTarget.setAttribute('data-o-dome-tire', '')\n  }\n\n  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    const depart = tirer.current\n    if (depart === null || depart.id !== event.pointerId) return\n    vise.current.lacet += (event.clientX - depart.x) * SENSIBILITE\n    vise.current.tangage = Math.min(\n      limite,\n      Math.max(-limite, vise.current.tangage - (event.clientY - depart.y) * SENSIBILITE),\n    )\n    depart.x = event.clientX\n    depart.y = event.clientY\n    relancer()\n  }\n\n  const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    tirer.current = null\n    event.currentTarget.removeAttribute('data-o-dome-tire')\n    if (event.currentTarget.hasPointerCapture(event.pointerId)) {\n      event.currentTarget.releasePointerCapture(event.pointerId)\n    }\n  }\n\n  /** Les fleches tournent la vue d'une case ; Origine la remet de face. */\n  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {\n    const colonne = 360 / parRangee\n    const gestes: Readonly<Record<string, (() => void) | undefined>> = {\n      ArrowRight: () => (vise.current.lacet -= colonne),\n      ArrowLeft: () => (vise.current.lacet += colonne),\n      ArrowUp: () => (vise.current.tangage = Math.max(-limite, vise.current.tangage - pitch)),\n      ArrowDown: () => (vise.current.tangage = Math.min(limite, vise.current.tangage + pitch)),\n      Home: () => {\n        vise.current.lacet = 0\n        vise.current.tangage = 0\n      },\n    }\n    const geste = gestes[event.key]\n    if (geste === undefined) return\n    event.preventDefault()\n    geste()\n    relancer()\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      role=\"group\"\n      aria-roledescription=\"galerie\"\n      aria-label={label}\n      tabIndex={0}\n      data-o-dome=\"\"\n      className={className}\n      style={\n        {\n          '--o-dome-accent': 'var(--o-palette-brand-500)',\n          '--o-dome-tuile': `${String(tile)}px`,\n          '--o-dome-recul': `${String(-radius)}px`,\n          '--o-dome-vue': `${String(radius * 2)}px`,\n          ...style,\n        } as CSSProperties\n      }\n      onPointerDown={(event) => {\n        onPointerDown(event)\n        rest.onPointerDown?.(event)\n      }}\n      onPointerMove={onPointerMove}\n      onPointerUp={onPointerUp}\n      onPointerCancel={onPointerUp}\n      onKeyDown={(event) => {\n        onKeyDown(event)\n        rest.onKeyDown?.(event)\n      }}\n    >\n      <div data-o-dome-scene=\"\">\n        <div ref={calotte} data-o-dome-calotte=\"\">\n          {items.map((item, index) => {\n            const rangee = Math.floor(index / parRangee)\n            const colonne = index % parRangee\n            // La derniere rangee est souvent incomplete : elle se repartit sur\n            // son propre compte plutot que de laisser un pan de dome vide.\n            const dansRangee = Math.min(parRangee, items.length - rangee * parRangee)\n            const lacet = colonne * (360 / Math.max(1, dansRangee))\n            const tangage = (rangee - (rangees - 1) / 2) * pitch\n\n            return (\n              <figure\n                key={item.src}\n                data-o-dome-case=\"\"\n                style={{\n                  transform: `rotateY(${String(lacet)}deg) rotateX(${String(-tangage)}deg) translateZ(${String(radius)}px)`,\n                }}\n              >\n                <img src={item.src} alt={item.alt} loading=\"lazy\" decoding=\"async\" />\n                {item.caption === undefined ? null : (\n                  <figcaption>{item.caption}</figcaption>\n                )}\n              </figure>\n            )\n          })}\n        </div>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

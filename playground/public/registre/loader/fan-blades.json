@@ -1,0 +1,75 @@
+{
+  "name": "fan-blades",
+  "category": "loader",
+  "title": "Pales de ventilateur",
+  "description": "Des pales courbes tournent a vitesse constante dans un carter circulaire, autour d un moyeu, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FanBlades.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du carter.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "blades",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de pales.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des pales, du moyeu et du carter. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un groupe SVG et une rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Pales immobiles sous mouvement reduit."
+  },
+  "id": "loader/fan-blades",
+  "sources": {
+    "component.tsx": "/**\n * Pales de ventilateur : des pales courbes tournent a vitesse constante\n * dans un carter circulaire, autour d'un moyeu.\n *\n * ## Une pale, dessinee une fois\n *\n * La pale est un seul trace : elle part du moyeu, s'evase en courbe vers\n * le carter et revient par une courbe plus tendue. Ce dessin en faucille\n * est ce qui la distingue d'un petale ou d'un triangle : une pale a un bord\n * d'attaque et un bord de fuite, et l'oeil lit le sens de rotation avant\n * meme qu'elle bouge. Les autres pales sont des copies tournees d'un\n * angle egal autour du moyeu.\n *\n * La rotation est lineaire, a dessein. Un ventilateur en marche ne\n * s'essouffle pas ; c'est `pinwheel` qui tourne par rafales. Le carter et\n * le moyeu ne bougent pas : ils donnent le cadre dans lequel la rotation se\n * mesure.\n *\n * Une seule animation, sur le groupe des pales, tenue par le compositeur.\n * Aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les pales restent immobiles dans leur carter : la\n * figure se lit encore comme un chargeur, seul le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-fan-blades'\n\n/**\n * Une pale pointant vers le haut, du moyeu (50, 50) au carter, dans une\n * vue de 100 unites. Le bord d'attaque est la courbe large, le bord de\n * fuite la courbe tendue qui revient au moyeu.\n */\nconst BLADE = 'M 50 50 C 36 30 52 6 72 16 C 82 24 76 44 50 50 Z'\n\n/** Pose le ventilateur et sa rotation, une fois par document. */\nfunction ensureFanRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-fan-blades]{display:inline-block;line-height:0}',\n    '[data-o-fan-blades] svg{display:block}',\n    '[data-o-fan-rotor]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    'animation:o-fan-blades-spin var(--o-fan-speed) linear infinite;',\n    '}',\n    '[data-o-fan-guard]{opacity:0.25}',\n    '@keyframes o-fan-blades-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-fan-rotor]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface FanBladesOwnProps {\n  /** Diametre du carter, en pixels. @defaultValue 48 */\n  size?: number\n  /** Nombre de pales. @defaultValue 3 */\n  blades?: number\n  /** Duree d'un tour, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Couleur des pales, du moyeu et du carter. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type FanBladesProps = Customisable<FanBladesOwnProps, 'span'>\n\n/**\n * Signale une attente par des pales qui tournent dans leur carter.\n *\n * @example\n * <FanBlades />\n *\n * @example\n * // Cinq pales, plus vite, dans la teinte de marque.\n * <FanBlades blades={5} speed={900} color=\"var(--o-palette-brand-500)\" />\n */\nexport function FanBlades({\n  size = 48,\n  blades = 3,\n  speed = 1400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: FanBladesProps): ReactElement {\n  ensureFanRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const count = Math.max(2, Math.round(blades))\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-fan-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-fan-blades=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <circle\n          data-o-fan-guard=\"\"\n          cx=\"50\"\n          cy=\"50\"\n          r=\"47\"\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth=\"3\"\n        />\n        <g data-o-fan-rotor=\"\">\n          {Array.from({ length: count }, (_, index) => (\n            <path\n              key={index}\n              d={BLADE}\n              fill=\"currentColor\"\n              transform={`rotate(${String((index * 360) / count)} 50 50)`}\n            />\n          ))}\n          <circle cx=\"50\" cy=\"50\" r=\"9\" fill=\"currentColor\" />\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

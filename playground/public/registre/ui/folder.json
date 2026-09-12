@@ -1,0 +1,114 @@
+{
+  "name": "folder",
+  "category": "ui",
+  "title": "Dossier",
+  "description": "Un dossier ferme qui s ouvre au clic comme au clavier : le rabat bascule vers l avant et les fiches sortent en eventail, atteignables une a une.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Folder.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-duration-slow",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les fiches rangees dans le dossier, dans l ordre de l eventail."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du dossier, ecrit sur le rabat et annonce aux technologies d assistance."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Etat du dossier, en mode controle."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Etat du dossier au montage, en mode non controle."
+    },
+    {
+      "name": "onOpenChange",
+      "type": "(open: boolean) => void",
+      "required": false,
+      "description": "Appele quand le dossier s ouvre ou se referme."
+    },
+    {
+      "name": "onSelect",
+      "type": "(id: string) => void",
+      "required": false,
+      "description": "Appele au clic ou a Entree sur une fiche sortie."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "required": false,
+      "default": "--o-palette-brand-500, --o-theme-surface",
+      "description": "Tokens de la teinte du carton et de la couleur des fiches, dans cet ordre."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 220,
+      "unit": "px",
+      "description": "Largeur du dossier.",
+      "min": 140,
+      "max": 420,
+      "step": 10
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "deg",
+      "description": "Angle entre deux fiches une fois sorties.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "rise",
+      "type": "number",
+      "required": false,
+      "default": 62,
+      "unit": "%",
+      "description": "Hauteur de sortie des fiches, en part de la hauteur du dossier.",
+      "min": 20,
+      "max": 110,
+      "step": 2
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux transitions par fiche, tenues par le compositeur : aucune boucle, aucune mesure. Fermees, les fiches sont hors de l ordre de tabulation et hors de l arbre d accessibilite. Sous mouvement reduit, l eventail est en place sans trajet."
+  },
+  "id": "ui/folder",
+  "sources": {
+    "component.tsx": "/**\n * Dossier : un carton ferme qui s'ouvre sur ses fiches.\n *\n * ## C'est un bouton qui ouvre une zone, pas une image qui reagit au survol\n *\n * Le rabat est un vrai bouton, avec `aria-expanded` et `aria-controls` : un\n * lecteur d'ecran annonce « replie » ou « deplie » et sait ou mene\n * l'ouverture. Ouvrir au survol paraitrait plus vif, et rendrait le dossier\n * inutilisable au doigt comme au clavier — le survol n'existe ni sur l'un ni\n * sur l'autre.\n *\n * ## Fermees, les fiches n'existent pas\n *\n * Elles sortent de l'ordre de tabulation et de l'arbre d'accessibilite. Une\n * fiche seulement cachee par une transformation reste focusable : le focus\n * disparaitrait derriere le carton, et l'on tabulerait dans le vide. C'est le\n * defaut le plus courant des contenus qui se replient.\n *\n * Elles restent dans le document plutot que d'etre montees a l'ouverture :\n * une fiche montee au moment ou elle doit deja se deplacer n'a pas d'etat de\n * depart, et saute au lieu de sortir.\n *\n * ## Le rabat est devant, les fiches sortent par-dessus\n *\n * Trois plans : le dos du carton, les fiches, puis le rabat. Les fiches\n * montent au-dela du bord superieur du rabat, si bien que la partie visible\n * est aussi la partie cliquable — ce qui est cache est cache par le carton,\n * pas par une zone morte.\n *\n * ## La teinte est un tirage, pas un aplat\n *\n * Le carton est un melange de la teinte et de la surface du theme plutot que\n * la teinte pure : le dossier suit le theme clair comme sombre, et le texte\n * qu'il porte garde son contraste sans avoir a choisir une encre a la main.\n * Le dos est plus charge que le rabat — c'est ce decalage qui donne\n * l'epaisseur.\n *\n * ## Mouvement reduit\n *\n * Aucune transition : l'eventail est ouvert ou ferme, jamais en chemin.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  useId,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n} from 'react'\n\n/** Une fiche rangee dans le dossier. */\nexport interface FolderItem {\n  /** Identifiant, unique dans le dossier. */\n  readonly id: string\n  /** Libelle affiche sur la fiche. */\n  readonly label: string\n  /** Precision affichee en sourdine, a droite du libelle. */\n  readonly hint?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface FolderOwnProps {\n  /** Les fiches, dans l'ordre de l'eventail. */\n  items: readonly FolderItem[]\n  /** Nom du dossier, ecrit sur le rabat. */\n  label: string\n  /** Etat du dossier, en mode controle. */\n  open?: boolean\n  /** Etat du dossier au montage, en mode non controle. @defaultValue false */\n  defaultOpen?: boolean\n  /** Appele quand le dossier s'ouvre ou se referme. */\n  onOpenChange?: (open: boolean) => void\n  /** Appele au clic ou a Entree sur une fiche sortie. */\n  onSelect?: (id: string) => void\n  /** Tokens de la teinte du carton et de la couleur des fiches. */\n  colors?: readonly [string, string]\n  /** Largeur du dossier, en pixels. @defaultValue 220 */\n  width?: number\n  /** Angle entre deux fiches sorties, en degres. @defaultValue 8 */\n  spread?: number\n  /** Hauteur de sortie des fiches, en pourcentage. @defaultValue 62 */\n  rise?: number\n}\n\n/** Toutes les proprietes. */\nexport type FolderProps = Customisable<FolderOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-brand-500', '--o-theme-surface'] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-folder'\n\n/** Pose le carton, ses trois plans et l'eventail, une fois par document. */\nfunction ensureFolderRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-folder]{',\n    'position:relative;display:block;width:var(--o-folder-largeur);',\n    'aspect-ratio:5 / 4;perspective:900px;',\n    '}',\n    // Le dos : plus charge en teinte que le rabat, avec sa languette.\n    '[data-o-folder-dos]{',\n    'position:absolute;inset:14% 0 0;border-radius:0.6rem;',\n    'background:color-mix(in oklab,var(--o-folder-carton) 42%,var(--o-theme-surface));',\n    'box-shadow:0 0 0 1px color-mix(in oklab,var(--o-folder-carton) 30%,var(--o-theme-line));',\n    '}',\n    '[data-o-folder-dos]::before{',\n    'content:\"\";position:absolute;left:0;top:-11%;width:44%;height:14%;',\n    'border-radius:0.5rem 0.5rem 0 0;background:inherit;',\n    '}',\n    // Les fiches : ancrees en bas du carton, elles montent en eventail.\n    '[data-o-folder-fiches]{',\n    'position:absolute;inset:26% 7% 12%;margin:0;padding:0;list-style:none;z-index:2;',\n    'pointer-events:none;',\n    '}',\n    '[data-o-folder][data-o-folder-ouvert] [data-o-folder-fiches]{pointer-events:auto}',\n    '[data-o-folder-fiches]>li{position:absolute;inset:auto 0 0}',\n    '[data-o-folder-fiche]{',\n    'display:flex;align-items:center;justify-content:space-between;gap:0.75rem;width:100%;',\n    'padding:0.45rem 0.65rem;border-radius:0.45rem;text-align:start;cursor:pointer;',\n    'font:inherit;color:inherit;font-size:0.8125em;',\n    'background:var(--o-folder-fiche);',\n    'border:1px solid var(--o-theme-line);',\n    'box-shadow:0 8px 18px -14px currentColor;',\n    'transform-origin:50% 100%;opacity:0;transform:translateY(8%) scale(0.94);',\n    'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',\n    'opacity var(--o-duration-slow) linear;',\n    '}',\n    // L'eventail est un arc : les fiches des bords montent moins haut que\n    // celle du milieu. Sans cet arc, trois fiches a la meme hauteur se\n    // recouvrent et l'on ne lit plus que la derniere.\n    '[data-o-folder][data-o-folder-ouvert] [data-o-folder-fiche]{',\n    'opacity:1;',\n    'transform:translateY(calc(var(--o-folder-monte) * -1 + var(--o-folder-arc)))',\n    ' translateX(calc(var(--o-folder-rang) * 20%))',\n    ' rotate(calc(var(--o-folder-rang) * var(--o-folder-ecart)));',\n    '}',\n    '[data-o-folder-fiche]:focus-visible{outline:2px solid var(--o-folder-carton);outline-offset:2px}',\n    '[data-o-folder-indice]{color:var(--o-theme-muted);white-space:nowrap}',\n    // Le rabat : le plan de devant, et la commande d'ouverture.\n    '[data-o-folder-rabat]{',\n    'position:absolute;inset:auto 0 0;height:64%;z-index:3;',\n    'display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:0.15rem;',\n    'padding:0.7rem 0.9rem;border-radius:0.6rem;cursor:pointer;text-align:start;',\n    'font:inherit;color:inherit;',\n    'background:color-mix(in oklab,var(--o-folder-carton) 20%,var(--o-theme-surface));',\n    'border:1px solid color-mix(in oklab,var(--o-folder-carton) 40%,var(--o-theme-line));',\n    'transform-origin:50% 100%;',\n    'transition:transform var(--o-duration-slow) var(--o-ease-emphasized);',\n    '}',\n    '[data-o-folder][data-o-folder-ouvert] [data-o-folder-rabat]{transform:rotateX(-28deg)}',\n    '[data-o-folder-rabat]:focus-visible{outline:2px solid var(--o-folder-carton);outline-offset:3px}',\n    '[data-o-folder-nom]{font-weight:600}',\n    '[data-o-folder-compte]{font-size:0.8125em;color:var(--o-theme-muted)}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-folder-fiche],[data-o-folder-rabat]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Dossier qui s'ouvre sur ses fiches, au clic comme au clavier.\n *\n * @example\n * <Folder\n *   label=\"Dossier client\"\n *   items={[\n *     { id: 'contrat', label: 'Contrat signe', hint: 'PDF' },\n *     { id: 'devis', label: 'Devis de mars', hint: 'PDF' },\n *     { id: 'photos', label: 'Photos du chantier', hint: '48 fichiers' },\n *   ]}\n *   onSelect={ouvrirFiche}\n * />\n *\n * @example\n * // Mode controle, eventail large, teinte ardoise.\n * <Folder\n *   label=\"Archives 2025\"\n *   items={pieces}\n *   open={ouvert}\n *   onOpenChange={setOuvert}\n *   colors={['--o-palette-slate-500', '--o-theme-surface']}\n *   spread={16}\n * />\n */\nexport function Folder({\n  items,\n  label,\n  open,\n  defaultOpen = false,\n  onOpenChange,\n  onSelect,\n  colors = DEFAULT_TOKENS,\n  width = 220,\n  spread = 8,\n  rise = 62,\n  ...rest\n}: FolderProps): ReactElement {\n  const [interne, setInterne] = useState(defaultOpen)\n  const panneau = useId()\n  ensureFolderRules()\n\n  const ouvert = open ?? interne\n  const milieu = (items.length - 1) / 2\n\n  const basculer = (): void => {\n    if (open === undefined) setInterne(!ouvert)\n    onOpenChange?.(!ouvert)\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      data-o-folder=\"\"\n      data-o-folder-ouvert={ouvert ? '' : undefined}\n      className={className}\n      style={\n        {\n          '--o-folder-carton': `var(${colors[0]})`,\n          '--o-folder-fiche': `var(${colors[1]})`,\n          '--o-folder-largeur': `${String(width)}px`,\n          '--o-folder-ecart': `${String(spread)}deg`,\n          // Une longueur, pas un pourcentage : un pourcentage de `translateY`\n          // se rapporte a la hauteur de la fiche, qui n'a rien a voir avec la\n          // hauteur du dossier. La sortie est donc calculee ici, sur la\n          // hauteur reelle du carton.\n          '--o-folder-monte': `${String(Math.round(((width * 4) / 5) * (rise / 100)))}px`,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <span data-o-folder-dos=\"\" aria-hidden=\"true\" />\n\n      <ul id={panneau} data-o-folder-fiches=\"\" aria-hidden={ouvert ? undefined : true}>\n        {items.map((item, index) => (\n          <li\n            key={item.id}\n            // Le rang signe : negatif a gauche du centre, positif a droite.\n            // C'est lui qui decide de l'inclinaison et du decalage.\n            style={\n              {\n                '--o-folder-rang': index - milieu,\n                '--o-folder-arc': `${String(Math.abs(index - milieu) * 12)}px`,\n                zIndex: index + 1,\n              } as CSSProperties\n            }\n          >\n            <button\n              type=\"button\"\n              data-o-folder-fiche=\"\"\n              tabIndex={ouvert ? 0 : -1}\n              onClick={() => {\n                onSelect?.(item.id)\n              }}\n            >\n              <span>{item.label}</span>\n              {item.hint === undefined ? null : (\n                <span data-o-folder-indice=\"\">{item.hint}</span>\n              )}\n            </button>\n          </li>\n        ))}\n      </ul>\n\n      <button\n        type=\"button\"\n        data-o-folder-rabat=\"\"\n        aria-expanded={ouvert}\n        aria-controls={panneau}\n        onClick={basculer}\n      >\n        <span data-o-folder-nom=\"\">{label}</span>\n        <span data-o-folder-compte=\"\">\n          {items.length} {items.length > 1 ? 'fiches' : 'fiche'}\n        </span>\n      </button>\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "name": "crosshair",
+  "category": "effect",
+  "title": "Reticule",
+  "description": "Deux traits traversent la zone et se croisent sous le pointeur, avec un vide au croisement et le releve chiffre des coordonnees.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Crosshair.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "unit": "px",
+      "description": "Epaisseur des traits.",
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "description": "Vitesse de rattrapage. Plus haut, plus colle.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Vide laisse au croisement.",
+      "min": 0,
+      "max": 64,
+      "step": 2
+    },
+    {
+      "name": "coords",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Affiche les coordonnees du croisement."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Zone visee. Absente, le reticule prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre segments et une etiquette, mus par des transformations seules ; le releve chiffre n est reecrit qu au changement de pixel. Rien sans pointeur fin ni sous mouvement reduit."
+  },
+  "id": "effect/crosshair",
+  "sources": {
+    "component.tsx": "/**\n * Reticule : deux traits qui traversent la zone et se croisent au pointeur.\n *\n * ## Un instrument, pas un ornement\n *\n * Les autres curseurs de la famille suivent avec du retard, et c'est le retard\n * qui fait l'effet. Celui-ci vise l'inverse : il doit donner le sentiment d'un\n * viseur, donc il colle. La vitesse de rattrapage par defaut est haute, et le\n * reglage descend assez bas pour ceux qui veulent quand meme du flottement.\n *\n * ## Pourquoi quatre segments et pas deux traits\n *\n * Un vrai reticule laisse un vide au croisement : sans lui, l'intersection\n * masque exactement ce qu'on vise. Chaque axe est donc coupe en deux segments,\n * de part et d'autre de l'ecart.\n *\n * Les segments font toute la largeur — ou toute la hauteur — de la zone une\n * fois pour toutes, et ne changent que d'echelle. Redimensionner en pixels a\n * chaque image demanderait une mise en page par image ; une echelle se compose,\n * elle ne mesure rien.\n *\n * ## Les coordonnees ne re-rendent pas non plus\n *\n * Le releve chiffre est ecrit dans le noeud de texte directement, et seulement\n * quand l'arrondi au pixel a change : deplacer le pointeur d'un dixieme de\n * pixel ne doit rien reecrire du tout.\n *\n * ## Ou il ne se montre pas\n *\n * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non plus :\n * deux traits qui suivent la souris sont un mouvement continu, et il n'en reste\n * pas d'etat final a poser. Le curseur du systeme reste toujours visible.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CrosshairOwnProps {\n  /**\n   * Zone visee.\n   *\n   * Fournie, le reticule n'ecoute qu'elle et s'y arrete. Absente, il prend la\n   * page entiere, en couche fixe qui n'intercepte rien.\n   */\n  children?: ReactNode\n  /** Epaisseur des traits, en pixels. @defaultValue 1 */\n  thickness?: number\n  /** Vitesse de rattrapage. Plus haut, plus colle. @defaultValue 20 */\n  speed?: number\n  /** Vide laisse au croisement, en pixels. @defaultValue 16 */\n  gap?: number\n  /** Affiche les coordonnees du croisement. @defaultValue true */\n  coords?: boolean\n  /** Couleur des traits. Une valeur, pas un role. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type CrosshairProps = Customisable<CrosshairOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-crosshair'\n\n/** Pose les regles du reticule, une fois par document. */\nfunction ensureCrosshairRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La position de la zone vit dans une regle sans specificite : une\n    // classe de l appelant — `o-absolute` pour la poser dans un cadre —\n    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.\n    ':where([data-o-cross-host=\"zone\"]){position:relative;overflow:hidden}',\n    ':where([data-o-cross-host=\"page\"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',\n    '[data-o-cross-layer]{',\n    'position:absolute;inset:0;overflow:hidden;pointer-events:none;',\n    'opacity:0;transition:opacity 120ms linear;',\n    '}',\n    '[data-o-cross-seg]{position:absolute;left:0;top:0;will-change:transform}',\n    '[data-o-cross-seg=\"h\"]{width:100%}',\n    '[data-o-cross-seg=\"v\"]{height:100%}',\n    '[data-o-cross-label]{',\n    'position:absolute;left:0;top:0;will-change:transform;',\n    'font-size:10px;line-height:1;letter-spacing:0.08em;',\n    'font-variant-numeric:tabular-nums;white-space:nowrap;',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Pose un reticule sur sa zone.\n *\n * @example\n * // Sur la page entiere, tres fin.\n * <Crosshair thickness={1} gap={24} />\n *\n * @example\n * // Sur une carte, avec du flottement et sans releve chiffre.\n * <Crosshair speed={6} coords={false} className=\"o-rounded-xl o-p-10\">\n *   <img src=\"/plan.png\" alt=\"Plan du site\" />\n * </Crosshair>\n */\nexport function Crosshair({\n  children,\n  thickness = 1,\n  speed = 20,\n  gap = 16,\n  coords = true,\n  color = 'currentColor',\n  ...rest\n}: CrosshairProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const wrapping = children !== undefined\n\n  ensureCrosshairRule()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (typeof window === 'undefined') return\n    // Pointeur grossier : il n'y a rien a viser, et rien n'est cree.\n    if (!window.matchMedia('(pointer: fine)').matches) return\n\n    const layer = document.createElement('div')\n    layer.setAttribute('data-o-cross-layer', '')\n    layer.setAttribute('aria-hidden', 'true')\n    host.append(layer)\n\n    /** Fabrique un des quatre segments. */\n    const makeSegment = (axis: 'h' | 'v', origin: string): HTMLElement => {\n      const node = document.createElement('span')\n      node.setAttribute('data-o-cross-seg', axis)\n      node.style.background = color\n      node.style.transformOrigin = origin\n      if (axis === 'h') node.style.height = `${String(thickness)}px`\n      else node.style.width = `${String(thickness)}px`\n      layer.append(node)\n      return node\n    }\n\n    const left = makeSegment('h', '0% 50%')\n    const right = makeSegment('h', '100% 50%')\n    const top = makeSegment('v', '50% 0%')\n    const bottom = makeSegment('v', '50% 100%')\n\n    const label = coords ? document.createElement('span') : null\n    if (label !== null) {\n      label.setAttribute('data-o-cross-label', '')\n      label.style.color = color\n      layer.append(label)\n    }\n\n    let box = host.getBoundingClientRect()\n    const onFrameChange = (): void => {\n      box = host.getBoundingClientRect()\n    }\n\n    let targetX = -1000\n    let targetY = -1000\n    let x = -1000\n    let y = -1000\n    let seen = false\n    let written = ''\n\n    const onMove = (event: Event): void => {\n      const pointer = event as PointerEvent\n      if (pointer.pointerType === 'touch') return\n      targetX = pointer.clientX - box.left\n      targetY = pointer.clientY - box.top\n      if (!seen) {\n        x = targetX\n        y = targetY\n        seen = true\n        layer.style.opacity = '1'\n      }\n    }\n\n    const onLeave = (): void => {\n      layer.style.opacity = '0'\n      seen = false\n    }\n\n    const surface: HTMLElement | Window = wrapping ? host : window\n    surface.addEventListener('pointermove', onMove, { passive: true })\n    surface.addEventListener('pointerleave', onLeave)\n    window.addEventListener('resize', onFrameChange, { passive: true })\n    window.addEventListener('scroll', onFrameChange, { passive: true, capture: true })\n\n    const half = gap / 2\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        if (!seen) return\n        const factor = 1 - Math.exp(-speed * delta)\n        x += (targetX - x) * factor\n        y += (targetY - y) * factor\n\n        const width = Math.max(box.width, 1)\n        const height = Math.max(box.height, 1)\n        // Les fractions sont bornees a zero : pres d'un bord, un segment\n        // negatif se retournerait de l'autre cote du croisement.\n        const toLeft = Math.max(0, x - half) / width\n        const toRight = Math.max(0, width - x - half) / width\n        const toTop = Math.max(0, y - half) / height\n        const toBottom = Math.max(0, height - y - half) / height\n\n        left.style.transform = `translate3d(0,${y.toFixed(1)}px,0) scaleX(${toLeft.toFixed(4)})`\n        right.style.transform = `translate3d(0,${y.toFixed(1)}px,0) scaleX(${toRight.toFixed(4)})`\n        top.style.transform = `translate3d(${x.toFixed(1)}px,0,0) scaleY(${toTop.toFixed(4)})`\n        bottom.style.transform = `translate3d(${x.toFixed(1)}px,0,0) scaleY(${toBottom.toFixed(4)})`\n\n        if (label !== null) {\n          label.style.transform = `translate3d(${(x + half).toFixed(1)}px,${(y + half).toFixed(1)}px,0)`\n          const reading = `${String(Math.round(x))} : ${String(Math.round(y))}`\n          // Seulement quand le pixel a change : voir l'en-tete du module.\n          if (reading !== written) {\n            label.textContent = reading\n            written = reading\n          }\n        }\n      },\n      { name: 'crosshair : reticule', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      surface.removeEventListener('pointermove', onMove)\n      surface.removeEventListener('pointerleave', onLeave)\n      window.removeEventListener('resize', onFrameChange)\n      window.removeEventListener('scroll', onFrameChange, { capture: true })\n      subscription.unsubscribe()\n      layer.remove()\n    }\n  }, [host, reduced, thickness, speed, gap, coords, color, wrapping])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={style as CSSProperties}\n      data-o-cross-host={wrapping ? 'zone' : 'page'}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

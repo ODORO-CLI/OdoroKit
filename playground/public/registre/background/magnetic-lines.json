@@ -1,0 +1,92 @@
+{
+  "name": "magnetic-lines",
+  "category": "background",
+  "title": "Lignes de champ",
+  "description": "Les lignes de champ et les equipotentielles d un dipole, cercles analytiques qui glissent d un pole a l autre ; le pointeur deplace le second pole.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "magnetic-lines.shader.ts",
+      "target": "background/magnetic-lines.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/MagneticLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-rose-400",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "lines",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "description": "Nombre de lignes de champ par tour.",
+      "min": 6,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Demi-distance des poles, en hauteurs de cadre.",
+      "min": 0.1,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Vitesse de glissement des lignes le long du champ.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "potential",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Dessine aussi les equipotentielles, plus discretes."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-rose-400, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux arcs tangentes et deux logarithmes par fragment, gradients analytiques : aucune derivee d ecran, aucune boucle. Le pole suit la position amortie du pointeur sans rendu React par image.",
+    "fallback": "static"
+  },
+  "id": "background/magnetic-lines",
+  "sources": {
+    "magnetic-lines.shader.ts": "/**\n * Shader des lignes de champ.\n *\n * ## L'idee mathematique\n *\n * Deux poles de signe oppose dans le plan. Les lignes de champ d'un tel\n * dipole sont les cercles qui passent par les deux poles ; les\n * equipotentielles, les cercles d'Apollonius qui les entourent. Les premieres\n * sont les niveaux de la difference des angles sous lesquels on voit chaque\n * pole, les secondes les niveaux de la difference des logarithmes des\n * distances. Aucune integration : tout est analytique, et le gradient l'est\n * aussi — c'est lui qui donne l'epaisseur des traits en pixels, sans derivee\n * d'ecran.\n *\n * La difference des angles saute d'un tour entier de part et d'autre de la\n * coupure de l'arc tangente ; comme le nombre de lignes est entier, la partie\n * fractionnaire ne voit pas ce saut, et les cercles restent continus.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les lignes de champ.\n * - `uColorC` — les poles et le champ pres d'eux.\n * - `uPointer` — position amortie du pointeur, centree, entre -1 et 1, y vers le bas.\n * - `uLines` — nombre de lignes de champ par tour.\n * - `uSpread` — demi-distance des poles, en hauteurs de cadre.\n * - `uSpeed` — vitesse de glissement des lignes le long du champ.\n * - `uPotential` — 1 pour dessiner aussi les equipotentielles.\n */\nexport const MAGNETIC_LINES_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uLines;\nuniform float uSpread;\nuniform float uSpeed;\nuniform float uPotential;\n\nconst float TAU = 6.28318530718;\n\n// Un trait fin centre sur les entiers d'un champ scalaire, d'epaisseur fixe\n// en pixels : la pente du champ ramene la distance a l'ecran.\nfloat ligneTrait(float valeur, float pente, float pixel, float largeur) {\n  float ecart = abs(fract(valeur) - 0.5);\n  float demi = pente * pixel * largeur;\n  return 1.0 - smoothstep(demi * 0.6, demi * 1.6, 0.5 - ecart);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);\n  float pixel = 1.0 / max(uResolution.y, 1.0);\n\n  // Le premier pole respire lentement ; le second suit le pointeur.\n  vec2 poleA = vec2(-uSpread, sin(uTime * 0.3) * 0.06);\n  vec2 poleB = vec2(uSpread, 0.0) + vec2(uPointer.x * aspect, -uPointer.y) * 0.3;\n\n  vec2 dA = p - poleA;\n  vec2 dB = p - poleB;\n  float lA = max(length(dA), 0.0005);\n  float lB = max(length(dB), 0.0005);\n\n  float lignes = max(floor(uLines), 2.0);\n\n  // Lignes de champ : difference des angles. Son gradient est la somme des\n  // perpendiculaires divisees par les distances au carre.\n  float psi = (atan(dA.y, dA.x) - atan(dB.y, dB.x)) / TAU * lignes + uTime * uSpeed;\n  vec2 gradPsi = (vec2(-dA.y, dA.x) / (lA * lA) - vec2(-dB.y, dB.x) / (lB * lB)) / TAU * lignes;\n  float champ = ligneTrait(psi, length(gradPsi), pixel, 1.1);\n\n  // Equipotentielles : difference des logarithmes, gradient en 1 / distance.\n  float phi = (log(lA) - log(lB)) / TAU * lignes * 0.5;\n  vec2 gradPhi = (dA / (lA * lA) - dB / (lB * lB)) / TAU * lignes * 0.5;\n  float potentiel = ligneTrait(phi, length(gradPhi), pixel, 0.8) * step(0.5, uPotential);\n\n  // Les traits se resserrent a l'infini pres des poles : ils y sont fondus\n  // dans un halo, sinon ils moirent.\n  float proche = exp(-lA * 9.0) + exp(-lB * 9.0);\n  float halo = exp(-lA * lA * 900.0) + exp(-lB * lB * 900.0);\n\n  vec3 colour = uColorA;\n  colour = mix(colour, uColorB, potentiel * 0.22);\n  colour = mix(colour, uColorB, champ * (0.75 - proche * 0.4));\n  colour = mix(colour, uColorC, clamp(champ * proche * 1.2 + halo, 0.0, 1.0));\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Lignes de champ : les cercles d'un dipole, dont le pointeur deplace un pole.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, avec amortissement : le second pole s'ecarte de\n * sa place au rythme du curseur, et toutes les lignes se redessinent autour\n * de lui — elles sont calculees, pas stockees. A la sortie du cadre, le hook\n * ramene la cible au centre et le pole revient.\n *\n * Ce qui distingue cette entree de `magnet-grid` : celle-ci ecarte des points\n * d'une grille ; ici il n'y a pas de grille, seulement les lignes continues\n * du champ, qui glissent d'un pole a l'autre.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : la position amortie est recopiee dans un\n * tableau stable par une souscription a l'horloge du moteur, et la surface\n * relit ses uniforms a chaque image — la mutation suffit.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { MAGNETIC_LINES_FRAGMENT } from './magnetic-lines.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MagneticLinesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface MagneticLinesOwnProps {\n  /** Nombre de lignes de champ par tour. @defaultValue 16 */\n  lines?: number\n  /** Demi-distance des poles, en hauteurs de cadre. @defaultValue 0.35 */\n  spread?: number\n  /** Vitesse de glissement des lignes le long du champ. @defaultValue 0.15 */\n  speed?: number\n  /** Dessine aussi les equipotentielles. @defaultValue true */\n  potential?: boolean\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MagneticLinesControls>\n}\n\n/** Toutes les proprietes. */\nexport type MagneticLinesProps = Customisable<MagneticLinesOwnProps>\n\n/** Tokens employes par defaut : le fond, les lignes, les poles. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-rose-400',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Lignes de champ.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <MagneticLines className=\"o-absolute o-inset-0\" potential={false} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function MagneticLines({\n  lines = 16,\n  spread = 0.35,\n  speed = 0.15,\n  potential = true,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: MagneticLinesProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableau stable, mute en place dans la boucle : aucun setState par image.\n  const uPointer = useRef<number[]>([0, 0]).current\n\n  const pointer = usePointerDamped({ host, speed: 3, name: 'magnetic-lines : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Le shader recoit le repere du hook tel quel : centre, y vers le bas.\n        uPointer[0] = pointer.current.x\n        uPointer[1] = pointer.current.y\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'magnetic-lines : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: MAGNETIC_LINES_FRAGMENT,\n      colors,\n      uniforms: {\n        uPointer,\n        uLines: lines,\n        uSpread: spread,\n        uSpeed: speed,\n        uPotential: potential ? 1 : 0,\n      },\n      name: 'magnetic-lines',\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

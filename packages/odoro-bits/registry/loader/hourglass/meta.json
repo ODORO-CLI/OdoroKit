@@ -1,0 +1,57 @@
+{
+  "name": "hourglass",
+  "category": "loader",
+  "title": "Sablier",
+  "description": "Le sable coule a debit constant du haut vers le bas, puis le sablier se retourne d un geste et recommence, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Hourglass.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Hauteur du sablier.",
+      "min": 24,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un cycle, ecoulement et retournement compris.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du verre et du sable. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre animations CSS sur des elements SVG, tenues par le compositeur, deux decoupes statiques. Sable entierement en bas, sablier droit, sous mouvement reduit."
+  }
+}

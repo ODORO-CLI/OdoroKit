@@ -1,0 +1,90 @@
+{
+  "name": "split-flap",
+  "category": "text",
+  "title": "Palettes",
+  "description": "Chaque caractere defile sur deux demi-cartes articulees, comme un tableau de departs, jusqu a se poser sur sa lettre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitFlap.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "alphabet",
+      "type": "string",
+      "required": false,
+      "description": "Caracteres du rouleau. Le premier est la carte vierge."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "ms",
+      "description": "Duree d un battement.",
+      "min": 30,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 60,
+      "unit": "ms",
+      "description": "Retard de depart entre deux cellules.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    },
+    {
+      "name": "largeur",
+      "type": "number",
+      "required": false,
+      "default": 0.72,
+      "unit": "em",
+      "description": "Largeur minimale d une carte.",
+      "min": 0.4,
+      "max": 1.4,
+      "step": 0.02
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "required": false,
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": [
+        "montage",
+        "vue",
+        "survol"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une comparaison d echeance par cellule et par image tant que le tableau tourne, puis plus rien. Deux rotations composees par carte tournee."
+  },
+  "id": "text/split-flap",
+  "sources": {
+    "component.tsx": "/**\n * Palettes : chaque caractere defile sur des demi-cartes articulees.\n *\n * ## Deux moities, deux volets\n *\n * Une cellule est faite de quatre calques superposes : la moitie haute fixe,\n * la moitie basse fixe, et deux volets qui pivotent. Un battement se joue en\n * deux temps. Le volet du haut porte le caractere en place et tombe vers\n * l'avant, decouvrant derriere lui la moitie haute qui affiche deja le\n * caractere suivant ; a mi-course, le volet du bas repart de l'horizontale\n * avec ce meme caractere suivant et vient se plaquer sur la moitie basse, qui\n * ne prend le nouveau caractere qu'a la toute fin.\n *\n * C'est ce decalage qui fait la carte : a aucun moment on ne voit un\n * caractere se substituer a un autre, on voit un panneau retomber.\n *\n * ## Une echeance par cellule, pas un minuteur par cellule\n *\n * Chaque cellule sait la date de son prochain battement. La boucle du moteur\n * compare, et declenche celles qui sont a l'heure. Une vingtaine de\n * comparaisons par image coutent moins que vingt minuteurs qui se reveillent\n * chacun de leur cote, et le decalage entre cellules reste juste quelle que\n * soit la cadence de l'ecran.\n *\n * Le battement lui-meme est confie au compositeur : deux rotations par carte\n * tournee, rien d'anime en JavaScript.\n *\n * ## Le texte juste est l'etat de depart\n *\n * Les faces sont rendues avec le caractere final. C'est le code du battage\n * qui les remet a la carte vierge avant de faire defiler : si ce code ne\n * tourne jamais, le tableau affiche deja ce qu'il doit afficher.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les cellules sont\n * retirees de l'arbre d'accessibilite. Les espaces ne sont pas des cartes :\n * un tableau de gare separe ses mots par du vide, pas par une palette qui\n * tourne.\n *\n * ## Mouvement reduit\n *\n * Aucune cellule, aucun battement : le texte est rendu tel quel. C'est l'etat\n * d'arrivee.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, type CSSProperties, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Ce qui declenche le battage. */\nexport type SplitFlapDeclenchement = 'montage' | 'vue' | 'survol'\n\n/** Proprietes propres au composant. */\nexport interface SplitFlapOwnProps {\n  /** Texte a afficher. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /**\n   * Caracteres du rouleau, dans l'ordre ou les cartes defilent.\n   *\n   * Le premier est la carte vierge : c'est de lui que part chaque cellule.\n   * Tout caractere du texte absent de cette liste y est ajoute, sans quoi il\n   * serait injoignable.\n   */\n  alphabet?: string\n  /** Duree d'un battement, en millisecondes. @defaultValue 90 */\n  interval?: number\n  /** Retard de depart entre deux cellules, en millisecondes. @defaultValue 60 */\n  step?: number\n  /** Largeur minimale d'une carte, en cadratins. @defaultValue 0.72 */\n  largeur?: number\n  /**\n   * Quand battre.\n   *\n   * `vue` attend l'entree dans le champ, `montage` part tout de suite,\n   * `survol` rejoue a chaque entree du pointeur.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: SplitFlapDeclenchement\n}\n\n/** Toutes les proprietes. */\nexport type SplitFlapProps = Customisable<SplitFlapOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = ' '\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-split-flap'\n\n/**\n * Rouleau par defaut : la carte vierge, puis les capitales, les chiffres et\n * la ponctuation d'un tableau de depart.\n */\nconst ALPHABET = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,:;!?-'\n\n/** Distance de fuite : assez courte pour que le volet ait une epaisseur. */\nconst FUITE = '380px'\n\n/** Pose la mecanique des cartes, une fois par document. */\nfunction ensureFlapRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-flap]{display:inline-block}',\n    '[data-o-flap-cell]{',\n    'position:relative;display:inline-block;text-align:center;',\n    'min-width:var(--o-flap-largeur);perspective:var(--o-flap-fuite);',\n    '}',\n    // La ligne de partage passe au-dessus de tout : c'est la ou la carte se\n    // coupe, y compris quand un volet est en train de tomber devant.\n    '[data-o-flap-cell]::after{',\n    'content:\"\";position:absolute;left:0;right:0;top:50%;height:1px;z-index:3;',\n    'background-color:color-mix(in oklab, currentColor 30%, transparent);',\n    '}',\n    // La reserve donne a la cellule sa largeur et sa hauteur : les quatre\n    // calques sont absolus et ne mesurent rien.\n    '[data-o-flap-sizer]{visibility:hidden}',\n    '[data-o-flap-half],[data-o-flap-leaf]{',\n    'position:absolute;left:0;right:0;height:50%;overflow:hidden;',\n    'backface-visibility:hidden;',\n    'background-color:color-mix(in oklab, currentColor 7%, transparent);',\n    '}',\n    '[data-o-flap-half]{z-index:1}',\n    '[data-o-flap-leaf]{z-index:2;opacity:0}',\n    '[data-o-flap-half=\"haut\"],[data-o-flap-leaf=\"haut\"]{top:0;transform-origin:50% 100%}',\n    '[data-o-flap-half=\"bas\"],[data-o-flap-leaf=\"bas\"]{top:50%;transform-origin:50% 0%}',\n    // Le glyphe occupe la hauteur entiere de la cellule dans chaque moitie :\n    // c'est la fenetre qui en montre le haut ou le bas, jamais deux dessins\n    // differents qu'il faudrait faire coincider.\n    '[data-o-flap-glyphe]{',\n    'position:absolute;left:0;right:0;top:0;height:200%;',\n    'display:flex;align-items:center;justify-content:center;',\n    '}',\n    '[data-o-flap-half=\"bas\"] [data-o-flap-glyphe],',\n    '[data-o-flap-leaf=\"bas\"] [data-o-flap-glyphe]{top:-100%}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Ce qu'une cellule retient entre deux battements. */\ninterface Cellule {\n  /** Glyphe de la moitie haute fixe. Il porte aussi la carte visee. */\n  readonly haut: HTMLElement\n  /** Glyphe de la moitie basse fixe. */\n  readonly bas: HTMLElement\n  /** Volet superieur. */\n  readonly voletHaut: HTMLElement\n  /** Glyphe du volet superieur. */\n  readonly glypheHaut: HTMLElement\n  /** Volet inferieur. */\n  readonly voletBas: HTMLElement\n  /** Glyphe du volet inferieur. */\n  readonly glypheBas: HTMLElement\n  /** Position courante sur le rouleau. */\n  rang: number\n  /** Battements qui restent a jouer. */\n  restant: number\n  /** Date du prochain battement. */\n  echeance: number\n  /** Animations en cours, pour pouvoir les annuler. */\n  animations: Animation[]\n}\n\n/** Lit un calque d'une cellule. */\nfunction partie(cellule: Element, selecteur: string): HTMLElement | null {\n  return cellule.querySelector<HTMLElement>(selecteur)\n}\n\n/**\n * Affiche un texte comme un tableau de departs a palettes.\n *\n * @example\n * <SplitFlap as=\"h1\" className=\"o-text-5xl o-font-bold\">\n *   Odoro\n * </SplitFlap>\n *\n * @example\n * // Rouleau de chiffres seuls, battement rapide, rejoue au survol.\n * <SplitFlap alphabet=\" 0123456789\" interval={60} declenchement=\"survol\">\n *   1842\n * </SplitFlap>\n */\nexport function SplitFlap({\n  children,\n  as: Tag = 'span',\n  alphabet = ALPHABET,\n  interval = 90,\n  step = 60,\n  largeur = 0.72,\n  declenchement = 'vue',\n  ...rest\n}: SplitFlapProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  ensureFlapRule()\n\n  // Le texte affiche est en capitales : c'est la convention du tableau, et\n  // elle evite d'avoir a doubler le rouleau. Le texte annonce, lui, garde sa\n  // casse d'origine.\n  const affiche = children.toLocaleUpperCase()\n\n  // Tout caractere du texte absent du rouleau y est ajoute : sans cela la\n  // cellule tournerait sans fin sans jamais tomber sur sa carte.\n  const rouleau = [...alphabet]\n  for (const caractere of affiche) {\n    if (caractere !== ' ' && !rouleau.includes(caractere)) rouleau.push(caractere)\n  }\n  const rouleauTexte = rouleau.join('')\n\n  useEffect(() => {\n    const element = ref.current\n    if (element === null || reduced) return\n\n    const cartes = [...rouleauTexte]\n    const total = cartes.length\n    if (total < 2) return\n\n    const vierge = cartes[0] ?? NBSP\n\n    const cellules: Cellule[] = []\n    for (const noeud of element.querySelectorAll('[data-o-flap-cell]')) {\n      const haut = partie(noeud, '[data-o-flap-half=\"haut\"] [data-o-flap-glyphe]')\n      const bas = partie(noeud, '[data-o-flap-half=\"bas\"] [data-o-flap-glyphe]')\n      const voletHaut = partie(noeud, '[data-o-flap-leaf=\"haut\"]')\n      const voletBas = partie(noeud, '[data-o-flap-leaf=\"bas\"]')\n      const glypheHaut = partie(noeud, '[data-o-flap-leaf=\"haut\"] [data-o-flap-glyphe]')\n      const glypheBas = partie(noeud, '[data-o-flap-leaf=\"bas\"] [data-o-flap-glyphe]')\n      if (\n        haut === null ||\n        bas === null ||\n        voletHaut === null ||\n        voletBas === null ||\n        glypheHaut === null ||\n        glypheBas === null\n      ) {\n        continue\n      }\n      cellules.push({\n        haut,\n        bas,\n        voletHaut,\n        glypheHaut,\n        voletBas,\n        glypheBas,\n        rang: 0,\n        restant: 0,\n        echeance: 0,\n        animations: [],\n      })\n    }\n    if (cellules.length === 0) return\n\n    let abonnement: { unsubscribe(): void } | null = null\n\n    const arreter = (): void => {\n      abonnement?.unsubscribe()\n      abonnement = null\n      for (const cellule of cellules) {\n        for (const animation of cellule.animations) animation.cancel()\n        cellule.animations = []\n        cellule.restant = 0\n      }\n    }\n\n    /** Joue un battement : le volet du haut tombe, celui du bas se plaque. */\n    const battre = (cellule: Cellule): void => {\n      const suivant = (cellule.rang + 1) % total\n      const enPlace = cartes[cellule.rang] ?? vierge\n      const aVenir = cartes[suivant] ?? vierge\n\n      // La moitie haute prend tout de suite le caractere a venir : c'est ce\n      // que le volet decouvre en tombant.\n      cellule.haut.textContent = aVenir\n      cellule.glypheHaut.textContent = enPlace\n      cellule.glypheBas.textContent = aVenir\n\n      const demi = Math.max(1, interval / 2)\n\n      const chute = cellule.voletHaut.animate(\n        [\n          { transform: 'rotateX(0deg)', opacity: 1 },\n          { transform: 'rotateX(-90deg)', opacity: 1 },\n        ],\n        { duration: demi, easing: 'ease-in', fill: 'none' },\n      )\n      const pose = cellule.voletBas.animate(\n        [\n          { transform: 'rotateX(90deg)', opacity: 1 },\n          { transform: 'rotateX(0deg)', opacity: 1 },\n        ],\n        { duration: demi, delay: demi, easing: 'ease-out', fill: 'forwards' },\n      )\n      // Le volet tient sa pose jusqu'a ce que la moitie basse ait pris le\n      // relais : sans ce recouvrement, une image montrerait l'ancien\n      // caractere revenu.\n      pose.onfinish = (): void => {\n        cellule.bas.textContent = aVenir\n        pose.cancel()\n      }\n\n      cellule.animations = [chute, pose]\n      cellule.rang = suivant\n    }\n\n    const jouer = (): void => {\n      arreter()\n\n      const depart = performance.now()\n      cellules.forEach((cellule, index) => {\n        const vise = cartes.indexOf(cellule.haut.dataset['oFlapCible'] ?? '')\n        const cible = vise < 0 ? 0 : vise\n\n        cellule.rang = 0\n        cellule.haut.textContent = vierge\n        cellule.bas.textContent = vierge\n        cellule.glypheHaut.textContent = vierge\n        cellule.glypheBas.textContent = vierge\n\n        // Une cellule deja sur sa carte ferait un tour complet plutot que de\n        // rester immobile pendant que ses voisines tournent.\n        cellule.restant = cible === 0 ? total : cible\n        cellule.echeance = depart + index * step\n      })\n\n      abonnement = clock.subscribe(\n        () => {\n          const maintenant = performance.now()\n          let reste = 0\n          for (const cellule of cellules) {\n            if (cellule.restant <= 0) continue\n            reste += 1\n            if (maintenant < cellule.echeance) continue\n            battre(cellule)\n            cellule.restant -= 1\n            cellule.echeance = maintenant + interval\n          }\n          // Le tableau s'est pose : plus rien a comparer.\n          if (reste === 0) {\n            abonnement?.unsubscribe()\n            abonnement = null\n          }\n        },\n        { name: 'palettes', priority: CLOCK_PRIORITY.layout },\n      )\n    }\n\n    if (declenchement === 'survol') {\n      const entrer = (): void => {\n        jouer()\n      }\n      element.addEventListener('pointerenter', entrer)\n      return () => {\n        element.removeEventListener('pointerenter', entrer)\n        arreter()\n      }\n    }\n\n    if (!vu) {\n      // Les cartes vierges sont posees ici, pas dans le rendu : voir\n      // l'en-tete. Sans cela, le tableau afficherait son texte puis se\n      // viderait d'un coup en entrant dans le champ.\n      for (const cellule of cellules) {\n        cellule.haut.textContent = vierge\n        cellule.bas.textContent = vierge\n      }\n      return\n    }\n\n    jouer()\n    return arreter\n  }, [ref, reduced, vu, affiche, rouleauTexte, interval, step, declenchement])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, pose, sans cellules.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const styleRacine = {\n    ...style,\n    '--o-flap-largeur': `${String(largeur)}em`,\n    '--o-flap-fuite': FUITE,\n  } as CSSProperties\n\n  const caracteres = [...affiche]\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={styleRacine} data-o-flap=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {caracteres.map((caractere, index) =>\n          caractere === ' ' ? (\n            <span key={`espace-${String(index)}`}>{NBSP}</span>\n          ) : (\n            <span key={`${caractere}-${String(index)}`} data-o-flap-cell=\"\">\n              <span data-o-flap-sizer=\"\">{caractere}</span>\n              <span data-o-flap-half=\"haut\">\n                {/* La carte visee voyage sur le noeud : le battage la relit au\n                    depart, sans redescendre dans le rendu React. */}\n                <span data-o-flap-glyphe=\"\" data-o-flap-cible={caractere}>\n                  {caractere}\n                </span>\n              </span>\n              <span data-o-flap-half=\"bas\">\n                <span data-o-flap-glyphe=\"\">{caractere}</span>\n              </span>\n              <span data-o-flap-leaf=\"haut\">\n                <span data-o-flap-glyphe=\"\">{caractere}</span>\n              </span>\n              <span data-o-flap-leaf=\"bas\">\n                <span data-o-flap-glyphe=\"\">{caractere}</span>\n              </span>\n            </span>\n          ),\n        )}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

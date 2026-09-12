@@ -1,0 +1,78 @@
+{
+  "name": "wind-field",
+  "category": "background",
+  "title": "Champ de vent",
+  "description": "Un trait court par cellule, oriente par le vent et long comme sa force ; des rafales balaient le cadre dans le sens du cap et changent la teinte des traits au passage.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "wind-field.shader.ts",
+      "target": "background/wind-field.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/WindField.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-muted", "--o-palette-emerald-400"],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "default": 22,
+      "description": "Nombre de cellules par hauteur de cadre. Retrograde a 14 en qualite basse.",
+      "min": 8,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.6,
+      "description": "Frequence du bruit, donc la taille des tourbillons.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse d evolution du vent et de passage des rafales.",
+      "min": 0,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "gusts",
+      "type": "number",
+      "default": 0.7,
+      "description": "Force des rafales.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-emerald-400",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Neuf cellules evaluees par fragment, trois lectures de bruit et une capsule chacune. En qualite basse, les cellules s elargissent."
+  }
+}

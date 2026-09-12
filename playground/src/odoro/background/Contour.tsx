@@ -61,13 +61,13 @@ export type ContourProps = Customisable<ContourOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
-  '--o-palette-zinc-800',
+  '--o-theme-bg',
+  '--o-theme-line',
   '--o-palette-emerald-300',
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-zinc-950'
+const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
  * Courbes de niveau.

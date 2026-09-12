@@ -102,7 +102,7 @@ export interface SplineSceneOwnProps {
 export type SplineSceneProps = Customisable<SplineSceneOwnProps>
 
 /** Repli par defaut : un degrade fige. */
-const DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-zinc-900 o-to-zinc-950'
+const DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
  * Scene Spline chargee a l'approche du champ.

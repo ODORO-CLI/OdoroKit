@@ -1,0 +1,93 @@
+{
+  "name": "iridescence",
+  "category": "background",
+  "title": "Iridescence",
+  "description": "Une nacre qui ondule doucement : la teinte tourne avec l inclinaison de la surface, deux reflets se posent par addition.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "iridescence.shader.ts",
+      "target": "background/iridescence.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Iridescence.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-pink-300",
+    "--o-palette-teal-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Vitesse de l ondulation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.4,
+      "description": "Echelle des ondes. Plus haut, plus serre.",
+      "min": 0.4,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "shimmer",
+      "type": "number",
+      "required": false,
+      "default": 0.7,
+      "description": "Force des reflets.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "bands",
+      "type": "number",
+      "required": false,
+      "default": 2.5,
+      "description": "Tours de teinte sur la hauteur de la surface.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-pink-300, --o-palette-teal-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les deux teintes de la nacre."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Quatre ondes analytiques et trois puissances par fragment, sans boucle. En qualite basse, deux ondes restent.",
+    "fallback": "gradient"
+  },
+  "id": "background/iridescence",
+  "sources": {
+    "iridescence.shader.ts": "/**\n * Shader de l'iridescence.\n *\n * ## L'idee mathematique\n *\n * Une nacre : une surface qui ondule doucement, et dont la teinte depend de\n * l'angle sous lequel on la regarde. La surface est une somme de sinus\n * directionnels a grande longueur d'onde, dont le gradient se calcule a la\n * main — pas de lecture decalee, la derivee d'un sinus est connue. Le\n * gradient donne une normale ; l'inclinaison de la normale et la hauteur\n * donnent une phase, et la phase fait tourner la teinte entre deux tokens.\n *\n * Ce qui fait la nacre plutot que le film de savon ou la nappe d'essence :\n * tout est doux. Les bandes sont larges, le melange est un cosinus sans\n * franges sombres, et la lumiere est un reflet large et un reflet etroit\n * poses par addition bornee, jamais par assombrissement. Sur un fond clair,\n * la nappe reste pastel ; sur un fond sombre, elle luit.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la premiere teinte de la nacre.\n * - `uColorC` — la seconde teinte, et le reflet.\n * - `uSpeed` — vitesse de l'ondulation.\n * - `uScale` — echelle des ondes ; plus haut, plus serre.\n * - `uShimmer` — force des reflets.\n * - `uBands` — tours de teinte sur toute la hauteur de la surface.\n * - `uDetail` — nombre d'ondes sommees, et donc leur cout.\n */\nexport const IRIDESCENCE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uScale;\nuniform float uShimmer;\nuniform float uBands;\nuniform float uDetail;\n\n// Une onde directionnelle : la hauteur, et son gradient dans le meme calcul.\nvec3 nacreOnde(vec2 p, vec2 dir, float freq, float phase, float amp) {\n  float arg = dot(p, dir) * freq + phase;\n  return vec3(sin(arg) * amp, cos(arg) * amp * freq * dir);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y) * max(uScale, 0.2);\n  float t = uTime * uSpeed;\n  int ondes = int(clamp(uDetail, 1.0, 4.0));\n\n  // La surface : jusqu'a quatre ondes, aux directions et frequences non\n  // alignees pour que le motif ne se repete pas.\n  vec3 champ = nacreOnde(p, normalize(vec2(1.0, 0.6)), 1.8, t * 0.9, 0.5);\n  if (ondes >= 2) champ += nacreOnde(p, normalize(vec2(-0.4, 1.0)), 2.6, -t * 0.7 + 1.3, 0.3);\n  if (ondes >= 3) champ += nacreOnde(p, normalize(vec2(0.9, -0.3)), 3.9, t * 1.1 + 2.1, 0.15);\n  if (ondes >= 4) champ += nacreOnde(p, normalize(vec2(0.2, 0.9)), 6.1, -t * 0.5 + 0.4, 0.07);\n\n  float hauteur = champ.x;\n  vec3 n = normalize(vec3(-champ.yz * 0.8, 1.0));\n\n  // La teinte : une phase faite de la hauteur et de l'inclinaison. Le\n  // cosinus tourne entre les deux tokens sans jamais creuser de frange.\n  float phase = hauteur * uBands * 3.14159 + n.x * 3.0 + n.y * 1.5 + t * 0.3;\n  vec3 teinte = mix(uColorB, uColorC, 0.5 + 0.5 * cos(phase));\n\n  // La presence : la nacre couvre tout, mais plus dense sur les cretes.\n  float presence = 0.32 + 0.38 * smoothstep(-0.8, 0.8, hauteur);\n\n  // La lumiere : un reflet large et un reflet etroit, d'une lampe fixe.\n  vec3 lumiere = normalize(vec3(-0.5, 0.6, 0.65));\n  vec3 h = normalize(lumiere + vec3(0.0, 0.0, 1.0));\n  float specular = max(dot(n, h), 0.0);\n  float large = pow(specular, 6.0) * 0.25;\n  float etroit = pow(specular, 40.0) * 0.5;\n\n  // Un balayage lent en diagonale, comme un reflet de fenetre qui passe.\n  float balayage = pow(max(sin((p.x + p.y) * 1.2 - uTime * 0.25), 0.0), 8.0) * 0.2;\n\n  vec3 colour = mix(uColorA, teinte, presence);\n  colour += mix(uColorB, uColorC, 0.5) * large * uShimmer;\n  colour += uColorC * (etroit + balayage) * uShimmer;\n\n  gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Iridescence : une nacre qui ondule doucement : la teinte tourne avec l inclinaison de la surface, deux reflets se posent par addition.\n *\n * ## Le principe\n *\n * Une surface de sinus directionnels a grande longueur d'onde, dont le\n * gradient se calcule a la main et donne une normale. L'inclinaison et\n * la hauteur font une phase, et la phase fait tourner la teinte entre\n * deux tokens sans creuser de frange : tout est doux, c'est ce qui fait\n * la nacre plutot que le film de savon.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { IRIDESCENCE_FRAGMENT } from './iridescence.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface IridescenceControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface IridescenceOwnProps {\n  /** Vitesse de l ondulation. @defaultValue 0.3 */\n  speed?: number\n  /** Echelle des ondes. Plus haut, plus serre. @defaultValue 1.4 */\n  scale?: number\n  /** Force des reflets. @defaultValue 0.7 */\n  shimmer?: number\n  /** Tours de teinte sur la hauteur de la surface. @defaultValue 2.5 */\n  bands?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<IridescenceControls>\n}\n\n/** Toutes les proprietes. */\nexport type IridescenceProps = Customisable<IridescenceOwnProps>\n\n/** Tokens employes par defaut : le fond, les deux teintes de la nacre. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-pink-300',\n  '--o-palette-teal-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-tr o-from-pink-100 dark:o-from-pink-950 o-via-zinc-50 dark:o-via-zinc-950 o-to-teal-100 dark:o-to-teal-950'\n\n/**\n * Detail hors qualite basse.\n *\n * Chaque onde est un sinus et son gradient : c'est le seul levier de\n * cout, et il tombe a deux ondes en qualite basse.\n */\nconst DETAIL = 4\n\n/** Detail en qualite basse. */\nconst LOW_DETAIL = 2\n\n/**\n * Iridescence.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Iridescence className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Iridescence({\n  speed = 0.3,\n  scale = 1.4,\n  shimmer = 0.7,\n  bands = 2.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: IridescenceProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: IRIDESCENCE_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uScale: scale,\n      uShimmer: shimmer,\n      uBands: bands,\n      uDetail: DETAIL,\n    },\n    name: 'iridescence',\n    degrade: (quality) => ({\n      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

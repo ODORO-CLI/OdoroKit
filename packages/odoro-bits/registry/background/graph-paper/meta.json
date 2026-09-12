@@ -1,0 +1,55 @@
+{
+  "name": "graph-paper",
+  "category": "background",
+  "title": "Papier millimetre",
+  "description": "Deux quadrillages emboites, maille fine et maille epaisse toutes les cinq. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/GraphPaper.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-sky-500", "--o-theme-bg"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Pas de la maille fine. La maille epaisse en vaut cinq.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.4,
+      "description": "Opacite des traits, entre 0 et 1.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre degrades CSS repetes : aucun script, aucun contexte graphique."
+  }
+}

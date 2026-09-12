@@ -1,0 +1,91 @@
+{
+  "name": "ascii-image",
+  "category": "image",
+  "title": "Image en caracteres",
+  "description": "La photo est echantillonnee une fois dans un canevas hors du document et rendue en texte monospace, l image reelle restant dessous.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/AsciiImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "description": "Nombre de caracteres sur la largeur. Borne a deux cents.",
+      "min": 16,
+      "max": 200,
+      "step": 2
+    },
+    {
+      "name": "contrast",
+      "type": "number",
+      "required": false,
+      "default": 1.3,
+      "description": "Contraste applique avant le choix du caractere.",
+      "min": 0.4,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "invert",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Retourne la rampe : l image sort en negatif."
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Rendre la photo au survol et au focus."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une conversion unique au chargement — un canevas de la taille de la grille, une lecture de pixels, un rendu React — puis du texte statique. Rien par image. Le calque n est pas rendu tant que la conversion n a pas abouti : sans elle, la photo reste seule."
+  },
+  "id": "image/ascii-image",
+  "sources": {
+    "component.tsx": "/**\n * Image en caracteres : la photo est echantillonnee dans un canevas hors du\n * document, puis rendue en texte monospace au-dessus d'elle.\n *\n * ## Ce qui la distingue du champ ASCII\n *\n * Le champ ASCII est un bruit calcule par un shader : il n'a pas de sujet. Ici\n * le sujet est une image reelle, et le rendu en caracteres est une **lecture**\n * de cette image. C'est aussi pourquoi rien n'est calcule par image : la\n * conversion a lieu une fois, au chargement, et son resultat est du texte.\n *\n * ## L'image reelle reste dessous\n *\n * Le `pre` est decoratif et opaque ; l'element `img` qu'il recouvre porte le\n * texte de remplacement et reste la source de verite pour les technologies\n * d'assistance. Au survol, le `pre` s'efface et rend la photo : c'est aussi le\n * repli naturel quand la conversion echoue.\n *\n * ## Pourquoi la conversion peut echouer, et ce qui arrive alors\n *\n * Lire les pixels d'une image venue d'un autre domaine sans en-tete\n * d'autorisation teinte le canevas, et la lecture leve. Le composant ne\n * l'ignore pas : il rend le `pre` vide, donc invisible, et la photo reste\n * affichee. Une image en caracteres qui manque vaut mieux qu'un cadre vide.\n *\n * ## L'encre suit le theme\n *\n * En theme clair, l'encre est sombre sur fond clair : un pixel lumineux doit\n * donc recevoir **moins** de caracteres. En theme sombre, c'est l'inverse. La\n * rampe est donc parcourue dans un sens ou dans l'autre selon le theme ; sans\n * cela, l'image apparait en negatif la moitie du temps.\n *\n * ## Sous mouvement reduit\n *\n * Rien ne change : le rendu en caracteres est un etat, pas un mouvement. Seule\n * la transition vers la photo disparait — le passage devient instantane.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useState, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-ascii-image'\n\n/**\n * Rampe d'encre, du vide au plein.\n *\n * C'est la rampe classique des convertisseurs d'images en texte : dix\n * niveaux, ce que l'oeil distingue sans hesiter a taille de glyphe.\n */\nconst RAMP = ' .:-=+*#%@'\n\n/**\n * Rapport largeur sur hauteur d'une cellule de texte monospace.\n *\n * Il vaut a peu de chose pres trois cinquiemes dans toutes les polices a\n * chasse fixe. Sans lui, l'image sortirait etiree en hauteur : une cellule\n * n'est pas un carre.\n */\nconst CELL = 0.6\n\n/** Pose les regles du rendu, une fois par document. */\nfunction ensureAsciiRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La taille du glyphe est exprimee en pour cent de la largeur du cadre :\n    // le dessin garde ses proportions dans n'importe quelle colonne.\n    '[data-o-ascii]{container-type:inline-size}',\n    '[data-o-ai-art]{font-size:calc(var(--o-ai-glyph) * 1cqw);line-height:1}',\n    '[data-o-ascii-survol]:hover [data-o-ai-art],',\n    '[data-o-ascii-survol]:focus-within [data-o-ai-art]{opacity:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface AsciiImageOwnProps {\n  /** Source de l'image. */\n  src: string\n  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */\n  alt: string\n  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */\n  ratio?: number\n  /**\n   * Nombre de caracteres sur la largeur.\n   *\n   * Borne a deux cents : au-dela, les glyphes sont plus petits qu'un pixel et\n   * la conversion coute pour rien.\n   *\n   * @defaultValue 90\n   */\n  columns?: number\n  /** Contraste applique avant le choix du caractere. @defaultValue 1.3 */\n  contrast?: number\n  /** Retourne la rampe : l'image sort en negatif. @defaultValue false */\n  invert?: boolean\n  /** Rendre la photo au survol et au focus. @defaultValue true */\n  hover?: boolean\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une image. */\nexport type AsciiImageProps = Customisable<AsciiImageOwnProps, 'img'>\n\n/**\n * Rend une image en caracteres.\n *\n * @example\n * <AsciiImage src=\"/portrait.jpg\" alt=\"Portrait de l equipe\" />\n *\n * @example\n * // Plus grossier, en negatif, sans retour a la photo.\n * <AsciiImage src=\"/portrait.jpg\" alt=\"\" columns={48} invert hover={false} />\n */\nexport function AsciiImage({\n  src,\n  alt,\n  ratio = 1.777,\n  columns = 90,\n  contrast = 1.3,\n  invert = false,\n  hover = true,\n  ...rest\n}: AsciiImageProps): ReactElement {\n  const { reduced, theme } = useMotionState()\n  const [art, setArt] = useState('')\n  ensureAsciiRule()\n\n  const cols = Math.round(Math.min(200, Math.max(16, columns)))\n  // Une cellule est plus haute que large : sans ce rapport, le dessin sortirait\n  // etire d'un bon tiers.\n  const rows = Math.max(2, Math.round((cols * CELL) / Math.max(ratio, 0.1)))\n\n  useEffect(() => {\n    if (typeof document === 'undefined') return\n\n    let cancelled = false\n    const source = new Image()\n    // Sans cet attribut, une image d'un autre domaine teinte le canevas et la\n    // lecture leve ; avec lui, elle est refusee au chargement quand le serveur\n    // ne l'autorise pas. Dans les deux cas la photo reste affichee.\n    source.crossOrigin = 'anonymous'\n    source.decoding = 'async'\n\n    const convert = (): void => {\n      if (cancelled) return\n\n      let lignes = ''\n      try {\n        const canvas = document.createElement('canvas')\n        canvas.width = cols\n        canvas.height = rows\n        const context = canvas.getContext('2d')\n        if (context === null) return\n\n        // Le canevas fait exactement la taille de la grille : le navigateur\n        // fait la moyenne des pixels pour nous, et il la fait mieux qu'une\n        // boucle.\n        context.drawImage(source, 0, 0, cols, rows)\n        const pixels = context.getImageData(0, 0, cols, rows).data\n\n        const last = RAMP.length - 1\n        // En theme sombre l'encre est claire : un pixel lumineux appelle plus\n        // d'encre, pas moins. Voir l'en-tete.\n        const dense = theme === 'dark' ? !invert : invert\n\n        const out: string[] = []\n        for (let y = 0; y < rows; y += 1) {\n          let line = ''\n          for (let x = 0; x < cols; x += 1) {\n            const index = (y * cols + x) * 4\n            const r = pixels[index] ?? 0\n            const g = pixels[index + 1] ?? 0\n            const b = pixels[index + 2] ?? 0\n            const alpha = (pixels[index + 3] ?? 255) / 255\n\n            // Luminance perceptuelle, pas une moyenne : le vert pese plus que\n            // le bleu dans ce que l'oeil appelle « clair ».\n            const luma = ((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255) * alpha\n            const pousse = Math.min(1, Math.max(0, (luma - 0.5) * contrast + 0.5))\n            const level = dense ? pousse : 1 - pousse\n            line += RAMP[Math.min(last, Math.max(0, Math.round(level * last)))] ?? ' '\n          }\n          out.push(line)\n        }\n        lignes = out.join('\\n')\n      } catch {\n        // Canevas teinte : la photo reste, le dessin n'aura pas lieu.\n        lignes = ''\n      }\n\n      if (!cancelled) setArt(lignes)\n    }\n\n    source.addEventListener('load', convert)\n    source.src = src\n    if (source.complete && source.naturalWidth > 0) convert()\n\n    return () => {\n      cancelled = true\n      source.removeEventListener('load', convert)\n    }\n  }, [src, cols, rows, contrast, invert, theme])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const hostStyle = {\n    ...style,\n    aspectRatio: String(ratio),\n    // La largeur totale vaut le nombre de colonnes fois la chasse d'un\n    // glyphe : c'est cette egalite qui donne la taille de police.\n    '--o-ai-glyph': (100 / (cols * CELL)).toFixed(4),\n  } as CSSProperties\n\n  const artStyle: CSSProperties = {\n    color: 'var(--o-theme-fg)',\n    backgroundColor: 'var(--o-theme-bg)',\n    transition: reduced\n      ? undefined\n      : 'opacity var(--o-duration-slow) var(--o-ease-standard)',\n  }\n\n  return (\n    <div\n      className={className}\n      style={hostStyle}\n      data-o-ascii=\"\"\n      data-o-ascii-survol={hover ? '' : undefined}\n    >\n      <img\n        loading=\"lazy\"\n        decoding=\"async\"\n        {...rest}\n        src={src}\n        alt={alt}\n        className=\"o-size-full o-object-cover\"\n      />\n\n      {/* Le dessin est decoratif : tout ce qu'il dit, l'image le dit deja.\n          Tant qu'il n'existe pas — image en cours de chargement, canevas\n          teinte — le calque n'est pas rendu du tout : opaque et vide, il\n          masquerait la photo qu'il est cense representer. */}\n      {art === '' ? null : (\n        <pre\n          aria-hidden\n          data-o-ai-art=\"\"\n          className=\"o-absolute o-inset-0 o-m-0 o-flex o-items-center o-justify-center o-overflow-hidden o-whitespace-pre o-font-mono o-select-none\"\n          style={artStyle}\n        >\n          {art}\n        </pre>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

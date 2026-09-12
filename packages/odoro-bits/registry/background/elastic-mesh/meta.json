@@ -1,0 +1,74 @@
+{
+  "name": "elastic-mesh",
+  "category": "background",
+  "title": "Maillage elastique",
+  "description": "Une nappe quadrillee simulee noeud par noeud : le pointeur la tire vers lui, l onde se propage de proche en proche, et la teinte suit la tension ; des gouttes tombent quand personne ne touche a rien.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/ElasticMesh.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped", "hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-theme-line", "--o-palette-violet-400"],
+  "props": [
+    {
+      "name": "density",
+      "type": "number",
+      "default": 26,
+      "description": "Noeuds par cote du maillage. Retrograde a seize en qualite basse.",
+      "min": 8,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "pull",
+      "type": "number",
+      "default": 1,
+      "description": "Force de traction du pointeur. A zero, seules les gouttes agitent la nappe.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "springiness",
+      "type": "number",
+      "default": 1,
+      "description": "Raideur de la nappe : plus haut, plus l onde court vite.",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "drops",
+      "type": "number",
+      "default": 12,
+      "description": "Gouttes par minute. A zero, la nappe ne bouge que sous le pointeur.",
+      "min": 0,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-violet-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la nappe au repos, la nappe tendue."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. La simulation est lineaire en nombre de noeuds et se paie sur le processeur ; le dessin est un seul appel de segments indexes. Le pas de temps est plafonne a trente millisecondes pour que le schema explicite ne diverge pas. En qualite basse, le cote tombe a seize. Le rendu se suspend hors du champ."
+  }
+}

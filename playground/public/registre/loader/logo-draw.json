@@ -1,0 +1,90 @@
+{
+  "name": "logo-draw",
+  "category": "loader",
+  "title": "Logo qui se trace",
+  "description": "Le contour d une marque se dessine d un geste, se remplit une fois ferme, puis se vide et s efface dans le meme sens, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LogoDraw.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "required": false,
+      "default": "M20.25 20.25H50a29.75 29.75 0 1 1-29.75 29.75Z",
+      "description": "Trace du logo, en donnees de chemin SVG. Un seul chemin ferme, pour que le remplissage ait un sens."
+    },
+    {
+      "name": "viewBox",
+      "type": "string",
+      "required": false,
+      "default": "0 0 100 100",
+      "description": "Vue du trace. A changer en meme temps que le chemin."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "unites de la vue",
+      "description": "Epaisseur du trait, dans les unites du trace.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2800,
+      "unit": "ms",
+      "description": "Duree d un cycle : trace, remplissage, effacement.",
+      "min": 1200,
+      "max": 7000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du trait et du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Marque entierement tracee et pleine sous mouvement reduit."
+  },
+  "id": "loader/logo-draw",
+  "sources": {
+    "component.tsx": "/**\n * Logo qui se trace : le contour d'une marque se dessine, se remplit, puis\n * se vide et s'efface, sans fin.\n *\n * ## Un trait, puis une matiere\n *\n * Un logo qui apparait en fondu ne raconte rien. Ici il se fabrique dans\n * l'ordre ou une main le ferait : d'abord le trait, d'un seul geste, du\n * debut du chemin a sa fin ; ensuite la matiere, qui vient prendre place\n * dans la forme une fois qu'elle est fermee. Le remplissage arrive apres le\n * trace, jamais pendant : c'est ce decalage qui fait lire les deux temps.\n *\n * Le trace est un tiret aussi long que le chemin entier, deplace par son\n * decalage. Le chemin declare une longueur de cent : le tiret se lit en\n * pour cent, et les images cles valent pour n'importe quel logo, quelle que\n * soit la longueur reelle de son contour. C'est ce qui permet de passer sa\n * propre marque en propriete sans toucher a la feuille de style.\n *\n * L'effacement suit le meme sens que le trace — le decalage continue de\n * descendre au lieu de remonter — donc le crayon ne revient jamais sur ses\n * pas : la queue rattrape la tete, et le cycle se referme sur une forme\n * vide, exactement son point de depart.\n *\n * Deux animations CSS sur des elements SVG, tenues par le compositeur,\n * aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le logo est retire de\n * l'arbre d'accessibilite — c'est une image de marque, pas un contenu.\n *\n * Sous mouvement reduit, le logo est entierement trace et rempli : la marque\n * se lit, seul son dessin s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-logo-draw'\n\n/**\n * La marque odoro, dans une vue de 100 unites : un quart de disque ferme\n * par ses deux rayons.\n */\nconst ODORO_MARK = 'M20.25 20.25H50a29.75 29.75 0 1 1-29.75 29.75Z'\n\n/** Vue du trace par defaut. */\nconst ODORO_VIEW = '0 0 100 100'\n\n/** Pose le trace, le remplissage et leur enchainement, une fois par document. */\nfunction ensureLogoRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-logo-draw]{display:inline-block;line-height:0}',\n    '[data-o-logo-draw] svg{display:block}',\n    '[data-o-logo-line]{',\n    'stroke-dasharray:100 100;stroke-dashoffset:100;',\n    'animation:o-logo-draw-line var(--o-logo-speed) infinite;',\n    '}',\n    '[data-o-logo-fill]{opacity:0;animation:o-logo-draw-fill var(--o-logo-speed) infinite}',\n    // Le trait se pose, tient, puis s'efface dans le meme sens : le\n    // decalage descend jusqu'a moins cent au lieu de remonter a cent.\n    '@keyframes o-logo-draw-line{',\n    '0%{stroke-dashoffset:100;animation-timing-function:ease-in-out}',\n    '40%,84%{stroke-dashoffset:0;animation-timing-function:ease-in-out}',\n    '100%{stroke-dashoffset:-100}',\n    '}',\n    // La matiere n'entre qu'une fois la forme fermee, et sort avant que le\n    // trait ne commence a s'effacer.\n    '@keyframes o-logo-draw-fill{',\n    '0%,40%{opacity:0;animation-timing-function:ease-out}',\n    '56%,72%{opacity:1;animation-timing-function:ease-in}',\n    '84%,100%{opacity:0}',\n    '}',\n    // Marque tracee et pleine : la figure est dite, a l'arret.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-logo-line]{animation:none;stroke-dashoffset:0}',\n    '[data-o-logo-fill]{animation:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface LogoDrawOwnProps {\n  /** Cote du dessin, en pixels. @defaultValue 64 */\n  size?: number\n  /**\n   * Trace du logo, en donnees de chemin SVG. Un seul chemin ferme, pour que\n   * le remplissage ait un sens.\n   * @defaultValue la marque odoro\n   */\n  path?: string\n  /** Vue du trace. A changer avec le chemin. @defaultValue '0 0 100 100' */\n  viewBox?: string\n  /** Epaisseur du trait, en unites de la vue. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2800 */\n  speed?: number\n  /** Couleur du trait et du remplissage. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type LogoDrawProps = Customisable<LogoDrawOwnProps, 'span'>\n\n/**\n * Signale une attente par un logo qui se trace puis se remplit.\n *\n * @example\n * <LogoDraw />\n *\n * @example\n * // Sa propre marque, dans sa propre vue.\n * <LogoDraw path=\"M8 8 H56 V56 H8 Z\" viewBox=\"0 0 64 64\" size={80} />\n */\nexport function LogoDraw({\n  size = 64,\n  path = ODORO_MARK,\n  viewBox = ODORO_VIEW,\n  thickness = 4,\n  speed = 2800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: LogoDrawProps): ReactElement {\n  ensureLogoRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-logo-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-logo-draw=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox={viewBox} width=\"100%\" height=\"100%\">\n        {/* La forme en creux : sans elle, un logo a demi trace n'est qu'un\n            fragment, et l'oeil ne sait pas ce qui manque. */}\n        <path\n          d={path}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={thickness}\n          strokeOpacity={0.16}\n          strokeLinejoin=\"round\"\n        />\n        <path data-o-logo-fill=\"\" d={path} fill=\"currentColor\" />\n        <path\n          data-o-logo-line=\"\"\n          d={path}\n          pathLength={100}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={thickness}\n          strokeLinejoin=\"round\"\n          strokeLinecap=\"round\"\n        />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

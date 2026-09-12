@@ -1,0 +1,58 @@
+{
+  "name": "copy-button",
+  "category": "ui",
+  "title": "Bouton copier",
+  "description": "Copie une valeur dans le presse-papiers, l icone devient une coche et l etat est annonce poliment.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CopyButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-emerald-500",
+    "--o-duration-base",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "description": "Texte copie dans le presse-papiers."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Copier",
+      "description": "Libelle du bouton au repos."
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 2000,
+      "unit": "ms",
+      "description": "Temps avant le retour a l etat de repos.",
+      "min": 800,
+      "max": 5000,
+      "step": 200
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux icones croisees en opacite et en echelle, une minuterie pour le retour. Sous mouvement reduit le remplacement est instantane."
+  },
+  "id": "ui/copy-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton copier : la valeur part au presse-papiers, l'icone devient une coche.\n *\n * ## Le morphing est un fondu croise, pas un remplacement\n *\n * Les deux icones occupent la meme case ; la copie tourne l'une vers zero\n * pendant que l'autre arrive en grandissant. Remplacer le noeud SVG au meme\n * moment ferait le meme effet visuel en apparence, mais toute interruption\n * — un second clic pendant le retour — sauterait d'une image a l'autre.\n * Deux transitions d'opacite et d'echelle, elles, repartent toujours de\n * l'etat courant.\n *\n * ## L'etat est annonce, pas seulement montre\n *\n * Une region `aria-live=\"polite\"` hors ecran recoit « Copie » au succes :\n * un lecteur d'ecran l'annonce sans etre interrompu. L'icone seule serait\n * muette, et changer le libelle du bouton pendant qu'il a le focus est\n * annonce de facon incoherente selon les lecteurs.\n *\n * ## L'echec ne pretend pas\n *\n * `navigator.clipboard` peut refuser — page non securisee, permission\n * retiree. Dans ce cas le bouton ne passe pas a la coche : montrer un\n * succes qui n'a pas eu lieu serait pire que ne rien faire.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CopyButtonOwnProps {\n  /** Texte copie dans le presse-papiers. */\n  value: string\n  /** Libelle du bouton au repos. @defaultValue 'Copier' */\n  label?: string\n  /** Temps avant le retour a l'etat de repos, en millisecondes. @defaultValue 2000 */\n  delay?: number\n}\n\n/** Toutes les proprietes. */\nexport type CopyButtonProps = Customisable<CopyButtonOwnProps, 'button'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-copy-button'\n\n/** Pose le croisement des deux icones, une fois par document. */\nfunction ensureCopyRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-copy]{',\n    'display:inline-flex;align-items:center;cursor:pointer;',\n    'background:transparent;color:inherit;font:inherit;',\n    'border:1px solid color-mix(in oklch,currentColor 25%,transparent);',\n    '}',\n    '[data-o-copy-icons]{position:relative;width:1em;height:1em}',\n    '[data-o-copy-icons] svg{',\n    'position:absolute;inset:0;width:100%;height:100%;',\n    'transition:opacity var(--o-duration-base) linear,',\n    'transform var(--o-duration-base) var(--o-ease-emphasized);',\n    '}',\n    '[data-o-copy-plain]{opacity:1;transform:scale(1)}',\n    '[data-o-copy-done]{opacity:0;transform:scale(0.4);color:var(--o-copy-tint)}',\n    '[data-o-copy][data-o-copy-state=\"done\"] [data-o-copy-plain]{opacity:0;transform:scale(0.4)}',\n    '[data-o-copy][data-o-copy-state=\"done\"] [data-o-copy-done]{opacity:1;transform:scale(1)}',\n    // Mouvement reduit : le remplacement est instantane.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-copy-icons] svg{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Copie une valeur au clic et le montre — et l'annonce — le temps d'un delai.\n *\n * @example\n * <CopyButton value=\"pnpm dlx odoro add ui/copy-button\" />\n *\n * @example\n * // Un libelle propre au contexte, un retour plus court.\n * <CopyButton value={adresse} label=\"Copier l adresse\" delay={1200} />\n */\nexport function CopyButton({\n  value,\n  label = 'Copier',\n  delay = 2000,\n  ...rest\n}: CopyButtonProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [copied, setCopied] = useState(false)\n  const timer = useRef<number | null>(null)\n  ensureCopyRules()\n\n  // Une minuterie encore en vol au demontage annoncerait dans le vide.\n  useEffect(\n    () => () => {\n      if (timer.current !== null) window.clearTimeout(timer.current)\n    },\n    [],\n  )\n\n  const copy = (): void => {\n    navigator.clipboard\n      .writeText(value)\n      .then(() => {\n        setCopied(true)\n        if (timer.current !== null) window.clearTimeout(timer.current)\n        timer.current = window.setTimeout(() => {\n          setCopied(false)\n        }, delay)\n      })\n      .catch(() => {\n        // Voir l'en-tete du module : pas de coche sans copie reelle.\n      })\n  }\n\n  const { className, style } = mergePresentation(\n    { className: 'o-rounded-lg o-px-3 o-py-2 o-text-sm o-font-medium o-gap-2' },\n    rest,\n  )\n\n  return (\n    <button\n      type=\"button\"\n      {...rest}\n      data-o-copy=\"\"\n      data-o-copy-state={copied ? 'done' : 'idle'}\n      onClick={copy}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-copy-tint': 'var(--o-palette-emerald-500)',\n          ...(reduced ? { '--o-duration-base': '0ms' } : {}),\n        } as CSSProperties\n      }\n    >\n      <span data-o-copy-icons=\"\" aria-hidden=\"true\">\n        <svg\n          data-o-copy-plain=\"\"\n          viewBox=\"0 0 24 24\"\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth=\"2\"\n          strokeLinecap=\"round\"\n          strokeLinejoin=\"round\"\n        >\n          <rect x=\"9\" y=\"9\" width=\"12\" height=\"12\" rx=\"2\" />\n          <path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\" />\n        </svg>\n        <svg\n          data-o-copy-done=\"\"\n          viewBox=\"0 0 24 24\"\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth=\"2.5\"\n          strokeLinecap=\"round\"\n          strokeLinejoin=\"round\"\n        >\n          <path d=\"M4 12.5 9.5 18 20 6.5\" />\n        </svg>\n      </span>\n      <span>{label}</span>\n      <span aria-live=\"polite\" className=\"o-sr-only\">\n        {copied ? 'Copie' : ''}\n      </span>\n    </button>\n  )\n}\n"
+  }
+}

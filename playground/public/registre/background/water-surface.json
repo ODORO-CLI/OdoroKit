@@ -1,0 +1,116 @@
+{
+  "name": "water-surface",
+  "category": "background",
+  "title": "Surface d eau",
+  "description": "Une nappe de vagues de Gerstner vue en rasant : de face l eau, au ras le ciel, et le soleil qui scintille sur des ridules de bruit. Le pointeur fait glisser la camera.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "water-surface.shader.ts",
+      "target": "background/water-surface.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/WaterSurface.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-poster",
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-sky-600",
+    "--o-palette-sky-200"
+  ],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Hauteur de la vague principale, en unites de scene.",
+      "min": 0.02,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "wavelength",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Longueur de la vague principale, en unites de scene.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "choppiness",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Pincement des cretes, entre zero et un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse des vagues.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "sun",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Intensite du soleil sur l eau.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Glissement de la camera sous le pointeur. Zero la fige.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-sky-600, --o-palette-sky-200",
+      "description": "Tokens du fond et de la brume, de l eau, du ciel reflechi."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Quatre vagues par sommet, trois lectures de bruit par fragment pour les ridules. La subdivision de la nappe suit la qualite retenue, et le rendu se suspend hors du champ.",
+    "fallback": "poster"
+  },
+  "id": "background/water-surface",
+  "sources": {
+    "water-surface.shader.ts": "/**\n * Shaders de la surface d'eau : des vagues de Gerstner et un reflet rasant.\n *\n * ## L'idee\n *\n * Quatre vagues de Gerstner, chacune deux fois plus courte et plus faible que\n * la precedente, dans des directions qui ne sont pas alignees. Une vague de\n * Gerstner ne souleve pas seulement le point : elle le deplace aussi vers la\n * crete, ce qui pince les cretes et elargit les creux — c'est ce pincement\n * qui distingue l'eau d'un drap qui ondule. La normale est analytique, somme\n * des derivees de chaque vague.\n *\n * Dans le fragment, un bruit tridimensionnel fin perturbe la normale : ce\n * sont les ridules que le vent souleve, trop petites pour la geometrie, et\n * ce sont elles qui font scintiller le soleil.\n *\n * ## Pourquoi un fresnel\n *\n * L'eau ne reflete le ciel qu'en rasant : vue de face, on voit a travers ;\n * vue au ras, c'est un miroir. La teinte passe de la couleur de l'eau a celle\n * du ciel selon l'angle de vue, et c'est cette transition, plus qu'aucun\n * reflet, qui fait lire la surface comme de l'eau.\n *\n * Le bruit est fourni par le moteur (`NOISE_FUNCTIONS_3D`), prefixe au\n * fragment.\n *\n * @module\n */\n\n/** Vertex shader : vagues de Gerstner, normale analytique, repere tangent. */\nexport const WATER_SURFACE_VERTEX = /* glsl */ `\nuniform float uTime;\nuniform float uAmplitude;\nuniform float uWavelength;\nuniform float uChop;\nuniform float uSpeed;\n\nvarying vec3 vNormal;\nvarying vec3 vTangentX;\nvarying vec3 vTangentY;\nvarying vec3 vViewPosition;\nvarying vec2 vPlane;\n\nconst int WAVES = 4;\nconst float TAU = 6.28318530718;\n\nvoid main() {\n  vec2 at = position.xy;\n  vec3 displaced = vec3(at, 0.0);\n  vec3 normal = vec3(0.0, 0.0, 1.0);\n\n  float longueur = uWavelength;\n  float amplitude = uAmplitude;\n\n  for (int i = 0; i < WAVES; i += 1) {\n    // Des directions qui ne se repetent pas : l'angle avance d'un pas\n    // irrationnel, donc aucune vague n'est parallele a une autre.\n    float angle = 0.4 + float(i) * 1.9;\n    vec2 direction = vec2(cos(angle), sin(angle));\n    float k = TAU / max(longueur, 0.05);\n    // Relation de dispersion en eau profonde : les longues vagues vont plus\n    // vite que les courtes.\n    float pulsation = sqrt(9.8 * k) * uSpeed;\n    float phase = k * dot(direction, at) - pulsation * uTime;\n\n    // Le pincement : le point glisse vers la crete. Reparti sur les vagues\n    // pour que la somme ne fasse jamais boucler la surface.\n    float pince = uChop * 0.85 / float(WAVES);\n    float cosinus = cos(phase);\n    float sinus = sin(phase);\n\n    displaced.xy += direction * (pince / k) * cosinus;\n    displaced.z += amplitude * sinus;\n\n    normal.xy -= direction * k * amplitude * cosinus;\n    normal.z -= pince * sinus;\n\n    longueur *= 0.55;\n    amplitude *= 0.6;\n  }\n\n  vPlane = at;\n  vNormal = normalize(normalMatrix * normalize(normal));\n  vTangentX = normalize(normalMatrix * vec3(1.0, 0.0, 0.0));\n  vTangentY = normalize(normalMatrix * vec3(0.0, 1.0, 0.0));\n\n  vec4 viewPosition = modelViewMatrix * vec4(displaced, 1.0);\n  vViewPosition = viewPosition.xyz;\n  gl_Position = projectionMatrix * viewPosition;\n}\n`\n\n/** Fragment shader : ridules, fresnel, soleil, brume. */\nexport const WATER_SURFACE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nuniform float uTime;\nuniform vec3 uDeep;\nuniform vec3 uWater;\nuniform vec3 uSky;\nuniform float uSun;\n\nvarying vec3 vNormal;\nvarying vec3 vTangentX;\nvarying vec3 vTangentY;\nvarying vec3 vViewPosition;\nvarying vec2 vPlane;\n\nvoid main() {\n  // Les ridules : le gradient d'un bruit fin, applique dans le repere\n  // tangent de la surface. Elles s'estompent au loin, ou elles ne feraient\n  // que du bruit de pixels.\n  float distance = length(vViewPosition);\n  float fin = 1.0 - smoothstep(2.0, 9.0, distance);\n  float e = 0.06;\n  vec3 q = vec3(vPlane * 5.0, uTime * 0.45);\n  float n0 = odoroNoise3(q);\n  float nx = odoroNoise3(q + vec3(e, 0.0, 0.0));\n  float ny = odoroNoise3(q + vec3(0.0, e, 0.0));\n  vec3 normal = normalize(\n    vNormal + (vTangentX * (n0 - nx) + vTangentY * (n0 - ny)) * 3.0 * fin\n  );\n\n  vec3 view = normalize(-vViewPosition);\n  float facing = max(dot(normal, view), 0.0);\n\n  // Fresnel : de face l'eau, au ras le ciel.\n  float fresnel = 0.04 + 0.96 * pow(1.0 - facing, 4.0);\n  vec3 colour = mix(uWater, uSky, fresnel);\n\n  // Le soleil, bas devant : un eclat etroit, et un scintillement plus\n  // large que les ridules brisent en paillettes.\n  vec3 sun = normalize(vec3(0.3, 0.4, -1.0));\n  vec3 halfway = normalize(sun + view);\n  float alignement = max(dot(normal, halfway), 0.0);\n  float eclat = pow(alignement, 240.0) * 2.2;\n  float paillettes = pow(alignement, 36.0) * 0.4;\n  float diffuse = 0.75 + 0.25 * max(dot(normal, sun), 0.0);\n\n  colour = colour * diffuse + uSky * (eclat + paillettes) * uSun;\n\n  // Brume : la surface se fond dans le fond bien avant le bord du plan.\n  float fog = smoothstep(4.0, 13.0, distance);\n  colour = mix(colour, uDeep, fog);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Surface d'eau : une nappe de vagues de Gerstner vue en rasant, qui\n * reflete le ciel et fait scintiller le soleil.\n *\n * ## Pourquoi une scene, et pas un shader plein ecran\n *\n * Un reflet rasant est une affaire d'angle entre la surface et l'oeil : il\n * faut une vraie surface, une vraie camera, et une normale qui change d'un\n * point a l'autre. Un fragment plein ecran ne connait ni l'une ni l'autre.\n *\n * Ce qui distingue cette entree de `hero/tide` : la maree est une houle de\n * bruit, eclairee comme un relief et teintee par la hauteur ; ici les vagues\n * sont des vagues — des sinusoides qui se pincent aux cretes — et la couleur\n * vient du fresnel, de face l'eau, au ras le ciel.\n *\n * ## Ce que le pointeur fait\n *\n * La camera glisse lateralement en suivant le curseur, avec amortissement :\n * le reflet se deplace sur l'eau comme quand on penche la tete. Le reglage\n * `parallax` dose ce glissement ; a zero, la camera ne bouge pas.\n *\n * ## Le repli\n *\n * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si\n * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans\n * les memes tons, sans bord dur.\n *\n * @module\n */\n\nimport {\n  NOISE_FUNCTIONS_3D,\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  useOnReady,\n  type Customisable,\n  type QualityLevel,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\nimport { usePoster } from '@registre/hooks/usePoster'\n\nimport { WATER_SURFACE_FRAGMENT, WATER_SURFACE_VERTEX } from './water-surface.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface WaterSurfaceControls {\n  /** Contexte de la scene : objets, camera, moteur de rendu, module. */\n  readonly scene: SceneContext\n  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */\n  readonly uniforms: Record<string, { value: unknown }>\n}\n\n/** Proprietes propres au composant. */\nexport interface WaterSurfaceOwnProps {\n  /** Hauteur de la vague principale, en unites de scene. @defaultValue 0.12 */\n  amplitude?: number\n  /** Longueur de la vague principale, en unites de scene. @defaultValue 1.6 */\n  wavelength?: number\n  /** Pincement des cretes, entre zero et un. @defaultValue 0.6 */\n  choppiness?: number\n  /** Vitesse des vagues. @defaultValue 1 */\n  speed?: number\n  /** Intensite du soleil sur l'eau. @defaultValue 1 */\n  sun?: number\n  /** Glissement de la camera sous le pointeur. @defaultValue 0.15 */\n  parallax?: number\n  /** Tokens : le fond et la brume, l'eau, le ciel reflechi. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<WaterSurfaceControls>\n}\n\n/** Toutes les proprietes. */\nexport type WaterSurfaceProps = Customisable<WaterSurfaceOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-sky-600',\n  '--o-palette-sky-200',\n] as const\n\n/** Repli par defaut : l'eau figee en degrade flou, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-t o-from-sky-600 o-via-sky-300 dark:o-via-sky-900 o-to-zinc-50 dark:o-to-zinc-950 o-blur-2xl o-scale-110'\n\n/** Subdivision de la nappe par palier de qualite. */\nconst SEGMENTS: Readonly<Record<QualityLevel, number>> = {\n  low: 90,\n  medium: 160,\n  high: 220,\n}\n\n/** Distance de la camera au-dessus de l'eau et en retrait. */\nconst CAMERA = { height: 0.55, back: 3.2 } as const\n\n/**\n * Surface d'eau.\n *\n * @example\n * <section className=\"o-relative o-min-h-screen\">\n *   <WaterSurface className=\"o-absolute o-inset-0\" />\n *   <h1 className=\"o-relative\">Odoro</h1>\n * </section>\n */\nexport function WaterSurface({\n  amplitude = 0.12,\n  wavelength = 1.6,\n  choppiness = 0.6,\n  speed = 1,\n  sun = 1,\n  parallax = 0.15,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  onReady,\n  ...rest\n}: WaterSurfaceProps): ReactElement {\n  const { theme } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  const pointer = usePointerDamped({ host, speed: 2, name: 'water-surface : pointeur' })\n\n  /** Uniformes vivants, partages entre la construction et la boucle. */\n  const uniforms = useRef<Record<string, { value: unknown }>>({})\n  const context = useRef<SceneContext | null>(null)\n\n  // Les reglages sont lus par ref dans la boucle : un changement de curseur\n  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.\n  const settings = useRef({ amplitude, wavelength, choppiness, speed, sun, parallax })\n  settings.current = { amplitude, wavelength, choppiness, speed, sun, parallax }\n\n  const { ref, ready, refused } = useScene({\n    name: 'water-surface',\n    setup: (scene) => {\n      context.current = scene\n      const { three, camera, renderer } = scene\n\n      const paint = (value: ShaderColour): InstanceType<typeof three.Color> =>\n        new three.Color(value[0], value[1], value[2])\n      const [deep, water, sky] = colors.map((token) => readTokenColour(token, host))\n\n      // Le fond de la scene est la couleur de brume. Le token est en sRGB et\n      // le moteur de rendu encode sa couleur d'effacement du lineaire vers le\n      // sRGB : sans la conversion inverse, le fond ressort un cran plus\n      // clair que la page qui l'entoure.\n      const deepColour = paint(deep ?? [0, 0, 0])\n      renderer.setClearColor(deepColour.clone().convertSRGBToLinear(), 1)\n\n      uniforms.current = {\n        uTime: { value: 0 },\n        uAmplitude: { value: amplitude },\n        uWavelength: { value: wavelength },\n        uChop: { value: choppiness },\n        uSpeed: { value: speed },\n        uSun: { value: sun },\n        uDeep: { value: deepColour },\n        uWater: { value: paint(water ?? [0, 0, 0]) },\n        uSky: { value: paint(sky ?? [0, 0, 0]) },\n      }\n\n      // Un plan large et profond : la brume l'efface bien avant ses bords.\n      const segments = SEGMENTS[scene.quality]\n      const geometry = new three.PlaneGeometry(24, 30, segments, Math.round(segments * 1.25))\n      const material = new three.ShaderMaterial({\n        vertexShader: WATER_SURFACE_VERTEX,\n        fragmentShader: `${NOISE_FUNCTIONS_3D}\\n${WATER_SURFACE_FRAGMENT}`,\n        uniforms: uniforms.current,\n      })\n      const mesh = new three.Mesh(geometry, material)\n      // Le plan est couche : on le voit en rasant, ce qui fait tout le reflet.\n      mesh.rotation.x = -Math.PI / 2\n      mesh.position.y = -0.6\n      mesh.position.z = -6\n      mesh.name = 'water-surface'\n      scene.scene.add(mesh)\n\n      camera.position.set(0, CAMERA.height, CAMERA.back)\n      camera.lookAt(0, -0.35, -4)\n\n      return () => {\n        scene.scene.remove(mesh)\n        geometry.dispose()\n        material.dispose()\n      }\n    },\n\n    frame: ({ camera }, { time, delta }) => {\n      const live = uniforms.current\n      const { amplitude: a, wavelength: l, choppiness: c, speed: s, sun: brightness, parallax: lean } =\n        settings.current\n      const set = (key: string, value: number): void => {\n        const uniform = live[key]\n        if (uniform !== undefined) uniform.value = value\n      }\n      set('uTime', time)\n      set('uAmplitude', a)\n      set('uWavelength', l)\n      set('uChop', c)\n      set('uSpeed', s)\n      set('uSun', brightness)\n\n      // La camera glisse avec le pointeur : lue ici, jamais par un rendu\n      // React — la valeur change a chaque image.\n      const targetX = pointer.current.x * lean * 2\n      const targetY = CAMERA.height - pointer.current.y * lean * 0.6\n      camera.position.x += (targetX - camera.position.x) * Math.min(1, delta * 3)\n      camera.position.y += (targetY - camera.position.y) * Math.min(1, delta * 3)\n      camera.lookAt(camera.position.x * 0.4, -0.35, -4)\n    },\n  })\n\n  // Le theme a bascule : les tokens sont relus et les uniformes mis a jour en\n  // place. La scene n'est pas reconstruite — seules ses couleurs changent.\n  useEffect(() => {\n    const scene = context.current\n    const live = uniforms.current\n    if (scene === null || live['uDeep'] === undefined) return\n    const [deep, water, sky] = colors.map((token) => readTokenColour(token, host))\n    const paint = (key: string, value: ShaderColour | undefined): void => {\n      const uniform = live[key]\n      if (uniform === undefined || value === undefined) return\n      ;(uniform.value as { setRGB: (r: number, g: number, b: number) => unknown }).setRGB(\n        value[0],\n        value[1],\n        value[2],\n      )\n    }\n    paint('uDeep', deep)\n    paint('uWater', water)\n    paint('uSky', sky)\n    if (deep !== undefined) {\n      scene.renderer.setClearColor(\n        new scene.three.Color(deep[0], deep[1], deep[2]).convertSRGBToLinear(),\n        1,\n      )\n    }\n  }, [theme, colors, host])\n\n  const fallback = usePoster({ ready, refused })\n\n  useOnReady(\n    onReady,\n    ready && context.current !== null\n      ? { scene: context.current, uniforms: uniforms.current }\n      : null,\n    host,\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {fallback.visible ? (\n        <div style={fallback.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

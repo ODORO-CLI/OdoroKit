@@ -1,0 +1,62 @@
+{
+  "name": "gradient-flow",
+  "category": "text",
+  "title": "Degrade en mouvement",
+  "description": "Une nappe de couleur traverse le texte en boucle, sans aucun JavaScript a l execution.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/GradientFlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-palette-fuchsia-500"],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 4000,
+      "unit": "ms",
+      "description": "Duree d un cycle complet.",
+      "min": 1000,
+      "max": 12000,
+      "step": 100
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 90,
+      "unit": "deg",
+      "description": "Angle du degrade.",
+      "min": 0,
+      "max": 360,
+      "step": 5
+    },
+    {
+      "name": "from",
+      "type": "string",
+      "description": "Premiere couleur. Une valeur, pas un role."
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "description": "Seconde couleur. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade anime par le compositeur. Sous mouvement reduit le degrade reste, seul son deplacement s arrete."
+  }
+}

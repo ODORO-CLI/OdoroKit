@@ -1,0 +1,66 @@
+{
+  "name": "avatar-stack",
+  "category": "ui",
+  "title": "Pile d avatars",
+  "description": "Des initiales chevauchees qui s etalent au survol, chacune sur une teinte de la palette.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/AvatarStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-amber-500",
+    "--o-palette-rose-500",
+    "--o-palette-sky-500",
+    "--o-palette-zinc-50",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { name: string; tone?: string }[]",
+      "required": true,
+      "description": "Les personnes, dans l ordre d affichage. tone est un token de palette optionnel."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "Nombre de pastilles montrees avant le compteur de surplus.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Chevauchement des pastilles au repos.",
+      "min": 4,
+      "max": 24,
+      "step": 2
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de marge par pastille, declenchee par le survol ou le focus. Sous mouvement reduit l etalement est instantane."
+  },
+  "id": "ui/avatar-stack",
+  "sources": {
+    "component.tsx": "/**\n * Pile d'avatars : des initiales chevauchees qui s'etalent au survol.\n *\n * ## L'etalement est une marge, pas une transformation\n *\n * Au repos, chaque pastille mord sur la precedente par une marge negative ;\n * au survol ou au focus, la marge revient a zero et la rangee s'etale. Une\n * transformation serait composee plus vite, mais elle ne pousserait pas les\n * voisines : la rangee garderait sa largeur et les pastilles se\n * recouvriraient autrement. Ici c'est bien la geometrie qui change, et la\n * marge est la propriete honnete pour le dire.\n *\n * ## Le clavier a le meme droit que la souris\n *\n * Le groupe est focusable, et `:focus-visible` declenche le meme etalement\n * que `:hover` : un utilisateur au clavier peut lire chaque nom, pas\n * seulement le premier de la pile.\n *\n * ## Les initiales ne sont pas le nom\n *\n * Chaque pastille porte le nom complet en `title` et hors ecran ; les\n * initiales, redondantes, sont retirees de l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Une personne de la pile. */\nexport interface AvatarStackItem {\n  /** Nom complet, affiche en infobulle et lu par les lecteurs d'ecran. */\n  readonly name: string\n  /** Token de palette pour le fond, sinon le cycle par defaut. */\n  readonly tone?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface AvatarStackOwnProps {\n  /** Les personnes, dans l'ordre d'affichage. */\n  items: readonly AvatarStackItem[]\n  /** Nombre de pastilles montrees avant le compteur de surplus. @defaultValue 5 */\n  max?: number\n  /** Chevauchement des pastilles au repos, en pixels. @defaultValue 12 */\n  offset?: number\n  /** Nom du groupe pour les lecteurs d'ecran. @defaultValue 'Equipe' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type AvatarStackProps = Customisable<AvatarStackOwnProps>\n\n/** Cycle de teintes par defaut, une par position. */\nconst TONES = [\n  '--o-palette-brand-500',\n  '--o-palette-emerald-500',\n  '--o-palette-amber-500',\n  '--o-palette-rose-500',\n  '--o-palette-sky-500',\n] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-avatar-stack'\n\n/** Pose la pile et son etalement, une fois par document. */\nfunction ensureStackRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-avatars]{display:inline-flex;align-items:center}',\n    '[data-o-avatars] [data-o-avatar]{',\n    'display:inline-flex;align-items:center;justify-content:center;',\n    'width:2.5rem;height:2.5rem;border-radius:999px;',\n    'background:var(--o-avatar-tone);color:var(--o-avatar-ink);',\n    'font-size:0.8125rem;font-weight:600;letter-spacing:0.02em;',\n    'border:2px solid color-mix(in oklch,var(--o-avatar-ink) 90%,transparent);',\n    'margin-inline-start:calc(var(--o-avatars-offset) * -1);',\n    'transition:margin-inline-start var(--o-duration-slow) var(--o-ease-standard);',\n    '}',\n    '[data-o-avatars] [data-o-avatar]:first-child{margin-inline-start:0}',\n    '[data-o-avatars]:is(:hover,:focus-visible) [data-o-avatar]{margin-inline-start:0}',\n    // Mouvement reduit : l etalement reste, seul le trajet disparait.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-avatars] [data-o-avatar]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Les initiales d'un nom : premiere lettre des deux premiers mots. */\nfunction initialsOf(name: string): string {\n  return name\n    .split(/\\s+/)\n    .filter((word) => word !== '')\n    .slice(0, 2)\n    .map((word) => word.charAt(0).toLocaleUpperCase())\n    .join('')\n}\n\n/**\n * Pile d'initiales chevauchees qui s'etale au survol ou au focus.\n *\n * @example\n * <AvatarStack\n *   items={[\n *     { name: 'Ada Lovelace' },\n *     { name: 'Grace Hopper' },\n *     { name: 'Alan Turing' },\n *   ]}\n * />\n *\n * @example\n * // Une teinte imposee, et plus de recouvrement.\n * <AvatarStack items={[{ name: 'Ada', tone: '--o-palette-sky-500' }]} offset={18} />\n */\nexport function AvatarStack({\n  items,\n  max = 5,\n  offset = 12,\n  label = 'Equipe',\n  ...rest\n}: AvatarStackProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureStackRules()\n\n  const shown = items.slice(0, max)\n  const surplus = items.length - shown.length\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      role=\"group\"\n      aria-label={label}\n      tabIndex={0}\n      data-o-avatars=\"\"\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-avatars-offset': `${String(offset)}px`,\n          '--o-avatar-ink': 'var(--o-palette-zinc-50)',\n          ...(reduced ? { '--o-duration-slow': '0ms' } : {}),\n        } as CSSProperties\n      }\n    >\n      {shown.map((item, index) => (\n        <span\n          key={item.name}\n          data-o-avatar=\"\"\n          title={item.name}\n          style={\n            {\n              '--o-avatar-tone': `var(${item.tone ?? TONES[index % TONES.length] ?? TONES[0]})`,\n            } as CSSProperties\n          }\n        >\n          <span aria-hidden=\"true\">{initialsOf(item.name)}</span>\n          <span className=\"o-sr-only\">{item.name}</span>\n        </span>\n      ))}\n      {surplus > 0 ? (\n        <span\n          data-o-avatar=\"\"\n          style={{ '--o-avatar-tone': 'color-mix(in oklch,currentColor 35%,transparent)' } as CSSProperties}\n        >\n          <span aria-hidden=\"true\">+{surplus}</span>\n          <span className=\"o-sr-only\">{`${String(surplus)} personnes de plus`}</span>\n        </span>\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

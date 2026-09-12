@@ -1,0 +1,57 @@
+{
+  "name": "noise",
+  "category": "background",
+  "title": "Grain",
+  "description": "Un bruit de film statique, genere par un filtre SVG en data-URI. Aucun script apres le rendu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Noise.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "opacity",
+      "type": "number",
+      "required": false,
+      "default": 0.1,
+      "description": "Opacite du grain, entre 0 et 1.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Frequence de base du bruit. Plus haut, plus fin.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "monochrome",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Desature le grain."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre SVG evalue une fois puis mis en cache comme image : aucun script, aucun contexte graphique."
+  },
+  "id": "background/noise",
+  "sources": {
+    "component.tsx": "/**\n * Grain : un bruit de film statique, genere par un filtre SVG.\n *\n * ## Pourquoi un SVG en data-URI plutot qu'un canvas\n *\n * Le bruit est produit par `feTurbulence`, un generateur que le navigateur\n * embarque deja : le composant se contente de decrire le filtre dans un SVG\n * encode en data-URI et de le poser en image de fond. Rien ne s'execute apres\n * le premier rendu — pas de canvas a remplir pixel par pixel, pas de boucle,\n * pas de contexte graphique a reserver.\n *\n * ## Pourquoi le grain est monochrome par defaut\n *\n * `feTurbulence` produit un bruit colore, ou chaque canal tire sa propre\n * valeur. Sur une interface, ces confettis colores se remarquent ; un grain\n * desature se lit comme une matiere, pas comme un motif. Une matrice de\n * saturation nulle le neutralise, et un interrupteur rend la version colore a\n * qui la veut.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface NoiseOwnProps {\n  /** Opacite du grain, entre 0 et 1. @defaultValue 0.1 */\n  opacity?: number\n  /** Frequence de base du bruit. Plus haut, plus fin. @defaultValue 0.8 */\n  scale?: number\n  /** Desature le grain. @defaultValue true */\n  monochrome?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type NoiseProps = Customisable<NoiseOwnProps>\n\n/**\n * Grain de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Noise className=\"o-absolute o-inset-0\" opacity={0.08} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Noise({\n  opacity = 0.1,\n  scale = 0.8,\n  monochrome = true,\n  ...rest\n}: NoiseProps): ReactElement {\n  // Le SVG est reconstruit quand un reglage change : c'est une chaine, pas un\n  // document, et le navigateur met l'image en cache par URI.\n  const svg = [\n    '<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"180\" height=\"180\">',\n    '<filter id=\"grain\">',\n    `<feTurbulence type=\"fractalNoise\" baseFrequency=\"${String(scale)}\" numOctaves=\"2\" stitchTiles=\"stitch\"/>`,\n    monochrome ? '<feColorMatrix type=\"saturate\" values=\"0\"/>' : '',\n    '</filter>',\n    '<rect width=\"100%\" height=\"100%\" filter=\"url(#grain)\"/>',\n    '</svg>',\n  ].join('')\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          opacity,\n          backgroundImage: `url(\"data:image/svg+xml,${encodeURIComponent(svg)}\")`,\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

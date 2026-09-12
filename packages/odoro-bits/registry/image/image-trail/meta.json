@@ -1,0 +1,67 @@
+{
+  "name": "image-trail",
+  "category": "image",
+  "title": "Trainee d images",
+  "description": "Le deplacement du pointeur seme des vignettes qui apparaissent au point de passage puis se resorbent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ImageTrail.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "sources",
+      "type": "readonly { src: string; alt: string }[]",
+      "required": true,
+      "description": "Les images semees, en cycle."
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "default": 80,
+      "unit": "px",
+      "description": "Distance entre deux semis.",
+      "min": 20,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "life",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de vie d une vignette.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 140,
+      "unit": "px",
+      "description": "Cote d une vignette.",
+      "min": 48,
+      "max": 320,
+      "step": 4
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Contenu affiche sous la trainee."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une vignette creee par franchissement de seuil, animee par element.animate et retiree a la fin : le seuil borne le cout. Zone inerte sous mouvement reduit, premiere image centree en repli."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "checker",
+  "category": "background",
+  "title": "Damier",
+  "description": "Une alternance de cases subtile, en un seul degrade conique repete. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Checker.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-zinc-500"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Cote d une case.",
+      "min": 8,
+      "max": 96,
+      "step": 4
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.06,
+      "description": "Opacite des cases pleines, entre 0 et 1.",
+      "min": 0.01,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des cases pleines."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique repete : aucun script, aucun contexte graphique."
+  }
+}

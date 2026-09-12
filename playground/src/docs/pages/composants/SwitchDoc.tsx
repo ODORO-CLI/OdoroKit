@@ -79,6 +79,29 @@ export function SwitchDoc(): ReactElement {
               DEFAUTS,
             )} defaultChecked />`
           }
+          variants={[
+            { title: 'Petit', values: { size: 'sm' } },
+            { title: 'Grand', values: { size: 'lg' } },
+            {
+              title: 'Avec description',
+              values: { description: 'Recevoir un courriel a chaque commentaire.' },
+            },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Rangee de reglages',
+              description: 'Deux preferences empilees, separees par un filet.',
+              node: (
+                <div className="o-flex o-flex-col o-w-full o-max-w-sm">
+                  <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
+                    <Switch label="Notifications" defaultChecked />
+                  </div>
+                  <div className="o-py-3">
+                    <Switch label="Sons de l'interface" />
+                  </div>
+                </div>
+              ),
+            },
+          ]}
         />
       </Section>
 

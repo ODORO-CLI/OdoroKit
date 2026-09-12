@@ -1,0 +1,52 @@
+{
+  "name": "stacked-cards",
+  "category": "ui",
+  "title": "Cartes en eventail",
+  "description": "Un paquet de cartes empilees qui s eventent au survol ou au focus.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/StackedCards.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-duration-slow", "--o-ease-emphasized"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes, jusqu a quatre. La premiere donne sa taille au paquet."
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 10,
+      "unit": "deg",
+      "description": "Angle entre deux cartes une fois eventees.",
+      "min": 4,
+      "max": 25,
+      "step": 1
+    },
+    {
+      "name": "lift",
+      "type": "number",
+      "default": 36,
+      "unit": "px",
+      "description": "Ecart horizontal entre deux cartes une fois eventees.",
+      "min": 8,
+      "max": 96,
+      "step": 4
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation par carte, quatre au plus, tenues par le compositeur. Sous mouvement reduit l eventail s ouvre sans trajet."
+  }
+}

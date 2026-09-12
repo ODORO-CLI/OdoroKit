@@ -1,0 +1,65 @@
+{
+  "name": "pulse-dot",
+  "category": "loader",
+  "title": "Point qui pulse",
+  "description": "Un point plein d ou s echappent deux ondes concentriques, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PulseDot.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 32,
+      "unit": "px",
+      "description": "Diametre de l onde a son extension maximale.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree de vie d une onde, de son depart a son extinction.",
+      "min": 500,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du point et des ondes. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Point plein et une onde figee a mi-course sous mouvement reduit."
+  },
+  "id": "loader/pulse-dot",
+  "sources": {
+    "component.tsx": "/**\n * Point qui pulse : un point plein d'ou s'echappent deux ondes concentriques.\n *\n * ## Deux ondes, une demi-periode d'ecart\n *\n * Une seule onde qui grandit puis disparait laisse un trou : pendant qu'elle\n * s'eteint, rien ne part du centre, et le rythme semble hoqueter. Deux ondes\n * a une demi-periode d'ecart se relaient sans blanc — il y en a toujours une\n * en route. Le delai de la seconde est negatif, pour qu'elle soit deja en\n * chemin a la premiere image plutot que d'attendre son tour.\n *\n * Le point central, lui, ne bouge pas : c'est l'ancre visuelle, ce que l'oeil\n * fixe pendant que les ondes s'eloignent. Un centre qui pulserait aussi\n * brouillerait la lecture — rien ne resterait fixe.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Point et ondes sont\n * retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le point reste plein et une seule onde est figee a\n * mi-course, attenuee : la figure dit encore « quelque chose emet », sans\n * mouvement.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-pulse-dot'\n\n/** Pose le point et ses ondes, une fois par document. */\nfunction ensurePulseRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pulse-dot]{',\n    'position:relative;display:inline-block;',\n    'width:var(--o-pdot-size);height:var(--o-pdot-size);',\n    '}',\n    '[data-o-pulse-core]{',\n    'position:absolute;inset:35%;border-radius:50%;',\n    'background:var(--o-pdot-color);',\n    '}',\n    '[data-o-pulse-wave]{',\n    'position:absolute;inset:0;border-radius:50%;',\n    'border:2px solid var(--o-pdot-color);',\n    'animation:o-pulse-dot-wave var(--o-pdot-speed) ease-out infinite;',\n    'animation-delay:var(--o-pdot-delay);',\n    '}',\n    '@keyframes o-pulse-dot-wave{',\n    'from{transform:scale(0.3);opacity:0.9}',\n    'to{transform:scale(1);opacity:0}',\n    '}',\n    // Une onde figee a mi-course : la figure dit encore « emission », sans\n    // rien qui bouge. La seconde onde disparait, deux ondes fixes seraient\n    // une cible, pas un chargeur.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pulse-wave]{animation:none;transform:scale(0.7);opacity:0.35}',\n    '[data-o-pulse-wave]:last-child{display:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface PulseDotOwnProps {\n  /** Diametre de l'onde a son extension maximale, en pixels. @defaultValue 32 */\n  size?: number\n  /** Duree de vie d'une onde, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Couleur du point et des ondes. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type PulseDotProps = Customisable<PulseDotOwnProps, 'span'>\n\n/**\n * Signale une attente par un point d'ou partent des ondes.\n *\n * @example\n * <PulseDot />\n *\n * @example\n * // Plus large, plus lent, dans la teinte de marque.\n * <PulseDot size={64} speed={2200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function PulseDot({\n  size = 32,\n  speed = 1400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: PulseDotProps): ReactElement {\n  ensurePulseRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-pdot-size': `${String(size)}px`,\n    '--o-pdot-speed': `${String(speed)}ms`,\n    '--o-pdot-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-pulse-dot=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-pulse-core=\"\" />\n      {[0, 1].map((wave) => (\n        <span\n          key={wave}\n          aria-hidden\n          data-o-pulse-wave=\"\"\n          style={\n            {\n              // Une demi-periode d'ecart, en negatif : la seconde onde est\n              // deja en route a la premiere image.\n              '--o-pdot-delay': `${String(Math.round((-speed * wave) / 2))}ms`,\n            } as CSSProperties\n          }\n        />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

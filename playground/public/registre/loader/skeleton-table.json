@@ -1,0 +1,107 @@
+{
+  "name": "skeleton-table",
+  "category": "loader",
+  "title": "Tableau en attente",
+  "description": "Des rangees separees par leurs filets, une premiere colonne large et des cellules de longueurs inegales : un tableau se lit avant ses donnees.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonTable.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de rangees de donnees, en-tete exclu.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de colonnes.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "header",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Dessiner une rangee d en-tete plus dense."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Hauteur d une cellule.",
+      "min": 6,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "unit": "px",
+      "description": "Rayon des angles d une cellule.",
+      "min": 0,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reflet qui traverse les cellules plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement du tableau",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par cellule, ou une opacite, aucun JavaScript apres le premier rendu. Longueurs deterministes : aucun tressaillement d un rendu a l autre. Cellules pleines et immobiles sous mouvement reduit."
+  },
+  "id": "loader/skeleton-table",
+  "sources": {
+    "component.tsx": "/**\n * Tableau en attente : des rangees separees par leurs filets, une premiere\n * colonne large, des cellules de longueurs inegales.\n *\n * ## Ce qui fait lire un tableau\n *\n * Trois choses, et aucune n'est le nombre de blocs : les **filets** entre\n * les rangees, la premiere colonne plus large que les autres, et des\n * cellules de longueurs differentes. Une grille de barres identiques se lit\n * comme un mur ; ces trois indices suffisent a la lire comme des donnees,\n * avant qu'aucune donnee ne soit la.\n *\n * Les longueurs ne sont pas tirees au hasard : un tirage change a chaque\n * rendu, et un squelette qui bouge d'un rendu a l'autre trahit qu'il est\n * faux. Elles viennent d'une suite fixe, indexee par la position de la\n * cellule.\n *\n * L'en-tete est peint a la pleine valeur du filet, plus dense que les\n * cellules : c'est ce contraste qui le detache, pas une taille differente.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; les cellules sont\n * retirees de l'arbre d'accessibilite. Sous mouvement reduit, elles restent\n * pleines et immobiles : la table vide reste visible, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-skeleton-table'\n\n/**\n * Longueurs de cellule, en pourcentage de leur colonne.\n *\n * Une suite fixe plutot qu'un tirage : le squelette doit etre identique a\n * chaque rendu, sans quoi un simple re-rendu le fait tressaillir.\n */\nconst WIDTHS = [86, 58, 72, 44, 64, 92, 52, 78] as const\n\n/** Pose la table, ses filets et l'animation des cellules, une fois par document. */\nfunction ensureSkeletonTableRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-sktab]{display:block;width:100%}',\n    // Le filet est ce qui distingue une table d'une grille : il reste\n    // dessine meme quand toutes les cellules sont vides.\n    '[data-o-sktab-row]{',\n    'display:grid;grid-template-columns:var(--o-sktab-cols);',\n    'gap:1rem;align-items:center;padding:var(--o-sktab-pad) 0;',\n    'border-bottom:1px solid var(--o-theme-line);',\n    '}',\n    '[data-o-sktab-row]:last-child{border-bottom:0}',\n    '[data-o-sktab-cell]{',\n    'position:relative;display:block;overflow:hidden;',\n    'height:var(--o-sktab-cell);border-radius:var(--o-sktab-radius);',\n    'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',\n    '}',\n    // L'en-tete est plus dense, a la pleine valeur du filet.\n    '[data-o-sktab-head] [data-o-sktab-cell]{background:var(--o-theme-line)}',\n    '[data-o-sktab-shimmer] [data-o-sktab-cell]::after{',\n    'content:\"\";position:absolute;inset:0;',\n    'background:linear-gradient(90deg,transparent 0 30%,color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent 70% 100%);',\n    'transform:translateX(-100%);',\n    'animation:o-sktab-sweep var(--o-sktab-speed) linear infinite;',\n    'animation-delay:var(--o-sktab-delay);',\n    '}',\n    '@keyframes o-sktab-sweep{to{transform:translateX(100%)}}',\n    '[data-o-sktab-pulse] [data-o-sktab-cell]{',\n    'animation:o-sktab-pulse var(--o-sktab-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-sktab-delay);',\n    '}',\n    '@keyframes o-sktab-pulse{0%,100%{opacity:1}50%{opacity:0.45}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-sktab-cell]{animation:none;opacity:1}',\n    '[data-o-sktab-shimmer] [data-o-sktab-cell]::after{animation:none;opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SkeletonTableOwnProps {\n  /** Nombre de rangees de donnees, en-tete exclu. @defaultValue 4 */\n  rows?: number\n  /** Nombre de colonnes. @defaultValue 4 */\n  columns?: number\n  /** Dessiner une rangee d en-tete plus dense. @defaultValue true */\n  header?: boolean\n  /** Hauteur d'une cellule, en pixels. @defaultValue 10 */\n  height?: number\n  /** Rayon des angles d'une cellule, en pixels. @defaultValue 5 */\n  radius?: number\n  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */\n  shimmer?: boolean\n  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement du tableau' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SkeletonTableProps = Customisable<SkeletonTableOwnProps, 'div'>\n\n/**\n * Reserve la place d'un tableau de donnees.\n *\n * @example\n * <SkeletonTable />\n *\n * @example\n * // Six lignes, trois colonnes, sans en-tete, en pulsation.\n * <SkeletonTable rows={6} columns={3} header={false} shimmer={false} />\n */\nexport function SkeletonTable({\n  rows = 4,\n  columns = 4,\n  header = true,\n  height = 10,\n  radius = 5,\n  shimmer = true,\n  speed = 1600,\n  label = 'Chargement du tableau',\n  ...rest\n}: SkeletonTableProps): ReactElement {\n  ensureSkeletonTableRule()\n\n  const rowCount = Math.max(1, Math.round(rows))\n  const columnCount = Math.max(1, Math.round(columns))\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    // La premiere colonne est large : c'est celle qui nomme la rangee.\n    '--o-sktab-cols': `1.7fr ${Array.from({ length: columnCount - 1 }, () => '1fr').join(' ')}`,\n    '--o-sktab-cell': `${String(height)}px`,\n    '--o-sktab-pad': `${String(Math.round(height * 1.1))}px`,\n    '--o-sktab-radius': `${String(radius)}px`,\n    '--o-sktab-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  /** Une rangee, en-tete ou donnees. */\n  const row = (rank: number, isHead: boolean): ReactElement => (\n    <span\n      key={isHead ? 'head' : rank}\n      aria-hidden\n      data-o-sktab-row=\"\"\n      data-o-sktab-head={isHead ? '' : undefined}\n    >\n      {Array.from({ length: columnCount }, (_, column) => (\n        <span\n          key={column}\n          data-o-sktab-cell=\"\"\n          style={\n            {\n              // Le reflet descend la table dans l'ordre de lecture.\n              '--o-sktab-delay': `${String(Math.round((speed / 14) * (rank + column)))}ms`,\n              width: isHead\n                ? '55%'\n                : `${String(WIDTHS[(rank * columnCount + column) % WIDTHS.length] ?? 70)}%`,\n            } as CSSProperties\n          }\n        />\n      ))}\n    </span>\n  )\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-sktab=\"\"\n      data-o-sktab-shimmer={shimmer ? '' : undefined}\n      data-o-sktab-pulse={shimmer ? undefined : ''}\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {header ? row(0, true) : null}\n      {Array.from({ length: rowCount }, (_, rank) => row(rank + 1, false))}\n    </div>\n  )\n}\n"
+  }
+}

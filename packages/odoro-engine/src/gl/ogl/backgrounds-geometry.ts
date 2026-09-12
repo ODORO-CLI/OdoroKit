@@ -67,10 +67,12 @@ void main() {
   float secteurs = fract(angle / 6.28318 * max(uSegments, 1.0) + t * 0.15);
 
   // Deux liseres croises : le damier apparait sans qu'aucun carreau ne soit
-  // decrit, seulement par le produit de deux repliements.
+  // decrit, seulement par le produit de deux repliements. Le lisere est la ou
+  // le repliement approche ses bords — la bande fine, pas son complement :
+  // bornes inversees, tout l'ecran se remplissait sauf les lignes.
   float grille = max(
-    smoothstep(0.06, 0.0, abs(anneaux - 0.5) - 0.44),
-    smoothstep(0.06, 0.0, abs(secteurs - 0.5) - 0.44)
+    smoothstep(0.0, 0.06, abs(anneaux - 0.5) - 0.44),
+    smoothstep(0.0, 0.06, abs(secteurs - 0.5) - 0.44)
   );
 
   // Sans cette attenuation, le motif se resserre jusqu'a battre avec la

@@ -78,16 +78,16 @@ export function useTokenShader<T extends HTMLElement = HTMLDivElement>(
   options: TokenShaderOptions,
 ): TokenShaderHandle<T> {
   const { fragment, colors, uniforms, name, degrade } = options
-  const { quality, reduced } = useMotionState()
+  const { quality, reduced, theme } = useMotionState()
   const [host, setHost] = useState<T | null>(null)
   const [colours, setColours] = useState<readonly ShaderColour[]>([])
 
   useEffect(() => {
     if (host === null) return
     setColours(colors.map((token) => readTokenColour(token, host)))
-    // Le theme bascule par la politique de mouvement, qui renouvelle son etat :
-    // c'est ce qui declenche la relecture.
-  }, [host, colors, reduced, quality])
+    // La politique de mouvement suit `data-theme` et la preference systeme :
+    // sa bascule est ce qui declenche la relecture des tokens.
+  }, [host, colors, reduced, quality, theme])
 
   const merged = useMemo(() => {
     if (colours.length < colors.length) return undefined

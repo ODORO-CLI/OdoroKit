@@ -107,7 +107,17 @@ function numbers(source: string): number[] {
  * parseColour('oklch(0.62 0.21 259)')
  */
 export function parseColour(value: string): ShaderColour | null {
-  const trimmed = value.trim().toLowerCase()
+  // Un gris n'a pas de teinte : le navigateur serialise alors la composante en
+  // `none` — `oklch(98.5% 0 none)`. Elle vaut zero pour le calcul.
+  const trimmed = value.trim().toLowerCase().replace(/\bnone\b/g, '0')
+
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.slice(1)
+    const wide = hex.length === 3 || hex.length === 4 ? [...hex].map((c) => c + c).join('') : hex
+    if (!/^[0-9a-f]{6}([0-9a-f]{2})?$/.test(wide)) return null
+    const channel = (at: number): number => parseInt(wide.slice(at, at + 2), 16) / 255
+    return [channel(0), channel(2), channel(4)]
+  }
 
   if (trimmed.startsWith('oklch(')) {
     const [l, c, h] = numbers(trimmed)

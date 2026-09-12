@@ -1,0 +1,65 @@
+{
+  "name": "pinwheel",
+  "category": "loader",
+  "title": "Moulinet",
+  "description": "Quatre pales triangulaires en deux nuances tournent par rafales, une acceleration et un ralenti par demi-tour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Pinwheel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre du moulinet.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un tour, soit deux rafales.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des pales ; une pale sur deux en est une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre pales decoupees par clip-path et une seule rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Moulinet immobile sous mouvement reduit."
+  },
+  "id": "loader/pinwheel",
+  "sources": {
+    "component.tsx": "/**\n * Moulinet : quatre pales triangulaires en deux nuances tournent par\n * rafales, une acceleration et un ralenti par demi-tour.\n *\n * ## Tourner comme sous le vent\n *\n * Un moulinet ne tourne pas a vitesse constante : il part sous une rafale,\n * ralentit, repart. La rotation est donc decoupee en deux demi-tours, chacun\n * avec sa propre acceleration et son propre ralenti. Un moulinet a quatre\n * pales en deux nuances est identique a lui-meme tous les demi-tours : la\n * boucle est invisible, et l'oeil ne voit que des rafales.\n *\n * ## Une pale, quatre fois\n *\n * Chaque pale est un carre coupe en triangle par un `clip-path`, dont l'un\n * des sommets est le centre du moulinet. Les quatre pales sont le meme\n * element, tourne d'un quart de tour a chaque fois autour de ce sommet.\n * Une pale sur deux est attenuee : sans cette alternance, quatre triangles\n * de la meme couleur forment un carre plein et rien ne tourne.\n *\n * Le moyeu est un point rond au centre : il cache la jonction des quatre\n * sommets, qui ne tombe jamais exactement juste au pixel pres.\n *\n * Une seule animation, sur le conteneur des pales, tenue par le\n * compositeur. Aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le moulinet, lui, est\n * retire de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le moulinet reste immobile : quatre pales en deux\n * nuances se lisent encore comme un chargeur, seul le vent tombe.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-pinwheel'\n\n/** Pose les pales et leurs rafales, une fois par document. */\nfunction ensurePinwheelRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pinwheel]{display:inline-block;line-height:0}',\n    '[data-o-pinwheel-wheel]{',\n    'display:block;position:relative;',\n    'width:var(--o-pinwheel-size);height:var(--o-pinwheel-size);',\n    'animation:o-pinwheel-gust var(--o-pinwheel-speed) infinite;',\n    '}',\n    // Une pale occupe le quart haut droit ; son sommet bas gauche est le\n    // centre du moulinet, et c'est autour de lui que les copies tournent.\n    '[data-o-pinwheel-blade]{',\n    'position:absolute;top:0;left:50%;width:50%;height:50%;',\n    'background:color-mix(in oklab, var(--o-pinwheel-color) var(--o-pinwheel-shade), transparent);',\n    'clip-path:polygon(0 100%, 0 0, 100% 100%);',\n    'transform-origin:0 100%;transform:rotate(var(--o-pinwheel-angle));',\n    '}',\n    '[data-o-pinwheel-hub]{',\n    'position:absolute;top:50%;left:50%;width:22%;height:22%;',\n    'border-radius:50%;background:var(--o-pinwheel-color);',\n    'transform:translate(-50%,-50%);',\n    '}',\n    // Deux rafales par tour, chacune avec son elan et son ralenti : un\n    // `ease-in-out` par demi-tour, pas un lineaire sur le tour entier.\n    '@keyframes o-pinwheel-gust{',\n    '0%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.55,0,0.3,1)}',\n    '50%{transform:rotate(180deg);animation-timing-function:cubic-bezier(0.55,0,0.3,1)}',\n    '100%{transform:rotate(360deg)}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pinwheel-wheel]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface PinwheelOwnProps {\n  /** Diametre du moulinet, en pixels. @defaultValue 40 */\n  size?: number\n  /** Duree d'un tour, soit deux rafales, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Couleur des pales. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type PinwheelProps = Customisable<PinwheelOwnProps, 'span'>\n\n/**\n * Signale une attente par un moulinet qui tourne par rafales.\n *\n * @example\n * <Pinwheel />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Pinwheel size={64} speed={2400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Pinwheel({\n  size = 40,\n  speed = 1600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: PinwheelProps): ReactElement {\n  ensurePinwheelRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-pinwheel-size': `${String(size)}px`,\n    '--o-pinwheel-speed': `${String(speed)}ms`,\n    '--o-pinwheel-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-pinwheel=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-pinwheel-wheel=\"\">\n        {[0, 1, 2, 3].map((blade) => (\n          <span\n            key={blade}\n            data-o-pinwheel-blade=\"\"\n            style={\n              {\n                '--o-pinwheel-angle': `${String(blade * 90)}deg`,\n                // Une pale sur deux est attenuee : c'est l'alternance qui\n                // rend la rotation visible.\n                '--o-pinwheel-shade': blade % 2 === 0 ? '100%' : '45%',\n              } as CSSProperties\n            }\n          />\n        ))}\n        <span data-o-pinwheel-hub=\"\" />\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

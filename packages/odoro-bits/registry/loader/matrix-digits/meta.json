@@ -1,0 +1,72 @@
+{
+  "name": "matrix-digits",
+  "category": "loader",
+  "title": "Chiffres qui se figent",
+  "description": "Un code de chiffres qui defilent tous, puis se verrouillent un a un de gauche a droite, tiennent, et repartent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/MatrixDigits.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-font-mono"],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "La legende sous le code. Chaine vide pour ne garder que le code."
+    },
+    {
+      "name": "digits",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de chiffres du code.",
+      "min": 3,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Corps de reference ; les chiffres en font une fois et demie.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle : defilement, verrouillage, tenue.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des chiffres et de la legende. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle du moteur qui ecrit les chiffres directement dans le DOM, une vingtaine de fois par seconde, sans rendu React par image. Code verrouille et immobile sous mouvement reduit."
+  }
+}

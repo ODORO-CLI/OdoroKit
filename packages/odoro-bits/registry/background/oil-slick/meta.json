@@ -1,0 +1,78 @@
+{
+  "name": "oil-slick",
+  "category": "background",
+  "title": "Nappe d essence",
+  "description": "Une nappe d essence sur l eau : des franges irisees serrees qui suivent un bruit tordu, entre lesquelles l eau sombre ondule.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "oil-slick.shader.ts",
+      "target": "background/oil-slick.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/OilSlick.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-fuchsia-500", "--o-palette-cyan-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.12,
+      "description": "Vitesse de derive de la nappe.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 2.2,
+      "description": "Echelle du bruit. Plus haut, plus fin.",
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "fringes",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de tours de teinte sur toute l epaisseur : la densite des franges.",
+      "min": 1,
+      "max": 14,
+      "step": 0.5
+    },
+    {
+      "name": "ripple",
+      "type": "number",
+      "default": 0.3,
+      "description": "Force des reflets de l eau entre les nappes.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-fuchsia-500, --o-palette-cyan-400",
+      "description": "Tokens dont les couleurs sont lues : l eau, et les deux teintes entre lesquelles les franges tournent."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sommes d octaves par fragment — la torsion, l epaisseur, l etendue de la nappe. En qualite basse, les octaves tombent a deux."
+  }
+}

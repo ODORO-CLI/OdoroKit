@@ -1,0 +1,54 @@
+{
+  "name": "use-interval-clock",
+  "category": "hooks",
+  "title": "Intervalle sur l horloge",
+  "description": "Repete une action a cadence tenue dans la boucle du moteur, et s arrete quand l onglet est cache.",
+  "engine": {
+    "gsap": ["core"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useIntervalClock.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree entre deux battements.",
+      "min": 100,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "actif",
+      "type": "boolean",
+      "default": true,
+      "description": "Battre ou non. C est par la que passe le mouvement reduit."
+    },
+    {
+      "name": "immediat",
+      "type": "boolean",
+      "default": false,
+      "description": "Battre une premiere fois sans attendre l intervalle."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "default": "intervalle",
+      "description": "Nom affiche dans le panneau de diagnostic."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun minuteur ouvert : une addition par image dans la boucle deja en place. Un battement au plus par image."
+  }
+}

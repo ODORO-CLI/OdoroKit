@@ -1,0 +1,65 @@
+{
+  "name": "bouncing-dots",
+  "category": "loader",
+  "title": "Points qui sautent",
+  "description": "Trois points bondissent l un apres l autre, montee vive et retombee lourde, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BouncingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d un point. La hauteur du saut en depend.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree d un saut complet, montee, retombee et pause au sol.",
+      "min": 300,
+      "max": 2500,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Trois points poses sur leur ligne de sol sous mouvement reduit."
+  },
+  "id": "loader/bouncing-dots",
+  "sources": {
+    "component.tsx": "/**\n * Points qui sautent : trois points bondissent l'un apres l'autre.\n *\n * ## Un saut, pas une oscillation\n *\n * Un aller-retour en `ease-in-out` donne un flottement — le point ralentit\n * en haut et en bas de la meme facon, comme suspendu a un ressort. Un saut\n * ne ressemble pas a cela : le point part vite, ralentit au sommet, puis\n * retombe en accelerant et s'arrete net au sol. Les courbes sont donc posees\n * image cle par image cle — `ease-out` a la montee, `ease-in` a la descente —\n * et le point reste au sol un tiers du cycle : c'est cette pause qui fait\n * lire un rebond plutot qu'une vague.\n *\n * Les trois points decalent leur depart d'un sixieme de cycle, en delai\n * negatif : la sequence est complete a la premiere image, sans point qui\n * attendrait son tour.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les points sont retires\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les trois points reposent sur leur ligne de sol :\n * la figure se lit encore comme un chargeur, seul le saut s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-bouncing-dots'\n\n/** Pose les points et leur saut, une fois par document. */\nfunction ensureBounceRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Le conteneur reserve la hauteur du saut : le point monte dedans, la\n    // mise en page ne bouge pas.\n    '[data-o-bouncing-dots]{',\n    'display:inline-flex;align-items:flex-end;',\n    'gap:calc(var(--o-bdots-size) * 0.5);',\n    'height:calc(var(--o-bdots-size) * 2.6);',\n    '}',\n    '[data-o-bouncing-dot]{',\n    'width:var(--o-bdots-size);height:var(--o-bdots-size);',\n    'border-radius:50%;background:var(--o-bdots-color);',\n    'animation:o-bouncing-dots-jump var(--o-bdots-speed) infinite;',\n    'animation-delay:var(--o-bdots-delay);',\n    '}',\n    // Montee en decelerant, descente en accelerant, puis un temps au sol.\n    '@keyframes o-bouncing-dots-jump{',\n    '0%{transform:translate3d(0,0,0);animation-timing-function:ease-out}',\n    '33%{transform:translate3d(0,calc(var(--o-bdots-size) * -1.6),0);animation-timing-function:ease-in}',\n    '66%,100%{transform:translate3d(0,0,0)}',\n    '}',\n    // Trois points au sol : la figure dit encore « attente », sans saut.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-bouncing-dot]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BouncingDotsOwnProps {\n  /** Diametre d'un point, en pixels. @defaultValue 10 */\n  size?: number\n  /** Duree d'un saut complet, en millisecondes. @defaultValue 800 */\n  speed?: number\n  /** Couleur des points. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BouncingDotsProps = Customisable<BouncingDotsOwnProps, 'span'>\n\n/**\n * Signale une attente par trois points qui sautent tour a tour.\n *\n * @example\n * <BouncingDots />\n *\n * @example\n * // Plus gros, plus lent, dans la teinte de marque.\n * <BouncingDots size={14} speed={1200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function BouncingDots({\n  size = 10,\n  speed = 800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BouncingDotsProps): ReactElement {\n  ensureBounceRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-bdots-size': `${String(size)}px`,\n    '--o-bdots-speed': `${String(speed)}ms`,\n    '--o-bdots-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-bouncing-dots=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {[0, 1, 2].map((dot) => (\n        <span\n          key={dot}\n          aria-hidden\n          data-o-bouncing-dot=\"\"\n          style={\n            {\n              // Un sixieme de cycle d'ecart, en negatif : la sequence est\n              // complete des la premiere image.\n              '--o-bdots-delay': `${String(Math.round((-speed * dot) / 6))}ms`,\n            } as CSSProperties\n          }\n        />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

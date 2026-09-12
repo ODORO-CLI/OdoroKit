@@ -1,0 +1,76 @@
+{
+  "name": "route-path",
+  "category": "loader",
+  "title": "Itineraire",
+  "description": "Une route se dessine du depart vers la destination, qui s allume a l arrivee, puis le trace s efface et le parcours reprend, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/RoutePath.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 72,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 32,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur de la route.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un parcours complet, effacement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la route et des reperes. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Route entierement tracee et destination allumee sous mouvement reduit."
+  },
+  "id": "loader/route-path",
+  "sources": {
+    "component.tsx": "/**\n * Itineraire : une route se dessine depuis le point de depart jusqu'a la\n * destination, qui s'allume a l'arrivee.\n *\n * ## Une route se parcourt, elle ne clignote pas\n *\n * Le trace est un tiret aussi long que le chemin entier : le faire glisser\n * par son decalage revient a faire avancer une tete, du depart vers la\n * destination, sans que la queue ne bouge. C'est le geste d'un doigt sur\n * une carte, pas un remplissage.\n *\n * Le chemin declare une longueur de cent : le tiret et son decalage se\n * lisent alors en pour cent du trace, quelle que soit sa longueur reelle.\n * Les images cles tombent juste sans qu'aucune mesure ne soit lue dans le\n * document.\n *\n * Sous le trace, la route en pointille reste toujours visible : sans elle,\n * un itineraire a demi parcouru n'est qu'une courbe qui s'arrete, et l'oeil\n * ne sait pas ou elle va. La destination, elle, n'apparait qu'a l'arrivee —\n * c'est ce qui fait la difference entre « en route » et « arrive ».\n *\n * La boucle ne se rembobine pas : une fois la destination atteinte, le\n * trace s'efface en fondu, et le cycle repart d'un chemin vide. Un retour\n * en arriere donnerait un itineraire qu'on defait, ce qui ne veut rien dire.\n *\n * Deux animations CSS sur des elements SVG, tenues par le compositeur,\n * aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la route est entierement tracee et la destination\n * allumee : c'est l'etat d'arrivee, celui qui dit le plus.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-route-path'\n\n/**\n * L'itineraire, dans une vue de 100 unites.\n *\n * Deux courbes cubiques qui se raccordent : la route serpente au lieu de\n * filer droit, ce qui donne au parcours une duree lisible.\n */\nconst ROUTE = 'M 14 82 C 34 82, 28 58, 46 54 C 64 50, 58 32, 76 28'\n\n/** Depart de la route. */\nconst FROM = { x: 14, y: 82 }\n\n/** Destination. */\nconst TO = { x: 76, y: 28 }\n\n/** Pose la route, son trace et l'arrivee, une fois par document. */\nfunction ensureRouteRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-route-path]{display:inline-block;line-height:0}',\n    '[data-o-route-path] svg{display:block}',\n    '[data-o-route-line]{',\n    'stroke-dasharray:100 100;stroke-dashoffset:100;',\n    'animation:o-route-path-draw var(--o-route-speed) infinite;',\n    '}',\n    '[data-o-route-goal]{',\n    'transform-box:view-box;opacity:0;',\n    `transform-origin:${String(TO.x)}px ${String(TO.y)}px;`,\n    'animation:o-route-path-land var(--o-route-speed) infinite;',\n    '}',\n    // La tete avance du depart a la destination, marque un temps, puis le\n    // trace s'efface : le cycle repart d'un chemin vide, jamais d'un retour\n    // en arriere.\n    '@keyframes o-route-path-draw{',\n    '0%{stroke-dashoffset:100;opacity:1;animation-timing-function:ease-in-out}',\n    '62%{stroke-dashoffset:0;opacity:1}',\n    '84%{stroke-dashoffset:0;opacity:1;animation-timing-function:ease-in}',\n    '100%{stroke-dashoffset:0;opacity:0}',\n    '}',\n    // La destination se pose avec un leger depassement, comme une epingle\n    // qu'on plante, juste au moment ou la tete l'atteint.\n    '@keyframes o-route-path-land{',\n    '0%,54%{transform:scale(0.3);opacity:0;animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)}',\n    '70%{transform:scale(1);opacity:1}',\n    '84%{transform:scale(1);opacity:1;animation-timing-function:ease-in}',\n    '100%{transform:scale(1);opacity:0}',\n    '}',\n    // Route parcourue, destination allumee : l'etat d'arrivee, immobile.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-route-line]{animation:none;stroke-dashoffset:0}',\n    '[data-o-route-goal]{animation:none;opacity:1;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface RoutePathOwnProps {\n  /** Cote du dessin, en pixels. @defaultValue 72 */\n  size?: number\n  /** Epaisseur de la route, en pixels. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un parcours complet, en millisecondes. @defaultValue 2400 */\n  speed?: number\n  /** Couleur de la route et des reperes. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type RoutePathProps = Customisable<RoutePathOwnProps, 'span'>\n\n/**\n * Signale une attente par un itineraire qui se trace jusqu'a sa destination.\n *\n * @example\n * <RoutePath />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <RoutePath size={112} speed={3200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function RoutePath({\n  size = 72,\n  thickness = 4,\n  speed = 2400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: RoutePathProps): ReactElement {\n  ensureRouteRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en\n  // pixels est convertie pour que la route garde sa mesure a toute taille.\n  const stroke = Math.min((thickness / size) * 100, 12)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-route-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-route-path=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <path\n          d={ROUTE}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeOpacity={0.32}\n          strokeLinecap=\"round\"\n          strokeDasharray={`${(stroke * 0.35).toFixed(2)} ${(stroke * 1.15).toFixed(2)}`}\n        />\n        <path\n          data-o-route-line=\"\"\n          d={ROUTE}\n          pathLength={100}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeLinecap=\"round\"\n        />\n        <circle cx={FROM.x} cy={FROM.y} r={stroke * 1.1} fill=\"currentColor\" />\n        <g data-o-route-goal=\"\">\n          <circle\n            cx={TO.x}\n            cy={TO.y}\n            r={stroke * 2.1}\n            fill=\"none\"\n            stroke=\"currentColor\"\n            strokeWidth={stroke * 0.7}\n          />\n          <circle cx={TO.x} cy={TO.y} r={stroke * 0.8} fill=\"currentColor\" />\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

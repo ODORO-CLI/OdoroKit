@@ -1,0 +1,85 @@
+{
+  "name": "option-wheel",
+  "category": "ui",
+  "title": "Roue d options",
+  "description": "Un tambour que l on fait tourner a la molette ou au doigt, dont les lignes s inclinent selon leur distance au centre et qui se cale sur l option retenue.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/OptionWheel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-fast"
+  ],
+  "props": [
+    {
+      "name": "options",
+      "type": "readonly { value: string; label: string }[]",
+      "required": true,
+      "description": "Les options, dans l ordre du tambour."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la roue pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "description": "Option choisie, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "required": false,
+      "description": "Option choisie au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "required": false,
+      "description": "Appele quand la roue se cale sur une option."
+    },
+    {
+      "name": "visible",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "Nombre de lignes visibles. Un nombre impair centre la ligne choisie.",
+      "min": 3,
+      "max": 9,
+      "step": 2
+    },
+    {
+      "name": "curve",
+      "type": "number",
+      "required": false,
+      "default": 18,
+      "unit": "deg",
+      "description": "Inclinaison ajoutee par ligne d ecart au centre.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le defilement et le calage sont ceux du navigateur ; l inclinaison est ecrite sur les lignes une fois par image utile, sans rendu React. La valeur n est publiee qu a l arret. Sous mouvement reduit, la roue devient une liste plate."
+  },
+  "id": "ui/option-wheel",
+  "sources": {
+    "component.tsx": "/**\n * Roue d'options : un tambour que l'on fait tourner et qui se cale sur une\n * valeur, comme la molette d'un selecteur de date.\n *\n * ## C'est un vrai defilement, pas une simulation\n *\n * La roue est une zone qui defile avec `scroll-snap-type` : la molette, le\n * doigt, la barre laterale, l'inertie du systeme et le calage sur la ligne\n * centrale sont ceux du navigateur. Reecrire cela au pointeur donnerait une\n * inertie approximative, differente sur chaque appareil, et un tambour qui\n * ignore la molette.\n *\n * ## La courbe est peinte, la valeur est posee a l'arret\n *\n * A chaque image utile, chaque ligne recoit une rotation proportionnelle a sa\n * distance au centre — ecriture directe, sans rendu React. La valeur, elle,\n * n'est publiee que lorsque le defilement s'arrete : la publier en cours de\n * route ferait clignoter tout ce qui l'ecoute pendant le geste.\n *\n * ## Les lignes ont toutes la meme hauteur\n *\n * C'est ce qui rend la position lisible : la ligne au centre est le quotient\n * du defilement par la hauteur d'une ligne. Un tambour a lignes inegales\n * demanderait une mesure par ligne a chaque image, pour un objet dont l'interet\n * est justement la regularite.\n *\n * ## Mouvement reduit\n *\n * Pas de courbe et pas de defilement anime : la roue devient une liste plate\n * qui saute a l'option choisie — son etat final.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useId,\n  useLayoutEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n} from 'react'\n\n/** Une option de la roue. */\nexport interface WheelOption {\n  /** Valeur rendue par `onChange`. */\n  readonly value: string\n  /** Libelle affiche. */\n  readonly label: string\n}\n\n/** Proprietes propres au composant. */\nexport interface OptionWheelOwnProps {\n  /** Les options, dans l'ordre du tambour. */\n  options: readonly WheelOption[]\n  /** Nom de la roue pour les lecteurs d'ecran. */\n  label: string\n  /** Option choisie, en mode controle. */\n  value?: string\n  /** Option choisie au montage, en mode non controle. */\n  defaultValue?: string\n  /** Appele quand la roue se cale sur une option. */\n  onChange?: (value: string) => void\n  /** Nombre de lignes visibles. Un nombre impair centre la ligne choisie. @defaultValue 5 */\n  visible?: number\n  /** Inclinaison ajoutee par ligne d'ecart au centre. @defaultValue 18 */\n  curve?: number\n}\n\n/** Toutes les proprietes. */\nexport type OptionWheelProps = Customisable<OptionWheelOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-option-wheel'\n\n/** Pose le tambour, ses lignes et la fenetre centrale, une fois par document. */\nfunction ensureWheelRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-wheel]{position:relative;isolation:isolate}',\n    '[data-o-wheel-scroll]{',\n    // La fenetre visible d'une zone qui defile est sa boite de remplissage :\n    // sans `border-box`, les marges internes agrandiraient le tambour.\n    'position:relative;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;',\n    'scroll-snap-type:y mandatory;perspective:600px;transform-style:preserve-3d;',\n    'height:calc(var(--o-wheel-visible) * var(--o-wheel-row));',\n    'padding-block:calc((var(--o-wheel-visible) - 1) / 2 * var(--o-wheel-row));',\n    // Les extremites s'effacent : le tambour n'a pas de bord franc.\n    '-webkit-mask-image:linear-gradient(to bottom,transparent,currentColor 35%,currentColor 65%,transparent);',\n    'mask-image:linear-gradient(to bottom,transparent,currentColor 35%,currentColor 65%,transparent);',\n    '}',\n    '[data-o-wheel-scroll]::-webkit-scrollbar{display:none}',\n    '[data-o-wheel-scroll]:focus-visible{outline:2px solid var(--o-wheel-accent);outline-offset:2px;border-radius:0.6rem}',\n    '[data-o-wheel-scroll] [role=\"option\"]{',\n    'display:flex;align-items:center;justify-content:center;',\n    'height:var(--o-wheel-row);scroll-snap-align:center;cursor:pointer;',\n    'white-space:nowrap;backface-visibility:hidden;',\n    'transition:color var(--o-duration-fast) linear;',\n    '}',\n    '[data-o-wheel-scroll] [role=\"option\"][aria-selected=\"true\"]{color:var(--o-wheel-accent);font-weight:600}',\n    // La fenetre : deux filets qui marquent la ligne retenue.\n    '[data-o-wheel-window]{',\n    'position:absolute;left:0;right:0;top:50%;height:var(--o-wheel-row);',\n    'translate:0 -50%;pointer-events:none;z-index:1;',\n    'border-top:1px solid var(--o-theme-line);border-bottom:1px solid var(--o-theme-line);',\n    'background:color-mix(in oklab,var(--o-wheel-accent) 7%,transparent);',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Roue d'options a defilement et calage.\n *\n * @example\n * <OptionWheel\n *   label=\"Duree\"\n *   options={[\n *     { value: '15', label: '15 minutes' },\n *     { value: '30', label: '30 minutes' },\n *   ]}\n *   defaultValue=\"30\"\n * />\n *\n * @example\n * // Mode controle, sept lignes visibles et une courbe plus marquee.\n * <OptionWheel label=\"Ville\" options={villes} value={ville} onChange={setVille} visible={7} curve={26} />\n */\nexport function OptionWheel({\n  options,\n  label,\n  value,\n  defaultValue,\n  onChange,\n  visible = 5,\n  curve = 18,\n  ...rest\n}: OptionWheelProps): ReactElement {\n  const { reduced } = useMotionState()\n  const scrollRef = useRef<HTMLDivElement | null>(null)\n  const rowHeight = useRef(0)\n  const frame = useRef(0)\n  const settle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const mounted = useRef(false)\n  const baseId = useId()\n  const [internal, setInternal] = useState<string | undefined>(defaultValue)\n  ensureWheelRules()\n\n  const current = value ?? internal ?? options[0]?.value\n  const currentIndex = Math.max(\n    0,\n    options.findIndex((option) => option.value === current),\n  )\n\n  const choose = (next: string): void => {\n    if (next === current) return\n    if (value === undefined) setInternal(next)\n    onChange?.(next)\n  }\n\n  /** Incline chaque ligne selon sa distance a la ligne centrale. */\n  const paint = (): void => {\n    frame.current = 0\n    const host = scrollRef.current\n    const row = rowHeight.current\n    if (host === null || row === 0) return\n    const centre = host.scrollTop / row\n    const half = Math.max(1, (visible - 1) / 2)\n\n    for (const [index, element] of Array.from(\n      host.querySelectorAll<HTMLElement>('[role=\"option\"]'),\n    ).entries()) {\n      const away = index - centre\n      const far = Math.min(1, Math.abs(away) / (half + 0.5))\n      element.style.opacity = String(1 - far * 0.75)\n      element.style.transform = reduced\n        ? ''\n        : `rotateX(${String(-away * curve)}deg) translateZ(${String(-Math.abs(away) * 6)}px)`\n    }\n  }\n\n  const onScroll = (): void => {\n    if (frame.current === 0 && typeof requestAnimationFrame === 'function') {\n      frame.current = requestAnimationFrame(paint)\n    }\n    // Le calage est publie a l'arret : `scrollend` n'est pas partout, un\n    // silence de quelques images l'est.\n    clearTimeout(settle.current)\n    settle.current = setTimeout(() => {\n      const host = scrollRef.current\n      const row = rowHeight.current\n      if (host === null || row === 0) return\n      const index = Math.round(host.scrollTop / row)\n      const option = options[Math.min(options.length - 1, Math.max(0, index))]\n      if (option !== undefined) choose(option.value)\n    }, 140)\n  }\n\n  // Mesure, calage sur l'option courante, premiere peinture. Le premier\n  // passage saute, les suivants glissent : arriver en glissant sur une valeur\n  // que l'on n'a pas encore vue n'a aucun sens.\n  useLayoutEffect(() => {\n    const host = scrollRef.current\n    if (host === null) return\n    const first = host.querySelector<HTMLElement>('[role=\"option\"]')\n    rowHeight.current = first?.offsetHeight ?? 0\n    const target = rowHeight.current * currentIndex\n    if (Math.abs(host.scrollTop - target) > 1) {\n      host.scrollTo({\n        top: target,\n        behavior: mounted.current && !reduced ? 'smooth' : 'auto',\n      })\n    }\n    mounted.current = true\n    paint()\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, [currentIndex, reduced, curve, visible, options.length])\n\n  useLayoutEffect(\n    () => () => {\n      clearTimeout(settle.current)\n      if (frame.current !== 0) cancelAnimationFrame(frame.current)\n    },\n    [],\n  )\n\n  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {\n    const last = options.length - 1\n    const moves: Readonly<Record<string, number | undefined>> = {\n      ArrowDown: Math.min(last, currentIndex + 1),\n      ArrowUp: Math.max(0, currentIndex - 1),\n      Home: 0,\n      End: last,\n    }\n    const target = moves[event.key]\n    if (target === undefined) return\n    event.preventDefault()\n    const option = options[target]\n    if (option !== undefined) choose(option.value)\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      data-o-wheel=\"\"\n      className={className}\n      style={\n        {\n          '--o-wheel-accent': 'var(--o-palette-brand-500)',\n          '--o-wheel-row': '2.5rem',\n          '--o-wheel-visible': visible,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <div data-o-wheel-window=\"\" aria-hidden=\"true\" />\n      <div\n        ref={scrollRef}\n        data-o-wheel-scroll=\"\"\n        role=\"listbox\"\n        aria-label={label}\n        aria-activedescendant={`${baseId}-${String(currentIndex)}`}\n        tabIndex={0}\n        onScroll={onScroll}\n        onKeyDown={onKeyDown}\n      >\n        {options.map((option, index) => (\n          <div\n            key={option.value}\n            id={`${baseId}-${String(index)}`}\n            role=\"option\"\n            aria-selected={index === currentIndex}\n            onClick={() => {\n              choose(option.value)\n            }}\n          >\n            {option.label}\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

@@ -107,6 +107,55 @@ export function TableDoc(): ReactElement {
   rows={MEMBRES}
   rowKey={(membre) => membre.nom}
 />`}
+          variants={[
+            {
+              title: 'Rayee',
+              description: 'Le fond des lignes alterne.',
+              values: { striped: true },
+            },
+            {
+              title: 'Dense',
+              description: 'Espacement vertical resserre.',
+              values: { dense: true },
+            },
+            {
+              title: 'Survol',
+              description: 'La ligne survolee se surligne.',
+              values: { hoverable: true, striped: true },
+            },
+            {
+              title: 'En-tete collant',
+              description: "L'en-tete reste visible pendant le defilement.",
+              values: { stickyHeader: true },
+            },
+            {
+              title: 'Tableau vide',
+              description: 'Sans ligne, le message empty est centre.',
+              node: (
+                <Table
+                  columns={COLONNES}
+                  rows={[]}
+                  rowKey={(membre) => membre.nom}
+                  empty="Aucun membre ne correspond a ce filtre."
+                  className="o-w-full o-bg-white dark:o-bg-zinc-900"
+                />
+              ),
+            },
+            {
+              title: 'Badge en cellule',
+              description: 'La colonne statut rend une pastille via render.',
+              node: (
+                <Table
+                  dense
+                  columns={COLONNES}
+                  rows={MEMBRES.slice(0, 3)}
+                  rowKey={(membre) => membre.nom}
+                  caption="Extrait de l'equipe produit"
+                  className="o-w-full o-bg-white dark:o-bg-zinc-900"
+                />
+              ),
+            },
+          ]}
         />
         <Callout>
           <code className="o-font-mono o-text-sm">stickyHeader</code> garde l'en-tete

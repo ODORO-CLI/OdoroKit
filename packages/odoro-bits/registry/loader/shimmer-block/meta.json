@@ -1,0 +1,85 @@
+{
+  "name": "shimmer-block",
+  "category": "loader",
+  "title": "Bloc balaye",
+  "description": "Le bloc nu d un squelette, traverse par un reflet oblique peint dans son propre fond : aucune couche a empiler, la bande suit les angles arrondis.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ShimmerBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "height",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur du bloc.",
+      "min": 8,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 110,
+      "unit": "deg",
+      "description": "Obliquite de la bande.",
+      "min": 60,
+      "max": 160,
+      "step": 5
+    },
+    {
+      "name": "band",
+      "type": "number",
+      "default": 14,
+      "unit": "%",
+      "description": "Demi-largeur de la bande, en pourcentage de l image de fond.",
+      "min": 4,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un passage de la bande.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une position de fond animee sur un seul element, aucun JavaScript apres le premier rendu. Fond plein et sans bande sous mouvement reduit."
+  }
+}

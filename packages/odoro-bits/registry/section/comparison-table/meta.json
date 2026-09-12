@@ -1,0 +1,68 @@
+{
+  "name": "comparison-table",
+  "category": "section",
+  "title": "Tableau comparatif",
+  "description": "Un vrai tableau a en-tete colle et premiere colonne collee, dont la zone de defilement s atteint au clavier.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/ComparisonTable.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-600",
+    "--o-duration-slow",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "columns",
+      "type": "readonly ComparisonColumn[]",
+      "required": true,
+      "description": "Les colonnes comparees."
+    },
+    {
+      "name": "rows",
+      "type": "readonly ComparisonRow[]",
+      "required": true,
+      "description": "Les lignes, dans l ordre d affichage."
+    },
+    {
+      "name": "caption",
+      "type": "string",
+      "required": true,
+      "description": "Legende du tableau. Elle est affichee, et elle nomme la zone qui defile."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "default": 480,
+      "unit": "px",
+      "description": "Hauteur maximale de la zone qui defile.",
+      "min": 200,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "yesLabel",
+      "type": "string",
+      "default": "Compris",
+      "description": "Ce qui est dit d une valeur vraie."
+    },
+    {
+      "name": "noLabel",
+      "type": "string",
+      "default": "Non compris",
+      "description": "Ce qui est dit d une valeur fausse."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une transition par rangee. Le collage est natif : aucune mesure, aucun JavaScript par image."
+  }
+}

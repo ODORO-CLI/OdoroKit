@@ -1,0 +1,55 @@
+{
+  "name": "progress-ring",
+  "category": "ui",
+  "title": "Anneau de progression",
+  "description": "Un arc qui rejoint sa valeur en glissant, le pourcentage au centre en chiffres tabulaires.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ProgressRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-duration-slower", "--o-ease-standard"],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 65,
+      "description": "Progression, de zero a cent.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 48,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition sur le decalage du trait, rien par frame. Sous mouvement reduit l arc saute directement a sa valeur."
+  }
+}

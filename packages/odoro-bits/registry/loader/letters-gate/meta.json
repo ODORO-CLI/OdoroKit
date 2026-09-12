@@ -1,0 +1,94 @@
+{
+  "name": "letters-gate",
+  "category": "loader",
+  "title": "Rideau a lettres",
+  "description": "Un mot qui s assemble caractere par caractere sur l horloge du moteur, puis une plaque qui se rabat comme un couvercle.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LettersGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond de la plaque."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du mot."
+    },
+    {
+      "name": "word",
+      "type": "string",
+      "default": "ODORO",
+      "description": "Le mot qui s assemble. Sa longueur est un reglage de duree."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent avant le mot."
+    },
+    {
+      "name": "letterMs",
+      "type": "number",
+      "default": 130,
+      "unit": "ms",
+      "description": "Temps entre deux caracteres.",
+      "min": 40,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 650,
+      "unit": "ms",
+      "description": "Pause apres le dernier caractere.",
+      "min": 0,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree du rabattement.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : le rideau attend tant que c est vrai, meme le mot assemble, et sort au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut du rabattement, pour que le contenu entre pendant que le couvercle s ouvre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a l horloge du moteur pendant l assemblage, qui se retire de lui-meme. Une ecriture par lettre, aucun rendu React par image."
+  }
+}

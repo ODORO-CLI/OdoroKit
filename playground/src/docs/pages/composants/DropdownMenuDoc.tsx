@@ -15,6 +15,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /** Icone crayon. */
 function PencilIcon(): ReactElement {
@@ -156,6 +157,27 @@ const SIMPLE_ITEMS: readonly DropdownMenuItem[] = [
   { id: 'deconnexion', label: 'Se deconnecter', danger: true },
 ]
 
+/** Trois actions sans ornement. */
+const PLAIN_ITEMS: readonly DropdownMenuItem[] = [
+  { id: 'ouvrir', label: 'Ouvrir' },
+  { id: 'renommer', label: 'Renommer' },
+  { id: 'partager', label: 'Partager' },
+]
+
+/** Actions avec raccourcis affiches. */
+const SHORTCUT_ITEMS: readonly DropdownMenuItem[] = [
+  { id: 'enregistrer', label: 'Enregistrer', shortcut: 'Ctrl+S' },
+  { id: 'rechercher', label: 'Rechercher', shortcut: 'Ctrl+K' },
+  { id: 'imprimer', label: 'Imprimer', shortcut: 'Ctrl+P' },
+]
+
+/** Actions dont une est desactivee. */
+const DISABLED_ITEMS: readonly DropdownMenuItem[] = [
+  { id: 'ouvrir', label: 'Ouvrir' },
+  { id: 'exporter', label: 'Exporter', disabled: true },
+  { id: 'partager', label: 'Partager' },
+]
+
 /** Documentation du composant DropdownMenu. */
 export function DropdownMenuDoc(): ReactElement {
   return (
@@ -219,6 +241,36 @@ const [lastAction, setLastAction] = useState<string | null>(null)
             <DropdownMenu label="Compte" tone="danger" items={SIMPLE_ITEMS} />
           </div>
         </DemoBlock>
+      </Section>
+
+      <Section
+        title="Variantes"
+        lead="Chaque carte contient un menu fonctionnel : ouvrez-le pour voir la variante."
+      >
+        <VariantGrid
+          variants={[
+            {
+              title: 'Menu simple',
+              description: 'Trois actions, rien de plus.',
+              node: <DropdownMenu label="Fichier" items={PLAIN_ITEMS} />,
+            },
+            {
+              title: 'Separateur et danger',
+              description: "L'action destructrice est isolee.",
+              node: <DropdownMenu label="Compte" items={SIMPLE_ITEMS} />,
+            },
+            {
+              title: 'Raccourcis',
+              description: 'Affiches a droite, purement indicatifs.',
+              node: <DropdownMenu label="Edition" items={SHORTCUT_ITEMS} />,
+            },
+            {
+              title: 'Action desactivee',
+              description: 'Les fleches la sautent.',
+              node: <DropdownMenu label="Document" items={DISABLED_ITEMS} />,
+            },
+          ]}
+        />
       </Section>
 
       <Section title="Props">

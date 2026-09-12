@@ -1,0 +1,75 @@
+{
+  "name": "curved-loop",
+  "category": "text",
+  "title": "Boucle courbe",
+  "description": "Une phrase court sans fin le long d un arc, par deplacement du seul point de depart sur le chemin.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CurvedLoop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "div",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "separateur",
+      "type": "string",
+      "default": " — ",
+      "description": "Separateur insere entre deux repetitions."
+    },
+    {
+      "name": "courbure",
+      "type": "number",
+      "default": 0.5,
+      "description": "Creux de la courbe, de 0 (droite) a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "taille",
+      "type": "number",
+      "default": 96,
+      "description": "Corps du texte, en unites du dessin (hauteur totale : 200).",
+      "min": 24,
+      "max": 180,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 60,
+      "description": "Vitesse, en unites du dessin par seconde.",
+      "min": 5,
+      "max": 300,
+      "step": 5
+    },
+    {
+      "name": "sens",
+      "type": "'gauche' | 'droite'",
+      "default": "gauche",
+      "description": "Sens de defilement.",
+      "options": [
+        "gauche",
+        "droite"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un attribut ecrit par image, sur un seul element. La longueur du motif est mesuree une fois, quand la police est prete."
+  }
+}

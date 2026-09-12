@@ -1,0 +1,61 @@
+{
+  "name": "echo-text",
+  "category": "text",
+  "title": "Echos",
+  "description": "Des copies attenuees du texte suivent le pointeur avec des retards croissants ; l original reste net.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/EchoText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "copies",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de copies.",
+      "min": 2,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "lag",
+      "type": "number",
+      "default": 220,
+      "unit": "ms",
+      "description": "Retard de la premiere copie ; chaque suivante double la mise.",
+      "min": 60,
+      "max": 800,
+      "step": 20
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 1,
+      "unit": "px",
+      "description": "Flou ajoute a chaque copie.",
+      "min": 0,
+      "max": 4,
+      "step": 0.25
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le pointeur ecrit deux variables CSS, les transitions font le retard : aucun rendu React par evenement, rien au repos. Le flou est plus couteux qu une opacite : a reserver aux titres."
+  }
+}

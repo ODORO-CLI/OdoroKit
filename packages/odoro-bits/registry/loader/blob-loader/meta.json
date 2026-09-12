@@ -1,0 +1,58 @@
+{
+  "name": "blob-loader",
+  "category": "loader",
+  "title": "Blob qui bourgeonne",
+  "description": "Une masse centrale laisse partir un bourgeon dont le cou s etire puis se rompt, par un flou seuille qui soude deux cercles.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BlobLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2800,
+      "unit": "ms",
+      "description": "Duree d un tour du bourgeon, deux ruptures comprises.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du blob. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un filtre de flou seuille sur deux cercles : le seul poste couteux du lot, recalcule a chaque image sur une petite surface. Reservez-le a une piece unique dans la page. Bourgeon rentre et masse ronde immobile sous mouvement reduit.",
+    "fallback": "static"
+  }
+}

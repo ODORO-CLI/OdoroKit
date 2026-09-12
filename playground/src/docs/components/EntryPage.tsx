@@ -42,6 +42,22 @@ function controlsFrom(entry: CatalogueEntry): readonly AtelierControl[] {
   const controls: AtelierControl[] = []
 
   for (const prop of entry.props) {
+    // Une propriete de couleurs dont le defaut liste des tokens de palette
+    // devient un rang d'emplacements, chacun ouvrant le nuancier complet.
+    if (
+      prop.name === 'colors' &&
+      typeof prop.default === 'string' &&
+      prop.default.includes('--o-palette-')
+    ) {
+      controls.push({
+        kind: 'colors',
+        name: 'colors',
+        label: 'Couleurs',
+        value: prop.default.split(',').map((token) => token.trim()),
+      })
+      continue
+    }
+
     if (prop.options !== undefined && typeof prop.default === 'string') {
       controls.push({
         kind: 'choice',
@@ -135,7 +151,7 @@ export function EntryPage({ id }: { id: string }): ReactElement {
           odoro add {entry.name}
         </code>
         {entry.registryDependencies.length === 0 ? null : (
-          <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+          <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
             entraine : {entry.registryDependencies.join(', ')}
           </span>
         )}
@@ -155,6 +171,9 @@ export function EntryPage({ id }: { id: string }): ReactElement {
             <Atelier
               height={demo.height ?? 'o-h-80'}
               demoByDefault={demo.demoByDefault ?? false}
+              {...(demo.demoVariant === undefined
+                ? {}
+                : { demoVariant: demo.demoVariant })}
               controls={demo.controls ?? controls}
               {...(demo.deferred === undefined ? {} : { deferred: demo.deferred })}
             >

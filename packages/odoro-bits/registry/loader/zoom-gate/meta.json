@@ -1,0 +1,102 @@
+{
+  "name": "zoom-gate",
+  "category": "loader",
+  "title": "Rideau en profondeur",
+  "description": "La marque avance vers l oeil pendant que la plaque recule dans la perspective : deux mouvements opposes, un seul geste.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ZoomGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond de la plaque."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre de la marque."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "La marque qui avance vers l oeil : un nom, un logo."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "punch",
+      "type": "number",
+      "default": 3.2,
+      "description": "De combien la marque grandit en partant.",
+      "min": 1,
+      "max": 8,
+      "step": 0.1
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 900,
+      "unit": "px",
+      "description": "Profondeur de recul de la plaque.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps la plaque reste en place.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree du recul.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : la plaque couvre tant que c est vrai, et recule au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut du recul, pour que le contenu entre pendant que le rideau s eloigne."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux elements, une translation en profondeur et une echelle. Aucun JavaScript par image."
+  }
+}

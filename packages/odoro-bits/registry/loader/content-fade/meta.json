@@ -1,0 +1,79 @@
+{
+  "name": "content-fade",
+  "category": "loader",
+  "title": "Contenu en fondu",
+  "description": "Le vrai contenu revele section par section, chacune un peu apres la precedente : l autre moitie du squelette, celle de l arrivee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ContentFade.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Les sections a reveler, dans l ordre ou elles doivent paraitre."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 650,
+      "unit": "ms",
+      "description": "Duree du fondu d une section.",
+      "min": 150,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 140,
+      "unit": "ms",
+      "description": "Ecart entre deux sections.",
+      "min": 0,
+      "max": 600,
+      "step": 20
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 0,
+      "unit": "ms",
+      "description": "Attente avant la premiere section.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "shift",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Distance parcourue par une section en paraissant.",
+      "min": 0,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Contenu en cours d affichage",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une opacite et une translation par section, jouees une fois puis tenues ; aucun JavaScript apres le premier rendu. Le contenu reel est dans le document des le depart. Tout visible immediatement, a sa place definitive, sous mouvement reduit."
+  }
+}

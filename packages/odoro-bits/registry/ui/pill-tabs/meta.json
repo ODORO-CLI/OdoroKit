@@ -1,0 +1,54 @@
+{
+  "name": "pill-tabs",
+  "category": "ui",
+  "title": "Onglets a pastille",
+  "description": "Une pastille glisse sous l onglet actif, mesuree sur le vrai texte plutot que devinee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PillTabs.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-600", "--o-palette-zinc-50", "--o-duration-base"],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string }[]",
+      "required": true,
+      "description": "Les onglets, dans l ordre d affichage."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Identifiant de l onglet actif, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Onglet actif au montage, en mode non controle."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(id: string) => void",
+      "description": "Appele quand l utilisateur change d onglet."
+    },
+    {
+      "name": "size",
+      "type": "'sm' | 'md'",
+      "default": "md",
+      "description": "Taille des onglets.",
+      "options": ["sm", "md"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La pastille est placee par transformation puis animee depuis sa position precedente : une seule propriete composee. Sous mouvement reduit elle saute directement."
+  }
+}

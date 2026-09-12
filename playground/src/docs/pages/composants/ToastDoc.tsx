@@ -16,6 +16,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /** Libelles de demonstration par registre. */
 const TONE_LABELS: Readonly<Record<ToastTone, string>> = {
@@ -77,6 +78,20 @@ function LifecycleDemo(): ReactElement {
         clear()
       </Button>
     </div>
+  )
+}
+
+/** Carte de la galerie : un bouton empile la notification du ton donne. */
+function ToneCard({ tone }: { tone: ToastTone }): ReactElement {
+  const { toast } = useToast()
+  return (
+    <Button
+      tone="secondary"
+      size="sm"
+      onClick={() => toast({ title: TONE_LABELS[tone], tone })}
+    >
+      toast(&#123; tone: '{tone}' &#125;)
+    </Button>
   )
 }
 
@@ -152,6 +167,36 @@ clear()     // ferme toutes les notifications`}
         >
           <LifecycleDemo />
         </DemoBlock>
+      </Section>
+
+      <Section
+        title="Variantes"
+        lead="Un ton par carte : cliquez pour empiler la notification correspondante."
+      >
+        <VariantGrid
+          variants={[
+            {
+              title: 'Information',
+              description: 'Le ton par defaut.',
+              node: <ToneCard tone="info" />,
+            },
+            {
+              title: 'Succes',
+              description: 'Une operation aboutie.',
+              node: <ToneCard tone="success" />,
+            },
+            {
+              title: 'Avertissement',
+              description: 'Une attention requise, sans urgence.',
+              node: <ToneCard tone="warning" />,
+            },
+            {
+              title: 'Danger',
+              description: 'Annoncee en role alert.',
+              node: <ToneCard tone="danger" />,
+            },
+          ]}
+        />
       </Section>
 
       <Section title="API de useToast">

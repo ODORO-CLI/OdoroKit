@@ -1,0 +1,73 @@
+{
+  "name": "spotlight-card",
+  "category": "ui",
+  "title": "Carte projecteur",
+  "description": "Un halo amorti suit le pointeur sur la surface, et la bordure s eclaire la ou le faisceau touche le filet.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/SpotlightCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 260,
+      "unit": "px",
+      "description": "Rayon du halo.",
+      "min": 80,
+      "max": 600,
+      "step": 10
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Intensite du halo sur la surface, de zero a un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Vitesse a laquelle le halo rejoint le pointeur. Plus haut, plus sec.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du projecteur. Par defaut, la teinte de marque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux variables CSS ecrites depuis la boucle tant que le halo bouge, aucun rendu React. Inerte au doigt et sous mouvement reduit."
+  },
+  "id": "ui/spotlight-card",
+  "sources": {
+    "component.tsx": "/**\n * Carte projecteur : un halo amorti suit le pointeur sur la surface, et la\n * bordure s'eclaire la ou il passe.\n *\n * ## Ce qui la distingue de la carte a lueur\n *\n * La carte a lueur ne peint que l'anneau, et colle au pointeur. Ici la\n * lumiere se repand **sur la surface** — un projecteur pose au-dessus de la\n * carte — et l'anneau n'est que le bord de ce faisceau, la ou il touche le\n * filet. Et le halo est amorti : il arrive un peu apres le geste, comme une\n * lampe qu'on oriente. C'est ce retard qui lui donne une masse ; un halo\n * colle au pointeur se lit comme un curseur, pas comme une lumiere.\n *\n * ## Deux calques, deux variables\n *\n * Le halo est un `::before` sous le contenu, l'anneau un `::after` obtenu par\n * le meme masque que la carte a lueur. Tous deux lisent la meme position,\n * ecrite en deux variables depuis la boucle du moteur : React ne rend qu'au\n * montage, quel que soit le nombre de pixels parcourus.\n *\n * ## Pourquoi la position vient de la boucle et non de l'evenement\n *\n * L'amortissement est calcule par le crochet de pointeur, a chaque image, dans\n * une ref. Ecrire la position depuis l'evenement de pointeur la ferait sauter\n * au rythme irregulier ou le systeme le livre ; la lire dans la boucle donne\n * un trajet continu, et permet de cesser d'ecrire des que le halo est arrive.\n *\n * ## Inerte la ou il n'y a pas de pointeur fin, et sous mouvement reduit\n *\n * Au doigt il n'y a pas de survol : le halo n'apparaitrait qu'au toucher,\n * comme un rate. Sous mouvement reduit, un halo qui suit le geste est\n * precisement ce qui est demande de retirer. Dans les deux cas la carte est\n * une carte, avec sa surface et son filet.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\n/** Proprietes propres au composant. */\nexport interface SpotlightCardOwnProps {\n  /** Contenu de la carte. */\n  children: ReactNode\n  /** Rayon du halo, en pixels. @defaultValue 260 */\n  radius?: number\n  /** Intensite du halo sur la surface, de zero a un. @defaultValue 0.35 */\n  strength?: number\n  /** Vitesse a laquelle le halo rejoint le pointeur. Plus haut, plus sec. @defaultValue 8 */\n  speed?: number\n  /** Couleur du projecteur. @defaultValue teinte de marque */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type SpotlightCardProps = Customisable<SpotlightCardOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-spotlight-card'\n\n/** Pose la surface, le halo et l'anneau, une fois par document. */\nfunction ensureSpotlightRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Pas d'overflow cache : il rognerait l'anneau, qui vit sur la bordure.\n    // Les deux calques prennent l'arrondi par eux-memes.\n    '[data-o-spot]{',\n    'position:relative;isolation:isolate;',\n    'background:var(--o-theme-surface);',\n    'border:1px solid var(--o-theme-line);',\n    '}',\n    // Le halo : sous le contenu grace au contexte d'empilement isole, mais\n    // au-dessus du fond de la carte.\n    '[data-o-spot]::before{',\n    'content:\"\";position:absolute;inset:0;z-index:-1;pointer-events:none;',\n    'border-radius:inherit;',\n    'background:radial-gradient(var(--o-spot-radius) circle at var(--o-spot-x) var(--o-spot-y),',\n    'color-mix(in oklab,var(--o-spot-color) var(--o-spot-strength),transparent),',\n    'transparent 70%);',\n    'opacity:0;transition:opacity 320ms ease;',\n    '}',\n    // L'anneau : le meme degrade, retenu sur le filet par un masque.\n    '[data-o-spot]::after{',\n    'content:\"\";position:absolute;inset:-1px;pointer-events:none;',\n    'border-radius:inherit;padding:1px;',\n    'background:radial-gradient(var(--o-spot-radius) circle at var(--o-spot-x) var(--o-spot-y),',\n    'var(--o-spot-color),transparent 65%);',\n    '-webkit-mask:linear-gradient(currentColor 0 0) content-box,linear-gradient(currentColor 0 0);',\n    'mask:linear-gradient(currentColor 0 0) content-box,linear-gradient(currentColor 0 0);',\n    '-webkit-mask-composite:xor;mask-composite:exclude;',\n    'opacity:0;transition:opacity 320ms ease;',\n    '}',\n    '[data-o-spot][data-o-spot-on]::before,[data-o-spot][data-o-spot-on]::after{opacity:1}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Pose un projecteur amorti sur une carte.\n *\n * @example\n * <SpotlightCard className=\"o-rounded-xl o-p-6\">\n *   <h3>Une carte</h3>\n * </SpotlightCard>\n *\n * @example\n * // Un faisceau etroit et vif, d'une autre teinte.\n * <SpotlightCard radius={160} strength={0.6} color=\"var(--o-palette-sky-500)\">\n *   Contenu\n * </SpotlightCard>\n */\nexport function SpotlightCard({\n  children,\n  radius = 260,\n  strength = 0.35,\n  speed = 8,\n  color = 'var(--o-palette-brand-500)',\n  ...rest\n}: SpotlightCardProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const pointer = usePointerDamped({ host, speed, name: 'projecteur : pointeur' })\n  ensureSpotlightRules()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return\n\n    let lastX = -1\n    let lastY = -1\n\n    const onEnter = (): void => host.setAttribute('data-o-spot-on', '')\n    const onLeave = (): void => host.removeAttribute('data-o-spot-on')\n\n    const subscription = clock.subscribe(\n      () => {\n        const x = ((pointer.current.x + 1) / 2) * 100\n        const y = ((pointer.current.y + 1) / 2) * 100\n\n        // Une fois le halo arrive, ou eteint et revenu au centre, il n'y a\n        // plus rien a ecrire : le style reste tel quel.\n        if (Math.abs(x - lastX) < 0.02 && Math.abs(y - lastY) < 0.02) return\n\n        lastX = x\n        lastY = y\n        host.style.setProperty('--o-spot-x', `${x.toFixed(2)}%`)\n        host.style.setProperty('--o-spot-y', `${y.toFixed(2)}%`)\n      },\n      { priority: CLOCK_PRIORITY.render, name: 'projecteur' },\n    )\n\n    host.addEventListener('pointerenter', onEnter, { passive: true })\n    host.addEventListener('pointerleave', onLeave, { passive: true })\n\n    return () => {\n      host.removeEventListener('pointerenter', onEnter)\n      host.removeEventListener('pointerleave', onLeave)\n      subscription.unsubscribe()\n      onLeave()\n    }\n  }, [host, reduced, pointer])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-spot-radius': `${String(radius)}px`,\n          '--o-spot-strength': `${String(strength * 100)}%`,\n          '--o-spot-color': color,\n          '--o-spot-x': '50%',\n          '--o-spot-y': '50%',\n        } as CSSProperties\n      }\n      data-o-spot=\"\"\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

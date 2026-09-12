@@ -1,0 +1,57 @@
+{
+  "name": "equalizer",
+  "category": "loader",
+  "title": "Egaliseur",
+  "description": "Six barres ancrees au sol montent et descendent chacune a son rythme, comme les vumetres d un egaliseur, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Equalizer.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Largeur d une barre. La hauteur maximale et l ecart en dependent.",
+      "min": 2,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree de reference d un cycle ; chaque barre s en ecarte un peu.",
+      "min": 400,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Six animations CSS d echelle tenues par le compositeur, aucun JavaScript apres le premier rendu. Spectre fige a des hauteurs inegales sous mouvement reduit."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "variable-proximity",
+  "category": "text",
+  "title": "Graisse de proximite",
+  "description": "Une loupe de graisse suit le pointeur sur tout un paragraphe, chaque lettre rejoignant son epaisseur a son rythme, avec un repli en graisses discretes.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/VariableProximity.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "rayon",
+      "type": "number",
+      "required": false,
+      "default": 180,
+      "unit": "px",
+      "description": "Portee de la loupe.",
+      "min": 40,
+      "max": 600,
+      "step": 10
+    },
+    {
+      "name": "graisseBasse",
+      "type": "number",
+      "required": false,
+      "default": 300,
+      "description": "Graisse loin du pointeur, sur l axe wght.",
+      "min": 100,
+      "max": 900,
+      "step": 25
+    },
+    {
+      "name": "graisseHaute",
+      "type": "number",
+      "required": false,
+      "default": 800,
+      "description": "Graisse sous le pointeur, sur l axe wght.",
+      "min": 100,
+      "max": 1000,
+      "step": 25
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "Vitesse a laquelle une lettre rejoint sa graisse. Plus bas, plus longue est la traine.",
+      "min": 1,
+      "max": 24,
+      "step": 0.5
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Une lecture de boite par image, plus un reglage de graisse par lettre quand il change vraiment. Sur un long paragraphe, chaque changement de graisse recompose la ligne : garder le bloc court."
+  },
+  "id": "text/variable-proximity",
+  "sources": {
+    "component.tsx": "/**\n * Graisse de proximite : chaque lettre s'epaissit quand le pointeur approche.\n *\n * ## Ce que ce composant fait et que `text-pressure` ne fait pas\n *\n * `text-pressure` branche deux axes sur deux directions : c'est un geste, et\n * il vaut pour une ligne d'affiche. Ici il n'y a qu'un seul axe, la graisse,\n * et une seule distance, radiale. En echange, l'effet tient sur un paragraphe\n * entier, sur plusieurs lignes, et se lit comme une loupe : ce qui est pres\n * est lourd, ce qui est loin est leger.\n *\n * ## La traine vient de la lettre, pas du pointeur\n *\n * Le point suivi n'est pas amorti : c'est la position brute du pointeur.\n * L'amortissement est place ailleurs — dans chaque lettre, qui rejoint sa\n * graisse cible a son propre rythme. Consequence : une lettre que le pointeur\n * vient de quitter est encore lourde, et le halo laisse une trainee derriere\n * le geste au lieu de le suivre comme une tache rigide.\n *\n * C'est le meme amortissement exponentiel qu'ailleurs dans le registre,\n * calcule sur le temps ecoule pour que la traine dure pareil a soixante et a\n * cent vingt images par seconde.\n *\n * ## La police est sondee, pas supposee\n *\n * Une reserve invisible est posee dans l'element, avec la police heritee, et\n * mesuree a deux extremes de l'axe `wght`. Si sa largeur ne bouge pas, l'axe\n * n'existe pas : le repli est alors la graisse discrete, arrondie a la\n * centaine, ou le navigateur choisit la coupe la plus proche de la famille.\n *\n * ## Une seule mesure de boite par image\n *\n * Les centres des lettres sont releves une fois, en coordonnees de l'element,\n * et remesures quand il change de taille ou quand la police finit d'arriver.\n * Par image, il ne reste qu'une lecture de boite et un calcul par lettre.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les lettres sont\n * retirees de l'arbre d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * Le texte est rendu tel quel, a sa graisse de repos et sans decoupage :\n * c'est l'etat ou le pointeur n'est nulle part.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface VariableProximityOwnProps {\n  /** Texte a epaissir. */\n  children: string\n  /** Balise rendue. @defaultValue 'p' */\n  as?: ElementType\n  /** Portee de la loupe, en pixels. @defaultValue 180 */\n  rayon?: number\n  /** Graisse loin du pointeur, sur l'axe `wght`. @defaultValue 300 */\n  graisseBasse?: number\n  /** Graisse sous le pointeur, sur l'axe `wght`. @defaultValue 800 */\n  graisseHaute?: number\n  /** Vitesse a laquelle une lettre rejoint sa graisse. Plus bas, plus longue est la traine. @defaultValue 10 */\n  speed?: number\n}\n\n/** Toutes les proprietes. */\nexport type VariableProximityProps = Customisable<VariableProximityOwnProps, 'p'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-variable-proximity'\n\n/** Ecart de largeur, en pixels, au-dela duquel l'axe est repute exister. */\nconst SONDE_SEUIL = 0.5\n\n/** Pose les regles de la loupe, une fois par document. */\nfunction ensureProximityRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-proximity]{position:relative}',\n    '[data-o-proximity-letter]{display:inline-block}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Dit si la police heritee par un element repond a l'axe de graisse.\n *\n * La reserve est un enfant de l'element : elle herite donc exactement de la\n * police qui sera deformee.\n */\nfunction sonderGraisse(hote: HTMLElement): boolean {\n  if (\n    typeof CSS === 'undefined' ||\n    !CSS.supports('font-variation-settings', \"'wght' 400\")\n  ) {\n    return false\n  }\n\n  const sonde = document.createElement('span')\n  sonde.setAttribute('aria-hidden', 'true')\n  sonde.textContent = 'HAMBURGEFONS'\n  sonde.style.cssText =\n    'position:absolute;left:0;top:0;visibility:hidden;white-space:pre;pointer-events:none'\n  hote.append(sonde)\n\n  sonde.style.fontVariationSettings = \"'wght' 100\"\n  const maigre = sonde.getBoundingClientRect().width\n  sonde.style.fontVariationSettings = \"'wght' 900\"\n  const gras = sonde.getBoundingClientRect().width\n\n  sonde.remove()\n  return Math.abs(gras - maigre) > SONDE_SEUIL\n}\n\n/**\n * Epaissit les lettres d'un texte a mesure que le pointeur s'en approche.\n *\n * @example\n * <VariableProximity as=\"p\" className=\"o-text-2xl\">\n *   Un composant qu on ne peut pas modifier n est pas a vous.\n * </VariableProximity>\n *\n * @example\n * // Loupe serree, traine longue.\n * <VariableProximity rayon={90} speed={3}>De pres seulement</VariableProximity>\n */\nexport function VariableProximity({\n  children,\n  as: Tag = 'p',\n  rayon = 180,\n  graisseBasse = 300,\n  graisseHaute = 800,\n  speed = 10,\n  ...rest\n}: VariableProximityProps): ReactElement {\n  const { reduced } = useMotionState()\n  const hote = useRef<HTMLElement | null>(null)\n\n  ensureProximityRule()\n\n  useEffect(() => {\n    const element = hote.current\n    if (element === null || reduced) return\n\n    const lettres = [\n      ...element.querySelectorAll<HTMLElement>('[data-o-proximity-letter]'),\n    ]\n    if (lettres.length === 0) return\n\n    const variable = sonderGraisse(element)\n\n    // Centres en coordonnees de l'element : le defilement ne les change pas,\n    // seule une recomposition de la ligne le fait.\n    let centres = lettres.map(() => ({ x: 0, y: 0 }))\n    const relever = (): void => {\n      const cadre = element.getBoundingClientRect()\n      centres = lettres.map((lettre) => {\n        const boite = lettre.getBoundingClientRect()\n        return {\n          x: boite.left - cadre.left + boite.width / 2,\n          y: boite.top - cadre.top + boite.height / 2,\n        }\n      })\n    }\n    relever()\n\n    const observateur = new ResizeObserver(relever)\n    observateur.observe(element)\n    // Une police qui arrive apres coup change toutes les largeurs : sans\n    // cette relecture, la loupe viserait a cote pour toujours.\n    void document.fonts?.ready.then(relever)\n\n    const pointeur = { x: Number.NEGATIVE_INFINITY, y: Number.NEGATIVE_INFINITY }\n    const bouger = (evenement: PointerEvent): void => {\n      const cadre = element.getBoundingClientRect()\n      pointeur.x = evenement.clientX - cadre.left\n      pointeur.y = evenement.clientY - cadre.top\n    }\n    window.addEventListener('pointermove', bouger, { passive: true })\n\n    // Graisse courante de chaque lettre : c'est elle qui porte la traine.\n    const graisses = lettres.map(() => graisseBasse)\n    const ecrites = lettres.map(() => Number.NaN)\n\n    const abonnement = clock.subscribe(\n      ({ delta }) => {\n        const facteur = 1 - Math.exp(-speed * delta)\n        const portee = Math.max(1, rayon)\n        const vu = Number.isFinite(pointeur.x)\n\n        for (let index = 0; index < lettres.length; index += 1) {\n          const lettre = lettres[index]\n          const centre = centres[index]\n          const courante = graisses[index]\n          if (lettre === undefined || centre === undefined || courante === undefined) {\n            continue\n          }\n\n          let part = 0\n          if (vu) {\n            const dx = pointeur.x - centre.x\n            const dy = pointeur.y - centre.y\n            const brut = Math.max(0, 1 - Math.hypot(dx, dy) / portee)\n            // Adoucissement : un cone laisse voir le bord du rayon, une\n            // courbe en S le fond dans le texte.\n            part = brut * brut * (3 - 2 * brut)\n          }\n\n          const visee = graisseBasse + (graisseHaute - graisseBasse) * part\n          const suivante = courante + (visee - courante) * facteur\n          graisses[index] = suivante\n\n          if (Math.abs(suivante - (ecrites[index] ?? Number.NaN)) < 1) continue\n          ecrites[index] = suivante\n\n          if (variable) {\n            lettre.style.fontVariationSettings = `'wght' ${suivante.toFixed(0)}`\n          } else {\n            // Repli : la graisse continue est arrondie a la centaine, et la\n            // famille fournit la coupe la plus proche.\n            lettre.style.fontWeight = String(Math.round(suivante / 100) * 100)\n          }\n        }\n      },\n      { name: 'graisse de proximite', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      abonnement.unsubscribe()\n      observateur.disconnect()\n      window.removeEventListener('pointermove', bouger)\n      for (const lettre of lettres) {\n        lettre.style.removeProperty('font-variation-settings')\n        lettre.style.removeProperty('font-weight')\n      }\n    }\n  }, [reduced, children, rayon, graisseBasse, graisseHaute, speed])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, a sa graisse de repos, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const lettres = [...children]\n\n  return (\n    <Tag {...rest} ref={hote} className={className} style={style} data-o-proximity=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) =>\n          lettre === ' ' ? (\n            // Une espace reste une espace, hors du bloc en ligne : c'est la\n            // seule facon pour qu'un paragraphe puisse encore aller a la\n            // ligne. Un insecable ferait de tout le texte un seul mot.\n            <span key={`espace-${String(index)}`}> </span>\n          ) : (\n            <span key={`${lettre}-${String(index)}`} data-o-proximity-letter=\"\">\n              {lettre}\n            </span>\n          ),\n        )}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

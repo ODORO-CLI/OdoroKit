@@ -1,0 +1,61 @@
+{
+  "name": "beam-connect",
+  "category": "effect",
+  "title": "Faisceau de liaison",
+  "description": "Un trait courbe anime relie deux enfants identifies par data-beam, remesure a chaque changement de taille.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BeamConnect.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-400"],
+  "props": [
+    {
+      "name": "curvature",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Bombement de la courbe.",
+      "min": 0,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un cycle du flux.",
+      "min": 500,
+      "max": 10000,
+      "step": 100
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du faisceau. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Mesures au montage et au redimensionnement seulement ; le flux est une animation CSS sur stroke-dashoffset, normalisee par pathLength. Trait fige sous mouvement reduit."
+  }
+}

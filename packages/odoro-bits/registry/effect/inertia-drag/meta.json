@@ -1,0 +1,44 @@
+{
+  "name": "inertia-drag",
+  "category": "effect",
+  "title": "Glisser avec inertie",
+  "description": "L element se laisse trainer au pointeur, continue sur sa lancee au lacher, puis revient elastiquement a sa place.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/InertiaDrag.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "friction",
+      "type": "number",
+      "default": 8,
+      "description": "Freinage de la lancee. Plus haut, plus court.",
+      "min": 1,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "spring",
+      "type": "number",
+      "default": 120,
+      "description": "Raideur du rappel vers la place d origine.",
+      "min": 10,
+      "max": 400,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, une integration velocite-friction-ressort et une ecriture de transform par image. Rien n ecoute et position fixe sous mouvement reduit."
+  }
+}

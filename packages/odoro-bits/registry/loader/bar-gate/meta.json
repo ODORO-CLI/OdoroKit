@@ -1,0 +1,101 @@
+{
+  "name": "bar-gate",
+  "category": "loader",
+  "title": "Rideau a barre",
+  "description": "Une barre segmentee sans chiffre, avancee par l horloge du moteur, puis une plaque qui s ecrase dans la ligne qui l a mesure.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BarGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond de la plaque."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre : la barre et le libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au-dessus de la barre : un nom, une marque."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "segments",
+      "type": "number",
+      "default": 20,
+      "description": "Nombre de segments de la barre.",
+      "min": 4,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree du remplissage.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 850,
+      "unit": "ms",
+      "description": "Duree de l ecrasement.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "ceiling",
+      "type": "number",
+      "default": 92,
+      "description": "Ou la barre se gare en mode controle. Sans effet quand open n est pas renseigne.",
+      "min": 50,
+      "max": 99,
+      "step": 1
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : le rideau couvre tant que c est vrai, et sort au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de l ecrasement, pour que le contenu entre pendant qu il a lieu."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a l horloge du moteur pendant le remplissage, qui se retire de lui-meme. Une variable CSS ecrite par image, aucun rendu React."
+  }
+}

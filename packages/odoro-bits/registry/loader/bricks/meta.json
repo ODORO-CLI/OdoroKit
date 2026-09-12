@@ -1,0 +1,57 @@
+{
+  "name": "bricks",
+  "category": "loader",
+  "title": "Briques",
+  "description": "Dix briques se posent une a une, rangee par rangee et en quinconce, jusqu a former un mur qui s efface, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Bricks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Hauteur d une brique. La largeur et le joint en dependent.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, pose des dix briques et effacement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des briques. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Dix animations CSS d opacite et de translation tenues par le compositeur, aucun JavaScript apres le premier rendu. Mur complet et immobile sous mouvement reduit."
+  }
+}

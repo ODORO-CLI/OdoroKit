@@ -1,0 +1,61 @@
+{
+  "name": "rating-stars",
+  "category": "ui",
+  "title": "Etoiles de notation",
+  "description": "Des etoiles qui s allument en cascade, previsualisent au survol et s ajustent aux fleches.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/RatingStars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-amber-400", "--o-duration-base", "--o-ease-emphasized"],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 5,
+      "description": "Nombre d etoiles.",
+      "min": 3,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Taille d une etoile.",
+      "min": 16,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "description": "Note courante, en mode controle. Valeurs entieres."
+    },
+    {
+      "name": "defaultValue",
+      "type": "number",
+      "default": 0,
+      "description": "Note au montage, en mode non controle."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(value: number) => void",
+      "description": "Appele quand la note change."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation d entree en cascade au montage, puis des transitions de couleur. Sous mouvement reduit les etoiles arrivent sans cascade."
+  }
+}

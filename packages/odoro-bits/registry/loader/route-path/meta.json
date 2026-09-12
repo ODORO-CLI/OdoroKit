@@ -1,0 +1,67 @@
+{
+  "name": "route-path",
+  "category": "loader",
+  "title": "Itineraire",
+  "description": "Une route se dessine du depart vers la destination, qui s allume a l arrivee, puis le trace s efface et le parcours reprend, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/RoutePath.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 72,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 32,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur de la route.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un parcours complet, effacement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la route et des reperes. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Route entierement tracee et destination allumee sous mouvement reduit."
+  }
+}

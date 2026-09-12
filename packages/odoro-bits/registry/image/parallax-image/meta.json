@@ -1,0 +1,56 @@
+{
+  "name": "parallax-image",
+  "category": "image",
+  "title": "Image en parallaxe",
+  "description": "L image, plus haute que son cadre, glisse verticalement pendant la traversee du champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ParallaxImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.35,
+      "description": "Force du glissement, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de rectangle et une ecriture de transform par image, dans la boucle unique du moteur. Aucun rendu React ; immobile sous mouvement reduit."
+  }
+}

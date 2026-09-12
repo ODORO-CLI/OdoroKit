@@ -19,13 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": ["hooks/use-poster"],
-  "tokens": [
-    "--o-palette-zinc-50",
-    "--o-palette-emerald-400",
-    "--o-palette-violet-300",
-    "--o-palette-sky-400",
-    "--o-palette-rose-400"
-  ],
+  "tokens": ["--o-theme-fg", "--o-palette-emerald-400", "--o-palette-violet-300", "--o-palette-sky-400", "--o-palette-rose-400"],
   "props": [
     {
       "name": "density",
@@ -87,7 +81,7 @@
     {
       "name": "colors",
       "type": "readonly [string, string, string, string, string]",
-      "default": "--o-palette-zinc-50, --o-palette-emerald-400, --o-palette-violet-300, --o-palette-sky-400, --o-palette-rose-400",
+      "default": "--o-theme-fg, --o-palette-emerald-400, --o-palette-violet-300, --o-palette-sky-400, --o-palette-rose-400",
       "description": "Tokens des points, de la cage, de l eclat et des deux vagues."
     },
     {

@@ -1,0 +1,93 @@
+{
+  "name": "night-drive",
+  "category": "background",
+  "title": "Route de nuit",
+  "description": "Un sol projete en z = 1/y : deux bords qui convergent vers l horizon, un axe en tirets qui defile, et une file de lampadaires qui approchent lentement de loin puis filent en passant, halo, mat et flaque au sol.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "night-drive.shader.ts",
+      "target": "background/night-drive.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/NightDrive.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-muted",
+    "--o-palette-amber-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de la route.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Demi-largeur de la route, en unites du monde.",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "lamps",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Nombre de lampadaires par cote. Borne a douze par le shader, a cinq en qualite basse.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Hauteur des lampadaires, en unites du monde.",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, les lignes de la route et les mats, les lampes."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Une boucle bornee a douze lampadaires, deux exponentielles et une distance par lampe et par cote. En qualite basse, la file tombe a cinq.",
+    "fallback": "gradient"
+  },
+  "id": "background/night-drive",
+  "sources": {
+    "night-drive.shader.ts": "/**\n * Shader de la route de nuit.\n *\n * ## L'idee mathematique\n *\n * Un sol en perspective sans camera ni matrice : sous la ligne d'horizon,\n * la profondeur vaut l'inverse de la distance a l'horizon, et l'abscisse\n * du monde est l'abscisse de l'ecran multipliee par cette profondeur. Les\n * bords de la route sont deux abscisses fixes du monde ; l'axe est une\n * ligne de tirets lue en partie fractionnaire de la profondeur, decalee du\n * temps pour defiler. L'epaisseur des traits est bornee en pixels d'ecran,\n * pas en unites du monde : sans cela ils disparaitraient bien avant\n * l'horizon.\n *\n * Les lampadaires sont une file bornee. Chaque lampe a une phase le long de\n * la route qui avance avec le temps ; sa profondeur en est une fonction\n * quadratique, pour qu'elle approche lentement de loin et file vite en\n * passant. Sa tete et sa base sont projetees de la meme maniere que le\n * sol ; un halo au niveau de la tete, un mat entre les deux, une flaque\n * aplatie au sol. Tout est melange vers la couleur de la lampe, jamais\n * additionne : une addition saturerait sur un fond clair et les lampes\n * disparaitraient en theme clair.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les lignes de la route, les mats, la lueur d'horizon.\n * - `uColorC` — les lampes.\n * - `uSpeed` — vitesse de la route.\n * - `uWidth` — demi-largeur de la route, en unites du monde.\n * - `uLamps` — nombre de lampadaires par cote, borne a douze.\n * - `uHeight` — hauteur des lampadaires, en unites du monde.\n */\nexport const NIGHT_DRIVE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uWidth;\nuniform float uLamps;\nuniform float uHeight;\n\nconst int MAX_LAMPS = 12;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);\n  float px = 1.0 / max(uResolution.y, 1.0);\n  float t = uTime * uSpeed;\n\n  // L'horizon un peu au-dessus du centre ; sous lui, le sol en z = 1/y,\n  // la camera a une unite du sol.\n  float horizon = 0.12;\n  float drop = horizon - p.y;\n  float ground = step(0.0, drop);\n  float z = 1.0 / max(drop, 0.001);\n  float wx = p.x * z;\n\n  // Les bords de la route et l'axe en tirets, dans le plan du sol. Leur\n  // epaisseur est bornee en pixels d'ecran : sinon ils s'evanouissent.\n  float halfWidth = max(uWidth, 0.2);\n  float edges = 1.0 - smoothstep(px * 0.6, px * 1.8, abs(abs(wx) - halfWidth) / z);\n  float dash = step(0.5, fract(z * 0.35 - t * 2.0));\n  float axis = (1.0 - smoothstep(px * 0.5, px * 1.5, abs(wx) / z)) * dash;\n\n  // Les lignes s'effacent en approchant de l'horizon.\n  float fade = smoothstep(0.0, 0.1, drop);\n\n  vec3 colour = uColorA;\n  colour = mix(colour, uColorB, (edges + axis * 0.8) * fade * ground * 0.85);\n\n  // Le ciel : une lueur basse a l'horizon, celle d'une ville au loin.\n  float sky = (1.0 - ground) * exp(-(p.y - horizon) * 9.0);\n  colour = mix(colour, uColorB, sky * 0.18);\n\n  // Les lampadaires : a intervalle regulier le long de la route, ils\n  // avancent vers la camera et sortent du champ. La file est bornee.\n  float lamps = clamp(uLamps, 1.0, float(MAX_LAMPS));\n  for (int i = 0; i < MAX_LAMPS; i += 1) {\n    if (float(i) >= lamps) break;\n\n    // La phase avance ; la profondeur en est une fonction quadratique.\n    float u = fract(float(i) / lamps + t * 0.12);\n    float zi = 0.7 + 28.0 * (1.0 - u) * (1.0 - u);\n\n    for (int s = 0; s < 2; s += 1) {\n      float sideX = (float(s) * 2.0 - 1.0) * halfWidth * 1.25 / zi;\n      vec2 head = vec2(sideX, horizon + uHeight / zi);\n      vec2 base = vec2(sideX, horizon - 1.0 / zi);\n\n      // Le mat : un trait entre la base et la tete.\n      float onPole = step(base.y, p.y) * step(p.y, head.y);\n      float pole = (1.0 - smoothstep(px * 0.4, px * 1.4, abs(p.x - sideX))) * onPole;\n      colour = mix(colour, uColorB, pole * 0.7);\n\n      // La lampe : un halo qui grossit en approchant, et sa flaque au sol,\n      // aplatie par la perspective.\n      float size = 0.015 + 0.25 / zi;\n      float glow = exp(-length(p - head) / size);\n      float pool = exp(-length((p - base) * vec2(1.0, 4.0)) / (size * 2.5)) * ground;\n      colour = mix(colour, uColorC, clamp(glow * 0.9 + pool * 0.35, 0.0, 1.0));\n    }\n  }\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Route de nuit : deux lignes qui convergent vers l'horizon, un axe en\n * tirets qui defile, et des lampadaires qui approchent et passent.\n *\n * ## Le principe\n *\n * Le sol est projete sans camera : la profondeur vaut l'inverse de la\n * distance a l'horizon. Les lampadaires sont une file bornee dont chaque\n * membre avance le long de la route ; leur halo, leur mat et leur flaque au\n * sol sont projetes de la meme maniere. Les lampes sont melangees vers leur\n * couleur, jamais additionnees : elles restent visibles sur un fond clair.\n *\n * Ce qui distingue cette entree de `tunnel` et de `hyperspace` : on ne fuit\n * pas vers un point, on roule sur un sol, avec un horizon et un ciel.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { NIGHT_DRIVE_FRAGMENT } from './night-drive.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface NightDriveControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface NightDriveOwnProps {\n  /** Vitesse de la route. @defaultValue 1 */\n  speed?: number\n  /** Demi-largeur de la route, en unites du monde. @defaultValue 1 */\n  width?: number\n  /** Nombre de lampadaires par cote. Borne a douze par le shader. @defaultValue 8 */\n  lamps?: number\n  /** Hauteur des lampadaires, en unites du monde. @defaultValue 0.8 */\n  height?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<NightDriveControls>\n}\n\n/** Toutes les proprietes. */\nexport type NightDriveProps = Customisable<NightDriveOwnProps>\n\n/** Tokens employes par defaut : le fond, les lignes et les mats, les lampes. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-muted',\n  '--o-palette-amber-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-to-amber-100 dark:o-to-amber-950'\n\n/** Lampadaires par cote en qualite basse : la file est le seul cout qui compte. */\nconst LOW_LAMPS = 5\n\n/**\n * Route de nuit.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <NightDrive className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function NightDrive({\n  speed = 1,\n  width = 1,\n  lamps = 8,\n  height = 0.8,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: NightDriveProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: NIGHT_DRIVE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uWidth: width, uLamps: lamps, uHeight: height },\n    name: 'night-drive',\n    // Chaque lampadaire coute deux halos et une flaque par fragment : la\n    // file est le seul levier, et elle se raccourcit en qualite basse.\n    degrade: (quality) => ({\n      uLamps: quality === 'low' ? Math.min(lamps, LOW_LAMPS) : lamps,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "gear-pair",
+  "category": "loader",
+  "title": "Deux engrenages",
+  "description": "Un grand et un petit engrenage tournent en sens contraires, dents engrenees, a des vitesses qui respectent leur rapport, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GearPair.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour du grand engrenage. Le petit tourne d autant plus vite.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des engrenages ; le petit en est une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux chemins SVG et deux rotations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Engrenages immobiles, dents engrenees, sous mouvement reduit."
+  },
+  "id": "loader/gear-pair",
+  "sources": {
+    "component.tsx": "/**\n * Deux engrenages : un grand et un petit tournent en sens contraires, dents\n * engrenees, a des vitesses qui respectent leur rapport.\n *\n * ## Des dents qui ne se traversent pas\n *\n * Deux engrenages dessines au hasard se chevauchent : une dent de l'un\n * finit toujours par passer a travers une dent de l'autre, et l'oeil le\n * voit meme sans savoir pourquoi. Ici les deux roues ont des dents de la\n * meme hauteur et du meme pas, ce qui fixe leurs rayons a proportion de\n * leur nombre de dents, et leur entraxe a la somme de leurs rayons\n * primitifs. Chaque roue est ensuite tournee pour qu'une dent de l'une\n * pointe vers l'autre, et un creux de l'autre vers la premiere.\n *\n * Le rapport des vitesses est celui des dents : douze contre huit, le\n * petit engrenage tourne une fois et demie plus vite, en sens inverse.\n * C'est la seule vitesse ou les dents restent engrenees ; toute autre les\n * ferait glisser.\n *\n * Les dents sont des trapezes, pas des developpantes : a cette taille, la\n * difference est invisible, et le trace reste une suite de segments que le\n * navigateur rend sans effort.\n *\n * Deux animations de rotation, tenues par le compositeur. Aucun JavaScript\n * apres le premier rendu : les traces sont calcules une fois au chargement\n * du module.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les engrenages restent immobiles, dents\n * engrenees : la figure se lit encore comme un chargeur, seul le mouvement\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-gear-pair'\n\n/** Ce qui definit une roue. */\ninterface Gear {\n  readonly cx: number\n  readonly cy: number\n  readonly teeth: number\n  /** Rayon primitif : la ou les dents des deux roues se rencontrent. */\n  readonly pitch: number\n}\n\n/** Hauteur d'une dent, de part et d'autre du rayon primitif. */\nconst TOOTH = 4\n\n/**\n * Jeu au sommet des dents.\n *\n * Sans lui, le bout d'une dent toucherait exactement le fond du creux d'en\n * face, et les dents en trapeze s'y chevaucheraient d'une fraction d'unite\n * a chaque passage. Une unite de retrait suffit a l'eviter.\n */\nconst CLEARANCE = 1\n\n/**\n * Trace d'une roue dentee, avec son trou central.\n *\n * Chaque dent est un trapeze : montee au quart du pas, plateau jusqu'a la\n * moitie, descente aux trois quarts, creux jusqu'au pas suivant. `toothAt`\n * est l'angle, en degres, ou l'on veut le milieu d'une dent : c'est par lui\n * que les deux roues s'engrenent.\n */\nfunction gearPath(gear: Gear, toothAt: number): string {\n  const outer = gear.pitch + TOOTH - CLEARANCE\n  const inner = gear.pitch - TOOTH\n  const pitch = (2 * Math.PI) / gear.teeth\n  const start = (toothAt * Math.PI) / 180 - pitch * 0.375\n\n  const point = (angle: number, radius: number): string =>\n    `${(gear.cx + radius * Math.cos(angle)).toFixed(2)} ${(gear.cy + radius * Math.sin(angle)).toFixed(2)}`\n\n  const points: string[] = []\n  for (let index = 0; index < gear.teeth; index += 1) {\n    const base = start + pitch * index\n    points.push(\n      point(base, inner),\n      point(base + pitch * 0.25, outer),\n      point(base + pitch * 0.5, outer),\n      point(base + pitch * 0.75, inner),\n    )\n  }\n\n  const hole = gear.pitch * 0.32\n  return [\n    `M ${points.join(' L ')} Z`,\n    `M ${point(0, hole)} A ${String(hole)} ${String(hole)} 0 1 0 ${point(Math.PI, hole)}`,\n    `A ${String(hole)} ${String(hole)} 0 1 0 ${point(0, hole)} Z`,\n  ].join(' ')\n}\n\n/** La grande roue, en bas a gauche de la vue. */\nconst BIG: Gear = { cx: 38, cy: 58, teeth: 12, pitch: 24 }\n\n/** Direction du petit engrenage depuis le grand, en degres. */\nconst LINK = -35\n\n/**\n * La petite roue, a l'entraxe exact : la somme des rayons primitifs, dans\n * la direction de liaison.\n */\nconst SMALL: Gear = {\n  cx: BIG.cx + (BIG.pitch + 16) * Math.cos((LINK * Math.PI) / 180),\n  cy: BIG.cy + (BIG.pitch + 16) * Math.sin((LINK * Math.PI) / 180),\n  teeth: 8,\n  pitch: 16,\n}\n\n/** Une dent du grand pointe vers le petit ; un creux du petit lui repond. */\nconst BIG_PATH = gearPath(BIG, LINK)\nconst SMALL_PATH = gearPath(SMALL, LINK + 180 + 360 / SMALL.teeth / 2)\n\n/** Pose les engrenages et leurs rotations, une fois par document. */\nfunction ensureGearRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-gear-pair]{display:inline-block;line-height:0}',\n    '[data-o-gear-pair] svg{display:block}',\n    // Chaque roue tourne autour de son propre centre, en unites de la vue.\n    '[data-o-gear]{',\n    'transform-box:view-box;transform-origin:var(--o-gear-origin);',\n    'animation:var(--o-gear-spin) var(--o-gear-speed) linear infinite;',\n    '}',\n    '@keyframes o-gear-pair-cw{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',\n    '@keyframes o-gear-pair-ccw{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-gear]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface GearPairOwnProps {\n  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */\n  size?: number\n  /** Duree d'un tour du grand engrenage, en millisecondes. @defaultValue 3000 */\n  speed?: number\n  /** Couleur des engrenages. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type GearPairProps = Customisable<GearPairOwnProps, 'span'>\n\n/**\n * Signale une attente par deux engrenages qui tournent l'un contre l'autre.\n *\n * @example\n * <GearPair />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <GearPair size={96} speed={5000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function GearPair({\n  size = 56,\n  speed = 3000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: GearPairProps): ReactElement {\n  ensureGearRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-gear-pair=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <path\n          data-o-gear=\"\"\n          d={BIG_PATH}\n          fill=\"currentColor\"\n          fillRule=\"evenodd\"\n          style={\n            {\n              '--o-gear-origin': `${String(BIG.cx)}px ${String(BIG.cy)}px`,\n              '--o-gear-spin': 'o-gear-pair-cw',\n              '--o-gear-speed': `${String(speed)}ms`,\n            } as CSSProperties\n          }\n        />\n        <path\n          data-o-gear=\"\"\n          d={SMALL_PATH}\n          fill=\"currentColor\"\n          fillOpacity={0.7}\n          fillRule=\"evenodd\"\n          style={\n            {\n              '--o-gear-origin': `${SMALL.cx.toFixed(2)}px ${SMALL.cy.toFixed(2)}px`,\n              '--o-gear-spin': 'o-gear-pair-ccw',\n              // Le rapport des dents : le petit fait un tour pendant que le\n              // grand en fait huit douziemes.\n              '--o-gear-speed': `${String(Math.round((speed * SMALL.teeth) / BIG.teeth))}ms`,\n            } as CSSProperties\n          }\n        />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

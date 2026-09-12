@@ -1,0 +1,74 @@
+{
+  "name": "glitch-text",
+  "category": "text",
+  "title": "Glitch",
+  "description": "Un texte casse par rafales breves, net entre deux, avec une aberration rouge et cyan.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/GlitchText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-red-500",
+    "--o-palette-cyan-400"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "unit": "px",
+      "description": "Amplitude du decalage des copies.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "required": false,
+      "default": 2600,
+      "unit": "ms",
+      "description": "Temps moyen entre deux rafales. L intervalle reel varie autour de cette valeur.",
+      "min": 600,
+      "max": 9000,
+      "step": 100
+    },
+    {
+      "name": "channelA",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du premier canal decale."
+    },
+    {
+      "name": "channelB",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du second canal decale."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur entre les rafales, une animation CSS pendant. Aucun JavaScript par image, rien du tout au repos."
+  },
+  "id": "text/glitch-text",
+  "sources": {
+    "component.tsx": "/**\n * Glitch : un texte traverse par des rafales de decoupage et d'aberration.\n *\n * ## Des rafales, pas un tremblement continu\n *\n * Un glitch permanent fatigue l'oeil et perd son sens : ce qui casse tout le\n * temps n'est plus une casse, c'est une texture. L'effet vit donc en rafales\n * courtes, espacees d'un intervalle legerement irregulier — un minuteur, pas\n * la boucle : entre deux rafales il ne se passe rien, et une boucle qui tourne\n * pour ne rien faire serait exactement ce que le moteur interdit.\n *\n * ## Deux copies, un original intact\n *\n * L'original reste en place, net. Deux copies posees dessus portent chacune un\n * decalage et une ombre coloree — rouge d'un cote, cyan de l'autre, comme les\n * canaux d'un signal mal synchronise — et un `clip-path` anime qui n'en montre\n * que des tranches changeantes. Les copies sont `aria-hidden` : pour un\n * lecteur d'ecran, il n'y a qu'un texte, jamais trois.\n *\n * Sous mouvement reduit, les copies ne sont pas rendues du tout : le texte\n * est simplement la.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface GlitchTextOwnProps {\n  /** Texte a casser. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Amplitude du decalage des copies, en pixels. @defaultValue 3 */\n  intensity?: number\n  /**\n   * Temps moyen entre deux rafales, en millisecondes. L'intervalle reel varie\n   * autour de cette valeur, pour que la casse ne devienne pas un metronome.\n   *\n   * @defaultValue 2600\n   */\n  interval?: number\n  /** Couleur du premier canal. @defaultValue rouge de la palette */\n  channelA?: string\n  /** Couleur du second canal. @defaultValue cyan de la palette */\n  channelB?: string\n}\n\n/** Toutes les proprietes. */\nexport type GlitchTextProps = Customisable<GlitchTextOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-glitch-text'\n\n/** Duree d'une rafale, en millisecondes. */\nconst BURST_MS = 380\n\n/**\n * Pose les regles du glitch, une fois par document.\n *\n * Les copies n'existent visuellement que pendant une rafale : au repos elles\n * sont en opacite nulle, et le compositeur n'a rien a peindre.\n */\nfunction ensureGlitchRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-glitch]{position:relative;display:inline-block}',\n    '[data-o-glitch-copy]{',\n    'position:absolute;inset:0;opacity:0;pointer-events:none;user-select:none;',\n    '}',\n    // Les tranches montrees par le clip-path changent par paliers : un glitch\n    // qui glisse en douceur n'est pas un glitch, c'est un rideau.\n    '@keyframes o-glitch-a{',\n    '0%{clip-path:inset(12% 0 61% 0)}25%{clip-path:inset(48% 0 20% 0)}',\n    '50%{clip-path:inset(80% 0 4% 0)}75%{clip-path:inset(4% 0 78% 0)}',\n    '100%{clip-path:inset(38% 0 42% 0)}',\n    '}',\n    '@keyframes o-glitch-b{',\n    '0%{clip-path:inset(68% 0 8% 0)}25%{clip-path:inset(8% 0 72% 0)}',\n    '50%{clip-path:inset(32% 0 48% 0)}75%{clip-path:inset(58% 0 16% 0)}',\n    '100%{clip-path:inset(16% 0 60% 0)}',\n    '}',\n    '[data-o-glitch-on] [data-o-glitch-copy=\"a\"]{',\n    'opacity:1;',\n    'transform:translate(calc(var(--o-glitch-shift) * -1),0);',\n    'text-shadow:calc(var(--o-glitch-shift) * -0.6) 0 var(--o-glitch-a);',\n    `animation:o-glitch-a ${String(BURST_MS)}ms steps(5,jump-none) both;`,\n    '}',\n    '[data-o-glitch-on] [data-o-glitch-copy=\"b\"]{',\n    'opacity:1;',\n    'transform:translate(var(--o-glitch-shift),0);',\n    'text-shadow:calc(var(--o-glitch-shift) * 0.6) 0 var(--o-glitch-b);',\n    `animation:o-glitch-b ${String(BURST_MS)}ms steps(5,jump-none) both;`,\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Casse un texte par rafales, entre lesquelles il reste parfaitement net.\n *\n * @example\n * <GlitchText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   SIGNAL PERDU\n * </GlitchText>\n *\n * @example\n * // Rafales plus rares et plus discretes.\n * <GlitchText intensity={2} interval={5000}>Odoro</GlitchText>\n */\nexport function GlitchText({\n  children,\n  as: Tag = 'span',\n  intensity = 3,\n  interval = 2600,\n  channelA = 'var(--o-palette-red-500)',\n  channelB = 'var(--o-palette-cyan-400)',\n  ...rest\n}: GlitchTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [burst, setBurst] = useState(false)\n  ensureGlitchRule()\n\n  useEffect(() => {\n    if (reduced) return\n\n    let timer: ReturnType<typeof setTimeout>\n\n    const schedule = (): void => {\n      // L'intervalle varie de moitie autour de la consigne : assez pour que\n      // l'oreille interne n'y trouve pas de rythme, pas assez pour que deux\n      // rafales se collent.\n      const wait = interval * (0.75 + Math.random() * 0.5)\n      timer = setTimeout(() => {\n        setBurst(true)\n        timer = setTimeout(() => {\n          setBurst(false)\n          schedule()\n        }, BURST_MS)\n      }, wait)\n    }\n\n    schedule()\n    return () => clearTimeout(timer)\n  }, [reduced, interval])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte, rien d'autre. Les copies n'apportaient que\n  // le geste, et le geste est ce qu'on nous demande d'omettre.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const glitchStyle = {\n    ...style,\n    '--o-glitch-shift': `${String(intensity)}px`,\n    '--o-glitch-a': channelA,\n    '--o-glitch-b': channelB,\n  } as CSSProperties\n\n  return (\n    <Tag\n      {...rest}\n      className={className}\n      style={glitchStyle}\n      data-o-glitch=\"\"\n      {...(burst ? { 'data-o-glitch-on': '' } : {})}\n    >\n      {children}\n      <span aria-hidden data-o-glitch-copy=\"a\">\n        {children}\n      </span>\n      <span aria-hidden data-o-glitch-copy=\"b\">\n        {children}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

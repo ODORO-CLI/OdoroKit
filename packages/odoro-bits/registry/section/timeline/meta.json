@@ -1,0 +1,44 @@
+{
+  "name": "timeline",
+  "category": "section",
+  "title": "Frise verticale",
+  "description": "Une liste d evenements dates dont le trait se remplit au defilement, lu dans la boucle du moteur.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/Timeline.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-standard",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "events",
+      "type": "readonly TimelineEvent[]",
+      "required": true,
+      "description": "Les evenements, du plus ancien au plus recent."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la frise, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule affiche au-dessus de la frise."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une mesure par image a la priorite des mises en page, et deux ecritures de style seulement quand la valeur change. Aucun rendu React pendant le defilement ; rien ne tourne sous mouvement reduit."
+  }
+}

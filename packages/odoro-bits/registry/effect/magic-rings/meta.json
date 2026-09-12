@@ -1,0 +1,80 @@
+{
+  "name": "magic-rings",
+  "category": "effect",
+  "title": "Anneaux au clic",
+  "description": "Chaque appui envoie une salve d anneaux concentriques qui s ecartent en ralentissant et s effacent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/MagicRings.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "rings",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre d anneaux par salve.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree de vie d un anneau.",
+      "min": 300,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 260,
+      "unit": "px",
+      "description": "Rayon atteint en fin de course.",
+      "min": 60,
+      "max": 640,
+      "step": 20
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 130,
+      "unit": "ms",
+      "description": "Retard entre deux anneaux d une meme salve.",
+      "min": 0,
+      "max": 500,
+      "step": 10
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des anneaux."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un canevas et une boucle qui se suspend des que la derniere salve est eteinte. Les clics sont dates par l horloge du moteur, la meme que celle du dessin."
+  }
+}

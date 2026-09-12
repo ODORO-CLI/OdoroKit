@@ -1,0 +1,95 @@
+{
+  "name": "plasma-ball",
+  "category": "background",
+  "title": "Boule plasma",
+  "description": "Un globe et ses filaments qui serpentent de l electrode au verre, en coordonnees polaires ; le pointeur pose un doigt sur le verre et attire le filament principal.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "plasma-ball.shader.ts",
+      "target": "background/plasma-ball.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/PlasmaBall.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-purple-500",
+    "--o-palette-pink-300"
+  ],
+  "props": [
+    {
+      "name": "filaments",
+      "type": "number",
+      "required": false,
+      "default": 7,
+      "description": "Nombre de filaments. Retrograde a 4 en qualite basse.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 0.38,
+      "description": "Rayon du globe, en hauteurs de cadre.",
+      "min": 0.2,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de derive et d ondulation des filaments.",
+      "min": 0,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "pull",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Force avec laquelle le pointeur attire le filament principal.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-purple-500, --o-palette-pink-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Jusqu a dix filaments par fragment, deux lectures de bruit 1D et trois exponentielles chacun. En qualite basse, quatre filaments au plus. Le doigt suit la position amortie du pointeur sans rendu React par image.",
+    "fallback": "gradient"
+  },
+  "id": "background/plasma-ball",
+  "sources": {
+    "plasma-ball.shader.ts": "/**\n * Shader de la boule plasma.\n *\n * ## L'idee mathematique\n *\n * Tout se passe en coordonnees polaires autour du centre du globe. Chaque\n * filament est une courbe angle = f(rayon) : un angle de base qui derive\n * lentement, plus une ondulation qui grandit avec le rayon — pres de\n * l'electrode centrale les filaments sont droits, pres du verre ils\n * serpentent. La distance d'un fragment a un filament est la difference\n * angulaire fois le rayon, c'est-a-dire une longueur d'arc : le trait garde\n * la meme epaisseur du centre au bord.\n *\n * Le filament principal est attire par le pointeur quand celui-ci touche le\n * globe, comme un doigt sur le verre ; les autres palissent. Chaque filament\n * scintille par rehachage du temps, et finit sur le verre en un point chaud.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la lueur des filaments et du verre.\n * - `uColorC` — le coeur des filaments et l'electrode.\n * - `uPointer` — position amortie du pointeur, centree, entre -1 et 1, y vers le bas.\n * - `uFilaments` — nombre de filaments.\n * - `uRadius` — rayon du globe, en hauteurs de cadre.\n * - `uSpeed` — vitesse de derive et d'ondulation.\n * - `uPull` — force avec laquelle le pointeur attire le filament principal.\n */\nexport const PLASMA_BALL_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uFilaments;\nuniform float uRadius;\nuniform float uSpeed;\nuniform float uPull;\n\nconst float PI = 3.14159265359;\nconst float TAU = 6.28318530718;\n\n// Plafond des filaments : la boucle est bornee par une constante.\nconst int MAX_FILAMENTS = 10;\n\nfloat boulHash(float p) {\n  return fract(sin(p * 127.1) * 43758.5453123);\n}\n\nfloat boulNoise(float p) {\n  float cell = floor(p);\n  float local = fract(p);\n  float smoothed = local * local * (3.0 - 2.0 * local);\n  return mix(boulHash(cell), boulHash(cell + 1.0), smoothed);\n}\n\n// Difference angulaire ramenee dans [-pi, pi].\nfloat boulEcartAngle(float a, float b) {\n  return mod(a - b + PI, TAU) - PI;\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);\n  vec2 m = vec2(uPointer.x * aspect, -uPointer.y) * 0.5;\n\n  float rayon = max(uRadius, 0.05);\n  float r = length(p);\n  float angle = atan(p.y, p.x);\n  float t = uTime * uSpeed;\n  int total = int(clamp(uFilaments, 1.0, float(MAX_FILAMENTS)));\n\n  // Le doigt sur le verre : pres du globe, le pointeur attire le premier\n  // filament, et d'autant plus qu'il est proche.\n  float toucher = smoothstep(rayon * 1.5, rayon * 0.7, length(m)) * uPull;\n  float angleDoigt = atan(m.y, m.x);\n\n  // Rehachage a vingt-quatre images par seconde : le scintillement.\n  float image = floor(uTime * 24.0);\n\n  float coeur = 0.0;\n  float lueur = 0.0;\n  float chaud = 0.0;\n\n  for (int i = 0; i < MAX_FILAMENTS; i += 1) {\n    if (i >= total) break;\n    float indice = float(i);\n    float graine = boulHash(indice * 3.1 + 0.7);\n\n    // L'angle de base derive lentement, chacun a son rythme.\n    float base = indice * TAU / float(total) + (boulNoise(t * 0.3 + graine * 40.0) - 0.5) * 2.4;\n\n    // Le premier filament cede au doigt.\n    float attire = toucher * step(indice, 0.5);\n    base = base + boulEcartAngle(angleDoigt, base) * attire;\n\n    // L'ondulation croit avec le rayon : droit au centre, serpentin au bord.\n    float onde = (boulNoise(r * 9.0 + t * 1.6 + graine * 60.0) - 0.5) * 1.6\n      + (boulNoise(r * 23.0 - t * 2.4 + graine * 17.0) - 0.5) * 0.5;\n    float courbe = base + onde * r / rayon * (1.0 - attire * 0.6);\n\n    // Longueur d'arc jusqu'a la courbe : le trait garde son epaisseur.\n    float d = abs(boulEcartAngle(angle, courbe)) * r;\n\n    float scintille = 0.65 + 0.35 * boulHash(image + indice * 7.0);\n    // Les autres filaments palissent quand le doigt en tient un.\n    float poids = scintille * mix(1.0, 0.35, toucher * (1.0 - attire)) * (1.0 + attire * 0.8);\n    // Le filament vit de l'electrode au verre, et pas au-dela.\n    float dedans = smoothstep(rayon + 0.004, rayon - 0.006, r);\n\n    coeur = max(coeur, exp(-d * 240.0) * poids * dedans);\n    lueur = max(lueur, exp(-d * d * 1400.0) * poids * dedans);\n\n    // Le point chaud, la ou le filament touche le verre.\n    vec2 bout = vec2(cos(courbe), sin(courbe)) * rayon;\n    chaud = max(chaud, exp(-dot(p - bout, p - bout) * 2500.0) * poids);\n  }\n\n  // L'electrode centrale : une boule de lumiere.\n  float electrode = exp(-r * r * 1800.0) + exp(-r * 22.0) * 0.5;\n\n  // Le verre : un lisere a la peripherie, et une buee qui s'epaissit vers le\n  // bord, comme un reflet sur une sphere.\n  float verre = exp(-pow(abs(r - rayon) * 90.0, 2.0)) * 0.7;\n  float buee = smoothstep(rayon, rayon - 0.02, r) * pow(clamp(r / rayon, 0.0, 1.0), 4.0) * 0.12;\n  float halo = smoothstep(rayon + 0.25, rayon, r) * step(rayon, r) * 0.06;\n\n  // Du fond vers la lueur, puis vers le coeur : chaque couche est fondue\n  // dans la precedente. Les ajouter saturerait en blanc sur un theme clair.\n  vec3 colour = uColorA;\n  colour = mix(colour, uColorB, clamp(buee + halo + verre * 0.6 + lueur * 0.7, 0.0, 1.0));\n  colour = mix(colour, uColorC, clamp(coeur * 0.95 + chaud * 0.9 + electrode * 0.8, 0.0, 1.0));\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Boule plasma : des filaments qui serpentent de l'electrode au verre, et\n * qu'un doigt sur le globe attire.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, avec amortissement : quand il approche du\n * globe, le filament principal se tend vers lui comme vers un doigt pose sur\n * le verre, et les autres palissent. A la sortie du cadre, le hook ramene la\n * cible au centre — le centre est l'electrode, ou toucher ne se voit pas — et\n * les filaments reprennent leur derive.\n *\n * Ce qui distingue cette entree de `plasma` : celle-ci est une nappe de\n * sinus qui couvre tout le cadre ; ici il y a un objet, un globe avec son\n * verre, son electrode et ses filaments.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : la position amortie est recopiee dans un\n * tableau stable par une souscription a l'horloge du moteur, et la surface\n * relit ses uniforms a chaque image — la mutation suffit.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { PLASMA_BALL_FRAGMENT } from './plasma-ball.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface PlasmaBallControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface PlasmaBallOwnProps {\n  /** Nombre de filaments. Borne a dix par le shader. @defaultValue 7 */\n  filaments?: number\n  /** Rayon du globe, en hauteurs de cadre. @defaultValue 0.38 */\n  radius?: number\n  /** Vitesse de derive et d'ondulation. @defaultValue 1 */\n  speed?: number\n  /** Force avec laquelle le pointeur attire le filament principal. @defaultValue 0.8 */\n  pull?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<PlasmaBallControls>\n}\n\n/** Toutes les proprietes. */\nexport type PlasmaBallProps = Customisable<PlasmaBallOwnProps>\n\n/** Tokens employes par defaut : le fond, la lueur, le coeur. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-purple-500',\n  '--o-palette-pink-300',\n] as const\n\n/** Repli par defaut : un halo fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-via-purple-200 dark:o-via-purple-950 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Boule plasma.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <PlasmaBall className=\"o-absolute o-inset-0\" filaments={9} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function PlasmaBall({\n  filaments = 7,\n  radius = 0.38,\n  speed = 1,\n  pull = 0.8,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: PlasmaBallProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableau stable, mute en place dans la boucle : aucun setState par image.\n  const uPointer = useRef<number[]>([0, 0]).current\n\n  const pointer = usePointerDamped({ host, speed: 5, name: 'plasma-ball : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Le shader recoit le repere du hook tel quel : centre, y vers le bas.\n        uPointer[0] = pointer.current.x\n        uPointer[1] = pointer.current.y\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'plasma-ball : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: PLASMA_BALL_FRAGMENT,\n      colors,\n      uniforms: {\n        uPointer,\n        uFilaments: filaments,\n        uRadius: radius,\n        uSpeed: speed,\n        uPull: pull,\n      },\n      name: 'plasma-ball',\n      // Chaque filament coute deux lectures de bruit et trois exponentielles\n      // par pixel : en qualite basse, ils sont moins nombreux.\n      degrade: (quality) => ({\n        uFilaments: quality === 'low' ? Math.min(filaments, 4) : filaments,\n      }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

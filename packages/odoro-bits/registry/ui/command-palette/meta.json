@@ -1,0 +1,77 @@
+{
+  "name": "command-palette",
+  "category": "ui",
+  "title": "Palette de commandes",
+  "description": "Une fenetre ouverte par la page, qui filtre une liste de commandes a la frappe, se parcourt aux fleches, et rend le focus d ou il venait.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CommandPalette.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-zinc-950",
+    "--o-palette-brand-500",
+    "--o-duration-fast",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-emphasized",
+    "--o-z-modal"
+  ],
+  "props": [
+    {
+      "name": "commands",
+      "type": "readonly { id: string; label: string; hint?: string; group?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les commandes, dans leur ordre naturel."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": true,
+      "default": false,
+      "description": "Fenetre ouverte. La page en decide, toujours."
+    },
+    {
+      "name": "onOpenChange",
+      "type": "(open: boolean) => void",
+      "description": "Appele quand la palette demande sa fermeture."
+    },
+    {
+      "name": "onRun",
+      "type": "(id: string) => void",
+      "description": "Appele avec l identifiant de la commande lancee."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Commandes",
+      "description": "Nom de la fenetre pour les lecteurs d ecran."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "Rechercher une commande...",
+      "description": "Texte d attente du champ."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "default": "Aucune commande.",
+      "description": "Phrase affichee quand rien ne correspond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Fermee, la palette ne laisse aucun noeud dans le document. Le filtre est une comparaison de chaines normalisees, refaite au rendu ; la liste est designee par aria-activedescendant, sans deplacement de focus. Sous mouvement reduit, la fenetre parait sans montee."
+  }
+}

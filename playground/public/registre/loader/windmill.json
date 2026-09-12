@@ -1,0 +1,65 @@
+{
+  "name": "windmill",
+  "category": "loader",
+  "title": "Moulin a vent",
+  "description": "Quatre ailes a claire-voie tournent sur leur tour au rythme d un vent par rafales : elan, plateau, puis presque l arret, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Windmill.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 56,
+      "unit": "px",
+      "description": "Hauteur du moulin.",
+      "min": 24,
+      "max": 140,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un tour des ailes, rafale comprise.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la tour et des ailes. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de rotation sur un groupe SVG, tenue par le compositeur, aucun JavaScript apres le premier rendu. Ailes a l arret, en croix droite, sous mouvement reduit."
+  },
+  "id": "loader/windmill",
+  "sources": {
+    "component.tsx": "/**\n * Moulin a vent : quatre ailes a claire-voie tournent sur leur tour, au\n * rythme d'un vent qui souffle par rafales.\n *\n * ## Le vent n'est pas constant, la tour ne bouge pas\n *\n * Un ventilateur tourne a vitesse constante parce qu'un moteur l'entraine.\n * Un moulin, lui, depend du vent, et le vent vient par bouffees : les\n * ailes prennent de l'elan, tiennent un moment, puis perdent leur vitesse\n * jusqu'a presque s'arreter, et la rafale suivante les relance. C'est ce\n * que posent les images cles d'un tour : une prise en `ease-in`, un\n * plateau lineaire, une fin en `ease-out`. La boucle se referme a vitesse\n * nulle des deux cotes, sans a-coup. Les ailes tournent dans le sens\n * inverse des aiguilles, comme celles des moulins qu'on voit de face.\n *\n * Chaque aile est une lame a claire-voie sur un cote de son bras : c'est\n * ce dessin, et non une simple croix, qui fait reconnaitre un moulin a\n * cette taille. Une seule aile est decrite, les trois autres sont ses\n * copies tournees d'un quart de tour autour du moyeu.\n *\n * Une animation de rotation sur un groupe SVG, tenue par le compositeur,\n * aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le moulin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les ailes sont a l'arret, en croix droite : c'est\n * un moulin par temps calme, et la figure se reconnait encore.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-windmill'\n\n/** Le moyeu, ou les ailes s'attachent, dans une vue de 100. */\nconst HUB = { x: 50, y: 42 }\n\n/** Longueur d'un bras, du moyeu a son bout. */\nconst ARM = 36\n\n/** La tour, un trapeze sous le moyeu. */\nconst TOWER = `M 41 96 L 59 96 L 55 ${String(HUB.y)} L 45 ${String(HUB.y)} Z`\n\n/** Les quatre orientations des ailes, en degres. */\nconst SAILS = [0, 90, 180, 270] as const\n\n/** Pose le moulin et sa rotation par rafales, une fois par document. */\nfunction ensureWindmillRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-windmill]{display:inline-block;line-height:0}',\n    '[data-o-windmill] svg{display:block}',\n    '[data-o-windmill-sails]{',\n    `transform-box:view-box;transform-origin:${String(HUB.x)}px ${String(HUB.y)}px;`,\n    'animation:o-windmill-gust var(--o-windmill-speed) infinite;',\n    '}',\n    // Une rafale par tour : elan, plateau, puis les ailes s'eteignent.\n    '@keyframes o-windmill-gust{',\n    '0%{transform:rotate(0deg);animation-timing-function:ease-in}',\n    '35%{transform:rotate(-150deg);animation-timing-function:linear}',\n    '65%{transform:rotate(-270deg);animation-timing-function:ease-out}',\n    '100%{transform:rotate(-360deg)}',\n    '}',\n    // Les ailes en croix droite : un moulin par temps calme.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-windmill-sails]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface WindmillOwnProps {\n  /** Hauteur du moulin, en pixels. @defaultValue 56 */\n  size?: number\n  /** Duree d'un tour des ailes, rafale comprise, en millisecondes. @defaultValue 2400 */\n  speed?: number\n  /** Couleur de la tour et des ailes. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type WindmillProps = Customisable<WindmillOwnProps, 'span'>\n\n/**\n * Signale une attente par un moulin dont les ailes tournent par rafales.\n *\n * @example\n * <Windmill />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Windmill size={96} speed={4000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Windmill({\n  size = 56,\n  speed = 2400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: WindmillProps): ReactElement {\n  ensureWindmillRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-windmill-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  const tip = HUB.y - ARM\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-windmill=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <path d={TOWER} fill=\"currentColor\" fillOpacity={0.75} />\n        <g data-o-windmill-sails=\"\">\n          {SAILS.map((angle) => (\n            <g\n              key={angle}\n              transform={`rotate(${String(angle)} ${String(HUB.x)} ${String(HUB.y)})`}\n            >\n              {/* Le bras, du moyeu au bout. */}\n              <line\n                x1={HUB.x}\n                y1={HUB.y}\n                x2={HUB.x}\n                y2={tip}\n                stroke=\"currentColor\"\n                strokeWidth={2.5}\n                strokeLinecap=\"round\"\n              />\n              {/* La lame a claire-voie, sur un seul cote du bras. */}\n              <rect\n                x={HUB.x + 1.5}\n                y={tip + 1}\n                width={8}\n                height={ARM * 0.68}\n                fill=\"currentColor\"\n                fillOpacity={0.3}\n                stroke=\"currentColor\"\n                strokeWidth={1.5}\n              />\n              {[0.25, 0.5, 0.75].map((fraction) => (\n                <line\n                  key={fraction}\n                  x1={HUB.x + 1.5}\n                  y1={tip + 1 + ARM * 0.68 * fraction}\n                  x2={HUB.x + 9.5}\n                  y2={tip + 1 + ARM * 0.68 * fraction}\n                  stroke=\"currentColor\"\n                  strokeWidth={1}\n                />\n              ))}\n            </g>\n          ))}\n        </g>\n        <circle cx={HUB.x} cy={HUB.y} r={3.5} fill=\"currentColor\" />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

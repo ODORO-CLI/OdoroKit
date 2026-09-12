@@ -86,6 +86,51 @@ export function BadgeDoc(): ReactElement {
               DEFAUTS,
             )}>${String(v.text)}</Badge>`
           }
+          variants={[
+            {
+              title: 'Succes solide',
+              description: 'Couleur pleine du ton success.',
+              values: { tone: 'success', variant: 'solid', text: 'Publie' },
+            },
+            {
+              title: 'Danger contour',
+              description: 'Simple lisere du ton danger.',
+              values: { tone: 'danger', variant: 'outline', text: 'Bloquant' },
+            },
+            {
+              title: 'Avertissement avec point',
+              values: { tone: 'warning', dot: true, text: 'Beta' },
+            },
+            {
+              title: 'Grande',
+              values: { size: 'md', tone: 'primary', text: 'Nouveau' },
+            },
+            {
+              title: 'Les sept tons',
+              description: 'Le rendu soft dans chaque registre.',
+              node: (
+                <span className="o-flex o-flex-wrap o-items-center o-justify-center o-gap-1.5">
+                  {TONES.map((tone) => (
+                    <Badge key={tone} tone={tone}>
+                      {tone}
+                    </Badge>
+                  ))}
+                </span>
+              ),
+            },
+            {
+              title: 'Dans une phrase',
+              node: (
+                <p className="o-text-sm o-text-zinc-900 dark:o-text-zinc-50">
+                  Le routeur est{' '}
+                  <Badge tone="success" dot>
+                    stable
+                  </Badge>{' '}
+                  depuis la 1.2.
+                </p>
+              ),
+            },
+          ]}
         />
       </Section>
 

@@ -1,0 +1,98 @@
+{
+  "name": "masonry",
+  "category": "ui",
+  "title": "Maconnerie",
+  "description": "Une galerie en colonnes de hauteurs libres, dont chaque vignette monte a sa place quand elle entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Masonry.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les images de la galerie, dans l ordre de lecture. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la galerie pour les lecteurs d ecran."
+    },
+    {
+      "name": "onSelect",
+      "type": "(src: string) => void",
+      "required": false,
+      "description": "Appele au clic ou a Entree sur une vignette. Sans lui, les vignettes ne sont pas des cibles."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre maximal de colonnes. Il en tient moins quand la place manque.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "minWidth",
+      "type": "number",
+      "required": false,
+      "default": 200,
+      "unit": "px",
+      "description": "Largeur minimale d une colonne. C est elle qui decide combien il en tient.",
+      "min": 120,
+      "max": 420,
+      "step": 10
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Ecart entre deux vignettes, en hauteur comme en largeur.",
+      "min": 0,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "ms",
+      "description": "Retard ajoute d une colonne a la suivante dans la montee.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les colonnes sont celles du navigateur : aucune mesure, aucune position calculee. La montee est une transition retardee par une variable, liberee par un unique observateur qui ecrit un attribut sur la vignette — pas un rendu React par vignette. Sous mouvement reduit, tout est en place au premier rendu."
+  },
+  "id": "ui/masonry",
+  "sources": {
+    "component.tsx": "/**\n * Maconnerie : une galerie en colonnes de hauteurs libres, dont les vignettes\n * montent a leur place au fur et a mesure qu'on descend.\n *\n * ## Les colonnes sont celles du navigateur\n *\n * Une maconnerie ecrite a la main mesure chaque vignette, choisit la colonne\n * la plus courte, et pose tout en absolu — puis recommence a chaque\n * redimensionnement, a chaque image chargee, et se trompe tant qu'une image\n * n'a pas sa taille. `columns` fait le meme partage sans une seule mesure,\n * et le refait tout seul quand la largeur change.\n *\n * Le prix a payer est l'ordre de lecture : la coulee descend colonne par\n * colonne, comme un journal, et non ligne par ligne. C'est acceptable pour\n * une galerie d'images — l'oeil balaie — et cela ne l'est pas pour un texte\n * suivi. La documentation le dit plutot que de le cacher.\n *\n * ## La montee est liberee par un attribut, pas par un rendu\n *\n * Un observateur unique surveille toutes les vignettes et pose un attribut\n * sur celle qui entre. Passer par l'etat ferait rerendre la galerie entiere\n * a chaque vignette croisee — sur cinquante images, cinquante rendus pour un\n * effet purement visuel.\n *\n * Le retard vient du rang de la vignette **dans sa rangee**, pas de son rang\n * global : sur une galerie longue, un retard global finirait a plusieurs\n * secondes, et les dernieres vignettes arriveraient apres qu'on les a\n * depassees.\n *\n * ## Une vignette n'est une cible que si elle mene quelque part\n *\n * Sans `onSelect`, chaque vignette est une `figure` : rien a activer, rien\n * dans l'ordre de tabulation, et le lecteur d'ecran annonce une image avec\n * son texte de remplacement. Avec `onSelect`, la meme figure vit dans un\n * bouton. Un bouton sans action est pire qu'une image : il promet une suite\n * qui n'existe pas.\n *\n * ## Mouvement reduit\n *\n * Les vignettes sont a leur place finale des le premier rendu, et aucun\n * observateur n'est cree.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'\n\n/** Une image de la galerie. */\nexport interface MasonryItem {\n  /** Source de l'image. */\n  readonly src: string\n  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */\n  readonly alt: string\n  /** Legende affichee sous l'image. */\n  readonly caption?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface MasonryOwnProps {\n  /** Les images, dans l'ordre de lecture. */\n  items: readonly MasonryItem[]\n  /** Nom de la galerie pour les lecteurs d'ecran. */\n  label: string\n  /** Appele au clic ou a Entree sur une vignette. */\n  onSelect?: (src: string) => void\n  /** Nombre maximal de colonnes. @defaultValue 3 */\n  columns?: number\n  /** Largeur minimale d'une colonne, en pixels. @defaultValue 200 */\n  minWidth?: number\n  /** Ecart entre deux vignettes, en pixels. @defaultValue 16 */\n  gap?: number\n  /** Retard ajoute d'une colonne a la suivante, en millisecondes. @defaultValue 90 */\n  stagger?: number\n}\n\n/** Toutes les proprietes. */\nexport type MasonryProps = Customisable<MasonryOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-masonry'\n\n/** Pose les colonnes, la vignette et sa montee, une fois par document. */\nfunction ensureMasonryRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // `columns` prend une largeur minimale et un nombre maximal : le navigateur\n    // en pose autant qu'il en tient, sans requete de media a ecrire.\n    '[data-o-masonry]{',\n    'columns:var(--o-masonry-min) var(--o-masonry-count);',\n    'column-gap:var(--o-masonry-gap);',\n    '}',\n    '[data-o-masonry]>[data-o-masonry-case]{',\n    'break-inside:avoid;display:block;margin:0 0 var(--o-masonry-gap)',\n    '}',\n    '[data-o-masonry-tuile]{',\n    'display:block;width:100%;margin:0;padding:0;border:0;',\n    'font:inherit;color:inherit;text-align:start;',\n    'background:var(--o-theme-surface);border-radius:0.8rem;overflow:hidden;',\n    'box-shadow:0 0 0 1px var(--o-theme-line);',\n    '}',\n    'button[data-o-masonry-tuile]{cursor:pointer}',\n    'button[data-o-masonry-tuile]:is(:hover,:focus-visible){',\n    'box-shadow:0 0 0 2px var(--o-masonry-accent);',\n    '}',\n    'button[data-o-masonry-tuile]:focus-visible{outline:2px solid var(--o-masonry-accent);outline-offset:3px}',\n    '[data-o-masonry-tuile] img{display:block;width:100%;height:auto}',\n    '[data-o-masonry-tuile] figcaption{',\n    'padding:0.5rem 0.7rem 0.6rem;font-size:0.8125em;line-height:1.35;color:var(--o-theme-muted);',\n    '}',\n    // Retenue avant le passage, liberee par l'attribut que pose l'observateur.\n    '[data-o-masonry][data-o-masonry-anime] [data-o-masonry-case]{',\n    'opacity:0;translate:0 20px;',\n    'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',\n    'translate var(--o-duration-slower) var(--o-ease-entrance);',\n    'transition-delay:calc(var(--o-masonry-rang) * var(--o-masonry-stagger));',\n    '}',\n    '[data-o-masonry][data-o-masonry-anime] [data-o-masonry-case][data-o-masonry-vu]{',\n    'opacity:1;translate:none;',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-masonry] [data-o-masonry-case]{opacity:1;translate:none;transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Galerie en maconnerie, dont les vignettes montent a l'arrivee.\n *\n * @example\n * <Masonry\n *   label=\"Reportage a Lisbonne\"\n *   items={[\n *     { src: '/photos/toits.jpg', alt: 'Toits de tuiles au-dessus du fleuve' },\n *     { src: '/photos/tram.jpg', alt: 'Tramway jaune dans une rue en pente' },\n *   ]}\n * />\n *\n * @example\n * // Quatre colonnes etroites, et un clic qui ouvre la visionneuse de la page.\n * <Masonry label=\"Archives\" items={photos} columns={4} minWidth={160} onSelect={ouvrir} />\n */\nexport function Masonry({\n  items,\n  label,\n  onSelect,\n  columns = 3,\n  minWidth = 200,\n  gap = 16,\n  stagger = 90,\n  ...rest\n}: MasonryProps): ReactElement {\n  const { reduced } = useMotionState()\n  const host = useRef<HTMLDivElement | null>(null)\n  ensureMasonryRules()\n\n  useEffect(() => {\n    // En mouvement reduit, les vignettes sont deja a leur place : observer\n    // reviendrait a payer un observateur pour ne rien declencher.\n    if (reduced) return\n    const racine = host.current\n    if (racine === null) return\n\n    const cases = Array.from(\n      racine.querySelectorAll<HTMLElement>('[data-o-masonry-case]'),\n    )\n\n    // Sans observateur — navigateur ancien, environnement de test — on montre.\n    // Une galerie qui reste invisible est un defaut visible ; une galerie qui\n    // arrive sans monter ne se remarque pas.\n    if (typeof IntersectionObserver === 'undefined') {\n      for (const element of cases) element.setAttribute('data-o-masonry-vu', '')\n      return\n    }\n\n    const observateur = new IntersectionObserver(\n      (entrees) => {\n        for (const entree of entrees) {\n          if (!entree.isIntersecting) continue\n          entree.target.setAttribute('data-o-masonry-vu', '')\n          observateur.unobserve(entree.target)\n        }\n      },\n      { threshold: 0.15 },\n    )\n    for (const element of cases) observateur.observe(element)\n\n    return () => {\n      observateur.disconnect()\n    }\n  }, [reduced, items])\n\n  const { className, style } = mergePresentation({}, rest)\n  const parRangee = Math.max(1, Math.round(columns))\n\n  return (\n    <div\n      {...rest}\n      ref={host}\n      role=\"list\"\n      aria-label={label}\n      data-o-masonry=\"\"\n      data-o-masonry-anime={reduced ? undefined : ''}\n      className={className}\n      style={\n        {\n          '--o-masonry-accent': 'var(--o-palette-brand-500)',\n          '--o-masonry-count': parRangee,\n          '--o-masonry-min': `${String(minWidth)}px`,\n          '--o-masonry-gap': `${String(gap)}px`,\n          '--o-masonry-stagger': `${String(stagger)}ms`,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      {items.map((item, index) => {\n        const figure = (\n          <>\n            <img src={item.src} alt={item.alt} loading=\"lazy\" decoding=\"async\" />\n            {item.caption === undefined ? null : <figcaption>{item.caption}</figcaption>}\n          </>\n        )\n\n        return (\n          <div\n            key={item.src}\n            role=\"listitem\"\n            data-o-masonry-case=\"\"\n            // Le rang dans la rangee, pas le rang global : voir l'en-tete.\n            style={{ '--o-masonry-rang': index % parRangee } as CSSProperties}\n          >\n            {onSelect === undefined ? (\n              <figure data-o-masonry-tuile=\"\">{figure}</figure>\n            ) : (\n              <button\n                type=\"button\"\n                data-o-masonry-tuile=\"\"\n                onClick={() => {\n                  onSelect(item.src)\n                }}\n              >\n                <figure style={{ margin: 0 }}>{figure}</figure>\n              </button>\n            )}\n          </div>\n        )\n      })}\n    </div>\n  )\n}\n"
+  }
+}

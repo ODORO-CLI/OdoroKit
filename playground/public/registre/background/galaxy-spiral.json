@@ -1,0 +1,93 @@
+{
+  "name": "galaxy-spiral",
+  "category": "background",
+  "title": "Galaxie spirale",
+  "description": "Des bras spiraux de points haches dans un domaine polaire tordu par le logarithme du rayon, en rotation lente autour d un coeur lumineux.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "galaxy-spiral.shader.ts",
+      "target": "background/galaxy-spiral.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GalaxySpiral.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-violet-400",
+    "--o-palette-amber-200"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de la rotation d ensemble.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "arms",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Nombre de bras.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Torsion des bras. Plus haut, plus enroules.",
+      "min": 0,
+      "max": 8,
+      "step": 0.25
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 18,
+      "description": "Nombre de cellules radiales de la couche proche.",
+      "min": 6,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-violet-400, --o-palette-amber-200",
+      "description": "Tokens dont les couleurs sont lues : le fond, les bras, le coeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Deux couches, neuf cellules par couche et par fragment, un logarithme et un cosinus par cellule. En qualite basse, la couche lointaine est retiree.",
+    "fallback": "gradient"
+  },
+  "id": "background/galaxy-spiral",
+  "sources": {
+    "galaxy-spiral.shader.ts": "/**\n * Shader de la galaxie spirale.\n *\n * ## L'idee mathematique\n *\n * Le plan est lu en polaire depuis le centre, puis tordu : l'angle est\n * augmente du logarithme du rayon fois une torsion. Dans ce domaine, une\n * droite radiale devient une spirale logarithmique — la forme des bras\n * observes — et un cosinus de l'angle tordu, eleve a une puissance, donne\n * les bras eux-memes : brillants sur la crete, presque vides entre deux.\n *\n * Les points sont haches par cellule dans ce domaine tordu, mais leur halo\n * est mesure en distance reelle apres retour au plan : un disque reste un\n * disque, la ou une distance mesuree dans le domaine polaire donnerait des\n * points de plus en plus etires vers le bord. Le domaine angulaire est\n * periodique par construction — les cellules sont prises modulo leur nombre —\n * pour que la couture de l'arc-tangente ne se voie jamais.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les points des bras.\n * - `uColorC` — le coeur et les points proches du coeur.\n * - `uSpeed` — vitesse de la rotation.\n * - `uArms` — nombre de bras.\n * - `uTwist` — torsion des bras ; plus haut, plus enroules.\n * - `uDensity` — nombre de cellules radiales.\n * - `uLayers` — nombre de couches evaluees, et donc le cout.\n */\nexport const GALAXY_SPIRAL_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uArms;\nuniform float uTwist;\nuniform float uDensity;\nuniform float uLayers;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat galaxieHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Deux nombres decorreles pour une meme cellule.\nvec2 galaxieHash2(vec2 p) {\n  return vec2(galaxieHash(p), galaxieHash(p + vec2(37.3, 17.7)));\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 uv = (vUv - 0.5) * vec2(aspect, 1.0);\n  float t = uTime * uSpeed;\n\n  // La rotation d'ensemble : lente, et c'est le plan qui tourne, pas les\n  // points un a un — un seul cosinus pour toute l'image.\n  float c = cos(t * 0.12);\n  float s = sin(t * 0.12);\n  vec2 v = mat2(c, -s, s, c) * uv;\n\n  float r = length(v);\n  float a = atan(v.y, v.x);\n  float arms = max(floor(uArms + 0.5), 1.0);\n  int layers = int(clamp(uLayers, 1.0, 2.0));\n\n  vec3 colour = uColorA;\n\n  for (int layer = 0; layer < 2; layer += 1) {\n    if (layer >= layers) break;\n    float depth = float(layer);\n    float scale = max(uDensity, 4.0) * (1.0 + depth * 0.9);\n\n    // Nombre entier de cellules angulaires : c'est ce qui rend le domaine\n    // periodique et efface la couture de l'arc-tangente.\n    float K = floor(scale * 1.2);\n\n    float phi = a + uTwist * log(max(r, 0.02));\n    vec2 q = vec2(r * scale, phi / 6.28318 * K);\n    vec2 cell = floor(q);\n\n    for (int dx = -1; dx <= 1; dx += 1) {\n      for (int dy = -1; dy <= 1; dy += 1) {\n        vec2 voisine = cell + vec2(float(dx), float(dy));\n        vec2 cle = vec2(voisine.x, mod(voisine.y, K)) + depth * 47.0;\n        vec2 graine = galaxieHash2(cle);\n        float exists = step(0.3, galaxieHash(cle + 5.0));\n\n        // Position dans le domaine tordu, avec une derive lente propre.\n        vec2 centreQ = voisine + 0.5\n          + 0.36 * vec2(sin(t * 0.4 + graine.x * 6.28318), cos(t * 0.33 + graine.y * 6.28318));\n\n        // Retour au plan : c'est la que le halo est mesure, en distance reelle.\n        float r0 = centreQ.x / scale;\n        float phi0 = centreQ.y / K * 6.28318;\n        float a0 = phi0 - uTwist * log(max(r0, 0.02));\n        vec2 xy0 = r0 * vec2(cos(a0), sin(a0));\n\n        float d = length(v - xy0);\n        float size = (0.004 + 0.006 * graine.x) * (1.0 - depth * 0.35);\n        float halo = exp(-d * d / (size * size));\n\n        // Les bras : une crete par bras, vide entre deux.\n        float bras = mix(0.06, 1.0, pow(0.5 + 0.5 * cos(phi0 * arms), 3.0));\n\n        // La densite decroit avec le rayon, et le scintillement est propre.\n        float chute = exp(-r0 * 2.2);\n        float eclat = 0.7 + 0.3 * sin(t * 2.0 + graine.y * 6.28318);\n\n        vec3 teinte = mix(uColorB, uColorC, smoothstep(0.35, 0.0, r0));\n        colour += teinte * halo * bras * chute * eclat * exists * (1.0 - depth * 0.3);\n      }\n    }\n  }\n\n  // Le coeur : un noyau serre et un halo plus large, tous deux au centre.\n  colour += uColorC * exp(-r * r / 0.006) * 0.9;\n  colour += uColorB * exp(-r * r / 0.05) * 0.3;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Galaxie spirale : des bras de points en rotation lente autour d'un coeur\n * lumineux.\n *\n * ## Le principe\n *\n * Le plan est lu en polaire et tordu par le logarithme du rayon : dans ce\n * domaine, une droite devient une spirale logarithmique, et un cosinus de\n * l'angle tordu donne les bras. Les points y sont haches par cellule, mais\n * leur halo est mesure en distance reelle : un disque reste un disque.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { GALAXY_SPIRAL_FRAGMENT } from './galaxy-spiral.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface GalaxySpiralControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface GalaxySpiralOwnProps {\n  /** Vitesse de la rotation. @defaultValue 0.5 */\n  speed?: number\n  /** Nombre de bras. @defaultValue 2 */\n  arms?: number\n  /** Torsion des bras. Plus haut, plus enroules. @defaultValue 3 */\n  twist?: number\n  /** Nombre de cellules radiales. @defaultValue 18 */\n  density?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<GalaxySpiralControls>\n}\n\n/** Toutes les proprietes. */\nexport type GalaxySpiralProps = Customisable<GalaxySpiralOwnProps>\n\n/** Tokens employes par defaut : le fond, les bras, le coeur. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-violet-400',\n  '--o-palette-amber-200',\n] as const\n\n/** Repli par defaut : un halo fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-200 dark:o-via-violet-950 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Couches hors qualite basse.\n *\n * Chaque couche parcourt neuf cellules par fragment, avec un logarithme et\n * un cosinus par cellule : c'est le seul levier de cout du shader.\n */\nconst LAYERS = 2\n\n/** Couches en qualite basse. */\nconst LOW_LAYERS = 1\n\n/**\n * Galaxie spirale.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <GalaxySpiral className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function GalaxySpiral({\n  speed = 0.5,\n  arms = 2,\n  twist = 3,\n  density = 18,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: GalaxySpiralProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: GALAXY_SPIRAL_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uArms: arms,\n      uTwist: twist,\n      uDensity: density,\n      uLayers: LAYERS,\n    },\n    name: 'galaxy-spiral',\n    degrade: (quality) => ({ uLayers: quality === 'low' ? LOW_LAYERS : LAYERS }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

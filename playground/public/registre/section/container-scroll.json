@@ -1,0 +1,80 @@
+{
+  "name": "container-scroll",
+  "category": "section",
+  "title": "Cadre qui se redresse",
+  "description": "Un cadre incline qui se redresse et s agrandit a mesure que la section entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/ContainerScroll.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Ce que le cadre contient."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Titre affiche au-dessus du cadre."
+    },
+    {
+      "name": "subtitle",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Phrase sous le titre."
+    },
+    {
+      "name": "rotation",
+      "type": "number",
+      "required": false,
+      "default": 22,
+      "unit": "deg",
+      "description": "Inclinaison de depart.",
+      "min": 0,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 0.86,
+      "description": "Echelle de depart.",
+      "min": 0.6,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une mesure par image et une ecriture de variable au changement de centieme. La bascule est une transformation : aucun recalcul de mise en page, aucun rendu React. Rien ne tourne sous mouvement reduit."
+  },
+  "id": "section/container-scroll",
+  "sources": {
+    "component.tsx": "/**\n * Conteneur qui se redresse et s'agrandit en entrant dans le champ.\n *\n * ## Ce que la bascule raconte\n *\n * Le cadre arrive incline, vu de dessus, comme un objet pose sur une table ;\n * il se redresse a mesure qu'il monte, jusqu'a faire face. C'est une facon de\n * dire « voici la chose » sans l'ecrire, et elle ne tient qu'a une condition :\n * l'inclinaison doit **finir**. Un cadre qui reste de biais est une decoration ;\n * un cadre qui se redresse est une presentation.\n *\n * ## Une perspective sur le parent, jamais sur l'element\n *\n * `perspective` posee sur l'element transforme lui-meme ne produit pas la meme\n * chose que sur son parent : le point de fuite suit alors l'element au lieu de\n * rester celui de la scene, et l'inclinaison se deforme quand l'element bouge.\n * C'est la cause la plus frequente d'une bascule qui « glisse » sans qu'on\n * sache pourquoi.\n *\n * ## Rien n'est rendu pendant la course\n *\n * La progression est lue dans la boucle unique, a la priorite des mesures, et\n * ecrite dans une variable CSS. La rotation et l'echelle sont des\n * transformations : le compositeur les applique seul, sans recalcul de mise en\n * page ni rendu React.\n *\n * ## Ce que le mouvement reduit donne\n *\n * Le cadre a plat, a sa taille pleine — l'etat d'arrivee. Fige incline, il\n * cacherait une partie de son contenu par la perspective, ce qui serait un\n * defaut et non une preference respectee.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ContainerScrollOwnProps {\n  /** Ce que le cadre contient. */\n  children: ReactNode\n  /** Titre affiche au-dessus du cadre. */\n  title?: ReactNode\n  /** Phrase sous le titre. */\n  subtitle?: ReactNode\n  /** Inclinaison de depart, en degres. @defaultValue 22 */\n  rotation?: number\n  /** Echelle de depart, de 0 a 1. @defaultValue 0.86 */\n  scale?: number\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ContainerScrollProps = Customisable<ContainerScrollOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-container-scroll'\n\n/** Pose les regles du cadre, une fois par document. */\nfunction ensureContainerRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cscroll]{--o-cscroll-reste:1}',\n    // La perspective appartient a la scene, pas a l'objet : posee sur\n    // l'element transforme, le point de fuite le suivrait.\n    '[data-o-cscroll-scene]{perspective:1000px}',\n    '[data-o-cscroll-cadre]{',\n    'transform:rotateX(calc(var(--o-cscroll-angle) * var(--o-cscroll-reste)))',\n    ' scale(calc(1 - (1 - var(--o-cscroll-echelle)) * var(--o-cscroll-reste)));',\n    'transform-origin:center top;will-change:transform}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-cscroll]{--o-cscroll-reste:0}',\n    '[data-o-cscroll-cadre]{will-change:auto}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Trouve le conteneur qui defile autour d'un element.\n *\n * Cherche une seule fois, au montage : `getComputedStyle` force un calcul de\n * style, et le repeter par image couterait plus que la bascule elle-meme.\n */\nfunction conteneurDefilant(element: Element): HTMLElement | null {\n  let parent = element.parentElement\n  while (parent !== null) {\n    const debordement = getComputedStyle(parent).overflowY\n    if (debordement === 'auto' || debordement === 'scroll') return parent\n    parent = parent.parentElement\n  }\n  return null\n}\n\n/**\n * Un cadre qui se redresse au defilement.\n *\n * @example\n * <ContainerScroll title=\"L atelier\" subtitle=\"Chaque reglage est une prop.\">\n *   <img src=\"/atelier.png\" alt=\"\" className=\"o-size-full o-object-cover\" />\n * </ContainerScroll>\n */\nexport function ContainerScroll({\n  children,\n  title,\n  subtitle,\n  rotation = 22,\n  scale = 0.86,\n  label,\n  ...rest\n}: ContainerScrollProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [hote, setHote] = useState<HTMLElement | null>(null)\n  const dernier = useRef(-1)\n\n  ensureContainerRules()\n\n  useEffect(() => {\n    if (hote === null || reduced) return\n\n    const conteneur = conteneurDefilant(hote)\n\n    const subscription = clock.subscribe(\n      () => {\n        const boite = hote.getBoundingClientRect()\n        if (boite.height === 0) return\n\n        const champ =\n          conteneur === null\n            ? { haut: 0, hauteur: window.innerHeight }\n            : {\n                haut: conteneur.getBoundingClientRect().top,\n                hauteur: conteneur.clientHeight,\n              }\n\n        // Zero quand le haut de la section atteint le bas du champ, un quand la\n        // section y est entree tout entiere : la bascule finit donc au moment\n        // ou l'on regarde le cadre, et non apres.\n        const p = Math.min(\n          1,\n          Math.max(0, (champ.haut + champ.hauteur - boite.top) / boite.height),\n        )\n\n        const centieme = Math.round(p * 100)\n        if (centieme === dernier.current) return\n        dernier.current = centieme\n        hote.style.setProperty('--o-cscroll-reste', (1 - centieme / 100).toFixed(2))\n      },\n      { name: 'cadre au defilement', priority: CLOCK_PRIORITY.layout },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [hote, reduced])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-8 o-py-12' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={setHote}\n      aria-label={label}\n      data-o-cscroll=\"\"\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-cscroll-angle': `${String(rotation)}deg`,\n          '--o-cscroll-echelle': String(scale),\n        } as CSSProperties\n      }\n    >\n      {(title !== undefined || subtitle !== undefined) && (\n        <div className=\"o-mx-auto o-flex o-max-w-2xl o-flex-col o-gap-3 o-px-6 o-text-center\">\n          {title !== undefined && (\n            <h2\n              className=\"o-text-3xl o-font-bold o-tracking-tight o-text-balance\"\n              style={{ color: 'var(--o-theme-fg)' }}\n            >\n              {title}\n            </h2>\n          )}\n          {subtitle !== undefined && (\n            <p className=\"o-text-sm\" style={{ color: 'var(--o-theme-muted)' }}>\n              {subtitle}\n            </p>\n          )}\n        </div>\n      )}\n\n      <div data-o-cscroll-scene=\"\">\n        <div\n          data-o-cscroll-cadre=\"\"\n          className=\"o-overflow-hidden o-rounded-2xl o-p-2 o-shadow-xl\"\n          style={{\n            backgroundColor: 'var(--o-theme-surface)',\n            border: '1px solid var(--o-theme-line)',\n          }}\n        >\n          {children}\n        </div>\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

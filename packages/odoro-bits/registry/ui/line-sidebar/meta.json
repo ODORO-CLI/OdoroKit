@@ -1,0 +1,78 @@
+{
+  "name": "line-sidebar",
+  "category": "ui",
+  "title": "Barre laterale en traits",
+  "description": "Une colonne de traits qui s allongent a l approche du pointeur et decouvrent leur libelle ; le trait de la page courante reste long, en teinte de marque.",
+  "engine": {
+    "gsap": ["core"],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LineSidebar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-line", "--o-palette-brand-500", "--o-duration-base"],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, de haut en bas."
+    },
+    {
+      "name": "side",
+      "type": "'left' | 'right'",
+      "default": "left",
+      "description": "Bord de l ecran ou la barre est posee : les traits partent de ce bord.",
+      "options": ["left", "right"]
+    },
+    {
+      "name": "extend",
+      "type": "number",
+      "default": 2.4,
+      "description": "Allongement maximal d un trait, atteint sous le pointeur.",
+      "min": 1.2,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "reach",
+      "type": "number",
+      "default": 90,
+      "unit": "px",
+      "description": "Rayon d influence du pointeur. Au-dela, un trait reste au repos.",
+      "min": 30,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 10,
+      "description": "Vitesse a laquelle les traits suivent le pointeur. Plus haut, plus sec.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Navigation",
+      "description": "Nom du bloc pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle horizontale par trait, ecrite depuis la boucle du moteur tant que le pointeur est dans la barre. Aucun rendu React au survol. Au doigt et sous mouvement reduit, seuls le survol et le focus allongent un trait, par transition."
+  }
+}

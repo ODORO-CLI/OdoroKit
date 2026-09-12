@@ -1,0 +1,54 @@
+{
+  "name": "container-scroll",
+  "category": "section",
+  "title": "Cadre qui se redresse",
+  "description": "Un cadre incline qui se redresse et s agrandit a mesure que la section entre dans le champ.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/ContainerScroll.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-fg", "--o-theme-muted", "--o-theme-surface", "--o-theme-line"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Ce que le cadre contient."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Titre affiche au-dessus du cadre."
+    },
+    { "name": "subtitle", "type": "ReactNode", "description": "Phrase sous le titre." },
+    {
+      "name": "rotation",
+      "type": "number",
+      "default": 22,
+      "unit": "deg",
+      "description": "Inclinaison de depart.",
+      "min": 0,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 0.86,
+      "description": "Echelle de depart.",
+      "min": 0.6,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une mesure par image et une ecriture de variable au changement de centieme. La bascule est une transformation : aucun recalcul de mise en page, aucun rendu React. Rien ne tourne sous mouvement reduit."
+  }
+}

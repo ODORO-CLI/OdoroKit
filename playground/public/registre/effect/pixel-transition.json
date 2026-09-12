@@ -1,0 +1,73 @@
+{
+  "name": "pixel-transition",
+  "category": "effect",
+  "title": "Transition en damier",
+  "description": "Un damier de pixels recouvre le premier contenu case par case, le remplace par le second, puis se retire.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/PixelTransition.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Nombre de colonnes. Les lignes suivent les proportions.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 520,
+      "unit": "ms",
+      "description": "Duree du recouvrement, avant l echange des contenus.",
+      "min": 120,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "trigger",
+      "type": "'hover' | 'click' | 'view'",
+      "required": false,
+      "default": "hover",
+      "description": "Ce qui declenche le passage au second contenu.",
+      "options": [
+        "hover",
+        "click",
+        "view"
+      ]
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des cases. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une grille de cases dont l opacite est animee par la feuille, chacune avec son retard. Deux rendus React par passage, aucun pendant."
+  },
+  "id": "effect/pixel-transition",
+  "sources": {
+    "component.tsx": "/**\n * Transition en damier entre deux contenus.\n *\n * ## Recouvrir, echanger, decouvrir\n *\n * Faire passer un contenu a un autre par un masque de cases obligerait a\n * decouper le second en autant de morceaux — impossible des qu'il s'agit de\n * texte, de boutons ou d'une carte entiere.\n *\n * Le damier est donc **opaque** et joue en trois temps : il couvre le premier\n * contenu, l'echange a lieu derriere lui, puis il se retire. Ce sont deux\n * rendus React par passage, et rien entre les deux : les retards de chaque\n * case sont dans la feuille de style, pas dans une boucle.\n *\n * ## Pourquoi un damier et pas un balayage\n *\n * Les cases s'allument par diagonales, mais en deux passes : d'abord une case\n * sur deux, puis les autres. Le recouvrement se fait ainsi en deux vagues qui\n * s'entrelacent, ce qui evite le front rectiligne d'un simple balayage — on\n * reconnait un ecran qui se pixelise, pas un rideau qui se ferme.\n *\n * ## Les deux contenus restent dans le document\n *\n * Le contenu au repos occupe le flux et donne sa taille a la zone ; l'autre\n * est superpose. Celui qui n'est pas montre est cache par `visibility`, ce qui\n * le retire de l'ordre de tabulation et de la restitution vocale sans lui\n * prendre sa place — un contenu absent ferait sauter la mise en page a chaque\n * passage.\n *\n * Sous mouvement reduit, l'echange est immediat : c'est l'etat final, sans les\n * cases.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Ce qui declenche le passage au second contenu. */\nexport type PixelTrigger = 'hover' | 'click' | 'view'\n\n/** Proprietes propres au composant. */\nexport interface PixelTransitionOwnProps {\n  /** Contenu au repos. Il donne sa taille a la zone. */\n  from: ReactNode\n  /** Contenu montre apres le passage. */\n  to: ReactNode\n  /** Nombre de colonnes. Les lignes suivent les proportions. @defaultValue 12 */\n  cells?: number\n  /** Duree du recouvrement, en millisecondes. @defaultValue 520 */\n  duration?: number\n  /** Ce qui declenche le passage. @defaultValue 'hover' */\n  trigger?: PixelTrigger\n  /** Couleur des cases. @defaultValue l'encre du theme */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type PixelTransitionProps = Customisable<PixelTransitionOwnProps>\n\n/** Duree du fondu d'une seule case, en millisecondes. */\nconst CELL_FADE = 140\n\n/**\n * Echange deux contenus derriere un damier.\n *\n * @example\n * <PixelTransition\n *   from={<img src=\"/pochette.jpg\" alt=\"Pochette de l album\" />}\n *   to={<img src=\"/verso.jpg\" alt=\"Liste des titres\" />}\n *   className=\"o-w-64 o-rounded-xl\"\n * />\n *\n * @example\n * // Au clic, en gros pixels, dans la teinte de marque.\n * <PixelTransition\n *   trigger=\"click\"\n *   cells={6}\n *   color=\"var(--o-palette-brand-500)\"\n *   from={<p>Le tarif</p>}\n *   to={<p>39 EUR par mois</p>}\n * />\n */\nexport function PixelTransition({\n  from,\n  to,\n  cells = 12,\n  duration = 520,\n  trigger = 'hover',\n  color = 'var(--o-theme-fg)',\n  ...rest\n}: PixelTransitionProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLDivElement>({ immediat: trigger !== 'view' })\n\n  const [ratio, setRatio] = useState(0.6)\n  const [target, setTarget] = useState<'from' | 'to'>('from')\n  const [shown, setShown] = useState<'from' | 'to'>('from')\n  const [covered, setCovered] = useState(false)\n\n  // L'entree dans le champ est un declenchement comme un autre : elle pose la\n  // meme cible que le survol ou le clic.\n  useEffect(() => {\n    if (trigger === 'view' && vu) setTarget('to')\n  }, [trigger, vu])\n\n  // Les proportions de la zone donnent le nombre de lignes : sans cette\n  // mesure, les cases seraient des rectangles etires sur une zone large, et le\n  // damier ne se lirait plus comme un damier.\n  useEffect(() => {\n    const host = ref.current\n    if (host === null) return\n\n    const observer = new ResizeObserver(() => {\n      const rect = host.getBoundingClientRect()\n      if (rect.width > 0) setRatio(rect.height / rect.width)\n    })\n    observer.observe(host)\n    return () => observer.disconnect()\n  }, [ref])\n\n  const cover = Math.max(duration, 0) + CELL_FADE\n\n  useEffect(() => {\n    if (target === shown) return\n\n    // Sans mouvement, il n'y a rien a couvrir : l'etat final est pose tout de\n    // suite.\n    if (reduced) {\n      setShown(target)\n      return\n    }\n\n    setCovered(true)\n    const timer = setTimeout(() => {\n      // L'echange a lieu derriere le damier plein, puis les cases se retirent\n      // dans l'ordre inverse.\n      setShown(target)\n      setCovered(false)\n    }, cover)\n\n    return () => clearTimeout(timer)\n  }, [target, shown, reduced, cover])\n\n  const columns = Math.max(2, Math.round(cells))\n  const rows = Math.max(2, Math.round(columns * ratio))\n  const total = columns * rows\n  const steps = columns + rows\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const layer = (visible: boolean): CSSProperties => ({\n    visibility: visible ? 'visible' : 'hidden',\n  })\n\n  const toggle = (): void => setTarget((value) => (value === 'from' ? 'to' : 'from'))\n\n  // Un declenchement au clic doit repondre au clavier : sans cela, le second\n  // contenu serait hors d'atteinte de qui n'a pas de souris.\n  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {\n    if (event.key !== 'Enter' && event.key !== ' ') return\n    event.preventDefault()\n    toggle()\n  }\n\n  return (\n    <div\n      {...rest}\n      ref={ref}\n      className={className}\n      style={style}\n      role={trigger === 'click' ? 'button' : undefined}\n      tabIndex={trigger === 'click' ? 0 : undefined}\n      onPointerEnter={trigger === 'hover' ? () => setTarget('to') : undefined}\n      onPointerLeave={trigger === 'hover' ? () => setTarget('from') : undefined}\n      onClick={trigger === 'click' ? toggle : undefined}\n      onKeyDown={trigger === 'click' ? onKeyDown : undefined}\n    >\n      <div style={layer(shown === 'from')}>{from}</div>\n      <div className=\"o-absolute o-inset-0\" style={layer(shown === 'to')}>\n        {to}\n      </div>\n\n      {reduced ? null : (\n        <div\n          aria-hidden\n          className=\"o-absolute o-inset-0 o-grid o-pointer-events-none\"\n          style={{\n            gridTemplateColumns: `repeat(${String(columns)}, 1fr)`,\n            gridTemplateRows: `repeat(${String(rows)}, 1fr)`,\n          }}\n        >\n          {Array.from({ length: total }, (_, index) => {\n            const column = index % columns\n            const row = Math.floor(index / columns)\n            // Une case sur deux d'abord, les autres ensuite, chaque passe en\n            // diagonale : deux vagues entrelacees plutot qu'un front droit.\n            const pass = (column + row) % 2\n            const rank = (pass * steps + column + row) / (2 * steps)\n            const delay = (covered ? rank : 1 - rank) * duration\n\n            return (\n              <span\n                key={index}\n                style={{\n                  backgroundColor: color,\n                  opacity: covered ? 1 : 0,\n                  transition: `opacity ${String(CELL_FADE)}ms linear ${delay.toFixed(0)}ms`,\n                }}\n              />\n            )\n          })}\n        </div>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

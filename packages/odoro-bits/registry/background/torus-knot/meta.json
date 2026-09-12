@@ -1,0 +1,83 @@
+{
+  "name": "torus-knot",
+  "category": "background",
+  "title": "Noeud torique",
+  "description": "Un tore noue dessine en fil de fer, double d un solide de la couleur du fond qui masque ses arretes de dos, et parcouru d impulsions qui suivent sa courbe guide.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/TorusKnot.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-emerald-400", "--o-palette-lime-400"],
+  "props": [
+    {
+      "name": "p",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de tours autour de l axe de revolution.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "q",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de tours autour du coeur du tore.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "tube",
+      "type": "number",
+      "default": 0.3,
+      "description": "Epaisseur du tube, en unites de scene.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 3,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "pulses",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre d impulsions qui courent le long du noeud.",
+      "min": 0,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-emerald-400, --o-palette-lime-400",
+      "description": "Tokens dont les couleurs sont lues : le fond et le solide masquant, le fil de fer, les impulsions."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Geometrie construite une fois ; la boucle ne touche qu une rotation et la position des impulsions. Le nombre de segments le long du tube suit la qualite retenue. Le rendu se suspend hors du champ."
+  }
+}

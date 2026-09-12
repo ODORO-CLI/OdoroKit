@@ -1,0 +1,65 @@
+{
+  "name": "segmented-control",
+  "category": "ui",
+  "title": "Controle segmente a glissiere",
+  "description": "Un choix parmi quelques options, dans un rail creux ou une glissiere en relief vient se poser sous l option choisie, avec un leger depassement.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/SegmentedControl.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-surface", "--o-duration-slow", "--o-ease-emphasized"],
+  "props": [
+    {
+      "name": "options",
+      "type": "readonly { value: string; label: string; icon?: ReactNode; disabled?: boolean }[]",
+      "required": true,
+      "description": "Les options, dans l ordre d affichage."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du groupe pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Option choisie, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Option choisie au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "description": "Appele quand l utilisateur choisit une option."
+    },
+    {
+      "name": "full",
+      "type": "boolean",
+      "default": false,
+      "description": "Les options se partagent la largeur a parts egales."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Neutralise le groupe entier."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La glissiere est placee par transformation et largeur, animees par une transition CSS mesuree sur l option reelle ; aucun rendu React pendant le trajet. Sous mouvement reduit elle saute."
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "name": "fade-gate",
+  "category": "loader",
+  "title": "Voile",
+  "description": "Le seul rideau du lot qui assume d etre un voile : il se dissipe, et peut se depolir quand la page merite une mise au point.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FadeGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond du voile."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "blurPx",
+      "type": "number",
+      "default": 0,
+      "unit": "px",
+      "description": "Flou d arriere-plan. Zero laisse un voile opaque et gratuit ; au-dela, le voile devient depoli et se paye.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Combien de temps le voile reste plein.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la dissipation.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : le voile couvre tant que c est vrai, et se dissipe au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de la dissipation, pour que le contenu entre pendant qu elle a lieu."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une opacite animee, la propriete la moins chere du navigateur. Le depoli ajoute un backdrop-filter recompose par image : il reste desactive par defaut."
+  }
+}

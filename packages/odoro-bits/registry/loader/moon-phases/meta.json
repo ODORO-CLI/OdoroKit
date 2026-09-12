@@ -1,0 +1,57 @@
+{
+  "name": "moon-phases",
+  "category": "loader",
+  "title": "Phases de lune",
+  "description": "Un disque eteint sur lequel la part eclairee croit jusqu a la pleine lune puis decroit de l autre bord, par interpolation d un seul chemin SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/MoonPhases.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de la lune.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3600,
+      "unit": "ms",
+      "description": "Duree d une lunaison complete, de la nouvelle lune a la suivante.",
+      "min": 1200,
+      "max": 10000,
+      "step": 200
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la lune. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul chemin SVG dont le trace est interpole par le navigateur entre trois etats, plus un retournement instantane a la pleine lune ; aucun JavaScript apres le premier rendu. Premier quartier immobile sous mouvement reduit."
+  }
+}

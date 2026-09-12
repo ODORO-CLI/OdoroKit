@@ -306,13 +306,13 @@ export function CardForm({
 
             <span className="o-relative o-flex o-items-end o-justify-between o-gap-4">
               <span className="o-flex o-flex-col">
-                <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-400">
+                <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-500 dark:o-text-zinc-400">
                   Porteur
                 </span>
                 <span className="o-uppercase">{state.holder || 'NOM SUR LA CARTE'}</span>
               </span>
               <span className="o-flex o-flex-col">
-                <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-400">
+                <span className="o-text-xs o-font-semibold o-uppercase o-text-zinc-500 dark:o-text-zinc-400">
                   Expire
                 </span>
                 <span>

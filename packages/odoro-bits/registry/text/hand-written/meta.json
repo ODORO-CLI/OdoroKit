@@ -1,0 +1,85 @@
+{
+  "name": "hand-written",
+  "category": "text",
+  "title": "Signature manuscrite",
+  "description": "Un paraphe se trace d un seul geste le long de son chemin, boucles comprises, sans qu on le voie d avance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/HandWritten.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "description": "Trace de la signature, en donnees de chemin SVG. Un seul trait continu."
+    },
+    {
+      "name": "viewBox",
+      "type": "string",
+      "default": "0 0 320 110",
+      "description": "Vue du trace. A changer avec le chemin."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 280,
+      "unit": "px",
+      "description": "Largeur du dessin.",
+      "min": 80,
+      "max": 720,
+      "step": 10
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 5,
+      "description": "Epaisseur du trait, en unites de la vue.",
+      "min": 1,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree du trace.",
+      "min": 300,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "default": "currentColor",
+      "description": "Couleur de l encre."
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": ["montage", "vue", "survol"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation, sur un seul chemin. Le decalage de tiret n est pas compose : il repeint le trait a chaque image, ce qui reste negligeable sur un dessin de cette taille."
+  }
+}

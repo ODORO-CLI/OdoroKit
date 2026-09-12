@@ -1,0 +1,82 @@
+{
+  "name": "sticker-peel",
+  "category": "effect",
+  "title": "Autocollant decolle",
+  "description": "Un coin du contenu se souleve comme un autocollant qu on decolle, et laisse voir son dos et son ombre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/StickerPeel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-surface",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "corner",
+      "type": "'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'",
+      "required": false,
+      "default": "top-right",
+      "description": "Coin qui se souleve.",
+      "options": [
+        "top-right",
+        "top-left",
+        "bottom-right",
+        "bottom-left"
+      ]
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 72,
+      "unit": "px",
+      "description": "Longueur du coin souleve.",
+      "min": 16,
+      "max": 220,
+      "step": 4
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 420,
+      "unit": "ms",
+      "description": "Duree du decollage.",
+      "min": 0,
+      "max": 1600,
+      "step": 20
+    },
+    {
+      "name": "peeled",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Garde le coin souleve, sans attendre le survol."
+    },
+    {
+      "name": "back",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du dos de l autocollant."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux traces de decoupe animes par une transition CSS. Deux rendus React par survol, aucun pendant."
+  },
+  "id": "effect/sticker-peel",
+  "sources": {
+    "component.tsx": "/**\n * Autocollant dont un coin se decolle.\n *\n * ## Deux traces qui se completent\n *\n * Le coin n'est pas dessine par-dessus le contenu : il en est **retire**. Le\n * contenu est decoupe par un polygone auquel il manque un triangle d'angle, et\n * ce meme triangle est repeint a cote, dans la couleur du dos et sous une\n * ombre. Les deux traces bougent ensemble, si bien que la matiere semble\n * passer de l'un a l'autre au lieu de se dedoubler.\n *\n * L'approche naive — faire tourner le coin en perspective — demanderait de\n * couper l'element en deux dans le document, donc de dupliquer le contenu. Ici\n * il n'y en a qu'un, et il reste selectionnable.\n *\n * ## Pourquoi une transition et pas une animation\n *\n * Le decollage n'a pas de duree propre : il suit une intention — la main qui\n * arrive, la main qui repart — et doit pouvoir s'inverser au milieu. C'est la\n * definition d'une transition. Une animation, elle, se rejouerait depuis le\n * debut a chaque changement d'avis.\n *\n * Le clavier declenche par `focus-within` : une carte qui contient un lien doit\n * se decoller aussi pour qui n'a pas de souris.\n *\n * ## Sous mouvement reduit\n *\n * L'etat demande est applique sans transition : ce qui disparait est le\n * glissement du coin, pas le coin lui-meme.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Coin qui se souleve. */\nexport type PeelCorner = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'\n\n/** Proprietes propres au composant. */\nexport interface StickerPeelOwnProps {\n  /** Contenu de l'autocollant. */\n  children: ReactNode\n  /** Coin qui se souleve. @defaultValue 'top-right' */\n  corner?: PeelCorner\n  /** Longueur du coin souleve, en pixels. @defaultValue 72 */\n  size?: number\n  /** Duree du decollage, en millisecondes. @defaultValue 420 */\n  duration?: number\n  /** Garde le coin souleve, sans attendre le survol. @defaultValue false */\n  peeled?: boolean\n  /** Couleur du dos de l'autocollant. */\n  back?: string\n}\n\n/** Toutes les proprietes. */\nexport type StickerPeelProps = Customisable<StickerPeelOwnProps>\n\n/** Geometrie d'un coin : ce qu'on retire, et ce qu'on repose a cote. */\ninterface CornerShape {\n  /** Trace du contenu, une fois le triangle d'angle retire. */\n  readonly content: (cut: string) => string\n  /** Position du rabat dans la zone. */\n  readonly box: CSSProperties\n  /** Trace du rabat, dans sa propre boite carree. */\n  readonly flap: string\n  /** Sens du degrade qui donne le relief au dos. */\n  readonly angle: string\n  /** Decalage de l'ombre portee. */\n  readonly shadow: string\n}\n\n/** Les quatre coins, ecrits une fois. */\nconst CORNERS: Readonly<Record<PeelCorner, CornerShape>> = {\n  'top-right': {\n    content: (cut) => `polygon(0 0, calc(100% - ${cut}) 0, 100% ${cut}, 100% 100%, 0 100%)`,\n    box: { top: 0, right: 0 },\n    flap: 'polygon(0 0, 100% 0, 100% 100%)',\n    angle: '225deg',\n    shadow: '-3px 3px',\n  },\n  'top-left': {\n    content: (cut) => `polygon(${cut} 0, 100% 0, 100% 100%, 0 100%, 0 ${cut})`,\n    box: { top: 0, left: 0 },\n    flap: 'polygon(0 0, 100% 0, 0 100%)',\n    angle: '135deg',\n    shadow: '3px 3px',\n  },\n  'bottom-right': {\n    content: (cut) =>\n      `polygon(0 0, 100% 0, 100% calc(100% - ${cut}), calc(100% - ${cut}) 100%, 0 100%)`,\n    box: { bottom: 0, right: 0 },\n    flap: 'polygon(100% 0, 100% 100%, 0 100%)',\n    angle: '315deg',\n    shadow: '-3px -3px',\n  },\n  'bottom-left': {\n    content: (cut) =>\n      `polygon(0 0, 100% 0, 100% 100%, ${cut} 100%, 0 calc(100% - ${cut}))`,\n    box: { bottom: 0, left: 0 },\n    flap: 'polygon(0 0, 100% 100%, 0 100%)',\n    angle: '45deg',\n    shadow: '3px -3px',\n  },\n}\n\n/**\n * Decolle un coin de son contenu.\n *\n * @example\n * <StickerPeel className=\"o-rounded-xl o-bg-brand-500 o-p-6\">\n *   <p>Offre de lancement</p>\n * </StickerPeel>\n *\n * @example\n * // Un grand coin, decolle en permanence, en bas a gauche.\n * <StickerPeel peeled corner=\"bottom-left\" size={140}>\n *   <img src=\"/vignette.jpg\" alt=\"\" />\n * </StickerPeel>\n */\nexport function StickerPeel({\n  children,\n  corner = 'top-right',\n  size = 72,\n  duration = 420,\n  peeled = false,\n  back = 'color-mix(in oklab, var(--o-theme-fg) 14%, var(--o-theme-surface))',\n  ...rest\n}: StickerPeelProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [active, setActive] = useState(false)\n\n  const shape = CORNERS[corner]\n  const open = peeled || active\n  const cut = `${String(open ? Math.max(0, size) : 0)}px`\n  const ease = `${String(reduced ? 0 : duration)}ms var(--o-ease-emphasized, ease-out)`\n\n  const { className, style } = mergePresentation({ className: 'o-relative' }, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={style}\n      onPointerEnter={() => setActive(true)}\n      onPointerLeave={() => setActive(false)}\n      onFocus={() => setActive(true)}\n      onBlur={() => setActive(false)}\n    >\n      <div\n        style={{\n          clipPath: shape.content(cut),\n          transition: `clip-path ${ease}`,\n        }}\n      >\n        {children}\n      </div>\n\n      {/* Le triangle retire au contenu, repose a la meme place : c'est le dos\n          de l'autocollant, pas une decoration ajoutee. */}\n      <span\n        aria-hidden\n        style={{\n          position: 'absolute',\n          ...shape.box,\n          width: cut,\n          height: cut,\n          clipPath: shape.flap,\n          background: `linear-gradient(${shape.angle}, ${back}, color-mix(in oklab, ${back} 55%, transparent))`,\n          filter: `drop-shadow(${shape.shadow} 8px color-mix(in oklab, var(--o-theme-fg) 26%, transparent))`,\n          transition: `width ${ease}, height ${ease}`,\n          pointerEvents: 'none',\n        }}\n      />\n    </div>\n  )\n}\n"
+  }
+}

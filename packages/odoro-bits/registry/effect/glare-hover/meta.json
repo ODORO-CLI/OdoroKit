@@ -1,0 +1,66 @@
+{
+  "name": "glare-hover",
+  "category": "effect",
+  "title": "Reflet au survol",
+  "description": "Une bande de lumiere traverse le contenu au survol, comme un reflet sur une carte plastifiee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GlareHover.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-fg", "--o-ease-standard"],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la traversee.",
+      "min": 200,
+      "max": 2400,
+      "step": 50
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 115,
+      "unit": "deg",
+      "description": "Inclinaison de la bande.",
+      "min": 0,
+      "max": 180,
+      "step": 5
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 14,
+      "description": "Demi-largeur de la bande, en pourcentage de la diagonale.",
+      "min": 2,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du reflet. Une valeur, pas un role."
+    },
+    {
+      "name": "loop",
+      "type": "boolean",
+      "default": false,
+      "description": "Balaie en boucle, sans attendre le survol."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade lineaire deplace par le compositeur, sur un pseudo-element. Aucun JavaScript pendant la traversee."
+  }
+}

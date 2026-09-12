@@ -1,0 +1,64 @@
+{
+  "name": "flip-card",
+  "category": "ui",
+  "title": "Carte a retournement",
+  "description": "Deux faces et une bascule en trois dimensions, au clic comme au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FlipCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "front",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Face montree au repos."
+    },
+    {
+      "name": "back",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Face revelee par la bascule."
+    },
+    {
+      "name": "direction",
+      "type": "'horizontal' | 'vertical'",
+      "required": false,
+      "default": "horizontal",
+      "description": "Axe de la rotation.",
+      "options": [
+        "horizontal",
+        "vertical"
+      ]
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree de la bascule.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation, tenue par le compositeur. Sous mouvement reduit la bascule devient un fondu croise."
+  },
+  "id": "ui/flip-card",
+  "sources": {
+    "component.tsx": "/**\n * Carte a retournement : deux faces, une bascule au clic ou au clavier.\n *\n * ## Un bouton qui a l'air d'une carte\n *\n * La bascule est un etat que l'utilisateur controle, donc l'element est un\n * bouton pour l'arbre d'accessibilite : `role=\"button\"`, focusable, active a\n * l'Entree et a l'Espace, et `aria-pressed` dit quelle face est montree.\n * Sans cela, la carte serait un piege : cliquable a la souris, invisible au\n * clavier et muette au lecteur d'ecran.\n *\n * La face cachee est aussi retiree de l'arbre : un lecteur d'ecran n'a pas\n * a lire le dos d'une carte qui montre sa face.\n *\n * ## La rotation est une transition, pas une animation\n *\n * L'etat vise — a l'endroit ou retourne — est un angle, et la transition\n * fait le chemin. Interrompre la bascule au milieu repart donc de l'angle\n * courant, sans saut : c'est exactement ce que les transitions savent faire\n * et que les animations ne savent pas.\n *\n * Sous mouvement reduit, la bascule devient un fondu croise : l'information\n * — l'autre face — arrive quand meme, seul le geste en trois dimensions est\n * omis.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface FlipCardOwnProps {\n  /** Face montree au repos. */\n  front: ReactNode\n  /** Face revelee par la bascule. */\n  back: ReactNode\n  /** Axe de la rotation. @defaultValue 'horizontal' */\n  direction?: 'horizontal' | 'vertical'\n  /** Duree de la bascule, en millisecondes. @defaultValue 600 */\n  duration?: number\n}\n\n/** Toutes les proprietes. */\nexport type FlipCardProps = Customisable<FlipCardOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-flip-card'\n\n/** Pose la scene en trois dimensions, une fois par document. */\nfunction ensureFlipRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-flip]{position:relative;display:block;perspective:1000px;cursor:pointer}',\n    '[data-o-flip-inner]{',\n    'position:relative;width:100%;height:100%;',\n    'transform-style:preserve-3d;',\n    'transition:transform var(--o-flip-duration) cubic-bezier(0.4,0.2,0.2,1);',\n    '}',\n    '[data-o-flip][aria-pressed=\"true\"] [data-o-flip-inner]{transform:var(--o-flip-turn)}',\n    '[data-o-flip-face]{',\n    'position:absolute;inset:0;',\n    'backface-visibility:hidden;-webkit-backface-visibility:hidden;',\n    '}',\n    '[data-o-flip-face=\"back\"]{transform:var(--o-flip-turn)}',\n    // La face avant donne sa taille a la carte : elle seule est dans le flux.\n    '[data-o-flip-face=\"front\"]{position:relative}',\n    // Mouvement reduit : plus de scene, un fondu croise entre les faces.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-flip-inner]{transform-style:flat;transition:none}',\n    '[data-o-flip][aria-pressed=\"true\"] [data-o-flip-inner]{transform:none}',\n    '[data-o-flip-face]{backface-visibility:visible;-webkit-backface-visibility:visible;',\n    'transform:none;transition:opacity 240ms linear}',\n    '[data-o-flip][aria-pressed=\"true\"] [data-o-flip-face=\"front\"]{opacity:0}',\n    '[data-o-flip]:not([aria-pressed=\"true\"]) [data-o-flip-face=\"back\"]{opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Retourne une carte entre deux faces, au clic comme au clavier.\n *\n * Les deux faces recouvrent la meme surface : c'est la face avant qui donne\n * sa taille a la carte.\n *\n * @example\n * <FlipCard\n *   className=\"o-h-48 o-w-72\"\n *   front={<div className=\"o-rounded-xl o-border-w-1 o-p-6\">Recto</div>}\n *   back={<div className=\"o-rounded-xl o-border-w-1 o-p-6\">Verso</div>}\n * />\n *\n * @example\n * // Bascule de haut en bas, plus lente.\n * <FlipCard direction=\"vertical\" duration={900} front={recto} back={verso} />\n */\nexport function FlipCard({\n  front,\n  back,\n  direction = 'horizontal',\n  duration = 600,\n  ...rest\n}: FlipCardProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [flipped, setFlipped] = useState(false)\n  ensureFlipRule()\n\n  const toggle = (): void => setFlipped((value) => !value)\n\n  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {\n    if (event.key !== 'Enter' && event.key !== ' ') return\n    // L'Espace ferait defiler la page : c'est la carte qui prend le geste.\n    event.preventDefault()\n    toggle()\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const angle = direction === 'vertical' ? 'rotateX(180deg)' : 'rotateY(180deg)'\n\n  const cardStyle = {\n    ...style,\n    '--o-flip-turn': angle,\n    '--o-flip-duration': `${String(reduced ? 0 : duration)}ms`,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={cardStyle}\n      data-o-flip=\"\"\n      role=\"button\"\n      tabIndex={0}\n      aria-pressed={flipped}\n      onClick={toggle}\n      onKeyDown={onKeyDown}\n    >\n      <div data-o-flip-inner=\"\">\n        <div data-o-flip-face=\"front\" {...(flipped ? { 'aria-hidden': true } : {})}>\n          {front}\n        </div>\n        <div data-o-flip-face=\"back\" {...(flipped ? {} : { 'aria-hidden': true })}>\n          {back}\n        </div>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

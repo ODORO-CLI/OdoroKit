@@ -1,0 +1,32 @@
+{
+  "name": "use-measure",
+  "category": "hooks",
+  "title": "Mesure d un element",
+  "description": "Taille et position d un element, relevees par un observateur quand elles changent vraiment.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useMeasure.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "arrondi",
+      "type": "boolean",
+      "default": true,
+      "description": "Arrondir au pixel : sans lui, une largeur fractionnaire oscille et provoque des rendus pour rien."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur par element, aucune mesure par image. Le nombre de rendus est celui des changements de boite."
+  }
+}

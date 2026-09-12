@@ -1,0 +1,71 @@
+{
+  "name": "beam-connect",
+  "category": "effect",
+  "title": "Faisceau de liaison",
+  "description": "Un trait courbe anime relie deux enfants identifies par data-beam, remesure a chaque changement de taille.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BeamConnect.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-400"
+  ],
+  "props": [
+    {
+      "name": "curvature",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "px",
+      "description": "Bombement de la courbe.",
+      "min": 0,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un cycle du flux.",
+      "min": 500,
+      "max": 10000,
+      "step": 100
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du faisceau. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Mesures au montage et au redimensionnement seulement ; le flux est une animation CSS sur stroke-dashoffset, normalisee par pathLength. Trait fige sous mouvement reduit."
+  },
+  "id": "effect/beam-connect",
+  "sources": {
+    "component.tsx": "/**\n * Faisceau de liaison : un trait anime relie deux elements enfants.\n *\n * ## La geometrie est mesuree, jamais supposee\n *\n * Les deux extremites sont des enfants identifies par `data-beam=\"from\"` et\n * `data-beam=\"to\"`. Leurs positions sont relevees au montage puis a chaque\n * changement de taille — un `ResizeObserver` sur l'enveloppe et sur les deux\n * elements — et le chemin est retrace. La mesure ne vit pas dans la boucle :\n * un trait entre deux cartes ne bouge que quand la mise en page bouge.\n *\n * ## `pathLength` rend le flux independant de la longueur\n *\n * Le tiret qui circule est une animation CSS sur `stroke-dashoffset`. Sans\n * normalisation, la meme animation serait rapide sur un trait court et\n * paresseuse sur un long ; `pathLength=100` ramene tous les chemins a la meme\n * echelle, et une seule regle sert a toutes les liaisons de la page.\n *\n * Le trait est decoratif : il est retire de l'arbre d'accessibilite, et sous\n * mouvement reduit il reste — c'est la liaison qui compte — mais le flux\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface BeamConnectOwnProps {\n  /** Contenu, dont deux enfants portent data-beam=\"from\" et data-beam=\"to\". */\n  children: ReactNode\n  /** Bombement de la courbe, en pixels. @defaultValue 40 */\n  curvature?: number\n  /** Duree d'un cycle du flux, en millisecondes. @defaultValue 3000 */\n  speed?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 2 */\n  thickness?: number\n  /** Couleur du faisceau. @defaultValue le token de marque */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type BeamConnectProps = Customisable<BeamConnectOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-beam-connect'\n\n/** Pose le flux, une fois par document. */\nfunction ensureBeamRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Grace a pathLength=100, ces unites valent pour tous les traits,\n    // quelle que soit leur longueur reelle : voir l'en-tete du module.\n    '[data-o-beam-dash]{stroke-dasharray:18 82;animation:o-beam-flow var(--o-beam-speed,3000ms) linear infinite}',\n    '@keyframes o-beam-flow{to{stroke-dashoffset:-100}}',\n    '@media (prefers-reduced-motion:reduce){[data-o-beam-dash]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Ce qu'une mesure produit : la taille de la zone et le chemin. */\ninterface BeamGeometry {\n  readonly width: number\n  readonly height: number\n  readonly d: string\n}\n\n/**\n * Mesure les deux extremites et trace la courbe qui les relie.\n *\n * Les ancres sont les milieux des bords qui se font face — relier les\n * centres ferait entrer le trait dans les cartes. L'axe dominant decide :\n * deux elements cote a cote se relient par leurs flancs, deux elements\n * superposes par leur haut et leur bas.\n */\nfunction measureBeam(host: HTMLElement, curvature: number): BeamGeometry | null {\n  const from = host.querySelector('[data-beam=\"from\"]')\n  const to = host.querySelector('[data-beam=\"to\"]')\n  if (from === null || to === null) return null\n\n  const box = host.getBoundingClientRect()\n  const a = from.getBoundingClientRect()\n  const b = to.getBoundingClientRect()\n  if (box.width === 0 || box.height === 0) return null\n\n  const dcx = b.left + b.width / 2 - (a.left + a.width / 2)\n  const dcy = b.top + b.height / 2 - (a.top + a.height / 2)\n\n  let ax: number\n  let ay: number\n  let bx: number\n  let by: number\n  if (Math.abs(dcx) >= Math.abs(dcy)) {\n    ax = (dcx >= 0 ? a.right : a.left) - box.left\n    ay = a.top + a.height / 2 - box.top\n    bx = (dcx >= 0 ? b.left : b.right) - box.left\n    by = b.top + b.height / 2 - box.top\n  } else {\n    ax = a.left + a.width / 2 - box.left\n    ay = (dcy >= 0 ? a.bottom : a.top) - box.top\n    bx = b.left + b.width / 2 - box.left\n    by = (dcy >= 0 ? b.top : b.bottom) - box.top\n  }\n\n  // Le point de controle est pousse le long de la normale au segment : la\n  // courbe bombe du meme cote quelle que soit l'orientation de la liaison.\n  const length = Math.max(Math.hypot(bx - ax, by - ay), 1)\n  const mx = (ax + bx) / 2 - ((by - ay) / length) * curvature\n  const my = (ay + by) / 2 + ((bx - ax) / length) * curvature\n\n  return {\n    width: box.width,\n    height: box.height,\n    d: `M ${ax.toFixed(1)} ${ay.toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}`,\n  }\n}\n\n/**\n * Relie deux de ses enfants par un faisceau anime.\n *\n * @example\n * <BeamConnect className=\"o-flex o-items-center o-justify-between o-p-8\">\n *   <div data-beam=\"from\" className=\"o-rounded-xl o-border-w-1 o-p-4\">Source</div>\n *   <div data-beam=\"to\" className=\"o-rounded-xl o-border-w-1 o-p-4\">Destination</div>\n * </BeamConnect>\n */\nexport function BeamConnect({\n  children,\n  curvature = 40,\n  speed = 3000,\n  thickness = 2,\n  color = 'var(--o-palette-brand-400, currentColor)',\n  ...rest\n}: BeamConnectProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const [geometry, setGeometry] = useState<BeamGeometry | null>(null)\n  ensureBeamRule()\n\n  useEffect(() => {\n    if (host === null) return\n\n    const update = (): void => {\n      setGeometry(measureBeam(host, curvature))\n    }\n    update()\n\n    // L'enveloppe et les deux extremites : un changement de taille de\n    // n'importe laquelle deplace les ancres.\n    const observer = new ResizeObserver(update)\n    observer.observe(host)\n    const from = host.querySelector('[data-beam=\"from\"]')\n    const to = host.querySelector('[data-beam=\"to\"]')\n    if (from !== null) observer.observe(from)\n    if (to !== null) observer.observe(to)\n\n    return () => {\n      observer.disconnect()\n    }\n  }, [host, curvature])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={{ position: 'relative', ...style }}\n    >\n      {children}\n      {geometry === null ? null : (\n        <svg\n          aria-hidden\n          width={geometry.width}\n          height={geometry.height}\n          viewBox={`0 0 ${String(geometry.width)} ${String(geometry.height)}`}\n          style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}\n        >\n          {/* Le lit du faisceau : la liaison reste lisible entre deux\n              passages du tiret, et c'est tout ce qui reste sous mouvement\n              reduit. */}\n          <path\n            d={geometry.d}\n            fill=\"none\"\n            stroke={color}\n            strokeWidth={thickness}\n            strokeLinecap=\"round\"\n            opacity={reduced ? 0.8 : 0.3}\n          />\n          {reduced ? null : (\n            <path\n              data-o-beam-dash=\"\"\n              d={geometry.d}\n              fill=\"none\"\n              stroke={color}\n              strokeWidth={thickness}\n              strokeLinecap=\"round\"\n              pathLength={100}\n              style={{ '--o-beam-speed': `${String(speed)}ms` } as CSSProperties}\n            />\n          )}\n        </svg>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

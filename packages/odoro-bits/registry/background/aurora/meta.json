@@ -15,7 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600", "--o-palette-zinc-50"],
+  "tokens": ["--o-palette-brand-600", "--o-palette-fuchsia-600", "--o-theme-fg"],
   "props": [
     {
       "name": "speed",
@@ -47,7 +47,7 @@
     {
       "name": "colors",
       "type": "readonly [string, string, string]",
-      "default": "--o-palette-brand-600, --o-palette-fuchsia-600, --o-palette-zinc-50",
+      "default": "--o-palette-brand-600, --o-palette-fuchsia-600, --o-theme-fg",
       "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
     },
     {

@@ -1,0 +1,78 @@
+{
+  "name": "truchet",
+  "category": "background",
+  "title": "Truchet",
+  "description": "Des tuiles de Truchet a deux arcs qui pivotent d un quart de tour en cascade diagonale ; chaque arc garde sa couleur et le dessin se recompose.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "truchet.shader.ts",
+      "target": "background/truchet.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Truchet.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-teal-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.35,
+      "description": "Cadence des pivots : periodes par seconde.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de tuiles sur la hauteur.",
+      "min": 3,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 0.09,
+      "description": "Epaisseur des arcs, en fraction de la tuile.",
+      "min": 0.02,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 0.12,
+      "description": "Retard d une tuile sur sa voisine en diagonale, en periodes. Zero fait pivoter tout le pavage d un coup.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-teal-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, le premier arc, le second arc."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Une tuile evaluee par fragment, deux arcs et une rotation. La densite ne change pas le cout."
+  }
+}

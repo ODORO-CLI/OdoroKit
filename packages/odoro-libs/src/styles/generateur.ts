@@ -46,6 +46,8 @@ import {
   spacingBase,
   textShadow,
   zIndex,
+  theme,
+  themeDark,
 } from './tokens.js'
 
 /**
@@ -1620,8 +1622,17 @@ const VIEW_TRANSITIONS = `::view-transition-old(root){animation:o-vt-out ${v('du
  * Sans elle, ces valeurs sont ecrites deux fois : une fois en clair dans le
  * preflight, une fois ici. C'est le prix de la palette brute, et il se paie
  * exactement une fois, a cet endroit, plutot qu'a chaque composant.
+ *
+ * Les variables de theme (`--o-theme-*`) y prennent aussi leurs valeurs
+ * sombres : c'est par elles qu'un fond WebGL ou un rideau, qui ne peuvent pas
+ * porter de classe `dark:`, suivent la bascule.
  */
 function darkPreflight(): string {
+  /** Les variables de theme, dans leurs valeurs sombres. */
+  const themeVars = Object.entries(themeDark)
+    .map(([key, value]) => `--o-theme-${cssKey(key)}:${value}`)
+    .join(';')
+
   const rules: readonly string[] = [
     `*,*::before,*::after{border-color:${v('palette', 'zinc-800')}}`,
     `body{color:${v('palette', 'zinc-50')};background-color:${v('palette', 'zinc-950')}}`,
@@ -1636,10 +1647,10 @@ function darkPreflight(): string {
     rules.map((rule) => `${prefix} ${rule}`).join('\n')
 
   return [
-    ':root[data-theme="dark"]{color-scheme:dark}',
+    `:root[data-theme="dark"]{color-scheme:dark;${themeVars}}`,
     scope(':root[data-theme="dark"]'),
     '@media (prefers-color-scheme:dark){',
-    ':root:not([data-theme="light"]){color-scheme:dark}',
+    `:root:not([data-theme="light"]){color-scheme:dark;${themeVars}}`,
     scope(':root:not([data-theme="light"])'),
     '}',
   ].join('\n')
@@ -1653,6 +1664,7 @@ function variableBlock(): string[] {
     `  --o-spacing: ${spacingBase};`,
     ...declareVars('space', space),
     ...declareVars('palette', palette),
+    ...declareVars('theme', theme),
     ...declareVars('font', fontFamily),
     ...declareVars('text', fontSize),
     ...Object.entries(fontSizeLeading).map(

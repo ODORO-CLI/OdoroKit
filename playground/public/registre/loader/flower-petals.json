@@ -1,0 +1,65 @@
+{
+  "name": "flower-petals",
+  "category": "loader",
+  "title": "Petales qui s ouvrent",
+  "description": "Huit petales s ouvrent un a un autour d un coeur, tiennent, puis se referment, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FlowerPetals.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Cote du dessin, la fleur ouverte le remplit.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une floraison complete, ouverture, tenue et fermeture.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des petales et du coeur. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un SVG de huit ellipses et un coeur, huit animations CSS d echelle tenues par le compositeur. Fleur ouverte et immobile sous mouvement reduit."
+  },
+  "id": "loader/flower-petals",
+  "sources": {
+    "component.tsx": "/**\n * Petales qui s'ouvrent : huit petales s'ouvrent un a un autour d'un coeur,\n * tiennent, puis se referment.\n *\n * ## Un petale pousse depuis sa base\n *\n * Chaque petale est une ellipse posee au-dessus du coeur, puis tournee\n * autour de lui par son groupe : huit groupes, huit angles, une seule forme.\n * L'ouverture est une echelle dont l'origine est la base du petale — le\n * bout qui touche le coeur. Une echelle centree ferait apparaitre le petale\n * en l'air, detache ; depuis sa base, il pousse.\n *\n * Le cycle est asymetrique a dessein : l'ouverture est lente et la fleur\n * tient ouverte la moitie du temps, la fermeture est brusque. Une fleur qui\n * s'ouvrirait et se fermerait a la meme allure respirerait, et ce chargeur\n * n'est pas une respiration — `dots-loader` l'est deja.\n *\n * Les huit petales partagent l'animation, decalee d'un douzieme de cycle\n * chacun, en delai negatif : la sequence est engagee des la premiere image.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la fleur reste ouverte : c'est l'etat ou elle passe\n * le plus de temps, et le seul ou elle se reconnait.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-flower-petals'\n\n/** Nombre de petales. */\nconst PETALS = 8\n\n/** Pose la fleur et son ouverture, une fois par document. */\nfunction ensureFlowerRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-flower-petals]{display:inline-block;line-height:0}',\n    '[data-o-flower-heart]{fill:var(--o-petal-color)}',\n    // L'origine de l'echelle est la base du petale, cote coeur : il pousse\n    // depuis la fleur, il n'apparait pas en l'air.\n    '[data-o-flower-petal]{',\n    'fill:var(--o-petal-color);opacity:0.85;',\n    'transform-box:fill-box;transform-origin:50% 100%;',\n    'animation:o-flower-petals-bloom var(--o-petal-speed) infinite;',\n    'animation-delay:var(--o-petal-delay);',\n    '}',\n    // Ouverture lente, longue tenue, fermeture brusque.\n    '@keyframes o-flower-petals-bloom{',\n    '0%{transform:scale(0.1);animation-timing-function:ease-out}',\n    '30%,80%{transform:scale(1);animation-timing-function:ease-in}',\n    '92%,100%{transform:scale(0.1)}',\n    '}',\n    // La fleur ouverte : l'etat ou elle se reconnait.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-flower-petal]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface FlowerPetalsOwnProps {\n  /** Cote du dessin, en pixels. @defaultValue 48 */\n  size?: number\n  /** Duree d'une floraison complete, en millisecondes. @defaultValue 2400 */\n  speed?: number\n  /** Couleur des petales et du coeur. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type FlowerPetalsProps = Customisable<FlowerPetalsOwnProps, 'span'>\n\n/**\n * Signale une attente par une fleur qui s'ouvre petale apres petale.\n *\n * @example\n * <FlowerPetals />\n *\n * @example\n * // Plus grande, plus lente, dans la teinte de marque.\n * <FlowerPetals size={96} speed={3600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function FlowerPetals({\n  size = 48,\n  speed = 2400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: FlowerPetalsProps): ReactElement {\n  ensureFlowerRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-petal-speed': `${String(speed)}ms`,\n    '--o-petal-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-flower-petals=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden width={size} height={size} viewBox=\"0 0 100 100\">\n        {Array.from({ length: PETALS }, (_, index) => (\n          <g key={index} transform={`rotate(${String((360 / PETALS) * index)} 50 50)`}>\n            <ellipse\n              data-o-flower-petal=\"\"\n              cx=\"50\"\n              cy=\"27\"\n              rx=\"9\"\n              ry=\"19\"\n              style={\n                {\n                  // Un douzieme de cycle entre deux petales, en negatif : la\n                  // sequence est engagee des la premiere image.\n                  '--o-petal-delay': `${String(Math.round((-speed * (PETALS - 1 - index)) / 12))}ms`,\n                } as CSSProperties\n              }\n            />\n          </g>\n        ))}\n        <circle data-o-flower-heart=\"\" cx=\"50\" cy=\"50\" r=\"7\" />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

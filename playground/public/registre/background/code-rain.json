@@ -1,0 +1,93 @@
+{
+  "name": "code-rain",
+  "category": "background",
+  "title": "Pluie de code",
+  "description": "Des colonnes de glyphes qui tombent a leur propre vitesse, une tete lumineuse et une trainee qui s eteint ligne par ligne ; les caracteres sont des masques de bits dessines par le shader, sans police ni texture.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "code-rain.shader.ts",
+      "target": "background/code-rain.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/CodeRain.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-green-500",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "description": "Nombre de colonnes sur la largeur. Borne a cent vingt par le shader, a vingt-quatre en qualite basse.",
+      "min": 8,
+      "max": 120,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de chute.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Longueur de la trainee, en lignes.",
+      "min": 1,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "mutate",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Cadence des changements de glyphe, par seconde. Zero fige les caracteres.",
+      "min": 0,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-green-500, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues : le fond, la trainee, la tete."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois hachages, une exponentielle et une lecture de bit par fragment ; aucune texture. En qualite basse, les colonnes s elargissent.",
+    "fallback": "static"
+  },
+  "id": "background/code-rain",
+  "sources": {
+    "code-rain.shader.ts": "/**\n * Shader de la pluie de code.\n *\n * ## L'idee mathematique\n *\n * L'ecran est decoupe en cellules de caracteres. Chaque colonne porte une\n * goutte : une tete qui descend a sa propre vitesse, suivie d'une trainee\n * dont l'intensite decroit exponentiellement avec l'age — le nombre de\n * lignes qui la separent de la tete. La descente boucle sur la hauteur plus\n * la longueur de la trainee, si bien qu'une goutte sort entierement par le\n * bas avant de repartir du haut.\n *\n * ## Les glyphes\n *\n * Aucune police, aucune texture : chaque glyphe est un masque de quinze bits\n * sur une grille de trois par cinq, ecrit en clair comme un entier. Le bit\n * d'une position se lit par division par une puissance de deux et parite —\n * le langage employe ici n'a pas d'operations sur les bits, mais un\n * flottant tient quinze bits sans perte. Une cellule change de glyphe a son\n * propre rythme, tire de sa position : une pluie ou tous les caracteres\n * mutent ensemble se lit comme un stroboscope.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la trainee.\n * - `uColorC` — la tete.\n * - `uColumns` — nombre de colonnes sur la largeur.\n * - `uSpeed` — vitesse de chute.\n * - `uTrail` — longueur de la trainee, en lignes.\n * - `uMutate` — cadence des changements de glyphe, par seconde.\n */\nexport const CODE_RAIN_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uColumns;\nuniform float uSpeed;\nuniform float uTrail;\nuniform float uMutate;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat rainHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Le bit de rang donne d'un masque : division par une puissance de deux,\n// puis parite. Exact tant que le masque tient dans la mantisse.\nfloat rainBit(float mask, float index) {\n  return mod(floor(mask / exp2(index)), 2.0);\n}\n\n// Seize glyphes sur trois par cinq, le bit de poids fort en haut a gauche.\nfloat rainGlyph(float id) {\n  if (id < 0.5) return 31599.0;\n  if (id < 1.5) return 11415.0;\n  if (id < 2.5) return 29671.0;\n  if (id < 3.5) return 29391.0;\n  if (id < 4.5) return 23497.0;\n  if (id < 5.5) return 31183.0;\n  if (id < 6.5) return 29330.0;\n  if (id < 7.5) return 31695.0;\n  if (id < 8.5) return 11245.0;\n  if (id < 9.5) return 31143.0;\n  if (id < 10.5) return 31140.0;\n  if (id < 11.5) return 23533.0;\n  if (id < 12.5) return 18727.0;\n  if (id < 13.5) return 29842.0;\n  if (id < 14.5) return 29351.0;\n  return 23186.0;\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float columns = clamp(uColumns, 8.0, 120.0);\n\n  // Une cellule : trois par cinq de glyphe, plus un interligne de chaque\n  // cote. Quatre unites de large, six de haut.\n  float cellW = aspect / columns;\n  float cellH = cellW * 1.5;\n  float rows = floor(1.0 / cellH) + 1.0;\n\n  vec2 p = vec2(vUv.x * aspect / cellW, (1.0 - vUv.y) / cellH);\n  vec2 id = floor(p);\n  vec2 local = fract(p);\n\n  // La goutte de cette colonne : sa vitesse, son depart, sa position.\n  float seed = rainHash(vec2(id.x, 7.0));\n  float cycle = rows + uTrail;\n  float head = mod(uTime * uSpeed * (3.0 + 5.0 * seed) + seed * cycle, cycle);\n\n  // L'age de la ligne : zero a la tete, croissant derriere elle, et\n  // enroule sur le cycle pour que la queue de la goutte precedente subsiste.\n  float age = mod(head - id.y, cycle);\n  float trail = exp(-age / max(uTrail, 0.5)) * step(age, uTrail * 2.5);\n  float tip = 1.0 - smoothstep(0.0, 1.0, age);\n\n  // Le glyphe de la cellule, retire a son propre rythme.\n  float epoch = floor(uTime * uMutate + rainHash(id) * 11.0);\n  float glyph = floor(rainHash(vec2(id.x * 3.1 + id.y, epoch)) * 16.0);\n  vec2 g = vec2(floor(local.x * 4.0), floor(local.y * 6.0));\n  float inside = step(g.x, 2.5) * step(g.y, 4.5);\n  float bit = rainBit(rainGlyph(glyph), (4.0 - g.y) * 3.0 + (2.0 - g.x)) * inside;\n\n  // Chaque cellule a sa luminance : une trainee uniforme se lirait comme\n  // une barre, pas comme des caracteres.\n  float shade = 0.6 + 0.4 * rainHash(id + epoch);\n\n  vec3 colour = mix(uColorA, uColorB, bit * trail * shade);\n  colour = mix(colour, uColorC, bit * tip);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Pluie de code : des colonnes de glyphes qui tombent, une tete lumineuse\n * et une trainee qui s'eteint.\n *\n * ## Le principe\n *\n * Chaque colonne porte une goutte a sa propre vitesse ; l'age d'une ligne\n * derriere la tete donne son intensite. Les glyphes sont des masques de bits\n * sur trois par cinq, dessines par le shader : aucune police, aucune\n * texture, et une cellule change de caractere a son propre rythme.\n *\n * Ce qui distingue cette entree de `rain` : des caracteres, pas des gouttes\n * d'eau ; et de `faulty-terminal` : ici tout tombe, rien ne se tape.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { CODE_RAIN_FRAGMENT } from './code-rain.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CodeRainControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface CodeRainOwnProps {\n  /** Nombre de colonnes sur la largeur. Borne a cent vingt par le shader. @defaultValue 40 */\n  columns?: number\n  /** Vitesse de chute. @defaultValue 1 */\n  speed?: number\n  /** Longueur de la trainee, en lignes. @defaultValue 8 */\n  trail?: number\n  /** Cadence des changements de glyphe, par seconde. @defaultValue 3 */\n  mutate?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CodeRainControls>\n}\n\n/** Toutes les proprietes. */\nexport type CodeRainProps = Customisable<CodeRainOwnProps>\n\n/** Tokens employes par defaut : le fond, la trainee, la tete. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-green-500',\n  '--o-theme-fg',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Pluie de code.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <CodeRain className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function CodeRain({\n  columns = 40,\n  speed = 1,\n  trail = 8,\n  mutate = 3,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: CodeRainProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: CODE_RAIN_FRAGMENT,\n    colors,\n    uniforms: { uColumns: columns, uSpeed: speed, uTrail: trail, uMutate: mutate },\n    name: 'code-rain',\n    // Des glyphes de trois pixels de large scintillent a densite de pixels\n    // reduite : en qualite basse, les colonnes s'elargissent.\n    degrade: (quality) => ({\n      uColumns: quality === 'low' ? Math.min(columns, 24) : columns,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

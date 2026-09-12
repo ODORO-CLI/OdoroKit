@@ -1,0 +1,78 @@
+{
+  "name": "plasma-ball",
+  "category": "background",
+  "title": "Boule plasma",
+  "description": "Un globe et ses filaments qui serpentent de l electrode au verre, en coordonnees polaires ; le pointeur pose un doigt sur le verre et attire le filament principal.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "plasma-ball.shader.ts",
+      "target": "background/plasma-ball.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/PlasmaBall.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-purple-500", "--o-palette-pink-300"],
+  "props": [
+    {
+      "name": "filaments",
+      "type": "number",
+      "default": 7,
+      "description": "Nombre de filaments. Retrograde a 4 en qualite basse.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 0.38,
+      "description": "Rayon du globe, en hauteurs de cadre.",
+      "min": 0.2,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de derive et d ondulation des filaments.",
+      "min": 0,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "pull",
+      "type": "number",
+      "default": 0.8,
+      "description": "Force avec laquelle le pointeur attire le filament principal.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-purple-500, --o-palette-pink-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Jusqu a dix filaments par fragment, deux lectures de bruit 1D et trois exponentielles chacun. En qualite basse, quatre filaments au plus. Le doigt suit la position amortie du pointeur sans rendu React par image."
+  }
+}

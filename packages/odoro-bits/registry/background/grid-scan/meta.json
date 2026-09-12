@@ -1,0 +1,75 @@
+{
+  "name": "grid-scan",
+  "category": "background",
+  "title": "Grille balayee",
+  "description": "Un quadrillage parcouru par une barre lumineuse qui sort du cadre avant de repartir ; chaque cellule franchie s eteint a son rythme, depuis une intensite qui lui est propre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "grid-scan.shader.ts",
+      "target": "background/grid-scan.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GridScan.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-line", "--o-palette-cyan-400"],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "default": 14,
+      "description": "Nombre de cellules sur la hauteur. Borne a soixante par le shader, a dix en qualite basse.",
+      "min": 3,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de la barre.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "default": 3,
+      "description": "Longueur de la trainee, en cellules.",
+      "min": 0.5,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "vertical",
+      "type": "boolean",
+      "default": false,
+      "description": "La barre parcourt la largeur plutot que la hauteur."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-cyan-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, les lignes, la barre et les cellules qu elle allume."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Une lecture de grille, une exponentielle et un tirage par fragment. En qualite basse, les cellules s elargissent : une grille serree scintille a densite de pixels reduite."
+  }
+}

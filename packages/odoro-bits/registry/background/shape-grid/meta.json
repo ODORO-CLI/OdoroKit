@@ -1,0 +1,69 @@
+{
+  "name": "shape-grid",
+  "category": "background",
+  "title": "Grille de formes",
+  "description": "Une grille de petites formes, rond, carre ou triangle selon la cellule, qui tournent chacune a sa vitesse et respirent en decalage.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "shape-grid.shader.ts",
+      "target": "background/shape-grid.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/ShapeGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-sky-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.4,
+      "description": "Vitesse de rotation moyenne.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 9,
+      "description": "Nombre de cellules sur la hauteur.",
+      "min": 3,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 0.28,
+      "description": "Rayon des formes, en fraction de la cellule.",
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-sky-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, puis les deux teintes entre lesquelles chaque forme se place."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Une cellule evaluee par fragment, un champ de distance et une rotation. La densite ne change pas le cout."
+  }
+}

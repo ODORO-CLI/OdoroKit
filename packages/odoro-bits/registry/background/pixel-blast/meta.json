@@ -1,0 +1,79 @@
+{
+  "name": "pixel-blast",
+  "category": "background",
+  "title": "Explosion de pixels",
+  "description": "Chaque clic projette une gerbe de pixels carres, alignes sur une trame, qui retombent sous la gravite ; cinq gerbes vivent a la fois, et une gerbe automatique part a intervalle regle.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "pixel-blast.shader.ts",
+      "target": "background/pixel-blast.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/PixelBlast.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-yellow-300"],
+  "props": [
+    {
+      "name": "pixels",
+      "type": "number",
+      "default": 40,
+      "description": "Pixels de la trame sur la hauteur du cadre.",
+      "min": 12,
+      "max": 96,
+      "step": 4
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 24,
+      "description": "Pixels projetes par gerbe. Retrograde a 12 en qualite basse.",
+      "min": 6,
+      "max": 32,
+      "step": 2
+    },
+    {
+      "name": "gravity",
+      "type": "number",
+      "default": 0.5,
+      "description": "Force de la retombee.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "auto",
+      "type": "number",
+      "default": 2.2,
+      "unit": "s",
+      "description": "Periode des gerbes automatiques, en secondes. Zero les coupe.",
+      "min": 0,
+      "max": 8,
+      "step": 0.2
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-yellow-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les deux teintes de pixels melangees par gerbe."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Jusqu a six gerbes de trente-deux pixels par fragment, une position analytique par pixel ; les gerbes eteintes sortent avant la boucle. En qualite basse, douze pixels par gerbe. Chaque clic date une gerbe dans un tampon circulaire mute en place, sans rendu React par image."
+  }
+}

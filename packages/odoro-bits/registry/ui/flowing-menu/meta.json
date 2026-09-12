@@ -1,0 +1,68 @@
+{
+  "name": "flowing-menu",
+  "category": "ui",
+  "title": "Menu coulant",
+  "description": "Des lignes de menu dont le fond coule au survol : une bande inversee entre par le bord ou le pointeur est arrive, et ressort par celui ou il s en va, en faisant defiler le libelle.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FlowingMenu.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les lignes, dans l ordre d affichage."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 10,
+      "unit": "s",
+      "description": "Duree d un tour du defilement dans la bande.",
+      "min": 3,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "repeat",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de fois que le libelle est repete dans la bande.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Navigation",
+      "description": "Nom du bloc pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La bande est une transition de transformation, le defilement une animation d images cles qui ne tourne que sur la ligne survolee. Aucun rendu React au survol. Sous mouvement reduit la bande apparait en place et ne defile pas."
+  }
+}

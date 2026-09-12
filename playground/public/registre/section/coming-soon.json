@@ -1,0 +1,77 @@
+{
+  "name": "coming-soon",
+  "category": "section",
+  "title": "Bientot disponible",
+  "description": "Une page d attente dont le compte a rebours se lit a l oeil, et dont la date se lit a l oreille.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/ComingSoon.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-entrance",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "date",
+      "type": "string | Date",
+      "required": true,
+      "description": "Date d ouverture, en ISO 8601 ou en Date."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Titre de la page."
+    },
+    {
+      "name": "message",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui se prepare, en une ou deux phrases."
+    },
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qu on peut faire en attendant : liens, bouton, formulaire."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "required": false,
+      "description": "Langue du formatage de la date."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle qui n ecrit qu une fois par seconde, dans quatre elements. Aucun rendu React pendant le decompte."
+  },
+  "id": "section/coming-soon",
+  "sources": {
+    "component.tsx": "/**\n * Page « bientot disponible », avec un compte a rebours.\n *\n * ## Un compte a rebours ne doit pas etre lu a voix haute\n *\n * C'est la faute qui rend ces pages inutilisables : des chiffres qui changent\n * chaque seconde dans une region annoncee, et un lecteur d'ecran qui recite le\n * temps restant sans jamais laisser lire le reste. Les chiffres sont donc\n * masques aux technologies d'assistance, et la date d'ouverture est donnee a\n * cote, une fois, dans un `<time>` qu'une machine sait lire.\n *\n * L'information n'est pas perdue : elle est dite mieux.\n *\n * ## Pourquoi la boucle du moteur plutot qu'un minuteur\n *\n * Un `setInterval` d'une seconde derive : les minuteurs sont ralentis dans un\n * onglet en arriere-plan, et le compte a rebours accuse plusieurs minutes de\n * retard au retour. La boucle unique du moteur donne l'heure a chaque image,\n * et le texte n'est reecrit que lorsque la seconde change — soit une fois par\n * seconde, quelle que soit la cadence de l'ecran.\n *\n * ## Aucun rendu React par seconde\n *\n * Les quatre nombres vivent dans des elements, et la boucle ecrit leur texte.\n * Les passer par un etat provoquerait un rendu complet de la section toutes\n * les secondes, pour quatre chaines de deux caracteres.\n *\n * Le premier affichage, lui, est calcule au rendu : une page qui montrerait\n * quatre zeros pendant une image avant de se corriger se remarquerait.\n *\n * @module\n */\n\nimport {\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useMemo,\n  useRef,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface ComingSoonOwnProps {\n  /** Date d'ouverture, en ISO 8601 ou en `Date`. */\n  date: string | Date\n  /** Titre de la page. */\n  title: ReactNode\n  /** Ce qui se prepare, en une ou deux phrases. */\n  message?: ReactNode\n  /** Ce qu'on peut faire en attendant : liens, bouton, formulaire. */\n  actions?: ReactNode\n  /** Langue du formatage de la date. Par defaut, celle du navigateur. */\n  locale?: string\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ComingSoonProps = Customisable<ComingSoonOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-coming-soon'\n\n/** Les quatre paliers du compte a rebours, du plus grand au plus petit. */\nconst PALIERS = [\n  { cle: 'jours', libelle: 'jours', diviseur: 86400000 },\n  { cle: 'heures', libelle: 'heures', diviseur: 3600000 },\n  { cle: 'minutes', libelle: 'minutes', diviseur: 60000 },\n  { cle: 'secondes', libelle: 'secondes', diviseur: 1000 },\n] as const\n\n/** Pose les regles de la page, une fois par document. */\nfunction ensureComingSoonRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cs-compte]{display:flex;gap:0.75rem;list-style:none;margin:0;padding:0}',\n    '[data-o-cs-palier]{min-width:4.5rem;text-align:center}',\n    // La chasse fixe des chiffres : sans elle, un « 1 » plus etroit qu'un « 8 »\n    // fait respirer toute la rangee une fois par seconde.\n    '[data-o-cs-valeur]{font-variant-numeric:tabular-nums;line-height:1}',\n\n    '[data-o-cs-point]{animation:o-cs-pouls 2.4s var(--o-ease-standard) infinite}',\n    '@keyframes o-cs-pouls{0%,100%{opacity:1}50%{opacity:0.35}}',\n\n    '@media (prefers-reduced-motion:reduce){[data-o-cs-point]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Repartit un reste de millisecondes sur les quatre paliers. */\nfunction decouper(reste: number): readonly number[] {\n  let restant = Math.max(0, reste)\n  return PALIERS.map((palier) => {\n    const valeur = Math.floor(restant / palier.diviseur)\n    restant -= valeur * palier.diviseur\n    return valeur\n  })\n}\n\n/** Deux chiffres au minimum : la rangee garde alors la meme largeur. */\nfunction deuxChiffres(valeur: number): string {\n  return String(valeur).padStart(2, '0')\n}\n\n/**\n * Une page « bientot disponible » avec compte a rebours.\n *\n * @example\n * <ComingSoon\n *   date=\"2026-03-12T09:00:00Z\"\n *   title=\"Le registre public ouvre bientot\"\n *   message=\"Trois cents entrees, un index, et la commande qui les installe.\"\n *   locale=\"fr-FR\"\n * />\n */\nexport function ComingSoon({\n  date,\n  title,\n  message,\n  actions,\n  locale,\n  label,\n  ...rest\n}: ComingSoonProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.2 })\n  const valeurs = useRef<(HTMLSpanElement | null)[]>([])\n\n  ensureComingSoonRules()\n\n  const cible = useMemo(\n    () => (typeof date === 'string' ? new Date(date) : date).getTime(),\n    [date],\n  )\n\n  // Le premier affichage est calcule au rendu : quatre zeros corriges une image\n  // plus tard se remarqueraient, et le rendu serveur donnerait une page fausse.\n  const depart = decouper(cible - Date.now())\n\n  useEffect(() => {\n    if (Number.isNaN(cible)) return\n\n    let derniereSeconde = -1\n\n    const subscription = clock.subscribe(\n      () => {\n        const reste = cible - Date.now()\n        const seconde = Math.floor(Math.max(0, reste) / 1000)\n        // Une seule ecriture par seconde, quelle que soit la cadence de l'ecran.\n        if (seconde === derniereSeconde) return\n        derniereSeconde = seconde\n\n        decouper(reste).forEach((valeur, index) => {\n          const element = valeurs.current[index]\n          if (element !== null && element !== undefined) {\n            element.textContent = deuxChiffres(valeur)\n          }\n        })\n      },\n      { name: 'compte a rebours' },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [cible])\n\n  const lisible = useMemo(() => {\n    if (Number.isNaN(cible)) return null\n    return new Intl.DateTimeFormat(locale, {\n      dateStyle: 'long',\n      timeStyle: 'short',\n    }).format(new Date(cible))\n  }, [cible, locale])\n\n  const { className, style } = mergePresentation(\n    {\n      className:\n        'o-flex o-flex-col o-items-center o-justify-center o-gap-8 o-px-6 o-py-20 o-text-center',\n    },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={\n        {\n          ...style,\n          opacity: reduced || vu ? 1 : 0,\n          transform: reduced || vu ? 'none' : 'translateY(12px)',\n          transition:\n            'opacity var(--o-duration-slower) var(--o-ease-entrance), transform var(--o-duration-slower) var(--o-ease-entrance)',\n        } as CSSProperties\n      }\n    >\n      <p\n        className=\"o-flex o-items-center o-gap-2 o-text-xs o-font-medium o-uppercase o-tracking-wider\"\n        style={{ color: 'var(--o-theme-muted)' }}\n      >\n        <span\n          aria-hidden\n          data-o-cs-point=\"\"\n          className=\"o-inline-block o-size-2 o-rounded-full\"\n          style={{ backgroundColor: 'var(--o-palette-brand-500)' }}\n        />\n        Bientot disponible\n      </p>\n\n      <h1\n        className=\"o-max-w-2xl o-text-4xl o-font-bold o-tracking-tight o-text-balance\"\n        style={{ color: 'var(--o-theme-fg)' }}\n      >\n        {title}\n      </h1>\n\n      {message !== undefined && (\n        <p\n          className=\"o-max-w-xl o-text-base o-leading-relaxed\"\n          style={{ color: 'var(--o-theme-muted)' }}\n        >\n          {message}\n        </p>\n      )}\n\n      {/*\n        Les chiffres sont decoratifs : c'est la date, juste dessous, qui porte\n        l'information. Les annoncer chaque seconde rendrait la page inecoutable.\n      */}\n      <ul aria-hidden data-o-cs-compte=\"\">\n        {PALIERS.map((palier, index) => (\n          <li\n            key={palier.cle}\n            data-o-cs-palier=\"\"\n            className=\"o-rounded-xl o-px-3 o-py-4\"\n            style={{\n              backgroundColor: 'var(--o-theme-surface)',\n              border: '1px solid var(--o-theme-line)',\n            }}\n          >\n            <span\n              ref={(element) => {\n                valeurs.current[index] = element\n              }}\n              data-o-cs-valeur=\"\"\n              className=\"o-block o-text-3xl o-font-bold\"\n              style={{ color: 'var(--o-theme-fg)' }}\n            >\n              {deuxChiffres(depart[index] ?? 0)}\n            </span>\n            <span\n              className=\"o-mt-1 o-block o-text-xs o-uppercase o-tracking-wider\"\n              style={{ color: 'var(--o-theme-muted)' }}\n            >\n              {palier.libelle}\n            </span>\n          </li>\n        ))}\n      </ul>\n\n      {lisible !== null && (\n        <p className=\"o-text-sm\" style={{ color: 'var(--o-theme-muted)' }}>\n          Ouverture le{' '}\n          <time\n            dateTime={new Date(cible).toISOString()}\n            className=\"o-font-medium\"\n            style={{ color: 'var(--o-theme-fg)' }}\n          >\n            {lisible}\n          </time>\n        </p>\n      )}\n\n      {actions}\n    </section>\n  )\n}\n"
+  }
+}

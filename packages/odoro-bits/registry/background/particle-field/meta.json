@@ -1,0 +1,69 @@
+{
+  "name": "particle-field",
+  "category": "background",
+  "title": "Champ de particules",
+  "description": "Un semis de points sur deux profondeurs, en derive lente ; les particules que le pointeur couvre s allument et prennent la teinte d eclat.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "particle-field.shader.ts",
+      "target": "background/particle-field.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/ParticleField.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-theme-muted", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.4,
+      "description": "Vitesse de la derive.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 10,
+      "description": "Densite du semis : cellules sur la hauteur de la couche proche.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 0.22,
+      "description": "Rayon de l eclat autour du pointeur, en hauteurs de cadre.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les particules au repos, l eclat sous le pointeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Deux couches, neuf cellules par couche et par fragment. En qualite basse, la couche lointaine est retiree. Le pointeur est mute en place, sans rendu React par image."
+  }
+}

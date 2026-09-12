@@ -1,0 +1,86 @@
+{
+  "name": "spinner-to-check",
+  "category": "loader",
+  "title": "Anneau qui conclut",
+  "description": "Un arc tourne pendant l attente, s immobilise a son angle et se referme en cercle plein a la reponse, puis la marque du resultat se trace dedans, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SpinnerToCheck.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Epaisseur de l anneau et de la marque.",
+      "min": 2,
+      "max": 14,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour de l arc. La fermeture et le trace en sont des fractions.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "state",
+      "type": "string",
+      "default": "chargement",
+      "options": ["chargement", "succes", "echec"],
+      "description": "Etat de l operation. Le libelle annonce change avec lui."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de l anneau et de la marque. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce pendant l attente."
+    },
+    {
+      "name": "labelSucces",
+      "type": "string",
+      "default": "Termine",
+      "description": "Libelle annonce au succes."
+    },
+    {
+      "name": "labelEchec",
+      "type": "string",
+      "default": "Echec",
+      "description": "Libelle annonce a l echec."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Arc pose ou anneau ferme et marque tracee sous mouvement reduit, selon l etat."
+  }
+}

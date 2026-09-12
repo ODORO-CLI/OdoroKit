@@ -1,0 +1,63 @@
+{
+  "name": "team-grid",
+  "category": "section",
+  "title": "Grille d equipe",
+  "description": "Des fiches de personnes a rapport de forme fixe, revelees en cascade, dont les liens restent atteignables.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/TeamGrid.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-600",
+    "--o-duration-base",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "members",
+      "type": "readonly Member[]",
+      "required": true,
+      "description": "Les personnes, dans l ordre d affichage."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 4,
+      "description": "Colonnes au-dela du grand palier.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 70,
+      "unit": "ms",
+      "description": "Decalage entre deux fiches a la revelation.",
+      "min": 0,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule affiche au-dessus de la grille."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis des transitions CSS decalees. Aucun JavaScript par image."
+  }
+}

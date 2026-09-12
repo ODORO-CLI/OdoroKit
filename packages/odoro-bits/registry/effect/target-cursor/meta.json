@@ -1,0 +1,89 @@
+{
+  "name": "target-cursor",
+  "category": "effect",
+  "title": "Viseur",
+  "description": "Quatre crochets tournent autour du pointeur, puis s ecartent jusqu aux coins de l element survole pour l encadrer.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/TargetCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Cote du carre au repos.",
+      "min": 12,
+      "max": 80,
+      "step": 2
+    },
+    {
+      "name": "corner",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Longueur d un crochet.",
+      "min": 6,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "padding",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Marge laissee autour de la cible encadree.",
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 14,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 3,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "default": 0.12,
+      "description": "Rotation au repos, en tours par seconde.",
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "name": "targets",
+      "type": "string",
+      "description": "Le selecteur de ce que le viseur encadre."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des crochets. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone visee. Absente, le viseur prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq elements, cinq transformations par image, et une mesure de la cible seulement quand elle change. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

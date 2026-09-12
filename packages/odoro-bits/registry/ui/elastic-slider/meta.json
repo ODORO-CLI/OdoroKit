@@ -1,0 +1,98 @@
+{
+  "name": "elastic-slider",
+  "category": "ui",
+  "title": "Curseur elastique",
+  "description": "Un champ de plage natif habille : le rail s epaissit a la saisie, s etire quand on tire au-dela de la butee, et revient en depassant un peu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ElasticSlider.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-standard",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du curseur pour les lecteurs d ecran."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 0,
+      "description": "Borne basse."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 100,
+      "description": "Borne haute."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 1,
+      "description": "Pas de la valeur."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "description": "Valeur, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "number",
+      "description": "Valeur au montage, en mode non controle. Par defaut, le milieu."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: number) => void",
+      "description": "Appele a chaque changement de valeur."
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "default": 0.12,
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01,
+      "description": "Etirement maximal du rail, en part de sa largeur."
+    },
+    {
+      "name": "showValue",
+      "type": "boolean",
+      "default": true,
+      "description": "Affiche la valeur a droite du rail."
+    },
+    {
+      "name": "leading",
+      "type": "ReactNode",
+      "description": "Element pose avant le rail, une icone par exemple."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Neutralise le curseur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "L etirement est une transformation ecrite directement sur le rail, sans rendu React ; seuls les changements de valeur du champ natif en declenchent un. Sous mouvement reduit, le rail ne s etire pas."
+  }
+}

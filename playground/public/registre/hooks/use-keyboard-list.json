@@ -1,0 +1,74 @@
+{
+  "name": "use-keyboard-list",
+  "category": "hooks",
+  "title": "Liste au clavier",
+  "description": "Fleches, Home et End sur une liste, avec un seul arret de tabulation et le focus qui suit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useKeyboardList.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": true,
+      "default": 5,
+      "description": "Nombre d elements de la liste.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "orientation",
+      "type": "'verticale' | 'horizontale'",
+      "required": false,
+      "default": "verticale",
+      "description": "Sens de la liste, donc paire de fleches employee.",
+      "options": [
+        "verticale",
+        "horizontale"
+      ]
+    },
+    {
+      "name": "boucle",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Repartir au debut apres le dernier element."
+    },
+    {
+      "name": "initial",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Element actif au montage.",
+      "min": 0,
+      "max": 11,
+      "step": 1
+    },
+    {
+      "name": "onValider",
+      "type": "(index: number) => void",
+      "required": false,
+      "description": "Appelee sur Entree ou Espace, avec l index actif."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun ecouteur global : un gestionnaire sur le conteneur. Un rendu par deplacement."
+  },
+  "id": "hooks/use-keyboard-list",
+  "sources": {
+    "hook.ts": "/**\n * Navigation clavier d'une liste : fleches, Home, End.\n *\n * ## Pourquoi ce n'est pas un detail qu'on ajoute apres\n *\n * Une liste d'options faite de `div` cliquables est inatteignable au clavier.\n * Le reflexe est alors de rendre chaque element focusable — et l'on obtient\n * une liste de vingt arrets de tabulation, qu'il faut tous traverser pour\n * atteindre le bouton suivant. Les deux defauts sont courants et le second est\n * le pire, parce qu'il a l'air corrige.\n *\n * La bonne forme s'appelle le **tabindex glissant** : la liste entiere est un\n * seul arret de tabulation, et les fleches deplacent le focus a l'interieur.\n * C'est ce que font une liste d'options, un menu, un jeu d'onglets — et c'est\n * ce que ce crochet pose, sans rien decider de l'apparence.\n *\n * ## Pourquoi le focus est deplace, et pas seulement l'index\n *\n * Un index actif purement visuel laisse le focus du navigateur derriere lui :\n * un lecteur d'ecran continue d'annoncer le premier element pendant qu'on en\n * regarde le cinquieme. Deplacer le focus reel garde l'annonce, la mise en\n * evidence du navigateur et le rendu visuel sur le meme element.\n *\n * ## Ce que le crochet ne decide pas\n *\n * Le role. Une liste d'options, un menu et un jeu d'onglets ont la meme\n * navigation et trois roles ARIA differents ; les confondre produirait une\n * annonce fausse. Le role, la selection et l'apparence restent a l'appelant.\n *\n * @module\n */\n\nimport { useCallback, useRef, useState, type KeyboardEvent } from 'react'\n\n/** Sens de la liste. */\nexport type ListOrientation = 'verticale' | 'horizontale'\n\n/** Options de `useKeyboardList`. */\nexport interface KeyboardListOptions {\n  /** Nombre d'elements. */\n  count: number\n  /** Sens de la liste. @defaultValue 'verticale' */\n  orientation?: ListOrientation\n  /**\n   * Repartir au debut apres le dernier element.\n   *\n   * Vrai pour un menu, ou l'on cherche une entree. Faux pour une liste ou la\n   * position compte — un jeu d'etapes, un choix ordonne — parce que le retour\n   * silencieux au debut y passe pour un saut inexplique.\n   *\n   * @defaultValue true\n   */\n  boucle?: boolean\n  /** Element actif au montage. @defaultValue 0 */\n  initial?: number\n  /** Appelee sur Entree ou Espace, avec l'index actif. */\n  onValider?: (index: number) => void\n}\n\n/** A poser sur le conteneur de la liste. */\nexport interface KeyboardListProps {\n  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void\n  'aria-orientation': 'vertical' | 'horizontal'\n}\n\n/** A poser sur chaque element. */\nexport interface KeyboardItemProps {\n  ref: (node: HTMLElement | null) => void\n  tabIndex: number\n  onFocus: () => void\n  'data-actif': '' | undefined\n}\n\n/** Ce que le crochet rend. */\nexport interface KeyboardListResult {\n  /** Index actif. Vaut -1 si la liste est vide. */\n  readonly actif: number\n  /** Deplace l'element actif, et le focus avec lui. */\n  aller(index: number): void\n  /** A etaler sur le conteneur. */\n  readonly listProps: KeyboardListProps\n  /** A etaler sur l'element d'indice donne. */\n  itemProps(index: number): KeyboardItemProps\n}\n\n/**\n * Pose la navigation clavier d'une liste.\n *\n * @example\n * const liste = useKeyboardList({ count: options.length, onValider: choisir })\n *\n * <ul role=\"listbox\" {...liste.listProps}>\n *   {options.map((option, index) => (\n *     <li key={option} role=\"option\" aria-selected={index === liste.actif}\n *         {...liste.itemProps(index)}>\n *       {option}\n *     </li>\n *   ))}\n * </ul>\n */\nexport function useKeyboardList(options: KeyboardListOptions): KeyboardListResult {\n  const { count, orientation = 'verticale', boucle = true, initial = 0, onValider } =\n    options\n\n  const [brut, setBrut] = useState(initial)\n\n  // La liste peut raccourcir entre deux rendus — un filtre qui se resserre.\n  // Borner ici plutot que dans un effet evite l'image ou l'index designe un\n  // element qui n'existe plus.\n  const actif = count === 0 ? -1 : Math.min(Math.max(brut, 0), count - 1)\n\n  const noeuds = useRef(new Map<number, HTMLElement>())\n  const poseurs = useRef(new Map<number, (node: HTMLElement | null) => void>())\n\n  const aller = useCallback((index: number): void => {\n    setBrut(index)\n    // Voir l'en-tete : le focus reel suit, sans quoi l'annonce et le rendu se\n    // separent.\n    noeuds.current.get(index)?.focus()\n  }, [])\n\n  const onKeyDown = useCallback(\n    (event: KeyboardEvent<HTMLElement>): void => {\n      if (count === 0) return\n\n      const avant = orientation === 'verticale' ? 'ArrowDown' : 'ArrowRight'\n      const arriere = orientation === 'verticale' ? 'ArrowUp' : 'ArrowLeft'\n\n      const pas = (sens: number): void => {\n        const vise = actif + sens\n        const borne = boucle\n          ? (vise + count) % count\n          : Math.min(Math.max(vise, 0), count - 1)\n        aller(borne)\n      }\n\n      switch (event.key) {\n        case avant:\n          // Sans cela, la page defile sous la liste pendant qu'on la parcourt.\n          event.preventDefault()\n          pas(1)\n          return\n        case arriere:\n          event.preventDefault()\n          pas(-1)\n          return\n        case 'Home':\n          event.preventDefault()\n          aller(0)\n          return\n        case 'End':\n          event.preventDefault()\n          aller(count - 1)\n          return\n        case 'Enter':\n        case ' ':\n          if (onValider === undefined) return\n          event.preventDefault()\n          onValider(actif)\n          return\n        default:\n          // Les autres touches ne sont pas a nous : les fleches de l'autre axe\n          // doivent continuer de faire defiler la page.\n          return\n      }\n    },\n    [count, orientation, boucle, actif, aller, onValider],\n  )\n\n  const itemProps = useCallback(\n    (index: number): KeyboardItemProps => {\n      let poseur = poseurs.current.get(index)\n      if (poseur === undefined) {\n        // Un poseur par indice, garde d'un rendu a l'autre : une fonction\n        // fabriquee a chaque rendu ferait detacher puis rattacher la ref, donc\n        // perdre le noeud le temps d'une image.\n        poseur = (node: HTMLElement | null): void => {\n          if (node === null) noeuds.current.delete(index)\n          else noeuds.current.set(index, node)\n        }\n        poseurs.current.set(index, poseur)\n      }\n\n      return {\n        ref: poseur,\n        // Le tabindex glissant : un seul arret de tabulation pour la liste.\n        tabIndex: index === actif ? 0 : -1,\n        // Un clic ou une tabulation entrante deplace le focus sans passer par\n        // les fleches : l'index doit suivre, sinon les deux divergent.\n        onFocus: () => setBrut(index),\n        'data-actif': index === actif ? '' : undefined,\n      }\n    },\n    [actif],\n  )\n\n  return {\n    actif,\n    aller,\n    listProps: {\n      onKeyDown,\n      'aria-orientation': orientation === 'verticale' ? 'vertical' : 'horizontal',\n    },\n    itemProps,\n  }\n}\n"
+  }
+}

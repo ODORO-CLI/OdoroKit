@@ -22,6 +22,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /**
  * Demonstration principale : bord et taille choisis localement, puis un bouton
@@ -118,6 +119,30 @@ function FiltersDemo(): ReactElement {
   )
 }
 
+/** Carte de la galerie : un bouton ouvre le panneau depuis le bord donne. */
+function SideDemo({ side, label }: { side: DrawerSide; label: string }): ReactElement {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button tone="secondary" size="sm" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <Drawer
+        open={open}
+        onClose={() => setOpen(false)}
+        side={side}
+        size="sm"
+        title="Details du projet"
+        description={`Le panneau glisse depuis le bord ${side}.`}
+      >
+        <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+          Echap, la croix ou un clic sur l'arriere-plan referment.
+        </p>
+      </Drawer>
+    </>
+  )
+}
+
 /** Documentation du composant Drawer. */
 export function DrawerDoc(): ReactElement {
   return (
@@ -184,6 +209,35 @@ const [open, setOpen] = useState(false)
         >
           <FiltersDemo />
         </DemoBlock>
+      </Section>
+
+      <Section
+        title="Variantes"
+        lead="Chaque carte ouvre un vrai panneau : cliquez pour le voir glisser."
+      >
+        <VariantGrid
+          variants={[
+            {
+              title: 'Depuis la droite',
+              description: 'Le bord par defaut.',
+              node: <SideDemo side="right" label="Ouvrir a droite" />,
+            },
+            {
+              title: 'Depuis la gauche',
+              node: <SideDemo side="left" label="Ouvrir a gauche" />,
+            },
+            {
+              title: 'Depuis le bas',
+              description: 'Pleine largeur, hauteur au contenu.',
+              node: <SideDemo side="bottom" label="Ouvrir en bas" />,
+            },
+            {
+              title: 'Avec pied d\'actions',
+              description: 'Filtres et boutons Reinitialiser / Appliquer.',
+              node: <FiltersDemo />,
+            },
+          ]}
+        />
       </Section>
 
       <Section title="Props">

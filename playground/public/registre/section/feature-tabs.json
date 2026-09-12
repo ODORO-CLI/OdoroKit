@@ -1,0 +1,69 @@
+{
+  "name": "feature-tabs",
+  "category": "section",
+  "title": "Onglets de fonctionnalites",
+  "description": "Un jeu d onglets conforme aux pratiques ARIA, avec un visuel par fonctionnalite et un trait qui glisse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/FeatureTabs.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "features",
+      "type": "readonly Feature[]",
+      "required": true,
+      "description": "Les fonctionnalites, dans l ordre des onglets."
+    },
+    {
+      "name": "render",
+      "type": "(index: number) => ReactNode",
+      "required": true,
+      "description": "Rend le visuel de l onglet actif."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du jeu d onglets, annonce aux technologies d assistance."
+    },
+    {
+      "name": "initial",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Onglet ouvert au premier rendu.",
+      "min": 0,
+      "max": 6,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu par changement d onglet, une transition CSS pour le trait. Aucune mesure de mise en page."
+  },
+  "id": "section/feature-tabs",
+  "sources": {
+    "component.tsx": "/**\n * Onglets de fonctionnalites, avec un visuel par onglet.\n *\n * ## Des onglets, pas des boutons\n *\n * Le motif est decrit par les pratiques ARIA, et il ne se resume pas a\n * `role=\"tab\"`. Trois regles font la difference entre un jeu d'onglets et une\n * rangee de boutons qui y ressemble :\n *\n * 1. **Un seul arret de tabulation.** La liste entiere se traverse d'une\n *    pression, et les fleches circulent a l'interieur. Sinon, huit onglets\n *    coutent huit pressions avant d'atteindre le contenu.\n * 2. **Les fleches bouclent.** Arrive au dernier, la fleche droite revient au\n *    premier ; `Origine` et `Fin` vont aux extremites.\n * 3. **Le panneau est nomme par son onglet.** `aria-labelledby` relie les\n *    deux : sans lui, le contenu est annonce sans qu'on sache de quoi il parle.\n *\n * ## Le panneau inactif n'existe pas\n *\n * Il n'est pas cache par un style : il est retire du document. Un panneau\n * masque en CSS reste atteignable au clavier et lisible par la recherche dans\n * la page, ce qui envoie le focus dans du contenu invisible — le defaut le\n * plus courant de ce motif.\n *\n * ## Le changement se voit, sans qu'on le refasse a la main\n *\n * Le panneau porte une cle : React remonte l'element a chaque changement\n * d'onglet, et l'animation d'entree rejoue d'elle-meme. Sans cette cle, le\n * contenu changerait sans aucun signal, et l'oeil manquerait la moitie des\n * bascules.\n *\n * ## Le trait sous l'onglet actif\n *\n * Il glisse d'un onglet a l'autre parce que sa position est une variable, pas\n * un element deplace par mesure : chaque onglet declare sa part de la largeur,\n * et le trait s'y translate. Aucune mesure, donc aucune resynchronisation a\n * faire quand la police charge ou que la fenetre change de taille.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useId,\n  useRef,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Une fonctionnalite presentee. */\nexport interface Feature {\n  /** Intitule de l'onglet. */\n  readonly title: string\n  /** Ce que la fonctionnalite fait. */\n  readonly body: ReactNode\n  /** Une precision sous l'intitule, dans l'onglet. */\n  readonly hint?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface FeatureTabsOwnProps {\n  /** Les fonctionnalites, dans l'ordre des onglets. */\n  features: readonly Feature[]\n  /** Rend le visuel de l'onglet actif. */\n  render: (index: number) => ReactNode\n  /** Nom du jeu d'onglets, annonce aux technologies d'assistance. */\n  label: string\n  /** Onglet ouvert au premier rendu. @defaultValue 0 */\n  initial?: number\n}\n\n/** Toutes les proprietes. */\nexport type FeatureTabsProps = Customisable<FeatureTabsOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-feature-tabs'\n\n/** Pose les regles des onglets, une fois par document. */\nfunction ensureTabsRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-ftabs-liste]{position:relative;display:flex;gap:0.25rem;overflow-x:auto}',\n    // Le trait glisse par translation : sa largeur est une fraction du total,\n    // son deplacement un multiple de cette fraction. Rien n'est mesure.\n    '[data-o-ftabs-trait]{',\n    'position:absolute;bottom:0;left:0;height:2px;',\n    'width:calc(100% / var(--o-ftabs-nombre));',\n    'transform:translateX(calc(100% * var(--o-ftabs-actif)));',\n    'transition:transform var(--o-duration-base) var(--o-ease-standard)}',\n\n    '[data-o-ftabs-panneau]{animation:o-ftabs-entree var(--o-duration-slower) var(--o-ease-entrance) both}',\n    '@keyframes o-ftabs-entree{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-ftabs-trait]{transition:none}',\n    '[data-o-ftabs-panneau]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Onglets de fonctionnalites.\n *\n * @example\n * <FeatureTabs\n *   label=\"Ce que fait la CLI\"\n *   features={[\n *     { title: 'Ajouter', body: <p>Les fichiers sont copies dans le projet.</p> },\n *     { title: 'Comparer', body: <p>Les retouches locales sont signalees.</p> },\n *   ]}\n *   render={(index) => <Capture etape={index} />}\n * />\n */\nexport function FeatureTabs({\n  features,\n  render,\n  label,\n  initial = 0,\n  ...rest\n}: FeatureTabsProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.15 })\n  const base = useId().replace(/[^a-zA-Z0-9]/g, '')\n  const [actif, setActif] = useState(Math.min(Math.max(0, initial), features.length - 1))\n  const boutons = useRef<(HTMLButtonElement | null)[]>([])\n\n  ensureTabsRules()\n\n  /** Deplace la selection et emmene le focus avec elle. */\n  const aller = (index: number): void => {\n    const cible = (index + features.length) % features.length\n    setActif(cible)\n    boutons.current[cible]?.focus()\n  }\n\n  const auClavier = (event: KeyboardEvent<HTMLDivElement>): void => {\n    const touches: Readonly<Record<string, number>> = {\n      ArrowRight: actif + 1,\n      ArrowLeft: actif - 1,\n      Home: 0,\n      End: features.length - 1,\n    }\n    const cible = touches[event.key]\n    if (cible === undefined) return\n    // Les fleches pilotent la liste : les laisser au navigateur ferait defiler\n    // la page pendant qu'on change d'onglet.\n    event.preventDefault()\n    aller(cible)\n  }\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-6' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={\n        {\n          ...style,\n          opacity: reduced || vu ? 1 : 0,\n          transition: 'opacity var(--o-duration-slower) var(--o-ease-entrance)',\n        } as CSSProperties\n      }\n    >\n      <div\n        role=\"tablist\"\n        aria-label={label}\n        data-o-ftabs-liste=\"\"\n        onKeyDown={auClavier}\n        style={\n          {\n            '--o-ftabs-nombre': String(features.length),\n            '--o-ftabs-actif': String(actif),\n            borderBottom: '1px solid var(--o-theme-line)',\n          } as CSSProperties\n        }\n      >\n        {features.map((feature, index) => (\n          <button\n            key={feature.title}\n            ref={(element) => {\n              boutons.current[index] = element\n            }}\n            type=\"button\"\n            role=\"tab\"\n            id={`${base}-onglet-${String(index)}`}\n            aria-selected={index === actif}\n            aria-controls={`${base}-panneau-${String(index)}`}\n            // Un seul arret de tabulation pour toute la liste : les fleches\n            // font le reste, et le contenu est a une pression de touche.\n            tabIndex={index === actif ? 0 : -1}\n            onClick={() => {\n              setActif(index)\n            }}\n            className=\"o-flex-1 o-whitespace-nowrap o-px-4 o-py-3 o-text-left o-text-sm focus:o-ring\"\n            style={{\n              backgroundColor: 'transparent',\n              border: 'none',\n              cursor: 'pointer',\n              color: index === actif ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',\n              fontWeight: index === actif ? 600 : 400,\n            }}\n          >\n            {feature.title}\n            {feature.hint !== undefined && (\n              <span\n                className=\"o-block o-text-xs o-font-normal\"\n                style={{ color: 'var(--o-theme-muted)' }}\n              >\n                {feature.hint}\n              </span>\n            )}\n          </button>\n        ))}\n\n        <span\n          aria-hidden\n          data-o-ftabs-trait=\"\"\n          style={{ backgroundColor: 'var(--o-palette-brand-500)' }}\n        />\n      </div>\n\n      {/*\n        Un seul panneau dans le document : celui des autres onglets n'est pas\n        masque, il n'existe pas. La cle le fait remonter a chaque bascule, ce\n        qui rejoue l'entree sans qu'aucun etat ne la declenche.\n      */}\n      <div\n        key={actif}\n        role=\"tabpanel\"\n        id={`${base}-panneau-${String(actif)}`}\n        aria-labelledby={`${base}-onglet-${String(actif)}`}\n        data-o-ftabs-panneau=\"\"\n        tabIndex={0}\n        className=\"o-grid o-gap-6 md:o-grid-cols-2 o-items-center focus:o-ring\"\n      >\n        <div\n          className=\"o-text-sm o-leading-relaxed\"\n          style={{ color: 'var(--o-theme-fg)' }}\n        >\n          {features[actif]?.body}\n        </div>\n        <div\n          className=\"o-overflow-hidden o-rounded-xl\"\n          style={{ border: '1px solid var(--o-theme-line)' }}\n        >\n          {render(actif)}\n        </div>\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

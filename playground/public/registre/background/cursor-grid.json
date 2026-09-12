@@ -1,0 +1,85 @@
+{
+  "name": "cursor-grid",
+  "category": "background",
+  "title": "Grille au curseur",
+  "description": "Une nappe de paves qui s allument autour du pointeur, chacun respirant a sa propre phase, et une trainee plus sourde qui suit le geste avec retard.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "cursor-grid.shader.ts",
+      "target": "background/cursor-grid.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/CursorGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Nombre de cellules sur la hauteur. Borne a quarante-huit par le shader, a dix en qualite basse.",
+      "min": 3,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 0.28,
+      "description": "Portee de l allumage, en hauteurs de cadre.",
+      "min": 0.05,
+      "max": 0.8,
+      "step": 0.01
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "required": false,
+      "default": 0.7,
+      "description": "Force de la trainee laissee par le geste. A zero, seuls les paves vifs s allument.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-sky-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, le filet et la trainee, les paves allumes."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux distances et trois lissages par fragment ; les deux positions du pointeur sont recopiees dans des tableaux mutes en place, sans rendu React par image. En qualite basse, les paves s elargissent.",
+    "fallback": "static"
+  },
+  "id": "background/cursor-grid",
+  "sources": {
+    "cursor-grid.shader.ts": "/**\n * Shader de la grille au curseur.\n *\n * ## L'idee mathematique\n *\n * Une grille de paves, et deux distances au lieu d'une : celle du centre du\n * pave au pointeur vif, celle du meme centre au pointeur retarde. La\n * premiere allume, la seconde laisse une trainee derriere le geste — deux\n * positions suffisent la ou un tampon d'historique serait necessaire pour\n * un fondu par pave.\n *\n * La distance n'est ni le disque ni le carre mais un melange des deux : un\n * halo rond ignorerait la grille qu'il eclaire, un halo carre la recopierait\n * trop fidelement. A mi-chemin, la tache reste ronde tout en s'appuyant sur\n * les paves.\n *\n * Chaque pave respire a sa propre phase, tiree de ses coordonnees de\n * cellule : sans cela la nappe s'allumerait d'un bloc, comme un ecran.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le filet de la grille, et la trainee.\n * - `uColorC` — les paves allumes.\n * - `uPointer` — position vive du pointeur, en coordonnees de texture.\n * - `uEcho` — position retardee du pointeur, meme repere.\n * - `uCells` — nombre de cellules sur la hauteur.\n * - `uRadius` — portee de l allumage, en hauteurs de cadre.\n * - `uTrail` — force de la trainee, entre zero et un.\n */\nexport const CURSOR_GRID_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform vec2 uEcho;\nuniform float uCells;\nuniform float uRadius;\nuniform float uTrail;\n\n// Phase propre a une cellule, stable d'une image a l'autre.\nfloat cellPhase(vec2 cell) {\n  return fract(sin(dot(cell, vec2(41.7, 289.3))) * 24634.6345);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 uv = vec2(vUv.x * aspect, vUv.y);\n\n  float scale = clamp(uCells, 3.0, 48.0);\n  vec2 p = uv * scale;\n  vec2 cell = floor(p);\n  vec2 local = fract(p) - 0.5;\n\n  vec2 centre = (cell + 0.5) / scale;\n  vec2 vif = uPointer * vec2(aspect, 1.0);\n  vec2 lent = uEcho * vec2(aspect, 1.0);\n  float reach = max(uRadius, 0.05);\n\n  // Le melange du carre et du disque : ni l'un ni l'autre tout a fait.\n  vec2 dv = abs(centre - vif);\n  float nearVif = mix(max(dv.x, dv.y), length(dv), 0.55);\n  vec2 dl = abs(centre - lent);\n  float nearLent = mix(max(dl.x, dl.y), length(dl), 0.55);\n\n  float lit = 1.0 - smoothstep(reach * 0.2, reach, nearVif);\n  float trail =\n    (1.0 - smoothstep(reach * 0.4, reach * 1.4, nearLent)) * clamp(uTrail, 0.0, 1.0);\n\n  // Chaque pave respire a sa phase : la nappe ne s'allume pas d'un bloc.\n  lit *= 0.6 + 0.4 * (0.5 + 0.5 * sin(uTime * 2.0 + cellPhase(cell) * 6.2831853));\n\n  // Le pave et son filet, tires du meme creux : la distance au bord de la\n  // cellule, nulle sur le trait, maximale au centre.\n  float px = scale / max(uResolution.y, 1.0) * 1.5;\n  float inset = 0.5 - max(abs(local.x), abs(local.y));\n  float pave = smoothstep(0.0, 0.05, inset - 0.07);\n  float filet = 1.0 - smoothstep(px, px * 3.0, abs(inset - 0.05));\n\n  vec3 colour = mix(uColorA, uColorB, filet * 0.35);\n  colour = mix(colour, uColorB, pave * trail * 0.55);\n  colour = mix(colour, uColorC, pave * lit);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Grille au curseur : une nappe de paves qui s'allument autour du pointeur\n * et gardent la trace de son passage.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, par deux positions plutot qu'une : la vive,\n * amortie court, allume les paves proches ; la retardee, un second\n * amortissement pose sur la premiere, laisse une trainee plus large et plus\n * sourde derriere le geste. Deux positions suffisent la ou un tampon\n * d'historique serait autrement necessaire.\n *\n * Ce qui distingue cette entree de `magnet-grid` : celle-ci deplace des\n * points, ici rien ne bouge — ce sont des paves qui s'allument. De\n * `grid-distortion` : la grille y est grossie par une lentille, pas\n * eclairee. Et de `tiles-flip`, ou les tuiles se retournent.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : deux tableaux stables passes en uniforms\n * sont mutes en place dans la boucle du moteur, en priorite d'entree. La\n * surface relit ses uniforms a chaque image.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche : le\n * suivi du pointeur est un agrement, pas un contenu.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { CURSOR_GRID_FRAGMENT } from './cursor-grid.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CursorGridControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface CursorGridOwnProps {\n  /** Nombre de cellules sur la hauteur. Borne a quarante-huit par le shader. @defaultValue 14 */\n  cells?: number\n  /** Portee de l'allumage, en hauteurs de cadre. @defaultValue 0.28 */\n  radius?: number\n  /** Force de la trainee laissee par le geste. @defaultValue 0.7 */\n  trail?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CursorGridControls>\n}\n\n/** Toutes les proprietes. */\nexport type CursorGridProps = Customisable<CursorGridOwnProps>\n\n/** Tokens employes par defaut : le fond, le filet et la trainee, les paves vifs. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-sky-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Vitesse de rattrapage de la position retardee, en unites par seconde.\n *\n * Bien plus lente que celle du pointeur vif : c'est l'ecart entre les deux\n * qui dessine la trainee.\n */\nconst ECHO_SPEED = 1.6\n\n/**\n * Grille au curseur.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <CursorGrid className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function CursorGrid({\n  cells = 14,\n  radius = 0.28,\n  trail = 0.7,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: CursorGridProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableaux stables, mutes en place : la surface relit les uniforms a\n  // chaque image, l'identite ne change pas, la mutation suffit.\n  const uPointer = useRef<number[]>([0.5, 0.5]).current\n  const uEcho = useRef<number[]>([0.5, 0.5]).current\n\n  const pointer = usePointerDamped({ host, speed: 6, name: 'cursor-grid : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        // Du repere du hook (centre, y vers le bas) vers celui de la texture\n        // (coin bas-gauche, y vers le haut).\n        const x = (pointer.current.x + 1) / 2\n        const y = 1 - (pointer.current.y + 1) / 2\n        uPointer[0] = x\n        uPointer[1] = y\n\n        // Second amortissement, pose sur le premier. La fraction depend du\n        // temps ecoule : le retard est le meme a toute cadence d'affichage.\n        const factor = 1 - Math.exp(-ECHO_SPEED * delta)\n        const ex = uEcho[0] ?? x\n        const ey = uEcho[1] ?? y\n        uEcho[0] = ex + (x - ex) * factor\n        uEcho[1] = ey + (y - ey) * factor\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'cursor-grid : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer, uEcho])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: CURSOR_GRID_FRAGMENT,\n      colors,\n      uniforms: { uPointer, uEcho, uCells: cells, uRadius: radius, uTrail: trail },\n      name: 'cursor-grid',\n      // Une grille serree scintille sur ses filets a densite de pixels\n      // reduite : en qualite basse, les paves s'elargissent.\n      degrade: (quality) => ({\n        uCells: quality === 'low' ? Math.min(cells, 10) : cells,\n      }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

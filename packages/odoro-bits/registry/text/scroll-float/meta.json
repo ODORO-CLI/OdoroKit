@@ -1,0 +1,61 @@
+{
+  "name": "scroll-float",
+  "category": "text",
+  "title": "Mots flottants",
+  "description": "Les mots derivent chacun a sa phase tant que le bloc entre dans le champ, puis se posent nets.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/ScrollFloat.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "lift",
+      "type": "number",
+      "default": 26,
+      "unit": "px",
+      "description": "Amplitude de la derive a l entree.",
+      "min": 0,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "period",
+      "type": "number",
+      "default": 3200,
+      "unit": "ms",
+      "description": "Duree d une oscillation complete.",
+      "min": 800,
+      "max": 12000,
+      "step": 100
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "default": 0.6,
+      "description": "Course du reglage, en hauteurs de fenetre.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule variable ecrite par image, quel que soit le nombre de mots ; l oscillation est composee par le navigateur."
+  }
+}

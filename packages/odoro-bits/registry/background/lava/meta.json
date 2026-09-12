@@ -1,0 +1,69 @@
+{
+  "name": "lava",
+  "category": "background",
+  "title": "Lave",
+  "description": "Des metaballs chaudes et lentes : une somme de champs en 1/d2 seuillee en deux paliers doux, coeur clair et bord sombre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "lava.shader.ts",
+      "target": "background/lava.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Lava.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-red-600", "--o-palette-amber-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse de derive des centres.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "blobs",
+      "type": "number",
+      "default": 5,
+      "description": "Nombre de gouttes. Retrograde a 3 en qualite basse.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "default": 1.2,
+      "description": "Seuil du champ. Plus bas, plus de matiere.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-red-600, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Un champ en 1/d2 par goutte, somme par fragment, jusqu a huit gouttes. En qualite basse, elles tombent a trois."
+  }
+}

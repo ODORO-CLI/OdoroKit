@@ -1,0 +1,79 @@
+{
+  "name": "placeholder-image",
+  "category": "loader",
+  "title": "Cadre d image",
+  "description": "Un rectangle au bon rapport, cerne d un filet pointille, avec au centre le pictogramme de l image qui manque.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PlaceholderImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface",
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "ratio",
+      "type": "string",
+      "default": "16/9",
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "options": ["16/9", "4/3", "3/2", "1/1"]
+    },
+    {
+      "name": "icon",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Largeur du pictogramme.",
+      "min": 16,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": false,
+      "description": "Faire passer un reflet sur le cadre."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Image en attente",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un pictogramme en ligne et, au plus, une transformation sur une couche de reflet ; aucun JavaScript apres le premier rendu. Le rapport reserve la hauteur. Cadre entier et sans reflet sous mouvement reduit."
+  }
+}

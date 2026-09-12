@@ -1,0 +1,82 @@
+{
+  "name": "liquid-chrome",
+  "category": "background",
+  "title": "Chrome liquide",
+  "description": "Un liquide chrome qui reflechit un studio : ciel clair, sol sombre, horizon dur, en encre sur le fond clair et en lueur sur le sombre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "liquid-chrome.shader.ts",
+      "target": "background/liquid-chrome.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LiquidChrome.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.35,
+      "description": "Vitesse du liquide.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.6,
+      "description": "Echelle des vagues.",
+      "min": 0.4,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "contrast",
+      "type": "number",
+      "default": 0.8,
+      "description": "Profondeur du sol dans le reflet.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "sheen",
+      "type": "number",
+      "default": 0.5,
+      "description": "Force de la teinte a l horizon.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-sky-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, l encre, la teinte de l horizon."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Cinq vagues analytiques, une reflexion et deux marches par fragment, sans boucle. En qualite basse, trois vagues restent."
+  }
+}

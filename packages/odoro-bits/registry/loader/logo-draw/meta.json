@@ -1,0 +1,79 @@
+{
+  "name": "logo-draw",
+  "category": "loader",
+  "title": "Logo qui se trace",
+  "description": "Le contour d une marque se dessine d un geste, se remplit une fois ferme, puis se vide et s efface dans le meme sens, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LogoDraw.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 64,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "default": "M20.25 20.25H50a29.75 29.75 0 1 1-29.75 29.75Z",
+      "description": "Trace du logo, en donnees de chemin SVG. Un seul chemin ferme, pour que le remplissage ait un sens."
+    },
+    {
+      "name": "viewBox",
+      "type": "string",
+      "default": "0 0 100 100",
+      "description": "Vue du trace. A changer en meme temps que le chemin."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "unites de la vue",
+      "description": "Epaisseur du trait, dans les unites du trace.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2800,
+      "unit": "ms",
+      "description": "Duree d un cycle : trace, remplissage, effacement.",
+      "min": 1200,
+      "max": 7000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du trait et du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Marque entierement tracee et pleine sous mouvement reduit."
+  }
+}

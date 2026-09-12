@@ -1,0 +1,93 @@
+{
+  "name": "gradient-blinds",
+  "category": "background",
+  "title": "Stores de degrade",
+  "description": "Des lamelles devant un degrade, dont l ouverture suit une vague qui traverse le store d un bord a l autre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "gradient-blinds.shader.ts",
+      "target": "background/gradient-blinds.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GradientBlinds.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-orange-400",
+    "--o-palette-rose-500"
+  ],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Nombre de lamelles sur la largeur.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de la vague d ouverture.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "open",
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "Ouverture moyenne, entre ferme et ouvert.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Inclinaison des lamelles.",
+      "min": -1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-orange-400, --o-palette-rose-500",
+      "description": "Tokens dont les couleurs sont lues : les lamelles, les deux teintes du degrade."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois sinus et deux exponentielles par fragment, sans boucle. En qualite basse, le liseret et l ombre disparaissent.",
+    "fallback": "gradient"
+  },
+  "id": "background/gradient-blinds",
+  "sources": {
+    "gradient-blinds.shader.ts": "/**\n * Shader des stores de degrade.\n *\n * ## L'idee mathematique\n *\n * Des lamelles verticales devant un degrade. Chaque lamelle est une cellule\n * d'une grille en x ; son ouverture est une fraction de la cellule, et cette\n * fraction suit une onde qui traverse les lamelles d'un bord a l'autre —\n * c'est la vague d'ouverture. Une seconde onde, en y, incline la vague pour\n * que le store ne s'ouvre pas en bloc rectangulaire.\n *\n * Derriere, le degrade est un melange entre deux tokens le long d'une\n * diagonale qui derive. Devant, la lamelle fermee est le fond lui-meme, a\n * peine teinte pour que sa structure reste visible ; a la lisiere de\n * l'ouverture, un liseret rappelle l'epaisseur de la lamelle.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond, les lamelles fermees.\n * - `uColorB` — le debut du degrade.\n * - `uColorC` — la fin du degrade, et le liseret.\n * - `uCount` — nombre de lamelles sur la largeur.\n * - `uSpeed` — vitesse de la vague d'ouverture.\n * - `uOpen` — ouverture moyenne, entre ferme et ouvert.\n * - `uTilt` — inclinaison des lamelles.\n * - `uDetail` — 1 pour le liseret et l'ombre, 0 pour des aplats.\n */\nexport const GRADIENT_BLINDS_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uCount;\nuniform float uSpeed;\nuniform float uOpen;\nuniform float uTilt;\nuniform float uDetail;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float t = uTime * uSpeed;\n  float count = max(floor(uCount), 2.0);\n\n  // Les lamelles : une grille en x, inclinee par y.\n  float x = vUv.x + (vUv.y - 0.5) * uTilt * 0.5;\n  float index = floor(x * count);\n  float cellule = fract(x * count);\n\n  // L'ouverture : une vague qui traverse les lamelles, inclinee par une\n  // seconde onde en y, autour de l'ouverture moyenne.\n  float vague = sin(index / count * 6.2831853 * 1.5 - t * 2.0);\n  float pente = sin(vUv.y * 3.5 + t * 0.8 + index * 0.4);\n  float ouverture = clamp(uOpen + 0.4 * vague + 0.15 * pente, 0.0, 1.0);\n\n  // Le degrade derriere : une diagonale qui derive.\n  float diagonale = (vUv.x * aspect + vUv.y) * 0.8 + t * 0.15;\n  vec3 teinte = mix(uColorB, uColorC, 0.5 + 0.5 * sin(diagonale * 2.0));\n\n  // La lamelle : ouverte a gauche de la cellule, fermee a droite.\n  float bord = 0.012;\n  float visible = 1.0 - smoothstep(ouverture - bord, ouverture + bord, cellule);\n\n  vec3 colour = mix(uColorA, teinte, visible);\n\n  // La lamelle fermee garde une trace de la teinte : sa structure reste\n  // lisible sans que le fond soit assombri.\n  colour = mix(colour, teinte, (1.0 - visible) * 0.07);\n\n  if (uDetail > 0.5) {\n    // Le liseret : l'epaisseur de la lamelle a la lisiere de l'ouverture.\n    float liseret = exp(-abs(cellule - ouverture) * 90.0);\n    colour = mix(colour, uColorC, liseret * 0.5 * step(0.02, ouverture));\n\n    // L'ombre portee du store sur le degrade : plus la lamelle est ouverte,\n    // plus l'ombre s'eloigne — un simple retour vers le fond, borne.\n    float ombre = exp(-(ouverture - cellule) * 30.0) * visible;\n    colour = mix(colour, uColorA, ombre * 0.25);\n  }\n\n  gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Stores de degrade : des lamelles devant un degrade, dont l ouverture suit une vague qui traverse le store d un bord a l autre.\n *\n * ## Le principe\n *\n * Chaque lamelle est une cellule d'une grille en x ; son ouverture est\n * une fraction de la cellule qui suit une onde traversant les lamelles,\n * inclinee par une seconde onde en y. Derriere, un degrade entre deux\n * tokens le long d'une diagonale qui derive ; devant, la lamelle fermee\n * est le fond lui-meme, a peine teinte.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { GRADIENT_BLINDS_FRAGMENT } from './gradient-blinds.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface GradientBlindsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface GradientBlindsOwnProps {\n  /** Nombre de lamelles sur la largeur. @defaultValue 14 */\n  count?: number\n  /** Vitesse de la vague d ouverture. @defaultValue 0.5 */\n  speed?: number\n  /** Ouverture moyenne, entre ferme et ouvert. @defaultValue 0.55 */\n  open?: number\n  /** Inclinaison des lamelles. @defaultValue 0.3 */\n  tilt?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<GradientBlindsControls>\n}\n\n/** Toutes les proprietes. */\nexport type GradientBlindsProps = Customisable<GradientBlindsOwnProps>\n\n/** Tokens employes par defaut : les lamelles, les deux teintes du degrade. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-orange-400',\n  '--o-palette-rose-500',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-r o-from-orange-200 dark:o-from-orange-900 o-to-rose-200 dark:o-to-rose-900'\n\n/**\n * Detail hors qualite basse.\n *\n * Le store lui-meme est une partie fractionnaire ; ce sont le liseret\n * et l'ombre, deux exponentielles, qui tombent en qualite basse.\n */\nconst DETAIL = 1\n\n/** Detail en qualite basse. */\nconst LOW_DETAIL = 0\n\n/**\n * Stores de degrade.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <GradientBlinds className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function GradientBlinds({\n  count = 14,\n  speed = 0.5,\n  open = 0.55,\n  tilt = 0.3,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: GradientBlindsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: GRADIENT_BLINDS_FRAGMENT,\n    colors,\n    uniforms: {\n      uCount: count,\n      uSpeed: speed,\n      uOpen: open,\n      uTilt: tilt,\n      uDetail: DETAIL,\n    },\n    name: 'gradient-blinds',\n    degrade: (quality) => ({\n      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

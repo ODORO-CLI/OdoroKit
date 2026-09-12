@@ -1,0 +1,57 @@
+{
+  "name": "eclipse",
+  "category": "loader",
+  "title": "Eclipse",
+  "description": "Un disque plein se creuse jusqu a ne plus laisser qu un anneau de lumiere, dont le halo s embrase, puis se referme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Eclipse.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 64,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d une eclipse complete, ouverture et fermeture comprises.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de l anneau et du halo. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois cercles : un rayon et une epaisseur animes sur le premier, une opacite sur les deux autres, flous une fois pour toutes. Aucune superposition a masquer, aucune couleur de fond supposee. Anneau ouvert et halo allume sous mouvement reduit."
+  }
+}

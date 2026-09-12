@@ -1,0 +1,93 @@
+{
+  "name": "soap-film",
+  "category": "background",
+  "title": "Film de savon",
+  "description": "Un film mince qui s ecoule vers le bas, dont l epaisseur fait tourner la teinte entre deux couleurs et ouvre des zones transparentes la ou il s amincit.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "soap-film.shader.ts",
+      "target": "background/soap-film.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/SoapFilm.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-cyan-400",
+    "--o-palette-fuchsia-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Vitesse de la derive des epaisseurs.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "drain",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Ecoulement vers le bas. Plus haut, plus les franges glissent.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.5,
+      "description": "Echelle du champ d epaisseur. Plus haut, plus fin.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "bands",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de tours de teinte sur toute l epaisseur.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-cyan-400, --o-palette-fuchsia-400",
+      "description": "Tokens dont les couleurs sont lues : le fond vu au travers, et les deux teintes entre lesquelles le film tourne."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Une somme d octaves par fragment pour l epaisseur, puis des cosinus. En qualite basse, les octaves tombent a deux.",
+    "fallback": "gradient"
+  },
+  "id": "background/soap-film",
+  "sources": {
+    "soap-film.shader.ts": "/**\n * Shader du film de savon.\n *\n * ## L'idee mathematique\n *\n * Un film mince colore par interference : sa teinte depend de son epaisseur,\n * et fait un tour complet chaque fois que l'epaisseur croit d'une longueur\n * d'onde. Ici, l'epaisseur est un bruit fractal, et le tour de teinte est\n * une phase : les deux couleurs du film se melangent selon le sinus de la\n * phase, et un cosinus a la frequence double creuse les franges sombres qui\n * separent les bandes. Ce sont des tokens qui tournent, pas un spectre ecrit\n * en dur.\n *\n * Deux details font le savon plutot que la nappe abstraite. D'abord\n * l'ecoulement : le domaine du bruit glisse vers le haut au fil du temps, ce\n * qui fait descendre les franges comme le liquide draine vers le bas ; et\n * l'epaisseur croit avec la profondeur, si bien que les bandes se resserrent\n * en bas. Ensuite la transparence : la ou le film est trop mince pour\n * interferer, il ne renvoie rien, et c'est le fond qui apparait.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond, vu au travers du film.\n * - `uColorB` — la premiere teinte du film.\n * - `uColorC` — la seconde teinte du film.\n * - `uSpeed` — vitesse de derive des epaisseurs.\n * - `uDrain` — ecoulement vers le bas.\n * - `uScale` — echelle du champ d'epaisseur.\n * - `uBands` — tours de teinte sur toute l'epaisseur.\n * - `uOctaves` — detail du bruit, et donc son cout.\n */\nexport const SOAP_FILM_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uDrain;\nuniform float uScale;\nuniform float uBands;\nuniform float uOctaves;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat filmHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.\nfloat filmNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n\n  float a = filmHash(cell);\n  float b = filmHash(cell + vec2(1.0, 0.0));\n  float c = filmHash(cell + vec2(0.0, 1.0));\n  float d = filmHash(cell + vec2(1.0, 1.0));\n\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.\nfloat filmFbm(vec2 p, int octaves) {\n  float total = 0.0;\n  float amplitude = 0.5;\n  float normalisation = 0.0;\n\n  for (int i = 0; i < 5; i += 1) {\n    if (i >= octaves) break;\n    total += filmNoise(p) * amplitude;\n    normalisation += amplitude;\n    p *= 2.0;\n    amplitude *= 0.5;\n  }\n\n  return total / max(normalisation, 0.0001);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vUv * vec2(aspect, 1.0);\n  int octaves = int(clamp(uOctaves, 1.0, 5.0));\n  float t = uTime * uSpeed;\n\n  // L'epaisseur : un bruit dont le domaine monte, pour que les franges\n  // descendent, plus une pente qui epaissit le film vers le bas.\n  vec2 q = p * max(uScale, 0.1) + vec2(t * 0.3, t + uTime * uDrain * 0.25);\n  float epaisseur = filmFbm(q, octaves);\n  epaisseur = epaisseur * 0.75 + (1.0 - vUv.y) * 0.45 * (0.5 + uDrain);\n\n  // La phase : un tour de teinte par bande. Le sinus melange les deux\n  // couleurs ; le cosinus a frequence double creuse les franges sombres.\n  float phase = epaisseur * uBands * 6.2831853;\n  vec3 teinte = mix(uColorB, uColorC, 0.5 + 0.5 * sin(phase));\n  float franges = 0.55 + 0.45 * cos(phase * 2.0 + 1.2);\n\n  // La transparence : sous une epaisseur minimale, le film ne renvoie rien.\n  float presence = smoothstep(0.12, 0.32, epaisseur);\n\n  // Un reflet qui balaie en diagonale, comme une lumiere de fenetre.\n  float balayage = sin((p.x + p.y) * 3.0 - uTime * 0.4);\n  float reflet = pow(max(balayage, 0.0), 6.0) * 0.18;\n\n  vec3 film = teinte * franges;\n  vec3 colour = mix(uColorA, film, presence * 0.9);\n  colour += (uColorB + uColorC) * 0.5 * reflet * presence;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Film de savon : un film mince irise qui s'ecoule vers le bas.\n *\n * ## Le principe\n *\n * L'epaisseur du film est un bruit fractal ; la teinte en depend comme dans\n * une interference reelle — un tour complet par bande — mais ce sont deux\n * tokens qui tournent l'un vers l'autre, pas un spectre ecrit en dur. Le\n * domaine glisse, les franges descendent ; la ou le film s'amincit, le fond\n * apparait au travers.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SOAP_FILM_FRAGMENT } from './soap-film.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SoapFilmControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SoapFilmOwnProps {\n  /** Vitesse de la derive des epaisseurs. @defaultValue 0.15 */\n  speed?: number\n  /** Ecoulement vers le bas. @defaultValue 0.4 */\n  drain?: number\n  /** Echelle du champ d'epaisseur. @defaultValue 1.5 */\n  scale?: number\n  /** Tours de teinte sur toute l'epaisseur. @defaultValue 4 */\n  bands?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SoapFilmControls>\n}\n\n/** Toutes les proprietes. */\nexport type SoapFilmProps = Customisable<SoapFilmOwnProps>\n\n/** Tokens employes par defaut : le fond, les deux teintes du film. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-cyan-400',\n  '--o-palette-fuchsia-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-cyan-300 dark:o-via-cyan-900 o-to-fuchsia-300 dark:o-to-fuchsia-900'\n\n/**\n * Detail du bruit hors qualite basse.\n *\n * L'epaisseur est le seul bruit somme du shader : c'est le seul levier de\n * cout, et il n'a pas besoin d'etre une prop pour etre retrograde.\n */\nconst OCTAVES = 4\n\n/** Detail du bruit en qualite basse. */\nconst LOW_OCTAVES = 2\n\n/**\n * Film de savon.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <SoapFilm className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function SoapFilm({\n  speed = 0.15,\n  drain = 0.4,\n  scale = 1.5,\n  bands = 4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SoapFilmProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SOAP_FILM_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uDrain: drain,\n      uScale: scale,\n      uBands: bands,\n      uOctaves: OCTAVES,\n    },\n    name: 'soap-film',\n    degrade: (quality) => ({\n      uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

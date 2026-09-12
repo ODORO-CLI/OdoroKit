@@ -1,0 +1,109 @@
+{
+  "name": "lazy-block",
+  "category": "loader",
+  "title": "Bloc differe",
+  "description": "Un substitut couvre le contenu deja present, respire, puis s efface pour le laisser paraitre sans que la mise en page saute.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LazyBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Le contenu couvert, puis revele."
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Attente avant la revelation.",
+      "min": 0,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 500,
+      "unit": "ms",
+      "description": "Duree du croisement.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "loop",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Rejouer le cycle en boucle : le regime d une vitrine ou d une maquette. A couper pour un seul passage, pilote par la page."
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Temps ou le contenu reste visible avant de repartir.",
+      "min": 400,
+      "max": 8000,
+      "step": 200
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur minimale pendant l attente.",
+      "min": 24,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles du substitut.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement du contenu",
+      "description": "Libelle annonce aux lecteurs d ecran pendant l attente."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux minuteurs, pas d abonnement a la boucle d images ; une opacite en transition et un repeint sur le substitut. Le contenu est dans le document des le depart, donc aucune mise en page ne saute. Contenu visible immediatement, sans cycle, sous mouvement reduit."
+  },
+  "id": "loader/lazy-block",
+  "sources": {
+    "component.tsx": "/**\n * Bloc differe : un substitut couvre le contenu, puis s'efface pour le\n * laisser paraitre.\n *\n * ## Ce que les autres squelettes ne font pas\n *\n * Les entrees `skeleton-*` sont des figures immobiles : on les monte, on les\n * demonte, et c'est la page qui decide quand. Celui-ci contient les deux\n * etats et le passage de l'un a l'autre. Il sert la ou le contenu est deja\n * la mais ne doit pas surgir d'un coup — une vitrine, une maquette, un\n * chargement dont on connait la duree — et il sert de patron a brancher sur\n * un vrai chargement, en remplacant le minuteur par `loaded`.\n *\n * ## Le contenu est dans le document des le depart\n *\n * Il n'est pas monte a la fin : il est present, en attente derriere le\n * substitut, avec sa hauteur reelle. C'est ce qui evite le saut de mise en\n * page au moment du passage — le defaut que toute cette famille cherche a\n * corriger. `--o-lz-height` ne sert que de plancher, pour le cas ou le\n * contenu serait encore vide.\n *\n * Tant qu'il est couvert, il est retire de l'arbre d'accessibilite et ne\n * recoit pas le pointeur : un lien invisible mais cliquable serait un piege.\n *\n * ## Le minuteur, pas la boucle d'images\n *\n * Deux instants a tenir, pas soixante par seconde : un minuteur suffit, et\n * la boucle du moteur serait un abonnement permanent pour deux\n * evenements. Les minuteurs sont annules a la demontee.\n *\n * ## Pourquoi la boucle est le regime par defaut\n *\n * L'attente de ce composant est une **fiction** : `delay` est un chiffre\n * qu'on choisit, alors qu'un vrai chargement n'en connait pas la duree. Sa\n * place naturelle est donc la ou l'on montre le passage — vitrine, maquette,\n * capture — et un passage joue une seule fois, quelques secondes apres\n * l'arrivee sur la page, n'est vu par personne. `loop={false}` donne la\n * version a un coup, pour une page qui pilote elle-meme le moment ; branche\n * sur un vrai chargement, c'est `loaded` qu'on remplace, et le minuteur\n * disparait.\n *\n * Sous mouvement reduit, le contenu est visible immediatement et le cycle\n * ne se rejoue pas : c'est l'etat final, celui vers lequel le passage\n * allait. La regle du squelette au repos vaut pour les figures qui\n * attendent ; ici, l'attente a une fin, et cette fin est le contenu.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-lazy-block'\n\n/** Pose le substitut, le contenu et leur croisement, une fois par document. */\nfunction ensureLazyBlockRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-lz]{position:relative;display:block;width:100%}',\n    // Un plancher, pas une hauteur : c'est le contenu qui commande.\n    '[data-o-lz]:not([data-o-lz-loaded]){min-height:var(--o-lz-height)}',\n    '[data-o-lz-content]{',\n    'opacity:0;pointer-events:none;',\n    'transition:opacity var(--o-lz-speed) var(--o-ease-standard);',\n    '}',\n    '[data-o-lz-loaded] [data-o-lz-content]{opacity:1;pointer-events:auto}',\n    '[data-o-lz-veil]{',\n    'position:absolute;inset:0;pointer-events:none;',\n    'border-radius:var(--o-lz-radius);',\n    'background-color:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',\n    'transition:opacity var(--o-lz-speed) var(--o-ease-standard);',\n    'animation:o-lz-breathe var(--o-lz-breath) ease-in-out infinite;',\n    '}',\n    // Le substitut respire sans jamais devenir transparent : ce qu'il\n    // couvre ne doit pas transparaitre avant l'heure.\n    '@keyframes o-lz-breathe{',\n    '0%,100%{background-color:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface))}',\n    '50%{background-color:color-mix(in oklab,var(--o-theme-line) 38%,var(--o-theme-surface))}',\n    '}',\n    '[data-o-lz-loaded] [data-o-lz-veil]{opacity:0;animation:none}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-lz-content]{transition:none}',\n    '[data-o-lz-veil]{transition:none;animation:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface LazyBlockOwnProps {\n  /** Le contenu couvert, puis revele. */\n  children?: ReactNode\n  /** Attente avant la revelation, en millisecondes. @defaultValue 1400 */\n  delay?: number\n  /** Duree du croisement, en millisecondes. @defaultValue 500 */\n  speed?: number\n  /** Rejouer le cycle en boucle : le regime d'une vitrine ou d'une maquette. @defaultValue true */\n  loop?: boolean\n  /** Temps ou le contenu reste visible avant de repartir, en millisecondes. @defaultValue 2400 */\n  hold?: number\n  /** Hauteur minimale pendant l'attente, en pixels. @defaultValue 96 */\n  height?: number\n  /** Rayon des angles du substitut, en pixels. @defaultValue 12 */\n  radius?: number\n  /** Libelle annonce aux lecteurs d'ecran pendant l'attente. @defaultValue 'Chargement du contenu' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type LazyBlockProps = Customisable<LazyBlockOwnProps, 'div'>\n\n/**\n * Couvre un contenu d'un substitut, puis le revele.\n *\n * @example\n * <LazyBlock height={120}>\n *   <Article />\n * </LazyBlock>\n *\n * @example\n * // Un seul passage : c'est la page qui decide du moment.\n * <LazyBlock loop={false} delay={900}>{apercu}</LazyBlock>\n */\nexport function LazyBlock({\n  children,\n  delay = 1400,\n  speed = 500,\n  loop = true,\n  hold = 2400,\n  height = 96,\n  radius = 12,\n  label = 'Chargement du contenu',\n  ...rest\n}: LazyBlockProps): ReactElement {\n  ensureLazyBlockRule()\n  const { reduced } = useMotionState()\n  const [loaded, setLoaded] = useState(false)\n\n  useEffect(() => {\n    // L'etat final, sans passage : le contenu est la, tout de suite.\n    if (reduced) {\n      setLoaded(true)\n      return\n    }\n\n    setLoaded(false)\n    let timer = 0\n\n    const reveal = (): void => {\n      setLoaded(true)\n      if (loop) timer = window.setTimeout(cover, speed + hold)\n    }\n    const cover = (): void => {\n      setLoaded(false)\n      timer = window.setTimeout(reveal, delay)\n    }\n\n    timer = window.setTimeout(reveal, delay)\n\n    return () => {\n      window.clearTimeout(timer)\n    }\n  }, [reduced, delay, speed, hold, loop])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-lz-height': `${String(height)}px`,\n    '--o-lz-radius': `${String(radius)}px`,\n    '--o-lz-speed': `${String(speed)}ms`,\n    // La respiration du substitut est independante de l'attente : elle doit\n    // rester lisible que la revelation arrive dans une seconde ou dix.\n    '--o-lz-breath': `${String(Math.max(600, Math.round(delay / 2)))}ms`,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-lz=\"\"\n      data-o-lz-loaded={loaded ? '' : undefined}\n    >\n      {/* Le libelle se tait une fois le contenu la : une region vivante qui\n          repeterait « chargement » apres coup dirait le contraire de l'ecran. */}\n      <span className=\"o-sr-only\" role=\"status\">\n        {loaded ? '' : label}\n      </span>\n      <div data-o-lz-content=\"\" aria-hidden={loaded ? undefined : true}>\n        {children}\n      </div>\n      <span aria-hidden data-o-lz-veil=\"\" />\n    </div>\n  )\n}\n"
+  }
+}

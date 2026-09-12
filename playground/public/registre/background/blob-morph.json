@@ -1,0 +1,93 @@
+{
+  "name": "blob-morph",
+  "category": "background",
+  "title": "Forme organique",
+  "description": "Une seule forme organique qui respire au centre, son contour deforme par trois harmoniques et un bord frange de bruit fin.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "blob-morph.shader.ts",
+      "target": "background/blob-morph.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/BlobMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-300"
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 0.28,
+      "description": "Rayon moyen, en hauteurs de cadre.",
+      "min": 0.1,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Vitesse de la respiration.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "wobble",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Amplitude des harmoniques du contour. A zero, un disque.",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.05
+    },
+    {
+      "name": "fringe",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Largeur de la frange de bruit au bord, et force du halo.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-fuchsia-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps, la frange et le halo."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois sinus et deux lectures de bruit par fragment. En qualite basse, la frange ne lit qu une octave.",
+    "fallback": "gradient"
+  },
+  "id": "background/blob-morph",
+  "sources": {
+    "blob-morph.shader.ts": "/**\n * Shader de la forme organique.\n *\n * ## L'idee mathematique\n *\n * Une forme en coordonnees polaires : son rayon est un rayon moyen module\n * par trois sinus de l'angle, aux harmoniques 3, 5 et 7, chacun tournant a sa\n * propre vitesse. Trois harmoniques impaires suffisent : elles ne se\n * superposent jamais en un motif regulier, et la forme semble vivante sans\n * jamais paraitre geometrique. Un sinus lent du temps fait respirer le rayon\n * moyen.\n *\n * Le bord n'est pas une ligne : la distance signee est perturbee par un bruit\n * fin avant le seuil, ce qui frange le contour, et un halo decroit en\n * exponentielle de la distance au-dela. La frange et le halo partagent la\n * meme couleur, qui n'est pas celle du corps.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le corps de la forme.\n * - `uColorC` — la frange et le halo.\n * - `uSize` — rayon moyen, en hauteurs de cadre.\n * - `uSpeed` — vitesse de la respiration.\n * - `uWobble` — amplitude des harmoniques.\n * - `uFringe` — largeur de la frange, force du halo.\n * - `uDetail` — octaves du bruit de la frange.\n */\nexport const BLOB_MORPH_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSize;\nuniform float uSpeed;\nuniform float uWobble;\nuniform float uFringe;\nuniform float uDetail;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat formeHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.\nfloat formeNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n\n  float a = formeHash(cell);\n  float b = formeHash(cell + vec2(1.0, 0.0));\n  float c = formeHash(cell + vec2(0.0, 1.0));\n  float d = formeHash(cell + vec2(1.0, 1.0));\n\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Somme d'octaves, bornee a trois : la frange est fine, pas profonde.\nfloat formeFbm(vec2 p, int octaves) {\n  float total = 0.0;\n  float amplitude = 0.5;\n  float normalisation = 0.0;\n\n  for (int i = 0; i < 3; i += 1) {\n    if (i >= octaves) break;\n    total += formeNoise(p) * amplitude;\n    normalisation += amplitude;\n    p *= 2.0;\n    amplitude *= 0.5;\n  }\n\n  return total / max(normalisation, 0.0001);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0);\n  float t = uTime * uSpeed;\n  int detail = int(clamp(uDetail, 1.0, 3.0));\n\n  float angle = atan(p.y, p.x);\n  float dist = length(p);\n\n  // Le contour : trois harmoniques impaires, chacune tournant a sa vitesse,\n  // sur un rayon moyen qui respire.\n  float harmoniques =\n    0.5 * sin(3.0 * angle + t) +\n    0.3 * sin(5.0 * angle - t * 1.3) +\n    0.2 * sin(7.0 * angle + t * 0.7);\n  float respiration = 1.0 + 0.06 * sin(t * 1.7);\n  float rayon = uSize * respiration * (1.0 + uWobble * harmoniques);\n\n  // La distance signee, perturbee par le bruit avant le seuil : c'est ce qui\n  // frange le bord au lieu de le tracer.\n  float frange = max(uFringe, 0.0);\n  float bruit = formeFbm(p * 14.0 + vec2(t * 0.6, -t * 0.4), detail) - 0.5;\n  float d = dist - rayon + bruit * 0.06 * frange;\n\n  float corps = 1.0 - smoothstep(-0.006, 0.006, d);\n\n  // Le halo : une exponentielle de la distance au-dela du bord, et des\n  // filaments tires d'un bruit lu en polaire, qui s'echappent du bord.\n  float halo = exp(-max(d, 0.0) * 18.0) * frange * 0.8;\n  float filaments = pow(formeNoise(vec2(angle * 6.0, dist * 6.0 - t * 0.8)), 3.0);\n  halo += filaments * exp(-max(d, 0.0) * 6.0) * frange * 0.5;\n\n  // Le corps : plus sombre au bord, plus clair au coeur, comme un volume.\n  float profondeur = smoothstep(0.0, rayon * 0.9, rayon - dist);\n  vec3 matiere = mix(uColorB * 0.7, uColorB * 1.05, profondeur);\n  // La frange interieure prend la couleur du halo, pour que le bord soit\n  // continu de part et d'autre de la ligne.\n  float lisiere = 1.0 - smoothstep(0.0, 0.05 * (0.5 + frange), -d);\n  matiere = mix(matiere, uColorC, lisiere * 0.6);\n\n  vec3 colour = mix(uColorA, uColorC, clamp(halo, 0.0, 1.0));\n  colour = mix(colour, matiere, corps);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Forme organique : une seule forme qui respire au centre, bord frange.\n *\n * ## Le principe\n *\n * Un rayon module par trois harmoniques impaires de l'angle, chacune tournant\n * a sa vitesse : la forme ne se repete jamais et ne parait jamais\n * geometrique. Le bord est perturbe par un bruit fin avant le seuil, et un\n * halo s'en echappe.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { BLOB_MORPH_FRAGMENT } from './blob-morph.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface BlobMorphControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface BlobMorphOwnProps {\n  /** Rayon moyen, en hauteurs de cadre. @defaultValue 0.28 */\n  size?: number\n  /** Vitesse de la respiration. @defaultValue 0.4 */\n  speed?: number\n  /** Amplitude des harmoniques du contour. @defaultValue 0.35 */\n  wobble?: number\n  /** Largeur de la frange, force du halo. @defaultValue 0.5 */\n  fringe?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<BlobMorphControls>\n}\n\n/** Toutes les proprietes. */\nexport type BlobMorphProps = Customisable<BlobMorphOwnProps>\n\n/** Tokens employes par defaut : le fond, le corps, la frange. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-brand-500',\n  '--o-palette-fuchsia-300',\n] as const\n\n/** Repli par defaut : un halo fige au centre, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-brand-400 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Octaves de la frange hors qualite basse.\n *\n * La frange est le seul bruit somme du shader : c'est le seul levier de cout,\n * et il n'a pas besoin d'etre une prop pour etre retrograde.\n */\nconst DETAIL = 2\n\n/** Octaves de la frange en qualite basse. */\nconst LOW_DETAIL = 1\n\n/**\n * Forme organique.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <BlobMorph className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function BlobMorph({\n  size = 0.28,\n  speed = 0.4,\n  wobble = 0.35,\n  fringe = 0.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: BlobMorphProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: BLOB_MORPH_FRAGMENT,\n    colors,\n    uniforms: {\n      uSize: size,\n      uSpeed: speed,\n      uWobble: wobble,\n      uFringe: fringe,\n      uDetail: DETAIL,\n    },\n    name: 'blob-morph',\n    degrade: (quality) => ({\n      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

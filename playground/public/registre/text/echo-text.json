@@ -1,0 +1,69 @@
+{
+  "name": "echo-text",
+  "category": "text",
+  "title": "Echos",
+  "description": "Des copies attenuees du texte suivent le pointeur avec des retards croissants ; l original reste net.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/EchoText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "copies",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de copies.",
+      "min": 2,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "lag",
+      "type": "number",
+      "required": false,
+      "default": 220,
+      "unit": "ms",
+      "description": "Retard de la premiere copie ; chaque suivante double la mise.",
+      "min": 60,
+      "max": 800,
+      "step": 20
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "unit": "px",
+      "description": "Flou ajoute a chaque copie.",
+      "min": 0,
+      "max": 4,
+      "step": 0.25
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le pointeur ecrit deux variables CSS, les transitions font le retard : aucun rendu React par evenement, rien au repos. Le flou est plus couteux qu une opacite : a reserver aux titres."
+  },
+  "id": "text/echo-text",
+  "sources": {
+    "component.tsx": "/**\n * Echos : des copies attenuees du texte suivent le pointeur, chacune avec un\n * temps de retard de plus en plus long. L'original ne bouge pas.\n *\n * ## Le retard est une duree de transition, pas une boucle\n *\n * Toutes les copies visent la meme cible — deux variables CSS que le\n * pointeur ecrit. Ce qui les distingue, c'est le temps qu'elles mettent a la\n * rejoindre : la premiere est vive, la derniere traine. Pendant un mouvement,\n * chacune est donc a un point different du trajet, et le texte laisse une\n * trainee — sans une seule image calculee en JavaScript, sans un seul rendu\n * React par evenement.\n *\n * ## L'original reste net, et reste le seul texte\n *\n * Les echos sont des ornements : opacite decroissante, flou croissant, et\n * `aria-hidden` — pour un lecteur d'ecran il n'y a qu'un texte. Sous\n * mouvement reduit, les copies ne sont pas rendues du tout.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface EchoTextOwnProps {\n  /** Texte a repeter. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Nombre de copies. @defaultValue 3 */\n  copies?: number\n  /** Retard de la premiere copie, en millisecondes ; chaque copie suivante double la mise. @defaultValue 220 */\n  lag?: number\n  /** Flou ajoute a chaque copie, en pixels. @defaultValue 1 */\n  spread?: number\n}\n\n/** Toutes les proprietes. */\nexport type EchoTextProps = Customisable<EchoTextOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-echo-text'\n\n/** Part du chemin vers le pointeur que les echos parcourent. */\nconst FOLLOW = 0.3\n\n/** Pose les regles des echos, une fois par document. */\nfunction ensureEchoRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-echo]{position:relative;display:inline-block}',\n    '[data-o-echo-copy]{',\n    'position:absolute;inset:0;pointer-events:none;user-select:none;',\n    'transform:translate(var(--o-echo-x),var(--o-echo-y));',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait suivre le pointeur par des echos du texte, l'original restant net.\n *\n * @example\n * <EchoText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   Remanence\n * </EchoText>\n *\n * @example\n * // Deux echos seulement, tres traineurs.\n * <EchoText copies={2} lag={400}>Lent</EchoText>\n */\nexport function EchoText({\n  children,\n  as: Tag = 'span',\n  copies = 3,\n  lag = 220,\n  spread = 1,\n  ...rest\n}: EchoTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const host = useRef<HTMLElement | null>(null)\n  ensureEchoRule()\n\n  useEffect(() => {\n    const element = host.current\n    if (element === null || reduced) return\n\n    const onMove = (event: PointerEvent): void => {\n      const bounds = element.getBoundingClientRect()\n      const x = (event.clientX - bounds.left - bounds.width / 2) * FOLLOW\n      const y = (event.clientY - bounds.top - bounds.height / 2) * FOLLOW\n      element.style.setProperty('--o-echo-x', `${String(x)}px`)\n      element.style.setProperty('--o-echo-y', `${String(y)}px`)\n    }\n    const onLeave = (): void => {\n      // Retour au repos : les echos se rangent sous l'original, chacun a son\n      // rythme — c'est la meme transition qui les ramene.\n      element.style.setProperty('--o-echo-x', '0px')\n      element.style.setProperty('--o-echo-y', '0px')\n    }\n\n    element.addEventListener('pointermove', onMove, { passive: true })\n    element.addEventListener('pointerleave', onLeave)\n    return () => {\n      element.removeEventListener('pointermove', onMove)\n      element.removeEventListener('pointerleave', onLeave)\n    }\n  }, [reduced])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : l'original, seul.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const echoStyle = {\n    ...style,\n    '--o-echo-x': '0px',\n    '--o-echo-y': '0px',\n  } as CSSProperties\n\n  const count = Math.max(2, Math.min(4, Math.round(copies)))\n\n  return (\n    <Tag {...rest} ref={host} className={className} style={echoStyle} data-o-echo=\"\">\n      {children}\n      {Array.from({ length: count }, (_, index) => {\n        const rank = index + 1\n        return (\n          <span\n            key={rank}\n            aria-hidden\n            data-o-echo-copy=\"\"\n            style={{\n              // Plus l'echo est lointain, plus il est lent, pale et flou.\n              transition: `transform ${String(lag * rank)}ms ease-out`,\n              opacity: 0.3 * Math.pow(0.65, index),\n              filter: `blur(${String(rank * spread)}px)`,\n            }}\n          >\n            {children}\n          </span>\n        )\n      })}\n    </Tag>\n  )\n}\n"
+  }
+}

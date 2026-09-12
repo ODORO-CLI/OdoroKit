@@ -1,0 +1,59 @@
+{
+  "name": "crosshatch",
+  "category": "background",
+  "title": "Croisillons",
+  "description": "Deux trames diagonales croisees a plus et moins 45 degres. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Crosshatch.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-500"
+  ],
+  "props": [
+    {
+      "name": "spacing",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Ecart entre deux traits d une meme trame.",
+      "min": 6,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Opacite des traits, entre 0 et 1.",
+      "min": 0.02,
+      "max": 0.5,
+      "step": 0.02
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux degrades CSS repetes : aucun script, aucun contexte graphique."
+  },
+  "id": "background/crosshatch",
+  "sources": {
+    "component.tsx": "/**\n * Croisillons : deux trames diagonales croisees, en degrades repetes.\n *\n * ## Pourquoi deux trames et pas une grille tournee\n *\n * Tourner une grille de 45 degres avec `transform` obligerait a surdimensionner\n * l'element pour couvrir les coins, puis a masquer le depassement. Deux\n * `repeating-linear-gradient` inclines a plus et moins 45 degres dessinent le\n * meme croisillon sans rotation, sans surplus et sans masque : l'inclinaison\n * est portee par le degrade lui-meme.\n *\n * ## Ou les traits se croisent\n *\n * Aux croisements, les deux trames se superposent et la couleur s'y accumule\n * naturellement — c'est ce leger renforcement des noeuds qui fait la matiere\n * du motif, et il est gratuit : aucune couche dediee ne le dessine.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CrosshatchOwnProps {\n  /** Ecart entre deux traits d'une meme trame, en pixels. @defaultValue 14 */\n  spacing?: number\n  /** Opacite des traits, entre 0 et 1. @defaultValue 0.12 */\n  strength?: number\n  /** Couleur des traits. */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type CrosshatchProps = Customisable<CrosshatchOwnProps>\n\n/**\n * Croisillons de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Crosshatch className=\"o-absolute o-inset-0\" spacing={18} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Crosshatch({\n  spacing = 14,\n  strength = 0.12,\n  color = 'var(--o-palette-zinc-500, oklch(55.2% 0.016 285.938))',\n  ...rest\n}: CrosshatchProps): ReactElement {\n  const line = `color-mix(in oklab, ${color} ${String(Math.round(strength * 100))}%, transparent)`\n  const period = `${String(spacing)}px`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundImage: [\n            `repeating-linear-gradient(45deg, ${line} 0 1px, transparent 1px ${period})`,\n            `repeating-linear-gradient(-45deg, ${line} 0 1px, transparent 1px ${period})`,\n          ].join(','),\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

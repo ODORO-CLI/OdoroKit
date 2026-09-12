@@ -1,0 +1,57 @@
+{
+  "name": "paper-plane",
+  "category": "loader",
+  "title": "Avion en papier",
+  "description": "Un avion traverse la vue en piquant puis en remontant, nez toujours dans l axe de sa course, et laisse la trace exacte de son passage, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PaperPlane.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 80,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 40,
+      "max": 240,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un vol complet, fondu compris.",
+      "min": 1200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de l avion et de sa trainee. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS sur des elements SVG, tenues par le compositeur ; la courbe est echantillonnee une fois au chargement du module, rien n est lu dans le document. Avion pose au bout de sa course et trainee complete sous mouvement reduit."
+  }
+}

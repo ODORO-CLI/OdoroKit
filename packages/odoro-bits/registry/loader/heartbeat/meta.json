@@ -1,0 +1,57 @@
+{
+  "name": "heartbeat",
+  "category": "loader",
+  "title": "Coeur qui bat",
+  "description": "Un coeur se contracte deux fois de suite puis se repose, et lache une onde a chaque battement, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Heartbeat.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Largeur du coeur. L onde deborde un peu autour.",
+      "min": 20,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree d un cycle, double battement et repos compris.",
+      "min": 600,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du coeur et de l onde. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Coeur plein a sa taille de repos, sans onde, sous mouvement reduit."
+  }
+}

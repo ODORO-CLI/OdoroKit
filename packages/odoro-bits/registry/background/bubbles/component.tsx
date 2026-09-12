@@ -60,10 +60,10 @@ export interface BubblesOwnProps {
 export type BubblesProps = Customisable<BubblesOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-fuchsia-600'] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-600'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-t o-from-fuchsia-950 o-to-zinc-950'
+const DEFAULT_FALLBACK = 'o-bg-gradient-to-t o-from-fuchsia-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
  * Bulles.

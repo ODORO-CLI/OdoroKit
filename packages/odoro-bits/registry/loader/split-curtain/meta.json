@@ -1,0 +1,90 @@
+{
+  "name": "split-curtain",
+  "category": "loader",
+  "title": "Rideau a deux pans",
+  "description": "Deux pans coupes par une couture visible, qui s ecartent en sens opposes et laissent la page entrer entre eux.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SplitCurtain.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond des pans."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du rideau : couture et libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "axis",
+      "type": "'horizontal' | 'vertical'",
+      "default": "horizontal",
+      "options": ["horizontal", "vertical"],
+      "description": "Sens de l ecartement."
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps le rideau reste ferme.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree de l ecartement.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : le rideau couvre tant que c est vrai, et sort au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de la sortie, pour que le contenu entre a travers l ouverture."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux translations composees, un minuteur. Aucun JavaScript par image, aucune mise en page recalculee."
+  }
+}

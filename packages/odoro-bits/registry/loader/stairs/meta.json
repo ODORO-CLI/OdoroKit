@@ -1,0 +1,57 @@
+{
+  "name": "stairs",
+  "category": "loader",
+  "title": "Escalier",
+  "description": "Un escalier de cinq marches et un carre qui les gravit en sautant, puis reparait en bas, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Stairs.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Largeur d une marche, qui est aussi la hauteur d un palier et le cote du carre.",
+      "min": 4,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une montee complete, retour en bas compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des marches et du carre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation CSS de translation tenue par le compositeur, aucun JavaScript apres le premier rendu. Carre pose sur la marche du haut, immobile, sous mouvement reduit."
+  }
+}

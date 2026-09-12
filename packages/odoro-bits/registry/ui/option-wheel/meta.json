@@ -1,0 +1,76 @@
+{
+  "name": "option-wheel",
+  "category": "ui",
+  "title": "Roue d options",
+  "description": "Un tambour que l on fait tourner a la molette ou au doigt, dont les lignes s inclinent selon leur distance au centre et qui se cale sur l option retenue.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/OptionWheel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-fast"
+  ],
+  "props": [
+    {
+      "name": "options",
+      "type": "readonly { value: string; label: string }[]",
+      "required": true,
+      "description": "Les options, dans l ordre du tambour."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la roue pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Option choisie, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Option choisie au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "description": "Appele quand la roue se cale sur une option."
+    },
+    {
+      "name": "visible",
+      "type": "number",
+      "default": 5,
+      "min": 3,
+      "max": 9,
+      "step": 2,
+      "description": "Nombre de lignes visibles. Un nombre impair centre la ligne choisie."
+    },
+    {
+      "name": "curve",
+      "type": "number",
+      "default": 18,
+      "unit": "deg",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "description": "Inclinaison ajoutee par ligne d ecart au centre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le defilement et le calage sont ceux du navigateur ; l inclinaison est ecrite sur les lignes une fois par image utile, sans rendu React. La valeur n est publiee qu a l arret. Sous mouvement reduit, la roue devient une liste plate."
+  }
+}

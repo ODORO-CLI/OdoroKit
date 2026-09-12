@@ -71,7 +71,7 @@ const DEFAULT_TOKENS = [
 
 /** Repli par defaut : un halo fige, dans les memes tons. */
 const DEFAULT_POSTER =
-  'o-bg-gradient-to-br o-from-violet-950 o-via-zinc-950 o-to-fuchsia-950'
+  'o-bg-gradient-to-br o-from-violet-950 o-via-zinc-50 dark:o-via-zinc-950 o-to-fuchsia-950'
 
 /**
  * Nombre de points en qualite basse.
@@ -237,7 +237,7 @@ export function OrbitalSphere({
   const pending = usePoster({ ready, refused })
 
   const { className, style } = mergePresentation(
-    { className: 'o-relative o-overflow-hidden o-bg-zinc-950' },
+    { className: 'o-relative o-overflow-hidden o-bg-zinc-50 dark:o-bg-zinc-950' },
     rest,
   )
 

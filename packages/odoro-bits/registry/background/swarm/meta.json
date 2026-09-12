@@ -1,0 +1,65 @@
+{
+  "name": "swarm",
+  "category": "background",
+  "title": "Nuee",
+  "description": "Des points qui volent en groupe selon les regles des boids — separation, alignement, cohesion — simules sur le processeur et rendus en un nuage de points ; la nuee s ouvre autour du pointeur.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Swarm.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 240,
+      "description": "Nombre de boids. Retrograde a 100 en qualite basse.",
+      "min": 40,
+      "max": 480,
+      "step": 20
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de vol.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "avoid",
+      "type": "number",
+      "default": 0.9,
+      "description": "Rayon d evitement du pointeur, en unites de scene. Zero le coupe.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les boids."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Simulation en n carre sur le processeur, un attribut de position reecrit par image, un seul appel de dessin. Le nombre de boids suit la qualite retenue ; le rendu se suspend hors du champ."
+  }
+}

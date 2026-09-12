@@ -1,0 +1,57 @@
+{
+  "name": "pinwheel",
+  "category": "loader",
+  "title": "Moulinet",
+  "description": "Quatre pales triangulaires en deux nuances tournent par rafales, une acceleration et un ralenti par demi-tour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Pinwheel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre du moulinet.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un tour, soit deux rafales.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des pales ; une pale sur deux en est une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre pales decoupees par clip-path et une seule rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Moulinet immobile sous mouvement reduit."
+  }
+}

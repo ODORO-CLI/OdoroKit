@@ -1,0 +1,64 @@
+{
+  "name": "sticker-peel",
+  "category": "effect",
+  "title": "Autocollant decolle",
+  "description": "Un coin du contenu se souleve comme un autocollant qu on decolle, et laisse voir son dos et son ombre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/StickerPeel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-fg", "--o-theme-surface", "--o-ease-emphasized"],
+  "props": [
+    {
+      "name": "corner",
+      "type": "'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'",
+      "default": "top-right",
+      "description": "Coin qui se souleve.",
+      "options": ["top-right", "top-left", "bottom-right", "bottom-left"]
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 72,
+      "unit": "px",
+      "description": "Longueur du coin souleve.",
+      "min": 16,
+      "max": 220,
+      "step": 4
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 420,
+      "unit": "ms",
+      "description": "Duree du decollage.",
+      "min": 0,
+      "max": 1600,
+      "step": 20
+    },
+    {
+      "name": "peeled",
+      "type": "boolean",
+      "default": false,
+      "description": "Garde le coin souleve, sans attendre le survol."
+    },
+    {
+      "name": "back",
+      "type": "string",
+      "description": "Couleur du dos de l autocollant."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux traces de decoupe animes par une transition CSS. Deux rendus React par survol, aucun pendant."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "newsletter",
+  "category": "section",
+  "title": "Inscription a une lettre",
+  "description": "Un formulaire a quatre etats — repos, envoi, succes, erreur — annonces dans une region qui existe avant son message.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/Newsletter.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-600",
+    "--o-palette-white",
+    "--o-palette-rose-600",
+    "--o-palette-emerald-600",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "onSubmit",
+      "type": "(email: string) => void | Promise<void>",
+      "description": "Envoie l adresse. Une promesse rejetee vaut echec, et son message est affiche."
+    },
+    { "name": "title", "type": "ReactNode", "description": "Titre de la section." },
+    {
+      "name": "body",
+      "type": "ReactNode",
+      "description": "Ce que la lettre contient, et a quelle frequence."
+    },
+    {
+      "name": "fieldLabel",
+      "type": "string",
+      "default": "Adresse e-mail",
+      "description": "Libelle du champ."
+    },
+    {
+      "name": "cta",
+      "type": "string",
+      "default": "S inscrire",
+      "description": "Ce qui est ecrit sur le bouton."
+    },
+    {
+      "name": "messages",
+      "type": "NewsletterMessages",
+      "description": "Les phrases affichees dans la region d annonce."
+    },
+    {
+      "name": "note",
+      "type": "ReactNode",
+      "description": "Mention sous le formulaire : frequence, desinscription, donnees."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu par changement d etat, et une rotation CSS pendant le seul envoi. Rien ne tourne au repos."
+  }
+}

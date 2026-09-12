@@ -1,0 +1,65 @@
+{
+  "name": "square-morph",
+  "category": "loader",
+  "title": "Carre qui s arrondit",
+  "description": "Un carre plein fait un demi-tour en devenant rond, puis retrouve ses angles en finissant le tour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SquareMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 32,
+      "unit": "px",
+      "description": "Cote du carre.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la forme. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element, une animation de transformation et de rayon de bordure, aucun JavaScript apres le premier rendu. Carre droit et immobile sous mouvement reduit."
+  },
+  "id": "loader/square-morph",
+  "sources": {
+    "component.tsx": "/**\n * Carre qui s'arrondit : un carre plein fait un demi-tour en devenant rond,\n * puis retrouve ses angles en finissant le tour.\n *\n * ## Le rond cache le milieu du tour\n *\n * Un carre qui tourne sur lui-meme se ressemble tous les quarts de tour :\n * une rotation seule se lirait comme un tremblement. Ici la rotation est\n * couplee au rayon des angles. Au depart, un carre ; a mi-course, un rond ;\n * a l'arrivee, le carre de nouveau. Le moment ou l'on ne saurait pas dire\n * si le carre a tourne est justement celui ou il n'y a plus d'angles a\n * suivre. Ce que l'oeil retient, c'est une forme qui se ramasse en cercle\n * et se redeploie en carre, un tour sur deux dans chaque sens de lecture.\n *\n * La forme se contracte un peu au passage en rond : un rond de meme cote\n * qu'un carre parait plus petit, la contraction accentue le mouvement au\n * lieu de le compenser. C'est une pulsation, pas une correction optique.\n *\n * Un seul element, une seule animation, aucun JavaScript apres le premier\n * rendu. Le rayon de bordure n'est pas tenu par le compositeur, mais sur un\n * element de cette taille le repeint est negligeable.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. La forme, elle, est\n * retiree de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le carre reste droit et plein : la figure se lit\n * encore comme un chargeur, seul le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-square-morph'\n\n/** Pose la forme et son tour, une fois par document. */\nfunction ensureSquareMorphRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-square-morph]{display:inline-block;line-height:0}',\n    '[data-o-square-morph-shape]{',\n    'display:block;',\n    'width:var(--o-square-size);height:var(--o-square-size);',\n    'background:var(--o-square-color);border-radius:12%;',\n    'animation:o-square-morph-turn var(--o-square-speed) ease-in-out infinite;',\n    '}',\n    // Un demi-tour pour devenir rond, un demi-tour pour redevenir carre :\n    // la rotation ne s'arrete jamais, seuls les angles vont et viennent.\n    '@keyframes o-square-morph-turn{',\n    '0%{transform:rotate(0deg) scale(1);border-radius:12%}',\n    '50%{transform:rotate(180deg) scale(0.78);border-radius:50%}',\n    '100%{transform:rotate(360deg) scale(1);border-radius:12%}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-square-morph-shape]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SquareMorphOwnProps {\n  /** Cote du carre, en pixels. @defaultValue 32 */\n  size?: number\n  /** Duree d'un tour complet, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur de la forme. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SquareMorphProps = Customisable<SquareMorphOwnProps, 'span'>\n\n/**\n * Signale une attente par un carre qui tourne en s'arrondissant.\n *\n * @example\n * <SquareMorph />\n *\n * @example\n * // Plus petit, plus vif, dans la teinte de marque.\n * <SquareMorph size={20} speed={1200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function SquareMorph({\n  size = 32,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: SquareMorphProps): ReactElement {\n  ensureSquareMorphRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-square-size': `${String(size)}px`,\n    '--o-square-speed': `${String(speed)}ms`,\n    '--o-square-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-square-morph=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-square-morph-shape=\"\" />\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "name": "image-stack-swipe",
+  "category": "image",
+  "title": "Pile a balayer",
+  "description": "Des images empilees dont celle du dessus se chasse au glisser comme aux fleches du clavier, puis repasse sous la pile.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ImageStackSwipe.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-palette-brand-500",
+    "--o-shadow-lg",
+    "--o-ease-standard",
+    "--o-ease-exit"
+  ],
+  "props": [
+    {
+      "name": "images",
+      "type": "readonly { src: string; alt: string }[]",
+      "required": true,
+      "description": "Les images empilees, de la premiere a la derniere. Chacune porte son texte de remplacement."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.4,
+      "description": "Rapport largeur sur hauteur des cartes.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "default": 90,
+      "unit": "px",
+      "description": "Distance a franchir pour chasser la carte.",
+      "min": 20,
+      "max": 260,
+      "step": 10
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de cartes visibles derriere celle du dessus.",
+      "min": 0,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Decalage entre deux cartes de la pile.",
+      "min": 0,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Pile d images",
+      "description": "Libelle du groupe, annonce avant la pile."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation ecrite par evenement de pointeur, sans rendu React pendant le geste ; un seul rendu par carte chassee. La pile est atteignable au clavier et annonce l image arrivee. Sous mouvement reduit, l ordre change sans trajet."
+  }
+}

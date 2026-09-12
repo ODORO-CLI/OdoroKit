@@ -1,0 +1,57 @@
+{
+  "name": "dots-orbit",
+  "category": "loader",
+  "title": "Points en orbite",
+  "description": "Trois points tournent chacun sur son orbite concentrique, l interieur plus vite que l exterieur, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DotsOrbit.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l orbite exterieure.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour de l orbite interieure. Les autres sont plus lentes.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points et des orbites. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un SVG de trois orbites et trois points, trois rotations CSS tenues par le compositeur. Points immobiles a des angles distincts sous mouvement reduit."
+  }
+}

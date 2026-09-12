@@ -15,6 +15,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /** Documentation du composant Breadcrumb. */
 export function BreadcrumbDoc(): ReactElement {
@@ -107,6 +108,65 @@ export function BreadcrumbDoc(): ReactElement {
           courante et porte{' '}
           <code className="o-font-mono o-text-sm">aria-current="page"</code>.
         </Callout>
+      </Section>
+
+      <Section title="Variantes">
+        <VariantGrid
+          variants={[
+            {
+              title: 'Deux niveaux',
+              description: 'La forme minimale utile.',
+              node: (
+                <Breadcrumb
+                  items={[{ label: 'Accueil', href: '#' }, { label: 'Projets' }]}
+                />
+              ),
+            },
+            {
+              title: 'Quatre niveaux',
+              description: 'De la racine a la page courante.',
+              node: (
+                <Breadcrumb
+                  items={[
+                    { label: 'Accueil', href: '#' },
+                    { label: 'Projets', href: '#' },
+                    { label: 'OdoroKit', href: '#' },
+                    { label: 'Parametres' },
+                  ]}
+                />
+              ),
+            },
+            {
+              title: 'Separateur slash',
+              description: 'Un ReactNode libre entre les etapes.',
+              node: (
+                <Breadcrumb
+                  separator={
+                    <span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>
+                  }
+                  items={[
+                    { label: 'Accueil', href: '#' },
+                    { label: 'Docs', href: '#' },
+                    { label: 'Breadcrumb' },
+                  ]}
+                />
+              ),
+            },
+            {
+              title: 'Etapes sans lien',
+              description: 'Les niveaux sans page propre restent en texte.',
+              node: (
+                <Breadcrumb
+                  items={[
+                    { label: 'Accueil', href: '#' },
+                    { label: 'Composants' },
+                    { label: 'Breadcrumb' },
+                  ]}
+                />
+              ),
+            },
+          ]}
+        />
       </Section>
 
       <Section title="Props">

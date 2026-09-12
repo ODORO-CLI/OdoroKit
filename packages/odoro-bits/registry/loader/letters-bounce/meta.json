@@ -1,0 +1,63 @@
+{
+  "name": "letters-bounce",
+  "category": "loader",
+  "title": "Lettres qui sautent",
+  "description": "Chaque lettre du mot s ecrase, saute et retombe a son tour, de gauche a droite, puis le mot se pose avant le saut suivant, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LettersBounce.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Le texte affiche, lettre par lettre."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 18,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un cycle, la pause comprise.",
+      "min": 800,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du texte. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation de transformation par lettre, tenue par le compositeur, aucun JavaScript apres le premier rendu. Mot pose et immobile sous mouvement reduit."
+  }
+}

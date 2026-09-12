@@ -1,0 +1,74 @@
+{
+  "name": "chroma-grid",
+  "category": "ui",
+  "title": "Grille chromatique",
+  "description": "Des cartes teintees rendues en gris par un voile, dont le pointeur revele les couleurs dans un cercle amorti.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ChromaGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-500",
+    "--o-palette-emerald-500"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de colonnes.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "default": "--o-palette-brand-500, --o-palette-fuchsia-500, --o-palette-sky-500, --o-palette-emerald-500",
+      "description": "Tokens des teintes, attribues aux cartes dans l ordre et en boucle."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 220,
+      "unit": "px",
+      "description": "Rayon du cercle revele.",
+      "min": 80,
+      "max": 500,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 6,
+      "description": "Vitesse a laquelle le cercle suit le pointeur.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "fallback": "static",
+    "notes": "Un filtre d arriere-plan sur un seul voile, trois variables ecrites depuis la boucle tant que le cercle bouge, aucun rendu React par image. Grille en couleurs, sans voile, au doigt et sous mouvement reduit."
+  }
+}

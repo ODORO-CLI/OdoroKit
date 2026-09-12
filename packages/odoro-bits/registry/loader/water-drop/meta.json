@@ -1,0 +1,57 @@
+{
+  "name": "water-drop",
+  "category": "loader",
+  "title": "Goutte qui tombe",
+  "description": "Une goutte se detache, s allonge en chutant, s ecrase sur la surface, et une onde unique part du point d impact, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/WaterDrop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 64,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un cycle, chute, impact et onde compris.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la goutte, de l onde et de la surface. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations de transformation sur deux formes SVG, tenues par le compositeur, aucun JavaScript apres le premier rendu. Goutte suspendue au-dessus de la surface et onde naissante sous mouvement reduit."
+  }
+}

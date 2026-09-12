@@ -1,0 +1,82 @@
+{
+  "name": "ascii-image",
+  "category": "image",
+  "title": "Image en caracteres",
+  "description": "La photo est echantillonnee une fois dans un canevas hors du document et rendue en texte monospace, l image reelle restant dessous.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/AsciiImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 90,
+      "description": "Nombre de caracteres sur la largeur. Borne a deux cents.",
+      "min": 16,
+      "max": 200,
+      "step": 2
+    },
+    {
+      "name": "contrast",
+      "type": "number",
+      "default": 1.3,
+      "description": "Contraste applique avant le choix du caractere.",
+      "min": 0.4,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "invert",
+      "type": "boolean",
+      "default": false,
+      "description": "Retourne la rampe : l image sort en negatif."
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "default": true,
+      "description": "Rendre la photo au survol et au focus."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une conversion unique au chargement — un canevas de la taille de la grille, une lecture de pixels, un rendu React — puis du texte statique. Rien par image. Le calque n est pas rendu tant que la conversion n a pas abouti : sans elle, la photo reste seule."
+  }
+}

@@ -51,7 +51,7 @@ import '@odoro-cli/libs/styles.full.css' // ~17 500 classes : + o-bg-sky-500, o-
           Les composants d'<code className="o-font-mono o-text-sm">odoro-libs/ui</code>{' '}
           n'emploient que les sept teintes essentielles : ils fonctionnent avec la feuille
           de base seule, et se retheme en surchargeant les variables{' '}
-          <code className="o-font-mono o-text-sm">--o-color-*</code>.
+          <code className="o-font-mono o-text-sm">--o-palette-*</code>.
         </Callout>
       </Section>
 

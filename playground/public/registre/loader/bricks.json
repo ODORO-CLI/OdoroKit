@@ -1,0 +1,65 @@
+{
+  "name": "bricks",
+  "category": "loader",
+  "title": "Briques",
+  "description": "Dix briques se posent une a une, rangee par rangee et en quinconce, jusqu a former un mur qui s efface, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Bricks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Hauteur d une brique. La largeur et le joint en dependent.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, pose des dix briques et effacement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des briques. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Dix animations CSS d opacite et de translation tenues par le compositeur, aucun JavaScript apres le premier rendu. Mur complet et immobile sous mouvement reduit."
+  },
+  "id": "loader/bricks",
+  "sources": {
+    "component.tsx": "/**\n * Briques : dix briques se posent une a une, rangee par rangee et en\n * quinconce, jusqu'a former un mur qui s'efface et se rebatit.\n *\n * ## Le quinconce est un decalage de rangee, pas un calcul par brique\n *\n * Un mur se reconnait a ses joints decales. Plutot que de positionner chaque\n * brique, la rangee du milieu compte une brique de plus et se decale d'une\n * demi-brique vers la gauche ; le conteneur coupe ce qui depasse des deux\n * cotes. Trois rangees en flux normal, un seul decalage, et le motif est la.\n *\n * ## Une fenetre par brique\n *\n * La pose a un ordre — le bas d'abord, de gauche a droite — et une fin : le\n * mur tient un instant, puis s'efface d'un bloc. Chaque brique connait donc\n * sa fenetre dans le cycle, par une animation propre ecrite une fois dans la\n * feuille. Une brique arrive d'un peu au-dessus de sa place, en `ease-out` :\n * elle se pose, elle ne surgit pas.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les briques sont\n * retirees de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le mur reste complet : la figure se lit encore,\n * seule la pose s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-bricks'\n\n/** Nombre de briques par rangee, du bas vers le haut. */\nconst ROWS: readonly number[] = [3, 4, 3]\n\n/** Nombre total de briques. */\nconst COUNT = ROWS.reduce((sum, row) => sum + row, 0)\n\n/** Largeur d'une brique, en hauteurs de brique. */\nconst RATIO = 2.2\n\n/** Joint entre deux briques, en hauteurs de brique. */\nconst JOINT = 0.25\n\n/** Part du cycle entre deux poses, en pour cent. */\nconst STEP = 7.5\n\n/** Duree d'une pose, en pour cent du cycle. */\nconst SETTLE = 6\n\n/** Instant ou le mur complet commence a s'effacer, en pour cent. */\nconst CLEAR_AT = 86\n\n/** Pose le mur et les fenetres de chaque brique, une fois par document. */\nfunction ensureBricksRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Largeur de trois briques et deux joints : la rangee decalee deborde et\n    // se fait couper, c'est ce qui dessine les demi-briques des bords.\n    '[data-o-bricks]{',\n    'display:inline-flex;flex-direction:column-reverse;overflow:hidden;',\n    `gap:calc(var(--o-bricks-size) * ${String(JOINT)});`,\n    `width:calc(var(--o-bricks-size) * ${String(3 * RATIO + 2 * JOINT)});`,\n    '}',\n    '[data-o-bricks-row]{',\n    `display:flex;gap:calc(var(--o-bricks-size) * ${String(JOINT)});flex:none;`,\n    '}',\n    `[data-o-bricks-row=\"offset\"]{margin-left:calc(var(--o-bricks-size) * ${String(-(RATIO + JOINT) / 2)})}`,\n    '[data-o-brick]{',\n    `flex:none;width:calc(var(--o-bricks-size) * ${String(RATIO)});height:var(--o-bricks-size);`,\n    'border-radius:calc(var(--o-bricks-size) / 6);background:var(--o-bricks-color);',\n    'animation-duration:var(--o-bricks-speed);animation-iteration-count:infinite;',\n    '}',\n    ...Array.from({ length: COUNT }, (_, brick) => {\n      const start = brick * STEP\n      const end = start + SETTLE\n      return [\n        `[data-o-brick=\"${String(brick)}\"]{animation-name:o-bricks-${String(brick)}}`,\n        `@keyframes o-bricks-${String(brick)}{`,\n        `0%,${String(start)}%{opacity:0;transform:translateY(-60%);animation-timing-function:ease-out}`,\n        `${String(end)}%,${String(CLEAR_AT)}%{opacity:1;transform:none}`,\n        `${String(CLEAR_AT + 8)}%,100%{opacity:0;transform:none}`,\n        '}',\n      ].join('')\n    }),\n    // Un mur complet : la figure est dite, sans pose.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-brick]{animation:none;opacity:1;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BricksOwnProps {\n  /** Hauteur d'une brique, en pixels. @defaultValue 6 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2400 */\n  speed?: number\n  /** Couleur des briques. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BricksProps = Customisable<BricksOwnProps, 'span'>\n\n/**\n * Signale une attente par un mur de briques qui se batit et s'efface.\n *\n * @example\n * <Bricks />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Bricks size={10} speed={3600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Bricks({\n  size = 6,\n  speed = 2400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BricksProps): ReactElement {\n  ensureBricksRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-bricks-size': `${String(size)}px`,\n    '--o-bricks-speed': `${String(speed)}ms`,\n    '--o-bricks-color': color,\n  } as CSSProperties\n\n  // L'ordre de pose suit l'ordre du DOM : la premiere rangee du DOM est en\n  // bas, grace a la colonne inversee.\n  let laid = 0\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-bricks=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {ROWS.map((count, row) => (\n        <span\n          key={row}\n          aria-hidden\n          data-o-bricks-row={row % 2 === 1 ? 'offset' : ''}\n        >\n          {Array.from({ length: count }, () => {\n            const brick = laid\n            laid += 1\n            return <span key={brick} data-o-brick={String(brick)} />\n          })}\n        </span>\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "scroll-velocity",
+  "category": "effect",
+  "title": "Inclinaison au defilement",
+  "description": "Le conteneur s incline et se decale avec la vitesse de defilement, puis se redresse en douceur a l arret.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ScrollVelocity.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Ampleur de l inclinaison et du decalage.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Vitesse du lissage et du retour. Plus haut, plus sec.",
+      "min": 1,
+      "max": 24,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, une lecture de position et deux variables CSS ecrites par image. Aucune souscription et conteneur immobile sous mouvement reduit."
+  },
+  "id": "effect/scroll-velocity",
+  "sources": {
+    "component.tsx": "/**\n * Inclinaison au defilement : le conteneur penche avec la vitesse, pas la\n * position.\n *\n * ## La vitesse se mesure dans la boucle, pas dans l'evenement\n *\n * L'evenement `scroll` arrive par paquets irreguliers ; en deriver une\n * vitesse donnerait une valeur qui saute. La position est donc relevee a\n * chaque image de la boucle du moteur, et la vitesse est le delta divise par\n * le temps ecoule — puis lissee par amortissement exponentiel, en fonction du\n * temps (`1 - exp(-amortissement x dt)`), pour que le meme reglage donne le\n * meme mouvement a soixante comme a cent vingt images par seconde. A l'arret,\n * la vitesse lissee retombe d'elle-meme : le retour amorti n'est pas un\n * second mecanisme, c'est le meme.\n *\n * ## Deux variables CSS, un transform pose une fois\n *\n * La boucle n'ecrit que `--o-sv-skew` et `--o-sv-shift` ; le transform qui\n * les consomme est pose au rendu, une fois. L'inclinaison et le decalage sont\n * bornes : une vitesse de defilement n'a pas de plafond, une inclinaison\n * lisible en a un.\n *\n * Sous mouvement reduit, aucune souscription : le conteneur est immobile.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useState, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ScrollVelocityOwnProps {\n  /** Contenu qui s'incline. */\n  children: ReactNode\n  /** Ampleur de l'inclinaison et du decalage. @defaultValue 1 */\n  strength?: number\n  /** Vitesse du lissage et du retour. Plus haut, plus sec. @defaultValue 8 */\n  damping?: number\n}\n\n/** Toutes les proprietes. */\nexport type ScrollVelocityProps = Customisable<ScrollVelocityOwnProps>\n\n/** Borne une valeur dans un intervalle symetrique. */\nfunction clamp(value: number, limit: number): number {\n  return Math.min(limit, Math.max(-limit, value))\n}\n\n/**\n * Premier ancetre qui defile reellement, ou rien : la page servira.\n *\n * Sans cette remontee, un conteneur pose dans une zone a defilement interne\n * — un apercu, un panneau — ne pencherait jamais : `window.scrollY` n'y\n * bouge pas.\n */\nfunction findScroller(start: HTMLElement): HTMLElement | null {\n  let node = start.parentElement\n  while (node !== null) {\n    const overflow = getComputedStyle(node).overflowY\n    if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) {\n      return node\n    }\n    node = node.parentElement\n  }\n  return null\n}\n\n/**\n * Incline son contenu proportionnellement a la vitesse de defilement.\n *\n * @example\n * <ScrollVelocity className=\"o-space-y-8\">\n *   {cartes.map((carte) => <Carte key={carte.id} {...carte} />)}\n * </ScrollVelocity>\n *\n * @example\n * // Une inclinaison discrete, au retour tres mou.\n * <ScrollVelocity strength={0.5} damping={4}>\n *   <img src={affiche} alt=\"Affiche du festival\" />\n * </ScrollVelocity>\n */\nexport function ScrollVelocity({\n  children,\n  strength = 1,\n  damping = 8,\n  ...rest\n}: ScrollVelocityProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  useEffect(() => {\n    if (host === null || reduced) return\n\n    const scroller = findScroller(host)\n    const read = (): number => (scroller === null ? window.scrollY : scroller.scrollTop)\n\n    let previous = read()\n    let velocity = 0\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        const dt = Math.max(delta, 1 / 240)\n        const position = read()\n        // Vitesse instantanee en pixels par seconde, puis lissage dependant\n        // du temps : voir l'en-tete du module.\n        const instant = (position - previous) / dt\n        previous = position\n        velocity += (instant - velocity) * (1 - Math.exp(-damping * dt))\n\n        const skew = clamp(velocity * 0.004 * strength, 6)\n        const shift = clamp(velocity * 0.015 * strength, 24)\n        host.style.setProperty('--o-sv-skew', `${skew.toFixed(3)}deg`)\n        host.style.setProperty('--o-sv-shift', `${shift.toFixed(2)}px`)\n      },\n      { name: 'scroll-velocity', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n      host.style.removeProperty('--o-sv-skew')\n      host.style.removeProperty('--o-sv-shift')\n    }\n  }, [host, reduced, strength, damping])\n\n  const { className, style } = mergePresentation(\n    { className: 'o-will-change-transform' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      // Le transform est pose une fois ; la boucle n'ecrit que les deux\n      // variables. Sans souscription, les replis valent zero : immobile.\n      style={{\n        transform: 'translateY(var(--o-sv-shift, 0px)) skewY(var(--o-sv-skew, 0deg))',\n        ...style,\n      }}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

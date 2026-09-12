@@ -1,0 +1,66 @@
+{
+  "name": "signal-bars",
+  "category": "loader",
+  "title": "Barres de signal",
+  "description": "Les barres s allument l une apres l autre, de la plus courte a la plus haute, par une seule animation CSS decalee dans le temps.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SignalBars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Hauteur de la barre la plus haute. La largeur et l ecart en decoulent.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de barres.",
+      "min": 2,
+      "max": 7,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un cycle complet. Le retard entre deux barres en est une fraction.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS unique, partagee par toutes les barres et decalee par un retard, tenue par le compositeur. Toutes les barres pleines et immobiles sous mouvement reduit."
+  }
+}

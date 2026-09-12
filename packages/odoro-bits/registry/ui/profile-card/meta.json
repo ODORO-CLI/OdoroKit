@@ -1,0 +1,75 @@
+{
+  "name": "profile-card",
+  "category": "ui",
+  "title": "Carte de profil",
+  "description": "Portrait, nom et role sur une carte qui s incline vers le pointeur, le portrait un cran devant, une bande de brillance qui la traverse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ProfileCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-surface", "--o-theme-line", "--o-theme-muted", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "description": "Nom affiche."
+    },
+    {
+      "name": "subtitle",
+      "type": "string",
+      "description": "Sous-titre : un role, un metier, un lieu."
+    },
+    {
+      "name": "avatar",
+      "type": "string | ReactNode",
+      "description": "Portrait : une source d image, ou un element (initiales, icone)."
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 10,
+      "unit": "deg",
+      "description": "Inclinaison maximale.",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 8,
+      "description": "Vitesse a laquelle la carte rejoint l angle vise.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "sheen",
+      "type": "number",
+      "default": 0.35,
+      "description": "Intensite de la bande de brillance. Zero la supprime.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "tint",
+      "type": "string",
+      "description": "Teinte de la brillance et du fond du portrait. Par defaut, la teinte de marque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation et une variable ecrites par image pendant le survol, sans rendu React. Plate au doigt et sous mouvement reduit."
+  }
+}

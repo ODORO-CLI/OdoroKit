@@ -1,0 +1,79 @@
+{
+  "name": "top-loader",
+  "category": "loader",
+  "title": "Barre de chargement",
+  "description": "Une ligne fine en haut du conteneur, pilotee par une progression reelle ou balayee sans pretendre mesurer.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/TopLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-sky-400",
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "progress",
+      "type": "number",
+      "default": 0,
+      "unit": "%",
+      "description": "Progression, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Balayage sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur de la barre.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "fixed",
+      "type": "boolean",
+      "default": false,
+      "description": "Ancrer a la fenetre plutot qu au conteneur."
+    },
+    {
+      "name": "from",
+      "type": "string",
+      "description": "Depart du degrade. Une valeur, pas un role."
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "description": "Arrivee du degrade. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle de transformation en mode determine, une animation CSS en mode indetermine : rien ne recalcule la mise en page. Barre pleine et attenuee, immobile, sous mouvement reduit."
+  }
+}

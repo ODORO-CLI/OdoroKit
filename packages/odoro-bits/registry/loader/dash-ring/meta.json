@@ -1,0 +1,76 @@
+{
+  "name": "dash-ring",
+  "category": "loader",
+  "title": "Anneau en tirets",
+  "description": "Un cercle en tirets dont le motif glisse le long du trace, sans que rien ne tourne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DashRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur des tirets.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "dashes",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de tirets sur le tour.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree pour qu un tiret fasse le tour complet.",
+      "min": 600,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des tirets. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation CSS sur le decalage du tirete, aucun JavaScript apres le premier rendu. Le decalage n est pas tenu par le compositeur : l anneau est repeint a chaque image, ce qui reste negligeable a cette taille. Tirets immobiles sous mouvement reduit."
+  }
+}

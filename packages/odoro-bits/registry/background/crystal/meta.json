@@ -1,0 +1,78 @@
+{
+  "name": "crystal",
+  "category": "background",
+  "title": "Cristal",
+  "description": "Un prisme a pointes et facettes plates qui tourne ; la refraction est feinte par un fresnel et un degrade lu dans la direction refractee, la dispersion par trois indices, sans environnement.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "crystal.shader.ts",
+      "target": "background/crystal.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Crystal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-sky-300", "--o-palette-violet-400"],
+  "props": [
+    {
+      "name": "facets",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de faces laterales.",
+      "min": 3,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 3,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "dispersion",
+      "type": "number",
+      "default": 0.6,
+      "description": "Separation des couleurs sur les aretes, entre zero et un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 0.25,
+      "description": "Inclinaison vers le pointeur. Zero la supprime.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-sky-300, --o-palette-violet-400",
+      "description": "Tokens du fond, de la teinte basse, de la teinte haute et des reflets."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Quelques dizaines de triangles en deux passes — l arriere puis l avant — et trois refractions par fragment. Le rendu se suspend hors du champ."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "clock-hands",
+  "category": "loader",
+  "title": "Aiguilles",
+  "description": "Une horloge dont la grande aiguille saute de cran en cran et tremble en se posant, la petite avancant d un cran a chaque tour, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ClockHands.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du cadran.",
+      "min": 24,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour de la grande aiguille, soit douze crans.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du cadran et des aiguilles. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS sur des groupes SVG, tenues par le compositeur ; les reperes du cadran sont calcules une fois au chargement du module. Aiguilles a midi, immobiles, sous mouvement reduit."
+  },
+  "id": "loader/clock-hands",
+  "sources": {
+    "component.tsx": "/**\n * Aiguilles : une horloge dont la grande aiguille avance par a-coups, et\n * dont la petite prend un cran a chaque tour de la grande.\n *\n * ## Une aiguille qui saute, puis tremble\n *\n * Une aiguille mecanique ne glisse pas : elle saute d'un cran, depasse\n * legerement, et se pose. Le saut est une animation en `steps`, douze par\n * tour, sur un groupe exterieur ; le tremblement est une seconde animation,\n * sur un groupe interieur, d'une duree d'un cran exactement : elle part\n * d'un leger depassement et revient a zero en `ease-out`. Les deux se\n * synchronisent d'elles-memes, puisque la premiere saute a la fin de\n * chaque periode de la seconde. Une seule animation ne saurait pas faire\n * les deux : `steps` ne connait pas le depassement, et une courbe continue\n * ne connait pas le saut.\n *\n * La petite aiguille avance d'un cran — un douzieme de tour — chaque fois\n * que la grande boucle un tour : c'est le rapport d'une horloge, et c'est\n * ce qui la fait lire comme une horloge plutot que comme deux rayons qui\n * tournent. Les douze reperes du cadran sont calcules une fois au\n * chargement du module.\n *\n * Trois animations sur des groupes SVG, tenues par le compositeur, aucun\n * JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le cadran est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les deux aiguilles sont a midi, immobiles : la\n * figure se lit encore comme une horloge, seul le temps s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-clock-hands'\n\n/** Crans par tour de la grande aiguille. */\nconst TICKS = 12\n\n/** Un repere du cadran : un trait, plus long aux quarts. */\ninterface Mark {\n  readonly x1: number\n  readonly y1: number\n  readonly x2: number\n  readonly y2: number\n  readonly major: boolean\n}\n\n/** Les douze reperes, du rayon exterieur vers l'interieur. */\nconst MARKS: readonly Mark[] = Array.from({ length: TICKS }, (_, index) => {\n  const angle = (2 * Math.PI * index) / TICKS - Math.PI / 2\n  const major = index % 3 === 0\n  const outer = 41\n  const inner = major ? 34 : 37.5\n  return {\n    x1: Number((50 + outer * Math.cos(angle)).toFixed(2)),\n    y1: Number((50 + outer * Math.sin(angle)).toFixed(2)),\n    x2: Number((50 + inner * Math.cos(angle)).toFixed(2)),\n    y2: Number((50 + inner * Math.sin(angle)).toFixed(2)),\n    major,\n  }\n})\n\n/** Pose le cadran, les sauts et le tremblement, une fois par document. */\nfunction ensureClockRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-clock-hands]{display:inline-block;line-height:0}',\n    '[data-o-clock-hands] svg{display:block}',\n    '[data-o-clock-hand],[data-o-clock-settle]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    '}',\n    // Douze sauts par tour, a la fin de chaque cran.\n    '[data-o-clock-hand=\"minute\"]{',\n    `animation:o-clock-hands-turn var(--o-clock-speed) steps(${String(TICKS)},end) infinite;`,\n    '}',\n    // Un cran par tour de la grande : douze fois plus lent.\n    '[data-o-clock-hand=\"hour\"]{',\n    `animation:o-clock-hands-turn calc(var(--o-clock-speed) * ${String(TICKS)}) steps(${String(TICKS)},end) infinite;`,\n    '}',\n    // Le tremblement dure un cran : il repart a chaque saut.\n    '[data-o-clock-settle]{',\n    `animation:o-clock-hands-settle calc(var(--o-clock-speed) / ${String(TICKS)}) ease-out infinite;`,\n    '}',\n    '@keyframes o-clock-hands-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',\n    // Depassement, leger retour, repos : la mecanique se pose.\n    '@keyframes o-clock-hands-settle{',\n    '0%{transform:rotate(4deg)}',\n    '35%{transform:rotate(-1.2deg)}',\n    '60%,100%{transform:rotate(0deg)}',\n    '}',\n    // Midi, immobile : la figure est dite, sans que le temps passe.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-clock-hand],[data-o-clock-settle]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ClockHandsOwnProps {\n  /** Diametre du cadran, en pixels. @defaultValue 48 */\n  size?: number\n  /** Duree d'un tour de la grande aiguille, en millisecondes. @defaultValue 3000 */\n  speed?: number\n  /** Couleur du cadran et des aiguilles. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ClockHandsProps = Customisable<ClockHandsOwnProps, 'span'>\n\n/**\n * Signale une attente par une horloge dont les aiguilles avancent par\n * crans.\n *\n * @example\n * <ClockHands />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <ClockHands size={80} speed={6000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function ClockHands({\n  size = 48,\n  speed = 3000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: ClockHandsProps): ReactElement {\n  ensureClockRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-clock-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-clock-hands=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <circle cx={50} cy={50} r={46} fill=\"none\" stroke=\"currentColor\" strokeWidth={3} />\n        {MARKS.map((mark, index) => (\n          <line\n            key={index}\n            x1={mark.x1}\n            y1={mark.y1}\n            x2={mark.x2}\n            y2={mark.y2}\n            stroke=\"currentColor\"\n            strokeWidth={mark.major ? 3 : 2}\n            strokeLinecap=\"round\"\n            strokeOpacity={mark.major ? 1 : 0.5}\n          />\n        ))}\n        <g data-o-clock-hand=\"hour\">\n          <line\n            x1={50}\n            y1={54}\n            x2={50}\n            y2={30}\n            stroke=\"currentColor\"\n            strokeWidth={5}\n            strokeLinecap=\"round\"\n          />\n        </g>\n        <g data-o-clock-hand=\"minute\">\n          <g data-o-clock-settle=\"\">\n            <line\n              x1={50}\n              y1={56}\n              x2={50}\n              y2={17}\n              stroke=\"currentColor\"\n              strokeWidth={3.5}\n              strokeLinecap=\"round\"\n            />\n          </g>\n        </g>\n        <circle cx={50} cy={50} r={4} fill=\"currentColor\" />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

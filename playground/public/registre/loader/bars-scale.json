@@ -1,0 +1,65 @@
+{
+  "name": "bars-scale",
+  "category": "loader",
+  "title": "Barres en cascade",
+  "description": "Cinq barres poussent du sol l une apres l autre, tiennent, puis retombent ensemble, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BarsScale.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "unit": "px",
+      "description": "Largeur d une barre. La hauteur et l ecart en dependent.",
+      "min": 2,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, montee des cinq barres et chute comprises.",
+      "min": 800,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS d echelle tenues par le compositeur, aucun JavaScript apres le premier rendu. Cinq barres pleines et immobiles sous mouvement reduit."
+  },
+  "id": "loader/bars-scale",
+  "sources": {
+    "component.tsx": "/**\n * Barres en cascade : cinq barres poussent du sol l'une apres l'autre,\n * tiennent, puis retombent ensemble.\n *\n * ## Une fenetre par barre, pas un dephasage\n *\n * Un dephasage par delais negatifs donne une vague qui ne s'arrete jamais —\n * c'est `wave-bars`. Ici la figure a un debut et une fin : les barres\n * montent dans l'ordre, la rangee reste pleine un instant, puis tout retombe\n * d'un coup avant de recommencer. Cela demande que chaque barre connaisse\n * sa place dans le cycle, d'ou une animation par barre, ecrite une fois dans\n * la feuille, dont seules les images cles de montee different.\n *\n * La montee est en `ease-out` — la barre arrive et freine — et la chute en\n * `ease-in` — elle s'effondre en accelerant : c'est le contraste entre les\n * deux qui fait lire une construction, puis une chute, et non un va-et-vient.\n *\n * Les barres sont etirees par une echelle verticale depuis le sol, jamais\n * par une hauteur : rien ne recalcule la mise en page. Un socle de quelques\n * pour cent reste visible entre deux cycles : la rangee ne disparait jamais\n * completement.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les barres sont\n * retirees de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les cinq barres restent pleines, a leur hauteur de\n * fin de montee : la rangee construite se lit encore, seule la cascade\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-bars-scale'\n\n/** Nombre de barres. */\nconst BARS = 5\n\n/** Part du cycle entre deux departs de montee, en pour cent. */\nconst STEP = 14\n\n/** Duree d'une montee, en pour cent du cycle. */\nconst RISE = 12\n\n/** Instant ou la rangee pleine commence a retomber, en pour cent. */\nconst FALL_AT = 84\n\n/** Pose les barres et leur cascade, une fois par document. */\nfunction ensureBarsScaleRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-bars-scale]{',\n    'display:inline-flex;align-items:flex-end;',\n    'gap:calc(var(--o-bscale-size) * 0.8);height:calc(var(--o-bscale-size) * 7);',\n    '}',\n    '[data-o-bars-scale-bar]{',\n    'width:var(--o-bscale-size);height:100%;',\n    'border-radius:calc(var(--o-bscale-size) / 3);',\n    'background:var(--o-bscale-color);transform-origin:bottom;',\n    'animation-duration:var(--o-bscale-speed);animation-iteration-count:infinite;',\n    '}',\n    // Une fenetre de montee par barre ; la chute est commune a toutes.\n    ...Array.from({ length: BARS }, (_, bar) => {\n      const start = bar * STEP\n      const end = start + RISE\n      return [\n        `[data-o-bars-scale-bar=\"${String(bar)}\"]{animation-name:o-bars-scale-${String(bar)}}`,\n        `@keyframes o-bars-scale-${String(bar)}{`,\n        `0%,${String(start)}%{transform:scaleY(0.08);animation-timing-function:ease-out}`,\n        `${String(end)}%,${String(FALL_AT)}%{transform:scaleY(1);animation-timing-function:ease-in}`,\n        `${String(FALL_AT + 8)}%,100%{transform:scaleY(0.08)}`,\n        '}',\n      ].join('')\n    }),\n    // Une rangee pleine : la figure construite reste dite, sans cascade.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-bars-scale-bar]{animation:none;transform:scaleY(1)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BarsScaleOwnProps {\n  /** Largeur d'une barre, en pixels. @defaultValue 5 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur des barres. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BarsScaleProps = Customisable<BarsScaleOwnProps, 'span'>\n\n/**\n * Signale une attente par cinq barres qui poussent en cascade et retombent.\n *\n * @example\n * <BarsScale />\n *\n * @example\n * // Plus large, plus lent, dans la teinte de marque.\n * <BarsScale size={8} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function BarsScale({\n  size = 5,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BarsScaleProps): ReactElement {\n  ensureBarsScaleRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-bscale-size': `${String(size)}px`,\n    '--o-bscale-speed': `${String(speed)}ms`,\n    '--o-bscale-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-bars-scale=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: BARS }, (_, bar) => (\n        <span key={bar} aria-hidden data-o-bars-scale-bar={String(bar)} />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

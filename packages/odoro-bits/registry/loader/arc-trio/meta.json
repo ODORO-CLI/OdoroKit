@@ -1,0 +1,67 @@
+{
+  "name": "arc-trio",
+  "category": "loader",
+  "title": "Trio d arcs",
+  "description": "Trois arcs de longueurs differentes sur un meme cercle, a trois vitesses : ils se rattrapent, se recouvrent, se separent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ArcTrio.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du cercle.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur des arcs.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un tour de l arc le plus long.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des arcs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois rotations CSS sur des groupes SVG, aucun JavaScript apres le premier rendu. Les arcs restent a un tiers de tour les uns des autres sous mouvement reduit."
+  }
+}

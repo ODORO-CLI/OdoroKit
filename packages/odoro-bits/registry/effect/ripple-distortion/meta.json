@@ -1,0 +1,84 @@
+{
+  "name": "ripple-distortion",
+  "category": "effect",
+  "title": "Distorsion d ondes",
+  "description": "Une surface d ondes concentriques nait sous le pointeur et deforme les bandes qu elle porte, derriere le contenu.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "ripple-distortion.shader.ts",
+      "target": "effect/ripple-distortion.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "effect/RippleDistortion.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-surface",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de propagation des ondes.",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 26,
+      "description": "Serrage des ondes et des bandes.",
+      "min": 6,
+      "max": 70,
+      "step": 2
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "default": 0.5,
+      "description": "Amplitude du decalage de lecture.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "default": 3,
+      "description": "Vitesse de rattrapage du pointeur. Plus haut, plus sec.",
+      "min": 1,
+      "max": 9,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-surface, --o-palette-brand-500",
+      "description": "Tokens du creux des bandes, de leur crete, puis de l eclat."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, a la place des anneaux figes derives des tokens."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Un triangle plein ecran et un shader de fragment, sous le contenu. Le pointeur est amorti dans la boucle du moteur et transmis par un uniform mute en place, sans rendu React."
+  }
+}

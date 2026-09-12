@@ -1,0 +1,86 @@
+{
+  "name": "duotone",
+  "category": "image",
+  "title": "Bichromie",
+  "description": "L image rendue en deux tons par calques superposes, qui revient en couleurs au survol comme au focus.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Duotone.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-indigo-950",
+    "--o-palette-amber-200",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Force de la bichromie, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Revenir en couleurs au survol et au focus."
+    },
+    {
+      "name": "shadow",
+      "type": "string",
+      "required": false,
+      "description": "Ton des ombres. Une valeur, pas une couleur en dur."
+    },
+    {
+      "name": "light",
+      "type": "string",
+      "required": false,
+      "description": "Ton des lumieres. Une valeur, pas une couleur en dur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre et deux calques pleins composes par le navigateur, sans traitement d image. Le retour en couleurs est une transition de filter et d opacity ; instantane sous mouvement reduit."
+  },
+  "id": "image/duotone",
+  "sources": {
+    "component.tsx": "/**\n * Bichromie : l'image est rendue en deux tons, et revient en couleurs au\n * survol.\n *\n * ## Deux calques de teinte sur une image desaturee\n *\n * L'image passe d'abord en niveaux de gris, avec un contraste legerement\n * releve — une bichromie sur une image molle donne deux tons gris. Au-dessus,\n * deux calques de couleur pleins font le travail :\n *\n * - un calque **ombre** en `mix-blend-mode: screen` releve les noirs vers le\n *   ton sombre choisi — l'eclaircissement n'agit que sur les zones sombres ;\n * - un calque **lumiere** en `mix-blend-mode: multiply` rabat les blancs vers\n *   le ton clair — l'assombrissement n'agit que sur les zones claires.\n *\n * Aucun traitement d'image, aucune copie : deux `div` pleins et le\n * compositeur.\n *\n * ## Le retour en couleurs est une transition, pas un remplacement\n *\n * Au survol ou au focus, le filtre de l'image tombe et les calques\n * s'eteignent — deux proprietes animables, `filter` et `opacity`, la ou un\n * `mix-blend-mode` ne s'anime pas. L'interrupteur `hover` desactive ce\n * retour pour une bichromie permanente.\n *\n * ## Sous mouvement reduit\n *\n * La bichromie et son retour en couleurs restent : c'est un changement\n * d'etat, pas un mouvement. Seule la transition disparait — le passage est\n * instantane.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-duotone'\n\n/**\n * Pose les regles du retour en couleurs, une fois par document.\n *\n * Elles ne peuvent pas etre des styles en ligne : elles dependent du survol\n * du cadre, pas de celui des calques.\n */\nfunction ensureDuotoneRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-duotone]:hover img,[data-o-duotone]:focus-within img{filter:none}',\n    '[data-o-duotone]:hover [data-o-duotone-tint],',\n    '[data-o-duotone]:focus-within [data-o-duotone-tint]{opacity:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface DuotoneOwnProps {\n  /** Source de l'image. */\n  src: string\n  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */\n  alt: string\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n  /** Force de la bichromie, de 0 a 1. @defaultValue 1 */\n  strength?: number\n  /** Revenir en couleurs au survol et au focus. @defaultValue true */\n  hover?: boolean\n  /**\n   * Ton des ombres.\n   *\n   * Une valeur, pas une couleur en dur : ecrite en clair elle echapperait au\n   * theme.\n   *\n   * @defaultValue le plus sombre des indigos\n   */\n  shadow?: string\n  /** Ton des lumieres. @defaultValue un ambre clair */\n  light?: string\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une image. */\nexport type DuotoneProps = Customisable<DuotoneOwnProps, 'img'>\n\n/**\n * Rend une image en deux tons.\n *\n * @example\n * <Duotone src=\"/photo.jpg\" alt=\"Vue de l atelier\" />\n *\n * @example\n * // Bichromie permanente dans la teinte de marque.\n * <Duotone\n *   src=\"/photo.jpg\"\n *   alt=\"\"\n *   hover={false}\n *   shadow=\"var(--o-palette-brand-950)\"\n *   light=\"var(--o-palette-brand-200)\"\n * />\n */\nexport function Duotone({\n  src,\n  alt,\n  ratio = 1.777,\n  strength = 1,\n  hover = true,\n  shadow = 'var(--o-palette-indigo-950)',\n  light = 'var(--o-palette-amber-200)',\n  ...rest\n}: DuotoneProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureDuotoneRule()\n\n  const force = Math.min(1, Math.max(0, strength))\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  // Sous mouvement reduit le passage est instantane ; la bichromie, elle,\n  // reste — c'est un etat, pas un mouvement.\n  const transition = reduced\n    ? undefined\n    : 'filter var(--o-duration-slow) var(--o-ease-standard), opacity var(--o-duration-slow) var(--o-ease-standard)'\n\n  const image: CSSProperties = {\n    filter: `grayscale(${String(force)}) contrast(${String(1 + 0.15 * force)})`,\n    transition,\n  }\n\n  const tint = (colour: string, blend: 'screen' | 'multiply'): CSSProperties => ({\n    background: colour,\n    mixBlendMode: blend,\n    opacity: force,\n    transition,\n  })\n\n  return (\n    <div\n      className={className}\n      style={{ ...style, aspectRatio: String(ratio) }}\n      data-o-duotone={hover ? '' : undefined}\n    >\n      <img\n        {...rest}\n        src={src}\n        alt={alt}\n        className=\"o-size-full o-object-cover\"\n        style={image}\n      />\n\n      {/* Les calques sont decoratifs et hors d'atteinte du pointeur : le\n          survol appartient au cadre. */}\n      <div\n        aria-hidden\n        data-o-duotone-tint=\"\"\n        className=\"o-absolute o-inset-0 o-pointer-events-none\"\n        style={tint(shadow, 'screen')}\n      />\n      <div\n        aria-hidden\n        data-o-duotone-tint=\"\"\n        className=\"o-absolute o-inset-0 o-pointer-events-none\"\n        style={tint(light, 'multiply')}\n      />\n    </div>\n  )\n}\n"
+  }
+}

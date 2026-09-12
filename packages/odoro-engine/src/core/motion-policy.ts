@@ -4,7 +4,9 @@
  * Un module unique decide si une animation joue, a quelle intensite et a quel
  * niveau de qualite. Il agrege la preference systeme, le reglage explicite de
  * l'application, la visibilite de l'onglet, la charge mesuree, et — quand le
- * navigateur les expose — le niveau de batterie et le type de connexion.
+ * navigateur les expose — le niveau de batterie et le type de connexion. Il
+ * suit aussi le theme du document, parce qu'un fond qui lit ses couleurs dans
+ * les tokens doit les relire quand la page bascule.
  *
  * ## Pourquoi ici et pas dans chaque composant
  *
@@ -35,6 +37,9 @@ export type QualityLevel = 'low' | 'medium' | 'high'
 /** Conduite a tenir face a la preference systeme. */
 export type ReducedMotionSetting = 'respect' | 'force' | 'ignore'
 
+/** Theme effectif du document. */
+export type ThemeLevel = 'light' | 'dark'
+
 /** Etat courant de la politique. */
 export interface MotionState {
   /** `true` si les animations doivent etre neutralisees. */
@@ -43,6 +48,12 @@ export interface MotionState {
   readonly quality: QualityLevel
   /** `true` si l'onglet est visible. */
   readonly visible: boolean
+  /**
+   * Theme effectif du document : `data-theme` sur la racine quand il est pose,
+   * la preference systeme sinon. Un composant qui lit ses couleurs dans les
+   * tokens s'en sert pour les relire a la bascule.
+   */
+  readonly theme: ThemeLevel
   /**
    * Images par seconde relevees au dernier changement d'etat. Pour une lecture
    * instantanee, interroger `clock.fps` : cette valeur-ci ne bouge pas a
@@ -93,6 +104,8 @@ class MotionPolicy {
   private reducedMotion: ReducedMotionSetting = 'respect'
 
   private systemReduced = false
+  private systemDark = false
+  private forcedTheme: ThemeLevel | undefined
   private visible = true
   private resolved: QualityLevel = 'high'
   private reason = 'reglage initial'
@@ -109,6 +122,7 @@ class MotionPolicy {
     reduced: false,
     quality: 'high',
     visible: true,
+    theme: 'light',
     fps: 0,
     reason: 'reglage initial',
   }
@@ -132,6 +146,7 @@ class MotionPolicy {
       reduced: this.isReduced(),
       quality: this.isReduced() ? 'low' : this.resolved,
       visible: this.visible,
+      theme: this.forcedTheme ?? (this.systemDark ? 'dark' : 'light'),
       fps: clock.fps,
       reason: this.reason,
     }
@@ -141,6 +156,7 @@ class MotionPolicy {
       previous.reduced === next.reduced &&
       previous.quality === next.quality &&
       previous.visible === next.visible &&
+      previous.theme === next.theme &&
       previous.reason === next.reason
     ) {
       return false
@@ -200,6 +216,36 @@ class MotionPolicy {
       }
       query.addEventListener('change', onChange)
       this.teardown.push(() => query.removeEventListener('change', onChange))
+
+      const scheme = window.matchMedia('(prefers-color-scheme: dark)')
+      this.systemDark = scheme.matches
+      const onScheme = (): void => {
+        this.systemDark = scheme.matches
+        this.emit()
+      }
+      scheme.addEventListener('change', onScheme)
+      this.teardown.push(() => scheme.removeEventListener('change', onScheme))
+    }
+
+    if (typeof document !== 'undefined') {
+      // Le theme pose par l'application l'emporte sur la preference systeme,
+      // dans les deux sens — la meme regle que la feuille de style.
+      const readForced = (): void => {
+        const value = document.documentElement.dataset['theme']
+        this.forcedTheme = value === 'dark' || value === 'light' ? value : undefined
+      }
+      readForced()
+      if (typeof MutationObserver === 'function') {
+        const observer = new MutationObserver(() => {
+          readForced()
+          this.emit()
+        })
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-theme'],
+        })
+        this.teardown.push(() => observer.disconnect())
+      }
     }
 
     if (typeof document !== 'undefined') {
@@ -333,6 +379,7 @@ class MotionPolicy {
       reduced: false,
       quality: 'high',
       visible: true,
+      theme: 'light',
       fps: 0,
       reason: 'reglage initial',
     }

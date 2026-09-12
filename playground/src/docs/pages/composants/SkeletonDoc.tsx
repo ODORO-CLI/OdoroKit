@@ -100,6 +100,37 @@ export function SkeletonDoc(): ReactElement {
               ? `<Skeleton />`
               : `<Skeleton lines={${String(v.lines)}} />`
           }}
+          variants={[
+            {
+              title: 'Cercle',
+              description: 'La silhouette d\'un avatar.',
+              values: { variant: 'circle' },
+            },
+            {
+              title: 'Rectangle',
+              description: 'La silhouette d\'un media.',
+              values: { variant: 'rect' },
+            },
+            {
+              title: 'Cinq lignes',
+              values: { lines: 5 },
+            },
+            {
+              title: 'Carte complete',
+              description: 'Les trois formes composees en squelette de carte.',
+              node: (
+                <Card aria-busy="true" className="o-w-56">
+                  <div className="o-flex o-items-center o-gap-3">
+                    <Skeleton variant="circle" width={32} height={32} />
+                    <div className="o-flex-1">
+                      <Skeleton lines={2} />
+                    </div>
+                  </div>
+                  <Skeleton variant="rect" width="100%" height={48} />
+                </Card>
+              ),
+            },
+          ]}
         />
         <Callout>
           La silhouette est toujours{' '}

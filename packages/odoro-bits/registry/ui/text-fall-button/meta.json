@@ -1,0 +1,63 @@
+{
+  "name": "text-fall-button",
+  "category": "ui",
+  "title": "Bouton a lettres qui tombent",
+  "description": "Au survol, les lettres du libelle tombent une a une hors du bouton, et une seconde rangee descend prendre leur place.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/TextFallButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "children",
+      "type": "string",
+      "required": true,
+      "description": "Libelle du bouton, en texte : il est decoupe en lettres."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "description": "Cible du lien. Avec elle, le bouton est rendu comme un lien."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 380,
+      "unit": "ms",
+      "description": "Duree de la chute d une lettre.",
+      "min": 150,
+      "max": 900,
+      "step": 10
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 22,
+      "unit": "ms",
+      "description": "Ecart entre deux lettres voisines.",
+      "min": 0,
+      "max": 80,
+      "step": 2
+    },
+    {
+      "name": "accent",
+      "type": "boolean",
+      "default": true,
+      "description": "La rangee qui descend prend la teinte de marque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation par lettre, toutes portees par le compositeur ; le decalage est une variable par lettre, sans JavaScript au survol. Sous mouvement reduit la seconde rangee est deja en place."
+  }
+}

@@ -100,6 +100,45 @@ export function RadioDoc(): ReactElement {
   ]}
 />`
           }
+          variants={[
+            {
+              title: 'Horizontal',
+              description: 'Les choix se suivent sur la ligne.',
+              values: { orientation: 'horizontal' },
+            },
+            {
+              title: 'Choix desactive',
+              description: 'Le choix reste visible mais non selectionnable.',
+              values: { itemDisabled: true },
+            },
+            {
+              title: 'Avec descriptions',
+              description: 'Un complement sous chaque libelle.',
+              node: (
+                <RadioGroup
+                  label="Facturation"
+                  defaultValue="mensuelle"
+                  items={[
+                    {
+                      value: 'mensuelle',
+                      label: 'Mensuelle',
+                      description: 'Sans engagement.',
+                    },
+                    {
+                      value: 'annuelle',
+                      label: 'Annuelle',
+                      description: 'Deux mois offerts.',
+                    },
+                  ]}
+                />
+              ),
+            },
+            {
+              title: 'Mode controle',
+              description: 'La valeur vit chez le parent.',
+              node: <GroupeControle />,
+            },
+          ]}
         />
       </Section>
 

@@ -77,6 +77,50 @@ export function AlertDoc(): ReactElement {
           )} title="${String(v.title)}">
   Le brouillon est enregistre automatiquement toutes les minutes.
 </Alert>`}
+          variants={[
+            {
+              title: 'Succes',
+              values: { tone: 'success', title: 'Enregistre' },
+            },
+            {
+              title: 'Avertissement',
+              values: { tone: 'warning', title: 'Attention' },
+            },
+            {
+              title: 'Danger',
+              description: 'Porte role="alert" et interrompt la lecture.',
+              values: { tone: 'danger', title: 'Echec de la publication' },
+            },
+            {
+              title: 'Fermable',
+              description: 'onClose fait apparaitre le bouton de fermeture.',
+              node: (
+                <Alert
+                  tone="success"
+                  title="Enregistre"
+                  onClose={() => {}}
+                  className="o-max-w-md"
+                >
+                  Le projet a bien ete enregistre.
+                </Alert>
+              ),
+            },
+            {
+              title: 'Sans icone',
+              description: 'La prop icon a null retire toute icone.',
+              node: (
+                <Alert tone="info" icon={null} title="Sans icone" className="o-max-w-md">
+                  Le texte occupe toute la largeur.
+                </Alert>
+              ),
+            },
+            {
+              title: 'Titre seul',
+              node: (
+                <Alert tone="warning" title="Quota bientot atteint" className="o-max-w-md" />
+              ),
+            },
+          ]}
         />
         <Callout>
           Le registre <code className="o-font-mono o-text-sm">danger</code> porte{' '}

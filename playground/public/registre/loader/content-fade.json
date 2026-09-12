@@ -1,0 +1,89 @@
+{
+  "name": "content-fade",
+  "category": "loader",
+  "title": "Contenu en fondu",
+  "description": "Le vrai contenu revele section par section, chacune un peu apres la precedente : l autre moitie du squelette, celle de l arrivee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ContentFade.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Les sections a reveler, dans l ordre ou elles doivent paraitre."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 650,
+      "unit": "ms",
+      "description": "Duree du fondu d une section.",
+      "min": 150,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 140,
+      "unit": "ms",
+      "description": "Ecart entre deux sections.",
+      "min": 0,
+      "max": 600,
+      "step": 20
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "ms",
+      "description": "Attente avant la premiere section.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "shift",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Distance parcourue par une section en paraissant.",
+      "min": 0,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Contenu en cours d affichage",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une opacite et une translation par section, jouees une fois puis tenues ; aucun JavaScript apres le premier rendu. Le contenu reel est dans le document des le depart. Tout visible immediatement, a sa place definitive, sous mouvement reduit."
+  },
+  "id": "loader/content-fade",
+  "sources": {
+    "component.tsx": "/**\n * Contenu en fondu : le vrai contenu, revele section par section, chacune\n * un peu apres la precedente.\n *\n * ## L'autre moitie du squelette\n *\n * Un squelette dit l'attente ; il ne dit rien de l'arrivee. Or c'est\n * l'arrivee qui se voit : dix blocs qui deviennent dix vrais paragraphes\n * dans la meme image, c'est un a-coup, et l'oeil ne sait plus ou il en\n * etait. Ce composant est la moitie manquante — il enveloppe le contenu\n * **reel** et le laisse paraitre dans l'ordre de la lecture.\n *\n * Rien n'est simule ici : les enfants sont dans le document des le premier\n * rendu, avec leur texte, leurs liens et leur mise en page. Seule leur\n * apparition est retardee. Un composant qui remplacerait le contenu par des\n * blocs le temps du fondu ferait sortir puis rentrer le texte de l'arbre\n * d'accessibilite pour rien.\n *\n * ## Un fondu qui ne se rejoue pas\n *\n * L'animation est declaree `forwards` et ne boucle pas : elle amene a\n * l'etat final et s'y tient. Une reprise en boucle transformerait un\n * passage en clignotement, et un contenu qui clignote se lit comme un\n * defaut, pas comme une arrivee.\n *\n * Le decalage vertical est court — quatorze pixels par defaut. Au-dela, le\n * mouvement devient une entree de scene, et une entree de scene sur un\n * paragraphe de texte se remarque plus que le paragraphe.\n *\n * ## Un statut a cote, pas autour\n *\n * Le libelle vit dans une zone `role=\"status\"` qui lui est propre, a cote\n * du contenu et non autour : une region vivante qui contiendrait toute la\n * page ferait annoncer chaque section a mesure qu'elle parait.\n *\n * Sous mouvement reduit, tout est visible immediatement, a sa place\n * definitive : c'est l'etat final, celui vers lequel le fondu allait.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { Children, type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-content-fade'\n\n/** Pose le fondu des sections, une fois par document. */\nfunction ensureContentFadeRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-cfade]{display:block;width:100%}',\n    '[data-o-cfade-part]{',\n    'display:block;opacity:0;transform:translateY(var(--o-cfade-shift));',\n    // `forwards` : l'etat final est tenu, le fondu ne se rejoue jamais.\n    'animation:o-cfade-in var(--o-cfade-speed) var(--o-ease-standard) var(--o-cfade-delay) forwards;',\n    '}',\n    '@keyframes o-cfade-in{to{opacity:1;transform:none}}',\n    // L'etat final, tout de suite : c'est bien la ou le fondu allait.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-cfade-part]{animation:none;opacity:1;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ContentFadeOwnProps {\n  /** Les sections a reveler, dans l'ordre ou elles doivent paraitre. */\n  children?: ReactNode\n  /** Duree du fondu d'une section, en millisecondes. @defaultValue 650 */\n  speed?: number\n  /** Ecart entre deux sections, en millisecondes. @defaultValue 140 */\n  stagger?: number\n  /** Attente avant la premiere section, en millisecondes. @defaultValue 0 */\n  delay?: number\n  /** Distance parcourue par une section en paraissant, en pixels. @defaultValue 14 */\n  shift?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Contenu en cours d affichage' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ContentFadeProps = Customisable<ContentFadeOwnProps, 'div'>\n\n/**\n * Revele du contenu reel, section par section.\n *\n * @example\n * <ContentFade>\n *   <h2>Titre</h2>\n *   <p>Premier paragraphe.</p>\n *   <p>Second paragraphe.</p>\n * </ContentFade>\n *\n * @example\n * // Une arrivee plus lente, apres une demi-seconde d'attente.\n * <ContentFade speed={900} stagger={220} delay={500}>{sections}</ContentFade>\n */\nexport function ContentFade({\n  children,\n  speed = 650,\n  stagger = 140,\n  delay = 0,\n  shift = 14,\n  label = 'Contenu en cours d affichage',\n  ...rest\n}: ContentFadeProps): ReactElement {\n  ensureContentFadeRule()\n\n  // `toArray` plutot que `map` : il ecarte les vides et pose des cles\n  // stables, sans quoi une section conditionnelle decalerait tout le rythme.\n  const parts = Children.toArray(children)\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-cfade-speed': `${String(speed)}ms`,\n    '--o-cfade-shift': `${String(shift)}px`,\n  } as CSSProperties\n\n  return (\n    <div {...rest} className={className} style={hostStyle} data-o-cfade=\"\">\n      <span className=\"o-sr-only\" role=\"status\">\n        {label}\n      </span>\n      {parts.map((part, index) => (\n        <span\n          // La cle est l'index : l'ordre des sections est precisement ce qui\n          // porte le rythme, et il ne se reordonne pas.\n          key={index}\n          data-o-cfade-part=\"\"\n          style={\n            {\n              '--o-cfade-delay': `${String(delay + stagger * index)}ms`,\n            } as CSSProperties\n          }\n        >\n          {part}\n        </span>\n      ))}\n    </div>\n  )\n}\n"
+  }
+}

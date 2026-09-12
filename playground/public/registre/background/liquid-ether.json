@@ -1,0 +1,94 @@
+{
+  "name": "liquid-ether",
+  "category": "background",
+  "title": "Ether liquide",
+  "description": "Un fluide vaporeux que le pointeur pousse : chaque deplacement depose un tourbillon date qui advecte le bruit et y laisse une trace claire, douze depots vivent a la fois.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "liquid-ether.shader.ts",
+      "target": "background/liquid-ether.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LiquidEther.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-violet-500",
+    "--o-palette-cyan-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.1,
+      "description": "Vitesse de la derive sans pointeur.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 0.22,
+      "description": "Rayon d un depot, en hauteurs de cadre.",
+      "min": 0.05,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Force de la poussee sur le bruit.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "life",
+      "type": "number",
+      "required": false,
+      "default": 2.5,
+      "unit": "s",
+      "description": "Duree de vie d un depot, en secondes.",
+      "min": 0.5,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-cyan-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, la vapeur, la trace du pointeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Douze depots sommes puis deux sommes d octaves par fragment ; aucune texture, aucun ping-pong. En qualite basse, les octaves tombent a deux.",
+    "fallback": "gradient"
+  },
+  "id": "background/liquid-ether",
+  "sources": {
+    "liquid-ether.shader.ts": "/**\n * Shader de l'ether liquide.\n *\n * ## L'idee mathematique\n *\n * Une advection sans simulation. Chaque deplacement du pointeur depose un\n * tourbillon : une position, une vitesse, une date. A chaque fragment, les\n * douze depots vivants se somment en un champ de deplacement — la vitesse de\n * chacun, ponderee par une gaussienne de la distance et une exponentielle de\n * l'age. Le bruit fractal est lu au point deplace par ce champ : la matiere\n * semble poussee la ou le pointeur est passe, et se relache quand les depots\n * vieillissent.\n *\n * La meme somme, sans la vitesse, donne une densite de trace : c'est elle\n * qui eclaire le sillage du pointeur, plus clair que la vapeur autour.\n *\n * Ce n'est pas un fluide au sens des equations : rien ne se conserve d'une\n * image a l'autre. Mais l'oeil ne voit qu'une vapeur qui suit la main, et\n * c'est ce qu'il fallait.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la vapeur.\n * - `uColorC` — la trace du pointeur.\n * - `uTrail` — douze depots (x, y, vx, vy), tampon circulaire.\n * - `uStamps` — date de chaque depot, dans le temps du moteur.\n * - `uSpeed` — vitesse de la derive sans pointeur.\n * - `uRadius` — rayon d'un depot.\n * - `uStrength` — force de la poussee.\n * - `uLife` — duree de vie d'un depot.\n * - `uOctaves` — detail du bruit, et donc son cout.\n */\nexport const LIQUID_ETHER_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec4 uTrail[12];\nuniform float uStamps[12];\nuniform float uSpeed;\nuniform float uRadius;\nuniform float uStrength;\nuniform float uLife;\nuniform float uOctaves;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat etherHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.\nfloat etherNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n\n  float a = etherHash(cell);\n  float b = etherHash(cell + vec2(1.0, 0.0));\n  float c = etherHash(cell + vec2(0.0, 1.0));\n  float d = etherHash(cell + vec2(1.0, 1.0));\n\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.\nfloat etherFbm(vec2 p, int octaves) {\n  float total = 0.0;\n  float amplitude = 0.5;\n  float normalisation = 0.0;\n\n  for (int i = 0; i < 5; i += 1) {\n    if (i >= octaves) break;\n    total += etherNoise(p) * amplitude;\n    normalisation += amplitude;\n    p *= 2.0;\n    amplitude *= 0.5;\n  }\n\n  return total / max(normalisation, 0.0001);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vUv * vec2(aspect, 1.0);\n  int octaves = int(clamp(uOctaves, 1.0, 5.0));\n  float t = uTime * uSpeed;\n  float rayon = max(uRadius, 0.02);\n  float vie = max(uLife, 0.1);\n\n  vec2 poussee = vec2(0.0);\n  float trace = 0.0;\n\n  // Borne constante : la specification du langage l'exige, et douze depots\n  // couvrent deja un geste entier — le treizieme serait deja eteint.\n  for (int i = 0; i < 12; i += 1) {\n    vec4 depot = uTrail[i];\n    float age = uTime - uStamps[i];\n    // Un depot date a -1000 a un age enorme : son enveloppe est nulle.\n    float enveloppe = exp(-age / vie * 3.0) * step(0.0, age);\n\n    vec2 d = p - depot.xy * vec2(aspect, 1.0);\n    float poids = exp(-dot(d, d) / (rayon * rayon)) * enveloppe;\n\n    poussee += depot.zw * vec2(aspect, 1.0) * poids;\n    trace += poids;\n  }\n\n  // Le bruit est lu au point deplace : c'est l'advection. La derive lente\n  // sans pointeur vit dans le meme domaine, pour que les deux se composent.\n  vec2 q = p * 2.5 - poussee * uStrength * 0.35 + vec2(t * 0.6, t * 0.35);\n  float densite = etherFbm(q, octaves);\n  float voile = etherFbm(q * 2.1 + vec2(3.7, 1.9) - t * 0.4, octaves);\n\n  // La vapeur : une rampe large, sans bord ; la trace la nourrit un peu.\n  float vapeur = smoothstep(0.28, 0.82, densite * 0.7 + voile * 0.3 + trace * 0.2);\n\n  vec3 colour = mix(uColorA, uColorB, vapeur);\n\n  // Le sillage : plus clair la ou le pointeur vient de passer, et d'autant\n  // plus que la vapeur y est dense — la lumiere a besoin de matiere.\n  float sillage = clamp(trace, 0.0, 1.0);\n  colour += uColorC * sillage * (0.25 + 0.55 * densite);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Ether liquide : un fluide vaporeux que le pointeur pousse.\n *\n * ## Pourquoi un champ analytique, et pas un ping-pong de textures\n *\n * Un vrai fluide s'ecrit avec deux cibles de rendu qu'on echange a chaque\n * image : la vitesse de l'image precedente est relue pour advecter celle de\n * la suivante. La surface arbitree du moteur ne prete qu'un programme et un\n * quadrilatere, sans cible de rendu ni retour d'image — c'est ce qui la rend\n * legere, et ce que tous les fonds de cette famille partagent.\n *\n * Plutot que de contourner le moteur avec un programme brut et deux cibles a\n * gerer, le fond garde une memoire courte a sa place : douze depots dates,\n * chacun une position et une vitesse, sommes a chaque fragment en un champ\n * de deplacement qui advecte le bruit. Rien ne se conserve d'une image a\n * l'autre, mais un geste de la main dure moins que douze depots, et l'oeil\n * ne voit que la vapeur qui suit.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : deux tableaux stables — quarante-huit\n * flottants pour les depots, douze pour leurs dates — sont mutes en place a\n * chaque deplacement, et la surface relit ses uniforms a chaque image.\n *\n * La vitesse est celle du geste, mesuree entre deux echantillons dans le\n * temps de l'horloge du moteur — le meme que `uTime` du shader, sans quoi\n * l'age des depots serait faux. Un deplacement trop court n'est pas depose :\n * il ne ferait qu'user le tampon.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { LIQUID_ETHER_FRAGMENT } from './liquid-ether.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface LiquidEtherControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface LiquidEtherOwnProps {\n  /** Vitesse de la derive sans pointeur. @defaultValue 0.1 */\n  speed?: number\n  /** Rayon d'un depot, en hauteurs de cadre. @defaultValue 0.22 */\n  radius?: number\n  /** Force de la poussee sur le bruit. @defaultValue 0.8 */\n  strength?: number\n  /** Duree de vie d'un depot, en secondes. @defaultValue 2.5 */\n  life?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<LiquidEtherControls>\n}\n\n/** Toutes les proprietes. */\nexport type LiquidEtherProps = Customisable<LiquidEtherOwnProps>\n\n/** Tokens employes par defaut : le fond, la vapeur, la trace. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-violet-500',\n  '--o-palette-cyan-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-tr o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-300 dark:o-via-violet-900 o-to-zinc-50 dark:o-to-zinc-950'\n\n/** Nombre de depots vivants a la fois. */\nconst SLOTS = 12\n\n/** Deplacement minimal, en fraction du cadre, pour deposer. */\nconst MIN_STEP = 0.012\n\n/** Vitesse maximale retenue, en cadres par seconde : un geste sec sature. */\nconst MAX_VELOCITY = 3\n\n/**\n * Detail du bruit hors qualite basse.\n *\n * Deux sommes d'octaves par fragment, apres les douze depots : les octaves\n * sont le seul levier de cout qui reste, et il n'a pas besoin d'etre une\n * prop pour etre retrograde.\n */\nconst OCTAVES = 4\n\n/** Detail du bruit en qualite basse. */\nconst LOW_OCTAVES = 2\n\n/**\n * Ether liquide.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <LiquidEther className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function LiquidEther({\n  speed = 0.1,\n  radius = 0.22,\n  strength = 0.8,\n  life = 2.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: LiquidEtherProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tampons stables, mutes en place : douze fois (x, y, vx, vy), et douze\n  // dates. Une date a -1000 donne un age enorme, donc un depot inerte.\n  const uTrail = useRef<number[]>(Array.from({ length: SLOTS * 4 }, () => 0)).current\n  const uStamps = useRef<number[]>(Array.from({ length: SLOTS }, () => -1000)).current\n\n  // Le temps de l'horloge du moteur — le meme que uTime du shader.\n  const lastTime = useRef(0)\n  // Le dernier echantillon, pour mesurer la vitesse du geste.\n  const last = useRef<{ x: number; y: number; time: number } | null>(null)\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      ({ time }) => {\n        lastTime.current = time\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'liquid-ether : horloge' },\n    )\n    return () => subscription.unsubscribe()\n  }, [])\n\n  useEffect(() => {\n    if (host === null) return\n\n    const onMove = (event: PointerEvent): void => {\n      const bounds = host.getBoundingClientRect()\n      const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)\n      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.\n      const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)\n      const time = lastTime.current\n\n      const previous = last.current\n      // Premier echantillon, ou reprise apres une pause : rien a deposer, la\n      // vitesse n'aurait pas de sens.\n      if (previous === null || time - previous.time > 0.5) {\n        last.current = { x, y, time }\n        return\n      }\n\n      const dx = x - previous.x\n      const dy = y - previous.y\n      if (Math.hypot(dx, dy) < MIN_STEP) return\n\n      const dt = Math.max(time - previous.time, 1 / 120)\n      let vx = dx / dt\n      let vy = dy / dt\n      const magnitude = Math.hypot(vx, vy)\n      if (magnitude > MAX_VELOCITY) {\n        vx = (vx / magnitude) * MAX_VELOCITY\n        vy = (vy / magnitude) * MAX_VELOCITY\n      }\n\n      // Tampon circulaire : tout se decale d'un cran, le nouveau depot en tete.\n      for (let i = SLOTS - 1; i > 0; i -= 1) {\n        uTrail[i * 4] = uTrail[(i - 1) * 4] ?? 0\n        uTrail[i * 4 + 1] = uTrail[(i - 1) * 4 + 1] ?? 0\n        uTrail[i * 4 + 2] = uTrail[(i - 1) * 4 + 2] ?? 0\n        uTrail[i * 4 + 3] = uTrail[(i - 1) * 4 + 3] ?? 0\n        uStamps[i] = uStamps[i - 1] ?? -1000\n      }\n      uTrail[0] = x\n      uTrail[1] = y\n      uTrail[2] = vx\n      uTrail[3] = vy\n      uStamps[0] = time\n\n      last.current = { x, y, time }\n    }\n\n    const onLeave = (): void => {\n      last.current = null\n    }\n\n    host.addEventListener('pointermove', onMove, { passive: true })\n    host.addEventListener('pointerleave', onLeave)\n    return () => {\n      host.removeEventListener('pointermove', onMove)\n      host.removeEventListener('pointerleave', onLeave)\n    }\n  }, [host, uTrail, uStamps])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: LIQUID_ETHER_FRAGMENT,\n      colors,\n      uniforms: {\n        uTrail,\n        uStamps,\n        uSpeed: speed,\n        uRadius: radius,\n        uStrength: strength,\n        uLife: life,\n        uOctaves: OCTAVES,\n      },\n      name: 'liquid-ether',\n      degrade: (quality) => ({\n        uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,\n      }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

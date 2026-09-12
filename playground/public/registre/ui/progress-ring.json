@@ -1,0 +1,66 @@
+{
+  "name": "progress-ring",
+  "category": "ui",
+  "title": "Anneau de progression",
+  "description": "Un arc qui rejoint sa valeur en glissant, le pourcentage au centre en chiffres tabulaires.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ProgressRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": false,
+      "default": 65,
+      "description": "Progression, de zero a cent.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 48,
+      "max": 200,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition sur le decalage du trait, rien par frame. Sous mouvement reduit l arc saute directement a sa valeur."
+  },
+  "id": "ui/progress-ring",
+  "sources": {
+    "component.tsx": "/**\n * Anneau de progression : un arc qui rejoint sa valeur en glissant.\n *\n * ## Le trait est un perimetre decale\n *\n * L'arc est un cercle SVG dont le tiret fait exactement le perimetre :\n * decaler le tiret decouvre la fraction voulue. C'est une seule propriete,\n * `stroke-dashoffset`, et une transition CSS fait le trajet — changer la\n * valeur en cours de route repart de la position courante, sans saut ni\n * boucle JavaScript.\n *\n * ## Le pourcentage est en chiffres tabulaires\n *\n * Pendant que l'arc glisse, le nombre au centre ne bouge pas d'un pixel :\n * les chiffres tabulaires ont tous la meme chasse, « 9 » et « 1 » compris.\n * Sans cela, le passage de 99 a 100 ferait respirer tout le centre.\n *\n * ## Une barre de progression pour l'arbre d'accessibilite\n *\n * `role=\"progressbar\"` et `aria-valuenow` : un lecteur d'ecran annonce la\n * valeur, pas un dessin. Le pourcentage affiche est retire de l'arbre pour\n * ne pas etre lu deux fois.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface ProgressRingOwnProps {\n  /** Progression, de zero a cent. @defaultValue 65 */\n  value?: number\n  /** Diametre de l'anneau, en pixels. @defaultValue 96 */\n  size?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 8 */\n  thickness?: number\n  /** Nom de la mesure pour les lecteurs d'ecran. @defaultValue 'Progression' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ProgressRingProps = Customisable<ProgressRingOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-progress-ring'\n\n/** Pose la transition de l'arc, une fois par document. */\nfunction ensureRingRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-ring]{position:relative;display:inline-grid;place-items:center}',\n    '[data-o-ring] svg{transform:rotate(-90deg)}',\n    '[data-o-ring-arc]{',\n    'stroke:var(--o-ring-tint);',\n    'transition:stroke-dashoffset var(--o-duration-slower) var(--o-ease-standard);',\n    '}',\n    '[data-o-ring-track]{stroke:color-mix(in oklch,currentColor 15%,transparent)}',\n    '[data-o-ring-value]{position:absolute}',\n    // Mouvement reduit : l arc saute directement a sa valeur.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-ring-arc]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Anneau de progression SVG, avec le pourcentage au centre.\n *\n * @example\n * <ProgressRing value={72} />\n *\n * @example\n * // Un grand anneau fin, nomme pour les lecteurs d'ecran.\n * <ProgressRing value={progression} size={160} thickness={4} label=\"Televersement\" />\n */\nexport function ProgressRing({\n  value = 65,\n  size = 96,\n  thickness = 8,\n  label = 'Progression',\n  ...rest\n}: ProgressRingProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureRingRules()\n\n  const clamped = Math.max(0, Math.min(100, Math.round(value)))\n  const radius = (size - thickness) / 2\n  const circumference = 2 * Math.PI * radius\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      role=\"progressbar\"\n      aria-label={label}\n      aria-valuenow={clamped}\n      aria-valuemin={0}\n      aria-valuemax={100}\n      data-o-ring=\"\"\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-ring-tint': 'var(--o-palette-brand-500)',\n          ...(reduced ? { '--o-duration-slower': '0ms' } : {}),\n        } as CSSProperties\n      }\n    >\n      <svg width={size} height={size} viewBox={`0 0 ${String(size)} ${String(size)}`} aria-hidden=\"true\">\n        <circle\n          data-o-ring-track=\"\"\n          cx={size / 2}\n          cy={size / 2}\n          r={radius}\n          fill=\"none\"\n          strokeWidth={thickness}\n        />\n        <circle\n          data-o-ring-arc=\"\"\n          cx={size / 2}\n          cy={size / 2}\n          r={radius}\n          fill=\"none\"\n          strokeWidth={thickness}\n          strokeLinecap=\"round\"\n          strokeDasharray={circumference}\n          strokeDashoffset={circumference * (1 - clamped / 100)}\n        />\n      </svg>\n      <span\n        data-o-ring-value=\"\"\n        aria-hidden=\"true\"\n        className=\"o-tabular-nums o-font-semibold\"\n        style={{ fontSize: `${String(Math.max(12, size / 4.5))}px` }}\n      >\n        {clamped}\n        <span className=\"o-text-xs o-opacity-70\">%</span>\n      </span>\n    </div>\n  )\n}\n"
+  }
+}

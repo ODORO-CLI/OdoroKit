@@ -1,0 +1,65 @@
+{
+  "name": "yin-yang",
+  "category": "loader",
+  "title": "Yin et yang",
+  "description": "Le symbole tourne comme une toupie relancee d une chiquenaude : deux tours qui s eteignent, un arret, et on recommence, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/YinYang.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 44,
+      "unit": "px",
+      "description": "Diametre du symbole.",
+      "min": 20,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une chiquenaude, deux tours et l arret compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la moitie sombre et du contour ; l autre moitie est le fond. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de rotation sur un groupe SVG, tenue par le compositeur ; la moitie claire est le fond, vu a travers. Symbole droit et immobile sous mouvement reduit."
+  },
+  "id": "loader/yin-yang",
+  "sources": {
+    "component.tsx": "/**\n * Yin et yang : le symbole tourne comme une toupie qu'on relance, deux\n * tours par chiquenaude, en ralentissant jusqu'a presque s'arreter.\n *\n * ## Une seule couleur, et le fond pour l'autre\n *\n * Le symbole en a deux ; le composant n'en connait qu'une. La moitie\n * sombre est un trace ferme — un demi-cercle exterieur et deux\n * demi-cercles interieurs en S — dont l'oeil est un trou, decoupe par la\n * regle `evenodd`. La moitie claire n'est pas dessinee : c'est ce que le\n * fond montre a travers, borde par le cercle exterieur en trait. Le\n * symbole reste donc juste sur n'importe quelle surface, sombre ou claire,\n * sans jamais nommer la couleur du fond.\n *\n * Le mouvement est celui d'une toupie, pas d'une roue : lancee d'un coup,\n * elle file, ralentit longuement, et manque de s'arreter avant d'etre\n * relancee. C'est une seule courbe en `ease-out` prononce sur deux tours,\n * suivie d'un temps d'arret. Une rotation lineaire, le choix par defaut,\n * ferait un disque qui tourne ; ici l'oeil voit le geste qui le relance.\n *\n * Une animation de rotation sur un groupe SVG, tenue par le compositeur,\n * aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le symbole est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le symbole est droit, immobile : c'est la ou la\n * toupie finit, et la figure se reconnait encore.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-yin-yang'\n\n/** Rayon du symbole, dans une vue de 100. */\nconst RADIUS = 45\n\n/** Rayon de chaque oeil. */\nconst EYE = 6\n\n/**\n * La moitie sombre : demi-cercle exterieur par la droite, puis le S par\n * deux demi-cercles interieurs, et l'oeil de la moitie sombre en trou.\n */\nconst DARK = [\n  `M 50 ${String(50 - RADIUS)}`,\n  `A ${String(RADIUS)} ${String(RADIUS)} 0 0 1 50 ${String(50 + RADIUS)}`,\n  `A ${String(RADIUS / 2)} ${String(RADIUS / 2)} 0 0 1 50 50`,\n  `A ${String(RADIUS / 2)} ${String(RADIUS / 2)} 0 0 0 50 ${String(50 - RADIUS)}`,\n  'Z',\n  `M ${String(50 + EYE)} ${String(50 + RADIUS / 2)}`,\n  `A ${String(EYE)} ${String(EYE)} 0 1 0 ${String(50 - EYE)} ${String(50 + RADIUS / 2)}`,\n  `A ${String(EYE)} ${String(EYE)} 0 1 0 ${String(50 + EYE)} ${String(50 + RADIUS / 2)}`,\n  'Z',\n].join(' ')\n\n/** Pose le symbole et sa toupie, une fois par document. */\nfunction ensureYinYangRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-yin-yang]{display:inline-block;line-height:0}',\n    '[data-o-yin-yang] svg{display:block}',\n    '[data-o-yin-yang-disc]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    'animation:o-yin-yang-spin var(--o-yin-yang-speed) infinite;',\n    '}',\n    // Une chiquenaude : deux tours qui partent vite et s'eteignent, puis\n    // un temps d'arret avant la suivante.\n    '@keyframes o-yin-yang-spin{',\n    '0%{transform:rotate(0deg);animation-timing-function:cubic-bezier(0.1,0.7,0.2,1)}',\n    '90%,100%{transform:rotate(720deg)}',\n    '}',\n    // Le symbole droit : la figure est dite, la toupie posee.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-yin-yang-disc]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface YinYangOwnProps {\n  /** Diametre du symbole, en pixels. @defaultValue 44 */\n  size?: number\n  /** Duree d'une chiquenaude, deux tours et l'arret compris, en millisecondes. @defaultValue 2400 */\n  speed?: number\n  /** Couleur de la moitie sombre et du contour ; l'autre moitie est le fond. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type YinYangProps = Customisable<YinYangOwnProps, 'span'>\n\n/**\n * Signale une attente par un yin et yang qui tourne comme une toupie.\n *\n * @example\n * <YinYang />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <YinYang size={72} speed={4000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function YinYang({\n  size = 44,\n  speed = 2400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: YinYangProps): ReactElement {\n  ensureYinYangRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-yin-yang-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-yin-yang=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <g data-o-yin-yang-disc=\"\">\n          <circle cx={50} cy={50} r={RADIUS} fill=\"none\" stroke=\"currentColor\" strokeWidth={3} />\n          <path d={DARK} fill=\"currentColor\" fillRule=\"evenodd\" />\n          <circle cx={50} cy={50 - RADIUS / 2} r={EYE} fill=\"currentColor\" />\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

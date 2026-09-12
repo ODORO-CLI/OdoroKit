@@ -1,0 +1,93 @@
+{
+  "name": "circular-gallery",
+  "category": "ui",
+  "title": "Galerie circulaire",
+  "description": "Un ruban d images pose sur un cylindre couche : on le fait tourner au doigt ou a la molette, les images du bord s inclinent et s eloignent, celle du centre se cale de face.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CircularGallery.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-base"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les images du ruban, dans l ordre. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la galerie, annonce aux technologies d assistance."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 260,
+      "unit": "px",
+      "min": 120,
+      "max": 480,
+      "step": 10,
+      "description": "Largeur d une image du ruban."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 320,
+      "unit": "px",
+      "min": 140,
+      "max": 560,
+      "step": 10,
+      "description": "Hauteur d une image du ruban."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "description": "Ecart entre deux images."
+    },
+    {
+      "name": "curve",
+      "type": "number",
+      "default": 26,
+      "unit": "deg",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "description": "Inclinaison ajoutee par image d ecart au centre. A zero, le ruban est plat."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 120,
+      "unit": "px",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "description": "Recul ajoute par image d ecart au centre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le glisser, l inertie et le calage sont ceux du navigateur : la galerie n ecoute que le defilement. Les positions des images sont mesurees une fois et au redimensionnement, jamais par image ; la boucle ne lit qu une valeur et n ecrit que des transformations. Sous mouvement reduit le ruban est plat."
+  }
+}

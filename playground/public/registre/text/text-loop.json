@@ -1,0 +1,69 @@
+{
+  "name": "text-loop",
+  "category": "text",
+  "title": "Boucle de phrases",
+  "description": "Des phrases se succedent en fondu dans une boite qui ne bouge pas : la sortante monte, l entrante arrive par le bas.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/TextLoop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "phrases",
+      "type": "readonly string[]",
+      "required": true,
+      "description": "Phrases jouees en boucle."
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "required": false,
+      "default": 2400,
+      "unit": "ms",
+      "description": "Temps pendant lequel une phrase reste lisible.",
+      "min": 400,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "fade",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du fondu d une phrase a l autre.",
+      "min": 80,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "lift",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Course verticale d une phrase qui entre ou qui sort.",
+      "min": 0,
+      "max": 60,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React par phrase, soit un toutes les deux ou trois secondes ; le fondu est une transition CSS. Aucun travail par image."
+  },
+  "id": "text/text-loop",
+  "sources": {
+    "component.tsx": "/**\n * Boucle de phrases : chacune s'efface vers le haut, la suivante monte.\n *\n * ## Trois etats, pas deux\n *\n * Une phrase n'est pas seulement « affichee » ou « cachee » : elle est **deja\n * passee** ou **pas encore venue**. Avec deux etats, la sortante et l'entrante\n * partiraient du meme cote, et le mouvement se lirait comme un rebond au lieu\n * d'un defilement.\n *\n * La position relative se calcule modulo le nombre de phrases : celle qui\n * precede la phrase courante est « avant », toutes les autres sont « apres ».\n * Le tour de boucle ne fait donc pas exception — la derniere phrase sort par\n * le haut comme les autres.\n *\n * ## Tout est declaratif\n *\n * Aucun style n'est ecrit a la main, aucune animation n'est programmee : un\n * attribut change, et le navigateur interpole. Le seul travail de JavaScript\n * est d'avancer un compteur toutes les quelques secondes.\n *\n * Les phrases « apres » n'ont pas de transition : elles sont invisibles, et\n * les faire glisser du haut vers le bas au moment ou elles quittent l'etat\n * « avant » serait du travail de compositeur pour un mouvement que personne\n * ne voit.\n *\n * ## Pourquoi un minuteur plutot que la boucle\n *\n * La phrase change toutes les deux ou trois secondes, soit une fois toutes\n * les cent cinquante images. S'abonner a la boucle du moteur reviendrait a la\n * reveiller cent quarante-neuf fois pour ne rien faire. Cet effet ne possede\n * pas la frame, il possede une horloge.\n *\n * ## L'espace reserve\n *\n * Les phrases sont empilees dans la meme cellule de grille : la boite prend\n * la taille de la plus longue, rendue en reserve, invisible. Sans elle, la\n * mise en page sauterait a chaque changement.\n *\n * ## Mouvement reduit\n *\n * La premiere phrase, immobile. Une boucle n'a pas d'etat d'arrivee : son\n * repos, c'est son point de depart.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useState, type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface TextLoopOwnProps {\n  /** Phrases jouees en boucle. */\n  phrases: readonly string[]\n  /** Temps pendant lequel une phrase reste lisible, en millisecondes. @defaultValue 2400 */\n  hold?: number\n  /** Duree du fondu d'une phrase a l'autre, en millisecondes. @defaultValue 600 */\n  fade?: number\n  /** Course verticale d'une phrase qui entre ou qui sort, en pixels. @defaultValue 14 */\n  lift?: number\n}\n\n/** Toutes les proprietes. */\nexport type TextLoopProps = Customisable<TextLoopOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-text-loop'\n\n/** Pose les trois etats d'une phrase, une fois par document. */\nfunction ensureLoopRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-loop-phrase]{',\n    'grid-area:1/1;',\n    'transition:opacity var(--o-loop-fade) ease,transform var(--o-loop-fade) ease;',\n    '}',\n    '[data-o-loop-phrase=\"actif\"]{opacity:1;transform:translateY(0)}',\n    '[data-o-loop-phrase=\"avant\"]{',\n    'opacity:0;transform:translateY(calc(var(--o-loop-lift) * -1));',\n    '}',\n    // Pas encore venue : elle attend en bas, et y arrive sans transition.\n    '[data-o-loop-phrase=\"apres\"]{',\n    'opacity:0;transform:translateY(var(--o-loop-lift));transition:none;',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-loop-phrase]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait defiler une suite de phrases dans une boite qui ne bouge pas.\n *\n * @example\n * <TextLoop\n *   phrases={['des interfaces vivantes', 'sans dependance externe']}\n *   className=\"o-text-3xl o-font-bold\"\n * />\n *\n * @example\n * // Fondu long, sans deplacement vertical.\n * <TextLoop phrases={['ici', 'la', 'ailleurs']} fade={1200} lift={0} />\n */\nexport function TextLoop({\n  phrases,\n  hold = 2400,\n  fade = 600,\n  lift = 14,\n  ...rest\n}: TextLoopProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [index, setIndex] = useState(0)\n\n  ensureLoopRule()\n\n  const total = phrases.length\n\n  useEffect(() => {\n    if (reduced || total < 2) return\n\n    // Le retard compte le temps de lecture **plus** le fondu : `hold` est\n    // donc bien la duree pendant laquelle la phrase est entierement lisible,\n    // pas la periode du cycle.\n    const minuteur = setTimeout(() => {\n      setIndex((precedent) => (precedent + 1) % total)\n    }, hold + fade)\n\n    return () => clearTimeout(minuteur)\n  }, [reduced, total, index, hold, fade])\n\n  const { className, style } = mergePresentation({ className: 'o-inline-grid' }, rest)\n\n  const styleRacine = {\n    ...style,\n    '--o-loop-fade': `${String(fade)}ms`,\n    '--o-loop-lift': `${String(lift)}px`,\n  } as CSSProperties\n\n  // La plus longue fixe la boite. La mesure est faite sur le nombre de\n  // caracteres : elle se trompe de peu sur une police proportionnelle, et\n  // c'est le meme compromis que la machine a ecrire.\n  const reserve = phrases.reduce(\n    (meilleure, phrase) => (phrase.length > meilleure.length ? phrase : meilleure),\n    '',\n  )\n\n  const courant = total === 0 ? 0 : index % total\n\n  return (\n    <span {...rest} className={className} style={styleRacine}>\n      {/* Reserve de place : sans elle, ce qui entoure la boucle se decale a\n          chaque phrase. */}\n      <span aria-hidden className=\"o-invisible o-col-start-1 o-row-start-1\">\n        {reserve}\n      </span>\n\n      {phrases.map((phrase, position) => {\n        const rang = total === 0 ? 0 : (position - courant + total) % total\n        // Mouvement reduit : la premiere phrase, et elle seule.\n        const etat = reduced\n          ? position === 0\n            ? 'actif'\n            : 'apres'\n          : rang === 0\n            ? 'actif'\n            : rang === total - 1\n              ? 'avant'\n              : 'apres'\n\n        return (\n          <span\n            key={`${phrase}-${String(position)}`}\n            data-o-loop-phrase={etat}\n            aria-hidden={etat !== 'actif'}\n          >\n            {phrase}\n          </span>\n        )\n      })}\n    </span>\n  )\n}\n"
+  }
+}

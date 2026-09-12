@@ -9,6 +9,18 @@ import { useState, type ReactElement } from 'react'
 
 import { CodeBlock } from '../../components/CodeBlock.jsx'
 import { Callout, PageHeader, PropsTable, Section } from '../../components/DocBlocks.jsx'
+import {
+  type ControlValue,
+  PlaygroundBlock,
+  jsxProps,
+} from '../../components/PlaygroundBlock.jsx'
+
+/** Valeurs par defaut des props pilotees par l'aire de jeu. */
+const DEFAUTS: Record<string, ControlValue> = {
+  searchable: false,
+  disabled: false,
+  placeholder: 'Choisir…',
+}
 
 /** Options d'exemple, avec descriptions et etats. */
 const ENVIRONNEMENTS = [
@@ -19,25 +31,48 @@ const ENVIRONNEMENTS = [
   { value: 'archive', label: 'Archive', description: 'Lecture seule', disabled: true },
 ] as const
 
-/** Demonstration reglable. */
-function Demo({ searchable }: { searchable: boolean }): ReactElement {
+/** Petite pastille decorative, pour les options a icone. */
+function PointIcon(): ReactElement {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      aria-hidden="true"
+      focusable="false"
+      className="o-text-brand-600 dark:o-text-brand-400"
+    >
+      <circle cx="5" cy="5" r="5" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Demonstration reglable : l'etat de la valeur vit ici. */
+function Demo({
+  label,
+  searchable,
+  disabled,
+  placeholder,
+}: {
+  label: string
+  searchable: boolean
+  disabled: boolean
+  placeholder: string
+}): ReactElement {
   const [value, setValue] = useState<string | null>('staging')
 
   return (
-    <div className="o-flex o-flex-col o-gap-3 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
-      <div className="o-max-w-sm">
-        <SelectMenu
-          label="Environnement"
-          name="environnement"
-          searchable={searchable}
-          options={[...ENVIRONNEMENTS]}
-          value={value}
-          onValueChange={setValue}
-        />
-      </div>
-      <p className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-        valeur soumise : {value ?? '—'}
-      </p>
+    <div className="o-w-72">
+      <SelectMenu
+        label={label}
+        name="environnement"
+        searchable={searchable}
+        disabled={disabled}
+        placeholder={placeholder}
+        options={[...ENVIRONNEMENTS]}
+        value={value}
+        onValueChange={setValue}
+      />
     </div>
   )
 }
@@ -61,14 +96,82 @@ export function SelectMenuDoc(): ReactElement {
       </Callout>
 
       <Section
-        title="Avec recherche"
+        title="Apercu"
         lead="Le champ de recherche prend le focus a l'ouverture. Les fleches deplacent l'option active, Entree la choisit, Echap ferme."
       >
-        <Demo searchable />
-      </Section>
-
-      <Section title="Sans recherche" lead="Le meme composant, pour une liste courte.">
-        <Demo searchable={false} />
+        <PlaygroundBlock
+          previewClassName="o-min-h-72 o-items-start"
+          controls={[
+            { name: 'label', type: 'text', defaultValue: 'Environnement' },
+            { name: 'searchable', type: 'boolean', defaultValue: false },
+            { name: 'disabled', type: 'boolean', defaultValue: false },
+            { name: 'placeholder', type: 'text', defaultValue: 'Choisir…' },
+          ]}
+          render={(v) => (
+            <Demo
+              label={String(v.label)}
+              searchable={v.searchable as boolean}
+              disabled={v.disabled as boolean}
+              placeholder={String(v.placeholder)}
+            />
+          )}
+          code={(v) =>
+            `<SelectMenu
+  label="${String(v.label)}"
+  name="environnement"${jsxProps(
+    { searchable: v.searchable, disabled: v.disabled, placeholder: v.placeholder },
+    DEFAUTS,
+  )}
+  options={[
+    { value: 'prod', label: 'Production', description: 'Trafic reel' },
+    { value: 'staging', label: 'Recette' },
+    { value: 'archive', label: 'Archive', disabled: true },
+  ]}
+  value={env}
+  onValueChange={setEnv}
+/>`
+          }
+          variants={[
+            {
+              title: 'Avec recherche',
+              description: 'Filtre les options a la frappe.',
+              values: { searchable: true },
+            },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Avec erreur',
+              description: 'error marque le champ comme invalide.',
+              node: (
+                <div className="o-w-full">
+                  <SelectMenu
+                    label="Environnement"
+                    placeholder="Choisir un environnement"
+                    options={[...ENVIRONNEMENTS]}
+                    value={null}
+                    error="L'environnement est obligatoire."
+                  />
+                </div>
+              ),
+            },
+            {
+              title: 'Avec icones',
+              description: 'Chaque option peut porter un element decoratif.',
+              node: (
+                <div className="o-w-full">
+                  <SelectMenu
+                    label="Region"
+                    options={[
+                      { value: 'eu', label: "Europe de l'Ouest", icon: <PointIcon /> },
+                      { value: 'us', label: 'Amerique du Nord', icon: <PointIcon /> },
+                      { value: 'ap', label: 'Asie-Pacifique', icon: <PointIcon /> },
+                    ]}
+                    value="eu"
+                  />
+                </div>
+              ),
+            },
+          ]}
+        />
       </Section>
 
       <Section

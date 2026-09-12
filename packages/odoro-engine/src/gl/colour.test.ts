@@ -104,3 +104,21 @@ describe('lecture d un token', () => {
     host.remove()
   })
 })
+
+describe('les formes que le navigateur renvoie', () => {
+  const proche = (got: readonly number[], want: readonly number[]): void => {
+    for (const [index, value] of want.entries()) expect(got[index]).toBeCloseTo(value, 2)
+  }
+
+  it('lit un gris dont la teinte est serialisee en none', () => {
+    // Chrome serialise `oklch(98.5% 0 0)` en `oklch(98.5% 0 none)`.
+    proche(parseColour('oklch(100% 0 none)') ?? [0, 0, 0], [1, 1, 1])
+    expect(parseColour('oklch(0% 0 none)')).not.toBeNull()
+  })
+
+  it('lit une couleur hexadecimale, courte ou longue', () => {
+    proche(parseColour('#fff') ?? [0, 0, 0], [1, 1, 1])
+    proche(parseColour('#f97316') ?? [0, 0, 0], [249 / 255, 115 / 255, 22 / 255])
+    expect(parseColour('#12')).toBeNull()
+  })
+})

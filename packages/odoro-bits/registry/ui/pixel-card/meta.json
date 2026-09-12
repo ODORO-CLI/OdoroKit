@@ -1,0 +1,61 @@
+{
+  "name": "pixel-card",
+  "category": "ui",
+  "title": "Carte pixel",
+  "description": "Au survol, le bord se couvre de carres qui rongent vers l interieur, puis se retirent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PixelCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-surface", "--o-theme-line", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Cote d une cellule.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Profondeur de la bande pixelisee depuis le bord.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree pour couvrir toute la bande.",
+      "min": 150,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des cellules. Par defaut, la teinte de marque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un canevas redessine par image pendant le survol seulement ; la boucle se suspend au repos. Vide au doigt et sous mouvement reduit."
+  }
+}

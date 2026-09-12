@@ -1,0 +1,57 @@
+{
+  "name": "juggling",
+  "category": "loader",
+  "title": "Jonglage",
+  "description": "Trois balles passent d une main a l autre : passe basse dans un sens, grand arc dans l autre, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Juggling.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d une balle. L ecart des mains et la hauteur de l arc en dependent.",
+      "min": 5,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un tour complet d une balle, aller et retour.",
+      "min": 800,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des balles. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Six animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Trois balles posees en ligne sous mouvement reduit."
+  }
+}

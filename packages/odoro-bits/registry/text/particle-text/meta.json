@@ -1,0 +1,69 @@
+{
+  "name": "particle-text",
+  "category": "text",
+  "title": "Titre en particules",
+  "description": "Le titre s assemble depuis une nuee echantillonnee sur ses propres glyphes, puis redevient du texte.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/ParticleText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Pas d echantillonnage. Plus bas, plus dense.",
+      "min": 2,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree du vol d une particule.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Etalement des departs.",
+      "min": 0,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": ["montage", "vue", "survol"]
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un canevas 2D peint pendant la seule duree de l assemblage, borne a deux mille quatre cents particules, puis rendu et efface. Rien ne tourne ensuite."
+  }
+}

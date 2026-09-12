@@ -1,0 +1,69 @@
+{
+  "name": "fold-text",
+  "category": "text",
+  "title": "Texte plie",
+  "description": "Chaque lettre est un volet articule sur son bord superieur, qui se rabat en cascade sous une perspective courte.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/FoldText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 620,
+      "unit": "ms",
+      "description": "Duree du depliage d une lettre.",
+      "min": 150,
+      "max": 2000,
+      "step": 10
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 40,
+      "unit": "ms",
+      "description": "Retard entre deux lettres.",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    {
+      "name": "perspective",
+      "type": "number",
+      "default": 420,
+      "unit": "px",
+      "description": "Distance de fuite. Plus bas, plus marque.",
+      "min": 120,
+      "max": 1600,
+      "step": 20
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": ["montage", "vue", "survol"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation composee par lettre, programmee une fois. A reserver aux titres : un paragraphe entier ferait autant de calques que de caracteres."
+  }
+}

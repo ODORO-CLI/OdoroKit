@@ -1,0 +1,99 @@
+{
+  "name": "depth-text",
+  "category": "text",
+  "title": "Titre extrude",
+  "description": "Le titre est double en couches reculees en profondeur, et le bloc tourne lentement pour en decouvrir la tranche.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/DepthText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Nombre de couches d extrusion.",
+      "min": 1,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "unit": "px",
+      "description": "Decalage d une couche a la suivante.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "couleur",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la tranche."
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "deg",
+      "description": "Amplitude de la rotation.",
+      "min": 0,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 6000,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet.",
+      "min": 1500,
+      "max": 20000,
+      "step": 250
+    },
+    {
+      "name": "perspective",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "px",
+      "description": "Distance de fuite. Plus bas, plus marque.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule transformation animee, celle de la pile ; les couches la suivent dans son espace 3D. Aucun JavaScript apres le premier rendu."
+  },
+  "id": "text/depth-text",
+  "sources": {
+    "component.tsx": "/**\n * Profondeur : le titre est extrude en couches, et le bloc tourne sur lui-meme.\n *\n * ## Une extrusion, pas une ombre portee\n *\n * Une ombre portee est plate : elle ne revele rien quand l'objet tourne. Ici\n * chaque copie est reculee **en profondeur** — `translate3d` sur l'axe Z, dans\n * un contexte `preserve-3d` — de sorte que la rotation lente decouvre la\n * tranche du bloc, puis la referme. C'est la rotation qui rend l'epaisseur\n * credible ; sans elle, on ne verrait qu'un decalage.\n *\n * ## Rien ne s'execute\n *\n * Les copies sont posees au rendu, leur decalage vient d'une variable\n * multipliee par leur rang, et la rotation est une animation CSS. Le\n * compositeur anime **un seul** element — la pile — et les copies suivent\n * parce qu'elles vivent dans son espace 3D. Un JavaScript par image serait du\n * gaspillage pour un mouvement qui ne depend de rien.\n *\n * ## L'ordre du document sert de repli\n *\n * Les copies sont ecrites de la plus lointaine a la plus proche, la face\n * veritable en dernier. La ou `preserve-3d` n'existe pas, l'ordre de peinture\n * donne deja le bon empilement : le titre reste au-dessus de son extrusion.\n *\n * ## Distinction\n *\n * `echo-text` pose lui aussi des copies, mais attenuees, en deux dimensions,\n * et elles suivent le pointeur avec du retard : c'est une trainee. Ici les\n * copies sont solides, soudees au titre, et rien ne suit le pointeur.\n *\n * ## Mouvement reduit\n *\n * La rotation s'arrete, l'extrusion reste. C'est bien l'etat d'arrivee :\n * l'epaisseur est la forme du titre, pas son animation.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface DepthTextOwnProps {\n  /** Texte a extruder. Une chaine : elle est copiee couche par couche. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Nombre de couches d'extrusion. @defaultValue 8 */\n  depth?: number\n  /** Decalage d'une couche a la suivante, en pixels. @defaultValue 2 */\n  step?: number\n  /**\n   * Couleur de la tranche.\n   *\n   * Une valeur, pas un role : l'epaisseur est un parti pris graphique, et la\n   * lier a l'encre du theme la rendrait invisible.\n   *\n   * @defaultValue une teinte de la palette de marque\n   */\n  couleur?: string\n  /** Amplitude de la rotation, en degres. @defaultValue 16 */\n  angle?: number\n  /** Duree d'un aller-retour complet, en millisecondes. @defaultValue 6000 */\n  speed?: number\n  /** Distance de fuite, en pixels. Plus bas, plus marque. @defaultValue 600 */\n  perspective?: number\n}\n\n/** Toutes les proprietes. */\nexport type DepthTextProps = Customisable<DepthTextOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-depth-text'\n\n/** Plafond de couches : au-dela, l'epaisseur ne se lit plus, elle empate. */\nconst COUCHES_MAX = 32\n\n/** Pose les regles de l'extrusion, une fois par document. */\nfunction ensureDepthRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-depth]{display:inline-block;perspective:var(--o-depth-fuite)}',\n    '[data-o-depth-stack]{',\n    'position:relative;display:inline-block;transform-style:preserve-3d;',\n    'animation:o-depth-turn var(--o-depth-speed) ease-in-out infinite;',\n    '}',\n    // Les copies occupent exactement la boite de la face : meme largeur, donc\n    // meme composition des lignes.\n    '[data-o-depth-layer]{',\n    'position:absolute;left:0;top:0;width:100%;',\n    'color:var(--o-depth-colour);pointer-events:none;',\n    'transform:translate3d(',\n    'calc(var(--o-depth-rang) * var(--o-depth-step)),',\n    'calc(var(--o-depth-rang) * var(--o-depth-step)),',\n    'calc(var(--o-depth-rang) * var(--o-depth-step) * -1));',\n    '}',\n    '[data-o-depth-face]{position:relative;display:inline-block}',\n    '@keyframes o-depth-turn{',\n    '0%,100%{transform:rotateY(calc(var(--o-depth-angle) * -1)) rotateX(calc(var(--o-depth-angle) / 3))}',\n    '50%{transform:rotateY(var(--o-depth-angle)) rotateX(calc(var(--o-depth-angle) / -3))}',\n    '}',\n    // Sans mouvement, le bloc s'immobilise de face : l'epaisseur reste.\n    '@media (prefers-reduced-motion:reduce){[data-o-depth-stack]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Extrude un titre en couches et le fait tourner lentement.\n *\n * @example\n * <DepthText as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   Volume\n * </DepthText>\n *\n * @example\n * // Une epaisseur profonde et sombre, presque immobile.\n * <DepthText depth={18} step={3} angle={6} speed={12000} couleur=\"var(--o-palette-indigo-700)\">\n *   Relief\n * </DepthText>\n */\nexport function DepthText({\n  children,\n  as: Tag = 'span',\n  depth = 8,\n  step = 2,\n  couleur = 'var(--o-palette-brand-500)',\n  angle = 16,\n  speed = 6000,\n  perspective = 600,\n  ...rest\n}: DepthTextProps): ReactElement {\n  ensureDepthRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const couches = Math.max(0, Math.min(COUCHES_MAX, Math.round(depth)))\n\n  const styleRacine = {\n    ...style,\n    '--o-depth-fuite': `${String(perspective)}px`,\n    '--o-depth-step': `${String(step)}px`,\n    '--o-depth-colour': couleur,\n    '--o-depth-angle': `${String(angle)}deg`,\n    '--o-depth-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  // De la plus lointaine a la plus proche : voir l'en-tete, l'ordre du\n  // document sert de repli la ou la profondeur n'est pas composee.\n  const rangs = Array.from({ length: couches }, (_, index) => couches - index)\n\n  return (\n    <Tag {...rest} className={className} style={styleRacine} data-o-depth=\"\">\n      <span data-o-depth-stack=\"\">\n        {rangs.map((rang) => (\n          <span\n            key={rang}\n            aria-hidden\n            data-o-depth-layer=\"\"\n            style={{ '--o-depth-rang': rang } as CSSProperties}\n          >\n            {children}\n          </span>\n        ))}\n        {/* La face : le texte veritable, expose une seule fois. */}\n        <span data-o-depth-face=\"\">{children}</span>\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

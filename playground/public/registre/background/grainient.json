@@ -1,0 +1,83 @@
+{
+  "name": "grainient",
+  "category": "background",
+  "title": "Degrade granuleux",
+  "description": "Des taches de couleur qui derivent lentement, dont les transitions se dissolvent en grain au lieu de s etaler.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "grainient.shader.ts",
+      "target": "background/grainient.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Grainient.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-violet-400",
+    "--o-palette-orange-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.15,
+      "description": "Vitesse de derive des taches.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "grain",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Force du grain.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "description": "Taille des taches.",
+      "min": 0.4,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-violet-400, --o-palette-orange-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les deux teintes des taches."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une exponentielle par tache et un tirage par fragment. En qualite basse, deux taches restent.",
+    "fallback": "gradient"
+  },
+  "id": "background/grainient",
+  "sources": {
+    "grainient.shader.ts": "/**\n * Shader du degrade granuleux.\n *\n * ## L'idee mathematique\n *\n * Un degrade de taches, comme la nappe de couleurs, mais dont la matiere\n * est du grain. Chaque tache est une gaussienne de la distance a un centre\n * qui decrit une courbe de Lissajous lente ; les taches paires portent une\n * teinte, les impaires l'autre.\n *\n * Le grain n'est pas pose sur l'image apres coup : il est dans le degrade.\n * Un nombre pseudo-aleatoire par pixel, renouvele a douze images par\n * seconde, decale le poids de chaque teinte avant le melange. Les\n * transitions se dissolvent en points au lieu de s'etaler, ce qui donne\n * l'aspect imprime. Le fond, lui, reste intact : le grain ne vit que la ou\n * il y a de la couleur.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la teinte des taches paires.\n * - `uColorC` — la teinte des taches impaires.\n * - `uSpeed` — vitesse de derive des taches.\n * - `uGrain` — force du grain.\n * - `uScale` — taille des taches.\n * - `uBlobs` — nombre de taches, et donc leur cout.\n */\nexport const GRAINIENT_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uGrain;\nuniform float uScale;\nuniform float uBlobs;\n\n// Nombre pseudo-aleatoire d'un indice : sinus amplifie, partie fractionnaire.\nfloat grainHash(float p) {\n  return fract(sin(p * 127.1) * 43758.5453123);\n}\n\n// Nombre pseudo-aleatoire d'un point : projection, sinus amplifie.\nfloat grainHash2(vec2 p) {\n  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  float t = uTime * uSpeed;\n  int taches = int(clamp(uBlobs, 1.0, 6.0));\n  float rayon = max(uScale, 0.2) * 0.45;\n\n  // Les poids des deux teintes : une gaussienne par tache, sommee par parite.\n  float poidsB = 0.0;\n  float poidsC = 0.0;\n\n  // Borne constante : la specification du langage l'exige. Six taches\n  // suffisent ; au-dela, elles se recouvrent et le degrade devient uniforme.\n  for (int i = 0; i < 6; i += 1) {\n    if (i >= taches) break;\n    float fi = float(i);\n    float h1 = grainHash(fi + 1.0);\n    float h2 = grainHash(fi + 11.0);\n    float h3 = grainHash(fi + 23.0);\n    vec2 centre = vec2(\n      0.5 + 0.4 * sin(t * (0.3 + h1 * 0.4) + h2 * 6.2831),\n      0.5 + 0.38 * cos(t * (0.25 + h3 * 0.5) + h1 * 6.2831)\n    ) * vec2(aspect, 1.0);\n    vec2 d = p - centre;\n    float poids = exp(-dot(d, d) / (rayon * rayon));\n    if (mod(fi, 2.0) < 0.5) poidsB += poids; else poidsC += poids;\n  }\n\n  // Le grain : un tirage par pixel, renouvele a douze images par seconde —\n  // plus vite, il bourdonne ; moins vite, il scintille.\n  float image = floor(uTime * 12.0);\n  float grain = grainHash2(gl_FragCoord.xy + image * 7.13) - 0.5;\n  float force = clamp(uGrain, 0.0, 1.0) * 0.45;\n\n  // Le grain decale les poids avant le melange : il ne vit que la ou il y a\n  // de la couleur, et n'atteint jamais le fond nu.\n  float kB = clamp(poidsB + grain * force * smoothstep(0.0, 0.5, poidsB), 0.0, 1.0);\n  float kC = clamp(poidsC + grain * force * smoothstep(0.0, 0.5, poidsC), 0.0, 1.0);\n\n  vec3 colour = mix(uColorA, uColorB, kB);\n  colour = mix(colour, uColorC, kC);\n\n  // Un leger grain de luminance sur la couleur, pour l'aspect imprime.\n  colour += mix(uColorB, uColorC, 0.5) * grain * force * 0.25 * max(kB, kC);\n\n  gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Degrade granuleux : des taches de couleur qui derivent lentement, dont les transitions se dissolvent en grain au lieu de s etaler.\n *\n * ## Le principe\n *\n * Des gaussiennes autour de centres en courbes de Lissajous, les paires\n * d'une teinte et les impaires de l'autre. Le grain n'est pas pose sur\n * l'image : un tirage par pixel, renouvele a douze images par seconde,\n * decale les poids avant le melange. Le fond nu reste intact — le grain\n * ne vit que la ou il y a de la couleur.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { GRAINIENT_FRAGMENT } from './grainient.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface GrainientControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface GrainientOwnProps {\n  /** Vitesse de derive des taches. @defaultValue 0.15 */\n  speed?: number\n  /** Force du grain. @defaultValue 0.6 */\n  grain?: number\n  /** Taille des taches. @defaultValue 1.2 */\n  scale?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<GrainientControls>\n}\n\n/** Toutes les proprietes. */\nexport type GrainientProps = Customisable<GrainientOwnProps>\n\n/** Tokens employes par defaut : le fond, les deux teintes des taches. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-violet-400',\n  '--o-palette-orange-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-violet-200 dark:o-from-violet-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-orange-200 dark:o-to-orange-900'\n\n/**\n * Detail hors qualite basse.\n *\n * Le grain est un tirage, il ne coute rien ; ce sont les taches, une\n * exponentielle chacune, qui tombent a deux en qualite basse.\n */\nconst DETAIL = 4\n\n/** Detail en qualite basse. */\nconst LOW_DETAIL = 2\n\n/**\n * Degrade granuleux.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Grainient className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Grainient({\n  speed = 0.15,\n  grain = 0.6,\n  scale = 1.2,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: GrainientProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: GRAINIENT_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uGrain: grain,\n      uScale: scale,\n      uBlobs: DETAIL,\n    },\n    name: 'grainient',\n    degrade: (quality) => ({\n      uBlobs: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "dual-ring",
+  "category": "loader",
+  "title": "Double anneau",
+  "description": "Deux anneaux a deux arcs opposes chacun, qui tournent en sens contraire et se croisent en rythme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DualRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau exterieur.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur des traits.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree d un tour, identique pour les deux anneaux.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des arcs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux rotations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Les arcs restent en croix sous mouvement reduit."
+  },
+  "id": "loader/dual-ring",
+  "sources": {
+    "component.tsx": "/**\n * Double anneau : deux anneaux a deux arcs opposes, en sens contraire.\n *\n * ## Deux arcs par anneau, et non un seul\n *\n * Chaque anneau peint deux cotes opposes de sa bordure — haut et bas pour\n * l'exterieur, gauche et droite pour l'interieur — et tourne a la meme\n * vitesse que l'autre, mais dans l'autre sens. La symetrie d'ordre deux\n * change tout par rapport a un arc unique : les quatre arcs se croisent\n * deux fois par tour, toujours aux memes endroits, et c'est ce croisement\n * regulier — pas la vitesse — qui donne l'impression d'un mecanisme.\n *\n * Meme vitesse, c'est voulu : a des vitesses differentes les croisements\n * deriveraient, et la figure perdrait son rythme.\n *\n * Deux animations declarees une fois, tenues par le compositeur. Aucun\n * JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les anneaux, eux,\n * sont retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les arcs restent en croix — deux en haut et en\n * bas, deux a gauche et a droite : la figure se lit encore comme un\n * chargeur, seul le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-dual-ring'\n\n/** Pose les deux anneaux et leurs rotations, une fois par document. */\nfunction ensureDualRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-dual-ring]{position:relative;display:inline-block;line-height:0}',\n    '[data-o-dual-outer],[data-o-dual-inner]{',\n    'position:absolute;box-sizing:border-box;border-radius:50%;',\n    'border:var(--o-dual-thickness) solid transparent;',\n    'animation:o-dual-ring-spin var(--o-dual-speed) linear infinite;',\n    '}',\n    '[data-o-dual-outer]{',\n    'inset:0;',\n    'border-top-color:var(--o-dual-color);border-bottom-color:var(--o-dual-color);',\n    '}',\n    // L'anneau interieur laisse un espace d'une epaisseur entre les deux\n    // traits : colles, les arcs ne se distingueraient plus au croisement.\n    '[data-o-dual-inner]{',\n    'inset:calc(var(--o-dual-thickness) * 2);',\n    'border-left-color:var(--o-dual-color);border-right-color:var(--o-dual-color);',\n    'opacity:0.7;animation-direction:reverse;',\n    '}',\n    '@keyframes o-dual-ring-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-dual-outer],[data-o-dual-inner]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface DualRingOwnProps {\n  /** Diametre de l'anneau exterieur, en pixels. @defaultValue 48 */\n  size?: number\n  /** Epaisseur des traits, en pixels. @defaultValue 3 */\n  thickness?: number\n  /** Duree d'un tour, en millisecondes. @defaultValue 1200 */\n  speed?: number\n  /** Couleur des arcs. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type DualRingProps = Customisable<DualRingOwnProps, 'span'>\n\n/**\n * Signale une attente par deux anneaux qui se croisent en rythme.\n *\n * @example\n * <DualRing />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <DualRing size={80} thickness={5} speed={2000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function DualRing({\n  size = 48,\n  thickness = 3,\n  speed = 1200,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: DualRingProps): ReactElement {\n  ensureDualRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    // Deux traits et un espace doivent tenir dans le rayon.\n    '--o-dual-thickness': `${String(Math.min(thickness, size / 6))}px`,\n    '--o-dual-speed': `${String(speed)}ms`,\n    '--o-dual-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-dual-ring=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-dual-outer=\"\" />\n      <span aria-hidden data-o-dual-inner=\"\" />\n    </span>\n  )\n}\n"
+  }
+}

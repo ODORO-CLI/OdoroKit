@@ -1,0 +1,57 @@
+{
+  "name": "cube-flip",
+  "category": "loader",
+  "title": "Cube qui bascule",
+  "description": "Un cube en CSS 3D bascule d un quart de tour, marque un temps, puis bascule sur l autre axe : quatre flips par cycle, aucun JavaScript.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CubeFlip.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Arete du cube.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un cycle, soit quatre bascules.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du cube ; les faces en sont des nuances. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Six faces plates et une seule animation de transformation 3D tenue par le compositeur, aucun JavaScript apres le premier rendu. Cube immobile, trois faces visibles, sous mouvement reduit."
+  }
+}

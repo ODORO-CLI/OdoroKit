@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": ["hooks/use-poster"],
-  "tokens": [
-    "--o-palette-violet-500",
-    "--o-palette-violet-300",
-    "--o-palette-fuchsia-400"
-  ],
+  "tokens": ["--o-palette-violet-500", "--o-palette-violet-300", "--o-palette-fuchsia-400"],
   "props": [
     {
       "name": "points",

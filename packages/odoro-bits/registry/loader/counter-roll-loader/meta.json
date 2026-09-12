@@ -1,0 +1,72 @@
+{
+  "name": "counter-roll-loader",
+  "category": "loader",
+  "title": "Rouleaux de chiffres",
+  "description": "Des colonnes de chiffres qui roulent sans fin, un cran a la fois, chacune a sa phase, comme un compteur qui ne s arrete pas, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CounterRollLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-font-mono"],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "La legende sous les rouleaux. Chaine vide pour ne garder que les rouleaux."
+    },
+    {
+      "name": "digits",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de rouleaux.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Corps de reference ; les chiffres en font une fois et demie.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un tour complet de rouleau, les dix chiffres.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des chiffres et de la legende. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation de translation par rouleau, tenue par le compositeur, aucun JavaScript apres le premier rendu. Rouleaux a l arret sous mouvement reduit."
+  }
+}

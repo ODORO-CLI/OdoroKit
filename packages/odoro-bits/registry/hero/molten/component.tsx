@@ -40,7 +40,7 @@ import {
   type ReadyCallback,
 } from '@odoro-cli/engine'
 import { useScene, type SceneContext } from '@odoro-cli/engine/three'
-import { useMemo, useRef, useState, type ReactElement } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
@@ -121,7 +121,7 @@ export function Molten({
   onReady,
   ...rest
 }: MoltenProps): ReactElement {
-  const { quality } = useMotionState()
+  const { quality, theme } = useMotionState()
   const [host, setHost] = useState<HTMLElement | null>(null)
 
   const pointer = usePointerDamped({ host, speed: 3, name: 'molten : pointeur' })
@@ -184,6 +184,26 @@ export function Molten({
       scene.rotation.x += (-target.y * parallax - scene.rotation.x) * delta * 2
     },
   })
+
+  // Le theme a bascule : les tokens sont relus et les uniformes mis a jour en
+  // place. La scene n'est pas reconstruite — seules ses couleurs changent.
+  useEffect(() => {
+    const scene = context.current
+    const live = uniforms.current
+    if (scene === null || live['uCore'] === undefined) return
+    const [core, crust] = colors.map((token) => readTokenColour(token, host))
+    const paint = (key: string, value: readonly number[] | undefined): void => {
+      const uniform = live[key]
+      if (uniform === undefined || value === undefined) return
+      ;(uniform.value as { setRGB: (r: number, g: number, b: number) => unknown }).setRGB(
+        value[0] ?? 0,
+        value[1] ?? 0,
+        value[2] ?? 0,
+      )
+    }
+    paint('uCore', core)
+    paint('uCrust', crust)
+  }, [theme, colors, host])
 
   const fallback = usePoster({ ready, refused })
 

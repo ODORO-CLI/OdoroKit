@@ -1,0 +1,74 @@
+{
+  "name": "fuzzy-text",
+  "category": "text",
+  "title": "Texte flou vibrant",
+  "description": "Le texte reste hors de mise au point et tremble par sauts, jusqu a ce que le pointeur le remette au net.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/FuzzyText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 1.4,
+      "unit": "px",
+      "description": "Rayon du flou.",
+      "min": 0,
+      "max": 10,
+      "step": 0.2
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 1.6,
+      "unit": "px",
+      "description": "Amplitude du tremblement.",
+      "min": 0,
+      "max": 8,
+      "step": 0.2
+    },
+    {
+      "name": "period",
+      "type": "number",
+      "default": 160,
+      "unit": "ms",
+      "description": "Duree d un cycle de tremblement.",
+      "min": 60,
+      "max": 1200,
+      "step": 20
+    },
+    {
+      "name": "doublure",
+      "type": "boolean",
+      "default": true,
+      "description": "Poser la copie dephasee qui fabrique le grain."
+    },
+    {
+      "name": "netAuSurvol",
+      "type": "boolean",
+      "default": true,
+      "description": "Remettre au point tant que le pointeur est dessus."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux calques au plus, animes par le compositeur. Le flou est un filtre constant : il n est pas recalcule par image."
+  }
+}

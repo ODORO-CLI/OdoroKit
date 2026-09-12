@@ -1,7 +1,27 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-06T16:33:56.682Z",
+  "generatedAt": "2026-09-12T12:11:47.415Z",
   "entries": [
+    {
+      "id": "background/acid-squares",
+      "name": "acid-squares",
+      "category": "background",
+      "title": "Carres acides",
+      "description": "Des carres imbriques qui tournent chacun un peu plus vite que celui qui l enferme, en couleurs acides alternees ; le pavage en repete plusieurs, en contre-phase.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ascii-field",
+      "name": "ascii-field",
+      "category": "background",
+      "title": "Champ ASCII",
+      "description": "Un champ de bruit en derive lente, echantillonne par cellule et rendu en caracteres de la rampe classique — de l espace au arobase — par densite d encre ; glyphes de cinq par sept dessines par le shader, sans police ni texture.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
     {
       "id": "background/ashen-press",
       "name": "ashen-press",
@@ -10,6 +30,16 @@
       "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
       "tier": "heavy",
       "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/audio-bars",
+      "name": "audio-bars",
+      "category": "background",
+      "title": "Barres d egaliseur",
+      "description": "Des barres verticales qui pulsent comme un analyseur de spectre, sans aucun son : un bruit lisse en temps par barre, une enveloppe qui favorise les graves, un indicateur de crete qui retombe.",
+      "tier": "light",
+      "backend": "ogl",
       "registryDependencies": []
     },
     {
@@ -23,11 +53,54 @@
       "registryDependencies": []
     },
     {
+      "id": "background/ballpit",
+      "name": "ballpit",
+      "category": "background",
+      "title": "Piscine a balles",
+      "description": "Des balles colorees qui tombent, rebondissent entre elles et contre le cadre, et que le pointeur repousse ; une seule geometrie instanciee, une physique simple et bornee.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "background/beams",
       "name": "beams",
       "category": "background",
       "title": "Faisceaux",
       "description": "Des rais de lumiere obliques, deplaces par un bruit.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/blob-morph",
+      "name": "blob-morph",
+      "category": "background",
+      "title": "Forme organique",
+      "description": "Une seule forme organique qui respire au centre, son contour deforme par trois harmoniques et un bord frange de bruit fin.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/blueprint",
+      "name": "blueprint",
+      "category": "background",
+      "title": "Plan technique",
+      "description": "Un quadrillage clair sur fond profond, avec des croix aux intersections principales. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/bokeh",
+      "name": "bokeh",
+      "category": "background",
+      "title": "Bokeh",
+      "description": "Trois couches de disques flous qui derivent lateralement : plus la couche est proche, plus ses disques sont grands, flous et lents.",
       "tier": "medium",
       "backend": "ogl",
       "registryDependencies": []
@@ -63,6 +136,103 @@
       "registryDependencies": []
     },
     {
+      "id": "background/checker",
+      "name": "checker",
+      "category": "background",
+      "title": "Damier",
+      "description": "Une alternance de cases subtile, en un seul degrade conique repete. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/circuit",
+      "name": "circuit",
+      "category": "background",
+      "title": "Circuit imprime",
+      "description": "Des pistes tirees tuile par tuile — traits droits et coudes qui se raccordent d eux-memes — avec une pastille a chaque extremite, et des impulsions qui les parcourent a des rythmes decales.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/city-blocks",
+      "name": "city-blocks",
+      "category": "background",
+      "title": "Blocs de ville",
+      "description": "Un damier de blocs instancies, vus en isometrie et eclaires, qui s elevent et redescendent en cascade diagonale ; chaque bloc garde une hauteur de base propre et la teinte va des blocs bas aux blocs hauts.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/click-waves",
+      "name": "click-waves",
+      "category": "background",
+      "title": "Ondes de clic",
+      "description": "Chaque clic emet un anneau qui se propage et s amortit sur un fond faiblement texture ; huit ondes vivent a la fois.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/cloud-layer",
+      "name": "cloud-layer",
+      "category": "background",
+      "title": "Couches de nuages",
+      "description": "Trois couches de bruit fractal seuillees en masses opaques, eclairees par une lecture decalee vers la lumiere, qui derivent en parallaxe.",
+      "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/code-rain",
+      "name": "code-rain",
+      "category": "background",
+      "title": "Pluie de code",
+      "description": "Des colonnes de glyphes qui tombent a leur propre vitesse, une tete lumineuse et une trainee qui s eteint ligne par ligne ; les caracteres sont des masques de bits dessines par le shader, sans police ni texture.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/color-bends",
+      "name": "color-bends",
+      "category": "background",
+      "title": "Nappes pliees",
+      "description": "Des nappes de couleur epaisses, chacune dans son repere tourne, qui se plient et se croisent en s eclairant la ou elles se recouvrent.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/comet",
+      "name": "comet",
+      "category": "background",
+      "title": "Comete",
+      "description": "Une tete vive qui rattrape le curseur avec retard, queue etiree a l oppose de la vitesse de rattrapage, scintillement leger.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/constellation",
+      "name": "constellation",
+      "category": "background",
+      "title": "Constellation",
+      "description": "Des points en errance lente, relies par un segment quand ils sont proches — d autant plus net que la distance est courte — et que le pointeur attire.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "background/contour",
       "name": "contour",
       "category": "background",
@@ -71,6 +241,115 @@
       "tier": "heavy",
       "backend": "ogl",
       "registryDependencies": []
+    },
+    {
+      "id": "background/crosshatch",
+      "name": "crosshatch",
+      "category": "background",
+      "title": "Croisillons",
+      "description": "Deux trames diagonales croisees a plus et moins 45 degres. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/crt-warp",
+      "name": "crt-warp",
+      "category": "background",
+      "title": "Courbure cathodique",
+      "description": "Un tube bombe dont les coins sortent du cadre, un verre qui ecarte les teintes pres des bords, une grille d ouverture verticale et une vignette qui respire vers le fond du theme ; derriere, un signal lent.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/crystal",
+      "name": "crystal",
+      "category": "background",
+      "title": "Cristal",
+      "description": "Un prisme a pointes et facettes plates qui tourne ; la refraction est feinte par un fresnel et un degrade lu dans la direction refractee, la dispersion par trois indices, sans environnement.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/cubes",
+      "name": "cubes",
+      "category": "background",
+      "title": "Cubes",
+      "description": "Un champ de cubes instancies qui montent et descendent en vague, la hauteur resolue sur le GPU ; la teinte glisse du creux a la crete.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/currents",
+      "name": "currents",
+      "category": "background",
+      "title": "Courants",
+      "description": "Des lignes de courant : un bruit fin lu en un point advecte par un champ a grande echelle, etire dans le repere local du flot.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/cursor-grid",
+      "name": "cursor-grid",
+      "category": "background",
+      "title": "Grille au curseur",
+      "description": "Une nappe de paves qui s allument autour du pointeur, chacun respirant a sa propre phase, et une trainee plus sourde qui suit le geste avec retard.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/dark-veil",
+      "name": "dark-veil",
+      "category": "background",
+      "title": "Voile sombre",
+      "description": "Une etoffe de bruit fractal deforme par lui-meme qui ondule au-dessus de deux lueurs errantes ; la lumiere ne passe que par ses trouees.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/data-stream",
+      "name": "data-stream",
+      "category": "background",
+      "title": "Flux de donnees",
+      "description": "Des segments aux bouts arrondis qui defilent en couloirs horizontaux independants, chacun a son sens et sa vitesse, la tete relevee du cote qui avance.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/dither",
+      "name": "dither",
+      "category": "background",
+      "title": "Tramage",
+      "description": "Un degrade anime rendu en tramage ordonne : trois teintes seulement, et une matrice de Bayer qui fait le reste, pixel par pixel.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/dna-helix",
+      "name": "dna-helix",
+      "category": "background",
+      "title": "Double helice",
+      "description": "Deux brins de points opposes d un demi-tour, relies par des barreaux a intervalle regle, qui tournent autour d un axe legerement incline.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
     },
     {
       "id": "background/dot-matrix",
@@ -93,6 +372,198 @@
       "registryDependencies": []
     },
     {
+      "id": "background/dunes",
+      "name": "dunes",
+      "category": "background",
+      "title": "Dunes",
+      "description": "Des cretes superposees, sinus plus bruit, empilees du haut vers le bas : chaque couche plus claire et plus lente, en parallaxe.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/dust",
+      "name": "dust",
+      "category": "background",
+      "title": "Poussiere",
+      "description": "Des grains en suspension sur trois profondeurs, derivant sur une marche brownienne approchee, visibles seulement dans un rai de lumiere oblique qui s evase depuis sa source.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/elastic-mesh",
+      "name": "elastic-mesh",
+      "category": "background",
+      "title": "Maillage elastique",
+      "description": "Une nappe quadrillee simulee noeud par noeud : le pointeur la tire vers lui, l onde se propage de proche en proche, et la teinte suit la tension ; des gouttes tombent quand personne ne touche a rien.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-pointer-damped",
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/electric-field",
+      "name": "electric-field",
+      "category": "background",
+      "title": "Champ electrique",
+      "description": "Une echelle de Jacob : un arc qui s amorce entre deux electrodes, monte porte par l air chaud et se rompt en haut, son chemin rehache trente fois par seconde pour crepiter.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/embers",
+      "name": "embers",
+      "category": "background",
+      "title": "Braises",
+      "description": "Des braises qui montent sur trois profondeurs, scintillent a leur propre phase et s eteignent avec la hauteur ; une lueur de foyer au bas du cadre.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/eye-follow",
+      "name": "eye-follow",
+      "category": "background",
+      "title": "Yeux qui suivent",
+      "description": "Une grille de grands yeux dessines au trait, dont l iris se tourne vers le curseur ; chacun cligne a son propre rythme, en se refermant sur lui-meme.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/faulty-terminal",
+      "name": "faulty-terminal",
+      "category": "background",
+      "title": "Terminal defaillant",
+      "description": "Un ecran de caracteres qui se tape ligne par ligne, curseur clignotant, et qui tombe en panne par a-coups : scintillement, bandes dechirees d un nombre entier de colonnes, cellules corrompues. Glyphes dessines par le shader, sans police.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ferrofluid",
+      "name": "ferrofluid",
+      "category": "background",
+      "title": "Ferrofluide",
+      "description": "Une flaque de fluide magnetique dont les pics se dressent sous le pointeur : un reseau hexagonal de cones qui s aiguisent avec la proximite de l aimant, eclaires par une normale deduite du relief.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/fire",
+      "name": "fire",
+      "category": "background",
+      "title": "Feu",
+      "description": "Des flammes verticales continues : un bruit fractal dont le domaine descend, etire en langues et balance, moins une rampe de la hauteur ; deux seuils doux font le corps et le coeur.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/fireflies",
+      "name": "fireflies",
+      "category": "background",
+      "title": "Lucioles",
+      "description": "Des points repartis par hachage de cellule, chacun clignotant a sa propre phase dans un halo doux.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/fireworks",
+      "name": "fireworks",
+      "category": "background",
+      "title": "Feux d artifice",
+      "description": "Un bouquet d etincelles eclate a chaque clic et retombe sous la gravite, positions resolues analytiquement ; six bouquets vivent a la fois, et un bouquet automatique part a intervalle regle.",
+      "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/floating-lines",
+      "name": "floating-lines",
+      "category": "background",
+      "title": "Lignes flottantes",
+      "description": "Des segments courbes fins, de longueur finie, qui derivent en diagonale a des vitesses differentes et se croisent ; leurs halos s additionnent au croisement.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/floating-shapes",
+      "name": "floating-shapes",
+      "category": "background",
+      "title": "Formes flottantes",
+      "description": "Cinq solides simples, pleins ou en fil de fer, qui derivent et tournent sur eux-memes ; sous le pointeur chacun se decale d une part qui depend de sa profondeur.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-pointer-damped",
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/flow-field",
+      "name": "flow-field",
+      "category": "background",
+      "title": "Champ de flux",
+      "description": "Des particules qui suivent un champ de bruit sans divergence, tete claire et queue qui s eteint : chaque fragment remonte le champ a contre-courant, rien n est simule ni stocke.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/fog-drift",
+      "name": "fog-drift",
+      "category": "background",
+      "title": "Brume basse",
+      "description": "Deux nappes de bruit fractal etire en largeur, denses au bas et dissoutes sous une crete bruitee, qui glissent en sens contraires : la parallaxe fait la profondeur.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/galaxy-spiral",
+      "name": "galaxy-spiral",
+      "category": "background",
+      "title": "Galaxie spirale",
+      "description": "Des bras spiraux de points haches dans un domaine polaire tordu par le logarithme du rayon, en rotation lente autour d un coeur lumineux.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ghost-fibers",
+      "name": "ghost-fibers",
+      "category": "background",
+      "title": "Fibres fantomes",
+      "description": "Des filaments doubles d une brume derivent en travers du cadre et se pincent vers le pointeur au droit du curseur, puis retrouvent leur trace plus loin.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/glitch-blocks",
+      "name": "glitch-blocks",
+      "category": "background",
+      "title": "Blocs qui sautent",
+      "description": "Un degrade lent dont des blocs se decalent par a-coups, teintes inversees ou ecartees, et des bandes entieres qui sautent d un seul tenant ; tout est hache par paliers, rien ne glisse.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
       "id": "background/globe-mesh",
       "name": "globe-mesh",
       "category": "background",
@@ -102,6 +573,58 @@
       "backend": "three",
       "registryDependencies": [
         "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/gradient-blinds",
+      "name": "gradient-blinds",
+      "category": "background",
+      "title": "Stores de degrade",
+      "description": "Des lamelles devant un degrade, dont l ouverture suit une vague qui traverse le store d un bord a l autre.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/gradient-waves",
+      "name": "gradient-waves",
+      "category": "background",
+      "title": "Vagues de degrade",
+      "description": "Des bandes de degrade repete, sans trait ni marche, deplacees par une houle qui ne se referme jamais.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/grainient",
+      "name": "grainient",
+      "category": "background",
+      "title": "Degrade granuleux",
+      "description": "Des taches de couleur qui derivent lentement, dont les transitions se dissolvent en grain au lieu de s etaler.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/graph-paper",
+      "name": "graph-paper",
+      "category": "background",
+      "title": "Papier millimetre",
+      "description": "Deux quadrillages emboites, maille fine et maille epaisse toutes les cinq. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/grid-distortion",
+      "name": "grid-distortion",
+      "category": "background",
+      "title": "Grille sous lentille",
+      "description": "Un quadrillage lu sur un domaine tire vers le pointeur amorti : sous la lentille les mailles se dilatent et les lignes s epaississent comme sous un verre, avec un bord fin et une ombre qui donne son epaisseur.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
       ]
     },
     {
@@ -115,12 +638,42 @@
       "registryDependencies": []
     },
     {
+      "id": "background/grid-motion",
+      "name": "grid-motion",
+      "category": "background",
+      "title": "Rangees glissantes",
+      "description": "Des tuiles arrondies qui defilent par rangees, en sens alternes et chacune a sa vitesse, si bien que deux rangees voisines ne s alignent jamais ; quelques tuiles portent l accent et respirent.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/grid-scan",
+      "name": "grid-scan",
+      "category": "background",
+      "title": "Grille balayee",
+      "description": "Un quadrillage parcouru par une barre lumineuse qui sort du cadre avant de repartir ; chaque cellule franchie s eteint a son rythme, depuis une intensite qui lui est propre.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
       "id": "background/halftone",
       "name": "halftone",
       "category": "background",
       "title": "Trame",
       "description": "Un demi-ton dont les points grossissent avec la lumiere, comme en impression.",
       "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/halo-pulse",
+      "name": "halo-pulse",
+      "category": "background",
+      "title": "Halo qui pulse",
+      "description": "Un coeur qui respire a un rythme lent et des anneaux gaussiens emis a ce rythme, qui s elargissent et palissent en s eloignant.",
+      "tier": "light",
       "backend": "ogl",
       "registryDependencies": []
     },
@@ -135,12 +688,298 @@
       "registryDependencies": []
     },
     {
+      "id": "background/hex-wave",
+      "name": "hex-wave",
+      "category": "background",
+      "title": "Vague hexagonale",
+      "description": "Un nid d abeille dont les alveoles s allument en cercles qui s eloignent du pointeur amorti et s eteignent avec la distance ; la vague est evaluee au centre de chaque alveole, qui s allume d un bloc.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/hologram",
+      "name": "hologram",
+      "category": "background",
+      "title": "Hologramme",
+      "description": "Une sphere en meridiens et paralleles projetee au-dessus d un socle d anneaux : elle tourne, sa face arriere s efface, une bande de balayage la traverse, et elle scintille et saute par paliers.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/hyperspace",
+      "name": "hyperspace",
+      "category": "background",
+      "title": "Hyperespace",
+      "description": "Des etoiles filantes vers la camera depuis un point de fuite, lues en polaire et en logarithme ; les trainees s allongent avec la vitesse.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ink",
+      "name": "ink",
+      "category": "background",
+      "title": "Encre",
+      "description": "Chaque clic etend un disque de la couleur suivante depuis le point clique jusqu a recouvrir le cadre : le fond change de couleur par vagues.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/interference",
+      "name": "interference",
+      "category": "background",
+      "title": "Moire",
+      "description": "Deux reseaux d anneaux dont les centres orbitent lentement, et les battements de leur produit.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/iridescence",
+      "name": "iridescence",
+      "category": "background",
+      "title": "Iridescence",
+      "description": "Une nacre qui ondule doucement : la teinte tourne avec l inclinaison de la surface, deux reflets se posent par addition.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/isometric-grid",
+      "name": "isometric-grid",
+      "category": "background",
+      "title": "Pave isometrique",
+      "description": "Un pavage de cubes vus en isometrie, trois faces a trois ombres, dont les cellules s allument chacune a son rythme.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/jelly",
+      "name": "jelly",
+      "category": "background",
+      "title": "Gelee",
+      "description": "Une masse translucide qui tremble la ou on clique : un creux, une onde qui court sur la surface et un balancement de toute la masse, dates par l horloge du moteur.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/kaleidoscope",
+      "name": "kaleidoscope",
+      "category": "background",
+      "title": "Kaleidoscope",
+      "description": "Un bruit fractal anime, replie en secteurs par modulo puis miroir de l angle : la symetrie vient du repliement, pas du dessin.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/lava",
+      "name": "lava",
+      "category": "background",
+      "title": "Lave",
+      "description": "Des metaballs chaudes et lentes : une somme de champs en 1/d2 seuillee en deux paliers doux, coeur clair et bord sombre.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/lava-lamp",
+      "name": "lava-lamp",
+      "category": "background",
+      "title": "Lampe a lave",
+      "description": "Des gouttes de cire etirees qui montent et redescendent lentement dans une colonne, chaque goutte prenant sa couleur de sa hauteur, sur une reserve chauffee par le bas.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/led-wall",
+      "name": "led-wall",
+      "category": "background",
+      "title": "Mur de LED",
+      "description": "Une matrice de pastilles arrondies qui affiche un degrade lent echantillonne au centre de chaque pastille — une couleur par diode — avec le boitier visible entre elles, un halo court et une luminance inegale.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/lens-flare",
+      "name": "lens-flare",
+      "category": "background",
+      "title": "Reflet d objectif",
+      "description": "Une source qui suit le pointeur amorti, sa strie anamorphique, et une chaine de fantomes alignes sur l axe qui la joint au centre du cadre, en teintes alternees.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/light-pillar",
+      "name": "light-pillar",
+      "category": "background",
+      "title": "Colonne de lumiere",
+      "description": "Une colonne verticale qui respire : un coeur gaussien net, un halo exponentiel sans fin, des stries qui montent.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/lightfall",
+      "name": "lightfall",
+      "category": "background",
+      "title": "Cascade de lumiere",
+      "description": "Des gouttes de lumiere qui tombent en colonnes, tete nette et trainee exponentielle, sur trois profondeurs et un rideau qui descend du haut.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/lightning",
+      "name": "lightning",
+      "category": "background",
+      "title": "Eclairs",
+      "description": "Un arc intermittent : un chemin deplace par du bruit multi-octave, un trait exponentiel, des rafales tirees du hachage du temps par paliers.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/line-waves",
+      "name": "line-waves",
+      "category": "background",
+      "title": "Lignes en houle",
+      "description": "Des lignes horizontales fines, une par bande, deplacees par la meme houle avec un dephasage propre a leur rang : les cretes decalees dessinent une nappe diagonale qui glisse.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/liquid-chrome",
+      "name": "liquid-chrome",
+      "category": "background",
+      "title": "Chrome liquide",
+      "description": "Un liquide chrome qui reflechit un studio : ciel clair, sol sombre, horizon dur, en encre sur le fond clair et en lueur sur le sombre.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/liquid-ether",
+      "name": "liquid-ether",
+      "category": "background",
+      "title": "Ether liquide",
+      "description": "Un fluide vaporeux que le pointeur pousse : chaque deplacement depose un tourbillon date qui advecte le bruit et y laisse une trace claire, douze depots vivent a la fois.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/magnet-grid",
+      "name": "magnet-grid",
+      "category": "background",
+      "title": "Grille magnetique",
+      "description": "Une grille de points repousses par le curseur — ou attires — d une force en exponentielle de la distance, sans geometrie.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/magnetic-lines",
+      "name": "magnetic-lines",
+      "category": "background",
+      "title": "Lignes de champ",
+      "description": "Les lignes de champ et les equipotentielles d un dipole, cercles analytiques qui glissent d un pole a l autre ; le pointeur deplace le second pole.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/marble",
+      "name": "marble",
+      "category": "background",
+      "title": "Marbre",
+      "description": "Des veines de marbre en bruit deforme trois fois, tres lentes, fines et contrastees, relevees d un filet d accent.",
+      "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/maze",
+      "name": "maze",
+      "category": "background",
+      "title": "Labyrinthe",
+      "description": "Un labyrinthe de diagonales qui se dessine trait par trait derriere une tete lumineuse, puis se redessine autrement quand le front repasse.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
       "id": "background/mesh",
       "name": "mesh",
       "category": "background",
       "title": "Nappe",
       "description": "Trois taches de couleur qui derivent et se melangent.",
       "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/mesh-static",
+      "name": "mesh-static",
+      "category": "background",
+      "title": "Nappe figee",
+      "description": "Quatre taches de couleur posees aux tiers du cadre, sans shader et sans mouvement.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/metaballs",
+      "name": "metaballs",
+      "category": "background",
+      "title": "Metaballs",
+      "description": "Des boules de gel qui fusionnent en champ scalaire, eclairees par une normale deduite du champ ; une boule suit le pointeur.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/metallic-paint",
+      "name": "metallic-paint",
+      "category": "background",
+      "title": "Peinture metallique",
+      "description": "Une plaque brossee et pailletee eclairee par une lampe posee au curseur : bouger le pointeur revient a incliner la plaque, et le reflet balaie les stries.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/molten-metal",
+      "name": "molten-metal",
+      "category": "background",
+      "title": "Metal en fusion",
+      "description": "Un bain de metal chaud : une croute qui se fend en veines, une coulee lente en bruit a deplacement de domaine, un coeur qui rayonne.",
+      "tier": "heavy",
       "backend": "ogl",
       "registryDependencies": []
     },
@@ -155,6 +994,68 @@
       "registryDependencies": []
     },
     {
+      "id": "background/nebula",
+      "name": "nebula",
+      "category": "background",
+      "title": "Nebuleuse",
+      "description": "Des nuages profonds en deux couches de bruit couplees, assombris aux bords.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/neon-grid",
+      "name": "neon-grid",
+      "category": "background",
+      "title": "Grille neon",
+      "description": "Un sol quadrille projete en z = 1/y qui defile vers le spectateur, une ligne d horizon en neon, et un soleil dont le bas est decoupe par des bandes qui glissent.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/night-drive",
+      "name": "night-drive",
+      "category": "background",
+      "title": "Route de nuit",
+      "description": "Un sol projete en z = 1/y : deux bords qui convergent vers l horizon, un axe en tirets qui defile, et une file de lampadaires qui approchent lentement de loin puis filent en passant, halo, mat et flaque au sol.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/noise",
+      "name": "noise",
+      "category": "background",
+      "title": "Grain",
+      "description": "Un bruit de film statique, genere par un filtre SVG en data-URI. Aucun script apres le rendu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/oil-slick",
+      "name": "oil-slick",
+      "category": "background",
+      "title": "Nappe d essence",
+      "description": "Une nappe d essence sur l eau : des franges irisees serrees qui suivent un bruit tordu, entre lesquelles l eau sombre ondule.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/orbit-rings",
+      "name": "orbit-rings",
+      "category": "background",
+      "title": "Anneaux orbitaux",
+      "description": "Des anneaux de points en orbite inclinee autour d un centre vide, en sens alternes, l ensemble en lente precession ; la teinte glisse de l anneau interieur a l exterieur.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
       "id": "background/orbital-sphere",
       "name": "orbital-sphere",
       "category": "background",
@@ -164,6 +1065,73 @@
       "backend": "three",
       "registryDependencies": [
         "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/oscilloscope",
+      "name": "oscilloscope",
+      "category": "background",
+      "title": "Oscilloscope",
+      "description": "Un spot qui balaie l ecran de gauche a droite sur une graticule, et un phosphore qui garde sa trace en s eteignant : le signal est fige par balayage, la remanence fait le reste.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/particle-field",
+      "name": "particle-field",
+      "category": "background",
+      "title": "Champ de particules",
+      "description": "Un semis de points sur deux profondeurs, en derive lente ; les particules que le pointeur couvre s allument et prennent la teinte d eclat.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/particle-sphere",
+      "name": "particle-sphere",
+      "category": "background",
+      "title": "Sphere de points",
+      "description": "Un nuage de points spherique qui tourne, et que le pointeur souleve : la bosse suit le curseur dans le repere de la sphere, et les points souleves changent de teinte.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/pixel-blast",
+      "name": "pixel-blast",
+      "category": "background",
+      "title": "Explosion de pixels",
+      "description": "Chaque clic projette une gerbe de pixels carres, alignes sur une trame, qui retombent sous la gravite ; cinq gerbes vivent a la fois, et une gerbe automatique part a intervalle regle.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/pixel-sort",
+      "name": "pixel-sort",
+      "category": "background",
+      "title": "Tri de pixels",
+      "description": "Des bandes de pixels tries qui sortent des zones claires d une image et coulent le long des colonnes a des vitesses inegales, la luminance croissant du haut vers le bas de chaque bande comme le ferait un tri.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/pixel-trail",
+      "name": "pixel-trail",
+      "category": "background",
+      "title": "Trainee de pixels",
+      "description": "Le curseur allume les pixels d une trame grossiere : chaque cellule prend une valeur unique, et s eteint par crans plutot qu en fondu.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
       ]
     },
     {
@@ -177,6 +1145,70 @@
       "registryDependencies": []
     },
     {
+      "id": "background/plasma-ball",
+      "name": "plasma-ball",
+      "category": "background",
+      "title": "Boule plasma",
+      "description": "Un globe et ses filaments qui serpentent de l electrode au verre, en coordonnees polaires ; le pointeur pose un doigt sur le verre et attire le filament principal.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/pollen",
+      "name": "pollen",
+      "category": "background",
+      "title": "Pollen",
+      "description": "Des grains lents sur deux plans — le lointain net et serre, le proche flou et lache — que le pointeur decale en parallaxe.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/prism",
+      "name": "prism",
+      "category": "background",
+      "title": "Prisme",
+      "description": "Un faisceau blanc entre par la gauche, traverse un prisme et ressort en eventail, disperse entre deux teintes du projet.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/prismatic-burst",
+      "name": "prismatic-burst",
+      "category": "background",
+      "title": "Eclat prismatique",
+      "description": "Des rais qui tournent autour d un foyer et changent de teinte sur le tour, traverses par des anneaux qui s eloignent.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/radar",
+      "name": "radar",
+      "category": "background",
+      "title": "Radar",
+      "description": "Un balayage circulaire : l age du dernier passage en exponentielle pour la trainee, des anneaux de graduation, des echos qui decroissent.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/radial-glow",
+      "name": "radial-glow",
+      "category": "background",
+      "title": "Halo",
+      "description": "Deux lueurs radiales superposees sur un fond profond, pour asseoir un hero. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "background/rain",
       "name": "rain",
       "category": "background",
@@ -187,11 +1219,91 @@
       "registryDependencies": []
     },
     {
+      "id": "background/rays",
+      "name": "rays",
+      "category": "background",
+      "title": "Rayons",
+      "description": "Des rais crepusculaires radiaux : un bruit 1D de l angle autour d un foyer reglable, attenue par la distance, au scintillement lent.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ribbons",
+      "name": "ribbons",
+      "category": "background",
+      "title": "Rubans",
+      "description": "Des bandes sinusoidales etagees et dephasees, dont la lumiere decroit avec la distance a leur axe.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/rings",
+      "name": "rings",
+      "category": "background",
+      "title": "Anneaux",
+      "description": "Des cercles concentriques depuis un point reglable, en un degrade radial repete. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "background/ripple-grid",
       "name": "ripple-grid",
       "category": "background",
       "title": "Grille ondulante",
       "description": "Un quadrillage souleve par une onde radiale.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/ripples",
+      "name": "ripples",
+      "category": "background",
+      "title": "Gouttes",
+      "description": "Des centres pseudo-aleatoires qui emettent des anneaux amortis, et leurs interferences.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/sand-flow",
+      "name": "sand-flow",
+      "category": "background",
+      "title": "Sable qui coule",
+      "description": "Des filets de grains qui tombent sur un tas : une grille fine qui defile, effilochee loin de l axe, et la meme grille immobile sous un profil de bosses.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/scanlines",
+      "name": "scanlines",
+      "category": "background",
+      "title": "Lignes de balayage",
+      "description": "Un ecran cathodique : lignes horizontales, barre qui roule, grain discret et vignette.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/seismograph",
+      "name": "seismograph",
+      "category": "background",
+      "title": "Sismographe",
+      "description": "Des traces horizontales sur un papier qui defile ; chaque clic pose un stylet et ecrit une secousse amortie qui s eloigne avec le papier, plus forte sur les traces a sa hauteur. Huit secousses vivent a la fois.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/shape-grid",
+      "name": "shape-grid",
+      "category": "background",
+      "title": "Grille de formes",
+      "description": "Une grille de petites formes, rond, carre ou triangle selon la cellule, qui tournent chacune a sa vitesse et respirent en decalage.",
       "tier": "light",
       "backend": "ogl",
       "registryDependencies": []
@@ -207,6 +1319,68 @@
       "registryDependencies": []
     },
     {
+      "id": "background/sine-grid",
+      "name": "sine-grid",
+      "category": "background",
+      "title": "Grille sinusoidale",
+      "description": "Une grille lue sur un domaine deforme en sinus : chaque noeud decrit une boucle, et une seconde grille tournee de quelques degres pose un moire leger dont les franges glissent lentement.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/sliced-waves",
+      "name": "sliced-waves",
+      "category": "background",
+      "title": "Vague tranchee",
+      "description": "Une bande epaisse lue par colonnes : la hauteur est evaluee au centre de chaque tranche, la vague saute de marche en marche et chaque colonne bat a son propre rythme.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/smoke",
+      "name": "smoke",
+      "category": "background",
+      "title": "Fumee",
+      "description": "Des volutes de bruit fractal advectees par un rotationnel approche, en montee lente.",
+      "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/snow",
+      "name": "snow",
+      "category": "background",
+      "title": "Neige",
+      "description": "Trois couches de flocons en halo exponentiel : chute verticale a vitesses etagees, balancement lateral a phase hachee par flocon.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/soap-film",
+      "name": "soap-film",
+      "category": "background",
+      "title": "Film de savon",
+      "description": "Un film mince qui s ecoule vers le bas, dont l epaisseur fait tourner la teinte entre deux couleurs et ouvre des zones transparentes la ou il s amincit.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/sonar",
+      "name": "sonar",
+      "category": "background",
+      "title": "Sonar",
+      "description": "Des impulsions concentriques a front raide et traine sombre, emises en continu depuis le pointeur amorti et eteintes avec la distance ; des cercles de portee fixes donnent l echelle.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "background/spectrum",
       "name": "spectrum",
       "category": "background",
@@ -214,6 +1388,28 @@
       "description": "Un balayage angulaire de teintes, qui module la palette sans la remplacer.",
       "tier": "light",
       "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/splash-cursor",
+      "name": "splash-cursor",
+      "category": "background",
+      "title": "Eclaboussures",
+      "description": "Le pointeur seme des taches de peinture au contour bosselle, tirees entre deux teintes : elles s ouvrent d un coup, se melangent la ou elles se recouvrent, puis se fanent.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/spot-grid",
+      "name": "spot-grid",
+      "category": "background",
+      "title": "Points masques",
+      "description": "Une grille de points en degrade repete, estompee vers les bords par un masque radial. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
       "registryDependencies": []
     },
     {
@@ -227,11 +1423,112 @@
       "registryDependencies": []
     },
     {
+      "id": "background/strands",
+      "name": "strands",
+      "category": "background",
+      "title": "Meches",
+      "description": "Des brins ancres en bas du cadre, dont le balancement croit avec la hauteur : la racine tient, la pointe suit le courant avec retard, comme des algues.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/stripes",
+      "name": "stripes",
+      "category": "background",
+      "title": "Rayures",
+      "description": "Des bandes diagonales en un seul degrade repete. Aucun contexte graphique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "background/swarm",
+      "name": "swarm",
+      "category": "background",
+      "title": "Nuee",
+      "description": "Des points qui volent en groupe selon les regles des boids — separation, alignement, cohesion — simules sur le processeur et rendus en un nuage de points ; la nuee s ouvre autour du pointeur.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/terrain-wireframe",
+      "name": "terrain-wireframe",
+      "category": "background",
+      "title": "Relief en fil de fer",
+      "description": "Une nappe quadrillee en segments dont les cretes, lues dans un bruit decale du temps, defilent vers la camera et s effacent dans un brouillard de la couleur du fond ; une vallee centrale reste plate.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
       "id": "background/threads",
       "name": "threads",
       "category": "background",
       "title": "Fils",
       "description": "Un faisceau de courbes fines, d epaisseur constante sur toute leur longueur.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/tiles-flip",
+      "name": "tiles-flip",
+      "category": "background",
+      "title": "Tuiles qui se retournent",
+      "description": "Une grille de tuiles a deux faces qui se retournent en ondes concentriques autour du pointeur amorti, et retombent a plat des qu il s eloigne.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/torch",
+      "name": "torch",
+      "category": "background",
+      "title": "Torche",
+      "description": "Un voile sombre perce d une lueur amortie qui suit le curseur et revele un motif discret dessous.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/torus-knot",
+      "name": "torus-knot",
+      "category": "background",
+      "title": "Noeud torique",
+      "description": "Un tore noue dessine en fil de fer, double d un solide de la couleur du fond qui masque ses arretes de dos, et parcouru d impulsions qui suivent sa courbe guide.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "background/triangles",
+      "name": "triangles",
+      "category": "background",
+      "title": "Triangulation",
+      "description": "Un pavage de facettes triangulaires, diagonales alternees en damier, dont l eclairage compose une respiration propre a chaque facette et un balayage qui traverse le pavage ; les plus vives prennent une teinte.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/truchet",
+      "name": "truchet",
+      "category": "background",
+      "title": "Truchet",
+      "description": "Des tuiles de Truchet a deux arcs qui pivotent d un quart de tour en cascade diagonale ; chaque arc garde sa couleur et le dessin se recompose.",
       "tier": "light",
       "backend": "ogl",
       "registryDependencies": []
@@ -247,12 +1544,119 @@
       "registryDependencies": []
     },
     {
+      "id": "background/tv-static",
+      "name": "tv-static",
+      "category": "background",
+      "title": "Parasites",
+      "description": "La neige d un televiseur : un bruit blanc hache par paliers de temps, des bandes sombres qui defilent, une teinte dosable.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/underwater",
+      "name": "underwater",
+      "category": "background",
+      "title": "Sous l eau",
+      "description": "Des rais de lumiere qui convergent vers la surface, se balancent et s eteignent avec la profondeur, et des bulles qui montent par colonnes, anneau fin et point de reflet.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/veil-parallax",
+      "name": "veil-parallax",
+      "category": "background",
+      "title": "Nappes parallaxes",
+      "description": "Trois nappes de bruit fractal qui glissent chacune d un facteur different selon la position amortie du curseur, avec une derive lente sans pointeur.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/vhs-tracking",
+      "name": "vhs-tracking",
+      "category": "background",
+      "title": "Tracking VHS",
+      "description": "Une cassette mal alignee : une bande de tracking qui roule et decale les lignes qu elle traverse en y semant des stries, deux teintes lues a des positions ecartees qui sautent par rafales, et la commutation des tetes au bas de l image.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/volumetric-rays",
+      "name": "volumetric-rays",
+      "category": "background",
+      "title": "Rayons volumetriques",
+      "description": "Des rais de lumiere integres par une marche vers le foyer a travers une brume qui derive : un banc epais les eteint, la brume locale les diffuse.",
+      "tier": "heavy",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/voronoi",
+      "name": "voronoi",
+      "category": "background",
+      "title": "Voronoi",
+      "description": "Des cellules de Voronoi dont les germes derivent, aux aretes exactes tracees en neon et aux germes visibles ; chaque cellule porte sa propre nuance.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
       "id": "background/vortex",
       "name": "vortex",
       "category": "background",
       "title": "Vortex",
       "description": "Une spirale obtenue en ajoutant a l angle une quantite qui decroit avec le rayon.",
       "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/wake",
+      "name": "wake",
+      "category": "background",
+      "title": "Sillage",
+      "description": "Le curseur laisse une trainee de halos dates qui s eteignent avec l age ; seize depots vivent a la fois.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/warp",
+      "name": "warp",
+      "category": "background",
+      "title": "Hyperespace",
+      "description": "Des etoiles etirees radialement depuis le centre, sur trois profondeurs a trois vitesses.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/water-surface",
+      "name": "water-surface",
+      "category": "background",
+      "title": "Surface d eau",
+      "description": "Une nappe de vagues de Gerstner vue en rasant : de face l eau, au ras le ciel, et le soleil qui scintille sur des ridules de bruit. Le pointeur fait glisser la camera.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/watercolor",
+      "name": "watercolor",
+      "category": "background",
+      "title": "Aquarelle",
+      "description": "Des taches d aquarelle qui s etalent sur un papier grenu, se chargent de pigment sur leur bord en sechant, puis s effacent pour laisser place aux suivantes.",
+      "tier": "medium",
       "backend": "ogl",
       "registryDependencies": []
     },
@@ -264,6 +1668,59 @@
       "description": "Des bandes qui ondulent, sommees de trois sinus non harmoniques.",
       "tier": "medium",
       "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/web-threads",
+      "name": "web-threads",
+      "category": "background",
+      "title": "Toile de fils",
+      "description": "Des points relies a leurs voisins par des segments, une toile qui tremble au repos et vibre sous le pointeur ; les fils a portee s eclairent.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "background/wind-field",
+      "name": "wind-field",
+      "category": "background",
+      "title": "Champ de vent",
+      "description": "Un trait court par cellule, oriente par le vent et long comme sa force ; des rafales balaient le cadre dans le sens du cap et changent la teinte des traits au passage.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "background/wormhole",
+      "name": "wormhole",
+      "category": "background",
+      "title": "Vortex torsade",
+      "description": "Un couloir en z = 1/r dont l angle est tordu avec la profondeur : les aretes s enroulent en helice, l ensemble pivote, le point de fuite se promene et la teinte tourne autour de la paroi d une couleur a l autre.",
+      "tier": "light",
+      "backend": "ogl",
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/beam-connect",
+      "name": "beam-connect",
+      "category": "effect",
+      "title": "Faisceau de liaison",
+      "description": "Un trait courbe anime relie deux enfants identifies par data-beam, remesure a chaque changement de taille.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/blob-cursor",
+      "name": "blob-cursor",
+      "category": "effect",
+      "title": "Curseur gluant",
+      "description": "Une chaine de boules recollees par un filtre SVG : la trainee s etire quand le pointeur file, et se fond en une seule goutte des qu il s arrete.",
+      "tier": "light",
+      "backend": false,
       "registryDependencies": []
     },
     {
@@ -287,6 +1744,38 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/click-sparks",
+      "name": "click-sparks",
+      "category": "effect",
+      "title": "Etincelles",
+      "description": "De petits traits jaillissent radialement du point d appui a chaque clic, puis s eteignent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/crosshair",
+      "name": "crosshair",
+      "category": "effect",
+      "title": "Reticule",
+      "description": "Deux traits traversent la zone et se croisent sous le pointeur, avec un vide au croisement et le releve chiffre des coordonnees.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/cursor-grid-dom",
+      "name": "cursor-grid-dom",
+      "category": "effect",
+      "title": "Trame au pointeur",
+      "description": "La version en elements du document de la grille magnetique : des points ecartes ou aspires par le pointeur, qui s allument dans le meme mouvement, sans WebGL.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "effect/cursor-halo",
       "name": "cursor-halo",
       "category": "effect",
@@ -297,6 +1786,18 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/cursor-ring",
+      "name": "cursor-ring",
+      "category": "effect",
+      "title": "Curseur double",
+      "description": "Dans sa zone, le curseur natif devient un point net suivi d un anneau retardataire, qui grossit sur les elements interactifs.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "effect/deform",
       "name": "deform",
       "category": "effect",
@@ -305,6 +1806,118 @@
       "tier": "light",
       "backend": false,
       "registryDependencies": []
+    },
+    {
+      "id": "effect/float-group",
+      "name": "float-group",
+      "category": "effect",
+      "title": "Flottement",
+      "description": "Chaque enfant direct flotte doucement sur sa propre cadence, duree et phase derivees de l index — jamais les memes pour deux voisins.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/ghost-cursor",
+      "name": "ghost-cursor",
+      "category": "effect",
+      "title": "Trainee fantome",
+      "description": "Le chemin du pointeur est garde quelques images dans un anneau, et des copies de plus en plus pales le relisent : la trainee epouse le trace exact, boucles comprises.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/glare-hover",
+      "name": "glare-hover",
+      "category": "effect",
+      "title": "Reflet au survol",
+      "description": "Une bande de lumiere traverse le contenu au survol, comme un reflet sur une carte plastifiee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/glitch-hover",
+      "name": "glitch-hover",
+      "category": "effect",
+      "title": "Glitch au survol",
+      "description": "Au survol ou au focus, le contenu part en tranches decalees avec une frange chromatique, le temps d une breve rafale.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/glow-cursor",
+      "name": "glow-cursor",
+      "category": "effect",
+      "title": "Curseur lumineux",
+      "description": "Une lueur diffuse suit le pointeur avec du retard, et s etire dans le sens du deplacement quand il file.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/gradual-blur",
+      "name": "gradual-blur",
+      "category": "effect",
+      "title": "Flou de bord",
+      "description": "Le bord d une zone defilante se voile d un flou qui s epaissit vers l exterieur, et s efface en fin de course.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/halftone-reveal",
+      "name": "halftone-reveal",
+      "category": "effect",
+      "title": "Revelation en trame",
+      "description": "Au defilement, une trame de points serres se retracte point par point et decouvre le contenu, puis quitte le DOM.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/inertia-drag",
+      "name": "inertia-drag",
+      "category": "effect",
+      "title": "Glisser avec inertie",
+      "description": "L element se laisse trainer au pointeur, continue sur sa lancee au lacher, puis revient elastiquement a sa place.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/laser-flow",
+      "name": "laser-flow",
+      "category": "effect",
+      "title": "Balayage laser",
+      "description": "Un faisceau incline traverse le cadre en boucle, un trait net double d une nappe diffuse.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/magic-rings",
+      "name": "magic-rings",
+      "category": "effect",
+      "title": "Anneaux au clic",
+      "description": "Chaque appui envoie une salve d anneaux concentriques qui s ecartent en ralentissant et s effacent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/magnet-lines",
+      "name": "magnet-lines",
+      "category": "effect",
+      "title": "Lignes magnetiques",
+      "description": "Un champ d aiguilles qui pivotent vers le pointeur, par le plus court chemin, et reviennent a leur angle de repos au-dela de la portee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
     },
     {
       "id": "effect/magnetic",
@@ -327,12 +1940,32 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/meteors",
+      "name": "meteors",
+      "category": "effect",
+      "title": "Meteores",
+      "description": "Des traits obliques tombent en boucle a travers la zone, chacun sur sa propre cadence.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "effect/neon-border",
       "name": "neon-border",
       "category": "effect",
       "title": "Lisere de neon",
       "description": "Un arc lumineux qui fait le tour d un cadre a vitesse constante le long du bord, et non a vitesse constante en angle.",
       "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/orbiting-dots",
+      "name": "orbiting-dots",
+      "category": "effect",
+      "title": "Points en orbite",
+      "description": "Des satellites tournent autour du contenu, sur deux anneaux croises.",
+      "tier": "light",
       "backend": false,
       "registryDependencies": []
     },
@@ -347,6 +1980,62 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/pixel-swap",
+      "name": "pixel-swap",
+      "category": "effect",
+      "title": "Echange de cellules",
+      "description": "Deux images partagent la meme grille : des cellules passent de l une a l autre sans arret, et reviennent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/pixel-transition",
+      "name": "pixel-transition",
+      "category": "effect",
+      "title": "Transition en damier",
+      "description": "Un damier de pixels recouvre le premier contenu case par case, le remplace par le second, puis se retire.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "effect/reveal-mask",
+      "name": "reveal-mask",
+      "category": "effect",
+      "title": "Rideau par bandes",
+      "description": "A l entree dans le champ, le contenu est revele par des bandes verticales qui se retirent en cascade puis quittent le DOM.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "effect/ripple-click",
+      "name": "ripple-click",
+      "category": "effect",
+      "title": "Onde au clic",
+      "description": "Un cercle part du point touche et s etend jusqu aux bords de la zone.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/ripple-distortion",
+      "name": "ripple-distortion",
+      "category": "effect",
+      "title": "Distorsion d ondes",
+      "description": "Une surface d ondes concentriques nait sous le pointeur et deforme les bandes qu elle porte, derriere le contenu.",
+      "tier": "medium",
+      "backend": "ogl",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
       "id": "effect/scroll-progress",
       "name": "scroll-progress",
       "category": "effect",
@@ -357,11 +2046,83 @@
       "registryDependencies": []
     },
     {
+      "id": "effect/scroll-velocity",
+      "name": "scroll-velocity",
+      "category": "effect",
+      "title": "Inclinaison au defilement",
+      "description": "Le conteneur s incline et se decale avec la vitesse de defilement, puis se redresse en douceur a l arret.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/shape-blur",
+      "name": "shape-blur",
+      "category": "effect",
+      "title": "Forme floue",
+      "description": "Une silhouette geometrique tres floue derive sous le contenu, en suivant le pointeur avec retard.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "effect/splash-pointer",
+      "name": "splash-pointer",
+      "category": "effect",
+      "title": "Eclaboussure",
+      "description": "Chaque clic envoie des gouttes qui montent, ralentissent et retombent, avec une couronne d impact au point touche.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "effect/spotlight",
       "name": "spotlight",
       "category": "effect",
       "title": "Halo de pointeur",
       "description": "Un halo suit le curseur sur une carte, et s eteint quand il la quitte.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/sticker-peel",
+      "name": "sticker-peel",
+      "category": "effect",
+      "title": "Autocollant decolle",
+      "description": "Un coin du contenu se souleve comme un autocollant qu on decolle, et laisse voir son dos et son ombre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/sticky-cursor",
+      "name": "sticky-cursor",
+      "category": "effect",
+      "title": "Curseur collant",
+      "description": "Une pastille suit le pointeur, s etire en vol, puis prend exactement la taille et l arrondi du bouton qu elle survole.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/swarm-cursor",
+      "name": "swarm-cursor",
+      "category": "effect",
+      "title": "Nuee de curseur",
+      "description": "Des points tournent autour du pointeur, chacun avec sa prise : au repos ils forment un anneau, des que la main file la nuee s etire en comete.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "effect/target-cursor",
+      "name": "target-cursor",
+      "category": "effect",
+      "title": "Viseur",
+      "description": "Quatre crochets tournent autour du pointeur, puis s ecartent jusqu aux coins de l element survole pour l encadrer.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -400,11 +2161,74 @@
       "registryDependencies": []
     },
     {
+      "id": "hero/tide",
+      "name": "tide",
+      "category": "hero",
+      "title": "Maree",
+      "description": "Une nappe lumineuse en trois dimensions, soulevee par une houle de bruit, eclairee en rasant et fondue dans le fond avec la distance. Le pointeur l incline, le defilement l eloigne.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-poster",
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "hooks/use-copy",
+      "name": "use-copy",
+      "category": "hooks",
+      "title": "Copie confirmee",
+      "description": "Copie un texte dans le presse-papiers et rend l etat a montrer, qui retombe seul.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "hooks/use-in-view",
       "name": "use-in-view",
       "category": "hooks",
       "title": "Entree dans le champ",
       "description": "Dit quand un element entre dans le champ, une fois, sans dependance.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "hooks/use-interval-clock",
+      "name": "use-interval-clock",
+      "category": "hooks",
+      "title": "Intervalle sur l horloge",
+      "description": "Repete une action a cadence tenue dans la boucle du moteur, et s arrete quand l onglet est cache.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "hooks/use-keyboard-list",
+      "name": "use-keyboard-list",
+      "category": "hooks",
+      "title": "Liste au clavier",
+      "description": "Fleches, Home et End sur une liste, avec un seul arret de tabulation et le focus qui suit.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "hooks/use-measure",
+      "name": "use-measure",
+      "category": "hooks",
+      "title": "Mesure d un element",
+      "description": "Taille et position d un element, relevees par un observateur quand elles changent vraiment.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "hooks/use-media-query",
+      "name": "use-media-query",
+      "category": "hooks",
+      "title": "Requete de media",
+      "description": "Dit si une requete de media s applique, et le redit quand cela bascule, sans ecouteur de redimensionnement.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -430,11 +2254,51 @@
       "registryDependencies": []
     },
     {
+      "id": "hooks/use-scroll-progress",
+      "name": "use-scroll-progress",
+      "category": "hooks",
+      "title": "Avancee au defilement",
+      "description": "Dit ou en est un element, ou la page, dans le champ visible, sans rendu React par image.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/ascii-image",
+      "name": "ascii-image",
+      "category": "image",
+      "title": "Image en caracteres",
+      "description": "La photo est echantillonnee une fois dans un canevas hors du document et rendue en texte monospace, l image reelle restant dessous.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/color-shift",
+      "name": "color-shift",
+      "category": "image",
+      "title": "Derive des teintes",
+      "description": "Le cadre devient une table de reglage : la position horizontale du pointeur fait tourner les teintes, la verticale dose la saturation.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "image/compare",
       "name": "compare",
       "category": "image",
       "title": "Avant / apres",
       "description": "Deux images superposees, revelees par une poignee au pointeur comme au clavier.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/duotone",
+      "name": "duotone",
+      "category": "image",
+      "title": "Bichromie",
+      "description": "L image rendue en deux tons par calques superposes, qui revient en couleurs au survol comme au focus.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -450,11 +2314,135 @@
       "registryDependencies": []
     },
     {
+      "id": "image/hover-zoom",
+      "name": "hover-zoom",
+      "category": "image",
+      "title": "Zoom au survol",
+      "description": "L image grossit doucement dans son cadre et regarde vers le pointeur, sans jamais bouger la mise en page.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/image-glitch",
+      "name": "image-glitch",
+      "category": "image",
+      "title": "Image glitchee",
+      "description": "Deux fantomes teintes se decalent par tranches au-dessus de la photo, en paliers, tant que le pointeur reste.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/image-mask-text",
+      "name": "image-mask-text",
+      "category": "image",
+      "title": "Image dans le texte",
+      "description": "Un mot rempli par la photo, le reste du cadre sous un voile qu un halo ouvre autour du pointeur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/image-particles",
+      "name": "image-particles",
+      "category": "image",
+      "title": "Image en particules",
+      "description": "La photo est echantillonnee dans un canevas hors du document, dispersee en points colores, puis rassemblee jusqu a la reformer.",
+      "tier": "heavy",
+      "backend": "three",
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "image/image-stack-swipe",
+      "name": "image-stack-swipe",
+      "category": "image",
+      "title": "Pile a balayer",
+      "description": "Des images empilees dont celle du dessus se chasse au glisser comme aux fleches du clavier, puis repasse sous la pile.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/image-trail",
+      "name": "image-trail",
+      "category": "image",
+      "title": "Trainee d images",
+      "description": "Le deplacement du pointeur seme des vignettes qui apparaissent au point de passage puis se resorbent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/ken-burns",
+      "name": "ken-burns",
+      "category": "image",
+      "title": "Diaporama derive",
+      "description": "Deux ou trois images en fondu croise, chacune animee d un zoom et d une derive lents pendant son affichage.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/lens-zoom",
+      "name": "lens-zoom",
+      "category": "image",
+      "title": "Loupe",
+      "description": "Un disque suit le pointeur et montre l image agrandie a l endroit survole, sans que le cadre perde sa vue d ensemble.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/parallax-image",
+      "name": "parallax-image",
+      "category": "image",
+      "title": "Image en parallaxe",
+      "description": "L image, plus haute que son cadre, glisse verticalement pendant la traversee du champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "image/player",
       "name": "player",
       "category": "image",
       "title": "Lecteur video",
       "description": "Un lecteur complet : lecture, barre de progression, volume, plein ecran, au clavier.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/reveal-image",
+      "name": "reveal-image",
+      "category": "image",
+      "title": "Image revelee",
+      "description": "Un rideau s ouvre a l entree dans le champ pendant que l image revient d un leger zoom.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "image/scroll-reveal-image",
+      "name": "scroll-reveal-image",
+      "category": "image",
+      "title": "Image decouverte au defilement",
+      "description": "Le rideau suit la position de defilement plutot qu une minuterie : il s arrete au milieu, revient en arriere, se referme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "image/tilt-glare",
+      "name": "tilt-glare",
+      "category": "image",
+      "title": "Inclinaison et reflet",
+      "description": "Une carte-image qui pivote vers le pointeur, reflet a l oppose, sans un rendu React pendant le geste.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -470,11 +2458,191 @@
       "registryDependencies": []
     },
     {
+      "id": "loader/arc-trio",
+      "name": "arc-trio",
+      "category": "loader",
+      "title": "Trio d arcs",
+      "description": "Trois arcs de longueurs differentes sur un meme cercle, a trois vitesses : ils se rattrapent, se recouvrent, se separent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/bar-gate",
+      "name": "bar-gate",
+      "category": "loader",
+      "title": "Rideau a barre",
+      "description": "Une barre segmentee sans chiffre, avancee par l horloge du moteur, puis une plaque qui s ecrase dans la ligne qui l a mesure.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/bars-scale",
+      "name": "bars-scale",
+      "category": "loader",
+      "title": "Barres en cascade",
+      "description": "Cinq barres poussent du sol l une apres l autre, tiennent, puis retombent ensemble, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/battery-fill",
+      "name": "battery-fill",
+      "category": "loader",
+      "title": "Batterie qui se charge",
+      "description": "Un boitier a plot dont le niveau se remplit par la gauche, ou balaye sans fin sous un eclair quand la charge n est pas mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/blinds",
+      "name": "blinds",
+      "category": "loader",
+      "title": "Stores",
+      "description": "Un rideau en lames horizontales qui basculent de chant l une apres l autre, sous un point de fuite commun.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/blob-loader",
+      "name": "blob-loader",
+      "category": "loader",
+      "title": "Blob qui bourgeonne",
+      "description": "Une masse centrale laisse partir un bourgeon dont le cou s etire puis se rompt, par un flou seuille qui soude deux cercles.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/blocks-stack",
+      "name": "blocks-stack",
+      "category": "loader",
+      "title": "Blocs empiles",
+      "description": "Quatre blocs tombent et s empilent en colonne, puis la pile bascule et s effondre, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/bouncing-ball",
+      "name": "bouncing-ball",
+      "category": "loader",
+      "title": "Balle qui rebondit",
+      "description": "Une balle tombe en accelerant, s ecrase au sol, repart en ralentissant, et son ombre suit sa hauteur, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/bouncing-dots",
+      "name": "bouncing-dots",
+      "category": "loader",
+      "title": "Points qui sautent",
+      "description": "Trois points bondissent l un apres l autre, montee vive et retombee lourde, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/bricks",
+      "name": "bricks",
+      "category": "loader",
+      "title": "Briques",
+      "description": "Dix briques se posent une a une, rangee par rangee et en quinconce, jusqu a former un mur qui s efface, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/chasing-dots",
+      "name": "chasing-dots",
+      "category": "loader",
+      "title": "Points qui se poursuivent",
+      "description": "Quatre points de taille decroissante tournent en file sur un cercle, une tete et sa trainee, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/checkmark-success",
+      "name": "checkmark-success",
+      "category": "loader",
+      "title": "Coche de reussite",
+      "description": "La coche s ebauche en boucle pendant l attente, se pose pour de bon au succes, et cede la place a une croix a l echec, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/clock-hands",
+      "name": "clock-hands",
+      "category": "loader",
+      "title": "Aiguilles",
+      "description": "Une horloge dont la grande aiguille saute de cran en cran et tremble en se posant, la petite avancant d un cran a chaque tour, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/comet-ring",
+      "name": "comet-ring",
+      "category": "loader",
+      "title": "Comete",
+      "description": "Un point qui court sur un cercle, avec une trainee qui s efface derriere lui.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/content-fade",
+      "name": "content-fade",
+      "category": "loader",
+      "title": "Contenu en fondu",
+      "description": "Le vrai contenu revele section par section, chacune un peu apres la precedente : l autre moitie du squelette, celle de l arrivee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "loader/counter-gate",
       "name": "counter-gate",
       "category": "loader",
       "title": "Rideau a compteur",
       "description": "Un rideau dont le compteur suit la vraie disponibilite : il se gare sous un plafond tant que rien n est pret.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/counter-roll-loader",
+      "name": "counter-roll-loader",
+      "category": "loader",
+      "title": "Rouleaux de chiffres",
+      "description": "Des colonnes de chiffres qui roulent sans fin, un cran a la fois, chacune a sa phase, comme un compteur qui ne s arrete pas, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/cube-flip",
+      "name": "cube-flip",
+      "category": "loader",
+      "title": "Cube qui bascule",
+      "description": "Un cube en CSS 3D bascule d un quart de tour, marque un temps, puis bascule sur l autre axe : quatre flips par cycle, aucun JavaScript.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/cube-fold",
+      "name": "cube-fold",
+      "category": "loader",
+      "title": "Carre qui se plie",
+      "description": "Un patron en croix dont les quatre volets se relevent un a un pour fermer une boite, puis se rabattent, en CSS 3D.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -490,6 +2658,868 @@
       "registryDependencies": []
     },
     {
+      "id": "loader/dash-ring",
+      "name": "dash-ring",
+      "category": "loader",
+      "title": "Anneau en tirets",
+      "description": "Un cercle en tirets dont le motif glisse le long du trace, sans que rien ne tourne.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/dna-loader",
+      "name": "dna-loader",
+      "category": "loader",
+      "title": "Helice d ADN",
+      "description": "Deux brins de points tournent l un autour de l autre, grands devant et pales derriere, relies par des barreaux, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/domino",
+      "name": "domino",
+      "category": "loader",
+      "title": "Dominos",
+      "description": "Cinq dominos debout tombent l un sur l autre en accelerant, puis se relevent ensemble, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/dot-matrix-text",
+      "name": "dot-matrix-text",
+      "category": "loader",
+      "title": "Texte en matrice de points",
+      "description": "Un mot dessine sur une grille de points 5x7, dont les points s allument de gauche a droite puis s eteignent dans le meme sens, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/dots-loader",
+      "name": "dots-loader",
+      "category": "loader",
+      "title": "Points qui respirent",
+      "description": "Trois points pulsent en canon, par une seule animation CSS a delais negatifs.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/dots-orbit",
+      "name": "dots-orbit",
+      "category": "loader",
+      "title": "Points en orbite",
+      "description": "Trois points tournent chacun sur son orbite concentrique, l interieur plus vite que l exterieur, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/dual-ring",
+      "name": "dual-ring",
+      "category": "loader",
+      "title": "Double anneau",
+      "description": "Deux anneaux a deux arcs opposes chacun, qui tournent en sens contraire et se croisent en rythme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/eclipse",
+      "name": "eclipse",
+      "category": "loader",
+      "title": "Eclipse",
+      "description": "Un disque plein se creuse jusqu a ne plus laisser qu un anneau de lumiere, dont le halo s embrase, puis se referme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/envelope",
+      "name": "envelope",
+      "category": "loader",
+      "title": "Enveloppe",
+      "description": "Le rabat bascule autour de sa charniere, la lettre monte hors de l enveloppe, redescend, et le rabat se referme, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/equalizer",
+      "name": "equalizer",
+      "category": "loader",
+      "title": "Egaliseur",
+      "description": "Six barres ancrees au sol montent et descendent chacune a son rythme, comme les vumetres d un egaliseur, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/fade-gate",
+      "name": "fade-gate",
+      "category": "loader",
+      "title": "Voile",
+      "description": "Le seul rideau du lot qui assume d etre un voile : il se dissipe, et peut se depolir quand la page merite une mise au point.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/fan-blades",
+      "name": "fan-blades",
+      "category": "loader",
+      "title": "Pales de ventilateur",
+      "description": "Des pales courbes tournent a vitesse constante dans un carter circulaire, autour d un moyeu, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/flower-petals",
+      "name": "flower-petals",
+      "category": "loader",
+      "title": "Petales qui s ouvrent",
+      "description": "Huit petales s ouvrent un a un autour d un coeur, tiennent, puis se referment, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/gauge",
+      "name": "gauge",
+      "category": "loader",
+      "title": "Jauge",
+      "description": "Un arc de trois quarts de tour, gradue, qui se remplit jusqu a la valeur et l affiche ; ou balaye en attente quand rien n est mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/gear-pair",
+      "name": "gear-pair",
+      "category": "loader",
+      "title": "Deux engrenages",
+      "description": "Un grand et un petit engrenage tournent en sens contraires, dents engrenees, a des vitesses qui respectent leur rapport, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/gradient-ring",
+      "name": "gradient-ring",
+      "category": "loader",
+      "title": "Anneau degrade",
+      "description": "Un anneau conique qui s eteint sur tout le tour, de la tete pleine a la queue transparente, en rotation.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/grid-fade",
+      "name": "grid-fade",
+      "category": "loader",
+      "title": "Grille en fondu",
+      "description": "Neuf points en carre s eteignent et se rallument en ondes concentriques, du centre vers les coins, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/grid-wave",
+      "name": "grid-wave",
+      "category": "loader",
+      "title": "Grille en vague",
+      "description": "Seize points en carre se soulevent et grossissent le long d une diagonale, une vague qui traverse la grille, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/heartbeat",
+      "name": "heartbeat",
+      "category": "loader",
+      "title": "Coeur qui bat",
+      "description": "Un coeur se contracte deux fois de suite puis se repose, et lache une onde a chaque battement, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/hex-spinner",
+      "name": "hex-spinner",
+      "category": "loader",
+      "title": "Hexagone tournant",
+      "description": "Un hexagone en trait tourne par crans d un sixieme de tour tandis qu un hexagone plein pulse en son centre, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/hourglass",
+      "name": "hourglass",
+      "category": "loader",
+      "title": "Sablier",
+      "description": "Le sable coule a debit constant du haut vers le bas, puis le sablier se retourne d un geste et recommence, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/infinity-loop",
+      "name": "infinity-loop",
+      "category": "loader",
+      "title": "Boucle infinie",
+      "description": "Un trait court parcourt un huit couche, lent au bout des boucles et rapide au croisement, comme une bille sur un rail, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/iris-open",
+      "name": "iris-open",
+      "category": "loader",
+      "title": "Diaphragme",
+      "description": "Un rideau fait de lames pivotantes : l ouverture est un polygone qui grandit en tournant, pas un disque.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/jelly-loader",
+      "name": "jelly-loader",
+      "category": "loader",
+      "title": "Gelee qui tremble",
+      "description": "Un pave arrondi s affaisse sur sa base, rebondit, et ses oscillations s eteignent avant de repartir, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/juggling",
+      "name": "juggling",
+      "category": "loader",
+      "title": "Jonglage",
+      "description": "Trois balles passent d une main a l autre : passe basse dans un sens, grand arc dans l autre, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/lazy-block",
+      "name": "lazy-block",
+      "category": "loader",
+      "title": "Bloc differe",
+      "description": "Un substitut couvre le contenu deja present, respire, puis s efface pour le laisser paraitre sans que la mise en page saute.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/letters-bounce",
+      "name": "letters-bounce",
+      "category": "loader",
+      "title": "Lettres qui sautent",
+      "description": "Chaque lettre du mot s ecrase, saute et retombe a son tour, de gauche a droite, puis le mot se pose avant le saut suivant, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/letters-gate",
+      "name": "letters-gate",
+      "category": "loader",
+      "title": "Rideau a lettres",
+      "description": "Un mot qui s assemble caractere par caractere sur l horloge du moteur, puis une plaque qui se rabat comme un couvercle.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/liquid-fill",
+      "name": "liquid-fill",
+      "category": "loader",
+      "title": "Remplissage liquide",
+      "description": "Un bocal rond dont le niveau monte, la surface prise par deux nappes qui derivent en sens contraires ; ou une maree sans fin quand rien n est mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/loading-dots-text",
+      "name": "loading-dots-text",
+      "category": "loader",
+      "title": "Chargement, puis des points",
+      "description": "Le mot reste ; trois points s ajoutent l un apres l autre, puis disparaissent ensemble, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/logo-draw",
+      "name": "logo-draw",
+      "category": "loader",
+      "title": "Logo qui se trace",
+      "description": "Le contour d une marque se dessine d un geste, se remplit une fois ferme, puis se vide et s efface dans le meme sens, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/matrix-digits",
+      "name": "matrix-digits",
+      "category": "loader",
+      "title": "Chiffres qui se figent",
+      "description": "Un code de chiffres qui defilent tous, puis se verrouillent un a un de gauche a droite, tiennent, et repartent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/moon-phases",
+      "name": "moon-phases",
+      "category": "loader",
+      "title": "Phases de lune",
+      "description": "Un disque eteint sur lequel la part eclairee croit jusqu a la pleine lune puis decroit de l autre bord, par interpolation d un seul chemin SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/newton-cradle",
+      "name": "newton-cradle",
+      "category": "loader",
+      "title": "Pendule de Newton",
+      "description": "Cinq billes suspendues : celle de gauche frappe, celle de droite s envole, et retour, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/orbit-loader",
+      "name": "orbit-loader",
+      "category": "loader",
+      "title": "Chargeur orbital",
+      "description": "Trois arcs concentriques tournent a contresens, sans rien pretendre compter.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/paper-plane",
+      "name": "paper-plane",
+      "category": "loader",
+      "title": "Avion en papier",
+      "description": "Un avion traverse la vue en piquant puis en remontant, nez toujours dans l axe de sa course, et laisse la trace exacte de son passage, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/pendulum",
+      "name": "pendulum",
+      "category": "loader",
+      "title": "Pendule",
+      "description": "Une masse au bout d une tige oscille le long d un arc en pointille, lente aux extremes et rapide a la verticale, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/percent-counter",
+      "name": "percent-counter",
+      "category": "loader",
+      "title": "Compteur en pourcentage",
+      "description": "Un chiffre qui monte de zero a cent avec une acceleration douce, tient, et repart ; ou qui rejoint la valeur qu on lui donne.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/percent-ring",
+      "name": "percent-ring",
+      "category": "loader",
+      "title": "Anneau de progression",
+      "description": "Un anneau complet qui se remplit depuis le sommet, le pourcentage au centre ; ou un arc qui tourne quand rien n est mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/pinwheel",
+      "name": "pinwheel",
+      "category": "loader",
+      "title": "Moulinet",
+      "description": "Quatre pales triangulaires en deux nuances tournent par rafales, une acceleration et un ralenti par demi-tour, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/pixel-dissolve",
+      "name": "pixel-dissolve",
+      "category": "loader",
+      "title": "Dissolution en carreaux",
+      "description": "Un rideau qui se troue carreau par carreau, dans un desordre calcule par pas d or plutot que tire au sort.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/placeholder-image",
+      "name": "placeholder-image",
+      "category": "loader",
+      "title": "Cadre d image",
+      "description": "Un rectangle au bon rapport, cerne d un filet pointille, avec au centre le pictogramme de l image qui manque.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/polygon-morph",
+      "name": "polygon-morph",
+      "category": "loader",
+      "title": "Polygone qui gagne des cotes",
+      "description": "Un polygone en trait passe du triangle a l hexagone un cote a la fois, puis les reperd, par interpolation d un chemin SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/progress-bar",
+      "name": "progress-bar",
+      "category": "loader",
+      "title": "Barre de progression",
+      "description": "Une barre dans le flux, avec son etiquette et sa valeur, remplie par une progression reelle ou parcourue d un segment qui respire quand rien n est mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/progress-steps",
+      "name": "progress-steps",
+      "category": "loader",
+      "title": "Etapes de progression",
+      "description": "Des etapes numerotees reliees par une barre : la progression remplit la barre et coche les etapes franchies, ou un reflet parcourt la barre quand rien n est mesurable.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/pulse-block",
+      "name": "pulse-block",
+      "category": "loader",
+      "title": "Bloc qui pulse",
+      "description": "Une surface en attente dont le ton respire entre le filet et la surface, sans bande et sans jamais devenir transparente.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/pulse-dot",
+      "name": "pulse-dot",
+      "category": "loader",
+      "title": "Point qui pulse",
+      "description": "Un point plein d ou s echappent deux ondes concentriques, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/ring-dots",
+      "name": "ring-dots",
+      "category": "loader",
+      "title": "Points en couronne",
+      "description": "Des points fixes disposes en cercle, dont l eclat tourne de l un a l autre en fondu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/ring-spinner",
+      "name": "ring-spinner",
+      "category": "loader",
+      "title": "Anneau tournant",
+      "description": "Un seul arc court sur une piste attenuee, epaisseur reglable, une rotation CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/ripple-loader",
+      "name": "ripple-loader",
+      "category": "loader",
+      "title": "Ondes concentriques",
+      "description": "Quatre anneaux fixes qu une crete traverse du centre vers le bord : la structure reste, seul le passage se deplace, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/rocket",
+      "name": "rocket",
+      "category": "loader",
+      "title": "Fusee",
+      "description": "Une fusee arrive en freinant par le bas, s appuie, puis quitte la vue par le haut en accelerant ; sa flamme s allonge et vacille a deux rythmes distincts.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/route-path",
+      "name": "route-path",
+      "category": "loader",
+      "title": "Itineraire",
+      "description": "Une route se dessine du depart vers la destination, qui s allume a l arrivee, puis le trace s efface et le parcours reprend, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/scanner-line",
+      "name": "scanner-line",
+      "category": "loader",
+      "title": "Ligne de balayage",
+      "description": "Un faisceau a coeur net parcourt une zone bornee par quatre equerres, marque un temps a chaque extremite, et repart, en CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/scramble-loader",
+      "name": "scramble-loader",
+      "category": "loader",
+      "title": "Texte brouille qui se resout",
+      "description": "Un mot brouille de signes qui se resout caractere par caractere dans un ordre aleatoire, tient en tremblant, puis se brouille de nouveau.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/segment-ring",
+      "name": "segment-ring",
+      "category": "loader",
+      "title": "Anneau a segments",
+      "description": "Un anneau en segments fixes qui s allument un a un et s eteignent lentement derriere le front.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/shape-morph",
+      "name": "shape-morph",
+      "category": "loader",
+      "title": "Rond, carre, triangle",
+      "description": "Une forme pleine passe du rond au carre puis au triangle et revient, par interpolation d un seul chemin SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/shimmer-block",
+      "name": "shimmer-block",
+      "category": "loader",
+      "title": "Bloc balaye",
+      "description": "Le bloc nu d un squelette, traverse par un reflet oblique peint dans son propre fond : aucune couche a empiler, la bande suit les angles arrondis.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/shutter",
+      "name": "shutter",
+      "category": "loader",
+      "title": "Obturateur",
+      "description": "Un rideau en lamelles verticales qui partent une sur deux vers le haut et vers le bas : la page entre par un peigne qui s ecarte.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/signal-bars",
+      "name": "signal-bars",
+      "category": "loader",
+      "title": "Barres de signal",
+      "description": "Les barres s allument l une apres l autre, de la plus courte a la plus haute, par une seule animation CSS decalee dans le temps.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/skeleton-avatar",
+      "name": "skeleton-avatar",
+      "category": "loader",
+      "title": "Avatar en attente",
+      "description": "Un disque et ses lignes a cote, nom puis role, repetable en liste de membres : le motif d une identite qui n est pas encore arrivee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/skeleton-card",
+      "name": "skeleton-card",
+      "category": "loader",
+      "title": "Carte en attente",
+      "description": "La carte est deja dessinee, surface et filet compris ; seuls son image, son titre, ses lignes et son pied restent des blocs vides.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/skeleton-grid",
+      "name": "skeleton-grid",
+      "category": "loader",
+      "title": "Grille en attente",
+      "description": "Des vignettes au meme rapport, chacune avec sa legende, balayees en diagonale : la galerie occupe deja la place exacte de ses images.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/skeleton-lines",
+      "name": "skeleton-lines",
+      "category": "loader",
+      "title": "Lignes en attente",
+      "description": "Un paragraphe remplace par ses lignes, la derniere plus courte comme une vraie fin de texte, parcourues d un reflet ou pulsees.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/skeleton-table",
+      "name": "skeleton-table",
+      "category": "loader",
+      "title": "Tableau en attente",
+      "description": "Des rangees separees par leurs filets, une premiere colonne large et des cellules de longueurs inegales : un tableau se lit avant ses donnees.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/snake",
+      "name": "snake",
+      "category": "loader",
+      "title": "Serpent",
+      "description": "Un serpent de quatre segments parcourt une grille de quatre par quatre en zigzag, sans jamais se croiser, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/sonar-loader",
+      "name": "sonar-loader",
+      "category": "loader",
+      "title": "Balayage radar",
+      "description": "Un faisceau tourne sur un cadran gradue et rallume deux echos au moment exact ou il les atteint, la traine faite de secteurs empiles.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/spinner-to-check",
+      "name": "spinner-to-check",
+      "category": "loader",
+      "title": "Anneau qui conclut",
+      "description": "Un arc tourne pendant l attente, s immobilise a son angle et se referme en cercle plein a la reponse, puis la marque du resultat se trace dedans, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/spiral-dots",
+      "name": "spiral-dots",
+      "category": "loader",
+      "title": "Points en spirale",
+      "description": "Quatorze points poses le long d une spirale s allument tour a tour du centre vers l exterieur, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/split-curtain",
+      "name": "split-curtain",
+      "category": "loader",
+      "title": "Rideau a deux pans",
+      "description": "Deux pans coupes par une couture visible, qui s ecartent en sens opposes et laissent la page entrer entre eux.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/square-morph",
+      "name": "square-morph",
+      "category": "loader",
+      "title": "Carre qui s arrondit",
+      "description": "Un carre plein fait un demi-tour en devenant rond, puis retrouve ses angles en finissant le tour, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/stairs",
+      "name": "stairs",
+      "category": "loader",
+      "title": "Escalier",
+      "description": "Un escalier de cinq marches et un carre qui les gravit en sautant, puis reparait en bas, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/sun-rays",
+      "name": "sun-rays",
+      "category": "loader",
+      "title": "Soleil aux rayons qui tournent",
+      "description": "Un disque fixe, douze rayons qui s allongent en alternance, et une couronne qui tourne huit fois plus lentement qu ils ne respirent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/tetris",
+      "name": "tetris",
+      "category": "loader",
+      "title": "Tetris",
+      "description": "Trois pieces tombent cran par cran dans un puits de quatre cases, completent trois lignes qui clignotent et s effacent, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/text-shimmer-loader",
+      "name": "text-shimmer-loader",
+      "category": "loader",
+      "title": "Texte en attente, balaye",
+      "description": "Un mot eteint, qu une bande de pleine encre traverse en boucle : l attente se lit dans le texte lui-meme, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/top-loader",
+      "name": "top-loader",
+      "category": "loader",
+      "title": "Barre de chargement",
+      "description": "Une ligne fine en haut du conteneur, pilotee par une progression reelle ou balayee sans pretendre mesurer.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/triangle-spinner",
+      "name": "triangle-spinner",
+      "category": "loader",
+      "title": "Triangle qui se trace",
+      "description": "Un triangle en trait se dessine sur sa piste depuis le sommet, puis s efface dans le meme sens, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/typing-cursor",
+      "name": "typing-cursor",
+      "category": "loader",
+      "title": "Curseur qui frappe",
+      "description": "Un mot se tape caractere par caractere derriere un curseur qui clignote, tient, puis s efface, sans une ligne de JavaScript.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/water-drop",
+      "name": "water-drop",
+      "category": "loader",
+      "title": "Goutte qui tombe",
+      "description": "Une goutte se detache, s allonge en chutant, s ecrase sur la surface, et une onde unique part du point d impact, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/wave-bars",
+      "name": "wave-bars",
+      "category": "loader",
+      "title": "Barres en vague",
+      "description": "Cinq barres fines etirees depuis leur centre par une vague qui les traverse de gauche a droite, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/wifi-pulse",
+      "name": "wifi-pulse",
+      "category": "loader",
+      "title": "Onde wifi",
+      "description": "Trois arcs concentriques se tracent du plus proche au plus lointain, tiennent ensemble, puis s effacent d un coup, en SVG.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/windmill",
+      "name": "windmill",
+      "category": "loader",
+      "title": "Moulin a vent",
+      "description": "Quatre ailes a claire-voie tournent sur leur tour au rythme d un vent par rafales : elan, plateau, puis presque l arret, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/wipe-diagonal",
+      "name": "wipe-diagonal",
+      "category": "loader",
+      "title": "Balayage oblique",
+      "description": "Une plaque qui quitte l ecran d un seul mouvement, bord de fuite incline, sur une course mesuree au format du cadre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/word-flip",
+      "name": "word-flip",
+      "category": "loader",
+      "title": "Mots qui se retournent",
+      "description": "Un tambour de mots en 3D : le mot courant bascule vers le bas et le suivant descend a sa place, avec une pause sur chacun, en CSS pur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/yin-yang",
+      "name": "yin-yang",
+      "category": "loader",
+      "title": "Yin et yang",
+      "description": "Le symbole tourne comme une toupie relancee d une chiquenaude : deux tours qui s eteignent, un arret, et on recommence, en SVG et CSS.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "loader/zoom-gate",
+      "name": "zoom-gate",
+      "category": "loader",
+      "title": "Rideau en profondeur",
+      "description": "La marque avance vers l oeil pendant que la plaque recule dans la perspective : deux mouvements opposes, un seul geste.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "section/bento-grid",
+      "name": "bento-grid",
+      "category": "section",
+      "title": "Grille bento",
+      "description": "Des tuiles de tailles inegales qui donnent une hierarchie, revelees en cascade a l entree.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
       "id": "section/book-shelf",
       "name": "book-shelf",
       "category": "section",
@@ -499,6 +3529,18 @@
       "backend": "three",
       "registryDependencies": [
         "hooks/use-poster"
+      ]
+    },
+    {
+      "id": "section/changelog",
+      "name": "changelog",
+      "category": "section",
+      "title": "Journal des versions",
+      "description": "Une liste de definitions ou la version est le terme et ses changements la description, filtrable par nature.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
       ]
     },
     {
@@ -515,11 +3557,79 @@
       ]
     },
     {
+      "id": "section/coming-soon",
+      "name": "coming-soon",
+      "category": "section",
+      "title": "Bientot disponible",
+      "description": "Une page d attente dont le compte a rebours se lit a l oeil, et dont la date se lit a l oreille.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "section/comparison-table",
+      "name": "comparison-table",
+      "category": "section",
+      "title": "Tableau comparatif",
+      "description": "Un vrai tableau a en-tete colle et premiere colonne collee, dont la zone de defilement s atteint au clavier.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "section/container-scroll",
+      "name": "container-scroll",
+      "category": "section",
+      "title": "Cadre qui se redresse",
+      "description": "Un cadre incline qui se redresse et s agrandit a mesure que la section entre dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "section/cta-band",
+      "name": "cta-band",
+      "category": "section",
+      "title": "Bandeau d appel a l action",
+      "description": "Un appel principal, une action secondaire discrete, et un reflet qui passe une seule fois a l entree.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
       "id": "section/faq",
       "name": "faq",
       "category": "section",
       "title": "Questions frequentes",
       "description": "Une liste de questions repliables, une seule ouverte a la fois ou plusieurs.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "section/feature-tabs",
+      "name": "feature-tabs",
+      "category": "section",
+      "title": "Onglets de fonctionnalites",
+      "description": "Un jeu d onglets conforme aux pratiques ARIA, avec un visuel par fonctionnalite et un trait qui glisse.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "section/hero-scroll-morph",
+      "name": "hero-scroll-morph",
+      "category": "section",
+      "title": "Hero qui s ouvre au defilement",
+      "description": "Un hero dont la fenetre sur le media s elargit au fil du defilement, sans jamais recalculer la mise en page.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -534,6 +3644,18 @@
       "backend": false,
       "registryDependencies": [
         "effect/marquee"
+      ]
+    },
+    {
+      "id": "section/newsletter",
+      "name": "newsletter",
+      "category": "section",
+      "title": "Inscription a une lettre",
+      "description": "Un formulaire a quatre etats — repos, envoi, succes, erreur — annonces dans une region qui existe avant son message.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
       ]
     },
     {
@@ -613,6 +3735,82 @@
       "registryDependencies": []
     },
     {
+      "id": "section/team-grid",
+      "name": "team-grid",
+      "category": "section",
+      "title": "Grille d equipe",
+      "description": "Des fiches de personnes a rapport de forme fixe, revelees en cascade, dont les liens restent atteignables.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "section/testimonials-columns",
+      "name": "testimonials-columns",
+      "category": "section",
+      "title": "Mur de temoignages",
+      "description": "Des colonnes de temoignages qui defilent en sens contraires, et s arretent des qu on les lit.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "section/timeline",
+      "name": "timeline",
+      "category": "section",
+      "title": "Frise verticale",
+      "description": "Une liste d evenements dates dont le trait se remplit au defilement, lu dans la boucle du moteur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/ascii-text",
+      "name": "ascii-text",
+      "category": "text",
+      "title": "Texte en ASCII",
+      "description": "Le titre est redessine en caracteres dont la densite ondule, le texte reel restant dessous.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/blur-reveal",
+      "name": "blur-reveal",
+      "category": "text",
+      "title": "Revelation floue",
+      "description": "Les mots passent du flou au net l un apres l autre, quand le texte entre dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/blur-words",
+      "name": "blur-words",
+      "category": "text",
+      "title": "Nettoyage",
+      "description": "Le bloc est flou et ses mots redeviennent nets un a un, dans un ordre tire au sort, jusqu a ce que tout se lise.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/circular-text",
+      "name": "circular-text",
+      "category": "text",
+      "title": "Texte en cercle",
+      "description": "Une phrase enroulee sur un anneau SVG qui tourne en continu, sens et vitesse reglables.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "text/count-up",
       "name": "count-up",
       "category": "text",
@@ -625,6 +3823,28 @@
       ]
     },
     {
+      "id": "text/counter-roll",
+      "name": "counter-roll",
+      "category": "text",
+      "title": "Odometre",
+      "description": "Un nombre en colonnes de chiffres qui roulent verticalement jusqu a leur position, en cascade depuis la droite.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/curved-loop",
+      "name": "curved-loop",
+      "category": "text",
+      "title": "Boucle courbe",
+      "description": "Une phrase court sans fin le long d un arc, par deplacement du seul point de depart sur le chemin.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "text/decode-text",
       "name": "decode-text",
       "category": "text",
@@ -635,12 +3855,138 @@
       "registryDependencies": []
     },
     {
+      "id": "text/depth-text",
+      "name": "depth-text",
+      "category": "text",
+      "title": "Titre extrude",
+      "description": "Le titre est double en couches reculees en profondeur, et le bloc tourne lentement pour en decouvrir la tranche.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/echo-text",
+      "name": "echo-text",
+      "category": "text",
+      "title": "Echos",
+      "description": "Des copies attenuees du texte suivent le pointeur avec des retards croissants ; l original reste net.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/falling-text",
+      "name": "falling-text",
+      "category": "text",
+      "title": "Lettres qui tombent",
+      "description": "Chaque lettre tombe en place depuis le haut avec un leger depassement, a l entree dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/fold-text",
+      "name": "fold-text",
+      "category": "text",
+      "title": "Texte plie",
+      "description": "Chaque lettre est un volet articule sur son bord superieur, qui se rabat en cascade sous une perspective courte.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/fuzzy-text",
+      "name": "fuzzy-text",
+      "category": "text",
+      "title": "Texte flou vibrant",
+      "description": "Le texte reste hors de mise au point et tremble par sauts, jusqu a ce que le pointeur le remette au net.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/glitch-text",
+      "name": "glitch-text",
+      "category": "text",
+      "title": "Glitch",
+      "description": "Un texte casse par rafales breves, net entre deux, avec une aberration rouge et cyan.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/gradient-flow",
+      "name": "gradient-flow",
+      "category": "text",
+      "title": "Degrade en mouvement",
+      "description": "Une nappe de couleur traverse le texte en boucle, sans aucun JavaScript a l execution.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/hand-written",
+      "name": "hand-written",
+      "category": "text",
+      "title": "Signature manuscrite",
+      "description": "Un paraphe se trace d un seul geste le long de son chemin, boucles comprises, sans qu on le voie d avance.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
       "id": "text/highlight-sweep",
       "name": "highlight-sweep",
       "category": "text",
       "title": "Surligneur",
       "description": "Un trait se trace derriere le texte, comme au feutre, sans decouper le contenu.",
       "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/letter-swap",
+      "name": "letter-swap",
+      "category": "text",
+      "title": "Lettres permutees",
+      "description": "Au survol ou au focus, chaque lettre glisse vers le haut et sa doublure prend sa place, en vague.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/masked-heading",
+      "name": "masked-heading",
+      "category": "text",
+      "title": "Titre masque",
+      "description": "Une image est vue a travers les lettres du titre et se balance lentement, sans decouper le contenu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/morph-text",
+      "name": "morph-text",
+      "category": "text",
+      "title": "Fusion",
+      "description": "Un mot se coule dans le suivant : un flou passe a travers un seuil de contraste soude leurs lettres, avec un fondu croise en repli.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/particle-text",
+      "name": "particle-text",
+      "category": "text",
+      "title": "Titre en particules",
+      "description": "Le titre s assemble depuis une nuee echantillonnee sur ses propres glyphes, puis redevient du texte.",
+      "tier": "medium",
       "backend": false,
       "registryDependencies": [
         "hooks/use-in-view"
@@ -659,6 +4005,26 @@
       ]
     },
     {
+      "id": "text/scroll-float",
+      "name": "scroll-float",
+      "category": "text",
+      "title": "Mots flottants",
+      "description": "Les mots derivent chacun a sa phase tant que le bloc entre dans le champ, puis se posent nets.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/scroll-reveal",
+      "name": "scroll-reveal",
+      "category": "text",
+      "title": "Revelation au defilement",
+      "description": "Une tete de lecture liee au defilement allume les mots un a un, et les eteint si l on remonte.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "text/shine-text",
       "name": "shine-text",
       "category": "text",
@@ -667,6 +4033,30 @@
       "tier": "light",
       "backend": false,
       "registryDependencies": []
+    },
+    {
+      "id": "text/shuffle",
+      "name": "shuffle",
+      "category": "text",
+      "title": "Battage",
+      "description": "Chaque lettre part de la place d une autre, mesuree sur le rendu, puis rejoint la sienne.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "text/split-flap",
+      "name": "split-flap",
+      "category": "text",
+      "title": "Palettes",
+      "description": "Chaque caractere defile sur deux demi-cartes articulees, comme un tableau de departs, jusqu a se poser sur sa lettre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
     },
     {
       "id": "text/split-lines",
@@ -691,11 +4081,167 @@
       "registryDependencies": []
     },
     {
+      "id": "text/spotlight-text",
+      "name": "spotlight-text",
+      "category": "text",
+      "title": "Texte au projecteur",
+      "description": "Le remplissage n apparait que sous un halo qui suit le pointeur ; hors survol, un texte attenue reste lisible.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/stroke-text",
+      "name": "stroke-text",
+      "category": "text",
+      "title": "Contour qui se remplit",
+      "description": "Un texte en contour dont le remplissage monte du bas quand il entre dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/text-cursor",
+      "name": "text-cursor",
+      "category": "text",
+      "title": "Texte qui suit",
+      "description": "Les lettres courent apres le pointeur en chaine : chacune ne vise que sa voisine, et le mot se courbe en fouet avant de se remettre en ligne.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "text/text-loop",
+      "name": "text-loop",
+      "category": "text",
+      "title": "Boucle de phrases",
+      "description": "Des phrases se succedent en fondu dans une boite qui ne bouge pas : la sortante monte, l entrante arrive par le bas.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/text-pressure",
+      "name": "text-pressure",
+      "category": "text",
+      "title": "Pression",
+      "description": "Le pointeur deforme la police elle-meme : l ecart vertical commande la graisse, l ecart horizontal la chasse, avec un repli en graisses discretes.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/true-focus",
+      "name": "true-focus",
+      "category": "text",
+      "title": "Mise au point",
+      "description": "Un cadre de quatre angles saute de mot en mot ; le mot vise redevient net pendant que les autres restent flous, et le survol prend la main.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "text/typewriter",
       "name": "typewriter",
       "category": "text",
       "title": "Machine a ecrire",
       "description": "Une suite de phrases frappees puis effacees, avec un curseur clignotant.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/underline-draw",
+      "name": "underline-draw",
+      "category": "text",
+      "title": "Soulignement dessine",
+      "description": "Un trait irregulier se dessine sous le texte, a l entree dans le champ ou au survol.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/variable-proximity",
+      "name": "variable-proximity",
+      "category": "text",
+      "title": "Graisse de proximite",
+      "description": "Une loupe de graisse suit le pointeur sur tout un paragraphe, chaque lettre rejoignant son epaisseur a son rythme, avec un repli en graisses discretes.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/warp-text",
+      "name": "warp-text",
+      "category": "text",
+      "title": "Deformation au defilement",
+      "description": "Le defilement commande la courbure de la ligne : elle pend en bas du champ, se bombe en haut, et redevient droite au centre de l ecran.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "text/wave-text",
+      "name": "wave-text",
+      "category": "text",
+      "title": "Vague",
+      "description": "Chaque lettre monte et descend en decale, sans aucun JavaScript apres le premier rendu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/animated-list",
+      "name": "animated-list",
+      "category": "ui",
+      "title": "Liste en cascade",
+      "description": "Une liste qui se remplit ligne apres ligne quand elle entre dans le champ, dont la ligne survolee s allume par un filet, et qui se parcourt aux fleches.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "ui/avatar-stack",
+      "name": "avatar-stack",
+      "category": "ui",
+      "title": "Pile d avatars",
+      "description": "Des initiales chevauchees qui s etalent au survol, chacune sur une teinte de la palette.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/bounce-cards",
+      "name": "bounce-cards",
+      "category": "ui",
+      "title": "Cartes rebondissantes",
+      "description": "Un eventail ouvert dont les cartes arrivent en rebondissant une a une, et s ecartent pour celle qu on survole.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-in-view"
+      ]
+    },
+    {
+      "id": "ui/bubble-menu",
+      "name": "bubble-menu",
+      "category": "ui",
+      "title": "Menu a bulles",
+      "description": "Un bouton rond dont les liens jaillissent en bulles sur un arc, une a une, et rentrent dans l ordre inverse.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/button-group-input",
+      "name": "button-group-input",
+      "category": "ui",
+      "title": "Groupe bouton et champ",
+      "description": "Un champ et son bouton soudes dans une meme pilule ; Entree envoie, et le bouton fait glisser une confirmation avant de revenir.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -711,11 +4257,265 @@
       "registryDependencies": []
     },
     {
+      "id": "ui/card-nav",
+      "name": "card-nav",
+      "category": "ui",
+      "title": "Barre en cartes",
+      "description": "Une barre compacte qui se deploie en une rangee de cartes teintees, chacune un lien, entrant l une apres l autre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/card-swap",
+      "name": "card-swap",
+      "category": "ui",
+      "title": "Echange de cartes",
+      "description": "Une pile dont la carte de devant saute a l arriere a intervalle regulier, les autres avancant d un rang.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/chroma-grid",
+      "name": "chroma-grid",
+      "category": "ui",
+      "title": "Grille chromatique",
+      "description": "Des cartes teintees rendues en gris par un voile, dont le pointeur revele les couleurs dans un cercle amorti.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "ui/circular-gallery",
+      "name": "circular-gallery",
+      "category": "ui",
+      "title": "Galerie circulaire",
+      "description": "Un ruban d images pose sur un cylindre couche : on le fait tourner au doigt ou a la molette, les images du bord s inclinent et s eloignent, celle du centre se cale de face.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/code-input",
+      "name": "code-input",
+      "category": "ui",
+      "title": "Champ de code",
+      "description": "Une case par caractere, la saisie avance seule, le collage remplit tout, la case active respire.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/command-palette",
+      "name": "command-palette",
+      "category": "ui",
+      "title": "Palette de commandes",
+      "description": "Une fenetre ouverte par la page, qui filtre une liste de commandes a la frappe, se parcourt aux fleches, et rend le focus d ou il venait.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/copy-button",
+      "name": "copy-button",
+      "category": "ui",
+      "title": "Bouton copier",
+      "description": "Copie une valeur dans le presse-papiers, l icone devient une coche et l etat est annonce poliment.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/decay-card",
+      "name": "decay-card",
+      "category": "ui",
+      "title": "Carte a degradation",
+      "description": "L image se tord et se delave sous un pointeur rapide, puis se repare des qu il s arrete.",
+      "tier": "medium",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/depth-carousel",
+      "name": "depth-carousel",
+      "category": "ui",
+      "title": "Carrousel en profondeur",
+      "description": "Une pile d affiches rangees en profondeur : celle de devant est de face, les suivantes reculent et se tournent de trois quarts, et l on avance d un cran au bouton, a la fleche ou au glisser.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/dome-gallery",
+      "name": "dome-gallery",
+      "category": "ui",
+      "title": "Galerie en dome",
+      "description": "Les images sont collees sur l interieur d un dome que l on fait tourner au doigt ou aux fleches ; celles qui passent derriere disparaissent d elles-memes.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/elastic-slider",
+      "name": "elastic-slider",
+      "category": "ui",
+      "title": "Curseur elastique",
+      "description": "Un champ de plage natif habille : le rail s epaissit a la saisie, s etire quand on tire au-dela de la butee, et revient en depassant un peu.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/electric-border",
+      "name": "electric-border",
+      "category": "ui",
+      "title": "Bordure electrique",
+      "description": "Un contour SVG qui crepite : des eclairs courent le long du trait dans les deux sens, et le halo vacille par a-coups, sans aucun filtre.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/file-drop",
+      "name": "file-drop",
+      "category": "ui",
+      "title": "Zone de depot",
+      "description": "La zone se souleve au survol d un fichier, sa bordure en pointilles defile, l input natif fait le reste.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/flip-card",
+      "name": "flip-card",
+      "category": "ui",
+      "title": "Carte a retournement",
+      "description": "Deux faces et une bascule en trois dimensions, au clic comme au clavier.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/flowing-menu",
+      "name": "flowing-menu",
+      "category": "ui",
+      "title": "Menu coulant",
+      "description": "Des lignes de menu dont le fond coule au survol : une bande inversee entre par le bord ou le pointeur est arrive, et ressort par celui ou il s en va, en faisant defiler le libelle.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/flying-posters",
+      "name": "flying-posters",
+      "category": "ui",
+      "title": "Affiches volantes",
+      "description": "Une colonne d affiches qui arrivent du fond en s inclinant, se posent de face au milieu de l ecran, puis filent vers le lecteur en s effacant.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/folder",
+      "name": "folder",
+      "category": "ui",
+      "title": "Dossier",
+      "description": "Un dossier ferme qui s ouvre au clic comme au clavier : le rabat bascule vers l avant et les fiches sortent en eventail, atteignables une a une.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/glass-icons",
+      "name": "glass-icons",
+      "category": "ui",
+      "title": "Icones de verre",
+      "description": "Une planche de pastilles de verre depoli, chacune posee sur une lueur coloree que le verre diffuse, qui se souleve et pivote de trois quarts au survol comme au focus.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/glass-surface",
+      "name": "glass-surface",
+      "category": "ui",
+      "title": "Surface de verre",
+      "description": "Un panneau de verre depoli pose sur la page : le fond se devine a travers, l epaisseur se lit sur les aretes, et la surface redevient opaque la ou le flou de fond manque.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/glow-card",
+      "name": "glow-card",
+      "category": "ui",
+      "title": "Carte a lueur",
+      "description": "La bordure s illumine la ou le pointeur passe, et s eteint quand il quitte la carte.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/gooey-nav",
+      "name": "gooey-nav",
+      "category": "ui",
+      "title": "Navigation gluante",
+      "description": "La pastille se detache en gouttes quand elle change de lien : un filtre SVG soude la pastille et ses eclats en une seule matiere.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "ui/hover-reveal-button",
       "name": "hover-reveal-button",
       "category": "ui",
       "title": "Bouton a fond deploye",
       "description": "Une pastille qui s etend jusqu a devenir le fond, et deux copies du libelle qui se croisent sans changer la largeur.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/infinite-menu",
+      "name": "infinite-menu",
+      "category": "ui",
+      "title": "Menu infini",
+      "description": "Les liens sont poses sur une roue qui tourne a la molette et au glisser, sans fin, et se cale toujours sur un cran.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/line-sidebar",
+      "name": "line-sidebar",
+      "category": "ui",
+      "title": "Barre laterale en traits",
+      "description": "Une colonne de traits qui s allongent a l approche du pointeur et decouvrent leur libelle ; le trait de la page courante reste long, en teinte de marque.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "ui/liquid-button",
+      "name": "liquid-button",
+      "category": "ui",
+      "title": "Bouton a maree",
+      "description": "Un calque colore monte derriere le libelle au survol, avec un leger deborde elastique.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/liquid-glass-button",
+      "name": "liquid-glass-button",
+      "category": "ui",
+      "title": "Bouton verre liquide",
+      "description": "Une pastille de verre depoli posee sur la page : le fond se devine a travers, un reflet coule au survol, et la pression l ecrase avant qu elle ne reprenne sa forme.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -731,11 +4531,83 @@
       "registryDependencies": []
     },
     {
+      "id": "ui/masonry",
+      "name": "masonry",
+      "category": "ui",
+      "title": "Maconnerie",
+      "description": "Une galerie en colonnes de hauteurs libres, dont chaque vignette monte a sa place quand elle entre dans le champ.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/option-wheel",
+      "name": "option-wheel",
+      "category": "ui",
+      "title": "Roue d options",
+      "description": "Un tambour que l on fait tourner a la molette ou au doigt, dont les lignes s inclinent selon leur distance au centre et qui se cale sur l option retenue.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "ui/pearl-button",
       "name": "pearl-button",
       "category": "ui",
       "title": "Bouton en nacre",
       "description": "Un volume obtenu par cinq ombres superposees, sans image ni filtre, et qui suit le theme.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/pill-nav",
+      "name": "pill-nav",
+      "category": "ui",
+      "title": "Navigation a pilule",
+      "description": "Une pilule de surface suit le lien survole ou focalise, puis revient se poser sous la page courante.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/pill-tabs",
+      "name": "pill-tabs",
+      "category": "ui",
+      "title": "Onglets a pastille",
+      "description": "Une pastille glisse sous l onglet actif, mesuree sur le vrai texte plutot que devinee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/pixel-card",
+      "name": "pixel-card",
+      "category": "ui",
+      "title": "Carte pixel",
+      "description": "Au survol, le bord se couvre de carres qui rongent vers l interieur, puis se retirent.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/profile-card",
+      "name": "profile-card",
+      "category": "ui",
+      "title": "Carte de profil",
+      "description": "Portrait, nom et role sur une carte qui s incline vers le pointeur, le portrait un cran devant, une bande de brillance qui la traverse.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "ui/progress-ring",
+      "name": "progress-ring",
+      "category": "ui",
+      "title": "Anneau de progression",
+      "description": "Un arc qui rejoint sa valeur en glissant, le pourcentage au centre en chiffres tabulaires.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []
@@ -751,6 +4623,38 @@
       "registryDependencies": []
     },
     {
+      "id": "ui/rating-stars",
+      "name": "rating-stars",
+      "category": "ui",
+      "title": "Etoiles de notation",
+      "description": "Des etoiles qui s allument en cascade, previsualisent au survol et s ajustent aux fleches.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/reflective-card",
+      "name": "reflective-card",
+      "category": "ui",
+      "title": "Carte reflechissante",
+      "description": "Un reflet metallique tourne autour de la carte en suivant le pointeur : anneau conique sur le filet, bande et brossage sur la surface.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "ui/segmented-control",
+      "name": "segmented-control",
+      "category": "ui",
+      "title": "Controle segmente a glissiere",
+      "description": "Un choix parmi quelques options, dans un rail creux ou une glissiere en relief vient se poser sous l option choisie, avec un leger depassement.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "ui/shiny-button",
       "name": "shiny-button",
       "category": "ui",
@@ -761,11 +4665,133 @@
       "registryDependencies": []
     },
     {
+      "id": "ui/sortable-list",
+      "name": "sortable-list",
+      "category": "ui",
+      "title": "Liste reordonnable",
+      "description": "Une liste dont on change l ordre a la souris par sa poignee, ou au clavier — Espace saisit, les fleches deplacent, Espace depose — chaque etape etant annoncee.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/specular-button",
+      "name": "specular-button",
+      "category": "ui",
+      "title": "Bouton a reflet speculaire",
+      "description": "Un point de lumiere suit le pointeur sur la surface du bouton, et le bord s eclaire du cote de la lumiere, comme sur un objet verni.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/spotlight-card",
+      "name": "spotlight-card",
+      "category": "ui",
+      "title": "Carte projecteur",
+      "description": "Un halo amorti suit le pointeur sur la surface, et la bordure s eclaire la ou le faisceau touche le filet.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": [
+        "hooks/use-pointer-damped"
+      ]
+    },
+    {
+      "id": "ui/stacked-cards",
+      "name": "stacked-cards",
+      "category": "ui",
+      "title": "Cartes en eventail",
+      "description": "Un paquet de cartes empilees qui s eventent au survol ou au focus.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/staggered-menu",
+      "name": "staggered-menu",
+      "category": "ui",
+      "title": "Menu decale",
+      "description": "Un menu plein ecran ouvert par un bouton : des bandes de couleur balaient l ecran, le panneau les suit, et les liens montent un a un.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/star-border",
+      "name": "star-border",
+      "category": "ui",
+      "title": "Bordure a etoile filante",
+      "description": "Deux etoiles filantes parcourent le contour, l une sur le bord haut vers la droite, l autre sur le bord bas vers la gauche, et laissent une trainee de lumiere derriere elles.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/stepper",
+      "name": "stepper",
+      "category": "ui",
+      "title": "Parcours en etapes",
+      "description": "Un rail d etapes numerotees dont le trait se remplit derriere l avancee, et dont le panneau entre du cote d ou l on vient.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/tag-input",
+      "name": "tag-input",
+      "category": "ui",
+      "title": "Champ a etiquettes",
+      "description": "Entree ou virgule pose une etiquette, Retour sur un champ vide arme puis retire la derniere, et chaque etiquette nait d un petit rebond.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/text-fall-button",
+      "name": "text-fall-button",
+      "category": "ui",
+      "title": "Bouton a lettres qui tombent",
+      "description": "Au survol, les lettres du libelle tombent une a une hors du bouton, et une seconde rangee descend prendre leur place.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/theme-switch",
+      "name": "theme-switch",
+      "category": "ui",
+      "title": "Interrupteur jour nuit",
+      "description": "Un soleil devient lune, la piste change de teinte et des etoiles s allument cote nuit.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
       "id": "ui/tilt-card",
       "name": "tilt-card",
       "category": "ui",
       "title": "Carte inclinee",
       "description": "Une carte qui pivote vers le pointeur avec un retard, et un reflet qui le suit.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/toast-stack",
+      "name": "toast-stack",
+      "category": "ui",
+      "title": "Pile de notifications",
+      "description": "Des notifications qui s empilent l une devant l autre, s etalent au survol, et se retirent apres un delai que le survol met en pause.",
+      "tier": "light",
+      "backend": false,
+      "registryDependencies": []
+    },
+    {
+      "id": "ui/tree-view",
+      "name": "tree-view",
+      "category": "ui",
+      "title": "Arborescence pliable",
+      "description": "Une arborescence complete au clavier — haut et bas parcourent, droite ouvre puis descend, gauche referme puis remonte — dont les branches se deroulent en cascade.",
       "tier": "light",
       "backend": false,
       "registryDependencies": []

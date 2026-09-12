@@ -1,0 +1,74 @@
+{
+  "name": "glow-cursor",
+  "category": "effect",
+  "title": "Curseur lumineux",
+  "description": "Une lueur diffuse suit le pointeur avec du retard, et s etire dans le sens du deplacement quand il file.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GlowCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 320,
+      "unit": "px",
+      "description": "Diametre de la lueur au repos.",
+      "min": 80,
+      "max": 640,
+      "step": 20
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 6,
+      "description": "Vitesse de rattrapage. Plus bas, plus la lueur traine.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 0.55,
+      "description": "Force de la lueur.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "default": 0.5,
+      "description": "Etirement dans le sens du deplacement.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "default": "var(--o-palette-brand-500)",
+      "description": "Couleur de la lueur. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone eclairee. Absente, la lueur prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element, un degrade pose une fois, une ecriture de transform par image. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

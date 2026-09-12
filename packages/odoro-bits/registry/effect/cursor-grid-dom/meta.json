@@ -1,0 +1,77 @@
+{
+  "name": "cursor-grid-dom",
+  "category": "effect",
+  "title": "Trame au pointeur",
+  "description": "La version en elements du document de la grille magnetique : des points ecartes ou aspires par le pointeur, qui s allument dans le meme mouvement, sans WebGL.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/CursorGridDom.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "spacing",
+      "type": "number",
+      "default": 28,
+      "unit": "px",
+      "description": "Ecartement des points. Le nombre de points en decoule.",
+      "min": 10,
+      "max": 80,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 140,
+      "unit": "px",
+      "description": "Portee de l aimant.",
+      "min": 40,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "force",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Ecart maximal d un point.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "attract",
+      "type": "boolean",
+      "default": false,
+      "description": "Attire les points au lieu de les repousser."
+    },
+    {
+      "name": "dotSize",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Diametre d un point.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Neuf cents points au maximum, reconstruits au seul changement de taille du cadre ; au-dela, c est le fond background/magnet-grid qu il faut poser. Sous mouvement reduit la trame est rendue au repos, sans souscription a la boucle."
+  }
+}

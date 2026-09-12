@@ -58,13 +58,13 @@ export type DotsProps = Customisable<DotsOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
+  '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-zinc-950'
+const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
  * Champ de points : une grille de disques qui respirent.

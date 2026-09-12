@@ -1,0 +1,48 @@
+{
+  "name": "copy-button",
+  "category": "ui",
+  "title": "Bouton copier",
+  "description": "Copie une valeur dans le presse-papiers, l icone devient une coche et l etat est annonce poliment.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CopyButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-emerald-500", "--o-duration-base", "--o-ease-emphasized"],
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "description": "Texte copie dans le presse-papiers."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Copier",
+      "description": "Libelle du bouton au repos."
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Temps avant le retour a l etat de repos.",
+      "min": 800,
+      "max": 5000,
+      "step": 200
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux icones croisees en opacite et en echelle, une minuterie pour le retour. Sous mouvement reduit le remplacement est instantane."
+  }
+}

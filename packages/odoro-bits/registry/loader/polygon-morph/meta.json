@@ -1,0 +1,67 @@
+{
+  "name": "polygon-morph",
+  "category": "loader",
+  "title": "Polygone qui gagne des cotes",
+  "description": "Un polygone en trait passe du triangle a l hexagone un cote a la fois, puis les reperd, par interpolation d un chemin SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PolygonMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un cycle : du triangle a l hexagone et retour.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du trait et du voile interieur. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul chemin SVG de soixante points dont le trace est interpole par le navigateur, aucun filtre, aucun JavaScript apres le premier rendu. Hexagone immobile sous mouvement reduit."
+  }
+}

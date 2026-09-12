@@ -1,0 +1,67 @@
+{
+  "name": "dual-ring",
+  "category": "loader",
+  "title": "Double anneau",
+  "description": "Deux anneaux a deux arcs opposes chacun, qui tournent en sens contraire et se croisent en rythme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DualRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau exterieur.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Epaisseur des traits.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree d un tour, identique pour les deux anneaux.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des arcs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux rotations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Les arcs restent en croix sous mouvement reduit."
+  }
+}

@@ -63,6 +63,40 @@ export function TextareaDoc(): ReactElement {
               DEFAUTS,
             )} />`
           }
+          variants={[
+            {
+              title: 'Redimension auto',
+              description: 'La hauteur suit le contenu a chaque saisie.',
+              values: { autoResize: true },
+            },
+            { title: 'Petit', values: { size: 'sm' } },
+            { title: 'Grand', values: { size: 'lg' } },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Avec erreur',
+              description: 'error met le champ en etat invalide.',
+              node: (
+                <Textarea
+                  label="Commentaire"
+                  defaultValue="ok"
+                  error="Au moins 10 caracteres."
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Aide et rangs fixes',
+              description: 'hint sous le champ, hauteur posee par rows.',
+              node: (
+                <Textarea
+                  label="Description"
+                  hint="Markdown accepte."
+                  rows={3}
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+          ]}
         />
       </Section>
 

@@ -1,0 +1,83 @@
+{
+  "name": "tv-static",
+  "category": "background",
+  "title": "Parasites",
+  "description": "La neige d un televiseur : un bruit blanc hache par paliers de temps, des bandes sombres qui defilent, une teinte dosable.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "tv-static.shader.ts",
+      "target": "background/tv-static.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/TvStatic.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-indigo-300",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "fps",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Cadence des paliers de tirage. Retrograde a 8 en qualite basse.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "banding",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Profondeur des bandes sombres.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "tint",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Dosage de la teinte. Zero, l image reste grise.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-indigo-300, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Un hachage et deux sinus par fragment, sans boucle ni octave. En qualite basse, la cadence des paliers est bornee a huit.",
+    "fallback": "static"
+  },
+  "id": "background/tv-static",
+  "sources": {
+    "tv-static.shader.ts": "/**\n * Shader des parasites.\n *\n * ## L'idee mathematique\n *\n * De la neige televisuelle : un bruit blanc par cellule d'ecran, hache par\n * paliers de temps — un tirage par palier et non par image, sans quoi le\n * scintillement serait insoutenable a soixante images par seconde. Des bandes\n * sombres defilent lentement a la verticale, comme une synchronisation qui\n * derive, et un dosage de teinte tire le gris vers la couleur du tube.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le noir du tube.\n * - `uColorB` — la teinte vers laquelle le gris est tire.\n * - `uColorC` — le blanc du grain.\n * - `uFps` — cadence des paliers de tirage.\n * - `uBanding` — profondeur des bandes sombres.\n * - `uTint` — dosage de la teinte ; zero, l'image reste grise.\n */\nexport const TV_STATIC_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uFps;\nuniform float uBanding;\nuniform float uTint;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat parasiteHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\nvoid main() {\n  // Le temps est hache en paliers : un tirage par palier, pas par image. La\n  // graine change entierement d'un palier a l'autre, mais reste figee entre\n  // deux — c'est ce qui donne le grain d'un tube, pas d'un stroboscope.\n  float cadence = max(uFps, 1.0);\n  float palier = floor(uTime * cadence);\n\n  // Un grain de deux pixels d'ecran : plus fin, il disparaitrait dans le\n  // filtrage ; plus gros, il deviendrait une mosaique.\n  vec2 cellule = floor(vUv * uResolution * 0.5);\n  float grain = parasiteHash(cellule + vec2(palier * 57.0, palier * 113.0));\n\n  // Les bandes sombres : deux sinus de frequences non multiples qui defilent\n  // lentement vers le bas, comme une synchronisation verticale qui derive.\n  float defile = vUv.y + uTime * 0.06;\n  float bande = 1.0 - clamp(uBanding, 0.0, 1.0) * (\n    0.32 * (0.5 + 0.5 * sin(defile * 18.8496)) +\n    0.18 * (0.5 + 0.5 * sin(defile * 43.9823))\n  );\n\n  float valeur = grain * bande;\n\n  // Le gris d'abord, la teinte ensuite : la desaturation est le repos du\n  // reglage, la couleur du tube son extreme.\n  vec3 gris = mix(uColorA, uColorC, valeur);\n  vec3 teinte = mix(uColorA, uColorB, valeur);\n  vec3 colour = mix(gris, teinte, clamp(uTint, 0.0, 1.0));\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Parasites : la neige d'un televiseur, hachee par paliers.\n *\n * ## Le principe\n *\n * Un bruit blanc par cellule d'ecran, retire par paliers de temps — un tirage\n * par palier et non par image, qui scintillerait trop. Des bandes sombres\n * defilent lentement a la verticale, et un dosage de teinte tire le gris vers\n * la couleur du tube.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { TV_STATIC_FRAGMENT } from './tv-static.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface TvStaticControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface TvStaticOwnProps {\n  /** Cadence des paliers de tirage. @defaultValue 12 */\n  fps?: number\n  /** Profondeur des bandes sombres. @defaultValue 0.3 */\n  banding?: number\n  /** Dosage de la teinte. Zero, l'image reste grise. @defaultValue 0.4 */\n  tint?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<TvStaticControls>\n}\n\n/** Toutes les proprietes. */\nexport type TvStaticProps = Customisable<TvStaticOwnProps>\n\n/** Tokens employes par defaut : le noir du tube, la teinte, le grain clair. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-indigo-300',\n  '--o-theme-fg',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-100 dark:o-bg-zinc-900'\n\n/**\n * Parasites.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <TvStatic className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function TvStatic({\n  fps = 12,\n  banding = 0.3,\n  tint = 0.4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: TvStaticProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: TV_STATIC_FRAGMENT,\n    colors,\n    uniforms: { uFps: fps, uBanding: banding, uTint: tint },\n    name: 'tv-static',\n    // Le fragment coute un hachage quelle que soit la cadence ; ce qui pese,\n    // c'est le rythme des images reellement differentes, donc il est borne.\n    degrade: (quality) => ({\n      uFps: quality === 'low' ? Math.min(fps, 8) : fps,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

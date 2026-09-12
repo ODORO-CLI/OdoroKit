@@ -1,0 +1,76 @@
+{
+  "name": "liquid-fill",
+  "category": "loader",
+  "title": "Remplissage liquide",
+  "description": "Un bocal rond dont le niveau monte, la surface prise par deux nappes qui derivent en sens contraires ; ou une maree sans fin quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LiquidFill.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 62,
+      "unit": "%",
+      "description": "Niveau du liquide, de 0 a 100. Ignore en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Maree qui monte et redescend sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 88,
+      "unit": "px",
+      "description": "Diametre du bocal.",
+      "min": 32,
+      "max": 240,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d une derive de nappe, soit une periode de vague.",
+      "min": 800,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du liquide et du bocal. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux translations horizontales et une translation verticale, toutes tenues par le compositeur, dans un SVG de trois formes. Nappes immobiles et niveau pose sans transition sous mouvement reduit."
+  }
+}

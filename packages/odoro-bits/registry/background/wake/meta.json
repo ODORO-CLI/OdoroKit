@@ -1,0 +1,60 @@
+{
+  "name": "wake",
+  "category": "background",
+  "title": "Sillage",
+  "description": "Le curseur laisse une trainee de halos dates qui s eteignent avec l age ; seize depots vivent a la fois.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "wake.shader.ts",
+      "target": "background/wake.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Wake.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-teal-400", "--o-palette-emerald-200"],
+  "props": [
+    {
+      "name": "life",
+      "type": "number",
+      "default": 1.2,
+      "description": "Duree de vie d un depot, en secondes.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 0.08,
+      "description": "Rayon des halos de la trainee.",
+      "min": 0.02,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-teal-400, --o-palette-emerald-200",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Seize halos gaussiens par fragment ; la trainee echantillonne le pointeur dans la boucle du moteur, un depot toutes les 40 ms quand il bouge, sans rendu React par image."
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "circular-text",
+  "category": "text",
+  "title": "Texte en cercle",
+  "description": "Une phrase enroulee sur un anneau SVG qui tourne en continu, sens et vitesse reglables.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CircularText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 160,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 80,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 12,
+      "unit": "s",
+      "description": "Duree d un tour complet.",
+      "min": 2,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "reverse",
+      "type": "boolean",
+      "default": false,
+      "description": "Tourner dans le sens inverse."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule rotation CSS sur le SVG entier, tenue par le compositeur. Aucun JavaScript apres le premier rendu."
+  }
+}

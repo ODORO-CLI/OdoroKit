@@ -61,13 +61,13 @@ export type VortexProps = Customisable<VortexOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
+  '--o-theme-bg',
   '--o-palette-brand-600',
   '--o-palette-amber-300',
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-950 o-to-brand-900'
+const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-900'
 
 /**
  * Vortex.

@@ -1,0 +1,110 @@
+{
+  "name": "depth-carousel",
+  "category": "ui",
+  "title": "Carrousel en profondeur",
+  "description": "Une pile d affiches rangees en profondeur : celle de devant est de face, les suivantes reculent et se tournent de trois quarts, et l on avance d un cran au bouton, a la fleche ou au glisser.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/DepthCarousel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slow",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les affiches, dans l ordre. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du carrousel, annonce aux technologies d assistance."
+    },
+    {
+      "name": "index",
+      "type": "number",
+      "description": "Affiche de devant, en mode controle."
+    },
+    {
+      "name": "defaultIndex",
+      "type": "number",
+      "default": 0,
+      "description": "Affiche de devant au montage, en mode non controle."
+    },
+    {
+      "name": "onIndexChange",
+      "type": "(index: number) => void",
+      "description": "Appele quand l affiche de devant change."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 300,
+      "unit": "px",
+      "min": 160,
+      "max": 520,
+      "step": 10,
+      "description": "Largeur de l affiche de devant."
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 110,
+      "unit": "px",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "description": "Decalage lateral ajoute par cran d ecart a l affiche de devant."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 140,
+      "unit": "px",
+      "min": 0,
+      "max": 400,
+      "step": 10,
+      "description": "Recul ajoute par cran d ecart a l affiche de devant."
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 32,
+      "unit": "deg",
+      "min": 0,
+      "max": 70,
+      "step": 1,
+      "description": "Angle de trois quarts pris par les affiches de cote."
+    },
+    {
+      "name": "visible",
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "description": "Nombre d affiches visibles de chaque cote de celle de devant."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par affiche, posee au rendu et menee par une transition du compositeur : le changement de cran est le seul rendu React. Le glisser ecrit une seule transformation, celle du plateau. Sous mouvement reduit, l affiche change de place sans trajet."
+  }
+}

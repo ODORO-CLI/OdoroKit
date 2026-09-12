@@ -1,0 +1,110 @@
+{
+  "name": "fade-gate",
+  "category": "loader",
+  "title": "Voile",
+  "description": "Le seul rideau du lot qui assume d etre un voile : il se dissipe, et peut se depolir quand la page merite une mise au point.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FadeGate.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Le fond du voile."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "required": false,
+      "description": "L encre du libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "blurPx",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "unit": "px",
+      "description": "Flou d arriere-plan. Zero laisse un voile opaque et gratuit ; au-dela, le voile devient depoli et se paye.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Combien de temps le voile reste plein.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la dissipation.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Etat controle : le voile couvre tant que c est vrai, et se dissipe au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "required": false,
+      "description": "Appele au debut de la dissipation, pour que le contenu entre pendant qu elle a lieu."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une opacite animee, la propriete la moins chere du navigateur. Le depoli ajoute un backdrop-filter recompose par image : il reste desactive par defaut."
+  },
+  "id": "loader/fade-gate",
+  "sources": {
+    "component.tsx": "/**\n * Voile qui se dissipe apres un delai.\n *\n * ## Le seul rideau du lot qui a le droit d'etre un voile\n *\n * Les autres rideaux du registre refusent l'opacite, et pour une bonne raison :\n * une plaque qui se fond laisse voir la page a travers elle, ce qui trahit\n * qu'il n'y avait jamais eu de plaque. Ils prennent donc des formes — un trou,\n * deux pans, des lames — pour rester des objets jusqu'au bout.\n *\n * Celui-ci assume l'inverse. Il ne pretend pas etre un objet : c'est un voile,\n * il se comporte comme un voile, et c'est exactement ce qu'on veut quand\n * l'entree ne doit rien raconter — un tableau de bord, un outil, une page ou le\n * rideau est une politesse et non une mise en scene. La franchise vaut ici\n * mieux que la forme.\n *\n * C'est aussi le moins cher du lot : un element, une propriete animee, celle\n * que le compositeur traite le mieux.\n *\n * ## Le flou est facultatif, et il se paye\n *\n * Avec `blurPx`, le voile devient depoli : le fond est rendu partiellement\n * transparent et le filtre d'arriere-plan floute la page en dessous, puis se\n * detend jusqu'a zero. La mise au point qui se fait est un beau geste, et il\n * coute : `backdrop-filter` fait recomposer la couche a chaque image, ce que\n * l'opacite seule ne fait pas. Il reste donc a zero par defaut, et le filtre\n * n'est meme pas declare tant qu'on ne le demande pas.\n *\n * ## La sortie part au DEBUT, pas apres\n *\n * `onDone` est appele quand le voile **commence** a se dissiper. Le contenu\n * entre pendant qu'il s'eclaircit ; attendre la fin donnerait un voile, un\n * temps mort, puis une page qui s'anime.\n *\n * ## Contenu ou plein ecran\n *\n * Par defaut le voile est `fixed`, couvre la fenetre et verrouille le\n * defilement du document. Avec `contained`, il devient `absolute`, se resout\n * contre le premier ancetre positionne et ne touche plus au defilement.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface FadeGateOwnProps {\n  /** Le fond du voile. @defaultValue le fond du theme */\n  background?: string\n  /** L'encre du libelle. @defaultValue l'encre du theme */\n  ink?: string\n  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */\n  label?: ReactNode\n  /**\n   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le\n   * libelle.\n   *\n   * @defaultValue 'Chargement'\n   */\n  status?: string\n  /**\n   * Flou d'arriere-plan, en pixels. Zero laisse un voile opaque et gratuit ;\n   * au-dela, le voile devient depoli et se paye. Voir l'en-tete.\n   *\n   * @defaultValue 0\n   */\n  blurPx?: number\n  /** Combien de temps le voile reste plein, en millisecondes. @defaultValue 1000 */\n  holdMs?: number\n  /** Duree de la dissipation, en millisecondes. @defaultValue 700 */\n  exitMs?: number\n  /**\n   * Etat controle : le voile couvre tant que c'est `true`, et se dissipe au\n   * premier `false`. Renseigne, il remplace `holdMs`.\n   */\n  open?: boolean\n  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */\n  contained?: boolean\n  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */\n  onDone?: () => void\n}\n\n/** Toutes les proprietes. */\nexport type FadeGateProps = Customisable<FadeGateOwnProps, 'div'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-fade-gate'\n\n/** Pose les regles du voile, une fois par document. */\nfunction ensureFadeGateRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-fadeg]{',\n    'position:fixed;inset:0;z-index:9999;overflow:hidden;',\n    'color:var(--o-fadeg-ink);',\n    'opacity:1;transition:opacity var(--o-fadeg-exit) ease;',\n    '}',\n    '[data-o-fadeg][data-o-fadeg-contained]{position:absolute}',\n    '[data-o-fadeg][data-o-fadeg-out]{opacity:0;pointer-events:none}',\n    '[data-o-fadeg-veil]{position:absolute;inset:0;background:var(--o-fadeg-bg)}',\n    // Le depoli n'existe que si on l'a demande : sans l'attribut, aucune\n    // couche de filtre n'est creee.\n    '[data-o-fadeg-frost] [data-o-fadeg-veil]{',\n    'background:color-mix(in oklab,var(--o-fadeg-bg) 76%,transparent);',\n    'backdrop-filter:blur(var(--o-fadeg-blur));',\n    'transition:backdrop-filter var(--o-fadeg-exit) ease;',\n    '}',\n    '[data-o-fadeg-frost][data-o-fadeg-out] [data-o-fadeg-veil]{backdrop-filter:blur(0px)}',\n    '[data-o-fadeg-status]{',\n    'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Couvre la page d'un voile, puis le dissipe.\n *\n * @example\n * <FadeGate label=\"Odoro\" onDone={ouvrir} />\n *\n * @example\n * // Depoli : la page se met au point derriere le voile.\n * <FadeGate blurPx={14} exitMs={900} onDone={ouvrir} />\n */\nexport function FadeGate({\n  background = 'var(--o-theme-bg)',\n  ink = 'var(--o-theme-fg)',\n  label,\n  status = 'Chargement',\n  blurPx = 0,\n  holdMs = 1000,\n  exitMs = 700,\n  open,\n  contained = false,\n  onDone,\n  ...rest\n}: FadeGateProps): ReactElement | null {\n  const { reduced } = useMotionState()\n  const [sortant, setSortant] = useState(false)\n  const [parti, setParti] = useState(false)\n\n  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne\n  // doit pas rejouer le rappel.\n  const annonce = useRef(false)\n  const rappel = useRef(onDone)\n  rappel.current = onDone\n\n  ensureFadeGateRule()\n\n  useEffect(() => {\n    const annoncer = (): void => {\n      if (annonce.current) return\n      annonce.current = true\n      rappel.current?.()\n    }\n\n    // Mouvement reduit : la sortie est immediate. Un voile de courtoisie sans\n    // le geste n'est plus qu'une attente.\n    if (reduced) {\n      annoncer()\n      setParti(true)\n      return\n    }\n\n    if (open !== undefined) {\n      if (!open) {\n        setSortant(true)\n        annoncer()\n      }\n      return\n    }\n\n    const minuteur = window.setTimeout(() => {\n      setSortant(true)\n      annoncer()\n    }, holdMs)\n\n    return () => {\n      window.clearTimeout(minuteur)\n    }\n  }, [reduced, open, holdMs])\n\n  // Un minuteur plutot que `transitionend` : le voile depoli anime deux\n  // proprietes, et le meme code doit valoir dans les deux cas.\n  useEffect(() => {\n    if (!sortant) return\n\n    const minuteur = window.setTimeout(() => {\n      setParti(true)\n    }, exitMs + 40)\n\n    return () => {\n      window.clearTimeout(minuteur)\n    }\n  }, [sortant, exitMs])\n\n  // Le verrou de defilement, seulement quand le voile couvre la fenetre.\n  useEffect(() => {\n    if (contained || parti || reduced) return\n\n    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher\n    // — rechargement a chaud, navigation, rendu concurrent — et le second\n    // memoriserait alors la valeur posee par le premier, « hidden », pour la\n    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.\n    const racine = document.documentElement\n    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')\n    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow\n    racine.dataset['oPorteVerrous'] = String(verrous + 1)\n    racine.style.overflow = 'hidden'\n\n    let rendu = false\n    const rendreLaMain = (): void => {\n      if (rendu) return\n      rendu = true\n      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1\n      if (reste > 0) {\n        racine.dataset['oPorteVerrous'] = String(reste)\n        return\n      }\n      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''\n      delete racine.dataset['oPorteVerrous']\n      delete racine.dataset['oPorteAvant']\n    }\n\n    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc\n    // invisible en marche normale : il n existe que pour qu un retard ne\n    // puisse jamais laisser la page sans defilement.\n    const secours = window.setTimeout(rendreLaMain, 8000)\n\n    return () => {\n      window.clearTimeout(secours)\n      rendreLaMain()\n    }\n  }, [contained, parti, reduced])\n\n  if (parti) return null\n\n  const { className, style } = mergePresentation({}, rest)\n  const depoli = blurPx > 0\n\n  const styleVoile = {\n    ...style,\n    '--o-fadeg-bg': background,\n    '--o-fadeg-ink': ink,\n    '--o-fadeg-exit': `${String(exitMs)}ms`,\n    '--o-fadeg-blur': `${String(blurPx)}px`,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={styleVoile}\n      data-o-fadeg=\"\"\n      {...(sortant ? { 'data-o-fadeg-out': '' } : {})}\n      {...(contained ? { 'data-o-fadeg-contained': '' } : {})}\n      {...(depoli ? { 'data-o-fadeg-frost': '' } : {})}\n    >\n      {/* Le voile est du decor : il ne doit pas etre lu. */}\n      <div data-o-fadeg-veil=\"\" aria-hidden=\"true\" />\n\n      <div data-o-fadeg-status=\"\" role=\"status\">\n        {status.length > 0 && <span className=\"o-sr-only\">{status}</span>}\n        {label}\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "name": "chasing-dots",
+  "category": "loader",
+  "title": "Points qui se poursuivent",
+  "description": "Quatre points de taille decroissante tournent en file sur un cercle, une tete et sa trainee, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ChasingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre du cercle parcouru.",
+      "min": 16,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule rotation CSS tenue par le compositeur, les points sont poses une fois. La file reste en place, immobile, sous mouvement reduit."
+  }
+}

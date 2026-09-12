@@ -1,0 +1,57 @@
+{
+  "name": "snake",
+  "category": "loader",
+  "title": "Serpent",
+  "description": "Un serpent de quatre segments parcourt une grille de quatre par quatre en zigzag, sans jamais se croiser, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Snake.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 7,
+      "unit": "px",
+      "description": "Cote d un segment. L ecart de la grille en depend.",
+      "min": 4,
+      "max": 18,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un parcours complet de la grille.",
+      "min": 600,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des segments. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Seize animations CSS d opacite tenues par le compositeur, aucun JavaScript apres le premier rendu. Le serpent reste pose sur ses quatre premieres cases sous mouvement reduit."
+  }
+}

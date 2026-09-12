@@ -1,0 +1,95 @@
+{
+  "name": "ripple-distortion",
+  "category": "effect",
+  "title": "Distorsion d ondes",
+  "description": "Une surface d ondes concentriques nait sous le pointeur et deforme les bandes qu elle porte, derriere le contenu.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "ripple-distortion.shader.ts",
+      "target": "effect/ripple-distortion.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "effect/RippleDistortion.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-surface",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de propagation des ondes.",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 26,
+      "description": "Serrage des ondes et des bandes.",
+      "min": 6,
+      "max": 70,
+      "step": 2
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Amplitude du decalage de lecture.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Vitesse de rattrapage du pointeur. Plus haut, plus sec.",
+      "min": 1,
+      "max": 9,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-surface, --o-palette-brand-500",
+      "description": "Tokens du creux des bandes, de leur crete, puis de l eclat."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, a la place des anneaux figes derives des tokens."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un triangle plein ecran et un shader de fragment, sous le contenu. Le pointeur est amorti dans la boucle du moteur et transmis par un uniform mute en place, sans rendu React.",
+    "fallback": "static"
+  },
+  "id": "effect/ripple-distortion",
+  "sources": {
+    "ripple-distortion.shader.ts": "/**\n * Shader de la distorsion d'ondes.\n *\n * ## L'idee mathematique\n *\n * Une seule source, le pointeur, emet des ondes concentriques : un sinus de la\n * distance moins le temps, sous une enveloppe exponentielle qui les eteint en\n * s'eloignant. La hauteur de l'onde ne se voit pas directement — elle **decale\n * la lecture** d'un motif de bandes, exactement comme une vitre ondulee decale\n * ce qu'on voit au travers. Sans ce detour, on verrait des anneaux dessines ;\n * avec lui, on voit une surface deformee.\n *\n * La distance est mesuree dans un repere corrige par le rapport de la surface :\n * sans cette correction, les anneaux seraient des ellipses des que la zone\n * n'est pas carree.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le creux des bandes.\n * - `uColorB` — leur crete.\n * - `uColorC` — l'eclat porte par les cretes de l'onde.\n * - `uPointer` — position du pointeur, amortie, en coordonnees de texture.\n * - `uSpeed` — vitesse de propagation.\n * - `uScale` — serrage des ondes et des bandes.\n * - `uAmount` — amplitude du decalage de lecture.\n */\nexport const RIPPLE_DISTORTION_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uSpeed;\nuniform float uScale;\nuniform float uAmount;\n\nvoid main() {\n  // Le rapport de la surface corrige la distance : sans lui, les anneaux\n  // s'aplatissent en ellipses sur une zone large.\n  float aspect = max(uResolution.x, 1.0) / max(uResolution.y, 1.0);\n  vec2 offset = vec2((vUv.x - uPointer.x) * aspect, vUv.y - uPointer.y);\n  float distance = length(offset);\n\n  // L'enveloppe eteint l'onde avec l'eloignement : la source reste lisible,\n  // et les bords ne tremblent pas indefiniment.\n  float envelope = exp(-distance * 2.6);\n  float wave = sin(distance * uScale - uTime * uSpeed * 3.0) * envelope;\n\n  // La direction de fuite, protegee du centre exact ou elle n'existe pas.\n  vec2 direction = offset / max(distance, 0.001);\n  vec2 read = vUv + direction * wave * uAmount * 0.06;\n\n  // Un motif de bandes obliques : c'est lui qui rend la deformation visible.\n  float bands = 0.5 + 0.5 * sin((read.x + read.y) * uScale * 0.42 + uTime * uSpeed * 0.5);\n  vec3 colour = mix(uColorA, uColorB, bands);\n\n  // Les cretes portent l'eclat, dans les deux sens : une onde a un dessus et\n  // un dessous, et n'eclairer que l'un des deux donne un rendu de vagues\n  // peintes.\n  colour = mix(colour, uColorC, smoothstep(0.25, 1.0, abs(wave)) * 0.55);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Distorsion d'ondes sous le pointeur, derriere un contenu.\n *\n * ## Ce que ce composant deforme, et ce qu'il ne deforme pas\n *\n * Il ne deforme **pas** le contenu qu'il enveloppe. Un shader ne sait pas lire\n * le document : tordre du texte ou une carte demanderait de les capturer en\n * image, ce qui echoue sur les polices distantes et les origines croisees — la\n * deformation par filtre existe pour ce cas-la, et c'est un autre composant.\n *\n * Ce qui est deforme ici est une surface peinte par le shader, posee **sous**\n * le contenu. Le texte reste net, selectionnable et lisible ; c'est le sol qui\n * ondule sous lui.\n *\n * ## Pourquoi le pointeur passe par un uniform mute en place\n *\n * La position change a chaque image. La porter dans l'etat React ferait\n * soixante rendus par seconde pour deplacer un centre d'ondes que le shader\n * relit seul. Le crochet de pointeur amorti ecrit donc sa valeur dans la\n * boucle, et un tableau stable — jamais reconstruit — la transmet a la surface,\n * qui relit ses uniforms a chaque image.\n *\n * L'amortissement n'est pas un ornement : sans lui, un deplacement rapide fait\n * sauter le centre d'un bout a l'autre de la zone, et les anneaux se cassent\n * au lieu de suivre.\n *\n * ## Le repli n'est pas une precaution\n *\n * Il est affiche pendant le chargement du backend, quand WebGL manque, quand\n * l'arbitre refuse la surface, et sous mouvement reduit. Il reprend les memes\n * tokens, en anneaux figes : ce qui disparait est l'ondulation, pas le decor.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  useOnReady,\n  useShaderSurface,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useMemo,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { RIPPLE_DISTORTION_FRAGMENT } from './ripple-distortion.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface RippleDistortionControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface RippleDistortionOwnProps {\n  /** Contenu pose sur la surface. Il reste net. */\n  children: ReactNode\n  /** Vitesse de propagation des ondes. @defaultValue 1 */\n  speed?: number\n  /** Serrage des ondes et des bandes. @defaultValue 26 */\n  scale?: number\n  /** Amplitude du decalage de lecture. @defaultValue 0.5 */\n  amount?: number\n  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 3 */\n  damping?: number\n  /** Tokens du creux des bandes, de leur crete, puis de l'eclat. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli, a la place des anneaux figes derives des tokens. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<RippleDistortionControls>\n}\n\n/** Toutes les proprietes. */\nexport type RippleDistortionProps = Customisable<RippleDistortionOwnProps>\n\n/** Tokens employes par defaut : creux, crete, puis eclat. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-surface',\n  '--o-palette-brand-500',\n] as const\n\n/**\n * Repli par defaut : les memes anneaux, immobiles et sans source.\n *\n * Ce qui doit disparaitre est l'ondulation, pas le decor : un aplat effacerait\n * le motif pour tous ceux qui recoivent le repli, alors que seule sa mise en\n * mouvement est en cause.\n *\n * @param colors Tokens du creux, de la crete, puis de l'eclat.\n * @param scale Serrage des ondes, dont se deduit le pas des anneaux.\n */\nfunction staticRings(\n  colors: readonly [string, string, string],\n  scale: number,\n): CSSProperties {\n  const pitch = Math.max(8, Math.round(700 / Math.max(scale, 1)))\n\n  return {\n    backgroundColor: `var(${colors[0]})`,\n    backgroundImage:\n      `repeating-radial-gradient(circle at 50% 50%,` +\n      ` var(${colors[1]}) 0 ${String(pitch)}px,` +\n      ` transparent ${String(pitch)}px ${String(pitch * 2)}px)`,\n  }\n}\n\n/**\n * Serrage en qualite basse.\n *\n * Le cout ne tient pas au serrage — chaque fragment fait le meme travail — mais\n * des ondes trop fines scintillent des que la densite de pixels est plafonnee.\n */\nconst LOW_SCALE = 18\n\n/**\n * Fait onduler une surface sous son contenu, autour du pointeur.\n *\n * @example\n * <RippleDistortion className=\"o-rounded-xl o-p-10\">\n *   <h2>Passez la souris</h2>\n * </RippleDistortion>\n *\n * @example\n * // Des ondes larges et lentes, sans eclat de marque.\n * <RippleDistortion\n *   scale={12}\n *   speed={0.4}\n *   colors={['--o-theme-bg', '--o-theme-line', '--o-theme-muted']}\n * >\n *   <section className=\"o-p-8\">…</section>\n * </RippleDistortion>\n */\nexport function RippleDistortion({\n  children,\n  speed = 1,\n  scale = 26,\n  amount = 0.5,\n  damping = 3,\n  colors = DEFAULT_TOKENS,\n  fallback,\n  onReady,\n  ...rest\n}: RippleDistortionProps): ReactElement {\n  const { quality, reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n  const [colours, setColours] = useState<readonly ShaderColour[]>([])\n\n  const pointer = usePointerDamped({ host, speed: damping, name: 'ondes : pointeur' })\n\n  // Tableau stable, mute en place : reconstruire l'uniform a chaque image\n  // reconstruirait aussi la table d'uniforms de la surface.\n  const uPointer = useRef<number[]>([0.5, 0.5]).current\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Le crochet rend une position centree sur zero, l'axe vertical vers\n        // le bas ; vUv a son origine en bas a gauche.\n        uPointer[0] = (pointer.current.x + 1) / 2\n        uPointer[1] = 1 - (pointer.current.y + 1) / 2\n      },\n      // Apres la lecture des entrees, avant le rendu de la meme image.\n      { priority: CLOCK_PRIORITY.layout, name: 'ondes : centre' },\n    )\n\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  // Les tokens entrent par leur texte, jamais par l'identite du tableau : un\n  // litteral passe en prop en construirait un neuf a chaque rendu, et l'effet\n  // qui en dependrait ne s'arreterait jamais.\n  const tokenList = colors.join(' ')\n\n  useEffect(() => {\n    if (host === null) return\n    setColours(tokenList.split(' ').map((token) => readTokenColour(token, host)))\n    // La politique de mouvement suit le theme : sa bascule relit les tokens.\n  }, [host, tokenList, reduced, quality])\n\n  const uniforms = useMemo(() => {\n    const [a, b, c] = colours\n    if (a === undefined || b === undefined || c === undefined) return undefined\n\n    return {\n      uColorA: a,\n      uColorB: b,\n      uColorC: c,\n      uPointer,\n      uSpeed: speed,\n      uScale: quality === 'low' ? LOW_SCALE : scale,\n      uAmount: amount,\n    }\n  }, [colours, uPointer, speed, scale, amount, quality])\n\n  const { ref, ready, refused } = useShaderSurface<HTMLDivElement>({\n    fragment: RIPPLE_DISTORTION_FRAGMENT,\n    // Sans couleurs lues, le shader peindrait du noir : le repli couvre mieux\n    // cet instant.\n    uniforms: uniforms ?? {},\n    name: 'ondes',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, host)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const showFallback = !ready || refused !== undefined || uniforms === undefined\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={style}>\n      {/* La surface est posee sous le contenu, et n'intercepte rien. */}\n      <div\n        aria-hidden\n        ref={ref}\n        className=\"o-absolute o-inset-0 o-pointer-events-none\"\n        style={{ borderRadius: 'inherit', overflow: 'hidden' }}\n      >\n        {showFallback ? (\n          <div\n            className={`o-absolute o-inset-0 ${fallback ?? ''}`}\n            style={fallback === undefined ? staticRings(colors, scale) : undefined}\n          />\n        ) : null}\n      </div>\n\n      <div className=\"o-relative\">{children}</div>\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "ghost-cursor",
+  "category": "effect",
+  "title": "Trainee fantome",
+  "description": "Le chemin du pointeur est garde quelques images dans un anneau, et des copies de plus en plus pales le relisent : la trainee epouse le trace exact, boucles comprises.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GhostCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 10,
+      "description": "Nombre de fantomes.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Taille du premier fantome.",
+      "min": 6,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 3,
+      "description": "Images d ecart entre deux fantomes.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "shape",
+      "type": "string",
+      "default": "point",
+      "description": "Forme des fantomes.",
+      "options": ["point", "anneau", "carre"]
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des fantomes. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone ou la trainee vit. Absente, elle prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Vingt-quatre elements au maximum, un anneau de positions de longueur fixe, une ecriture de transform par fantome et par image. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

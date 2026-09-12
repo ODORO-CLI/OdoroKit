@@ -1,0 +1,122 @@
+{
+  "name": "depth-carousel",
+  "category": "ui",
+  "title": "Carrousel en profondeur",
+  "description": "Une pile d affiches rangees en profondeur : celle de devant est de face, les suivantes reculent et se tournent de trois quarts, et l on avance d un cran au bouton, a la fleche ou au glisser.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/DepthCarousel.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slow",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les affiches, dans l ordre. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du carrousel, annonce aux technologies d assistance."
+    },
+    {
+      "name": "index",
+      "type": "number",
+      "required": false,
+      "description": "Affiche de devant, en mode controle."
+    },
+    {
+      "name": "defaultIndex",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Affiche de devant au montage, en mode non controle."
+    },
+    {
+      "name": "onIndexChange",
+      "type": "(index: number) => void",
+      "required": false,
+      "description": "Appele quand l affiche de devant change."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 300,
+      "unit": "px",
+      "description": "Largeur de l affiche de devant.",
+      "min": 160,
+      "max": 520,
+      "step": 10
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 110,
+      "unit": "px",
+      "description": "Decalage lateral ajoute par cran d ecart a l affiche de devant.",
+      "min": 0,
+      "max": 200,
+      "step": 2
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "required": false,
+      "default": 140,
+      "unit": "px",
+      "description": "Recul ajoute par cran d ecart a l affiche de devant.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "required": false,
+      "default": 32,
+      "unit": "deg",
+      "description": "Angle de trois quarts pris par les affiches de cote.",
+      "min": 0,
+      "max": 70,
+      "step": 1
+    },
+    {
+      "name": "visible",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre d affiches visibles de chaque cote de celle de devant.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par affiche, posee au rendu et menee par une transition du compositeur : le changement de cran est le seul rendu React. Le glisser ecrit une seule transformation, celle du plateau. Sous mouvement reduit, l affiche change de place sans trajet."
+  },
+  "id": "ui/depth-carousel",
+  "sources": {
+    "component.tsx": "/**\n * Carrousel en profondeur : une pile d'affiches rangees en Z, celle de devant\n * de face, les autres reculant de trois quarts.\n *\n * ## La position vient du rang, pas d'une mesure\n *\n * Chaque affiche connait son ecart au cran courant — moins deux, moins un,\n * zero, un, deux — et en deduit son decalage lateral, son recul et son angle.\n * Il n'y a rien a mesurer : ni la largeur du cadre, ni la place prise par les\n * voisines. Changer de cran renumerote les ecarts, et la transition du\n * compositeur fait le trajet. Un seul rendu React par cran.\n *\n * ## Le glisser n'ecrit qu'une transformation\n *\n * Pendant le geste, c'est le plateau entier qui suit le doigt — une\n * transformation, une seule, ecrite directement sur l'element. Deplacer\n * chaque affiche pendant le glisser reviendrait a en ecrire autant qu'il y en\n * a, pour un mouvement que l'oeil lit comme un bloc. Au lacher, si le geste a\n * franchi le seuil, le cran change et le plateau reprend sa place.\n *\n * ## Ce n'est ni le carrousel, ni la galerie circulaire\n *\n * Le carrousel est un rail plat qui defile. La galerie circulaire est un\n * ruban continu que l'on pousse, sans cran ni bouton. Ici il y a une affiche\n * de devant, une seule, et deux boutons pour en changer : c'est un objet a\n * feuilleter, pas un ruban a parcourir.\n *\n * ## Ce que voit un lecteur d'ecran\n *\n * Les affiches restent toutes dans le document — un lecteur d'ecran doit\n * pouvoir parcourir la collection sans avoir a la faire tourner. Seule\n * l'affiche de devant porte `aria-current`, et les deux boutons disent ou ils\n * menent plutot que « precedent » et « suivant » dans le vide.\n *\n * ## Mouvement reduit\n *\n * Aucune transition : l'affiche choisie est en place, a son etat final. Les\n * boutons, les fleches et le glisser restent les memes.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  useRef,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type PointerEvent as ReactPointerEvent,\n  type ReactElement,\n} from 'react'\n\n/** Une affiche du carrousel. */\nexport interface DepthCarouselItem {\n  /** Source de l'image. */\n  readonly src: string\n  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */\n  readonly alt: string\n  /** Legende affichee sous l'affiche de devant. */\n  readonly caption?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface DepthCarouselOwnProps {\n  /** Les affiches, dans l'ordre. */\n  items: readonly DepthCarouselItem[]\n  /** Nom du carrousel, annonce aux technologies d'assistance. */\n  label: string\n  /** Affiche de devant, en mode controle. */\n  index?: number\n  /** Affiche de devant au montage, en mode non controle. @defaultValue 0 */\n  defaultIndex?: number\n  /** Appele quand l'affiche de devant change. */\n  onIndexChange?: (index: number) => void\n  /** Largeur de l'affiche de devant, en pixels. @defaultValue 300 */\n  width?: number\n  /** Decalage lateral par cran d'ecart, en pixels. @defaultValue 110 */\n  spread?: number\n  /** Recul par cran d'ecart, en pixels. @defaultValue 140 */\n  depth?: number\n  /** Angle de trois quarts des affiches de cote, en degres. @defaultValue 32 */\n  tilt?: number\n  /** Affiches visibles de chaque cote. @defaultValue 3 */\n  visible?: number\n}\n\n/** Toutes les proprietes. */\nexport type DepthCarouselProps = Customisable<DepthCarouselOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-depth-carousel'\n\n/** Distance de glisser, en pixels, a partir de laquelle le cran change. */\nconst SEUIL = 60\n\n/** Pose le plateau, les affiches et les commandes, une fois par document. */\nfunction ensureDepthRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-depth]{display:flex;flex-direction:column;align-items:center;gap:1rem}',\n    '[data-o-depth-scene]{',\n    'position:relative;width:100%;min-height:var(--o-depth-hauteur);',\n    'perspective:1100px;touch-action:pan-y;cursor:grab;',\n    '}',\n    '[data-o-depth-scene][data-o-depth-tire]{cursor:grabbing}',\n    '[data-o-depth-scene]:focus-visible{outline:2px solid var(--o-depth-accent);outline-offset:4px;border-radius:1rem}',\n    '[data-o-depth-plateau]{position:absolute;inset:0;transform-style:preserve-3d}',\n    '[data-o-depth-affiche]{',\n    'position:absolute;top:50%;left:50%;margin:0;width:var(--o-depth-largeur);',\n    'transform-origin:50% 50%;backface-visibility:hidden;',\n    'transition:transform var(--o-duration-slow) var(--o-ease-emphasized),',\n    'opacity var(--o-duration-slow) linear;',\n    '}',\n    '[data-o-depth-affiche] img{',\n    'display:block;width:100%;aspect-ratio:3 / 4;object-fit:cover;',\n    'border-radius:1rem;background:var(--o-theme-surface);',\n    'box-shadow:0 0 0 1px var(--o-theme-line),0 24px 48px -28px currentColor;',\n    '}',\n    '[data-o-depth-legende]{margin:0;font-size:0.875em;color:var(--o-theme-muted);text-align:center;min-height:1.4em}',\n    '[data-o-depth-barre]{display:flex;align-items:center;gap:0.75rem}',\n    '[data-o-depth-barre] button{',\n    'display:inline-flex;align-items:center;justify-content:center;',\n    'width:2.25rem;height:2.25rem;border-radius:999px;cursor:pointer;',\n    'border:1px solid var(--o-theme-line);background:var(--o-theme-surface);',\n    'font:inherit;color:inherit;',\n    '}',\n    '[data-o-depth-barre] button:is(:hover,:focus-visible){border-color:var(--o-depth-accent)}',\n    '[data-o-depth-barre] button:focus-visible{outline:2px solid var(--o-depth-accent);outline-offset:2px}',\n    '[data-o-depth-barre] button:disabled{opacity:0.35;cursor:default}',\n    '[data-o-depth-rang]{font-variant-numeric:tabular-nums;font-size:0.8125em;color:var(--o-theme-muted)}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-depth-affiche]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Pile d'affiches feuilletee au bouton, a la fleche ou au glisser.\n *\n * @example\n * <DepthCarousel\n *   label=\"Affiches du festival\"\n *   items={[\n *     { src: '/affiches/1998.jpg', alt: 'Affiche de 1998, typographie bleue', caption: 'Edition 1998' },\n *     { src: '/affiches/2004.jpg', alt: 'Affiche de 2004, photographie de nuit', caption: 'Edition 2004' },\n *   ]}\n * />\n *\n * @example\n * // Une pile serree, presque de face.\n * <DepthCarousel label=\"Pochettes\" items={pochettes} spread={40} tilt={12} visible={2} />\n */\nexport function DepthCarousel({\n  items,\n  label,\n  index,\n  defaultIndex = 0,\n  onIndexChange,\n  width = 300,\n  spread = 110,\n  depth = 140,\n  tilt = 32,\n  visible = 3,\n  ...rest\n}: DepthCarouselProps): ReactElement {\n  const plateau = useRef<HTMLDivElement | null>(null)\n  const tirer = useRef<{ x: number; id: number } | null>(null)\n  const [interne, setInterne] = useState(defaultIndex)\n  ensureDepthRules()\n\n  const dernier = Math.max(0, items.length - 1)\n  const courant = Math.min(dernier, Math.max(0, index ?? interne))\n  const devant = items[courant]\n\n  const aller = (suivant: number): void => {\n    const borne = Math.min(dernier, Math.max(0, suivant))\n    if (borne === courant) return\n    if (index === undefined) setInterne(borne)\n    onIndexChange?.(borne)\n  }\n\n  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {\n    const cibles: Readonly<Record<string, number | undefined>> = {\n      ArrowRight: courant + 1,\n      ArrowLeft: courant - 1,\n      Home: 0,\n      End: dernier,\n    }\n    const cible = cibles[event.key]\n    if (cible === undefined) return\n    event.preventDefault()\n    aller(cible)\n  }\n\n  /** Ecrit le decalage du plateau sans passer par l'etat. */\n  const glisser = (dx: number): void => {\n    const cible = plateau.current\n    if (cible === null) return\n    cible.style.transform = dx === 0 ? '' : `translateX(${dx.toFixed(1)}px)`\n  }\n\n  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    if (event.button !== 0 && event.pointerType === 'mouse') return\n    tirer.current = { x: event.clientX, id: event.pointerId }\n    event.currentTarget.setPointerCapture(event.pointerId)\n    event.currentTarget.setAttribute('data-o-depth-tire', '')\n  }\n\n  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    const depart = tirer.current\n    if (depart === null || depart.id !== event.pointerId) return\n    // La resistance du tiers rappelle que le plateau ne suit pas indefiniment :\n    // le geste sert a franchir un seuil, pas a faire defiler.\n    glisser((event.clientX - depart.x) / 3)\n  }\n\n  const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    const depart = tirer.current\n    tirer.current = null\n    event.currentTarget.removeAttribute('data-o-depth-tire')\n    if (event.currentTarget.hasPointerCapture(event.pointerId)) {\n      event.currentTarget.releasePointerCapture(event.pointerId)\n    }\n    glisser(0)\n    if (depart === null) return\n    const dx = event.clientX - depart.x\n    if (Math.abs(dx) >= SEUIL) aller(courant + (dx < 0 ? 1 : -1))\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      data-o-depth=\"\"\n      className={className}\n      style={\n        {\n          '--o-depth-accent': 'var(--o-palette-brand-500)',\n          '--o-depth-largeur': `${String(width)}px`,\n          '--o-depth-hauteur': `${String(Math.round((width * 4) / 3))}px`,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <div\n        data-o-depth-scene=\"\"\n        role=\"group\"\n        aria-roledescription=\"carrousel\"\n        aria-label={label}\n        tabIndex={0}\n        onKeyDown={onKeyDown}\n        onPointerDown={onPointerDown}\n        onPointerMove={onPointerMove}\n        onPointerUp={onPointerUp}\n        onPointerCancel={onPointerUp}\n      >\n        <div ref={plateau} data-o-depth-plateau=\"\">\n          {items.map((item, rang) => {\n            const ecart = rang - courant\n            const loin = Math.abs(ecart)\n            const cote = Math.sign(ecart)\n\n            return (\n              <figure\n                key={item.src}\n                data-o-depth-affiche=\"\"\n                aria-current={ecart === 0 ? 'true' : undefined}\n                style={{\n                  transform: [\n                    `translate(-50%,-50%)`,\n                    `translateX(${String(ecart * spread)}px)`,\n                    `translateZ(${String(-loin * depth)}px)`,\n                    `rotateY(${String(-cote * tilt)}deg)`,\n                  ].join(' '),\n                  opacity: Math.max(0, 1 - loin * 0.22),\n                  zIndex: items.length - loin,\n                  // Au-dela des affiches visibles, plus rien n'est peint : ni\n                  // pixel, ni cible de pointeur. Le contenu reste dans le\n                  // document pour les lecteurs d'ecran.\n                  visibility: loin > visible ? 'hidden' : undefined,\n                }}\n              >\n                <img src={item.src} alt={item.alt} loading=\"lazy\" decoding=\"async\" />\n              </figure>\n            )\n          })}\n        </div>\n      </div>\n\n      <p data-o-depth-legende=\"\">{devant?.caption ?? ''}</p>\n\n      <div data-o-depth-barre=\"\">\n        <button\n          type=\"button\"\n          aria-label=\"Affiche precedente\"\n          disabled={courant === 0}\n          onClick={() => {\n            aller(courant - 1)\n          }}\n        >\n          <span aria-hidden=\"true\">&#8249;</span>\n        </button>\n        <span data-o-depth-rang=\"\">\n          {courant + 1} / {items.length}\n        </span>\n        <button\n          type=\"button\"\n          aria-label=\"Affiche suivante\"\n          disabled={courant >= dernier}\n          onClick={() => {\n            aller(courant + 1)\n          }}\n        >\n          <span aria-hidden=\"true\">&#8250;</span>\n        </button>\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

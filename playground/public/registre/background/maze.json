@@ -1,0 +1,84 @@
+{
+  "name": "maze",
+  "category": "background",
+  "title": "Labyrinthe",
+  "description": "Un labyrinthe de diagonales qui se dessine trait par trait derriere une tete lumineuse, puis se redessine autrement quand le front repasse.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "maze.shader.ts",
+      "target": "background/maze.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Maze.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "period",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "s",
+      "description": "Duree d un dessin complet, en secondes.",
+      "min": 2,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Nombre de cellules sur la hauteur.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 0.1,
+      "description": "Epaisseur des traits, en fraction de la cellule.",
+      "min": 0.03,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les traits, la tete qui dessine."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une cellule evaluee par fragment, deux diagonales et un front. La densite ne change pas le cout.",
+    "fallback": "static"
+  },
+  "id": "background/maze",
+  "sources": {
+    "maze.shader.ts": "/**\n * Shader du labyrinthe.\n *\n * ## L'idee mathematique\n *\n * Le labyrinthe est celui d'une ligne de BASIC celebre : dans chaque cellule,\n * une diagonale montante ou descendante, tiree a pile ou face. Les\n * diagonales se raccordent aux coins, et l'oeil y lit des couloirs.\n *\n * Le dessin est date : une epoque entiere par periode, et dans chaque epoque\n * un front qui balaie le cadre en diagonale, de bas en haut et de gauche a\n * droite. Devant le front, la cellule montre le trait de l'epoque\n * precedente ; derriere, celui de l'epoque en cours. Dans la cellule que le\n * front traverse, le nouveau trait s'allonge d'un bout a l'autre pendant que\n * l'ancien s'efface par le meme bout, et une tete lumineuse marque la pointe\n * du trait en train de naitre.\n *\n * Rien n'est memorise d'image en image : l'age suffit a savoir ce que chaque\n * cellule doit montrer.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les traits.\n * - `uColorC` — la tete qui dessine.\n * - `uPeriod` — duree d'un dessin complet, en secondes.\n * - `uDensity` — nombre de cellules sur la hauteur.\n * - `uThickness` — epaisseur des traits, en fraction de la cellule.\n */\nexport const MAZE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uPeriod;\nuniform float uDensity;\nuniform float uThickness;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat mazeHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Le trait d'une cellule a une epoque : sa distance au fragment, et\n// l'abscisse du fragment le long du trait, de 0 a 1.\nvec2 mazeTrait(vec2 f, vec2 cell, float epoch) {\n  float rising = step(0.5, mazeHash(cell + epoch * 17.0));\n  // Montante : de (0,0) a (1,1). Descendante : de (0,1) a (1,0).\n  float d = mix(abs(f.x + f.y - 1.0), abs(f.x - f.y), rising) * 0.7071068;\n  float s = mix((f.x + 1.0 - f.y) * 0.5, (f.x + f.y) * 0.5, rising);\n  return vec2(d, s);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float scale = max(uDensity, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y) * scale;\n  vec2 cell = floor(p);\n  vec2 f = fract(p);\n\n  float phase = uTime / max(uPeriod, 0.5);\n  float epoch = floor(phase);\n\n  // Le front, en unites de diagonale : il part avant la premiere cellule et\n  // finit apres la derniere, pour que chaque trait soit dessine en entier.\n  float diagonals = scale * aspect + scale + 2.0;\n  float front = fract(phase) * diagonals - 1.0;\n  float draw = clamp(front - (cell.x + cell.y), 0.0, 1.0);\n\n  vec2 fresh = mazeTrait(f, cell, epoch);\n  vec2 old = mazeTrait(f, cell, epoch - 1.0);\n\n  float px = scale / max(uResolution.y, 1.0) * 1.5;\n  float halfWidth = max(uThickness, 0.01) * 0.5;\n\n  // Le nouveau trait existe jusqu'a l'abscisse du front ; l'ancien au-dela.\n  float newLine = (1.0 - smoothstep(halfWidth - px, halfWidth + px, fresh.x)) * step(fresh.y, draw);\n  float oldLine = (1.0 - smoothstep(halfWidth - px, halfWidth + px, old.x)) * step(draw, old.y);\n  float line = max(newLine, oldLine);\n\n  // La tete : au bout du trait qui nait, seulement dans la cellule traversee.\n  float active = step(0.001, draw) * step(draw, 0.999);\n  float rising = step(0.5, mazeHash(cell + epoch * 17.0));\n  vec2 headPos = mix(vec2(draw, 1.0 - draw), vec2(draw, draw), rising);\n  float head = exp(-dot(f - headPos, f - headPos) / 0.02) * active;\n\n  vec3 colour = mix(uColorA, uColorB, line * 0.85);\n  colour += uColorC * head * 1.2;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Labyrinthe : des diagonales qui se dessinent et se redessinent.\n *\n * ## Pourquoi un front, et pas un fondu\n *\n * Un labyrinthe qui change d'un coup ne se voit pas changer ; un fondu entre\n * deux labyrinthes montre deux dessins superposes, lisibles ni l'un ni\n * l'autre. Le front, lui, ne touche qu'une diagonale de cellules a la fois :\n * le dessin reste lisible partout, et l'oeil suit la tete qui trace.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous\n * mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { MAZE_FRAGMENT } from './maze.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MazeControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface MazeOwnProps {\n  /** Duree d'un dessin complet, en secondes. @defaultValue 6 */\n  period?: number\n  /** Nombre de cellules sur la hauteur. @defaultValue 14 */\n  density?: number\n  /** Epaisseur des traits, en fraction de la cellule. @defaultValue 0.1 */\n  thickness?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MazeControls>\n}\n\n/** Toutes les proprietes. */\nexport type MazeProps = Customisable<MazeOwnProps>\n\n/** Tokens employes par defaut : le fond, les traits, la tete. */\nconst DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Labyrinthe.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Maze className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Maze({\n  period = 6,\n  density = 14,\n  thickness = 0.1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: MazeProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: MAZE_FRAGMENT,\n    colors,\n    uniforms: { uPeriod: period, uDensity: density, uThickness: thickness },\n    name: 'maze',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -28,6 +28,14 @@ export const DEPS_PREFIX = '/@deps/'
 /** Prefixe des URL internes au moteur. */
 export const INTERNAL_PREFIX = '/@odoro/'
 
+/**
+ * Extensions d'un module compile par le serveur.
+ *
+ * Elles servent a reconnaitre l'apparition d'un fichier source, que le graphe
+ * ne peut pas connaitre puisqu'il n'existait pas encore.
+ */
+export const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs'] as const
+
 /** Extensions traitees comme des feuilles de style. */
 export const STYLE_EXTENSIONS = ['.css'] as const
 

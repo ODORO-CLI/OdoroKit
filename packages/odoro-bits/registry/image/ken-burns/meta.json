@@ -1,0 +1,60 @@
+{
+  "name": "ken-burns",
+  "category": "image",
+  "title": "Diaporama derive",
+  "description": "Deux ou trois images en fondu croise, chacune animee d un zoom et d une derive lents pendant son affichage.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/KenBurns.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "images",
+      "type": "readonly { src: string; alt: string }[]",
+      "required": true,
+      "description": "Les images du diaporama, deux ou trois."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 6000,
+      "unit": "ms",
+      "description": "Temps d affichage de chaque image.",
+      "min": 2000,
+      "max": 15000,
+      "step": 500
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 1.12,
+      "description": "Echelle atteinte en fin de derive.",
+      "min": 1.02,
+      "max": 1.3,
+      "step": 0.01
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une minuterie au rythme du diaporama, un rendu React par changement d image ; fondu et derive sont tenus par le compositeur. Premiere image fixe, sans cycle, sous mouvement reduit."
+  }
+}

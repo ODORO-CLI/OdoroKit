@@ -1,0 +1,70 @@
+{
+  "name": "splash-cursor",
+  "category": "background",
+  "title": "Eclaboussures",
+  "description": "Le pointeur seme des taches de peinture au contour bosselle, tirees entre deux teintes : elles s ouvrent d un coup, se melangent la ou elles se recouvrent, puis se fanent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "splash-cursor.shader.ts",
+      "target": "background/splash-cursor.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/SplashCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-rose-500", "--o-palette-amber-400"],
+  "props": [
+    {
+      "name": "life",
+      "type": "number",
+      "default": 1.8,
+      "unit": "s",
+      "description": "Duree de vie d une tache, en secondes.",
+      "min": 0.4,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 0.16,
+      "description": "Rayon d une tache, en hauteurs de cadre.",
+      "min": 0.04,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "lobes",
+      "type": "number",
+      "default": 0.6,
+      "description": "Irregularite du contour. A zero, la tache est un disque.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-rose-500, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, et les deux teintes de peinture."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Dix taches evaluees par fragment, chacune un sinus d angle et une exponentielle d age ; les depots sont ecrits dans un tampon mute en place, sans rendu React par image."
+  }
+}

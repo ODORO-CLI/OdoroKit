@@ -1,0 +1,78 @@
+{
+  "name": "stripes",
+  "category": "background",
+  "title": "Rayures",
+  "description": "Des bandes diagonales en un seul degrade repete. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Stripes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-theme-bg"
+  ],
+  "props": [
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Largeur d une bande.",
+      "min": 2,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 22,
+      "unit": "px",
+      "description": "Ecart entre deux bandes.",
+      "min": 0,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 45,
+      "unit": "deg",
+      "description": "Inclinaison des bandes.",
+      "min": -90,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des bandes."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade CSS repete : aucun script, aucun contexte graphique."
+  },
+  "id": "background/stripes",
+  "sources": {
+    "component.tsx": "/**\n * Rayures : des bandes diagonales, en un seul degrade repete.\n *\n * ## Pourquoi un seul degrade suffit\n *\n * Une rayure est une alternance de deux etats le long d'un axe. C'est la\n * definition meme d'un `repeating-linear-gradient` : une bande de couleur, un\n * vide, et la repetition est gratuite. Dessiner cela avec un script ou une\n * surface graphique reviendrait a payer pour ce que le compositeur fait deja.\n *\n * ## Pourquoi la largeur et l'ecart sont deux reglages\n *\n * Une seule densite ne dit rien : des bandes larges et serrees font un store,\n * des bandes fines et espacees font un filigrane. Separer la largeur de la\n * bande et celle du vide couvre les deux, la ou un unique « pas » les\n * confondrait.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface StripesOwnProps {\n  /** Largeur d'une bande, en pixels. @defaultValue 10 */\n  width?: number\n  /** Ecart entre deux bandes, en pixels. @defaultValue 22 */\n  gap?: number\n  /** Inclinaison des bandes, en degres. @defaultValue 45 */\n  angle?: number\n  /** Couleur des bandes. */\n  color?: string\n  /** Couleur du fond. */\n  background?: string\n}\n\n/** Toutes les proprietes. */\nexport type StripesProps = Customisable<StripesOwnProps>\n\n/**\n * Rayures de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Stripes className=\"o-absolute o-inset-0\" angle={-30} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Stripes({\n  width = 10,\n  gap = 22,\n  angle = 45,\n  color = 'color-mix(in oklab, var(--o-palette-brand-500, oklch(59.8% 0.198 275)) 14%, transparent)',\n  background = 'var(--o-theme-bg, oklch(98.5% 0 0))',\n  ...rest\n}: StripesProps): ReactElement {\n  const band = `${String(width)}px`\n  const period = `${String(width + gap)}px`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundColor: background,\n          backgroundImage: `repeating-linear-gradient(${String(angle)}deg, ${color} 0 ${band}, transparent ${band} ${period})`,\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

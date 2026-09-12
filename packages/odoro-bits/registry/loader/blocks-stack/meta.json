@@ -1,0 +1,57 @@
+{
+  "name": "blocks-stack",
+  "category": "loader",
+  "title": "Blocs empiles",
+  "description": "Quatre blocs tombent et s empilent en colonne, puis la pile bascule et s effondre, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BlocksStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Cote d un bloc. La hauteur de chute en depend.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, chute des quatre blocs et effondrement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des blocs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Pile complete et debout sous mouvement reduit."
+  }
+}

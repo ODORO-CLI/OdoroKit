@@ -1,0 +1,95 @@
+{
+  "name": "shimmer-block",
+  "category": "loader",
+  "title": "Bloc balaye",
+  "description": "Le bloc nu d un squelette, traverse par un reflet oblique peint dans son propre fond : aucune couche a empiler, la bande suit les angles arrondis.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ShimmerBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur du bloc.",
+      "min": 8,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 110,
+      "unit": "deg",
+      "description": "Obliquite de la bande.",
+      "min": 60,
+      "max": 160,
+      "step": 5
+    },
+    {
+      "name": "band",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "%",
+      "description": "Demi-largeur de la bande, en pourcentage de l image de fond.",
+      "min": 4,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un passage de la bande.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une position de fond animee sur un seul element, aucun JavaScript apres le premier rendu. Fond plein et sans bande sous mouvement reduit."
+  },
+  "id": "loader/shimmer-block",
+  "sources": {
+    "component.tsx": "/**\n * Bloc balaye : une seule surface en attente, traversee par un reflet\n * oblique.\n *\n * ## Une primitive, pas une maquette\n *\n * Les squelettes de ce lot dessinent une forme reconnaissable — un\n * paragraphe, une carte, un tableau. Celui-ci ne dessine rien : c'est le\n * bloc nu, celui qu'on pose soi-meme aux dimensions du contenu attendu.\n * Il prend la largeur de son parent et la hauteur qu'on lui donne, et c'est\n * tout ce qu'il promet.\n *\n * ## Le reflet est dans le fond, pas au-dessus\n *\n * La bande n'est pas une couche posee par-dessus : c'est le fond du bloc\n * lui-meme, une image large de deux fois et demie sa boite dont seule la\n * **position** bouge. Aucun element de plus, aucune composition a empiler —\n * et surtout, la bande suit les angles arrondis sans avoir a redire le\n * rayon.\n *\n * L'obliquite est reglable et vaut cent dix degres par defaut : une bande\n * verticale se lit comme un curseur, et un curseur promet une position dans\n * une progression. Penchee, elle redevient un reflet sur une surface.\n *\n * `pulse-block` traite la meme surface autrement : il n'a pas de bande du\n * tout, il respire. Un reflet dit « quelque chose passe » et donne un sens\n * de lecture ; une pulsation dit seulement « pas encore ».\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; le bloc est retire de\n * l'arbre d'accessibilite. Sous mouvement reduit, le fond perd sa bande et\n * garde sa pleine valeur : la surface reste visible, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-shimmer-block'\n\n/** Pose le bloc et son reflet, une fois par document. */\nfunction ensureShimmerBlockRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-shb]{display:block;width:100%}',\n    '[data-o-shb-face]{',\n    'display:block;width:100%;height:var(--o-shb-height);',\n    'border-radius:var(--o-shb-radius);',\n    // Le ton du bloc : le filet donne la densite, la surface l'eclaircit.\n    'background-color:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',\n    // La bande est le fond, pas une couche : elle suit donc le rayon.\n    'background-image:linear-gradient(var(--o-shb-angle),transparent 0 calc(50% - var(--o-shb-band)),color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent calc(50% + var(--o-shb-band)) 100%);',\n    'background-size:250% 100%;background-repeat:no-repeat;',\n    'background-position:150% 0;',\n    'animation:o-shb-sweep var(--o-shb-speed) linear infinite;',\n    '}',\n    '@keyframes o-shb-sweep{from{background-position:150% 0}to{background-position:-50% 0}}',\n    // Sans bande, a pleine valeur : la place reste tenue.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-shb-face]{animation:none;background-image:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ShimmerBlockOwnProps {\n  /** Hauteur du bloc, en pixels. @defaultValue 96 */\n  height?: number\n  /** Rayon des angles, en pixels. @defaultValue 12 */\n  radius?: number\n  /** Obliquite de la bande, en degres. @defaultValue 110 */\n  angle?: number\n  /** Demi-largeur de la bande, en pourcentage de l'image de fond. @defaultValue 14 */\n  band?: number\n  /** Duree d'un passage de la bande, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ShimmerBlockProps = Customisable<ShimmerBlockOwnProps, 'div'>\n\n/**\n * Reserve une surface et la traverse d'un reflet.\n *\n * @example\n * <ShimmerBlock height={140} />\n *\n * @example\n * // Une bande large et presque horizontale, lente.\n * <ShimmerBlock height={64} angle={80} band={24} speed={2600} />\n */\nexport function ShimmerBlock({\n  height = 96,\n  radius = 12,\n  angle = 110,\n  band = 14,\n  speed = 1800,\n  label = 'Chargement',\n  ...rest\n}: ShimmerBlockProps): ReactElement {\n  ensureShimmerBlockRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-shb-height': `${String(height)}px`,\n    '--o-shb-radius': `${String(radius)}px`,\n    '--o-shb-angle': `${String(angle)}deg`,\n    '--o-shb-band': `${String(Math.max(1, band))}%`,\n    '--o-shb-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <div {...rest} className={className} style={hostStyle} data-o-shb=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-shb-face=\"\" />\n    </div>\n  )\n}\n"
+  }
+}

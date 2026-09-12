@@ -1,0 +1,57 @@
+{
+  "name": "wave-bars",
+  "category": "loader",
+  "title": "Barres en vague",
+  "description": "Cinq barres fines etirees depuis leur centre par une vague qui les traverse de gauche a droite, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/WaveBars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Largeur d une barre. La hauteur et l ecart en dependent.",
+      "min": 2,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un passage complet de la vague.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des barres. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS d echelle tenues par le compositeur, aucun JavaScript apres le premier rendu. Cinq barres a mi-hauteur, immobiles, sous mouvement reduit."
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "name": "sonar",
+  "category": "background",
+  "title": "Sonar",
+  "description": "Des impulsions concentriques a front raide et traine sombre, emises en continu depuis le pointeur amorti et eteintes avec la distance ; des cercles de portee fixes donnent l echelle.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "sonar.shader.ts",
+      "target": "background/sonar.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Sonar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-emerald-500",
+    "--o-palette-emerald-200"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Vitesse de propagation des impulsions.",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "spacing",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Anneaux par hauteur de cadre.",
+      "min": 1,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "fade",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Vitesse d extinction avec la distance. Plus bas, les anneaux vont plus loin.",
+      "min": 0.2,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-emerald-500, --o-palette-emerald-200",
+      "description": "Tokens dont les couleurs sont lues : le fond, les anneaux, le front des impulsions."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une distance, deux puissances et deux exponentielles par fragment ; le pointeur est recopie dans un tableau mute en place, sans rendu React par image. En qualite basse, les anneaux s espacent.",
+    "fallback": "gradient"
+  },
+  "id": "background/sonar",
+  "sources": {
+    "sonar.shader.ts": "/**\n * Shader du sonar.\n *\n * ## L'idee mathematique\n *\n * Des impulsions emises a intervalle regulier depuis un point, qui\n * s'elargissent et s'eteignent avec la distance. Une impulsion n'est pas un\n * sinus : c'est un front raide suivi d'une traine. La partie fractionnaire\n * de `distance x pas - temps x vitesse` avance vers l'exterieur quand le\n * temps passe ; elevee a une puissance, elle est vive juste avant de\n * retomber a zero — c'est le front, a l'exterieur de l'anneau — et sombre\n * juste apres — c'est la traine, a l'interieur.\n *\n * L'extinction avec la distance est une exponentielle : les anneaux proches\n * du centre sont pleins, les lointains s'effacent avant le bord du cadre.\n *\n * Le centre est le pointeur, amorti par le composant : quand il se deplace,\n * les anneaux deja emis ne se souviennent pas de leur origine — ils suivent.\n * C'est un choix : un sonar qui garde ses anneaux au vieux point serait\n * `click-waves`, et il existe deja.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les anneaux.\n * - `uColorC` — le front des impulsions.\n * - `uPointer` — position du centre, en coordonnees de texture.\n * - `uSpeed` — vitesse de propagation.\n * - `uSpacing` — anneaux par hauteur de cadre.\n * - `uFade` — vitesse d'extinction avec la distance.\n */\nexport const SONAR_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uSpeed;\nuniform float uSpacing;\nuniform float uFade;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vUv * vec2(aspect, 1.0);\n  vec2 centre = uPointer * vec2(aspect, 1.0);\n  float px = 1.0 / max(uResolution.y, 1.0);\n\n  float d = length(p - centre);\n  float spacing = max(uSpacing, 0.5);\n\n  // La phase avance vers l'exterieur ; sa puissance fait le front.\n  float phase = fract(d * spacing - uTime * uSpeed);\n  float pulse = pow(phase, 6.0);\n  float front = pow(phase, 24.0);\n\n  // Extinction avec la distance : les anneaux lointains s'effacent.\n  float reach = exp(-d * uFade);\n\n  // Les cercles de portee : fixes, fins, deux fois plus espaces que les\n  // impulsions. Ils donnent l'echelle contre laquelle les anneaux avancent.\n  float ring = abs(fract(d * spacing * 0.5 + 0.5) - 0.5) / (spacing * 0.5);\n  float range = (1.0 - smoothstep(px * 0.5, px * 1.5, ring)) * reach * 0.35;\n\n  // Le centre : un point, et un halo qui respire.\n  float core = 1.0 - smoothstep(px * 2.0, px * 4.0, d);\n  float halo = exp(-d * 18.0) * (0.5 + 0.2 * sin(uTime * 2.0));\n\n  vec3 colour = mix(uColorA, uColorB, range + halo * 0.4);\n  colour = mix(colour, uColorB, pulse * reach * 0.8);\n  colour = mix(colour, uColorC, (front * reach + core) * 0.9);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Sonar : des impulsions concentriques qui s'elargissent depuis le pointeur.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, avec amortissement : le centre d'emission\n * rattrape le curseur en douceur, et les anneaux suivent — ils ne se\n * souviennent pas de leur origine. A la sortie du cadre, le hook ramene la\n * cible au centre et le sonar y revient de lui-meme.\n *\n * Ce qui distingue cette entree de `click-waves` : l'emission est continue\n * et suit le pointeur, la ou l'autre date chaque clic et laisse ses anneaux\n * au point exact de l'appui.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : le composant mute en place un tableau stable\n * passe en uniform, et la surface relit ses uniforms a chaque image. La\n * recopie se fait dans la boucle du moteur, en priorite d'entree.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche : le\n * suivi du pointeur est un agrement, pas un contenu.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { SONAR_FRAGMENT } from './sonar.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SonarControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SonarOwnProps {\n  /** Vitesse de propagation des impulsions. @defaultValue 0.8 */\n  speed?: number\n  /** Anneaux par hauteur de cadre. @defaultValue 6 */\n  spacing?: number\n  /** Vitesse d'extinction avec la distance. @defaultValue 1.6 */\n  fade?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SonarControls>\n}\n\n/** Toutes les proprietes. */\nexport type SonarProps = Customisable<SonarOwnProps>\n\n/** Tokens employes par defaut : le fond, les anneaux, le front des impulsions. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-emerald-500',\n  '--o-palette-emerald-200',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-emerald-950'\n\n/**\n * Sonar.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Sonar className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Sonar({\n  speed = 0.8,\n  spacing = 6,\n  fade = 1.6,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SonarProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableau stable, mute en place : la surface relit les uniforms a chaque\n  // image, l'identite ne change pas, la mutation suffit — aucun setState.\n  const uPointer = useRef<number[]>([0.5, 0.5]).current\n\n  const pointer = usePointerDamped({ host, speed: 3, name: 'sonar : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Du repere du hook (centre, y vers le bas) vers celui de la texture\n        // (coin bas-gauche, y vers le haut).\n        uPointer[0] = (pointer.current.x + 1) / 2\n        uPointer[1] = 1 - (pointer.current.y + 1) / 2\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'sonar : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: SONAR_FRAGMENT,\n      colors,\n      uniforms: { uPointer, uSpeed: speed, uSpacing: spacing, uFade: fade },\n      name: 'sonar',\n      // Des anneaux serres a densite de pixels reduite scintillent sur leur\n      // front : en qualite basse, ils s'espacent.\n      degrade: (quality) => ({\n        uSpacing: quality === 'low' ? Math.min(spacing, 4) : spacing,\n      }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

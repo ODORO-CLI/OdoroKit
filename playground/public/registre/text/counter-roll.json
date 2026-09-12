@@ -1,0 +1,73 @@
+{
+  "name": "counter-roll",
+  "category": "text",
+  "title": "Odometre",
+  "description": "Un nombre en colonnes de chiffres qui roulent verticalement jusqu a leur position, en cascade depuis la droite.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CounterRoll.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": true,
+      "description": "Valeur affichee."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree du roulement d une colonne.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 80,
+      "unit": "ms",
+      "description": "Delai entre deux colonnes, depuis la droite.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "required": false,
+      "description": "Langue du formatage. Par defaut, celle du navigateur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une translation CSS par colonne, jouee une fois a l entree dans le champ. Aucun JavaScript pendant l animation."
+  },
+  "id": "text/counter-roll",
+  "sources": {
+    "component.tsx": "/**\n * Odometre : chaque chiffre est une colonne qui roule jusqu'a sa position.\n *\n * ## Rouler, pas interpoler\n *\n * Le compteur `count-up` traverse les valeurs intermediaires — il interpole\n * le nombre. L'odometre, lui, ne calcule rien : chaque colonne est une pile\n * de 0 a 9, et rejoindre le chiffre cible est une seule translation CSS, avec\n * un delai qui croit depuis la droite comme sur un compteur mecanique. Le\n * navigateur compose tout ; aucun JavaScript ne tourne pendant l'animation.\n *\n * ## Une valeur, pas dix chiffres\n *\n * Des piles de chiffres tronquees par un `overflow` sont illisibles a un\n * lecteur d'ecran — il y trouverait dix chiffres par colonne. Elles sont donc\n * `aria-hidden`, et la valeur finale, formatee, vit dans un element\n * visuellement masque, annonce poliment quand elle change.\n *\n * ## Le formatage passe par `Intl`\n *\n * Separer les milliers a la main donne « 1,234 » a un lecteur francais, qui y\n * lit un nombre a virgule. `Intl.NumberFormat` connait la convention de\n * chaque langue.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useMemo,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface CounterRollOwnProps {\n  /** Valeur affichee. */\n  value: number\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree du roulement d'une colonne, en millisecondes. @defaultValue 900 */\n  duration?: number\n  /** Delai entre deux colonnes, depuis la droite, en millisecondes. @defaultValue 80 */\n  step?: number\n  /**\n   * Langue du formatage.\n   *\n   * Par defaut, celle du navigateur — et non `fr-FR` en dur : un compteur qui\n   * affiche des espaces insecables a un lecteur anglophone a l'air casse.\n   */\n  locale?: string\n}\n\n/** Toutes les proprietes. */\nexport type CounterRollProps = Customisable<CounterRollOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-counter-roll'\n\n/** La pile complete, celle que chaque colonne fait defiler. */\nconst DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const\n\n/**\n * Pose les regles des colonnes, une fois par document.\n *\n * La hauteur d'une case est exactement `1em`, et la pile se deplace en `em` :\n * l'odometre suit la taille de police sans une seule mesure.\n */\nfunction ensureCounterRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-roll]{font-variant-numeric:tabular-nums}',\n    '[data-o-roll-col]{',\n    'display:inline-block;overflow:hidden;height:1em;line-height:1;',\n    'vertical-align:-0.15em;',\n    '}',\n    '[data-o-roll-col] span{display:block;height:1em;line-height:1}',\n    '[data-o-roll-sep]{display:inline-block;line-height:1;vertical-align:-0.15em}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Affiche un nombre en colonnes de chiffres qui roulent jusqu'a leur position.\n *\n * @example\n * <CounterRoll value={12480} className=\"o-text-4xl o-font-extrabold\" />\n *\n * @example\n * // Roulement plus lent, colonnes plus espacees.\n * <CounterRoll value={2026} duration={1400} step={140} />\n */\nexport function CounterRoll({\n  value,\n  as: Tag = 'span',\n  duration = 900,\n  step = 80,\n  locale,\n  ...rest\n}: CounterRollProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>()\n  ensureCounterRule()\n\n  const formateur = useMemo(() => new Intl.NumberFormat(locale), [locale])\n  const final = formateur.format(value)\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : la valeur est la, formatee, sans une seule pile.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {final}\n      </Tag>\n    )\n  }\n\n  const chars = [...final]\n  const digitCount = chars.filter((char) => char >= '0' && char <= '9').length\n  let digitIndex = 0\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={style} data-o-roll=\"\">\n      {/* La valeur finale, annoncee poliment quand elle change. */}\n      <span className=\"o-sr-only\" aria-live=\"polite\">\n        {final}\n      </span>\n      <span aria-hidden>\n        {chars.map((char, index) => {\n          if (char < '0' || char > '9') {\n            return (\n              <span key={`sep-${String(index)}`} data-o-roll-sep=\"\">\n                {char}\n              </span>\n            )\n          }\n\n          // Le delai croit depuis la droite : la colonne des unites part la\n          // premiere, comme sur un compteur mecanique.\n          const delay = (digitCount - 1 - digitIndex) * step\n          digitIndex += 1\n\n          return (\n            <span key={`col-${String(index)}`} data-o-roll-col=\"\">\n              <span\n                style={\n                  {\n                    transform: `translateY(${String(vu ? -Number(char) : 0)}em)`,\n                    transition: `transform ${String(duration)}ms cubic-bezier(0.2, 0, 0, 1) ${String(delay)}ms`,\n                  } as CSSProperties\n                }\n              >\n                {DIGITS.map((digit) => (\n                  <span key={digit}>{digit}</span>\n                ))}\n              </span>\n            </span>\n          )\n        })}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

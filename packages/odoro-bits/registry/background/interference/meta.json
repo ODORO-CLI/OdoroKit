@@ -1,0 +1,69 @@
+{
+  "name": "interference",
+  "category": "background",
+  "title": "Moire",
+  "description": "Deux reseaux d anneaux dont les centres orbitent lentement, et les battements de leur produit.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "interference.shader.ts",
+      "target": "background/interference.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Interference.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-fuchsia-400", "--o-palette-cyan-300"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.15,
+      "description": "Vitesse des orbites.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "default": 24,
+      "description": "Nombre d anneaux par unite de distance. Retrograde a 14 en qualite basse.",
+      "min": 6,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "separation",
+      "type": "number",
+      "default": 0.25,
+      "description": "Rayon des orbites, donc ecart des deux centres.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-fuchsia-400, --o-palette-cyan-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Deux distances et deux sinus par fragment, cout constant. En qualite basse, la frequence est bornee pour eviter le scintillement d echantillonnage."
+  }
+}

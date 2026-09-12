@@ -1,0 +1,74 @@
+{
+  "name": "terrain-wireframe",
+  "category": "background",
+  "title": "Relief en fil de fer",
+  "description": "Une nappe quadrillee en segments dont les cretes, lues dans un bruit decale du temps, defilent vers la camera et s effacent dans un brouillard de la couleur du fond ; une vallee centrale reste plate.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/TerrainWireframe.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-teal-500", "--o-palette-teal-200"],
+  "props": [
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 80,
+      "description": "Colonnes de la nappe ; les rangees en valent la moitie. Retrograde a quarante en qualite basse.",
+      "min": 16,
+      "max": 160,
+      "step": 8
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1.2,
+      "description": "Vitesse de defilement, en unites de scene par seconde.",
+      "min": 0,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 1.6,
+      "description": "Hauteur des cretes, en unites de scene.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "valley",
+      "type": "number",
+      "default": 0.6,
+      "description": "Largeur de la vallee centrale, entre zero et un. Zero la supprime.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-teal-500, --o-palette-teal-200",
+      "description": "Tokens dont les couleurs sont lues : le fond et le brouillard, les lignes, les cretes."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Une geometrie de segments dont seules les hauteurs sont reecrites, deux octaves de bruit par sommet et par image ; en qualite basse, les colonnes tombent a quarante, donc les sommets au quart. Le rendu se suspend hors du champ."
+  }
+}

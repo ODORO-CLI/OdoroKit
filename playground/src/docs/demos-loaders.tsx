@@ -93,6 +93,36 @@ export function CounterGateDemo({
 }
 
 /** La plaque percee, contenue et rejouable. */
+/**
+ * Le cadre des rideaux plein ecran : contenu par `contained`, et rejouable.
+ *
+ * Un rideau ne joue qu une fois : sans le bouton, la fiche s ouvrirait sur un
+ * apercu deja parti. La cle remonte le composant, ce qui rejoue la sequence
+ * depuis son debut.
+ *
+ * A la difference de `Cadre`, il n a pas besoin de piegeer le `position:fixed`
+ * par une transformation : ces rideaux acceptent `contained` et se posent alors
+ * sur le premier ancetre positionne.
+ */
+export function CadreRideau({ children }: { readonly children: ReactElement }): ReactElement {
+  const [cle, setCle] = useState(0)
+
+  return (
+    <div className="o-absolute o-inset-0 o-overflow-hidden o-rounded-lg">
+      <div key={cle}>{children}</div>
+      <button
+        type="button"
+        onClick={() => {
+          setCle((v) => v + 1)
+        }}
+        className="o-absolute o-bottom-3 o-right-3 o-z-10 o-rounded-md o-border-w-1 o-border-current/20 o-bg-white/80 dark:o-bg-zinc-900/80 o-px-3 o-py-1 o-text-xs o-font-medium"
+      >
+        Rejouer
+      </button>
+    </div>
+  )
+}
+
 export function CurtainWipeDemo({
   holdMs,
   wipeMs,

@@ -1,0 +1,83 @@
+{
+  "name": "scanlines",
+  "category": "background",
+  "title": "Lignes de balayage",
+  "description": "Un ecran cathodique : lignes horizontales, barre qui roule, grain discret et vignette.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "scanlines.shader.ts",
+      "target": "background/scanlines.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Scanlines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-green-400",
+    "--o-palette-emerald-200"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse de la barre qui roule.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "lines",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "description": "Nombre de lignes sur la hauteur.",
+      "min": 30,
+      "max": 160,
+      "step": 5
+    },
+    {
+      "name": "flicker",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Part du grain anime. Retrograde a 0.15 en qualite basse.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-green-400, --o-palette-emerald-200",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Quelques fonctions periodiques de y et un hachage par fragment : le moins cher des fonds animes. En qualite basse, le grain est presque coupe.",
+    "fallback": "gradient"
+  },
+  "id": "background/scanlines",
+  "sources": {
+    "scanlines.shader.ts": "/**\n * Shader des lignes de balayage.\n *\n * ## L'idee mathematique\n *\n * Tout l'ecran cathodique tient dans des fonctions periodiques du seul axe\n * vertical : les lignes sont un sinus de y a haute frequence, la barre qui\n * roule est la partie fractionnaire de y decalee par le temps, et le grain\n * est un hachage du pixel rejoue par paliers de temps — discret, parce qu'un\n * tirage par image scintillerait au lieu de granuler. Une vignette referme le\n * tout.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond du tube.\n * - `uColorB` — la teinte du phosphore.\n * - `uColorC` — la teinte de la barre qui roule.\n * - `uSpeed` — vitesse de la barre.\n * - `uLines` — nombre de lignes sur la hauteur.\n * - `uFlicker` — part du grain anime.\n */\nexport const SCANLINES_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uLines;\nuniform float uFlicker;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat tubeHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float t = uTime;\n\n  // Les lignes : un sinus de y, eleve au carre pour creuser les interlignes\n  // sans durcir les cretes.\n  float ligne = 0.5 + 0.5 * sin(vUv.y * max(uLines, 1.0) * 6.28318);\n  ligne = 0.35 + 0.65 * ligne * ligne;\n\n  // La barre qui roule : la partie fractionnaire de y decalee par le temps\n  // fait boucler la descente sans aucun test.\n  float roulement = fract(vUv.y + t * uSpeed * 0.2);\n  float barre = smoothstep(0.0, 0.12, roulement) * smoothstep(0.30, 0.12, roulement);\n\n  // Le grain : un hachage du pixel rejoue par paliers de temps. Discret —\n  // le palier tient l'image quelques centiemes — parce qu'un tirage par\n  // image scintille au lieu de granuler.\n  float palier = floor(t * 18.0);\n  float grain = (tubeHash(floor(vUv * uResolution * 0.5) + palier) - 0.5) * uFlicker * 0.35;\n\n  vec3 colour = mix(uColorA, uColorB, ligne * (0.75 + grain));\n  colour = mix(colour, uColorC, barre * 0.30);\n\n  // Vignette : les coins d'un tube sont plus sombres que son centre.\n  vec2 ecart = (vUv - 0.5) * vec2(aspect, 1.0);\n  colour *= 1.0 - smoothstep(0.35, 0.85, length(ecart)) * 0.55;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Lignes de balayage : un ecran cathodique, sa barre qui roule et son grain.\n *\n * ## Le principe\n *\n * Tout tient dans des fonctions periodiques du seul axe vertical : un sinus pour les lignes, une partie fractionnaire decalee par le temps pour la barre.\n *\n * Le grain est rejoue par paliers de temps, jamais par image — un tirage par image scintille au lieu de granuler.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SCANLINES_FRAGMENT } from './scanlines.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface ScanlinesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface ScanlinesOwnProps {\n  /** Vitesse de la barre qui roule. @defaultValue 0.5 */\n  speed?: number\n  /** Nombre de lignes sur la hauteur. @defaultValue 90 */\n  lines?: number\n  /** Part du grain anime. @defaultValue 0.4 */\n  flicker?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<ScanlinesControls>\n}\n\n/** Toutes les proprietes. */\nexport type ScanlinesProps = Customisable<ScanlinesOwnProps>\n\n/** Tokens employes par defaut : le tube, le phosphore, la barre. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-green-400',\n  '--o-palette-emerald-200',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Lignes de balayage.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Scanlines className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Scanlines({\n  speed = 0.5,\n  lines = 90,\n  flicker = 0.4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: ScanlinesProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SCANLINES_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uLines: lines, uFlicker: flicker },\n    name: 'scanlines',\n    // Le grain est la seule valeur recalculee a chaque palier de temps : sur\n    // un ecran dont la densite a ete plafonnee, c'est aussi ce qui fourmille\n    // le plus. Il est donc le reglage borne.\n    degrade: (quality) => ({\n      uFlicker: quality === 'low' ? Math.min(flicker, 0.15) : flicker,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

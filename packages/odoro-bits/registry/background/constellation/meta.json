@@ -1,0 +1,74 @@
+{
+  "name": "constellation",
+  "category": "background",
+  "title": "Constellation",
+  "description": "Des points en errance lente, relies par un segment quand ils sont proches — d autant plus net que la distance est courte — et que le pointeur attire.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Constellation.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-theme-fg", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 110,
+      "description": "Nombre de points. Retrograde a 55 en qualite basse.",
+      "min": 20,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 0.9,
+      "description": "Distance en dessous de laquelle deux points sont relies, en unites de scene.",
+      "min": 0.3,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "attract",
+      "type": "number",
+      "default": 1,
+      "description": "Force de traction du pointeur. Zero la coupe.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.6,
+      "description": "Vitesse de l errance.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les points, les segments."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Recherche des paires en n carre sur le processeur, tampon de segments prealloue pour toutes les paires et trace sur sa seule plage vivante. Le nombre de points suit la qualite retenue ; le rendu se suspend hors du champ."
+  }
+}

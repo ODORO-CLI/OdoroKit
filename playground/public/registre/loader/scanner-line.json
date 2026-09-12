@@ -1,0 +1,76 @@
+{
+  "name": "scanner-line",
+  "category": "loader",
+  "title": "Ligne de balayage",
+  "description": "Un faisceau a coeur net parcourt une zone bornee par quatre equerres, marque un temps a chaque extremite, et repart, en CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ScannerLine.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 160,
+      "unit": "px",
+      "description": "Largeur de la zone examinee.",
+      "min": 64,
+      "max": 480,
+      "step": 8
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur de la zone examinee. Elle fixe la course du faisceau.",
+      "min": 32,
+      "max": 320,
+      "step": 8
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet, temps d arret compris.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du cadre et du faisceau. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation CSS de deplacement, tenue par le compositeur, aucun JavaScript apres le premier rendu. Faisceau pose en bas de la zone sous mouvement reduit."
+  },
+  "id": "loader/scanner-line",
+  "sources": {
+    "component.tsx": "/**\n * Ligne de balayage : un faisceau parcourt une zone du haut vers le bas,\n * marque un temps, et remonte.\n *\n * ## Un faisceau a une epaisseur, pas seulement une position\n *\n * Une simple barre de deux pixels qui descend ne se lit pas comme un\n * balayage : rien ne dit dans quel sens elle va, ni qu'elle eclaire quelque\n * chose. Le faisceau est donc une bande, dont le degrade monte jusqu'a un\n * coeur net puis redescend — symetrique, pour que le trajet aller et le\n * trajet retour aient la meme allure sans avoir a retourner l'element.\n *\n * Le temps d'arret a chaque extremite fait toute la lecture : sans lui, le\n * faisceau rebondit, et un rebond raconte une balle, pas une lecture. Avec\n * lui, on lit une passe qui se termine, puis une autre qui commence.\n *\n * Les quatre equerres ne sont pas un ornement : elles disent ou s'arrete la\n * zone examinee, donc ce que la course du faisceau signifie. Le cadre\n * complet, lui, reste tres attenue — il borne sans concurrencer le faisceau.\n *\n * La course est posee en variable, calculee depuis la hauteur demandee :\n * l'animation vaut pour toutes les tailles sans qu'aucune mesure ne soit\n * lue dans le document.\n *\n * Une seule animation CSS, tenue par le compositeur, aucun JavaScript apres\n * le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le cadre et le\n * faisceau sont retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le faisceau est pose en bas de la zone : la passe\n * est finie, la zone entierement parcourue.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-scanner-line'\n\n/**\n * Les quatre equerres.\n *\n * Chacune est le meme carre borde, place dans un coin, a qui l'on retire\n * les deux bords tournes vers l'interieur : une seule forme, quatre poses,\n * au lieu de quatre jeux de bordures a tenir en accord.\n */\nconst CORNERS: readonly { readonly key: string; readonly place: CSSProperties }[] = [\n  { key: 'haut-gauche', place: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 } },\n  { key: 'haut-droite', place: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 } },\n  { key: 'bas-gauche', place: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 } },\n  { key: 'bas-droite', place: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 } },\n]\n\n/** Pose la zone, ses equerres et le faisceau, une fois par document. */\nfunction ensureScannerRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-scanner-line]{position:relative;display:inline-block;overflow:hidden}',\n    '[data-o-scanner-frame]{position:absolute;inset:0;border:1px solid currentColor;opacity:0.22;border-radius:6px}',\n    '[data-o-scanner-corner]{position:absolute;border:2px solid currentColor}',\n    // Le coeur net au milieu, l'etalement de part et d'autre : le faisceau\n    // se lit dans les deux sens de marche.\n    '[data-o-scanner-beam]{',\n    'position:absolute;left:0;right:0;top:0;height:var(--o-scanner-beam);',\n    'background:linear-gradient(to bottom,transparent,',\n    'color-mix(in oklab,currentColor 28%,transparent) 40%,',\n    'currentColor 48%,currentColor 52%,',\n    'color-mix(in oklab,currentColor 28%,transparent) 60%,transparent);',\n    'animation:o-scanner-line-sweep var(--o-scanner-speed) infinite;',\n    '}',\n    // Descente, arret en bas, remontee, arret en haut.\n    '@keyframes o-scanner-line-sweep{',\n    '0%{transform:translateY(0);animation-timing-function:cubic-bezier(0.45,0,0.55,1)}',\n    '44%,56%{transform:translateY(var(--o-scanner-travel));animation-timing-function:cubic-bezier(0.45,0,0.55,1)}',\n    '94%,100%{transform:translateY(0)}',\n    '}',\n    // Faisceau pose en bas : la passe est finie.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-scanner-beam]{animation:none;transform:translateY(var(--o-scanner-travel))}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ScannerLineOwnProps {\n  /** Largeur de la zone examinee, en pixels. @defaultValue 160 */\n  size?: number\n  /** Hauteur de la zone examinee, en pixels. @defaultValue 96 */\n  height?: number\n  /** Duree d'un aller-retour complet, en millisecondes. @defaultValue 2200 */\n  speed?: number\n  /** Couleur du cadre et du faisceau. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ScannerLineProps = Customisable<ScannerLineOwnProps, 'span'>\n\n/**\n * Signale une attente par un faisceau qui balaie une zone.\n *\n * @example\n * <ScannerLine />\n *\n * @example\n * // Une bande large et basse, plus rapide, dans la teinte de marque.\n * <ScannerLine size={280} height={64} speed={1400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function ScannerLine({\n  size = 160,\n  height = 96,\n  speed = 2200,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: ScannerLineProps): ReactElement {\n  ensureScannerRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // L'epaisseur du faisceau suit la zone, sans jamais l'avaler : sur une\n  // bande basse, une bande fixe de vingt pixels serait la moitie du sujet.\n  const beam = Math.max(8, Math.min(height * 0.2, 28))\n\n  // Les equerres suivent la meme logique, bornees pour rester lisibles.\n  const bracket = Math.max(8, Math.min(size, height) * 0.16)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(height)}px`,\n    color,\n    '--o-scanner-speed': `${String(speed)}ms`,\n    '--o-scanner-beam': `${String(beam)}px`,\n    '--o-scanner-travel': `${String(height - beam)}px`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-scanner-line=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span data-o-scanner-frame=\"\" aria-hidden />\n      {CORNERS.map((corner) => (\n        <span\n          key={corner.key}\n          data-o-scanner-corner=\"\"\n          aria-hidden\n          style={{\n            ...corner.place,\n            width: `${String(bracket)}px`,\n            height: `${String(bracket)}px`,\n          }}\n        />\n      ))}\n      <span data-o-scanner-beam=\"\" aria-hidden />\n    </span>\n  )\n}\n"
+  }
+}

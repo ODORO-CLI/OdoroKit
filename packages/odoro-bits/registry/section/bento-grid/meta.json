@@ -1,0 +1,66 @@
+{
+  "name": "bento-grid",
+  "category": "section",
+  "title": "Grille bento",
+  "description": "Des tuiles de tailles inegales qui donnent une hierarchie, revelees en cascade a l entree.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/BentoGrid.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly BentoItem[]",
+      "required": true,
+      "description": "Les tuiles, dans l ordre de lecture."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 4,
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "rowHeight",
+      "type": "number",
+      "default": 180,
+      "unit": "px",
+      "description": "Hauteur d une rangee.",
+      "min": 80,
+      "max": 360,
+      "step": 10
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 60,
+      "unit": "ms",
+      "description": "Decalage entre deux tuiles a la revelation.",
+      "min": 0,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis des transitions CSS decalees. Aucun JavaScript par image."
+  }
+}

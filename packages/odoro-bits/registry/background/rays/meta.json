@@ -1,0 +1,78 @@
+{
+  "name": "rays",
+  "category": "background",
+  "title": "Rayons",
+  "description": "Des rais crepusculaires radiaux : un bruit 1D de l angle autour d un foyer reglable, attenue par la distance, au scintillement lent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "rays.shader.ts",
+      "target": "background/rays.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Rays.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-orange-500", "--o-palette-amber-200"],
+  "props": [
+    {
+      "name": "x",
+      "type": "number",
+      "default": 0.5,
+      "description": "Position horizontale du foyer, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "y",
+      "type": "number",
+      "default": 0.75,
+      "description": "Position verticale du foyer, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de rayons sur le tour.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "softness",
+      "type": "number",
+      "default": 0.5,
+      "description": "Douceur des rais. Bas, ils sont fins et durs.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-orange-500, --o-palette-amber-200",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sinus de l angle et deux exponentielles par fragment, sans aucune boucle. En qualite basse, une seule harmonique reste."
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "name": "water-surface",
+  "category": "background",
+  "title": "Surface d eau",
+  "description": "Une nappe de vagues de Gerstner vue en rasant : de face l eau, au ras le ciel, et le soleil qui scintille sur des ridules de bruit. Le pointeur fait glisser la camera.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "water-surface.shader.ts",
+      "target": "background/water-surface.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/WaterSurface.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-sky-600", "--o-palette-sky-200"],
+  "props": [
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 0.12,
+      "description": "Hauteur de la vague principale, en unites de scene.",
+      "min": 0.02,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "wavelength",
+      "type": "number",
+      "default": 1.6,
+      "description": "Longueur de la vague principale, en unites de scene.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "choppiness",
+      "type": "number",
+      "default": 0.6,
+      "description": "Pincement des cretes, entre zero et un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse des vagues.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "sun",
+      "type": "number",
+      "default": 1,
+      "description": "Intensite du soleil sur l eau.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 0.15,
+      "description": "Glissement de la camera sous le pointeur. Zero la fige.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-sky-600, --o-palette-sky-200",
+      "description": "Tokens du fond et de la brume, de l eau, du ciel reflechi."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Quatre vagues par sommet, trois lectures de bruit par fragment pour les ridules. La subdivision de la nappe suit la qualite retenue, et le rendu se suspend hors du champ."
+  }
+}

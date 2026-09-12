@@ -1,0 +1,55 @@
+{
+  "name": "blueprint",
+  "category": "background",
+  "title": "Plan technique",
+  "description": "Un quadrillage clair sur fond profond, avec des croix aux intersections principales. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Blueprint.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-sky-200", "--o-theme-bg"],
+  "props": [
+    {
+      "name": "cell",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Pas de la maille. Les croix tombent toutes les quatre mailles.",
+      "min": 8,
+      "max": 64,
+      "step": 4
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.4,
+      "description": "Opacite des traits, entre 0 et 1.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits et des croix."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre degrades CSS repetes : aucun script, aucun contexte graphique."
+  }
+}

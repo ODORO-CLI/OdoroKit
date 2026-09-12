@@ -1,0 +1,78 @@
+{
+  "name": "lava-lamp",
+  "category": "background",
+  "title": "Lampe a lave",
+  "description": "Des gouttes de cire etirees qui montent et redescendent lentement dans une colonne, chaque goutte prenant sa couleur de sa hauteur, sur une reserve chauffee par le bas.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "lava-lamp.shader.ts",
+      "target": "background/lava-lamp.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LavaLamp.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-fuchsia-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.08,
+      "description": "Vitesse de la montee. Une lampe reelle est tres lente.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "drops",
+      "type": "number",
+      "default": 5,
+      "description": "Nombre de gouttes. Retrograde a 3 en qualite basse.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "default": 1.6,
+      "description": "Etirement vertical des gouttes. A 1, elles sont rondes.",
+      "min": 1,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 0.5,
+      "description": "Lueur de la chauffe, en bas de la colonne.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-fuchsia-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la cire chaude du bas, la cire refroidie du haut."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Une somme de huit champs au plus, ponderee pour la couleur, plus un bruit de valeur pour la reserve. Le nombre de gouttes suit la qualite."
+  }
+}

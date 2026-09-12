@@ -1,0 +1,78 @@
+{
+  "name": "marble",
+  "category": "background",
+  "title": "Marbre",
+  "description": "Des veines de marbre en bruit deforme trois fois, tres lentes, fines et contrastees, relevees d un filet d accent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "marble.shader.ts",
+      "target": "background/marble.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Marble.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-muted", "--o-palette-amber-400"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.03,
+      "description": "Vitesse de la deformation. Le marbre bouge a peine.",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.2,
+      "description": "Echelle du motif. Plus haut, plus fin.",
+      "min": 0.4,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "veins",
+      "type": "number",
+      "default": 0.6,
+      "description": "Finesse des veines. Plus haut, plus fines et plus nettes.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "default": 4,
+      "description": "Octaves de chaque bruit. Retrograde a 2 en qualite basse.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : la pierre, les veines, le filet d accent."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sommes d octaves enchainees par fragment, chacune deformant le domaine de la suivante. En qualite basse, les octaves tombent a deux."
+  }
+}

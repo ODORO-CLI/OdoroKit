@@ -138,6 +138,16 @@ function ensurePricingRule(): void {
  *   ]}
  * />
  */
+/**
+ * Filet et voile tires de l encre courante.
+ *
+ * Le systeme n a pas de classe pour une couleur partiellement transparente
+ * derivee de `currentColor` : `o-border-current/15` n existe pas, et une classe
+ * absente ne peint rien. Le melange se fait donc en style, ou il est exact.
+ */
+const FILET = 'color-mix(in oklab, currentColor 15%, transparent)'
+const VOILE = 'color-mix(in oklab, currentColor 10%, transparent)'
+
 export function PricingTiers({
   tiers,
   as: Tag = 'section',
@@ -169,7 +179,8 @@ export function PricingTiers({
           role="radiogroup"
           aria-label="Periode de facturation"
           data-o-period=""
-          className="o-mb-6 o-border-w-1 o-border-current/15"
+          className="o-mb-6 o-border-w-1"
+          style={{ borderColor: FILET }}
         >
           {[
             { valeur: false, libelle: 'Mensuel' },
@@ -190,8 +201,11 @@ export function PricingTiers({
               <span
                 className={
                   annuel === choix.valeur
-                    ? 'o-bg-current/10 o-font-medium'
+                    ? 'o-font-medium'
                     : 'o-opacity-70'
+                }
+                style={
+                  annuel === choix.valeur ? { backgroundColor: VOILE } : undefined
                 }
               >
                 {choix.libelle}
@@ -213,8 +227,9 @@ export function PricingTiers({
                 'o-rounded-xl o-border-w-1 o-p-6',
                 tier.featured === true
                   ? 'o-border-current o-shadow-lg'
-                  : 'o-border-current/15',
+                  : '',
               ].join(' ')}
+              style={tier.featured === true ? undefined : { borderColor: FILET }}
             >
               <h3 className="o-text-sm o-font-semibold o-uppercase o-tracking-wider">
                 {tier.name}
@@ -255,10 +270,17 @@ export function PricingTiers({
                 }}
                 className={[
                   'o-mt-6 o-w-full o-rounded-lg o-px-4 o-py-2 o-text-sm o-font-medium',
-                  tier.featured === true
-                    ? 'o-bg-current o-text-inverse'
-                    : 'o-border-w-1 o-border-current/20',
+                  tier.featured === true ? '' : 'o-border-w-1',
                 ].join(' ')}
+                // `background-color: currentColor` sur un bouton dont on
+                // redefinit la couleur peint le fond de l encre : les deux
+                // valent alors la meme chose et le libelle disparait. Les deux
+                // roles sont donc nommes, chacun par son propre token.
+                style={
+                  tier.featured === true
+                    ? { backgroundColor: 'var(--o-theme-fg)', color: 'var(--o-theme-bg)' }
+                    : { borderColor: FILET }
+                }
               >
                 {tier.cta ?? 'Choisir'}
               </button>

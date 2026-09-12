@@ -1,0 +1,82 @@
+{
+  "name": "iridescence",
+  "category": "background",
+  "title": "Iridescence",
+  "description": "Une nacre qui ondule doucement : la teinte tourne avec l inclinaison de la surface, deux reflets se posent par addition.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "iridescence.shader.ts",
+      "target": "background/iridescence.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Iridescence.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-pink-300",
+    "--o-palette-teal-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse de l ondulation.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.4,
+      "description": "Echelle des ondes. Plus haut, plus serre.",
+      "min": 0.4,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "shimmer",
+      "type": "number",
+      "default": 0.7,
+      "description": "Force des reflets.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "bands",
+      "type": "number",
+      "default": 2.5,
+      "description": "Tours de teinte sur la hauteur de la surface.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-pink-300, --o-palette-teal-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les deux teintes de la nacre."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Quatre ondes analytiques et trois puissances par fragment, sans boucle. En qualite basse, deux ondes restent."
+  }
+}

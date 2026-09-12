@@ -1,0 +1,93 @@
+{
+  "name": "seismograph",
+  "category": "background",
+  "title": "Sismographe",
+  "description": "Des traces horizontales sur un papier qui defile ; chaque clic pose un stylet et ecrit une secousse amortie qui s eloigne avec le papier, plus forte sur les traces a sa hauteur. Huit secousses vivent a la fois.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "seismograph.shader.ts",
+      "target": "background/seismograph.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Seismograph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "traces",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "Nombre de traces. Borne a huit par le shader.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "scroll",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Vitesse du papier, en largeurs de cadre par seconde.",
+      "min": 0.02,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "decay",
+      "type": "number",
+      "required": false,
+      "default": 1.5,
+      "description": "Vitesse d amortissement des secousses.",
+      "min": 0.3,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Force des secousses.",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le papier, l encre des traces, l encre fraiche d une secousse."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Trois evaluations de trace par fragment, huit clics chacune ; chaque clic date une secousse dans un tampon circulaire mute en place, sans rendu React par image. En qualite basse, trois traces.",
+    "fallback": "static"
+  },
+  "id": "background/seismograph",
+  "sources": {
+    "seismograph.shader.ts": "/**\n * Shader du sismographe.\n *\n * ## L'idee mathematique\n *\n * Le papier defile vers la gauche ; les stylets sont fixes. Un fragment a\n * l'abscisse x porte donc ce qu'un stylet y a ecrit a un instant passe, et\n * cet instant se calcule : le point de papier sous le fragment etait sous\n * le stylet il y a `(xStylet - x) / vitesse` secondes. Un clic pose un stylet\n * a son abscisse ; la secousse qu'il ecrit est un sinus amorti du temps\n * ecoule depuis le clic, et elle ne peut exister que sur le papier deja\n * passe sous ce stylet — entre le point du clic et la longueur de papier\n * defilee depuis.\n *\n * Chaque trace est confinee a sa bande horizontale : la secousse est ponderee\n * par la distance verticale entre la trace et le clic, en gaussienne, et son\n * amplitude est bornee a une demi-bande. Le fragment n'evalue donc que sa\n * propre trace, et les huit clics vivants.\n *\n * La pente de la trace est obtenue par difference finie plutot que par\n * derivation analytique : la somme de huit sinus amortis fenetres se derive\n * mal, et deux evaluations de plus coutent moins qu'une formule fausse.\n *\n * Un clic a -1000 a un age enorme : sa secousse est eteinte d'office.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le papier.\n * - `uColorB` — l'encre des traces.\n * - `uColorC` — l'encre fraiche d'une secousse.\n * - `uClicks` — huit clics (x, y, temps de depart), tampon circulaire.\n * - `uTraces` — nombre de traces.\n * - `uScroll` — vitesse du papier, en largeurs de cadre par seconde.\n * - `uDecay` — vitesse d'amortissement des secousses.\n * - `uAmplitude` — force des secousses, en demi-bandes.\n */\nexport const SEISMOGRAPH_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec3 uClicks[8];\nuniform float uTraces;\nuniform float uScroll;\nuniform float uDecay;\nuniform float uAmplitude;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat sismoHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur a une dimension le long du papier, par trace.\nfloat sismoNoise(float u, float row) {\n  float cell = floor(u);\n  float local = fract(u);\n  float smoothed = local * local * (3.0 - 2.0 * local);\n  return mix(sismoHash(vec2(cell, row)), sismoHash(vec2(cell + 1.0, row)), smoothed);\n}\n\n// La secousse ecrite sur le papier a l'abscisse x, pour la trace donnee.\n// Rend un deplacement en fraction de demi-bande, et la fraicheur de l'encre.\nvec2 secousse(float x, float centre, float traces) {\n  float shake = 0.0;\n  float fresh = 0.0;\n\n  // Bornes constantes : la specification du langage l'exige, et huit\n  // secousses vivantes suffisent — la neuvieme serait deja sortie du cadre.\n  for (int i = 0; i < 8; i += 1) {\n    vec3 clic = uClicks[i];\n    float age = uTime - clic.z;\n\n    // Le temps ecoule depuis le clic quand ce point de papier etait sous le\n    // stylet : negatif a droite du stylet (pas encore ecrit), superieur a\n    // l'age a gauche de la longueur defilee (ecrit avant le clic).\n    float tau = age + (x - clic.x) / max(uScroll, 0.001);\n    float written = step(0.0, tau) * step(tau, age);\n\n    // Un sinus amorti, dont la frequence baisse avec le temps comme une\n    // replique s'assourdit.\n    float envelope = exp(-uDecay * max(tau, 0.0));\n    float wave = sin(tau * (28.0 - 12.0 * clamp(tau, 0.0, 1.0)));\n\n    // La trace ne tremble que si le clic est a sa hauteur.\n    float reach = exp(-pow((centre - clic.y) * traces * 0.8, 2.0));\n\n    shake += wave * envelope * written * reach;\n    fresh = max(fresh, envelope * written * reach);\n  }\n\n  return vec2(shake, fresh);\n}\n\n// L'ordonnee de la trace a l'abscisse x : son axe, le tremblement de fond du\n// papier, la secousse.\nfloat trace(float x, float index, float traces, float pitch) {\n  float centre = (index + 0.5) * pitch;\n\n  // Le papier en coordonnees propres : ce qui y est ecrit defile avec lui.\n  float paper = x + uTime * uScroll;\n  float jitter = (sismoNoise(paper * 60.0, index) - 0.5) * pitch * 0.12;\n\n  float shake = clamp(secousse(x, centre, traces).x * uAmplitude, -1.0, 1.0);\n  return centre + jitter + shake * pitch * 0.45;\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float traces = clamp(uTraces, 1.0, 8.0);\n  float pitch = 1.0 / traces;\n  float index = floor(vUv.y * traces);\n  float px = 1.0 / max(uResolution.y, 1.0);\n\n  // Pente par difference finie, deux lectures de part et d'autre.\n  float e = 1.5 / max(uResolution.x, 1.0);\n  float y = trace(vUv.x, index, traces, pitch);\n  float slope = (trace(vUv.x + e, index, traces, pitch) - trace(vUv.x - e, index, traces, pitch))\n    / (2.0 * e * aspect);\n  float d = abs(vUv.y - y) / sqrt(1.0 + slope * slope);\n\n  float ink = 1.0 - smoothstep(px * 0.7, px * 1.9, d);\n  float fresh = secousse(vUv.x, (index + 0.5) * pitch, traces).y;\n\n  // Le papier : une regle fine par bande, et des graduations qui defilent.\n  float rule = 1.0 - smoothstep(px * 0.5, px * 1.5, abs(fract(vUv.y * traces + 0.5) - 0.5) * pitch);\n  float paper = vUv.x + uTime * uScroll;\n  float tick = 1.0 - smoothstep(0.0, 1.5 / max(uResolution.x, 1.0), abs(fract(paper * 20.0 + 0.5) - 0.5) / 20.0);\n\n  vec3 colour = mix(uColorA, uColorB, rule * 0.12 + tick * 0.06);\n  colour = mix(colour, uColorB, ink * 0.9);\n  colour = mix(colour, uColorC, ink * fresh);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Sismographe : des traces horizontales sur un papier qui defile, qui tressaillent au clic.\n *\n * ## A quoi ce fond reagit\n *\n * Au clic — ou au toucher — sur le cadre : chaque appui pose un stylet a son\n * abscisse et date une secousse dans un tampon circulaire de huit\n * emplacements. La secousse s'ecrit sur le papier au passage du stylet et\n * s'eloigne avec lui vers la gauche, plus forte sur les traces a la hauteur\n * du clic. Le deplacement du pointeur, lui, ne change rien.\n *\n * ## Le pont clic → shader\n *\n * Aucun rendu React par image : le tampon est un tableau stable de vingt-\n * quatre flottants (huit fois x, y, temps de depart), mute en place a chaque\n * clic. La surface relit ses uniforms a chaque image, l'identite du tableau ne\n * change pas — la mutation suffit.\n *\n * Le temps ecrit dans le tampon est celui de l'horloge du moteur, memorise par\n * une souscription en priorite d'entree : c'est le meme temps que `uTime` du\n * shader, sans quoi la position de la secousse sur le papier serait fausse.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { SEISMOGRAPH_FRAGMENT } from './seismograph.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SeismographControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SeismographOwnProps {\n  /** Nombre de traces. Borne a huit par le shader. @defaultValue 5 */\n  traces?: number\n  /** Vitesse du papier, en largeurs de cadre par seconde. @defaultValue 0.12 */\n  scroll?: number\n  /** Vitesse d'amortissement des secousses. @defaultValue 1.5 */\n  decay?: number\n  /** Force des secousses. @defaultValue 1 */\n  amplitude?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SeismographControls>\n}\n\n/** Toutes les proprietes. */\nexport type SeismographProps = Customisable<SeismographOwnProps>\n\n/** Tokens employes par defaut : le papier, l'encre, l'encre fraiche. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-fg',\n  '--o-palette-brand-500',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/** Nombre de secousses vivantes a la fois. */\nconst SLOTS = 8\n\n/**\n * Nombre de traces en qualite basse.\n *\n * Chaque fragment evalue trois fois sa trace — la pente vient d'une\n * difference finie — et chaque evaluation parcourt les huit clics. Le nombre\n * de traces ne change rien a ce compte ; mais des traces serrees, a densite\n * de pixels reduite, scintillent. Moins de traces, plus d'espace.\n */\nconst LOW_TRACES = 3\n\n/**\n * Sismographe.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Seismograph className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Seismograph({\n  traces = 5,\n  scroll = 0.12,\n  decay = 1.5,\n  amplitude = 1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SeismographProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tampon stable, mute en place : huit fois (x, y, temps de depart). Un\n  // depart a -1000 donne un age enorme, donc une secousse eteinte d'office.\n  const uClicks = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current\n\n  // Le temps de l'horloge du moteur — le meme que uTime du shader. C'est lui\n  // qui date les clics ; performance.now() donnerait une autre origine.\n  const lastTime = useRef(0)\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      ({ time }) => {\n        lastTime.current = time\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'seismograph : horloge' },\n    )\n    return () => subscription.unsubscribe()\n  }, [])\n\n  useEffect(() => {\n    if (host === null) return\n\n    const onDown = (event: PointerEvent): void => {\n      const bounds = host.getBoundingClientRect()\n      const x = (event.clientX - bounds.left) / Math.max(bounds.width, 1)\n      // vUv a son origine en bas : l'axe vertical de l'ecran est inverse.\n      const y = 1 - (event.clientY - bounds.top) / Math.max(bounds.height, 1)\n\n      // Tampon circulaire : tout se decale d'un cran, le nouveau clic en tete.\n      for (let i = SLOTS - 1; i > 0; i -= 1) {\n        uClicks[i * 3] = uClicks[(i - 1) * 3] ?? -1000\n        uClicks[i * 3 + 1] = uClicks[(i - 1) * 3 + 1] ?? -1000\n        uClicks[i * 3 + 2] = uClicks[(i - 1) * 3 + 2] ?? -1000\n      }\n      uClicks[0] = x\n      uClicks[1] = y\n      uClicks[2] = lastTime.current\n    }\n\n    host.addEventListener('pointerdown', onDown)\n    return () => host.removeEventListener('pointerdown', onDown)\n  }, [host, uClicks])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: SEISMOGRAPH_FRAGMENT,\n      colors,\n      uniforms: {\n        uClicks,\n        uTraces: traces,\n        uScroll: scroll,\n        uDecay: decay,\n        uAmplitude: amplitude,\n      },\n      name: 'seismograph',\n      degrade: (quality) => ({\n        uTraces: quality === 'low' ? Math.min(traces, LOW_TRACES) : traces,\n      }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

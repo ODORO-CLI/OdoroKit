@@ -1,0 +1,96 @@
+{
+  "name": "crystal",
+  "category": "background",
+  "title": "Cristal",
+  "description": "Un prisme a pointes et facettes plates qui tourne ; la refraction est feinte par un fresnel et un degrade lu dans la direction refractee, la dispersion par trois indices, sans environnement.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "crystal.shader.ts",
+      "target": "background/crystal.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Crystal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-poster",
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-sky-300",
+    "--o-palette-violet-400"
+  ],
+  "props": [
+    {
+      "name": "facets",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Nombre de faces laterales.",
+      "min": 3,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "dispersion",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Separation des couleurs sur les aretes, entre zero et un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Inclinaison vers le pointeur. Zero la supprime.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-sky-300, --o-palette-violet-400",
+      "description": "Tokens du fond, de la teinte basse, de la teinte haute et des reflets."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Quelques dizaines de triangles en deux passes — l arriere puis l avant — et trois refractions par fragment. Le rendu se suspend hors du champ.",
+    "fallback": "poster"
+  },
+  "id": "background/crystal",
+  "sources": {
+    "crystal.shader.ts": "/**\n * Shaders du cristal : des facettes plates et une refraction feinte.\n *\n * ## L'idee\n *\n * Un vrai cristal refracte ce qu'il y a derriere lui. Ici il n'y a rien\n * derriere — pas d'environnement, pas de texture — et c'est voulu : un\n * environnement se telecharge, se prepare, et pese. A la place, la direction\n * refractee sert d'indice dans un degrade vertical entre deux teintes : une\n * facette qui devie le regard vers le haut prend l'une, vers le bas l'autre.\n * Comme chaque facette est plate, chaque facette a sa couleur propre, et le\n * cristal se lit par ses aretes.\n *\n * La dispersion est feinte de la meme facon : trois indices de refraction,\n * un par canal, et les couleurs se separent d'un liseret sur les aretes.\n *\n * ## Deux passes\n *\n * Les faces arriere sont dessinees d'abord, plus sombres, puis les faces\n * avant par-dessus : c'est la profondeur du cristal, ce qu'on voit a travers\n * lui de lui-meme. Le fragment recoit `uBack` pour savoir laquelle des deux\n * il dessine, parce que les faces arriere sont retournees par le moteur de\n * rendu et se croient de face.\n *\n * @module\n */\n\n/** Vertex shader : normale de facette et position en espace vue. */\nexport const CRYSTAL_VERTEX = /* glsl */ `\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\n\nvoid main() {\n  vNormal = normalize(normalMatrix * normal);\n  vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);\n  vViewPosition = viewPosition.xyz;\n  gl_Position = projectionMatrix * viewPosition;\n}\n`\n\n/** Fragment shader : refraction feinte, dispersion, fresnel, deux reflets. */\nexport const CRYSTAL_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform float uDispersion;\nuniform float uBack;\n\nvarying vec3 vNormal;\nvarying vec3 vViewPosition;\n\n// Le degrade que la refraction \"voit\" : d'une teinte en bas a l'autre en haut.\nvec3 crystalGradient(float t) {\n  return mix(uColorA, uColorB, smoothstep(-0.7, 0.8, t));\n}\n\nvoid main() {\n  // Les faces arriere sont retournees par le moteur : leur normale regarde\n  // vers l'interieur, et le fresnel les prendrait toutes pour des aretes.\n  vec3 normal = normalize(vNormal) * (1.0 - 2.0 * uBack);\n  vec3 view = normalize(-vViewPosition);\n  float facing = max(dot(normal, view), 0.0);\n  float fresnel = pow(1.0 - facing, 3.0);\n\n  // Trois indices, trois directions, une couleur par canal.\n  float eta = 1.0 / 1.45;\n  float spread = uDispersion * 0.07;\n  vec3 red = refract(-view, normal, eta - spread);\n  vec3 green = refract(-view, normal, eta);\n  vec3 blue = refract(-view, normal, eta + spread);\n  vec3 refracted = vec3(\n    crystalGradient(red.y + red.x * 0.35).r,\n    crystalGradient(green.y + green.x * 0.35).g,\n    crystalGradient(blue.y + blue.x * 0.35).b\n  );\n\n  vec3 light = normalize(vec3(0.5, 0.8, 0.6));\n  float diffuse = max(dot(normal, light), 0.0);\n  float specular = pow(max(dot(normal, normalize(light + view)), 0.0), 80.0);\n\n  // Un second reflet, bas et a gauche : le rebond du sol, plus large.\n  vec3 bounce = normalize(vec3(-0.7, -0.2, 0.4));\n  float rebond = pow(max(dot(normal, normalize(bounce + view)), 0.0), 40.0) * 0.4;\n\n  // La part ambiante est haute : un cristal sombre sur un fond sombre n'est\n  // plus qu'une silhouette, et c'est par ses facettes qu'il doit se lire.\n  vec3 colour = refracted * (0.55 + 0.55 * diffuse) + uColorB * (specular + rebond + fresnel * 0.4);\n\n  // Les faces arriere, vues a travers, sont plus discretes.\n  float alpha = (0.55 + 0.45 * fresnel + specular * 0.5) * mix(1.0, 0.55, uBack);\n\n  gl_FragColor = vec4(colour, clamp(alpha, 0.0, 1.0));\n}\n`\n",
+    "component.tsx": "/**\n * Cristal : un solide a facettes qui tourne, et feint de refracter.\n *\n * ## Pourquoi une scene, et pas un shader plein ecran\n *\n * Des facettes plates dont chacune prend sa couleur selon l'angle qu'elle\n * fait avec l'oeil, des aretes vives, une profondeur ou l'arriere se voit a\n * travers l'avant : c'est une affaire de geometrie, pas de fragment.\n *\n * ## La geometrie n'est pas un solide du catalogue\n *\n * Deux anneaux de sommets et deux pointes, aux rayons legerement inegaux :\n * un prisme a pointes, comme une pointe de quartz, dont aucune facette n'est\n * exactement pareille a sa voisine. Les triangles ne partagent aucun sommet,\n * pour que chaque facette garde sa normale plate — c'est ce qui la fait\n * facette.\n *\n * ## Ce que le pointeur fait\n *\n * Le cristal s'incline vers le curseur, avec amortissement, et les facettes\n * changent de teinte en changeant d'angle. Le reglage `parallax` dose cette\n * inclinaison ; a zero, seule la rotation reste.\n *\n * ## Le repli\n *\n * Pendant le chargement de la scene, sans WebGL, sous mouvement reduit, ou si\n * l'arbitre refuse une seconde scene, un degrade flou prend la place — dans\n * les memes tons, sans bord dur.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  useOnReady,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\nimport { usePoster } from '@registre/hooks/usePoster'\n\nimport { CRYSTAL_FRAGMENT, CRYSTAL_VERTEX } from './crystal.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CrystalControls {\n  /** Contexte de la scene : objets, camera, moteur de rendu, module. */\n  readonly scene: SceneContext\n  /** Uniformes vivants : les modifier change le rendu a l'image suivante. */\n  readonly uniforms: Record<string, { value: unknown }>\n}\n\n/** Proprietes propres au composant. */\nexport interface CrystalOwnProps {\n  /** Nombre de faces laterales. @defaultValue 6 */\n  facets?: number\n  /** Vitesse de rotation, en tours par minute. @defaultValue 3 */\n  rpm?: number\n  /** Separation des couleurs sur les aretes, entre zero et un. @defaultValue 0.6 */\n  dispersion?: number\n  /** Inclinaison vers le pointeur. @defaultValue 0.25 */\n  parallax?: number\n  /** Tokens : le fond, la teinte basse, la teinte haute et les reflets. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CrystalControls>\n}\n\n/** Toutes les proprietes. */\nexport type CrystalProps = Customisable<CrystalOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-sky-300',\n  '--o-palette-violet-400',\n] as const\n\n/** Repli par defaut : un eclat fige, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-tr o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-200 dark:o-via-sky-900 o-to-violet-300 dark:o-to-violet-900 o-blur-2xl o-scale-110'\n\n/** Proportions du cristal : demi-hauteur du fut, hauteur des pointes, rayon. */\nconst SHAPE = { body: 0.75, tip: 1.5, radius: 0.62 } as const\n\n/** Ce que la boucle manipule, construit une fois par montage. */\ninterface World {\n  readonly group: InstanceType<SceneContext['three']['Group']>\n}\n\n/** Nombre pseudo-aleatoire d'un indice, stable d'un montage a l'autre. */\nfunction hash(index: number): number {\n  const x = Math.sin(index * 127.1 + 311.7) * 43758.5453123\n  return x - Math.floor(x)\n}\n\n/**\n * Construit le prisme a pointes, en triangles independants.\n *\n * L'orientation de chaque triangle est verifiee contre son centre : un\n * triangle dont la normale regarde vers l'interieur est retourne. C'est plus\n * sur que de raisonner sur le sens de parcours des anneaux, et cela ne coute\n * qu'un produit vectoriel par face, une fois.\n */\n// Le type de retour est laisse a l'inference : ecrit a la main depuis le\n// module, il prend le parametre generique par defaut, que `Mesh` refuse.\nfunction crystalGeometry(three: SceneContext['three'], sides: number) {\n  const count = Math.max(3, Math.round(sides))\n  const lower: [number, number, number][] = []\n  const upper: [number, number, number][] = []\n  for (let index = 0; index < count; index += 1) {\n    const angle = (index / count) * Math.PI * 2\n    // Des rayons inegaux : aucune facette n'est la copie de sa voisine.\n    const low = SHAPE.radius * (0.82 + hash(index * 3 + 1) * 0.36)\n    const high = SHAPE.radius * (0.82 + hash(index * 3 + 2) * 0.36)\n    lower.push([Math.cos(angle) * low, -SHAPE.body, Math.sin(angle) * low])\n    upper.push([Math.cos(angle) * high, SHAPE.body + (hash(index) - 0.5) * 0.2, Math.sin(angle) * high])\n  }\n  const bottom: [number, number, number] = [0, -SHAPE.tip, 0]\n  const top: [number, number, number] = [0.06, SHAPE.tip, -0.04]\n\n  const triangles: [number, number, number][][] = []\n  for (let index = 0; index < count; index += 1) {\n    const next = (index + 1) % count\n    const l0 = lower[index] ?? bottom\n    const l1 = lower[next] ?? bottom\n    const u0 = upper[index] ?? top\n    const u1 = upper[next] ?? top\n    triangles.push([bottom, l0, l1])\n    triangles.push([l0, u0, u1], [l0, u1, l1])\n    triangles.push([top, u1, u0])\n  }\n\n  const positions = new Float32Array(triangles.length * 9)\n  triangles.forEach((triangle, face) => {\n    const [a, b, c] = triangle\n    if (a === undefined || b === undefined || c === undefined) return\n    const abx = b[0] - a[0]\n    const aby = b[1] - a[1]\n    const abz = b[2] - a[2]\n    const acx = c[0] - a[0]\n    const acy = c[1] - a[1]\n    const acz = c[2] - a[2]\n    const nx = aby * acz - abz * acy\n    const ny = abz * acx - abx * acz\n    const nz = abx * acy - aby * acx\n    const cx = (a[0] + b[0] + c[0]) / 3\n    const cy = (a[1] + b[1] + c[1]) / 3\n    const cz = (a[2] + b[2] + c[2]) / 3\n    const outward = nx * cx + ny * cy + nz * cz >= 0\n    const ordered = outward ? [a, b, c] : [a, c, b]\n    ordered.forEach((vertex, corner) => {\n      positions.set(vertex, face * 9 + corner * 3)\n    })\n  })\n\n  const geometry = new three.BufferGeometry()\n  geometry.setAttribute('position', new three.BufferAttribute(positions, 3))\n  geometry.computeVertexNormals()\n  return geometry\n}\n\n/**\n * Cristal.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <Crystal className=\"o-absolute o-inset-0\" facets={8} />\n *   <div className=\"o-relative o-z-10\">…</div>\n * </div>\n */\nexport function Crystal({\n  facets = 6,\n  rpm = 3,\n  dispersion = 0.6,\n  parallax = 0.25,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  onReady,\n  ...rest\n}: CrystalProps): ReactElement {\n  const { theme } = useMotionState()\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  const pointer = usePointerDamped({ host, speed: 2.5, name: 'crystal : pointeur' })\n\n  const uniforms = useRef<Record<string, { value: unknown }>>({})\n  const context = useRef<SceneContext | null>(null)\n  const world = useRef<World | null>(null)\n\n  // Les reglages sont lus par ref dans la boucle : un changement de curseur\n  // dans l'atelier prend effet a l'image suivante sans reconstruire la scene.\n  const settings = useRef({ rpm, dispersion, parallax })\n  settings.current = { rpm, dispersion, parallax }\n\n  const { ref, ready, refused } = useScene<HTMLDivElement>({\n    name: 'crystal',\n    setup: (scene) => {\n      context.current = scene\n      const { three, camera, renderer } = scene\n\n      const paint = (value: ShaderColour): InstanceType<typeof three.Color> =>\n        new three.Color(value[0], value[1], value[2])\n      const [background, low, high] = colors.map((token) => readTokenColour(token, host))\n\n      // Le fond est la couleur du theme. Le token est en sRGB et le moteur\n      // encode sa couleur d'effacement du lineaire vers le sRGB : sans la\n      // conversion inverse, le fond ressort un cran plus clair que la page.\n      renderer.setClearColor(paint(background ?? [0, 0, 0]).convertSRGBToLinear(), 1)\n\n      // Les deux passes partagent leurs couleurs : les memes objets, pour\n      // qu'un changement de theme les repeigne toutes les deux d'un coup.\n      const shared = {\n        uColorA: { value: paint(low ?? [0, 0, 0]) },\n        uColorB: { value: paint(high ?? [0, 0, 0]) },\n        uDispersion: { value: dispersion },\n      }\n      uniforms.current = { ...shared, uBack: { value: 0 } }\n      const backUniforms = { ...shared, uBack: { value: 1 } }\n\n      const geometry = crystalGeometry(three, facets)\n      const back = new three.ShaderMaterial({\n        vertexShader: CRYSTAL_VERTEX,\n        fragmentShader: CRYSTAL_FRAGMENT,\n        uniforms: backUniforms,\n        transparent: true,\n        depthWrite: false,\n        side: three.BackSide,\n      })\n      const front = new three.ShaderMaterial({\n        vertexShader: CRYSTAL_VERTEX,\n        fragmentShader: CRYSTAL_FRAGMENT,\n        uniforms: uniforms.current,\n        transparent: true,\n        depthWrite: false,\n        side: three.FrontSide,\n      })\n\n      // L'arriere d'abord, l'avant par-dessus : l'ordre de rendu le garantit,\n      // le tri par distance ne le ferait pas pour deux maillages confondus.\n      const inner = new three.Mesh(geometry, back)\n      inner.renderOrder = 0\n      const outer = new three.Mesh(geometry, front)\n      outer.renderOrder = 1\n\n      const group = new three.Group()\n      group.name = 'crystal'\n      group.add(inner, outer)\n      scene.scene.add(group)\n\n      camera.position.set(0, 0, 4.2)\n      camera.lookAt(0, 0, 0)\n\n      world.current = { group }\n\n      return () => {\n        scene.scene.remove(group)\n        geometry.dispose()\n        back.dispose()\n        front.dispose()\n        world.current = null\n      }\n    },\n\n    frame: (_scene, { time, delta }) => {\n      const live = world.current\n      if (live === null) return\n      const { rpm: turns, dispersion: split, parallax: lean } = settings.current\n      const { group } = live\n\n      // La rotation est exprimee en fonction du temps ecoule : le meme\n      // reglage donne la meme vitesse a soixante comme a cent vingt images.\n      group.rotation.y += (delta * turns * Math.PI * 2) / 60\n\n      // Une precession lente, et l'inclinaison vers le pointeur par-dessus.\n      const targetZ = Math.sin(time * 0.3) * 0.12 - pointer.current.x * lean\n      const targetX = Math.cos(time * 0.23) * 0.08 + pointer.current.y * lean * 0.6\n      group.rotation.z += (targetZ - group.rotation.z) * Math.min(1, delta * 2.5)\n      group.rotation.x += (targetX - group.rotation.x) * Math.min(1, delta * 2.5)\n\n      const uniform = uniforms.current['uDispersion']\n      if (uniform !== undefined) uniform.value = split\n    },\n  })\n\n  // Le theme a bascule : les tokens sont relus et les couleurs mises a jour\n  // en place. La scene n'est pas reconstruite — seules ses couleurs changent.\n  useEffect(() => {\n    const scene = context.current\n    const live = uniforms.current\n    if (scene === null || live['uColorA'] === undefined) return\n    const [background, low, high] = colors.map((token) => readTokenColour(token, host))\n    const paint = (key: string, value: ShaderColour | undefined): void => {\n      const uniform = live[key]\n      if (uniform === undefined || value === undefined) return\n      ;(uniform.value as { setRGB: (r: number, g: number, b: number) => unknown }).setRGB(\n        value[0],\n        value[1],\n        value[2],\n      )\n    }\n    paint('uColorA', low)\n    paint('uColorB', high)\n    if (background !== undefined) {\n      scene.renderer.setClearColor(\n        new scene.three.Color(background[0], background[1], background[2]).convertSRGBToLinear(),\n        1,\n      )\n    }\n  }, [theme, colors, host])\n\n  const pending = usePoster({ ready, refused })\n\n  useOnReady(\n    onReady,\n    ready && context.current !== null\n      ? { scene: context.current, uniforms: uniforms.current }\n      : null,\n    host,\n  )\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {pending.visible ? (\n        <div style={pending.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

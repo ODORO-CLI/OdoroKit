@@ -1,0 +1,100 @@
+{
+  "name": "audio-bars",
+  "category": "background",
+  "title": "Barres d egaliseur",
+  "description": "Des barres verticales qui pulsent comme un analyseur de spectre, sans aucun son : un bruit lisse en temps par barre, une enveloppe qui favorise les graves, un indicateur de crete qui retombe.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "audio-bars.shader.ts",
+      "target": "background/audio-bars.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/AudioBars.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "bars",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "description": "Nombre de barres. Borne a quatre-vingt-seize par le shader.",
+      "min": 8,
+      "max": 96,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse du spectre.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Espace entre barres, en fraction de leur pas.",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.05
+    },
+    {
+      "name": "segments",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "description": "Segments par barre. Zero donne des barres pleines.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "mirror",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Spectre symetrique autour du milieu du cadre."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, le pied des barres, leur sommet et le pic."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux bruits de valeur a une dimension par fragment. En qualite basse, vingt-quatre barres, pour que les segments restent au-dessus de deux pixels.",
+    "fallback": "gradient"
+  },
+  "id": "background/audio-bars",
+  "sources": {
+    "audio-bars.shader.ts": "/**\n * Shader des barres d'egaliseur.\n *\n * ## L'idee mathematique\n *\n * Aucun son n'est ecoute : le niveau de chaque barre est un bruit de valeur\n * lu en (indice de barre, temps). Le bruit est lisse en temps — la barre\n * monte et descend, elle ne saute pas — et independant d'une barre a l'autre\n * — deux voisines ne bougent pas ensemble. C'est ce couple qui fait croire\n * a un spectre.\n *\n * Une enveloppe en cloche centree sur le premier tiers donne plus de hauteur\n * aux graves qu'aux aigus, comme sur un vrai analyseur ; un battement lent\n * commun a toutes les barres tient lieu de mesure.\n *\n * Le pic est un second bruit, lu plus lentement et pris au maximum avec le\n * niveau : il descend apres la barre, ce qui est exactement ce que fait un\n * indicateur de crete a retombee.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le pied des barres.\n * - `uColorC` — leur sommet et le pic.\n * - `uBars` — nombre de barres.\n * - `uSpeed` — vitesse du spectre.\n * - `uGap` — espace entre barres, en fraction de leur pas.\n * - `uSegments` — nombre de segments par barre ; zero pour des barres pleines.\n * - `uMirror` — un pour un spectre symetrique autour du milieu.\n */\nexport const AUDIO_BARS_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uBars;\nuniform float uSpeed;\nuniform float uGap;\nuniform float uSegments;\nuniform float uMirror;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat barreHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur, lisse en temps seulement : les barres sont independantes,\n// donc l'interpolation ne se fait que sur l'axe du temps.\nfloat niveau(float bar, float t) {\n  float cell = floor(t);\n  float local = fract(t);\n  float smoothed = local * local * (3.0 - 2.0 * local);\n  float a = barreHash(vec2(bar, cell));\n  float b = barreHash(vec2(bar, cell + 1.0));\n  return mix(a, b, smoothed);\n}\n\nvoid main() {\n  float bars = clamp(uBars, 4.0, 96.0);\n  float index = floor(vUv.x * bars);\n  float local = fract(vUv.x * bars);\n  float t = uTime * uSpeed;\n\n  // Enveloppe en cloche sur le premier tiers : les graves montent plus haut.\n  float position = (index + 0.5) / bars;\n  float envelope = 0.35 + 0.65 * exp(-pow((position - 0.3) * 2.4, 2.0));\n\n  // Le battement commun : la mesure que toutes les barres suivent.\n  float beat = 0.85 + 0.15 * sin(t * 2.4);\n\n  float level = envelope * beat * (0.12 + 0.88 * niveau(index, t * 3.0));\n  float peak = max(level, envelope * (0.12 + 0.88 * niveau(index + 0.5, t * 1.1))) + 0.03;\n\n  // La hauteur lue : depuis le bas, ou depuis le milieu en miroir.\n  float y = mix(vUv.y, abs(vUv.y - 0.5) * 2.0, uMirror);\n  float px = 1.0 / max(uResolution.y, 1.0);\n\n  float demi = clamp(uGap, 0.0, 0.9) * 0.5;\n  float column = step(demi, local) * step(local, 1.0 - demi);\n\n  float fill = (1.0 - smoothstep(level - px, level + px, y)) * column;\n\n  // Les segments : des rangees de fond a intervalle regulier.\n  float segments = max(uSegments, 0.0);\n  float rows = fract(y * segments);\n  float led = mix(1.0, step(0.25, rows), step(1.0, segments));\n  fill *= led;\n\n  // Le pic : un segment fin, un cran au-dessus du niveau.\n  float cap = (1.0 - smoothstep(px * 1.5, px * 3.0, abs(y - peak))) * column;\n\n  // Du pied au sommet, la couleur monte vers l'eclat.\n  float rise = clamp(y / max(level, 0.001), 0.0, 1.0);\n\n  vec3 colour = mix(uColorA, uColorB, fill);\n  colour = mix(colour, uColorC, fill * rise * rise);\n  colour = mix(colour, uColorC, cap * 0.9);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Barres d'egaliseur : des barres verticales qui pulsent comme un analyseur de spectre.\n *\n * ## Le principe\n *\n * Aucun son n'est ecoute : chaque barre lit un bruit de valeur lisse en\n * temps et independant de ses voisines, sous une enveloppe qui favorise les\n * graves et un battement commun qui tient lieu de mesure. Un indicateur de\n * crete, lu plus lentement, retombe apres la barre.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { AUDIO_BARS_FRAGMENT } from './audio-bars.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface AudioBarsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface AudioBarsOwnProps {\n  /** Nombre de barres. Borne a quatre-vingt-seize par le shader. @defaultValue 48 */\n  bars?: number\n  /** Vitesse du spectre. @defaultValue 1 */\n  speed?: number\n  /** Espace entre barres, en fraction de leur pas. @defaultValue 0.35 */\n  gap?: number\n  /** Segments par barre. Zero donne des barres pleines. @defaultValue 24 */\n  segments?: number\n  /** Spectre symetrique autour du milieu. @defaultValue false */\n  mirror?: boolean\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<AudioBarsControls>\n}\n\n/** Toutes les proprietes. */\nexport type AudioBarsProps = Customisable<AudioBarsOwnProps>\n\n/** Tokens employes par defaut : le fond, le pied des barres, leur sommet. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-brand-500',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-t o-from-brand-950 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Nombre de barres en qualite basse.\n *\n * Le cout par fragment ne bouge pas avec le nombre de barres. Ce qui bouge,\n * c'est la largeur des segments et des espaces : sous deux pixels, ils\n * scintillent. Moins de barres, plus larges, et le trame tient.\n */\nconst LOW_BARS = 24\n\n/**\n * Barres d'egaliseur.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <AudioBars className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function AudioBars({\n  bars = 48,\n  speed = 1,\n  gap = 0.35,\n  segments = 24,\n  mirror = false,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: AudioBarsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: AUDIO_BARS_FRAGMENT,\n    colors,\n    uniforms: {\n      uBars: bars,\n      uSpeed: speed,\n      uGap: gap,\n      uSegments: segments,\n      uMirror: mirror ? 1 : 0,\n    },\n    name: 'audio-bars',\n    degrade: (quality) => ({\n      uBars: quality === 'low' ? Math.min(bars, LOW_BARS) : bars,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

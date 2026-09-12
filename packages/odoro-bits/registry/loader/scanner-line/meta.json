@@ -1,0 +1,67 @@
+{
+  "name": "scanner-line",
+  "category": "loader",
+  "title": "Ligne de balayage",
+  "description": "Un faisceau a coeur net parcourt une zone bornee par quatre equerres, marque un temps a chaque extremite, et repart, en CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ScannerLine.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 160,
+      "unit": "px",
+      "description": "Largeur de la zone examinee.",
+      "min": 64,
+      "max": 480,
+      "step": 8
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur de la zone examinee. Elle fixe la course du faisceau.",
+      "min": 32,
+      "max": 320,
+      "step": 8
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet, temps d arret compris.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du cadre et du faisceau. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation CSS de deplacement, tenue par le compositeur, aucun JavaScript apres le premier rendu. Faisceau pose en bas de la zone sous mouvement reduit."
+  }
+}

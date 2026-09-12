@@ -1,0 +1,66 @@
+{
+  "name": "sortable-list",
+  "category": "ui",
+  "title": "Liste reordonnable",
+  "description": "Une liste dont on change l ordre a la souris par sa poignee, ou au clavier — Espace saisit, les fleches deplacent, Espace depose — chaque etape etant annoncee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/SortableList.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-fast",
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les lignes, indexees par identifiant."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la liste pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "readonly string[]",
+      "description": "Ordre des identifiants, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "readonly string[]",
+      "description": "Ordre au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(order: readonly string[]) => void",
+      "description": "Appele avec le nouvel ordre, a chaque deplacement termine."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Neutralise la liste."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le glisser n ecrit que des transformations sur les elements : un seul rendu React, au lacher. Le deplacement au clavier est anime par FLIP, en une animation par ligne deplacee. Sous mouvement reduit, l ordre change sans trajet."
+  }
+}

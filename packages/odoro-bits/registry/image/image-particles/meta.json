@@ -1,0 +1,113 @@
+{
+  "name": "image-particles",
+  "category": "image",
+  "title": "Image en particules",
+  "description": "La photo est echantillonnee dans un canevas hors du document, dispersee en points colores, puis rassemblee jusqu a la reformer.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "image-particles.shader.ts",
+      "target": "image/image-particles.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "image/ImageParticles.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 140,
+      "description": "Nombre de points sur la largeur, avant reduction par la qualite.",
+      "min": 40,
+      "max": 220,
+      "step": 10
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 1.1,
+      "description": "Taille d un point, en cellules.",
+      "min": 0.4,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "scatter",
+      "type": "number",
+      "default": 0.7,
+      "description": "Distance de dispersion au depart, en unites de scene.",
+      "min": 0,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree du rassemblement.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.6,
+      "description": "Vitesse de la respiration, une fois l image formee.",
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 0.16,
+      "description": "Inclinaison du nuage sous le pointeur. Zero la fige.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "default": "--o-theme-bg",
+      "description": "Token dont la couleur peint le fond de la scene."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "static",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage, plus une lecture de pixels au chargement de l image. La densite suit la qualite retenue et le rendu se suspend hors du champ. Le repli est l image elle-meme, posee sous le canevas : elle reste seule sans WebGL, sous mouvement reduit, et quand l arbitre refuse la surface."
+  }
+}

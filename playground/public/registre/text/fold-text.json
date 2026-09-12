@@ -1,0 +1,84 @@
+{
+  "name": "fold-text",
+  "category": "text",
+  "title": "Texte plie",
+  "description": "Chaque lettre est un volet articule sur son bord superieur, qui se rabat en cascade sous une perspective courte.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/FoldText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 620,
+      "unit": "ms",
+      "description": "Duree du depliage d une lettre.",
+      "min": 150,
+      "max": 2000,
+      "step": 10
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "ms",
+      "description": "Retard entre deux lettres.",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    {
+      "name": "perspective",
+      "type": "number",
+      "required": false,
+      "default": 420,
+      "unit": "px",
+      "description": "Distance de fuite. Plus bas, plus marque.",
+      "min": 120,
+      "max": 1600,
+      "step": 20
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "required": false,
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": [
+        "montage",
+        "vue",
+        "survol"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation composee par lettre, programmee une fois. A reserver aux titres : un paragraphe entier ferait autant de calques que de caracteres."
+  },
+  "id": "text/fold-text",
+  "sources": {
+    "component.tsx": "/**\n * Pliage : chaque lettre bascule vers l'avant, charniere en haut.\n *\n * ## Une charniere, pas une chute\n *\n * `falling-text` translate les lettres depuis le haut : elles arrivent de\n * l'exterieur. Ici rien ne se deplace — chaque lettre est un volet articule\n * sur son bord superieur, qui part presque a plat et se rabat. Sous une\n * perspective courte, la lettre se raccourcit puis retrouve sa hauteur, comme\n * un panneau qu'on deplie.\n *\n * C'est la perspective du conteneur qui fait tout : sans elle, une rotation\n * autour de l'axe X n'est qu'un ecrasement vertical.\n *\n * ## L'etat plie n'est pose que si l'effet aura lieu\n *\n * Le piege des revelations : cacher en CSS, montrer en JavaScript. Si le\n * JavaScript ne vient jamais, le titre reste invisible. L'etat plie est donc\n * ecrit par le meme code qui programme le depliage — et, au survol, il n'est\n * meme pas ecrit du tout : c'est l'animation elle-meme qui le porte, le temps\n * de son retard.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Les lettres sont des elements pour recevoir chacune leur retard. Le texte\n * complet figure une fois, d'un seul tenant, et les lettres sont retirees de\n * l'arbre d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * Aucun decoupage, aucune animation : le titre est rendu tel quel, deplie.\n * C'est l'etat d'arrivee.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, type CSSProperties, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Ce qui declenche le depliage. */\nexport type FoldTextDeclenchement = 'montage' | 'vue' | 'survol'\n\n/** Proprietes propres au composant. */\nexport interface FoldTextOwnProps {\n  /** Texte a plier. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree du depliage d'une lettre, en millisecondes. @defaultValue 620 */\n  duration?: number\n  /** Retard entre deux lettres, en millisecondes. @defaultValue 40 */\n  step?: number\n  /** Distance de fuite, en pixels. Plus bas, plus marque. @defaultValue 420 */\n  perspective?: number\n  /**\n   * Quand plier.\n   *\n   * `vue` attend l'entree dans le champ, `montage` part tout de suite,\n   * `survol` rejoue a chaque entree du pointeur.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: FoldTextDeclenchement\n}\n\n/** Toutes les proprietes. */\nexport type FoldTextProps = Customisable<FoldTextOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = '\\u00A0'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-fold-text'\n\n/**\n * Depart legerement au-dela de la verticale : un volet qui part exactement a\n * quatre-vingt-dix degres est invisible, et le depliage semble commencer dans\n * le vide. Deux degres de plus suffisent a le faire exister.\n */\nconst PLIE = 'rotateX(-98deg)'\n\n/** Sortie franche puis amortie : le volet arrive, il ne s'arrete pas net. */\nconst COURBE = 'cubic-bezier(0.22, 1, 0.36, 1)'\n\n/** Pose les regles du pliage, une fois par document. */\nfunction ensureFoldRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-fold]{display:inline-block;perspective:var(--o-fold-fuite)}',\n    // La charniere est le bord superieur de la lettre.\n    '[data-o-fold-letter]{display:inline-block;transform-origin:50% 0%}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Deplie un texte lettre a lettre, comme une suite de volets.\n *\n * @example\n * <FoldText as=\"h1\" className=\"o-text-5xl o-font-bold\">\n *   Ca se deplie\n * </FoldText>\n *\n * @example\n * // Rejoue a chaque survol, en cascade lente.\n * <FoldText declenchement=\"survol\" step={90} duration={900}>Encore</FoldText>\n */\nexport function FoldText({\n  children,\n  as: Tag = 'span',\n  duration = 620,\n  step = 40,\n  perspective = 420,\n  declenchement = 'vue',\n  ...rest\n}: FoldTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  ensureFoldRule()\n\n  useEffect(() => {\n    const element = ref.current\n    if (element === null || reduced) return\n\n    const lettres = [\n      ...element.querySelectorAll<HTMLElement>('[data-o-fold-letter]'),\n    ]\n    if (lettres.length === 0) return\n\n    let animations: Animation[] = []\n\n    const arreter = (): void => {\n      for (const animation of animations) animation.cancel()\n      animations = []\n    }\n\n    const jouer = (): void => {\n      arreter()\n      lettres.forEach((lettre, index) => {\n        lettre.style.opacity = ''\n        animations.push(\n          lettre.animate(\n            [\n              { transform: PLIE, opacity: 0 },\n              { transform: 'rotateX(0deg)', opacity: 1 },\n            ],\n            { duration, delay: index * step, easing: COURBE, fill: 'both' },\n          ),\n        )\n      })\n    }\n\n    if (declenchement === 'survol') {\n      // Rien n'est cache d'avance : le retard de chaque animation porte lui-meme\n      // l'etat plie, et un titre jamais survole reste donc parfaitement lisible.\n      const entrer = (): void => {\n        jouer()\n      }\n      element.addEventListener('pointerenter', entrer)\n      return () => {\n        element.removeEventListener('pointerenter', entrer)\n        arreter()\n      }\n    }\n\n    if (!vu) {\n      // L'etat plie est ecrit ici, pas dans le rendu : voir l'en-tete.\n      for (const lettre of lettres) lettre.style.opacity = '0'\n      return\n    }\n\n    jouer()\n    return () => {\n      arreter()\n      for (const lettre of lettres) lettre.style.opacity = ''\n    }\n  }, [ref, reduced, vu, children, duration, step, declenchement])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, deplie, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const styleRacine = {\n    ...style,\n    '--o-fold-fuite': `${String(perspective)}px`,\n  } as CSSProperties\n\n  const lettres = [...children]\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={styleRacine} data-o-fold=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) => (\n          <span key={`${lettre}-${String(index)}`} data-o-fold-letter=\"\">\n            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                l'insecable garde sa largeur. */}\n            {lettre === ' ' ? NBSP : lettre}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

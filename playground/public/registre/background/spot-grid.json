@@ -1,0 +1,70 @@
+{
+  "name": "spot-grid",
+  "category": "background",
+  "title": "Points masques",
+  "description": "Une grille de points en degrade repete, estompee vers les bords par un masque radial. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/SpotGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "px",
+      "description": "Pas de la grille.",
+      "min": 8,
+      "max": 80,
+      "step": 4
+    },
+    {
+      "name": "dot",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "unit": "px",
+      "description": "Rayon d un point.",
+      "min": 1,
+      "max": 6,
+      "step": 0.5
+    },
+    {
+      "name": "vignette",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Force de la vignette, entre 0 et 1. Zero la retire.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade radial repete et un masque : aucun script, aucun contexte graphique."
+  },
+  "id": "background/spot-grid",
+  "sources": {
+    "component.tsx": "/**\n * Points masques : une grille de points estompee vers les bords par un masque.\n *\n * ## Pourquoi un masque plutot qu'un degrade de plus\n *\n * Estomper le motif avec un degrade superpose obligerait a connaitre la\n * couleur du fond pour peindre par-dessus — le composant cesserait d'etre\n * posable n'importe ou. Un `mask-image` retire de l'opacite au lieu d'ajouter\n * de la peinture : la vignette fonctionne sur n'importe quel fond, clair ou\n * sombre, sans rien savoir de lui.\n *\n * ## Pourquoi la vignette est un reglage continu\n *\n * A zero, le masque disparait completement — pas un masque transparent, pas de\n * masque du tout, le compositeur n'ayant alors rien a composer. Entre les\n * deux, la valeur rapproche simplement le debut de l'estompe du centre.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface SpotGridOwnProps {\n  /** Pas de la grille, en pixels. @defaultValue 24 */\n  gap?: number\n  /** Rayon d'un point, en pixels. @defaultValue 2 */\n  dot?: number\n  /** Force de la vignette, entre 0 et 1. Zero la retire. @defaultValue 0.6 */\n  vignette?: number\n  /** Couleur des points. */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type SpotGridProps = Customisable<SpotGridOwnProps>\n\n/**\n * Grille de points de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <SpotGrid className=\"o-absolute o-inset-0\" gap={32} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function SpotGrid({\n  gap = 24,\n  dot = 2,\n  vignette = 0.6,\n  color = 'color-mix(in oklab, var(--o-theme-muted, oklch(55.2% 0.016 285.938)) 35%, transparent)',\n  ...rest\n}: SpotGridProps): ReactElement {\n  const radius = `${String(dot)}px`\n  const period = `${String(gap)}px`\n\n  const mask =\n    vignette > 0\n      ? `radial-gradient(ellipse at center, black ${String(Math.round(75 - vignette * 55))}%, transparent 100%)`\n      : undefined\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundImage: `radial-gradient(circle, ${color} ${radius}, transparent ${radius})`,\n          backgroundSize: `${period} ${period}`,\n          ...(mask === undefined ? {} : { WebkitMaskImage: mask, maskImage: mask }),\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

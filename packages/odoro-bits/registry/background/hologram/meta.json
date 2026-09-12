@@ -1,0 +1,78 @@
+{
+  "name": "hologram",
+  "category": "background",
+  "title": "Hologramme",
+  "description": "Une sphere en meridiens et paralleles projetee au-dessus d un socle d anneaux : elle tourne, sa face arriere s efface, une bande de balayage la traverse, et elle scintille et saute par paliers.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "hologram.shader.ts",
+      "target": "background/hologram.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Hologram.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-cyan-500", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "meridians",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de meridiens.",
+      "min": 2,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "parallels",
+      "type": "number",
+      "default": 7,
+      "description": "Nombre de paralleles.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 4,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "flicker",
+      "type": "number",
+      "default": 0.5,
+      "description": "Force du scintillement et des sauts de cote. Zero les coupe.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-cyan-500, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues : le fond, les lignes et le socle, la bande de balayage."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Geometrie construite une fois ; la boucle ne touche qu une rotation et trois uniformes. Le nombre de segments par cercle suit la qualite retenue ; le rendu se suspend hors du champ."
+  }
+}

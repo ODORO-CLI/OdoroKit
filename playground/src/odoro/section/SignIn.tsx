@@ -56,6 +56,22 @@ export type SignInStep = 'email' | 'code' | 'success'
 
 /** Proprietes propres au composant. */
 export interface SignInOwnProps {
+  /**
+   * Ecran affiche, impose par l'application.
+   *
+   * ## Pourquoi cette prop existe
+   *
+   * Sans elle, le composant avance seul des que le code est complet — donc
+   * aussi quand il est **faux**. L'application recoit `onCodeSubmit`, part
+   * verifier, et pendant ce temps l'utilisateur lit deja « Vous y etes ». Le
+   * message d'erreur arrive sur un ecran de reussite, ce qui est pire que pas
+   * de message du tout.
+   *
+   * Fournie, elle rend le parcours controle : le composant signale, et c'est
+   * l'application qui decide de l'ecran. Absente, il avance seul — ce qui
+   * convient a une demonstration, pas a une vraie authentification.
+   */
+  step?: SignInStep
   /** Nombre de caracteres du code. @defaultValue 6 */
   codeLength?: number
   /** Titre du premier ecran. */
@@ -116,6 +132,13 @@ function ensureSignInRule(): void {
   document.head.append(style)
 }
 
+/** Ce que la region vivante annonce a chaque changement d'ecran. */
+const STEP_ANNOUNCEMENT: Readonly<Record<SignInStep, string>> = {
+  email: 'Saisissez votre adresse electronique.',
+  code: 'Un code vous a ete envoye. Saisissez-le.',
+  success: 'Connexion reussie.',
+}
+
 /** Ne retient que les chiffres d'une chaine collee. */
 function digitsOf(value: string): string {
   return value.replace(/\D/g, '')
@@ -141,6 +164,7 @@ function digitsOf(value: string): string {
  * />
  */
 export function SignIn({
+  step: imposedStep,
   codeLength = 6,
   title = 'Content de vous revoir',
   subtitle = 'Entrez votre adresse pour recevoir un code.',
@@ -156,7 +180,11 @@ export function SignIn({
   ...rest
 }: SignInProps): ReactElement {
   const { reduced } = useMotionState()
-  const [step, setStep] = useState<SignInStep>('email')
+  const [ownStep, setOwnStep] = useState<SignInStep>('email')
+  // L'application l'emporte quand elle se prononce. Le composant garde tout de
+  // meme son propre etat : elle peut cesser de le faire a tout moment, et le
+  // parcours doit reprendre ou il en etait plutot que de repartir a zero.
+  const step = imposedStep ?? ownStep
   const [email, setEmail] = useState('')
   const [code, setCode] = useState<readonly string[]>(() =>
     Array.from({ length: codeLength }, () => ''),
@@ -167,11 +195,26 @@ export function SignIn({
 
   const goTo = useCallback(
     (next: SignInStep): void => {
-      setStep(next)
+      setOwnStep(next)
       onStepChange?.(next)
     },
     [onStepChange],
   )
+
+  // La rangee suit la longueur demandee. Sans cela, `useState` n'ayant lu son
+  // initialisation qu'une fois, un changement de `codeLength` laisserait une
+  // rangee de l'ancienne taille : le code ne serait jamais reconnu complet, et
+  // le formulaire resterait bloque sans rien dire.
+  useEffect(() => {
+    setCode((current) =>
+      current.length === codeLength
+        ? current
+        : Array.from({ length: codeLength }, () => ''),
+    )
+    // La table des refs suit elle aussi : raccourcie, elle retiendrait sinon
+    // des elements retires du document, que rien ne viendrait relacher.
+    inputs.current.length = codeLength
+  }, [codeLength])
 
   // Le premier champ du code recoit le focus a l'arrivee sur l'ecran. Sans
   // cela, il faut viser une case de huit pixels de large pour commencer a
@@ -420,7 +463,10 @@ export function SignIn({
           ) : null}
 
           {/* Le changement d'ecran et l'erreur sont annonces : sans cela, une
-              navigation au clavier ne signale rien du tout. */}
+              navigation au clavier ne signale rien du tout. Le texte est une
+              phrase et non l'identifiant de l'etape : un lecteur d'ecran
+              prononcerait « etape code », ce qui ne veut rien dire pour
+              quelqu'un qui n'a pas le code sous les yeux. */}
           <p
             id="o-sign-in-error"
             role="status"
@@ -429,7 +475,7 @@ export function SignIn({
               error === undefined ? 'o-sr-only' : 'o-mt-4 o-text-sm o-text-red-400'
             }
           >
-            {error ?? `Etape : ${step}`}
+            {error ?? STEP_ANNOUNCEMENT[step]}
           </p>
         </div>
       </div>

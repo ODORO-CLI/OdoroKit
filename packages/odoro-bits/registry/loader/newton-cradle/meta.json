@@ -1,0 +1,57 @@
+{
+  "name": "newton-cradle",
+  "category": "loader",
+  "title": "Pendule de Newton",
+  "description": "Cinq billes suspendues : celle de gauche frappe, celle de droite s envole, et retour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/NewtonCradle.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d une bille. La longueur des fils en depend.",
+      "min": 5,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet, gauche puis droite.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des billes, des fils et de la barre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS de rotation tenues par le compositeur, les trois billes du milieu ne bougent jamais. Cinq billes au repos, alignees, sous mouvement reduit."
+  }
+}

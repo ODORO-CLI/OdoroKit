@@ -1,0 +1,65 @@
+{
+  "name": "blocks-stack",
+  "category": "loader",
+  "title": "Blocs empiles",
+  "description": "Quatre blocs tombent et s empilent en colonne, puis la pile bascule et s effondre, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BlocksStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Cote d un bloc. La hauteur de chute en depend.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, chute des quatre blocs et effondrement compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des blocs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Pile complete et debout sous mouvement reduit."
+  },
+  "id": "loader/blocks-stack",
+  "sources": {
+    "component.tsx": "/**\n * Blocs empiles : quatre blocs tombent l'un sur l'autre en colonne, la pile\n * tient un instant, puis bascule et s'effondre.\n *\n * ## Deux animations qui ne se connaissent pas\n *\n * La chute est propre a chaque bloc : il part du haut du conteneur, en\n * `ease-in` — la gravite accelere — et s'arrete net sur le bloc precedent.\n * L'effondrement, lui, est porte par la colonne entiere, qui pivote autour\n * de son coin inferieur droit et s'efface. Les blocs ne savent rien de la\n * bascule, la colonne ne sait rien des chutes : deux animations simples au\n * lieu d'une seule qui devrait tout coordonner, et une figure lisible — on\n * construit, puis tout tombe.\n *\n * Chaque bloc connait sa fenetre dans le cycle, par une animation propre\n * ecrite une fois dans la feuille ; c'est ce qui permet a la pile de tenir\n * entiere avant de tomber, la ou un simple dephasage donnerait une chute\n * perpetuelle.\n *\n * Le conteneur ne mesure qu'un bloc de large : la colonne renversee deborde\n * a droite le temps de s'effacer, sans toucher a la mise en page.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les blocs sont retires\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la pile reste complete et debout : la figure se\n * lit encore, seules la chute et la bascule s'arretent.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-blocks-stack'\n\n/** Nombre de blocs. */\nconst BLOCKS = 4\n\n/** Hauteur du conteneur, en blocs : la pile plus la marge d'ou ils tombent. */\nconst HEIGHT = BLOCKS + 2\n\n/** Part du cycle entre deux departs de chute, en pour cent. */\nconst STEP = 13\n\n/** Duree d'une chute, en pour cent du cycle. */\nconst DROP = 11\n\n/** Instant ou la pile complete commence a basculer, en pour cent. */\nconst TOPPLE_AT = 66\n\n/** Pose la colonne, les chutes et la bascule, une fois par document. */\nfunction ensureBlocksStackRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-blocks-stack]{',\n    'display:inline-flex;align-items:flex-end;',\n    `width:var(--o-bstack-size);height:calc(var(--o-bstack-size) * ${String(HEIGHT)});`,\n    '}',\n    '[data-o-blocks-stack-column]{',\n    'display:flex;flex-direction:column-reverse;',\n    'gap:calc(var(--o-bstack-size) * 0.15);transform-origin:bottom right;',\n    'animation:o-blocks-stack-topple var(--o-bstack-speed) infinite;',\n    '}',\n    '[data-o-blocks-stack-block]{',\n    'width:var(--o-bstack-size);height:var(--o-bstack-size);flex:none;',\n    'border-radius:calc(var(--o-bstack-size) / 5);background:var(--o-bstack-color);',\n    'animation-duration:var(--o-bstack-speed);animation-iteration-count:infinite;',\n    '}',\n    // Une chute par bloc : il part du haut du conteneur, invisible, et\n    // apparait en route pour ne pas surgir d'un coup.\n    ...Array.from({ length: BLOCKS }, (_, block) => {\n      const start = block * STEP\n      const end = start + DROP\n      const fall = HEIGHT - 1 - block\n      return [\n        `[data-o-blocks-stack-block=\"${String(block)}\"]{animation-name:o-blocks-stack-${String(block)}}`,\n        `@keyframes o-blocks-stack-${String(block)}{`,\n        `0%,${String(start)}%{transform:translateY(calc(var(--o-bstack-size) * ${String(-fall)}));opacity:0;animation-timing-function:ease-in}`,\n        `${String(start + 2)}%{opacity:1}`,\n        `${String(end)}%,100%{transform:none;opacity:1}`,\n        '}',\n      ].join('')\n    }),\n    // La colonne pivote sur son coin inferieur droit et s'efface au sol.\n    '@keyframes o-blocks-stack-topple{',\n    `0%,${String(TOPPLE_AT)}%{transform:none;opacity:1;animation-timing-function:ease-in}`,\n    `${String(TOPPLE_AT + 14)}%{transform:rotate(90deg);opacity:1}`,\n    `${String(TOPPLE_AT + 20)}%,100%{transform:rotate(90deg);opacity:0}`,\n    '}',\n    // Une pile debout : la figure est dite, sans chute ni bascule.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-blocks-stack-column]{animation:none;transform:none;opacity:1}',\n    '[data-o-blocks-stack-block]{animation:none;transform:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BlocksStackOwnProps {\n  /** Cote d'un bloc, en pixels. @defaultValue 10 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2200 */\n  speed?: number\n  /** Couleur des blocs. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BlocksStackProps = Customisable<BlocksStackOwnProps, 'span'>\n\n/**\n * Signale une attente par des blocs qui s'empilent puis s'effondrent.\n *\n * @example\n * <BlocksStack />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <BlocksStack size={14} speed={3000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function BlocksStack({\n  size = 10,\n  speed = 2200,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BlocksStackProps): ReactElement {\n  ensureBlocksStackRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-bstack-size': `${String(size)}px`,\n    '--o-bstack-speed': `${String(speed)}ms`,\n    '--o-bstack-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-blocks-stack=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-blocks-stack-column=\"\">\n        {Array.from({ length: BLOCKS }, (_, block) => (\n          <span key={block} data-o-blocks-stack-block={String(block)} />\n        ))}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

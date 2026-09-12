@@ -1,0 +1,93 @@
+{
+  "name": "strands",
+  "category": "background",
+  "title": "Meches",
+  "description": "Des brins ancres en bas du cadre, dont le balancement croit avec la hauteur : la racine tient, la pointe suit le courant avec retard, comme des algues.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "strands.shader.ts",
+      "target": "background/strands.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Strands.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-teal-700",
+    "--o-palette-teal-300"
+  ],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 18,
+      "description": "Nombre de meches. Borne a quarante par le shader.",
+      "min": 4,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "sway",
+      "type": "number",
+      "required": false,
+      "default": 0.7,
+      "description": "Amplitude du balancement, en largeurs de colonne.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Vitesse du courant.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 0.006,
+      "description": "Epaisseur a la racine, en fraction de la largeur du cadre.",
+      "min": 0.002,
+      "max": 0.02,
+      "step": 0.001
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-teal-700, --o-palette-teal-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps des meches, leur pointe."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois colonnes evaluees par fragment, quel que soit le nombre de meches. En qualite basse, dix meches.",
+    "fallback": "gradient"
+  },
+  "id": "background/strands",
+  "sources": {
+    "strands.shader.ts": "/**\n * Shader des meches.\n *\n * ## L'idee mathematique\n *\n * Chaque meche est un x = f(y) ancre en bas du cadre : sa position\n * horizontale est celle de sa colonne, plus un balancement qui grandit avec\n * la hauteur — nul a la racine, plein a la pointe. C'est cette croissance\n * en puissance de y qui fait l'algue : la base tient, la pointe suit le\n * courant avec retard.\n *\n * Le retard vient du balancement lui-meme, un sinus dont la phase depend de\n * y : la pointe n'est pas au meme instant de l'oscillation que le milieu, et\n * la meche ondule au lieu de pencher.\n *\n * Le fragment ne connait que sa colonne et ses deux voisines : le balancement\n * est borne a une largeur de colonne. Chaque meche a une hauteur propre, une\n * epaisseur qui s'amincit vers la pointe, et la distance au trait est divisee\n * par la norme de la pente pour que l'amincissement soit le seul a jouer.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le corps des meches.\n * - `uColorC` — leur pointe.\n * - `uCount` — nombre de meches.\n * - `uSway` — amplitude du balancement, en largeurs de colonne.\n * - `uSpeed` — vitesse du courant.\n * - `uThickness` — epaisseur a la racine, en fraction de la largeur.\n */\nexport const STRANDS_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uCount;\nuniform float uSway;\nuniform float uSpeed;\nuniform float uThickness;\n\n// Nombre pseudo-aleatoire : sinus amplifie, partie fractionnaire.\nfloat mecheHash(float n) {\n  return fract(sin(n * 12.9898 + 78.233) * 43758.5453123);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float t = uTime * uSpeed;\n\n  float count = clamp(uCount, 2.0, 40.0);\n  float pitch = 1.0 / count;\n  float sway = clamp(uSway, 0.0, 1.0) * pitch;\n\n  float px = 1.0 / max(uResolution.x, 1.0);\n  float column = floor(vUv.x * count);\n  float y = vUv.y;\n\n  // La racine tient, la pointe suit : le balancement croit en y^1.6.\n  float profile = pow(y, 1.6);\n\n  float body = 0.0;\n  float tip = 0.0;\n\n  for (int k = -1; k <= 1; k += 1) {\n    float i = column + float(k);\n    if (i < 0.0 || i >= count) continue;\n\n    float seed = mecheHash(i);\n    float phase = seed * 6.2831853;\n\n    // Deux sinus dephases en y : la pointe n'est pas au meme instant de\n    // l'oscillation que le milieu, donc la meche ondule au lieu de pencher.\n    float wave = sin(y * 3.0 - t + phase) * 0.6 + sin(y * 7.0 - t * 1.4 + phase * 2.3) * 0.4;\n    float x = (i + 0.5) * pitch + wave * sway * profile;\n\n    // Derivee en y, pour normaliser l'epaisseur. L'aspect ramene la pente\n    // dans le repere du pixel.\n    float slope = (cos(y * 3.0 - t + phase) * 1.8 + cos(y * 7.0 - t * 1.4 + phase * 2.3) * 2.8)\n      * sway * profile * aspect;\n\n    // Chaque meche a sa hauteur, et s'eteint sur ses derniers centimetres.\n    float height = 0.5 + seed * 0.45;\n    float alive = 1.0 - smoothstep(height - 0.12, height, y);\n\n    // L'epaisseur s'amincit vers la pointe, jamais sous un pixel.\n    float thickness = max(uThickness * (1.0 - 0.75 * y / height), px);\n    float d = abs(vUv.x - x) / sqrt(1.0 + slope * slope);\n    float line = (1.0 - smoothstep(thickness - px, thickness + px, d)) * alive;\n\n    body = max(body, line);\n    tip = max(tip, line * smoothstep(height * 0.5, height, y));\n  }\n\n  // Le fond s'assombrit vers la racine, comme une eau plus profonde.\n  vec3 colour = mix(uColorA, uColorB, (1.0 - y) * 0.12);\n  colour = mix(colour, uColorB, body);\n  colour = mix(colour, uColorC, tip * 0.85);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Meches : des brins ancres en bas du cadre, qui ondulent comme des algues.\n *\n * ## Le principe\n *\n * Une meche par colonne, un x = f(y) dont le balancement croit avec la\n * hauteur : la racine tient, la pointe suit le courant avec retard. Chaque\n * meche a sa hauteur, son epaisseur qui s'amincit, sa phase propre.\n *\n * Ce qui distingue cette entree de ses cousines : les brins sont verticaux\n * et ancres, le mouvement est un balancement lateral, et l'epaisseur varie\n * le long du brin.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { STRANDS_FRAGMENT } from './strands.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface StrandsControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface StrandsOwnProps {\n  /** Nombre de meches. Borne a quarante par le shader. @defaultValue 18 */\n  count?: number\n  /** Amplitude du balancement, en largeurs de colonne. @defaultValue 0.7 */\n  sway?: number\n  /** Vitesse du courant. @defaultValue 0.6 */\n  speed?: number\n  /** Epaisseur a la racine, en fraction de la largeur. @defaultValue 0.006 */\n  thickness?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<StrandsControls>\n}\n\n/** Toutes les proprietes. */\nexport type StrandsProps = Customisable<StrandsOwnProps>\n\n/** Tokens employes par defaut : le fond, le corps des meches, leur pointe. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-teal-700',\n  '--o-palette-teal-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-t o-from-teal-950 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Nombre de meches en qualite basse.\n *\n * Trois colonnes sont evaluees par fragment quel que soit leur nombre. Ce qui\n * coute, c'est un trait d'un pixel a densite reduite, qui scintille quand les\n * meches sont serrees : moins de meches, plus d'espace, et le trait tient.\n */\nconst LOW_COUNT = 10\n\n/**\n * Meches.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Strands className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Strands({\n  count = 18,\n  sway = 0.7,\n  speed = 0.6,\n  thickness = 0.006,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: StrandsProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: STRANDS_FRAGMENT,\n    colors,\n    uniforms: { uCount: count, uSway: sway, uSpeed: speed, uThickness: thickness },\n    name: 'strands',\n    degrade: (quality) => ({\n      uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

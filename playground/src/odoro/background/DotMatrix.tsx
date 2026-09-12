@@ -100,9 +100,9 @@ export type DotMatrixProps = Customisable<DotMatrixOwnProps>
 
 /** Tokens employes par defaut : deux teintes de points, puis le fond. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-50',
-  '--o-palette-zinc-400',
-  '--o-palette-zinc-950',
+  '--o-theme-fg',
+  '--o-theme-muted',
+  '--o-theme-bg',
 ] as const
 
 /**

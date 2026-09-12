@@ -1,0 +1,95 @@
+{
+  "name": "pollen",
+  "category": "background",
+  "title": "Pollen",
+  "description": "Des grains lents sur deux plans — le lointain net et serre, le proche flou et lache — que le pointeur decale en parallaxe.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "pollen.shader.ts",
+      "target": "background/pollen.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Pollen.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-lime-400",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Vitesse de la derive.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 11,
+      "description": "Densite du plan lointain : cellules sur la hauteur.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Flou du plan proche. Plus haut, plus large et plus pale.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Amplitude du decalage sous le pointeur. Zero le fige.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-lime-400, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les grains lointains, les grains proches."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux plans, neuf cellules par plan et par fragment. En qualite basse, une seule cellule par plan. Le pointeur est mute en place, sans rendu React par image.",
+    "fallback": "gradient"
+  },
+  "id": "background/pollen",
+  "sources": {
+    "pollen.shader.ts": "/**\n * Shader du pollen.\n *\n * ## L'idee mathematique\n *\n * Deux plans, et c'est tout ce qui fait la profondeur. Le plan lointain est\n * un semis serre de petits grains nets : un disque a bord doux. Le plan\n * proche est un semis lache de gros grains flous : une gaussienne large et\n * pale, ce que donne un objet hors du plan de mise au point. Les deux\n * derivent lentement, le proche un peu plus vite que le lointain.\n *\n * Le pointeur decale les deux plans en sens inverse de son mouvement, le\n * proche davantage que le lointain : c'est la parallaxe, et c'est elle qui\n * fait lire les deux plans comme deux distances plutot que comme deux\n * tailles.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les grains lointains, nets.\n * - `uColorC` — les grains proches, flous.\n * - `uPointer` — position amortie du pointeur, centree, bornee a [-1, 1].\n * - `uSpeed` — vitesse de la derive.\n * - `uDensity` — nombre de cellules sur la hauteur du plan lointain.\n * - `uBlur` — flou du plan proche.\n * - `uParallax` — amplitude du decalage sous le pointeur.\n * - `uSpread` — rayon de cellules parcouru autour de la cellule courante ;\n *   zero en qualite basse, ou un grain ne deborde plus de sa cellule.\n */\nexport const POLLEN_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uSpeed;\nuniform float uDensity;\nuniform float uBlur;\nuniform float uParallax;\nuniform float uSpread;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat pollenHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Deux nombres decorreles pour une meme cellule.\nvec2 pollenHash2(vec2 p) {\n  return vec2(pollenHash(p), pollenHash(p + vec2(37.3, 17.7)));\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 uv = vec2(vUv.x * aspect, vUv.y);\n  float t = uTime * uSpeed;\n\n  vec3 colour = uColorA;\n\n  // Plan 0 : lointain, net. Plan 1 : proche, flou.\n  for (int plane = 0; plane < 2; plane += 1) {\n    float proche = float(plane);\n    float scale = max(uDensity, 2.0) * (1.0 - proche * 0.55);\n\n    // Le proche se decale plus que le lointain : c'est toute la parallaxe.\n    vec2 decalage = uPointer * uParallax * (0.02 + proche * 0.06);\n\n    // Le pollen tombe a peine et derive de cote ; le proche va plus vite.\n    vec2 drift = vec2(t * (0.03 + proche * 0.05), -t * (0.02 + proche * 0.04));\n    vec2 p = (uv + decalage) * scale + drift;\n    vec2 cell = floor(p);\n\n    for (int dx = -1; dx <= 1; dx += 1) {\n      for (int dy = -1; dy <= 1; dy += 1) {\n        // En qualite basse, seule la cellule courante est lue.\n        if (abs(float(dx)) > uSpread || abs(float(dy)) > uSpread) continue;\n\n        vec2 voisine = cell + vec2(float(dx), float(dy));\n        vec2 graine = pollenHash2(voisine + proche * 83.0);\n        float exists = step(0.25, pollenHash(voisine + 7.0 + proche * 9.0));\n\n        vec2 centre = voisine + 0.5\n          + 0.3 * vec2(sin(t * 0.5 + graine.x * 6.28318), cos(t * 0.4 + graine.y * 6.28318));\n\n        float d = length(p - centre);\n        float size = (0.06 + 0.05 * graine.x) * (1.0 + proche * (1.5 + uBlur * 2.0));\n\n        // Net : un disque a bord doux. Flou : une gaussienne large et pale,\n        // d'autant plus pale que le flou est fort — la lumiere s'etale.\n        float net = 1.0 - smoothstep(size * 0.6, size, d);\n        float flou = exp(-d * d / (size * size)) * 0.6 / (1.0 + uBlur);\n        float forme = mix(net, flou, proche);\n\n        colour += mix(uColorB, uColorC, proche) * forme * exists * (0.8 - proche * 0.25);\n      }\n    }\n  }\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Pollen : des grains lents sur deux plans, flou de profondeur et parallaxe\n * sous le pointeur.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, avec amortissement : les deux plans se decalent\n * en sens inverse de son mouvement, le proche davantage que le lointain.\n * C'est la parallaxe qui fait lire deux distances plutot que deux tailles. A\n * la sortie du cadre, le hook ramene la cible au centre.\n *\n * ## Le pont pointeur -> shader\n *\n * Aucun rendu React par image : un tableau stable de deux flottants est mute\n * en place dans la boucle du moteur, en priorite d'entree, et la surface le\n * relit a chaque image.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { POLLEN_FRAGMENT } from './pollen.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface PollenControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface PollenOwnProps {\n  /** Vitesse de la derive. @defaultValue 0.35 */\n  speed?: number\n  /** Densite du plan lointain. @defaultValue 11 */\n  density?: number\n  /** Flou du plan proche. @defaultValue 0.6 */\n  blur?: number\n  /** Amplitude de la parallaxe sous le pointeur. @defaultValue 1 */\n  parallax?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<PollenControls>\n}\n\n/** Toutes les proprietes. */\nexport type PollenProps = Customisable<PollenOwnProps>\n\n/** Tokens employes par defaut : le fond, les grains lointains, les proches. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-lime-400',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-lime-200 dark:o-to-lime-950'\n\n/**\n * Rayon de cellules parcouru hors qualite basse.\n *\n * Un rayon de un lit neuf cellules par plan ; un rayon de zero n'en lit\n * qu'une, et un grain ne deborde plus de sa cellule. C'est le seul levier de\n * cout du shader, et il ne se voit qu'aux bords des grains proches.\n */\nconst SPREAD = 1\n\n/** Rayon de cellules en qualite basse. */\nconst LOW_SPREAD = 0\n\n/**\n * Pollen.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Pollen className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Pollen({\n  speed = 0.35,\n  density = 11,\n  blur = 0.6,\n  parallax = 1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: PollenProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableau stable, mute en place : la surface relit les uniforms a chaque\n  // image, l'identite ne change pas, la mutation suffit — aucun setState.\n  const uPointer = useRef<number[]>([0, 0]).current\n\n  const pointer = usePointerDamped({ host, speed: 2.5, name: 'pollen : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Le repere du hook est centre, y vers le bas ; le shader travaille\n        // centre aussi, mais y vers le haut.\n        uPointer[0] = pointer.current.x\n        uPointer[1] = -pointer.current.y\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'pollen : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: POLLEN_FRAGMENT,\n      colors,\n      uniforms: {\n        uPointer,\n        uSpeed: speed,\n        uDensity: density,\n        uBlur: blur,\n        uParallax: parallax,\n        uSpread: SPREAD,\n      },\n      name: 'pollen',\n      degrade: (quality) => ({ uSpread: quality === 'low' ? LOW_SPREAD : SPREAD }),\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "name": "flower-petals",
+  "category": "loader",
+  "title": "Petales qui s ouvrent",
+  "description": "Huit petales s ouvrent un a un autour d un coeur, tiennent, puis se referment, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FlowerPetals.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Cote du dessin, la fleur ouverte le remplit.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une floraison complete, ouverture, tenue et fermeture.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des petales et du coeur. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un SVG de huit ellipses et un coeur, huit animations CSS d echelle tenues par le compositeur. Fleur ouverte et immobile sous mouvement reduit."
+  }
+}

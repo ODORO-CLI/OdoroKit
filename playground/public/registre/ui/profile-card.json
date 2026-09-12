@@ -1,0 +1,92 @@
+{
+  "name": "profile-card",
+  "category": "ui",
+  "title": "Carte de profil",
+  "description": "Portrait, nom et role sur une carte qui s incline vers le pointeur, le portrait un cran devant, une bande de brillance qui la traverse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ProfileCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "description": "Nom affiche."
+    },
+    {
+      "name": "subtitle",
+      "type": "string",
+      "required": false,
+      "description": "Sous-titre : un role, un metier, un lieu."
+    },
+    {
+      "name": "avatar",
+      "type": "string | ReactNode",
+      "required": false,
+      "description": "Portrait : une source d image, ou un element (initiales, icone)."
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "deg",
+      "description": "Inclinaison maximale.",
+      "min": 0,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Vitesse a laquelle la carte rejoint l angle vise.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "sheen",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Intensite de la bande de brillance. Zero la supprime.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "tint",
+      "type": "string",
+      "required": false,
+      "description": "Teinte de la brillance et du fond du portrait. Par defaut, la teinte de marque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation et une variable ecrites par image pendant le survol, sans rendu React. Plate au doigt et sous mouvement reduit."
+  },
+  "id": "ui/profile-card",
+  "sources": {
+    "component.tsx": "/**\n * Carte de profil : portrait, nom et role sur une carte qui s'incline vers\n * le pointeur, avec une bande de brillance qui la traverse.\n *\n * ## Ce qui la distingue de la carte inclinee\n *\n * La carte inclinee est un cadre vide qui pivote. Celle-ci a une\n * composition : un portrait, un nom, un role, et ce qu'on veut en dessous. Le\n * portrait est pose un cran **devant** la carte dans la scene en trois\n * dimensions, si bien qu'en pivotant il se decale un peu par rapport au\n * texte — c'est ce decalage, la parallaxe, qui fait lire la carte comme un\n * objet epais et non comme une image qui tourne.\n *\n * La brillance n'est pas un reflet radial : c'est une bande oblique qui\n * balaie la carte d'un bord a l'autre quand le pointeur va de gauche a\n * droite, comme une carte plastifiee qu'on incline sous une lampe.\n *\n * ## Tout est ecrit depuis la boucle\n *\n * Les angles, la position de la bande : le crochet de pointeur amortit dans\n * une ref, et la boucle du moteur ecrit le style. React rend une fois.\n * L'amortissement est independant de la cadence — `1 - exp(-vitesse x dt)`,\n * calcule par le crochet — pour que la carte ait le meme poids partout.\n *\n * ## Ce qui reste sans mouvement, et au doigt\n *\n * Une carte de profil, plate et lisible : l'inclinaison ne portait aucune\n * information. Sans pointeur fin, il n'y a pas de survol : rien ne s'abonne.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\n/** Proprietes propres au composant. */\nexport interface ProfileCardOwnProps {\n  /** Nom affiche. */\n  name: string\n  /** Sous-titre : un role, un metier, un lieu. */\n  subtitle?: string\n  /** Portrait : une source d'image, ou un element (initiales, icone). */\n  avatar?: string | ReactNode\n  /** Ce qui suit l'en-tete : une phrase, des actions. */\n  children?: ReactNode\n  /** Inclinaison maximale, en degres. @defaultValue 10 */\n  tilt?: number\n  /** Vitesse a laquelle la carte rejoint l'angle vise. @defaultValue 8 */\n  speed?: number\n  /** Intensite de la bande de brillance, de zero a un. Zero la supprime. @defaultValue 0.35 */\n  sheen?: number\n  /** Teinte de la brillance. @defaultValue teinte de marque */\n  tint?: string\n}\n\n/** Toutes les proprietes. */\nexport type ProfileCardProps = Customisable<ProfileCardOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-profile-card'\n\n/** Pose la scene, la carte et sa bande, une fois par document. */\nfunction ensureProfileRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-profile]{perspective:1000px}',\n    // Pas d'overflow cache ici : il aplatirait la scene, et le portrait\n    // perdrait son cran d'avance. La bande prend l'arrondi par elle-meme.\n    '[data-o-profile-inner]{',\n    'position:relative;border-radius:inherit;',\n    'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',\n    'transform-style:preserve-3d;will-change:transform;',\n    // La transition ne sert qu'au retour au repos : pendant le survol, la\n    // boucle ecrit a chaque image.\n    'transition:transform 480ms cubic-bezier(0.22,1,0.36,1);',\n    '}',\n    '[data-o-profile-on] [data-o-profile-inner]{transition:none}',\n    // La bande : un fond, jamais un calque qui intercepte le pointeur.\n    '[data-o-profile-inner]::after{',\n    'content:\"\";position:absolute;inset:0;pointer-events:none;border-radius:inherit;',\n    'background:linear-gradient(115deg,',\n    'transparent calc(var(--o-profile-sx) - 22%),',\n    'color-mix(in oklab,var(--o-profile-tint) var(--o-profile-sheen),transparent) var(--o-profile-sx),',\n    'transparent calc(var(--o-profile-sx) + 22%));',\n    'opacity:0;transition:opacity 260ms ease;',\n    '}',\n    '[data-o-profile-on] [data-o-profile-inner]::after{opacity:1}',\n    '[data-o-profile-head]{display:flex;align-items:center;gap:0.875rem;text-align:left}',\n    // Le portrait est un cran devant la carte : la parallaxe vient de la.\n    '[data-o-profile-avatar]{',\n    'flex:none;display:grid;place-items:center;overflow:hidden;',\n    'width:3.5rem;height:3.5rem;border-radius:999px;',\n    'background:color-mix(in oklab,var(--o-profile-tint) 18%,var(--o-theme-surface));',\n    'border:1px solid var(--o-theme-line);',\n    'transform:translateZ(var(--o-profile-lift));',\n    'font-weight:600;',\n    '}',\n    '[data-o-profile-avatar] img{width:100%;height:100%;object-fit:cover}',\n    '[data-o-profile-name]{margin:0;font-weight:600;line-height:1.2}',\n    '[data-o-profile-subtitle]{margin:0.15rem 0 0;font-size:0.85em;color:var(--o-theme-muted)}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-profile-avatar]{transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Une carte de profil qui s'incline vers le pointeur.\n *\n * @example\n * <ProfileCard name=\"Lea Marchand\" subtitle=\"Designer produit\" avatar=\"/lea.jpg\" className=\"o-rounded-2xl o-p-6\">\n *   <p>Dessine les parcours et les tient a jour.</p>\n * </ProfileCard>\n *\n * @example\n * // Des initiales en guise de portrait, sans brillance.\n * <ProfileCard name=\"Nour Bensaid\" subtitle=\"Ingenieure\" avatar=\"NB\" sheen={0} />\n */\nexport function ProfileCard({\n  name,\n  subtitle,\n  avatar,\n  children,\n  tilt = 10,\n  speed = 8,\n  sheen = 0.35,\n  tint = 'var(--o-palette-brand-500)',\n  ...rest\n}: ProfileCardProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const inner = useRef<HTMLDivElement | null>(null)\n  const pointer = usePointerDamped({ host, speed, name: 'profil : pointeur' })\n  ensureProfileRules()\n\n  useEffect(() => {\n    const card = inner.current\n    if (host === null || card === null || reduced) return\n    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return\n\n    let on = false\n\n    const onEnter = (): void => {\n      on = true\n      host.setAttribute('data-o-profile-on', '')\n    }\n    const onLeave = (): void => {\n      on = false\n      host.removeAttribute('data-o-profile-on')\n      // Le retour au repos est confie a la transition, pas a la boucle.\n      card.style.transform = ''\n    }\n\n    const subscription = clock.subscribe(\n      () => {\n        if (!on) return\n        const { x, y } = pointer.current\n        // Le signe de X est inverse : pointer a droite enfonce le bord droit.\n        card.style.transform = `rotateX(${(-y * tilt).toFixed(2)}deg) rotateY(${(x * tilt).toFixed(2)}deg)`\n        card.style.setProperty('--o-profile-sx', `${(((x + 1) / 2) * 100).toFixed(1)}%`)\n      },\n      { priority: CLOCK_PRIORITY.render, name: 'profil' },\n    )\n\n    host.addEventListener('pointerenter', onEnter, { passive: true })\n    host.addEventListener('pointerleave', onLeave, { passive: true })\n\n    return () => {\n      host.removeEventListener('pointerenter', onEnter)\n      host.removeEventListener('pointerleave', onLeave)\n      subscription.unsubscribe()\n      onLeave()\n    }\n  }, [host, reduced, tilt, pointer])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const portrait =\n    typeof avatar === 'string' ? (\n      // Le nom est deja dans la carte : l'image ne le repete pas.\n      <img src={avatar} alt=\"\" />\n    ) : (\n      avatar\n    )\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-profile-tint': tint,\n          '--o-profile-sheen': `${String(sheen * 100)}%`,\n          '--o-profile-sx': '50%',\n          '--o-profile-lift': `${String(tilt * 2.4)}px`,\n        } as CSSProperties\n      }\n      data-o-profile=\"\"\n    >\n      <div ref={inner} data-o-profile-inner=\"\">\n        <div data-o-profile-head=\"\">\n          {portrait !== undefined && portrait !== null ? (\n            <div data-o-profile-avatar=\"\" aria-hidden=\"true\">\n              {portrait}\n            </div>\n          ) : null}\n          <div>\n            <p data-o-profile-name=\"\">{name}</p>\n            {subtitle !== undefined ? <p data-o-profile-subtitle=\"\">{subtitle}</p> : null}\n          </div>\n        </div>\n        {children}\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

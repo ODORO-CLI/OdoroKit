@@ -1,0 +1,60 @@
+{
+  "name": "avatar-stack",
+  "category": "ui",
+  "title": "Pile d avatars",
+  "description": "Des initiales chevauchees qui s etalent au survol, chacune sur une teinte de la palette.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/AvatarStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-amber-500",
+    "--o-palette-rose-500",
+    "--o-palette-sky-500",
+    "--o-palette-zinc-50",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { name: string; tone?: string }[]",
+      "required": true,
+      "description": "Les personnes, dans l ordre d affichage. tone est un token de palette optionnel."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 5,
+      "description": "Nombre de pastilles montrees avant le compteur de surplus.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Chevauchement des pastilles au repos.",
+      "min": 4,
+      "max": 24,
+      "step": 2
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de marge par pastille, declenchee par le survol ou le focus. Sous mouvement reduit l etalement est instantane."
+  }
+}

@@ -64,6 +64,45 @@ export function AvatarDoc(): ReactElement {
               DEFAUTS,
             )} />`
           }
+          variants={[
+            {
+              title: 'Tres grand',
+              values: { size: 'xl' },
+            },
+            {
+              title: 'Carre',
+              description: 'Coins arrondis au lieu du cercle.',
+              values: { shape: 'square' },
+            },
+            {
+              title: 'Initiales seules',
+              description: "Sans src, les initiales s'affichent d'emblee.",
+              values: { name: 'Ana Ruiz' },
+            },
+            {
+              title: 'Groupe borne',
+              description: 'Au-dela de max, une pastille +N resume le reste.',
+              node: (
+                <AvatarGroup max={3}>
+                  <Avatar alt="Ana" name="Ana Ruiz" />
+                  <Avatar alt="Bob" name="Bob Marchand" />
+                  <Avatar alt="Chloe" name="Chloe Petit" />
+                  <Avatar alt="Dan" name="Dan Morel" />
+                  <Avatar alt="Emma" name="Emma Leroy" />
+                </AvatarGroup>
+              ),
+            },
+            {
+              title: 'Les cinq tailles',
+              node: (
+                <span className="o-flex o-items-center o-gap-2">
+                  {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+                    <Avatar key={size} size={size} alt="Jean Dupont" name="Jean Dupont" />
+                  ))}
+                </span>
+              ),
+            },
+          ]}
         />
       </Section>
 

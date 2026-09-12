@@ -1,0 +1,59 @@
+{
+  "name": "checker",
+  "category": "background",
+  "title": "Damier",
+  "description": "Une alternance de cases subtile, en un seul degrade conique repete. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Checker.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-zinc-500"
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 24,
+      "unit": "px",
+      "description": "Cote d une case.",
+      "min": 8,
+      "max": 96,
+      "step": 4
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.06,
+      "description": "Opacite des cases pleines, entre 0 et 1.",
+      "min": 0.01,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des cases pleines."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique repete : aucun script, aucun contexte graphique."
+  },
+  "id": "background/checker",
+  "sources": {
+    "component.tsx": "/**\n * Damier : une alternance de cases, en un seul degrade conique repete.\n *\n * ## Pourquoi un degrade conique\n *\n * Un damier se decrit d'habitude avec deux degrades lineaires decales — la\n * recette d'avant `conic-gradient`. Le conique fait mieux : quatre quarts de\n * tour autour du centre d'une tuile donnent exactement deux cases pleines et\n * deux cases vides, en une seule image de fond. Moins de couches, meme motif.\n *\n * ## Pourquoi la force est un reglage et pas la couleur seule\n *\n * Un damier plein attire l'oeil comme un plateau de jeu. En fond, il ne doit\n * etre qu'une texture : la force melange la couleur au transparent, et le\n * reglage par defaut le laisse a peine visible.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface CheckerOwnProps {\n  /** Cote d'une case, en pixels. @defaultValue 24 */\n  size?: number\n  /** Opacite des cases pleines, entre 0 et 1. @defaultValue 0.06 */\n  strength?: number\n  /** Couleur des cases pleines. */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type CheckerProps = Customisable<CheckerOwnProps>\n\n/**\n * Damier de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Checker className=\"o-absolute o-inset-0\" size={32} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Checker({\n  size = 24,\n  strength = 0.06,\n  color = 'var(--o-palette-zinc-500, oklch(55.2% 0.016 285.938))',\n  ...rest\n}: CheckerProps): ReactElement {\n  const tile = `color-mix(in oklab, ${color} ${String(Math.round(strength * 100))}%, transparent)`\n  // La tuile fait deux cases de cote : le conique y decoupe ses quatre quarts.\n  const period = `${String(size * 2)}px`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundImage: `conic-gradient(${tile} 0 25%, transparent 0 50%, ${tile} 0 75%, transparent 0)`,\n          backgroundSize: `${period} ${period}`,\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

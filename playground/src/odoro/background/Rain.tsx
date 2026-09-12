@@ -60,10 +60,10 @@ export interface RainOwnProps {
 export type RainProps = Customisable<RainOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-sky-300'] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-300'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-950 o-to-sky-950'
+const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-zinc-50 dark:o-to-sky-950'
 
 /**
  * Pluie.

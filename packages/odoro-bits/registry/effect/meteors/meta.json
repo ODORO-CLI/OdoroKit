@@ -1,0 +1,50 @@
+{
+  "name": "meteors",
+  "category": "effect",
+  "title": "Meteores",
+  "description": "Des traits obliques tombent en boucle a travers la zone, chacun sur sa propre cadence.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Meteors.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de meteores.",
+      "min": 1,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 215,
+      "unit": "deg",
+      "description": "Angle de la chute.",
+      "min": 180,
+      "max": 270,
+      "step": 5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS par meteore, toutes tenues par le compositeur. Rien n est rendu sous mouvement reduit."
+  }
+}

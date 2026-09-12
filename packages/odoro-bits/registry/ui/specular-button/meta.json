@@ -1,0 +1,72 @@
+{
+  "name": "specular-button",
+  "category": "ui",
+  "title": "Bouton a reflet speculaire",
+  "description": "Un point de lumiere suit le pointeur sur la surface du bouton, et le bord s eclaire du cote de la lumiere, comme sur un objet verni.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/SpecularButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-600", "--o-palette-zinc-50", "--o-palette-white"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "description": "Cible du lien. Avec elle, le bouton est rendu comme un lien."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-palette-brand-600, --o-palette-zinc-50, --o-palette-white",
+      "description": "Tokens du corps, du libelle et de la lumiere."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 120,
+      "unit": "%",
+      "description": "Diametre du reflet, en pourcentage de la largeur du bouton.",
+      "min": 40,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.55,
+      "description": "Intensite du reflet, de zero a un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "lag",
+      "type": "number",
+      "default": 180,
+      "unit": "ms",
+      "description": "Retard du reflet sur le pointeur. A zero, il colle au curseur.",
+      "min": 0,
+      "max": 600,
+      "step": 20
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux nombres enregistres par @property portent la position de la lumiere ; le compositeur fait le trajet, aucun rendu React au survol. Sans pointeur fin ou sous mouvement reduit, la lumiere reste fixe en haut a gauche."
+  }
+}

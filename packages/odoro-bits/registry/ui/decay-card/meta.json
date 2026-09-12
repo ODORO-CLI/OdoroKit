@@ -1,0 +1,76 @@
+{
+  "name": "decay-card",
+  "category": "ui",
+  "title": "Carte a degradation",
+  "description": "L image se tord et se delave sous un pointeur rapide, puis se repare des qu il s arrete.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/DecayCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-surface", "--o-theme-line"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.5,
+      "description": "Rapport largeur sur hauteur de l image.",
+      "min": 0.5,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Deplacement maximal des pixels.",
+      "min": 8,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 5,
+      "description": "Vitesse de reparation. Plus haut, plus l image se repare vite.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "grain",
+      "type": "number",
+      "default": 0.012,
+      "description": "Finesse du bruit. Plus bas, plus les vagues sont larges.",
+      "min": 0.002,
+      "max": 0.05,
+      "step": 0.002
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "fallback": "static",
+    "notes": "Un filtre SVG de deplacement recalcule par image tant que l image est tordue ; rien au repos. Image intacte au doigt et sous mouvement reduit."
+  }
+}

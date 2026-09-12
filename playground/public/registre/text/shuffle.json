@@ -1,0 +1,84 @@
+{
+  "name": "shuffle",
+  "category": "text",
+  "title": "Battage",
+  "description": "Chaque lettre part de la place d une autre, mesuree sur le rendu, puis rejoint la sienne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/Shuffle.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree du retour d une lettre.",
+      "min": 200,
+      "max": 2500,
+      "step": 20
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 35,
+      "unit": "ms",
+      "description": "Retard entre deux lettres.",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "unit": "deg",
+      "description": "Inclinaison maximale au depart.",
+      "min": 0,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "required": false,
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": [
+        "montage",
+        "vue",
+        "survol"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de position par lettre au depart, puis une animation composee chacune. Aucun JavaScript par image."
+  },
+  "id": "text/shuffle",
+  "sources": {
+    "component.tsx": "/**\n * Battage : les lettres partent des places les unes des autres, puis rentrent.\n *\n * ## Ce sont les places qui sont melangees, pas les caracteres\n *\n * `decode-text` remplace des caracteres par d'autres : le mot est faux, ses\n * lettres sont a leur place. Ici c'est l'inverse — les lettres sont les\n * bonnes, mais chacune commence a la place d'une autre, puis rejoint la\n * sienne. On ne lit jamais un mot faux : on voit un jeu de cartes se ranger.\n *\n * ## Les places sont mesurees, jamais calculees\n *\n * Un decalage devine a partir de la largeur moyenne d'un caractere se voit\n * tout de suite : le `i` et le `m` n'occupent pas la meme place, et les\n * lettres n'atterrissent pas. Les positions rendues sont donc relevees juste\n * avant de partir, et le decalage de depart est la difference entre deux\n * d'entre elles. Le battage reste juste quelle que soit la police, la casse\n * ou la cesure.\n *\n * ## L'etat melange n'est pose que si l'effet aura lieu\n *\n * Comme pour toute revelation du registre : cacher en CSS et montrer en\n * JavaScript laisserait un titre absent le jour ou le JavaScript ne vient\n * pas. L'etat de depart est ecrit par le meme code qui programme le retour —\n * et, au survol, il est porte par le retard de l'animation elle-meme.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les lettres sont\n * retirees de l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Ce qui declenche le battage. */\nexport type ShuffleDeclenchement = 'montage' | 'vue' | 'survol'\n\n/** Proprietes propres au composant. */\nexport interface ShuffleOwnProps {\n  /** Texte a battre. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree du retour d'une lettre, en millisecondes. @defaultValue 800 */\n  duration?: number\n  /** Retard entre deux lettres, en millisecondes. @defaultValue 35 */\n  step?: number\n  /** Inclinaison maximale au depart, en degres. @defaultValue 20 */\n  tilt?: number\n  /**\n   * Quand battre.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: ShuffleDeclenchement\n}\n\n/** Toutes les proprietes. */\nexport type ShuffleProps = Customisable<ShuffleOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = '\\u00A0'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-shuffle'\n\n/** Sortie franche puis amortie : la lettre se range, elle ne freine pas. */\nconst COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)'\n\n/** Pose les regles du battage, une fois par document. */\nfunction ensureShuffleRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-shuffle]{display:inline-block}',\n    '[data-o-shuffle-letter]{display:inline-block}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Rend une permutation des indices, par melange de Fisher-Yates.\n *\n * Une permutation quelconque, pas un derangement : qu'une lettre ou deux\n * restent en place rend le battage plus credible qu'un deplacement force de\n * chacune.\n */\nfunction permutation(taille: number): number[] {\n  const ordre = Array.from({ length: taille }, (_, index) => index)\n  for (let index = taille - 1; index > 0; index -= 1) {\n    const tire = Math.floor(Math.random() * (index + 1))\n    const garde = ordre[index] ?? index\n    ordre[index] = ordre[tire] ?? tire\n    ordre[tire] = garde\n  }\n  return ordre\n}\n\n/**\n * Fait rentrer les lettres d'un texte depuis les places les unes des autres.\n *\n * @example\n * <Shuffle as=\"h1\" className=\"o-text-5xl o-font-bold\">\n *   Tout se range\n * </Shuffle>\n *\n * @example\n * // Rejoue a chaque survol, sans inclinaison.\n * <Shuffle declenchement=\"survol\" tilt={0} duration={520}>Encore</Shuffle>\n */\nexport function Shuffle({\n  children,\n  as: Tag = 'span',\n  duration = 800,\n  step = 35,\n  tilt = 20,\n  declenchement = 'vue',\n  ...rest\n}: ShuffleProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  ensureShuffleRule()\n\n  useEffect(() => {\n    const element = ref.current\n    if (element === null || reduced) return\n\n    const lettres = [\n      ...element.querySelectorAll<HTMLElement>('[data-o-shuffle-letter]'),\n    ]\n    if (lettres.length === 0) return\n\n    let animations: Animation[] = []\n\n    const arreter = (): void => {\n      for (const animation of animations) animation.cancel()\n      animations = []\n    }\n\n    const jouer = (): void => {\n      arreter()\n\n      // Les places sont relevees maintenant : une police chargee entre-temps,\n      // une largeur qui a change, et les anciennes seraient fausses.\n      const places = lettres.map((lettre) => ({\n        x: lettre.offsetLeft,\n        y: lettre.offsetTop,\n      }))\n      const ordre = permutation(lettres.length)\n\n      lettres.forEach((lettre, index) => {\n        const ici = places[index]\n        const ailleurs = places[ordre[index] ?? index]\n        if (ici === undefined || ailleurs === undefined) return\n\n        const angle = (Math.random() * 2 - 1) * tilt\n\n        lettre.style.opacity = ''\n        animations.push(\n          lettre.animate(\n            [\n              {\n                transform: `translate(${String(ailleurs.x - ici.x)}px, ${String(ailleurs.y - ici.y)}px) rotate(${String(angle)}deg)`,\n                opacity: 0.25,\n              },\n              { transform: 'translate(0px, 0px) rotate(0deg)', opacity: 1 },\n            ],\n            { duration, delay: index * step, easing: COURBE, fill: 'both' },\n          ),\n        )\n      })\n    }\n\n    if (declenchement === 'survol') {\n      // Rien n'est cache d'avance : le retard de chaque animation porte\n      // l'etat melange, et un titre jamais survole reste lisible.\n      const entrer = (): void => {\n        jouer()\n      }\n      element.addEventListener('pointerenter', entrer)\n      return () => {\n        element.removeEventListener('pointerenter', entrer)\n        arreter()\n      }\n    }\n\n    if (!vu) {\n      // L'etat de depart est ecrit ici, pas dans le rendu : voir l'en-tete.\n      for (const lettre of lettres) lettre.style.opacity = '0'\n      return\n    }\n\n    jouer()\n    return () => {\n      arreter()\n      for (const lettre of lettres) lettre.style.opacity = ''\n    }\n  }, [ref, reduced, vu, children, duration, step, tilt, declenchement])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, range, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const lettres = [...children]\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={style} data-o-shuffle=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) => (\n          <span key={`${lettre}-${String(index)}`} data-o-shuffle-letter=\"\">\n            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                l'insecable garde sa largeur. */}\n            {lettre === ' ' ? NBSP : lettre}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

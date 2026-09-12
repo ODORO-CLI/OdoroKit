@@ -1,0 +1,100 @@
+{
+  "name": "stepper",
+  "category": "ui",
+  "title": "Parcours en etapes",
+  "description": "Un rail d etapes numerotees dont le trait se remplit derriere l avancee, et dont le panneau entre du cote d ou l on vient.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Stepper.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-zinc-50",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "steps",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les etapes, dans l ordre du parcours."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du parcours pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "required": false,
+      "description": "Index de l etape courante, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "description": "Index de l etape courante au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(index: number) => void",
+      "required": false,
+      "description": "Appele avec l index de l etape choisie."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Contenu de l etape courante, anime a chaque changement."
+    },
+    {
+      "name": "orientation",
+      "type": "string",
+      "required": false,
+      "default": "horizontal",
+      "description": "Sens de lecture du rail.",
+      "options": [
+        "horizontal",
+        "vertical"
+      ]
+    },
+    {
+      "name": "reach",
+      "type": "string",
+      "required": false,
+      "default": "done",
+      "description": "Ce que l on peut atteindre en cliquant : les etapes franchies, toutes, ou aucune.",
+      "options": [
+        "done",
+        "all",
+        "none"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le trait se remplit par une transformation, le panneau entre par une animation d images cles reprise a chaque changement de clef. Sous mouvement reduit, le trait est rempli d un coup et le panneau parait sans glisser."
+  },
+  "id": "ui/stepper",
+  "sources": {
+    "component.tsx": "/**\n * Etapes numerotees : le trait se remplit derriere l'avancee, et le panneau\n * glisse du cote ou l'on va.\n *\n * ## Les fleches deplacent le focus, pas l'etape\n *\n * Ailleurs dans le registre — onglets a pastille, controle segmente — les\n * fleches deplacent le choix lui-meme, parce que changer d'option ne coute\n * rien. Ici, changer d'etape remplace le contenu de la page : parcourir un\n * formulaire en cinq etapes du clavier ferait alors defiler quatre panneaux\n * pour en regarder un. Les fleches promenent donc le focus, Entree valide.\n * C'est le motif d'un menu, pas celui d'un groupe de boutons radio.\n *\n * ## Le trait est un remplissage, pas une largeur\n *\n * Le segment entre deux etapes porte un enfant en `scaleX(0)` qui passe a 1\n * quand l'etape est franchie : une transformation, donc composee, la ou une\n * largeur animee redisposerait la barre a chaque image.\n *\n * ## Le panneau connait le sens de la marche\n *\n * Avancer et reculer ne se ressemblent pas : le panneau entre du cote d'ou\n * l'on vient. Le sens est deduit de l'ecart entre l'ancienne etape et la\n * nouvelle, et pose en attribut ; la clef React force la reprise de\n * l'animation, sans quoi un retour au meme panneau ne montrerait rien.\n *\n * ## Mouvement reduit\n *\n * Le trait est rempli d'un coup et le panneau parait sans glisser : l'etat\n * final, jamais l'etat de depart.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport {\n  useRef,\n  useState,\n  type CSSProperties,\n  type KeyboardEvent,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Une etape. */\nexport interface StepperStep {\n  /** Identifiant, unique dans le parcours. */\n  readonly id: string\n  /** Libelle affiche sous le jeton. */\n  readonly label: string\n  /** Precision affichee en sourdine. */\n  readonly hint?: string\n}\n\n/** Ce que l'on peut atteindre en cliquant. */\nexport type StepperReach = 'done' | 'all' | 'none'\n\n/** Proprietes propres au composant. */\nexport interface StepperOwnProps {\n  /** Les etapes, dans l'ordre du parcours. */\n  steps: readonly StepperStep[]\n  /** Nom du parcours pour les lecteurs d'ecran. */\n  label: string\n  /** Index de l'etape courante, en mode controle. */\n  value?: number\n  /** Index de l'etape courante au montage, en mode non controle. @defaultValue 0 */\n  defaultValue?: number\n  /** Appele avec l'index de l'etape choisie. */\n  onChange?: (index: number) => void\n  /** Contenu de l'etape courante, anime a chaque changement. */\n  children?: ReactNode\n  /** Sens de lecture du rail. @defaultValue 'horizontal' */\n  orientation?: 'horizontal' | 'vertical'\n  /**\n   * Ce que l'on peut atteindre : les etapes franchies, toutes, ou aucune —\n   * dans ce dernier cas la page seule decide.\n   *\n   * @defaultValue 'done'\n   */\n  reach?: StepperReach\n}\n\n/** Toutes les proprietes. */\nexport type StepperProps = Customisable<StepperOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-stepper'\n\n/** Pose le rail, les jetons, le trait et le panneau, une fois par document. */\nfunction ensureStepperRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-stepper]{display:flex;flex-direction:column;gap:1.25rem}',\n    '[data-o-step-rail]{display:flex;margin:0;padding:0;list-style:none}',\n    '[data-o-step-rail] > li{display:flex;flex:1 1 0;min-width:0}',\n    '[data-o-step-rail] > li:last-child{flex:none}',\n    '[data-o-stepper][data-o-stepper-vertical] [data-o-step-rail]{flex-direction:column;gap:0}',\n    '[data-o-stepper][data-o-stepper-vertical] [data-o-step-rail] > li{flex-direction:column;flex:none}',\n    '[data-o-step]{',\n    'display:flex;align-items:center;gap:0.6rem;flex:none;',\n    'border:0;background:transparent;font:inherit;color:inherit;cursor:pointer;',\n    'padding:0.25rem;border-radius:0.6rem;text-align:left;',\n    '}',\n    '[data-o-step][aria-disabled=\"true\"]{cursor:default;opacity:0.45}',\n    '[data-o-step]:focus-visible{outline:2px solid var(--o-step-accent);outline-offset:2px}',\n    // Le jeton : creux tant que l'etape est devant, plein des qu'elle est atteinte.\n    '[data-o-step-token]{',\n    'display:grid;place-items:center;flex:none;width:2rem;height:2rem;border-radius:999px;',\n    'border:1px solid var(--o-theme-line);background:var(--o-theme-surface);',\n    'font-size:0.8125em;font-weight:600;font-variant-numeric:tabular-nums;',\n    'transition:background-color var(--o-duration-base) linear,',\n    'border-color var(--o-duration-base) linear,color var(--o-duration-base) linear,',\n    'scale var(--o-duration-slow) var(--o-ease-emphasized);',\n    '}',\n    '[data-o-step][data-o-step-state=\"done\"] [data-o-step-token]{',\n    'background:var(--o-step-accent);border-color:var(--o-step-accent);color:var(--o-step-ink)}',\n    '[data-o-step][data-o-step-state=\"current\"] [data-o-step-token]{',\n    'border-color:var(--o-step-accent);scale:1.12;',\n    'box-shadow:0 0 0 4px color-mix(in oklab,var(--o-step-accent) 20%,transparent)}',\n    '[data-o-step-text]{display:flex;flex-direction:column;min-width:0}',\n    '[data-o-step-hint]{font-size:0.8125em;opacity:0.55}',\n    // Le segment entre deux etapes, et son remplissage en transformation.\n    '[data-o-step-line]{',\n    'position:relative;flex:1 1 auto;align-self:center;height:2px;margin:0 0.5rem;',\n    'border-radius:999px;background:var(--o-theme-line);overflow:hidden;',\n    '}',\n    '[data-o-stepper][data-o-stepper-vertical] [data-o-step-line]{',\n    'width:2px;height:1.4rem;flex:none;align-self:flex-start;margin:0.25rem 0 0.25rem 1rem}',\n    '[data-o-step-line] span{',\n    'position:absolute;inset:0;background:var(--o-step-accent);',\n    'transform:scaleX(0);transform-origin:left center;',\n    'transition:transform var(--o-duration-slower) var(--o-ease-standard);',\n    '}',\n    '[data-o-stepper][data-o-stepper-vertical] [data-o-step-line] span{',\n    'transform:scaleY(0);transform-origin:center top}',\n    '[data-o-step-line][data-o-step-filled] span{transform:none}',\n    // Le panneau : il entre du cote d'ou l'on vient.\n    '[data-o-step-panel]{animation:o-step-next var(--o-duration-slow) var(--o-ease-standard) both}',\n    '[data-o-step-panel][data-o-step-back]{animation-name:o-step-prev}',\n    '@keyframes o-step-next{from{opacity:0;translate:24px 0}to{opacity:1;translate:none}}',\n    '@keyframes o-step-prev{from{opacity:0;translate:-24px 0}to{opacity:1;translate:none}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-step-panel]{animation:none}',\n    '[data-o-step-line] span,[data-o-step-token]{transition:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Parcours en etapes, avec un panneau par etape.\n *\n * @example\n * <Stepper\n *   label=\"Commande\"\n *   steps={[\n *     { id: 'panier', label: 'Panier' },\n *     { id: 'livraison', label: 'Livraison' },\n *     { id: 'paiement', label: 'Paiement' },\n *   ]}\n * >\n *   <p>Contenu de l etape courante.</p>\n * </Stepper>\n *\n * @example\n * // Mode controle : la page avance quand son formulaire est valide.\n * <Stepper label=\"Inscription\" steps={etapes} value={etape} onChange={setEtape} reach=\"none\" />\n */\nexport function Stepper({\n  steps,\n  label,\n  value,\n  defaultValue = 0,\n  onChange,\n  children,\n  orientation = 'horizontal',\n  reach = 'done',\n  ...rest\n}: StepperProps): ReactElement {\n  const railRef = useRef<HTMLOListElement | null>(null)\n  const [internal, setInternal] = useState(defaultValue)\n  const [focusIndex, setFocusIndex] = useState(defaultValue)\n  ensureStepperRules()\n\n  const current = Math.min(Math.max(0, value ?? internal), Math.max(0, steps.length - 1))\n\n  // Le sens de la marche se deduit de l'ecart, et se retient en etat plutot\n  // qu'en reference : ecrire une reference pendant le rendu donnerait deux\n  // resultats differents selon que React le rejoue ou non.\n  const [seen, setSeen] = useState(current)\n  const [back, setBack] = useState(false)\n  if (seen !== current) {\n    setBack(current < seen)\n    setSeen(current)\n  }\n\n  const reachable = (index: number): boolean =>\n    reach === 'all' || (reach === 'done' && index <= current)\n\n  const go = (index: number): void => {\n    if (index === current || !reachable(index)) return\n    if (value === undefined) setInternal(index)\n    setFocusIndex(index)\n    onChange?.(index)\n  }\n\n  /** Les fleches promenent le focus ; c'est Entree qui change d'etape. */\n  const onKeyDown = (event: KeyboardEvent<HTMLOListElement>): void => {\n    const last = steps.length - 1\n    const forward = orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight'\n    const backward = orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft'\n    const moves: Readonly<Record<string, number | undefined>> = {\n      [forward]: focusIndex >= last ? 0 : focusIndex + 1,\n      [backward]: focusIndex <= 0 ? last : focusIndex - 1,\n      Home: 0,\n      End: last,\n    }\n    const target = moves[event.key]\n    if (target === undefined) return\n    event.preventDefault()\n    setFocusIndex(target)\n    railRef.current?.querySelectorAll<HTMLButtonElement>('[data-o-step]')[target]?.focus()\n  }\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      data-o-stepper=\"\"\n      data-o-stepper-vertical={orientation === 'vertical' ? '' : undefined}\n      className={className}\n      style={\n        {\n          '--o-step-accent': 'var(--o-palette-brand-500)',\n          '--o-step-ink': 'var(--o-palette-zinc-50)',\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <ol ref={railRef} data-o-step-rail=\"\" aria-label={label} onKeyDown={onKeyDown}>\n        {steps.map((step, index) => {\n          const state = index === current ? 'current' : index < current ? 'done' : 'todo'\n          return (\n            <li key={step.id}>\n              <button\n                type=\"button\"\n                data-o-step=\"\"\n                data-o-step-state={state}\n                aria-current={index === current ? 'step' : undefined}\n                aria-disabled={reachable(index) ? undefined : 'true'}\n                tabIndex={index === focusIndex ? 0 : -1}\n                onClick={() => {\n                  go(index)\n                }}\n              >\n                <span data-o-step-token=\"\" aria-hidden=\"true\">\n                  {state === 'done' ? '✓' : index + 1}\n                </span>\n                <span data-o-step-text=\"\">\n                  <span>{step.label}</span>\n                  {step.hint !== undefined && <span data-o-step-hint=\"\">{step.hint}</span>}\n                </span>\n              </button>\n              {index < steps.length - 1 && (\n                <span\n                  data-o-step-line=\"\"\n                  data-o-step-filled={index < current ? '' : undefined}\n                  aria-hidden=\"true\"\n                >\n                  <span />\n                </span>\n              )}\n            </li>\n          )\n        })}\n      </ol>\n      {children !== undefined && (\n        <div\n          key={current}\n          data-o-step-panel=\"\"\n          data-o-step-back={back ? '' : undefined}\n          role=\"group\"\n          aria-label={steps[current]?.label ?? label}\n        >\n          {children}\n        </div>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

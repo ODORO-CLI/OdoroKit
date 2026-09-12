@@ -1,0 +1,79 @@
+{
+  "name": "star-border",
+  "category": "ui",
+  "title": "Bordure a etoile filante",
+  "description": "Deux etoiles filantes parcourent le contour, l une sur le bord haut vers la droite, l autre sur le bord bas vers la gauche, et laissent une trainee de lumiere derriere elles.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/StarBorder.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-400",
+    "--o-theme-surface",
+    "--o-theme-line"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Contenu encadre."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "default": "--o-palette-brand-400",
+      "description": "Token de la couleur des etoiles."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 6000,
+      "unit": "ms",
+      "description": "Duree d un passage d une etoile.",
+      "min": 1500,
+      "max": 14000,
+      "step": 500
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "unit": "px",
+      "description": "Epaisseur du filet dans lequel l etoile brille.",
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "required": false,
+      "default": 0.7,
+      "description": "Intensite de la trainee, de zero a un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations de translation sur deux degrades, tenues par le compositeur ; aucun filtre. Sous mouvement reduit chaque etoile est posee au milieu de son bord, fixe."
+  },
+  "id": "ui/star-border",
+  "sources": {
+    "component.tsx": "/**\n * Bordure a etoile filante : deux points de lumiere parcourent le contour,\n * l'un sur le bord haut vers la droite, l'autre sur le bord bas vers la\n * gauche, avec une trainee qui s'eteint derriere eux.\n *\n * ## Ce n'est ni le trait de bordure, ni le neon\n *\n * Le trait de bordure fait tourner un degrade conique autour du centre : un\n * arc qui fait le tour. Le neon corrige ce tour pour qu'il avance a vitesse\n * constante le long du bord. Ici il n'y a pas de tour : deux etoiles, en\n * ligne droite, chacune sur son bord et dans son sens, qui naissent a un\n * coin et meurent a l'autre. C'est l'image d'une etoile filante — une\n * trajectoire, pas une orbite.\n *\n * ## L'etoile est un degrade trois fois plus large que le cadre\n *\n * Un disque radial sur un calque de trois largeurs, gare hors champ, que\n * l'animation fait traverser. Le contenu, pose par-dessus avec son propre\n * fond, ne laisse voir le calque que dans le filet d'un pixel qui l'entoure :\n * l'etoile et sa trainee n'existent que la. Un `overflow:hidden` sur le\n * cadre retient ce qui deborde. Rien n'est mesure, rien n'est calcule.\n *\n * ## Le contenu porte le fond, pas le cadre\n *\n * Si le cadre avait un fond, il couvrirait les etoiles. C'est donc le\n * contenu qui est opaque, en surface de theme, avec un filet fin : ce que\n * l'on encadre ressemble a une carte, et c'est ce que l'on attend d'une\n * bordure.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface StarBorderOwnProps {\n  /** Contenu encadre. */\n  children: ReactNode\n  /** Token de la couleur des etoiles. @defaultValue '--o-palette-brand-400' */\n  color?: string\n  /** Duree d'un passage d'une etoile, en millisecondes. @defaultValue 6000 */\n  speed?: number\n  /** Epaisseur du filet dans lequel l'etoile brille, en pixels. @defaultValue 1 */\n  thickness?: number\n  /** Intensite de la trainee, de zero a un. @defaultValue 0.7 */\n  glow?: number\n}\n\n/** Toutes les proprietes. */\nexport type StarBorderProps = Customisable<StarBorderOwnProps>\n\n/** Token employe par defaut. */\nconst DEFAULT_TOKEN = '--o-palette-brand-400'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-star-border'\n\n/** Pose le cadre, les deux etoiles et le contenu, une fois par document. */\nfunction ensureStarRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-star]{',\n    'position:relative;display:inline-block;overflow:hidden;isolation:isolate;',\n    'padding:var(--o-star-thickness);border-radius:999px;',\n    '}',\n    // Le calque d'une etoile : trois largeurs, une demi-hauteur, un disque.\n    '[data-o-star-streak]{',\n    'position:absolute;z-index:0;width:300%;height:50%;pointer-events:none;',\n    'opacity:var(--o-star-glow);',\n    'background:radial-gradient(circle,var(--o-star-color),transparent 12%);',\n    'animation-duration:var(--o-star-speed);animation-timing-function:linear;',\n    'animation-iteration-count:infinite;',\n    '}',\n    '[data-o-star-streak=\"top\"]{top:-11px;left:-250%;animation-name:o-star-top}',\n    '[data-o-star-streak=\"bottom\"]{bottom:-11px;right:-250%;animation-name:o-star-bottom}',\n    // Chaque etoile nait pleine a un coin et s'eteint a l'autre.\n    '@keyframes o-star-top{from{transform:translateX(0);opacity:var(--o-star-glow)}to{transform:translateX(100%);opacity:0}}',\n    '@keyframes o-star-bottom{from{transform:translateX(0);opacity:var(--o-star-glow)}to{transform:translateX(-100%);opacity:0}}',\n    // Le contenu : opaque, par-dessus, avec le rayon du cadre.\n    '[data-o-star-content]{',\n    'position:relative;z-index:1;border-radius:inherit;',\n    'background:var(--o-theme-surface);border:1px solid var(--o-theme-line);',\n    '}',\n    // Mouvement reduit : chaque etoile posee au milieu de son bord.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-star-streak]{animation:none}',\n    '[data-o-star-streak=\"top\"]{transform:translateX(50%)}',\n    '[data-o-star-streak=\"bottom\"]{transform:translateX(-50%)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Encadre un contenu de deux etoiles filantes.\n *\n * @example\n * <StarBorder className=\"o-rounded-full\">\n *   <button type=\"button\" className=\"o-px-6 o-py-3\">Commencer</button>\n * </StarBorder>\n *\n * @example\n * // Une carte, etoiles ciel, plus lentes et plus discretes.\n * <StarBorder color=\"--o-palette-sky-400\" speed={9000} glow={0.5} className=\"o-rounded-xl\">\n *   <div className=\"o-p-6\">Une offre mise en avant</div>\n * </StarBorder>\n */\nexport function StarBorder({\n  children,\n  color = DEFAULT_TOKEN,\n  speed = 6000,\n  thickness = 1,\n  glow = 0.7,\n  ...rest\n}: StarBorderProps): ReactElement {\n  ensureStarRules()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      data-o-star=\"\"\n      className={className}\n      style={\n        {\n          '--o-star-color': `var(${color})`,\n          '--o-star-speed': `${String(speed)}ms`,\n          '--o-star-thickness': `${String(thickness)}px`,\n          '--o-star-glow': String(glow),\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <span aria-hidden=\"true\" data-o-star-streak=\"top\" />\n      <span aria-hidden=\"true\" data-o-star-streak=\"bottom\" />\n      <div data-o-star-content=\"\">{children}</div>\n    </div>\n  )\n}\n"
+  }
+}

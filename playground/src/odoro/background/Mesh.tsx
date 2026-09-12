@@ -56,14 +56,14 @@ export type MeshProps = Customisable<MeshOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-950',
+  '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
 const DEFAULT_FALLBACK =
-  'o-bg-gradient-to-br o-from-brand-800 o-via-fuchsia-800 o-to-zinc-950'
+  'o-bg-gradient-to-br o-from-brand-800 o-via-fuchsia-800 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
  * Nappe : trois taches de couleur qui derivent et se melangent.

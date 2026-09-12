@@ -1,0 +1,85 @@
+{
+  "name": "bubble-menu",
+  "category": "ui",
+  "title": "Menu a bulles",
+  "description": "Un bouton rond dont les liens jaillissent en bulles sur un arc, une a une, et rentrent dans l ordre inverse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/BubbleMenu.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, dans l ordre de sortie."
+    },
+    {
+      "name": "direction",
+      "type": "'up' | 'right' | 'down' | 'left'",
+      "default": "up",
+      "description": "Cote vers lequel l arc se deploie.",
+      "options": ["up", "right", "down", "left"]
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 110,
+      "unit": "px",
+      "description": "Distance entre le bouton et les bulles.",
+      "min": 60,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 120,
+      "unit": "deg",
+      "description": "Ouverture de l arc.",
+      "min": 30,
+      "max": 300,
+      "step": 10
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 50,
+      "unit": "ms",
+      "description": "Decalage entre deux bulles.",
+      "min": 0,
+      "max": 150,
+      "step": 10
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Menu",
+      "description": "Intitule du bouton pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Chaque bulle est une transition de transformation avec son propre retard ; un rendu React a l ouverture et un a la fermeture. Sous mouvement reduit les bulles apparaissent en place."
+  }
+}

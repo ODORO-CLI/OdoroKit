@@ -1,0 +1,98 @@
+{
+  "name": "magnet-lines",
+  "category": "effect",
+  "title": "Lignes magnetiques",
+  "description": "Un champ d aiguilles qui pivotent vers le pointeur, par le plus court chemin, et reviennent a leur angle de repos au-dela de la portee.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/MagnetLines.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "default": 9,
+      "description": "Nombre de rangees.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 9,
+      "description": "Nombre de colonnes.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "length",
+      "type": "number",
+      "default": 26,
+      "unit": "px",
+      "description": "Longueur d une aiguille.",
+      "min": 8,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur d une aiguille.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "reach",
+      "type": "number",
+      "default": 260,
+      "unit": "px",
+      "description": "Portee de l aimant.",
+      "min": 60,
+      "max": 800,
+      "step": 20
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 10,
+      "description": "Vitesse de rotation des aiguilles. Plus haut, plus sec.",
+      "min": 1,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "idle",
+      "type": "number",
+      "default": 0,
+      "unit": "deg",
+      "description": "Angle de repos, hors de portee.",
+      "min": -90,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des aiguilles. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre cents aiguilles au maximum, une transformation chacune par image, centres calcules et non mesures. Sous mouvement reduit le champ est rendu fige, sans souscription a la boucle."
+  }
+}

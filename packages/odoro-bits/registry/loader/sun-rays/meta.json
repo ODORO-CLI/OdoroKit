@@ -1,0 +1,57 @@
+{
+  "name": "sun-rays",
+  "category": "loader",
+  "title": "Soleil aux rayons qui tournent",
+  "description": "Un disque fixe, douze rayons qui s allongent en alternance, et une couronne qui tourne huit fois plus lentement qu ils ne respirent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SunRays.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d une respiration de rayon ; le tour de couronne dure huit fois plus.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du soleil. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule regle d animation partagee par douze segments, plus une rotation de groupe, toutes tenues par le compositeur. Rayons a leur longueur de repos et couronne arretee sous mouvement reduit."
+  }
+}

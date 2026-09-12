@@ -1,0 +1,92 @@
+{
+  "name": "flying-posters",
+  "category": "ui",
+  "title": "Affiches volantes",
+  "description": "Une colonne d affiches qui arrivent du fond en s inclinant, se posent de face au milieu de l ecran, puis filent vers le lecteur en s effacant.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FlyingPosters.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les affiches, dans l ordre de defilement. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la serie pour les lecteurs d ecran."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 420,
+      "unit": "px",
+      "min": 0,
+      "max": 900,
+      "step": 20,
+      "description": "Distance a laquelle l affiche attend son tour, au fond de la scene."
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 22,
+      "unit": "deg",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "description": "Inclinaison de l affiche quand elle est loin du milieu."
+    },
+    {
+      "name": "drift",
+      "type": "number",
+      "default": 60,
+      "unit": "px",
+      "min": 0,
+      "max": 240,
+      "step": 10,
+      "description": "Ecart lateral pris a l arrivee, alterne d une affiche a l autre."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "min": 0,
+      "max": 320,
+      "step": 8,
+      "description": "Espace entre deux affiches dans la colonne."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 400,
+      "unit": "px",
+      "min": 160,
+      "max": 600,
+      "step": 10,
+      "description": "Largeur d une affiche. L affiche ne doit pas etre plus haute que la lucarne qui defile, sans quoi elle est deja loin quand elle apparait."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul ecouteur passif pour toute la colonne, une image d ecran au plus par defilement, et toutes les mesures faites avant toutes les ecritures pour ne pas faire recalculer la mise en page deux fois. Rien ne tourne quand la page ne defile pas. Sous mouvement reduit, les affiches sont a plat, sans ecouteur."
+  }
+}

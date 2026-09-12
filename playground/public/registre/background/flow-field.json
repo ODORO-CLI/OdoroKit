@@ -1,0 +1,93 @@
+{
+  "name": "flow-field",
+  "category": "background",
+  "title": "Champ de flux",
+  "description": "Des particules qui suivent un champ de bruit sans divergence, tete claire et queue qui s eteint : chaque fragment remonte le champ a contre-courant, rien n est simule ni stocke.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "flow-field.shader.ts",
+      "target": "background/flow-field.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/FlowField.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-sky-400",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 2.5,
+      "description": "Frequence du bruit, donc la taille des tourbillons.",
+      "min": 1,
+      "max": 6,
+      "step": 0.25
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse des particules.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Part des cellules qui portent une particule.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.05
+    },
+    {
+      "name": "trail",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Longueur de la queue, en pas. Bornee a 5 en qualite basse.",
+      "min": 2,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-sky-400, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Vingt-quatre pas remontes par fragment, trois lectures de bruit par pas. En qualite basse, dix pas et une queue plus courte.",
+    "fallback": "static"
+  },
+  "id": "background/flow-field",
+  "sources": {
+    "flow-field.shader.ts": "/**\n * Shader du champ de flux.\n *\n * ## L'idee mathematique\n *\n * Un champ de vitesse sans divergence — le gradient tourne d'un quart de tour\n * d'un bruit de valeur — et des particules qui le suivent. Aucune simulation :\n * chaque fragment remonte le champ a contre-courant, pas a pas, et regarde si\n * une graine vit en amont. Une graine est une cellule d'une grille dont le\n * hachage passe un seuil ; sa particule nait a la graine, avance d'un pas par\n * unite d'age, et traine derriere elle une queue qui s'eteint.\n *\n * Remonter le champ depuis le fragment donne le meme chemin que le descendre\n * depuis la graine, a l'erreur d'integration pres : c'est ce qui permet de\n * dessiner la trajectoire sans jamais la stocker.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la trainee.\n * - `uColorC` — la tete de la particule.\n * - `uScale` — frequence du bruit, donc la taille des tourbillons.\n * - `uSpeed` — vitesse des particules.\n * - `uDensity` — part des cellules qui portent une graine.\n * - `uTrail` — longueur de la queue, en pas.\n * - `uSteps` — nombre de pas remontes par fragment, donc la portee.\n */\nexport const FLOW_FIELD_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uScale;\nuniform float uSpeed;\nuniform float uDensity;\nuniform float uTrail;\nuniform float uSteps;\n\n// Plafond des pas remontes : la boucle est bornee par une constante, le\n// reglage ne fait que la raccourcir.\nconst int MAX_STEPS = 24;\n\n// Pas d'integration, en hauteurs de cadre.\nconst float STEP = 0.011;\n\n// Taille des cellules de graines : un peu plus large que le pas, pour qu'un\n// chemin ne saute jamais une cellule qu'il traverse.\nconst float CELLS = 44.0;\n\n// Projection sur une direction arbitraire, sinus amplifie, partie\n// fractionnaire. Le hachage par produit des coordonnees, plus court, laisse\n// des traces en diagonale que le champ aligne en un rail de particules.\nfloat fluxHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur 2D, interpolation lissee entre quatre tirages.\nfloat fluxNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n  float a = fluxHash(cell);\n  float b = fluxHash(cell + vec2(1.0, 0.0));\n  float c = fluxHash(cell + vec2(0.0, 1.0));\n  float d = fluxHash(cell + vec2(1.0, 1.0));\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Le champ : gradient du bruit tourne d'un quart de tour. Un tel champ n'a\n// pas de divergence, donc les particules ne s'accumulent ni ne se vident\n// nulle part — elles tournent.\nvec2 fluxChamp(vec2 p) {\n  vec2 derive = vec2(uTime * 0.05, -uTime * 0.035);\n  vec2 q = p * uScale + derive;\n  float e = 0.03;\n  float centre = fluxNoise(q);\n  float droite = fluxNoise(q + vec2(e, 0.0));\n  float haut = fluxNoise(q + vec2(0.0, e));\n  vec2 gradient = vec2(droite - centre, haut - centre) / e;\n  vec2 champ = vec2(gradient.y, -gradient.x);\n  return champ / max(length(champ), 0.25);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  int steps = int(clamp(uSteps, 2.0, float(MAX_STEPS)));\n  float portee = float(steps) + uTrail;\n\n  vec2 q = p;\n  float queue = 0.0;\n  float tete = 0.0;\n\n  for (int i = 0; i < MAX_STEPS; i += 1) {\n    if (i >= steps) break;\n    vec2 direction = fluxChamp(q);\n    q -= direction * STEP;\n\n    vec2 cell = floor(q * CELLS);\n    float tirage = fluxHash(cell);\n    if (tirage > uDensity) continue;\n\n    // La graine est un point precis de sa cellule ; la trace n'est allumee\n    // qu'a l'ecart perpendiculaire pres, sinon toute la cellule s'allumerait\n    // en ruban.\n    vec2 graine = (cell + 0.5 + (vec2(fluxHash(cell + 3.1), fluxHash(cell + 7.7)) - 0.5) * 0.8) / CELLS;\n    vec2 ecart = q - graine;\n    float perpendiculaire = abs(ecart.x * direction.y - ecart.y * direction.x);\n    float profil = exp(-perpendiculaire * perpendiculaire * 60000.0);\n\n    // L'age de la particule avance avec le temps ; sa tete est a \"age\" pas de\n    // la graine, et le fragment est a \"i\" pas : la difference dit ou l'on est\n    // sur la queue.\n    float phase = fract(uTime * uSpeed * 0.28 + fluxHash(cell + 11.3));\n    float age = phase * portee;\n    float derriere = age - float(i);\n    float vivant = step(0.0, derriere) * (1.0 - smoothstep(0.0, uTrail, derriere));\n\n    queue = max(queue, vivant * profil);\n    tete = max(tete, vivant * profil * exp(-derriere * 1.6));\n  }\n\n  vec3 colour = uColorA;\n  colour = mix(colour, uColorB, queue * 0.85);\n  colour += uColorC * tete * 0.9;\n\n  // Vignette discrete, pour que la nappe ne soit pas un papier peint.\n  float bord = length((vUv - 0.5) * vec2(aspect, 1.0));\n  colour = mix(colour, uColorA, smoothstep(0.55, 1.1, bord) * 0.3);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Champ de flux : des particules qui suivent un champ de bruit, avec leur\n * trainee.\n *\n * ## Le principe\n *\n * Un champ sans divergence, tire du gradient d'un bruit tourne d'un quart de\n * tour, et des particules qui le suivent. Rien n'est simule ni stocke : chaque\n * fragment remonte le champ a contre-courant sur un nombre borne de pas, et\n * s'allume s'il croise en amont la trace d'une particule vivante. La tete est\n * d'une couleur, la queue d'une autre, et le champ lui-meme derive lentement.\n *\n * Ce qui distingue cette entree de `currents` : celle-ci deforme une nappe\n * continue ; ici ce sont des particules discretes, qui naissent, courent et\n * s'eteignent.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli est affiche pendant le chargement du backend, quand WebGL manque,\n * quand l'arbitre refuse la surface et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { FLOW_FIELD_FRAGMENT } from './flow-field.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface FlowFieldControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface FlowFieldOwnProps {\n  /** Frequence du bruit, donc la taille des tourbillons. @defaultValue 2.5 */\n  scale?: number\n  /** Vitesse des particules. @defaultValue 1 */\n  speed?: number\n  /** Part des cellules qui portent une particule. @defaultValue 0.25 */\n  density?: number\n  /** Longueur de la queue, en pas. @defaultValue 8 */\n  trail?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<FlowFieldControls>\n}\n\n/** Toutes les proprietes. */\nexport type FlowFieldProps = Customisable<FlowFieldOwnProps>\n\n/** Tokens employes par defaut : le fond, la trainee, la tete. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-sky-400',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/** Pas remontes par fragment : la portee d'une particule. */\nconst STEPS = 24\n\n/** Pas remontes en qualite basse. */\nconst LOW_STEPS = 10\n\n/**\n * Champ de flux.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <FlowField className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function FlowField({\n  scale = 2.5,\n  speed = 1,\n  density = 0.25,\n  trail = 8,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: FlowFieldProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: FLOW_FIELD_FRAGMENT,\n    colors,\n    uniforms: {\n      uScale: scale,\n      uSpeed: speed,\n      uDensity: density,\n      uTrail: trail,\n      uSteps: STEPS,\n    },\n    name: 'flow-field',\n    // Chaque pas remonte coute trois lectures de bruit par pixel : c'est le\n    // reglage qui pese, donc celui qui est borne. Les particules deviennent\n    // plus courtes, pas moins nombreuses.\n    degrade: (quality) => ({\n      uSteps: quality === 'low' ? LOW_STEPS : STEPS,\n      uTrail: quality === 'low' ? Math.min(trail, 5) : trail,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

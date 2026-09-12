@@ -1,0 +1,71 @@
+{
+  "name": "lens-zoom",
+  "category": "image",
+  "title": "Loupe",
+  "description": "Un disque suit le pointeur et montre l image agrandie a l endroit survole, sans que le cadre perde sa vue d ensemble.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/LensZoom.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-shadow-lg",
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 2.5,
+      "description": "Grossissement dans le disque.",
+      "min": 1.2,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 180,
+      "unit": "px",
+      "description": "Diametre du disque.",
+      "min": 60,
+      "max": 320,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq variables CSS ecrites au deplacement du pointeur, une transformation et un fond repeints par le compositeur, aucun rendu React. Ni disque ni ecouteur sous mouvement reduit ; les evenements tactiles sont ignores."
+  }
+}

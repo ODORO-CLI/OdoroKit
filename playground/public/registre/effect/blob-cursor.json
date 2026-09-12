@@ -1,0 +1,73 @@
+{
+  "name": "blob-cursor",
+  "category": "effect",
+  "title": "Curseur gluant",
+  "description": "Une chaine de boules recollees par un filtre SVG : la trainee s etire quand le pointeur file, et se fond en une seule goutte des qu il s arrete.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BlobCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de boules de la chaine.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de la tete.",
+      "min": 20,
+      "max": 120,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Vitesse de rattrapage de la tete. Plus haut, plus sec.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la matiere. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Zone ou le blob vit. Absente, il se pose sur la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Huit elements au maximum, un filtre SVG pose une fois, une ecriture de transform par boule et par image. Rien du tout sans pointeur fin ni sous mouvement reduit."
+  },
+  "id": "effect/blob-cursor",
+  "sources": {
+    "component.tsx": "/**\n * Blob gluant : quelques boules qui n'en font qu'une.\n *\n * ## Ce qui distingue ce curseur d'un rond qui suit\n *\n * Une seule boule amortie donne un rond en retard — c'est deja le curseur a\n * halo. Ici il y en a plusieurs, chacune accrochee a la precedente, et un\n * filtre SVG les recolle : la trainee se pince, s'etire, puis se fond dans la\n * tete des que le pointeur s'arrete. La matiere ne vient pas des boules, elle\n * vient du filtre.\n *\n * Le filtre est un flou suivi d'un contraste violent sur la couche alpha :\n * tout ce qui est a demi transparent bascule d'un cote ou de l'autre, et deux\n * bords flous voisins se soudent. C'est l'astuce dite « gluante », et elle ne\n * coute qu'un filtre, jamais un calcul par image.\n *\n * ## Une chaine, pas un ressort unique\n *\n * Chaque boule vise la position de celle qui la precede, et la premiere vise\n * le pointeur. La vitesse de rattrapage decroit le long de la chaine : la\n * queue traine plus que la tete, ce qui suffit a produire l'etirement sans\n * simuler quoi que ce soit.\n *\n * L'amortissement est exponentiel en fonction du temps ecoule — la meme\n * matiere a soixante et a cent vingt images par seconde.\n *\n * ## Ou il ne se montre pas\n *\n * Sans pointeur fin, il n'y a rien a suivre : le composant ne cree aucun\n * element et ne s'abonne a rien. Sous mouvement reduit non plus — une trainee\n * est un mouvement decoratif entier, il n'en reste pas d'etat final a poser.\n * Le curseur du systeme n'est jamais masque : il porte des signaux — texte,\n * lien, redimensionnement — que ce blob ne reprend pas.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useId,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface BlobCursorOwnProps {\n  /**\n   * Zone ou le blob vit.\n   *\n   * Fournie, le blob n'ecoute que cette zone et y est coupe. Absente, il se\n   * pose sur la page entiere, en couche fixe qui n'intercepte rien.\n   */\n  children?: ReactNode\n  /** Nombre de boules de la chaine. @defaultValue 4 */\n  count?: number\n  /** Diametre de la tete, en pixels. @defaultValue 48 */\n  size?: number\n  /** Vitesse de rattrapage de la tete. Plus haut, plus sec. @defaultValue 14 */\n  speed?: number\n  /** Couleur de la matiere. Une valeur, pas un role. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type BlobCursorProps = Customisable<BlobCursorOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-blob-cursor'\n\n/** Au-dela, la chaine ne se lit plus et le filtre coute pour rien. */\nconst MAX_BLOBS = 8\n\n/** Pose les regles du blob, une fois par document. */\nfunction ensureBlobCursorRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La position de la zone vit dans une regle sans specificite : une\n    // classe de l appelant — `o-absolute` pour la poser dans un cadre —\n    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.\n    ':where([data-o-blob-host=\"zone\"]){position:relative;overflow:hidden}',\n    ':where([data-o-blob-host=\"page\"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',\n    '[data-o-blob-layer]{',\n    'position:absolute;inset:0;overflow:hidden;pointer-events:none;',\n    'opacity:0;transition:opacity 200ms linear;',\n    '}',\n    '[data-o-blob]{',\n    'position:absolute;left:0;top:0;border-radius:50%;',\n    // Les boules bougent a chaque image : sans cette annonce, le navigateur\n    // les repromeut a chaque fois au lieu de les garder sur leur couche.\n    'will-change:transform;',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Suit le pointeur d'une matiere gluante.\n *\n * @example\n * // Sur la page entiere.\n * <BlobCursor />\n *\n * @example\n * // Limite a un heros, plus longue et plus lente.\n * <BlobCursor count={6} speed={9}>\n *   <section className=\"o-p-16\">…</section>\n * </BlobCursor>\n */\nexport function BlobCursor({\n  children,\n  count = 4,\n  size = 48,\n  speed = 14,\n  color = 'currentColor',\n  ...rest\n}: BlobCursorProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  // Le filtre porte la taille du blob : deux instances de tailles differentes\n  // ne peuvent pas partager le meme, d'ou un identifiant par instance. Les\n  // deux-points de `useId` ne passent pas dans une reference `url(#…)`.\n  const gooId = `o-blob-goo-${useId().replaceAll(':', '')}`\n  const wrapping = children !== undefined\n\n  ensureBlobCursorRule()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (typeof window === 'undefined') return\n    // Pointeur grossier : rien a suivre, et rien ne sera cree. Voir l'en-tete.\n    if (!window.matchMedia('(pointer: fine)').matches) return\n\n    const total = Math.max(2, Math.min(MAX_BLOBS, Math.round(count)))\n    const away = -size * 3\n\n    const layer = document.createElement('div')\n    layer.setAttribute('data-o-blob-layer', '')\n    layer.setAttribute('aria-hidden', 'true')\n    layer.style.filter = `url(#${gooId})`\n    host.append(layer)\n\n    const chain: { node: HTMLElement; x: number; y: number; grip: number }[] = []\n    for (let index = 0; index < total; index += 1) {\n      const node = document.createElement('span')\n      const diameter = size * (1 - (index / total) * 0.5)\n      node.setAttribute('data-o-blob', '')\n      node.style.width = `${diameter.toFixed(1)}px`\n      node.style.height = `${diameter.toFixed(1)}px`\n      node.style.margin = `${(-diameter / 2).toFixed(1)}px`\n      node.style.background = color\n      layer.append(node)\n      // La prise se relache le long de la chaine : la queue traine, la tete\n      // colle. C'est tout l'etirement.\n      chain.push({ node, x: away, y: away, grip: speed * (1 - (index / total) * 0.6) })\n    }\n\n    // Le cadre est releve a l'installation, puis aux seuls evenements qui le\n    // deplacent. Le relire a chaque mouvement forcerait une mise en page des\n    // dizaines de fois par seconde pour une valeur qui n'a pas bouge.\n    let box = host.getBoundingClientRect()\n    const onFrameChange = (): void => {\n      box = host.getBoundingClientRect()\n    }\n\n    let targetX = away\n    let targetY = away\n    let seen = false\n\n    const onMove = (event: Event): void => {\n      const pointer = event as PointerEvent\n      if (pointer.pointerType === 'touch') return\n      targetX = pointer.clientX - box.left\n      targetY = pointer.clientY - box.top\n      if (!seen) {\n        // Sans ce recalage, la chaine traverserait la zone en diagonale depuis\n        // sa position de depart au premier mouvement.\n        for (const link of chain) {\n          link.x = targetX\n          link.y = targetY\n        }\n        seen = true\n        layer.style.opacity = '1'\n      }\n    }\n\n    const onLeave = (): void => {\n      layer.style.opacity = '0'\n      seen = false\n      targetX = away\n      targetY = away\n    }\n\n    const surface: HTMLElement | Window = wrapping ? host : window\n    surface.addEventListener('pointermove', onMove, { passive: true })\n    surface.addEventListener('pointerleave', onLeave)\n    window.addEventListener('resize', onFrameChange, { passive: true })\n    window.addEventListener('scroll', onFrameChange, { passive: true, capture: true })\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        let aheadX = targetX\n        let aheadY = targetY\n        for (const link of chain) {\n          const factor = 1 - Math.exp(-link.grip * delta)\n          link.x += (aheadX - link.x) * factor\n          link.y += (aheadY - link.y) * factor\n          link.node.style.transform = `translate3d(${link.x.toFixed(1)}px,${link.y.toFixed(1)}px,0)`\n          aheadX = link.x\n          aheadY = link.y\n        }\n      },\n      { name: 'blob-cursor : chaine', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      surface.removeEventListener('pointermove', onMove)\n      surface.removeEventListener('pointerleave', onLeave)\n      window.removeEventListener('resize', onFrameChange)\n      window.removeEventListener('scroll', onFrameChange, { capture: true })\n      subscription.unsubscribe()\n      layer.remove()\n    }\n  }, [host, reduced, count, size, speed, color, gooId, wrapping])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={style as CSSProperties}\n      data-o-blob-host={wrapping ? 'zone' : 'page'}\n    >\n      {children}\n      {/* Le filtre gluant. Surface nulle : il n'est la que pour etre reference\n          par la couche, jamais pour etre vu. */}\n      <svg aria-hidden width=\"0\" height=\"0\" focusable=\"false\" style={{ position: 'absolute' }}>\n        <defs>\n          <filter id={gooId}>\n            <feGaussianBlur\n              in=\"SourceGraphic\"\n              stdDeviation={Math.max(4, size * 0.16)}\n              result=\"flou\"\n            />\n            <feColorMatrix\n              in=\"flou\"\n              type=\"matrix\"\n              values=\"1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11\"\n            />\n          </filter>\n        </defs>\n      </svg>\n    </div>\n  )\n}\n"
+  }
+}

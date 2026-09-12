@@ -1,0 +1,65 @@
+{
+  "name": "chasing-dots",
+  "category": "loader",
+  "title": "Points qui se poursuivent",
+  "description": "Quatre points de taille decroissante tournent en file sur un cercle, une tete et sa trainee, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ChasingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre du cercle parcouru.",
+      "min": 16,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 400,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule rotation CSS tenue par le compositeur, les points sont poses une fois. La file reste en place, immobile, sous mouvement reduit."
+  },
+  "id": "loader/chasing-dots",
+  "sources": {
+    "component.tsx": "/**\n * Points qui se poursuivent : une tete et sa trainee tournent en file sur un\n * cercle.\n *\n * ## Une seule rotation, quatre points poses\n *\n * Faire tourner quatre points separement demanderait quatre animations\n * synchronisees au degre pres — et la moindre derive les desalignerait.\n * Ici un seul element tourne : le plateau. Les points y sont poses une fois,\n * chacun a son angle, et ne bougent plus. La poursuite est un effet de\n * placement, pas de mouvement.\n *\n * Les points decroissent en taille et en opacite de la tete a la queue :\n * c'est ce degrade qui donne un sens de marche. Quatre points identiques\n * tourneraient sans qu'on sache lequel mene.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le plateau et ses\n * points sont retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le plateau s'arrete : la file — une tete et sa\n * trainee — se lit encore comme un chargeur, seul le tour s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-chasing-dots'\n\n/** Pose le plateau et ses points, une fois par document. */\nfunction ensureChaseRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-chasing-dots]{',\n    'position:relative;display:inline-block;',\n    'width:var(--o-chase-size);height:var(--o-chase-size);',\n    '}',\n    '[data-o-chasing-plate]{',\n    'position:absolute;inset:0;',\n    'animation:o-chasing-dots-spin var(--o-chase-speed) linear infinite;',\n    '}',\n    // Chaque point part du centre, tourne a son angle, puis s'ecarte\n    // jusqu'au bord : le rayon vient de la translation, pas d'un calcul.\n    '[data-o-chasing-dot]{',\n    'position:absolute;top:50%;left:50%;',\n    'width:var(--o-chase-dot);height:var(--o-chase-dot);',\n    'margin:calc(var(--o-chase-dot) / -2);',\n    'border-radius:50%;background:var(--o-chase-color);',\n    'opacity:var(--o-chase-opacity);',\n    'transform:rotate(var(--o-chase-angle)) translate3d(0,calc(var(--o-chase-size) / -2 + var(--o-chase-dot) / 2),0);',\n    '}',\n    '@keyframes o-chasing-dots-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    // La file immobile reste une tete et sa trainee : la figure se lit\n    // encore comme un chargeur.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-chasing-plate]{animation:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ChasingDotsOwnProps {\n  /** Diametre du cercle parcouru, en pixels. @defaultValue 40 */\n  size?: number\n  /** Duree d'un tour complet, en millisecondes. @defaultValue 1000 */\n  speed?: number\n  /** Couleur des points. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ChasingDotsProps = Customisable<ChasingDotsOwnProps, 'span'>\n\n/**\n * Signale une attente par une file de points qui tourne.\n *\n * @example\n * <ChasingDots />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <ChasingDots size={64} speed={1600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function ChasingDots({\n  size = 40,\n  speed = 1000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: ChasingDotsProps): ReactElement {\n  ensureChaseRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-chase-size': `${String(size)}px`,\n    '--o-chase-speed': `${String(speed)}ms`,\n    '--o-chase-color': color,\n  } as CSSProperties\n\n  // La tete en premier, puis trois points de plus en plus petits et pales,\n  // chacun trente degres derriere le precedent. Le diametre de la tete vaut\n  // un cinquieme du cercle : assez pour que la trainee ne se recouvre pas.\n  const dots = [0, 1, 2, 3].map((index) => ({\n    angle: `${String(-index * 30)}deg`,\n    diameter: Math.max(2, Math.round((size / 5) * (1 - index * 0.2))),\n    opacity: 1 - index * 0.22,\n  }))\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-chasing-dots=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-chasing-plate=\"\">\n        {dots.map((dot, index) => (\n          <span\n            key={index}\n            data-o-chasing-dot=\"\"\n            style={\n              {\n                '--o-chase-angle': dot.angle,\n                '--o-chase-dot': `${String(dot.diameter)}px`,\n                '--o-chase-opacity': String(dot.opacity),\n              } as CSSProperties\n            }\n          />\n        ))}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "domino",
+  "category": "loader",
+  "title": "Dominos",
+  "description": "Cinq dominos debout tombent l un sur l autre en accelerant, puis se relevent ensemble, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Domino.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "unit": "px",
+      "description": "Epaisseur d un domino. Sa hauteur et l ecart entre deux en dependent.",
+      "min": 3,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, chute en chaine et relevement compris.",
+      "min": 800,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des dominos. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq animations CSS de rotation tenues par le compositeur, aucun JavaScript apres le premier rendu. Rangee debout et immobile sous mouvement reduit."
+  },
+  "id": "loader/domino",
+  "sources": {
+    "component.tsx": "/**\n * Dominos : cinq dominos debout tombent l'un sur l'autre, de gauche a\n * droite, puis se relevent ensemble.\n *\n * ## La chute pivote sur le coin, pas sur le centre\n *\n * Un domino qui tombe ne tourne pas autour de son milieu : il bascule sur\n * son arete au sol. L'origine de rotation est donc le coin inferieur droit,\n * et la rotation est en `ease-in` — rien ne le retient, il accelere. Il\n * s'arrete a soixante-cinq degres, incline sur le suivant, et non a plat :\n * un domino tombe s'appuie sur son voisin, c'est ce qui fait lire une\n * chaine plutot qu'une rangee qui se couche.\n *\n * L'ecart entre deux dominos est calcule pour que le sommet d'un domino\n * incline atteigne juste le suivant : plus serre, ils se chevaucheraient ;\n * plus large, la chaine se casserait.\n *\n * Chaque domino connait sa fenetre dans le cycle, par une animation propre\n * ecrite une fois dans la feuille : la chaine a un ordre, et le relevement\n * est commun — la rangee se redresse d'un bloc, en `ease-out`, comme remise\n * en place par une main.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les dominos sont\n * retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la rangee reste debout : la figure se lit encore\n * comme des dominos, seule la chute s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-domino'\n\n/** Nombre de dominos. */\nconst TILES = 5\n\n/** Hauteur d'un domino, en epaisseurs. */\nconst HEIGHT = 4\n\n/** Angle de chute, en degres : incline sur le suivant, pas a plat. */\nconst ANGLE = 65\n\n/**\n * Ecart entre deux dominos, en epaisseurs.\n *\n * Le sommet d'un domino incline avance de `HEIGHT * sin(ANGLE)` ; moins une\n * epaisseur, c'est l'ecart qui l'amene juste contre le suivant.\n */\nconst GAP = Number((HEIGHT * Math.sin((ANGLE * Math.PI) / 180) - 1).toFixed(2))\n\n/** Part du cycle entre deux departs de chute, en pour cent. */\nconst STEP = 11\n\n/** Duree d'une chute, en pour cent du cycle. */\nconst FALL = 12\n\n/** Instant ou la rangee tombee commence a se relever, en pour cent. */\nconst RAISE_AT = 76\n\n/** Pose les dominos et leurs chutes, une fois par document. */\nfunction ensureDominoRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Une marge a droite : le dernier domino incline y deborde.\n    '[data-o-domino]{',\n    'display:inline-flex;align-items:flex-end;',\n    `gap:calc(var(--o-domino-size) * ${String(GAP)});`,\n    `height:calc(var(--o-domino-size) * ${String(HEIGHT)});`,\n    `padding-right:calc(var(--o-domino-size) * ${String(GAP)});`,\n    '}',\n    '[data-o-domino-tile]{',\n    `width:var(--o-domino-size);height:calc(var(--o-domino-size) * ${String(HEIGHT)});`,\n    'border-radius:calc(var(--o-domino-size) / 3);background:var(--o-domino-color);',\n    'transform-origin:bottom right;',\n    'animation-duration:var(--o-domino-speed);animation-iteration-count:infinite;',\n    '}',\n    ...Array.from({ length: TILES }, (_, tile) => {\n      const start = tile * STEP\n      const end = start + FALL\n      return [\n        `[data-o-domino-tile=\"${String(tile)}\"]{animation-name:o-domino-${String(tile)}}`,\n        `@keyframes o-domino-${String(tile)}{`,\n        `0%,${String(start)}%{transform:rotate(0);animation-timing-function:ease-in}`,\n        `${String(end)}%,${String(RAISE_AT)}%{transform:rotate(${String(ANGLE)}deg);animation-timing-function:ease-out}`,\n        `${String(RAISE_AT + 14)}%,100%{transform:rotate(0)}`,\n        '}',\n      ].join('')\n    }),\n    // Une rangee debout : la figure est dite, sans chute.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-domino-tile]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface DominoOwnProps {\n  /** Epaisseur d'un domino, en pixels. @defaultValue 5 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2000 */\n  speed?: number\n  /** Couleur des dominos. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type DominoProps = Customisable<DominoOwnProps, 'span'>\n\n/**\n * Signale une attente par une chaine de dominos qui tombent.\n *\n * @example\n * <Domino />\n *\n * @example\n * // Plus epais, plus lent, dans la teinte de marque.\n * <Domino size={8} speed={3000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Domino({\n  size = 5,\n  speed = 2000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: DominoProps): ReactElement {\n  ensureDominoRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-domino-size': `${String(size)}px`,\n    '--o-domino-speed': `${String(speed)}ms`,\n    '--o-domino-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-domino=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: TILES }, (_, tile) => (\n        <span key={tile} aria-hidden data-o-domino-tile={String(tile)} />\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

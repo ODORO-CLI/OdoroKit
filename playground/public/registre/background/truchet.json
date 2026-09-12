@@ -1,0 +1,93 @@
+{
+  "name": "truchet",
+  "category": "background",
+  "title": "Truchet",
+  "description": "Des tuiles de Truchet a deux arcs qui pivotent d un quart de tour en cascade diagonale ; chaque arc garde sa couleur et le dessin se recompose.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "truchet.shader.ts",
+      "target": "background/truchet.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Truchet.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-teal-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.35,
+      "description": "Cadence des pivots : periodes par seconde.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Nombre de tuiles sur la hauteur.",
+      "min": 3,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 0.09,
+      "description": "Epaisseur des arcs, en fraction de la tuile.",
+      "min": 0.02,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Retard d une tuile sur sa voisine en diagonale, en periodes. Zero fait pivoter tout le pavage d un coup.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-teal-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, le premier arc, le second arc."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une tuile evaluee par fragment, deux arcs et une rotation. La densite ne change pas le cout.",
+    "fallback": "static"
+  },
+  "id": "background/truchet",
+  "sources": {
+    "truchet.shader.ts": "/**\n * Shader des tuiles de Truchet.\n *\n * ## L'idee mathematique\n *\n * Une tuile de Truchet porte deux quarts de cercle, centres sur deux coins\n * opposes, de rayon une demi-tuile : quelle que soit son orientation, ses\n * arcs rejoignent ceux des voisines, et le pavage forme des courbes fermees\n * sans qu'aucune tuile ne connaisse les autres.\n *\n * Chaque tuile a une orientation de depart hachee, et pivote d'un quart de\n * tour a chaque periode. Le pivot est anime : un tiers de periode de\n * rotation, puis le repos. Une cascade diagonale retarde chaque tuile sur\n * sa voisine, si bien que le pavage se recompose en vague plutot que d'un\n * coup.\n *\n * La couleur est attachee a l'arc, pas au coin : quand la tuile pivote, la\n * couleur tourne avec elle, et les courbes du pavage changent de teinte la\n * ou elles se raccordent autrement.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le premier arc.\n * - `uColorC` — le second arc.\n * - `uSpeed` — periodes par seconde.\n * - `uDensity` — nombre de tuiles sur la hauteur.\n * - `uThickness` — epaisseur des arcs, en fraction de la tuile.\n * - `uStagger` — retard diagonal entre deux tuiles voisines, en periodes.\n */\nexport const TRUCHET_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uDensity;\nuniform float uThickness;\nuniform float uStagger;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat truchetHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\nvec2 truchetRotate(vec2 p, float angle) {\n  float c = cos(angle);\n  float s = sin(angle);\n  return vec2(c * p.x - s * p.y, s * p.x + c * p.y);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float scale = max(uDensity, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y) * scale;\n  vec2 cell = floor(p);\n  vec2 local = fract(p) - 0.5;\n\n  // La cascade : chaque tuile est en retard sur sa voisine diagonale. La\n  // partie entiere compte les quarts de tour faits, la partie fractionnaire\n  // anime celui en cours pendant son premier tiers.\n  float phase = uTime * uSpeed - (cell.x + cell.y) * uStagger;\n  float turns = floor(phase);\n  float progress = smoothstep(0.0, 0.34, fract(phase));\n\n  float start = floor(truchetHash(cell) * 4.0);\n  float angle = (start + turns + progress) * 1.5707963;\n\n  vec2 q = truchetRotate(local, angle);\n\n  // Les deux arcs : quarts de cercle centres sur deux coins opposes.\n  float d1 = abs(length(q - vec2(-0.5, -0.5)) - 0.5);\n  float d2 = abs(length(q - vec2(0.5, 0.5)) - 0.5);\n\n  float px = scale / max(uResolution.y, 1.0) * 1.5;\n  float halfWidth = max(uThickness, 0.01) * 0.5;\n  float arc1 = 1.0 - smoothstep(halfWidth - px, halfWidth + px, d1);\n  float arc2 = 1.0 - smoothstep(halfWidth - px, halfWidth + px, d2);\n\n  // Pendant le pivot, la tuile s'assombrit un peu : l'oeil suit la vague.\n  float moving = progress * (1.0 - progress) * 4.0;\n\n  vec3 colour = mix(uColorA, uColorB, 0.06 * moving);\n  colour = mix(colour, uColorB, arc1);\n  colour = mix(colour, uColorC, arc2);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Truchet : des tuiles a deux arcs qui pivotent en cascade.\n *\n * ## Pourquoi un quart de tour, et pas un demi\n *\n * Un demi-tour ramene une tuile de Truchet sur elle-meme : rien ne\n * changerait. Le quart de tour est la plus petite rotation qui recompose le\n * pavage, et l'animer suffit a montrer d'ou vient le nouveau dessin.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous\n * mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { TRUCHET_FRAGMENT } from './truchet.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface TruchetControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface TruchetOwnProps {\n  /** Cadence des pivots, en periodes par seconde. @defaultValue 0.35 */\n  speed?: number\n  /** Nombre de tuiles sur la hauteur. @defaultValue 8 */\n  density?: number\n  /** Epaisseur des arcs, en fraction de la tuile. @defaultValue 0.09 */\n  thickness?: number\n  /** Retard diagonal entre deux tuiles voisines, en periodes. @defaultValue 0.12 */\n  stagger?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<TruchetControls>\n}\n\n/** Toutes les proprietes. */\nexport type TruchetProps = Customisable<TruchetOwnProps>\n\n/** Tokens employes par defaut : le fond, le premier arc, le second arc. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-brand-500',\n  '--o-palette-teal-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Truchet.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Truchet className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Truchet({\n  speed = 0.35,\n  density = 8,\n  thickness = 0.09,\n  stagger = 0.12,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: TruchetProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: TRUCHET_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uDensity: density,\n      uThickness: thickness,\n      uStagger: stagger,\n    },\n    name: 'truchet',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

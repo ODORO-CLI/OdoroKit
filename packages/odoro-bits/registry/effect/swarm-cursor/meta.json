@@ -1,0 +1,83 @@
+{
+  "name": "swarm-cursor",
+  "category": "effect",
+  "title": "Nuee de curseur",
+  "description": "Des points tournent autour du pointeur, chacun avec sa prise : au repos ils forment un anneau, des que la main file la nuee s etire en comete.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/SwarmCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de points.",
+      "min": 3,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Rayon de l orbite.",
+      "min": 10,
+      "max": 120,
+      "step": 5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.4,
+      "description": "Vitesse d orbite, en tours par seconde.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 0.65,
+      "description": "Dispersion : de combien les prises different d un point a l autre.",
+      "min": 0,
+      "max": 0.95,
+      "step": 0.05
+    },
+    {
+      "name": "dotSize",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point.",
+      "min": 2,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone ou la nuee vit. Absente, elle prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trente-deux elements au maximum, une ecriture de transform par point et par image, aucune allocation dans la boucle. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

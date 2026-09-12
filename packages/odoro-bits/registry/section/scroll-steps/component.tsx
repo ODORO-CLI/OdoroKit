@@ -120,7 +120,7 @@ export function ScrollSteps({
             className="o-flex o-flex-col o-gap-2 o-transition-opacity"
             style={{ opacity: reduced || index === active ? 1 : 0.45 }}
           >
-            <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+            <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
               {String(index + 1).padStart(2, '0')}
             </span>
             <h3 className="o-text-xl o-font-semibold o-tracking-tight">{step.title}</h3>

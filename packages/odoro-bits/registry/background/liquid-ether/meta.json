@@ -1,0 +1,79 @@
+{
+  "name": "liquid-ether",
+  "category": "background",
+  "title": "Ether liquide",
+  "description": "Un fluide vaporeux que le pointeur pousse : chaque deplacement depose un tourbillon date qui advecte le bruit et y laisse une trace claire, douze depots vivent a la fois.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "liquid-ether.shader.ts",
+      "target": "background/liquid-ether.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LiquidEther.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-violet-500", "--o-palette-cyan-300"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.1,
+      "description": "Vitesse de la derive sans pointeur.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 0.22,
+      "description": "Rayon d un depot, en hauteurs de cadre.",
+      "min": 0.05,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.8,
+      "description": "Force de la poussee sur le bruit.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "life",
+      "type": "number",
+      "default": 2.5,
+      "unit": "s",
+      "description": "Duree de vie d un depot, en secondes.",
+      "min": 0.5,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-cyan-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, la vapeur, la trace du pointeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Douze depots sommes puis deux sommes d octaves par fragment ; aucune texture, aucun ping-pong. En qualite basse, les octaves tombent a deux."
+  }
+}

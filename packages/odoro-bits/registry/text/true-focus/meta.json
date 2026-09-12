@@ -1,0 +1,76 @@
+{
+  "name": "true-focus",
+  "category": "text",
+  "title": "Mise au point",
+  "description": "Un cadre de quatre angles saute de mot en mot ; le mot vise redevient net pendant que les autres restent flous, et le survol prend la main.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/TrueFocus.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Flou d un mot hors mise au point.",
+      "min": 0,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "attenue",
+      "type": "number",
+      "default": 0.55,
+      "description": "Opacite d un mot hors mise au point, de 0 a 1.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Temps passe sur un mot.",
+      "min": 300,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du deplacement du cadre.",
+      "min": 80,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "couleur",
+      "type": "string",
+      "description": "Couleur du cadre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React par mot vise, soit un par seconde environ ; le deplacement du cadre et le flou sont des transitions CSS. Le flou est un filtre par mot, a garder modeste sur un long texte."
+  }
+}

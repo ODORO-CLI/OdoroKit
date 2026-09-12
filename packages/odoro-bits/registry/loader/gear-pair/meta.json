@@ -1,0 +1,57 @@
+{
+  "name": "gear-pair",
+  "category": "loader",
+  "title": "Deux engrenages",
+  "description": "Un grand et un petit engrenage tournent en sens contraires, dents engrenees, a des vitesses qui respectent leur rapport, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GearPair.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un tour du grand engrenage. Le petit tourne d autant plus vite.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des engrenages ; le petit en est une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux chemins SVG et deux rotations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Engrenages immobiles, dents engrenees, sous mouvement reduit."
+  }
+}

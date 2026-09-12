@@ -1,0 +1,63 @@
+{
+  "name": "typing-cursor",
+  "category": "loader",
+  "title": "Curseur qui frappe",
+  "description": "Un mot se tape caractere par caractere derriere un curseur qui clignote, tient, puis s efface, sans une ligne de JavaScript.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/TypingCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-font-mono"],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Le texte frappe."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 3200,
+      "unit": "ms",
+      "description": "Duree d un cycle : frappe, tenue, effacement.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du texte et du curseur. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation de largeur par paliers et un clignotement de bordure, aucun JavaScript apres le premier rendu. Texte complet et curseur fixe sous mouvement reduit."
+  }
+}

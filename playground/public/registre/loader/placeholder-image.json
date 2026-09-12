@@ -1,0 +1,94 @@
+{
+  "name": "placeholder-image",
+  "category": "loader",
+  "title": "Cadre d image",
+  "description": "Un rectangle au bon rapport, cerne d un filet pointille, avec au centre le pictogramme de l image qui manque.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PlaceholderImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface",
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "ratio",
+      "type": "string",
+      "required": false,
+      "default": "16/9",
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "options": [
+        "16/9",
+        "4/3",
+        "3/2",
+        "1/1"
+      ]
+    },
+    {
+      "name": "icon",
+      "type": "number",
+      "required": false,
+      "default": 40,
+      "unit": "px",
+      "description": "Largeur du pictogramme.",
+      "min": 16,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Faire passer un reflet sur le cadre."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Image en attente",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un pictogramme en ligne et, au plus, une transformation sur une couche de reflet ; aucun JavaScript apres le premier rendu. Le rapport reserve la hauteur. Cadre entier et sans reflet sous mouvement reduit."
+  },
+  "id": "loader/placeholder-image",
+  "sources": {
+    "component.tsx": "/**\n * Cadre d'image : un rectangle au bon rapport, cerne d'un filet pointille,\n * avec au centre le pictogramme de ce qui manque.\n *\n * ## Un cadre vide n'est pas un bloc gris\n *\n * Un bloc uni dit « ca charge ». Un cadre pointille avec une icone dit\n * « une image va ici » — et le dit meme quand rien ne charge : illustration\n * absente, champ de televersement encore vide, gabarit en cours de montage.\n * Les deux lectures ne demandent pas le meme dessin, d'ou une entree\n * separee de `skeleton-grid`, dont les vignettes sont pleines et anonymes.\n *\n * Le filet est **pointille** : c'est la convention qui distingue une place\n * reservee d'une bordure reelle. Un trait plein se lirait comme le cadre\n * definitif de l'image.\n *\n * Le pictogramme est dessine en ligne plutot qu'importe : trois traits, un\n * disque et un rectangle, c'est moins que le cout d'une dependance de plus\n * pour un composant qui n'affiche que lui.\n *\n * ## Le rapport, encore\n *\n * `ratio` reserve la hauteur exacte. C'est la meme raison que dans\n * `skeleton-grid` : sans rapport declare, la page se replie a l'arrivee de\n * l'image, et tout ce qui la suit saute.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; le cadre et son\n * pictogramme sont retires de l'arbre d'accessibilite. Sous mouvement\n * reduit, le reflet s'arrete et le cadre reste entier : la place reste\n * dite, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-placeholder-image'\n\n/** Rapports acceptes pour le cadre. */\nconst RATIOS = ['16/9', '4/3', '3/2', '1/1'] as const\n\n/** Pose le cadre, son filet et son reflet, une fois par document. */\nfunction ensurePlaceholderImageRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pimg]{display:block;width:100%}',\n    '[data-o-pimg-frame]{',\n    'position:relative;display:flex;align-items:center;justify-content:center;',\n    'overflow:hidden;box-sizing:border-box;',\n    'width:100%;aspect-ratio:var(--o-pimg-ratio);',\n    'border-radius:var(--o-pimg-radius);',\n    // Plus clair qu'un bloc de squelette : le pictogramme doit se lire.\n    'background:color-mix(in oklab,var(--o-theme-line) 38%,var(--o-theme-surface));',\n    // Pointille : la convention d'une place reservee, pas d'un cadre reel.\n    'border:1px dashed var(--o-theme-line);',\n    '}',\n    // Le pictogramme prend l'encre en sourdine : present, jamais dominant.\n    '[data-o-pimg-glyph]{',\n    'position:relative;display:block;color:var(--o-theme-muted);',\n    'width:var(--o-pimg-icon);height:auto;opacity:0.85;',\n    '}',\n    '[data-o-pimg-shimmer] [data-o-pimg-frame]::after{',\n    'content:\"\";position:absolute;inset:0;',\n    'background:linear-gradient(100deg,transparent 0 35%,color-mix(in oklab,var(--o-theme-surface) 80%,transparent) 50%,transparent 65% 100%);',\n    'transform:translateX(-100%);',\n    'animation:o-pimg-sweep var(--o-pimg-speed) linear infinite;',\n    '}',\n    '@keyframes o-pimg-sweep{to{transform:translateX(100%)}}',\n    // Le cadre reste entier, sans reflet.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pimg-shimmer] [data-o-pimg-frame]::after{animation:none;opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface PlaceholderImageOwnProps {\n  /** Rapport largeur sur hauteur du cadre. @defaultValue '16/9' */\n  ratio?: string\n  /** Largeur du pictogramme, en pixels. @defaultValue 40 */\n  icon?: number\n  /** Rayon des angles, en pixels. @defaultValue 12 */\n  radius?: number\n  /** Faire passer un reflet sur le cadre. @defaultValue false */\n  shimmer?: boolean\n  /** Duree d'un passage du reflet, en millisecondes. @defaultValue 2000 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Image en attente' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type PlaceholderImageProps = Customisable<PlaceholderImageOwnProps, 'div'>\n\n/**\n * Reserve la place d'une image, cadre et pictogramme compris.\n *\n * @example\n * <PlaceholderImage />\n *\n * @example\n * // Un carre qui charge vraiment : le reflet le dit.\n * <PlaceholderImage ratio=\"1/1\" shimmer />\n */\nexport function PlaceholderImage({\n  ratio = '16/9',\n  icon = 40,\n  radius = 12,\n  shimmer = false,\n  speed = 2000,\n  label = 'Image en attente',\n  ...rest\n}: PlaceholderImageProps): ReactElement {\n  ensurePlaceholderImageRule()\n\n  // Un rapport inconnu casserait le cadre sans rien dire : on retombe sur\n  // celui par defaut plutot que d'ecrire une valeur invalide.\n  const safeRatio = (RATIOS as readonly string[]).includes(ratio) ? ratio : '16/9'\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-pimg-ratio': safeRatio,\n    '--o-pimg-icon': `${String(icon)}px`,\n    '--o-pimg-radius': `${String(radius)}px`,\n    '--o-pimg-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-pimg=\"\"\n      data-o-pimg-shimmer={shimmer ? '' : undefined}\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-pimg-frame=\"\">\n        <svg\n          data-o-pimg-glyph=\"\"\n          viewBox=\"0 0 24 24\"\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={1.5}\n          strokeLinecap=\"round\"\n          strokeLinejoin=\"round\"\n        >\n          <rect x=\"3\" y=\"4.5\" width=\"18\" height=\"15\" rx=\"2.5\" />\n          <circle cx=\"8.75\" cy=\"10\" r=\"1.6\" />\n          <path d=\"M3.5 16.4 8.6 12.1 13 15.8\" />\n          <path d=\"M12.4 15.3 15.9 12.2 20.5 16\" />\n        </svg>\n      </span>\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "tetris",
+  "category": "loader",
+  "title": "Tetris",
+  "description": "Trois pieces tombent cran par cran dans un puits de quatre cases, completent trois lignes qui clignotent et s effacent, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Tetris.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Cote d une case. Le puits en fait quatre de large et quatre de haut.",
+      "min": 4,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, chute des trois pieces et effacement compris.",
+      "min": 1200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des pieces. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS de translation par paliers tenues par le compositeur, aucun JavaScript apres le premier rendu. Puits rempli et immobile sous mouvement reduit."
+  },
+  "id": "loader/tetris",
+  "sources": {
+    "component.tsx": "/**\n * Tetris : trois pieces tombent cran par cran dans un puits de quatre cases,\n * completent trois lignes qui clignotent, et le puits se vide.\n *\n * ## Une piece est un groupe, pas quatre cases\n *\n * Les cases d'une piece sont posees a leur place finale dans le puits, et\n * c'est le groupe entier qui est translate au-dessus du bord puis ramene\n * cran par cran par `steps()` : une case a la fois, sans interpolation. La\n * chute continue d'une animation lisse ne se lirait pas comme un Tetris ;\n * la saccade, si. Le puits coupe ce qui depasse, donc une piece n'existe\n * visuellement qu'a partir du moment ou elle entre.\n *\n * Trois pieces — un L, un J et un carre — suffisent a remplir exactement\n * trois lignes sur quatre colonnes : douze cases, sans trou. Les lignes\n * pleines clignotent une fois puis s'effacent, comme dans le jeu, et la\n * boucle recommence.\n *\n * Chaque piece connait sa fenetre dans le cycle, par une animation propre\n * ecrite une fois dans la feuille : l'ordre de chute et l'effacement commun\n * l'exigent.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le puits et ses pieces\n * sont retires de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le puits reste rempli : la figure se lit encore,\n * seules la chute et l'effacement s'arretent.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-tetris'\n\n/** Cote du puits, en cases. */\nconst WELL = 4\n\n/**\n * Les pieces, dans l'ordre de chute, comme listes de cases `[colonne, ligne]`\n * ou la ligne zero est en haut du puits.\n *\n * Un L a gauche, un J a droite, et le carre vient combler le milieu : les\n * trois lignes du bas sont pleines, sans trou.\n */\nconst PIECES: readonly (readonly (readonly [number, number])[])[] = [\n  [\n    [0, 1],\n    [0, 2],\n    [0, 3],\n    [1, 3],\n  ],\n  [\n    [3, 1],\n    [3, 2],\n    [3, 3],\n    [2, 3],\n  ],\n  [\n    [1, 1],\n    [2, 1],\n    [1, 2],\n    [2, 2],\n  ],\n]\n\n/** Part du cycle entre deux departs de chute, en pour cent. */\nconst STEP = 22\n\n/** Duree d'une chute, en pour cent du cycle. */\nconst DROP = 18\n\n/** Instant ou les lignes pleines commencent a clignoter, en pour cent. */\nconst CLEAR_AT = 84\n\n/** Pose le puits, les cases et les chutes, une fois par document. */\nfunction ensureTetrisRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Le puits : un carre attenue qui coupe ce qui tombe d'au-dessus.\n    '[data-o-tetris]{',\n    'position:relative;display:inline-block;overflow:hidden;',\n    `width:calc(var(--o-tetris-size) * ${String(WELL)});height:calc(var(--o-tetris-size) * ${String(WELL)});`,\n    'border-radius:calc(var(--o-tetris-size) / 4);',\n    'background:color-mix(in oklab,var(--o-tetris-color) 12%,transparent);',\n    '}',\n    '[data-o-tetris-piece]{',\n    'position:absolute;inset:0;',\n    'animation-duration:var(--o-tetris-speed);animation-iteration-count:infinite;',\n    '}',\n    // Une bordure transparente rognee par le fond : le joint entre deux\n    // cases, sans couleur ni calcul.\n    '[data-o-tetris-cell]{',\n    'position:absolute;width:var(--o-tetris-size);height:var(--o-tetris-size);',\n    'box-sizing:border-box;border:1px solid transparent;background-clip:padding-box;',\n    'background-color:var(--o-tetris-color);',\n    'left:calc(var(--o-tetris-size) * var(--o-tetris-col));',\n    'top:calc(var(--o-tetris-size) * var(--o-tetris-row));',\n    '}',\n    ...PIECES.map((_, piece) => {\n      const start = piece * STEP\n      const end = start + DROP\n      return [\n        `[data-o-tetris-piece=\"${String(piece)}\"]{animation-name:o-tetris-${String(piece)}}`,\n        `@keyframes o-tetris-${String(piece)}{`,\n        // Quatre crans du bord jusqu'a la place finale, un cran a la fois.\n        `0%,${String(start)}%{transform:translateY(calc(var(--o-tetris-size) * ${String(-WELL)}));opacity:1;animation-timing-function:steps(${String(WELL)},end)}`,\n        `${String(end)}%,${String(CLEAR_AT)}%{transform:none;opacity:1}`,\n        `${String(CLEAR_AT + 4)}%{opacity:0.3}`,\n        `${String(CLEAR_AT + 8)}%{opacity:1}`,\n        `${String(CLEAR_AT + 13)}%,100%{transform:none;opacity:0}`,\n        '}',\n      ].join('')\n    }),\n    // Un puits rempli : la figure est dite, sans chute.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-tetris-piece]{animation:none;transform:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface TetrisOwnProps {\n  /** Cote d'une case, en pixels. @defaultValue 8 */\n  size?: number\n  /** Duree d'un cycle complet, en millisecondes. @defaultValue 2600 */\n  speed?: number\n  /** Couleur des pieces. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type TetrisProps = Customisable<TetrisOwnProps, 'span'>\n\n/**\n * Signale une attente par des pieces qui tombent dans un puits.\n *\n * @example\n * <Tetris />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Tetris size={12} speed={3600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Tetris({\n  size = 8,\n  speed = 2600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: TetrisProps): ReactElement {\n  ensureTetrisRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-tetris-size': `${String(size)}px`,\n    '--o-tetris-speed': `${String(speed)}ms`,\n    '--o-tetris-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-tetris=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {PIECES.map((cells, piece) => (\n        <span key={piece} aria-hidden data-o-tetris-piece={String(piece)}>\n          {cells.map(([col, row]) => (\n            <span\n              key={`${String(col)}-${String(row)}`}\n              data-o-tetris-cell=\"\"\n              style={\n                {\n                  '--o-tetris-col': String(col),\n                  '--o-tetris-row': String(row),\n                } as CSSProperties\n              }\n            />\n          ))}\n        </span>\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

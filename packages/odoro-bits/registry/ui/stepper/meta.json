@@ -1,0 +1,83 @@
+{
+  "name": "stepper",
+  "category": "ui",
+  "title": "Parcours en etapes",
+  "description": "Un rail d etapes numerotees dont le trait se remplit derriere l avancee, et dont le panneau entre du cote d ou l on vient.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Stepper.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-zinc-50",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "steps",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les etapes, dans l ordre du parcours."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du parcours pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "description": "Index de l etape courante, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "number",
+      "default": 0,
+      "description": "Index de l etape courante au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(index: number) => void",
+      "description": "Appele avec l index de l etape choisie."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Contenu de l etape courante, anime a chaque changement."
+    },
+    {
+      "name": "orientation",
+      "type": "string",
+      "default": "horizontal",
+      "options": ["horizontal", "vertical"],
+      "description": "Sens de lecture du rail."
+    },
+    {
+      "name": "reach",
+      "type": "string",
+      "default": "done",
+      "options": ["done", "all", "none"],
+      "description": "Ce que l on peut atteindre en cliquant : les etapes franchies, toutes, ou aucune."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le trait se remplit par une transformation, le panneau entre par une animation d images cles reprise a chaque changement de clef. Sous mouvement reduit, le trait est rempli d un coup et le panneau parait sans glisser."
+  }
+}

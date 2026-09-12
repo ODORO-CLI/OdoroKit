@@ -1,0 +1,39 @@
+{
+  "name": "use-media-query",
+  "category": "hooks",
+  "title": "Requete de media",
+  "description": "Dit si une requete de media s applique, et le redit quand cela bascule, sans ecouteur de redimensionnement.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useMediaQuery.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "query",
+      "type": "string",
+      "required": true,
+      "default": "(min-width: 60rem)",
+      "description": "Requete, dans la grammaire du CSS."
+    },
+    {
+      "name": "serveur",
+      "type": "boolean",
+      "default": false,
+      "description": "Reponse rendue la ou matchMedia n existe pas : rendu serveur, test."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement par requete, partage entre tous les appels. Un rendu quand la reponse bascule, pas un par cran de redimensionnement."
+  }
+}

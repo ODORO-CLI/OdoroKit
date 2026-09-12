@@ -1,0 +1,41 @@
+{
+  "name": "use-copy",
+  "category": "hooks",
+  "title": "Copie confirmee",
+  "description": "Copie un texte dans le presse-papiers et rend l etat a montrer, qui retombe seul.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useCopy.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "delai",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Delai avant le retour au repos.",
+      "min": 400,
+      "max": 4000,
+      "step": 200
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur, ouvert seulement apres une copie et nettoye au demontage. Aucun travail par image."
+  },
+  "id": "hooks/use-copy",
+  "sources": {
+    "hook.ts": "/**\n * Copie dans le presse-papiers, avec l'etat que l'interface doit montrer.\n *\n * ## Pourquoi un etat, et pas seulement un appel\n *\n * Copier ne produit aucun retour visible : rien ne bouge, aucun son, et le\n * presse-papiers ne se regarde pas. Sans confirmation, on reclique — puis on\n * va coller ailleurs pour verifier. La confirmation n'est donc pas un ornement,\n * c'est la seule preuve que l'action a eu lieu.\n *\n * Elle doit aussi s'effacer. Un « copie ! » qui reste indefiniment ne dit plus\n * rien de la derniere action, et le bouton semble bloque dans un etat.\n *\n * ## Pourquoi l'echec est un etat a part entiere\n *\n * L'API du presse-papiers echoue pour des raisons ordinaires : page servie\n * sans chiffrement, permission refusee, document sans focus. Traiter l'echec\n * comme un succes est le pire des deux mondes — on affiche « copie » et le\n * collage rend autre chose. L'appelant peut alors proposer la selection\n * manuelle, qui reste toujours possible.\n *\n * ## Pourquoi il reste un chemin de repli\n *\n * `navigator.clipboard` exige un contexte securise. En developpement sur une\n * adresse du reseau local — un telephone qui pointe vers la machine — il\n * n'existe tout simplement pas. La vieille commande d'edition, elle, marche\n * encore partout ; elle est depreciee, pas retiree, et c'est la difference\n * entre un bouton qui fonctionne et un bouton qui ne fonctionne que chez celui\n * qui l'a ecrit.\n *\n * ## Pourquoi le demontage est surveille\n *\n * La copie est asynchrone et le retour au repos est differe. Un panneau ferme\n * entre-temps — c'est le cas courant, on copie puis on ferme — verrait deux\n * ecritures d'etat sur un composant disparu : un minuteur qui survit, et une\n * promesse qui se resout dans le vide.\n *\n * @module\n */\n\nimport { useCallback, useEffect, useRef, useState } from 'react'\n\n/** Ou en est la derniere copie. */\nexport type CopyState = 'repos' | 'copie' | 'echec'\n\n/** Options de `useCopy`. */\nexport interface CopyOptions {\n  /**\n   * Delai avant le retour au repos, en millisecondes.\n   *\n   * @defaultValue 1600\n   */\n  delai?: number\n}\n\n/** Ce que le crochet rend. */\nexport interface CopyHandle {\n  /** Etat de la derniere copie. */\n  readonly etat: CopyState\n  /**\n   * Copie un texte.\n   *\n   * @returns `true` si le presse-papiers a bien recu le texte.\n   */\n  copier(texte: string): Promise<boolean>\n}\n\n/**\n * Ecrit dans le presse-papiers par la commande d'edition du document.\n *\n * Le champ est place hors du champ visible plutot que masque : un element\n * `display: none` ne peut pas etre selectionne, et la commande n'aurait alors\n * rien a copier.\n */\nfunction copieDeSecours(texte: string): boolean {\n  if (typeof document === 'undefined') return false\n\n  const champ = document.createElement('textarea')\n  champ.value = texte\n  champ.setAttribute('readonly', '')\n  champ.setAttribute('aria-hidden', 'true')\n  champ.style.position = 'fixed'\n  champ.style.top = '0'\n  champ.style.left = '-9999px'\n\n  document.body.append(champ)\n  const focusPrecedent = document.activeElement\n\n  try {\n    champ.select()\n    return document.execCommand('copy')\n  } catch {\n    return false\n  } finally {\n    champ.remove()\n    // Rendre le focus : sans cela, le bouton qu'on vient de cliquer le perd,\n    // et la navigation au clavier repart du debut du document.\n    if (focusPrecedent instanceof HTMLElement) focusPrecedent.focus()\n  }\n}\n\n/**\n * Copie dans le presse-papiers, avec un etat qui retombe seul.\n *\n * @example\n * const { etat, copier } = useCopy()\n *\n * <button type=\"button\" onClick={() => void copier(commande)}>\n *   {etat === 'copie' ? 'Copie' : etat === 'echec' ? 'Echec' : 'Copier'}\n * </button>\n */\nexport function useCopy(options: CopyOptions = {}): CopyHandle {\n  const { delai = 1600 } = options\n\n  const [etat, setEtat] = useState<CopyState>('repos')\n  const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)\n  const monte = useRef(true)\n\n  useEffect(() => {\n    monte.current = true\n    return () => {\n      monte.current = false\n      clearTimeout(minuteur.current)\n    }\n  }, [])\n\n  const copier = useCallback(\n    async (texte: string): Promise<boolean> => {\n      let reussi = false\n\n      try {\n        if (typeof navigator !== 'undefined' && navigator.clipboard !== undefined) {\n          await navigator.clipboard.writeText(texte)\n          reussi = true\n        } else {\n          reussi = copieDeSecours(texte)\n        }\n      } catch {\n        // Permission refusee, document sans focus, contexte non securise : la\n        // vieille commande reste une chance, pas une certitude.\n        reussi = copieDeSecours(texte)\n      }\n\n      if (!monte.current) return reussi\n\n      clearTimeout(minuteur.current)\n      setEtat(reussi ? 'copie' : 'echec')\n      minuteur.current = setTimeout(() => {\n        if (monte.current) setEtat('repos')\n      }, delai)\n\n      return reussi\n    },\n    [delai],\n  )\n\n  return { etat, copier }\n}\n"
+  }
+}

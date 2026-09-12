@@ -1,0 +1,79 @@
+{
+  "name": "dust",
+  "category": "background",
+  "title": "Poussiere",
+  "description": "Des grains en suspension sur trois profondeurs, derivant sur une marche brownienne approchee, visibles seulement dans un rai de lumiere oblique qui s evase depuis sa source.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "dust.shader.ts",
+      "target": "background/dust.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Dust.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-amber-300", "--o-palette-amber-100"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse de la derive des grains.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 12,
+      "description": "Densite du semis : cellules sur la hauteur de la couche proche.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": -55,
+      "unit": "deg",
+      "description": "Inclinaison du rai, en degres.",
+      "min": -90,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 0.22,
+      "description": "Demi-largeur du rai, en hauteurs de cadre.",
+      "min": 0.05,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-amber-300, --o-palette-amber-100",
+      "description": "Tokens dont les couleurs sont lues : l ombre, le rai, les grains dans la lumiere."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois couches, neuf cellules par couche et par fragment, une lecture du rai par cellule, plus un bruit de valeur pour l air. En qualite basse, la couche lointaine est retiree."
+  }
+}

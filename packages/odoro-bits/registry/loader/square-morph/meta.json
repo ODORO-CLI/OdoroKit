@@ -1,0 +1,57 @@
+{
+  "name": "square-morph",
+  "category": "loader",
+  "title": "Carre qui s arrondit",
+  "description": "Un carre plein fait un demi-tour en devenant rond, puis retrouve ses angles en finissant le tour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SquareMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Cote du carre.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la forme. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element, une animation de transformation et de rayon de bordure, aucun JavaScript apres le premier rendu. Carre droit et immobile sous mouvement reduit."
+  }
+}

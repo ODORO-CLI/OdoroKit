@@ -1,0 +1,104 @@
+{
+  "name": "halo-pulse",
+  "category": "background",
+  "title": "Halo qui pulse",
+  "description": "Un coeur qui respire a un rythme lent et des anneaux gaussiens emis a ce rythme, qui s elargissent et palissent en s eloignant.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "halo-pulse.shader.ts",
+      "target": "background/halo-pulse.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/HaloPulse.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-teal-400",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "period",
+      "type": "number",
+      "required": false,
+      "default": 4000,
+      "unit": "ms",
+      "description": "Periode du rythme.",
+      "min": 1000,
+      "max": 10000,
+      "step": 250
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre d anneaux en vol.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Portee des anneaux, en hauteurs de cadre.",
+      "min": 0.2,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "x",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Position horizontale du centre, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "y",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Position verticale du centre, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-teal-400, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, les anneaux, le coeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Au plus six gaussiennes et deux exponentielles par fragment.",
+    "fallback": "static"
+  },
+  "id": "background/halo-pulse",
+  "sources": {
+    "halo-pulse.shader.ts": "/**\n * Shader du halo qui pulse.\n *\n * ## L'idee mathematique\n *\n * Un coeur gaussien qui respire au rythme d'une periode reglable, et des\n * anneaux emis a ce meme rythme : chacun est une gaussienne de la distance\n * au centre, dont le rayon croit avec sa phase, qui s'elargit et palit en\n * s'eloignant. Les anneaux se repartissent uniformement sur la periode, si\n * bien que l'emission est reguliere, jamais en rafale.\n *\n * Distinct du sonar, dont les fronts sont raides, suivent le pointeur et\n * laissent une traine sombre : ici tout est doux, lent, et pose par melange\n * borne vers les teintes.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — les anneaux et le halo.\n * - `uColorC` — le coeur.\n * - `uX`, `uY` — position du centre, en fraction du cadre.\n * - `uPeriod` — periode du rythme, en secondes.\n * - `uRings` — nombre d'anneaux en vol.\n * - `uSize` — portee des anneaux, en hauteurs de cadre.\n */\nexport const HALO_PULSE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uX;\nuniform float uY;\nuniform float uPeriod;\nuniform float uRings;\nuniform float uSize;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  vec2 centre = vec2(uX * aspect, uY);\n  float r = length(p - centre);\n\n  float periode = max(uPeriod, 0.5);\n  float portee = max(uSize, 0.1);\n  int n = int(clamp(uRings, 1.0, 6.0));\n\n  // Les anneaux : chacun decale d'une fraction de la periode, pour une\n  // emission reguliere. Le rayon croit avec la phase ; la largeur aussi,\n  // et l'intensite tombe au carre — un anneau meurt avant sa portee.\n  float anneaux = 0.0;\n  for (int i = 0; i < 6; i += 1) {\n    if (i >= n) break;\n    float phase = fract(uTime / periode + float(i) / float(n));\n    float rayon = phase * portee;\n    float largeur = 0.012 + 0.06 * phase;\n    float e = (r - rayon) / largeur;\n    float vie = 1.0 - phase;\n    anneaux += exp(-e * e) * vie * vie;\n  }\n\n  // Le coeur respire au meme rythme : il grossit a l'emission.\n  float souffle = 0.5 + 0.5 * sin(uTime / periode * 6.2831853);\n  float coeur = exp(-r * r / (0.012 + 0.012 * souffle));\n  float halo = exp(-r * (7.0 - 2.5 * souffle)) * 0.5;\n\n  vec3 colour = mix(uColorA, uColorB, clamp(anneaux * 0.8 + halo * 0.6, 0.0, 1.0));\n  colour = mix(colour, uColorC, clamp(coeur * (0.7 + 0.3 * souffle), 0.0, 1.0));\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Halo qui pulse : un coeur qui respire et des anneaux emis a un rythme lent.\n *\n * ## Le principe\n *\n * Des anneaux gaussiens dont le rayon croit avec leur phase, repartis\n * uniformement sur la periode pour une emission reguliere ; ils s'elargissent\n * et palissent en s'eloignant. Le coeur grossit a chaque emission. Distinct\n * du sonar, aux fronts raides et au pointeur : ici tout est doux et pose.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous\n * mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { HALO_PULSE_FRAGMENT } from './halo-pulse.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface HaloPulseControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface HaloPulseOwnProps {\n  /** Periode du rythme, en millisecondes. @defaultValue 4000 */\n  period?: number\n  /** Nombre d'anneaux en vol. @defaultValue 3 */\n  rings?: number\n  /** Portee des anneaux, en hauteurs de cadre. @defaultValue 0.8 */\n  size?: number\n  /** Position horizontale du centre, en fraction du cadre. @defaultValue 0.5 */\n  x?: number\n  /** Position verticale du centre, en fraction du cadre. @defaultValue 0.5 */\n  y?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<HaloPulseControls>\n}\n\n/** Toutes les proprietes. */\nexport type HaloPulseProps = Customisable<HaloPulseOwnProps>\n\n/** Tokens employes par defaut : le fond, les anneaux, le coeur. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-teal-400',\n  '--o-palette-brand-500',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-100 dark:o-to-teal-950'\n\n/**\n * Halo qui pulse.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <HaloPulse className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function HaloPulse({\n  period = 4000,\n  rings = 3,\n  size = 0.8,\n  x = 0.5,\n  y = 0.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: HaloPulseProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: HALO_PULSE_FRAGMENT,\n    colors,\n    // Le registre parle en millisecondes, le shader en secondes.\n    uniforms: { uPeriod: period / 1000, uRings: rings, uSize: size, uX: x, uY: y },\n    name: 'halo-pulse',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

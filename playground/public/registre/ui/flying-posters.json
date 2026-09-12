@@ -1,0 +1,101 @@
+{
+  "name": "flying-posters",
+  "category": "ui",
+  "title": "Affiches volantes",
+  "description": "Une colonne d affiches qui arrivent du fond en s inclinant, se posent de face au milieu de l ecran, puis filent vers le lecteur en s effacant.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FlyingPosters.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les affiches, dans l ordre de defilement. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la serie pour les lecteurs d ecran."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "required": false,
+      "default": 420,
+      "unit": "px",
+      "description": "Distance a laquelle l affiche attend son tour, au fond de la scene.",
+      "min": 0,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "required": false,
+      "default": 22,
+      "unit": "deg",
+      "description": "Inclinaison de l affiche quand elle est loin du milieu.",
+      "min": 0,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "name": "drift",
+      "type": "number",
+      "required": false,
+      "default": 60,
+      "unit": "px",
+      "description": "Ecart lateral pris a l arrivee, alterne d une affiche a l autre.",
+      "min": 0,
+      "max": 240,
+      "step": 10
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Espace entre deux affiches dans la colonne.",
+      "min": 0,
+      "max": 320,
+      "step": 8
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 400,
+      "unit": "px",
+      "description": "Largeur d une affiche. L affiche ne doit pas etre plus haute que la lucarne qui defile, sans quoi elle est deja loin quand elle apparait.",
+      "min": 160,
+      "max": 600,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul ecouteur passif pour toute la colonne, une image d ecran au plus par defilement, et toutes les mesures faites avant toutes les ecritures pour ne pas faire recalculer la mise en page deux fois. Rien ne tourne quand la page ne defile pas. Sous mouvement reduit, les affiches sont a plat, sans ecouteur."
+  },
+  "id": "ui/flying-posters",
+  "sources": {
+    "component.tsx": "/**\n * Affiches volantes : une colonne d'affiches qui viennent du fond, se posent\n * de face au milieu de l'ecran, puis filent vers le lecteur.\n *\n * ## La position dans le cadre est la seule variable\n *\n * Chaque affiche mesure la distance de son centre au centre du cadre,\n * ramenee entre moins un et un. En dessous du milieu, elle arrive : elle est\n * loin, inclinee, decalee sur le cote. Au milieu, elle est de face, entiere,\n * a sa place. Au-dessus, elle repart vers l'avant et s'efface.\n *\n * Le cadre de reference est la lucarne qui defile s'il y en a une au-dessus\n * de la colonne, et la fenetre sinon. La distinction compte : dans un cadre\n * haut de trois cents pixels, mesurer contre la fenetre entiere donnerait a\n * toutes les affiches presque la meme distance, et la colonne resterait\n * inerte. L'ecoute, elle, se fait en capture sur le document — le defilement\n * ne remonte pas, et le composant n'a pas a se faire designer son conteneur.\n *\n * ## Toutes les mesures, puis toutes les ecritures\n *\n * Lire une boite apres avoir ecrit une transformation force le navigateur a\n * recalculer la mise en page, et le faire en alternance la fait recalculer\n * autant de fois qu'il y a d'affiches. Les boites sont donc relevees d'abord,\n * en une passe, et les transformations ecrites ensuite, en une autre.\n *\n * ## Une affiche par plan de fuite\n *\n * La perspective est posee sur la case, pas sur la colonne. Une perspective\n * commune a toute la colonne donnerait un point de fuite unique, tres haut ou\n * tres bas selon l'affiche, et les affiches des extremites paraitraient\n * penchees de travers. Chacune a donc son propre plan de fuite, centre sur\n * elle.\n *\n * ## Ce n'est pas la parallaxe\n *\n * La parallaxe decale sur l'axe vertical, dans le plan. Ici l'affiche\n * traverse la profondeur : elle change de taille par la perspective, pivote,\n * et passe devant le plan de l'ecran avant de disparaitre. C'est un\n * deplacement en Z, pas un decalage en Y.\n *\n * ## Mouvement reduit\n *\n * Aucun ecouteur, aucune transformation : une colonne d'affiches a plat,\n * lisibles, a leur etat final.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'\n\n/** Une affiche de la colonne. */\nexport interface FlyingPostersItem {\n  /** Source de l'image. */\n  readonly src: string\n  /** Texte de remplacement, obligatoire : c'est le contenu, pas une decoration. */\n  readonly alt: string\n  /** Legende affichee sous l'affiche. */\n  readonly caption?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface FlyingPostersOwnProps {\n  /** Les affiches, dans l'ordre de defilement. */\n  items: readonly FlyingPostersItem[]\n  /** Nom de la serie pour les lecteurs d'ecran. */\n  label: string\n  /** Distance a laquelle l'affiche attend son tour, en pixels. @defaultValue 420 */\n  depth?: number\n  /** Inclinaison prise loin du milieu, en degres. @defaultValue 22 */\n  tilt?: number\n  /** Ecart lateral pris a l'arrivee, en pixels. @defaultValue 60 */\n  drift?: number\n  /** Espace entre deux affiches, en pixels. @defaultValue 96 */\n  gap?: number\n  /** Largeur d'une affiche, en pixels. @defaultValue 400 */\n  width?: number\n}\n\n/** Toutes les proprietes. */\nexport type FlyingPostersProps = Customisable<FlyingPostersOwnProps, 'ul'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-flying-posters'\n\n/**\n * Le premier ancetre qui defile reellement, ou `null` si c'est la page.\n *\n * « Qui peut defiler » ne suffit pas : un conteneur en `overflow: auto` dont\n * le contenu tient tout entier ne defile pas, et le prendre pour reference\n * figerait la colonne. La hauteur de defilement est donc verifiee aussi.\n */\nfunction scrollingAncestor(depart: HTMLElement): HTMLElement | null {\n  let noeud = depart.parentElement\n  while (noeud !== null) {\n    const debord = getComputedStyle(noeud).overflowY\n    if (\n      (debord === 'auto' || debord === 'scroll') &&\n      noeud.scrollHeight > noeud.clientHeight\n    ) {\n      return noeud\n    }\n    noeud = noeud.parentElement\n  }\n  return null\n}\n\n/** Pose la colonne, la scene de chaque affiche et son cadre, une fois par document. */\nfunction ensurePostersRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-fly]{',\n    'display:flex;flex-direction:column;align-items:center;gap:var(--o-fly-gap);',\n    'margin:0;padding:0;list-style:none;',\n    '}',\n    // Un plan de fuite par affiche : voir l'en-tete du module.\n    '[data-o-fly-case]{width:100%;perspective:var(--o-fly-vue);perspective-origin:50% 50%}',\n    '[data-o-fly-affiche]{',\n    'margin:0 auto;width:min(100%,var(--o-fly-largeur));',\n    'transform-origin:50% 50%;backface-visibility:hidden;',\n    '}',\n    '[data-o-fly-affiche] img{',\n    'display:block;width:100%;aspect-ratio:3 / 4;object-fit:cover;',\n    'border-radius:1rem;background:var(--o-theme-surface);',\n    'box-shadow:0 0 0 1px var(--o-theme-line),0 30px 60px -40px currentColor;',\n    '}',\n    '[data-o-fly-affiche] figcaption{',\n    'margin-top:0.7rem;text-align:center;font-size:0.8125em;color:var(--o-theme-muted);',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-fly-affiche]{transform:none;opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Colonne d'affiches qui traversent la profondeur au defilement.\n *\n * @example\n * <FlyingPosters\n *   label=\"Saison 2026\"\n *   items={[\n *     { src: '/saison/janvier.jpg', alt: 'Affiche de janvier, silhouette au piano', caption: 'Janvier' },\n *     { src: '/saison/mars.jpg', alt: 'Affiche de mars, danseuse de dos', caption: 'Mars' },\n *   ]}\n * />\n *\n * @example\n * // Arrivee plus lointaine, sans ecart lateral.\n * <FlyingPosters label=\"Serie\" items={affiches} depth={700} drift={0} tilt={34} />\n */\nexport function FlyingPosters({\n  items,\n  label,\n  depth = 420,\n  tilt = 22,\n  drift = 60,\n  gap = 96,\n  width = 400,\n  ...rest\n}: FlyingPostersProps): ReactElement {\n  const { reduced } = useMotionState()\n  const colonne = useRef<HTMLUListElement | null>(null)\n  ensurePostersRules()\n\n  useEffect(() => {\n    // A plat, il n'y a rien a suivre : ni ecouteur, ni boucle.\n    if (reduced || typeof window === 'undefined') return\n    const hote = colonne.current\n    if (hote === null) return\n\n    const affiches = Array.from(\n      hote.querySelectorAll<HTMLElement>('[data-o-fly-affiche]'),\n    )\n    const lucarne = scrollingAncestor(hote)\n    let image = 0\n\n    const peindre = (): void => {\n      image = 0\n      // La lucarne fait autorite quand il y en a une : dans un cadre haut de\n      // trois cents pixels, mesurer contre la fenetre entiere donnerait a\n      // toutes les affiches presque la meme distance, et rien ne bougerait.\n      const cadre =\n        lucarne === null\n          ? { haut: 0, hauteur: window.innerHeight }\n          : (() => {\n              const boite = lucarne.getBoundingClientRect()\n              return { haut: boite.top, hauteur: boite.height }\n            })()\n      const milieu = cadre.haut + cadre.hauteur / 2\n      const demi = Math.max(1, cadre.hauteur / 2)\n\n      // Une passe de lecture, puis une passe d'ecriture : voir l'en-tete.\n      const ecarts = affiches.map((affiche) => {\n        const boite = affiche.getBoundingClientRect()\n        const centre = boite.top + boite.height / 2\n        return Math.min(1, Math.max(-1, (centre - milieu) / demi))\n      })\n\n      for (const [index, affiche] of affiches.entries()) {\n        const d = ecarts[index] ?? 0\n        // Loin en arriere tant qu'elle monte ; devant le plan de l'ecran une\n        // fois qu'elle l'a franchi, et moitie moins loin : passer trop pres\n        // etirerait l'affiche jusqu'a l'illisible.\n        const z = d >= 0 ? -d * depth : -d * depth * 0.45\n        const cote = index % 2 === 0 ? 1 : -1\n        const fondu = d >= 0 ? 0.5 : 0.75\n\n        affiche.style.transform = [\n          `translateX(${(d * drift * cote).toFixed(1)}px)`,\n          `translateZ(${z.toFixed(1)}px)`,\n          `rotateX(${(-d * tilt).toFixed(2)}deg)`,\n        ].join(' ')\n        affiche.style.opacity = Math.max(0, 1 - Math.abs(d) * fondu).toFixed(3)\n      }\n    }\n\n    const demander = (): void => {\n      if (image !== 0) return\n      image = requestAnimationFrame(peindre)\n    }\n\n    peindre()\n    // En capture : le defilement ne remonte pas, et l'on ne sait pas d'avance\n    // lequel des ancetres defile.\n    document.addEventListener('scroll', demander, { passive: true, capture: true })\n    window.addEventListener('resize', demander, { passive: true })\n\n    return () => {\n      document.removeEventListener('scroll', demander, { capture: true })\n      window.removeEventListener('resize', demander)\n      if (image !== 0) cancelAnimationFrame(image)\n    }\n  }, [reduced, depth, tilt, drift, items])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <ul\n      {...rest}\n      ref={colonne}\n      aria-label={label}\n      data-o-fly=\"\"\n      className={className}\n      style={\n        {\n          '--o-fly-gap': `${String(gap)}px`,\n          '--o-fly-largeur': `${String(width)}px`,\n          '--o-fly-vue': `${String(Math.max(600, depth * 2))}px`,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      {items.map((item) => (\n        <li key={item.src} data-o-fly-case=\"\">\n          <figure data-o-fly-affiche=\"\">\n            <img src={item.src} alt={item.alt} loading=\"lazy\" decoding=\"async\" />\n            {item.caption === undefined ? null : <figcaption>{item.caption}</figcaption>}\n          </figure>\n        </li>\n      ))}\n    </ul>\n  )\n}\n"
+  }
+}

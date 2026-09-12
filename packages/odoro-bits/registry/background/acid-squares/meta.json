@@ -1,0 +1,78 @@
+{
+  "name": "acid-squares",
+  "category": "background",
+  "title": "Carres acides",
+  "description": "Des carres imbriques qui tournent chacun un peu plus vite que celui qui l enferme, en couleurs acides alternees ; le pavage en repete plusieurs, en contre-phase.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "acid-squares.shader.ts",
+      "target": "background/acid-squares.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/AcidSquares.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-lime-400", "--o-palette-fuchsia-500"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.25,
+      "description": "Vitesse de rotation du carre exterieur, en tours par minute fois dix.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "default": 7,
+      "description": "Nombre de carres imbriques par cellule. Retrograde a 4 en qualite basse.",
+      "min": 2,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de cellules sur la hauteur.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "default": 0.12,
+      "description": "Decalage angulaire entre deux carres voisins, en radians.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-lime-400, --o-palette-fuchsia-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, puis les deux teintes alternees."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Une rotation et une distance par carre imbrique, jusqu a quatorze par fragment ; quatre en qualite basse. La densite ne change pas le cout."
+  }
+}

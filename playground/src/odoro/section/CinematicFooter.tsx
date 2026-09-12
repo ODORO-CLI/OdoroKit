@@ -279,9 +279,16 @@ export function CinematicFooter({
         </div>
 
         <div className="o-relative o-flex o-flex-col o-items-center o-justify-between o-gap-6 o-px-6 o-pb-8 md:o-flex-row md:o-px-12">
-          <p className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-            {copyright}
-          </p>
+          {copyright === undefined ? (
+            // Un paragraphe vide occupe quand meme sa ligne : la barre du bas
+            // se retrouverait decentree pour la seule raison qu'une mention
+            // n'a pas ete fournie.
+            <span />
+          ) : (
+            <p className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+              {copyright}
+            </p>
+          )}
 
           {signature === undefined ? null : (
             <p

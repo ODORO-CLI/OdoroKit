@@ -1,0 +1,58 @@
+{
+  "name": "pill-nav",
+  "category": "ui",
+  "title": "Navigation a pilule",
+  "description": "Une pilule de surface suit le lien survole ou focalise, puis revient se poser sous la page courante.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/PillNav.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode }[]",
+      "required": true,
+      "description": "Les liens, dans l ordre d affichage."
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante, en mode controle."
+    },
+    {
+      "name": "defaultActive",
+      "type": "number",
+      "description": "Page courante au montage, en mode non controle."
+    },
+    {
+      "name": "onActiveChange",
+      "type": "(index: number) => void",
+      "description": "Appele quand l utilisateur choisit un lien."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Navigation",
+      "description": "Nom du bloc pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La pilule est placee par transformation et largeur, animees par une transition CSS ; aucun rendu React au survol. Sous mouvement reduit elle saute."
+  }
+}

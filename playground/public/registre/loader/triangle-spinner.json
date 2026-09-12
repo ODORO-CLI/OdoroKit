@@ -1,0 +1,76 @@
+{
+  "name": "triangle-spinner",
+  "category": "loader",
+  "title": "Triangle qui se trace",
+  "description": "Un triangle en trait se dessine sur sa piste depuis le sommet, puis s efface dans le meme sens, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/TriangleSpinner.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 44,
+      "unit": "px",
+      "description": "Largeur du triangle.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un cycle : trace, puis effacement.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du trait. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux chemins SVG, une animation de tirets sur le second, aucun JavaScript apres le premier rendu. Triangle entierement trace et immobile sous mouvement reduit."
+  },
+  "id": "loader/triangle-spinner",
+  "sources": {
+    "component.tsx": "/**\n * Triangle qui se trace : un triangle en trait se dessine sur sa piste\n * depuis le sommet, puis s'efface dans le meme sens.\n *\n * ## Un tiret aussi long que le perimetre\n *\n * Le trait est un unique tiret, de la longueur exacte du perimetre, suivi\n * d'un vide de la meme longueur. Faire glisser ce motif le long du chemin\n * — par le decalage des tirets — revient a faire apparaitre le trait\n * depuis le sommet, puis a le faire disparaitre par le meme sommet une fois\n * complet. Le crayon ne revient jamais en arriere : la fin du trait rattrape\n * son debut. C'est ce qui distingue ce chargeur d'un anneau qui tourne :\n * ici, rien ne tourne, un trait se dessine.\n *\n * Le perimetre est calcule a partir des sommets, pas mesure sur le chemin :\n * il n'y a donc rien a lire dans le DOM apres le premier rendu, et le tiret\n * est exact des la premiere image.\n *\n * La piste attenuee sous le trait n'est pas un ornement : sans elle, un\n * triangle a demi trace n'est qu'un angle, et l'oeil ne sait pas ce qui va\n * venir.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le triangle reste entierement trace : la figure se\n * lit encore comme un chargeur, seul le mouvement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-triangle-spinner'\n\n/**\n * Sommets du triangle equilateral, pointe en haut, dans une vue de 100\n * unites. Le centre est celui du cercle circonscrit, un peu sous le milieu\n * de la vue pour que la figure paraisse centree.\n */\nconst RADIUS = 42\nconst VERTICES: ReadonlyArray<readonly [number, number]> = [0, 1, 2].map((index) => {\n  const angle = ((2 * Math.PI) / 3) * index - Math.PI / 2\n  return [50 + RADIUS * Math.cos(angle), 54 + RADIUS * Math.sin(angle)] as const\n})\n\n/** Le trace, du sommet dans le sens horaire. */\nconst PATH = `M ${VERTICES.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join(' L ')} Z`\n\n/** Le perimetre : trois fois le cote. */\nconst PERIMETER = 3 * RADIUS * Math.sqrt(3)\n\n/** Pose le triangle et son trace, une fois par document. */\nfunction ensureTriangleRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-triangle-spinner]{display:inline-block;line-height:0}',\n    '[data-o-triangle-spinner] svg{display:block}',\n    '[data-o-triangle-track]{opacity:0.18}',\n    '[data-o-triangle-stroke]{',\n    'animation:o-triangle-spinner-draw var(--o-tri-speed) ease-in-out infinite;',\n    '}',\n    // De « tout vide » a « tout plein » a « tout vide », dans le meme sens :\n    // le decalage parcourt deux perimetres et ne revient jamais en arriere.\n    '@keyframes o-triangle-spinner-draw{',\n    '0%{stroke-dashoffset:var(--o-tri-perimeter)}',\n    '50%{stroke-dashoffset:0}',\n    '100%{stroke-dashoffset:calc(var(--o-tri-perimeter) * -1)}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-triangle-stroke]{animation:none;stroke-dashoffset:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface TriangleSpinnerOwnProps {\n  /** Largeur du triangle, en pixels. @defaultValue 44 */\n  size?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un cycle de trace et d'effacement, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur du trait. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type TriangleSpinnerProps = Customisable<TriangleSpinnerOwnProps, 'span'>\n\n/**\n * Signale une attente par un triangle qui se trace puis s'efface.\n *\n * @example\n * <TriangleSpinner />\n *\n * @example\n * // Un trait fin, plus lent, dans la teinte de marque.\n * <TriangleSpinner thickness={2} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function TriangleSpinner({\n  size = 44,\n  thickness = 4,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: TriangleSpinnerProps): ReactElement {\n  ensureTriangleRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en\n  // pixels est convertie pour que le trait garde sa mesure a toute taille.\n  const stroke = Math.min((thickness / size) * 100, 20)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-tri-speed': `${String(speed)}ms`,\n    '--o-tri-perimeter': PERIMETER.toFixed(2),\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-triangle-spinner=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <path\n          data-o-triangle-track=\"\"\n          d={PATH}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeLinejoin=\"round\"\n        />\n        <path\n          data-o-triangle-stroke=\"\"\n          d={PATH}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeLinejoin=\"round\"\n          strokeLinecap=\"round\"\n          strokeDasharray={`${PERIMETER.toFixed(2)} ${PERIMETER.toFixed(2)}`}\n        />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "letter-swap",
+  "category": "text",
+  "title": "Lettres permutees",
+  "description": "Au survol ou au focus, chaque lettre glisse vers le haut et sa doublure prend sa place, en vague.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/LetterSwap.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 25,
+      "unit": "ms",
+      "description": "Delai entre deux lettres.",
+      "min": 0,
+      "max": 150,
+      "step": 5
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 350,
+      "unit": "ms",
+      "description": "Duree du glissement d une lettre.",
+      "min": 100,
+      "max": 1200,
+      "step": 25
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition CSS par lettre, armee par le survol ou le focus. Aucun JavaScript apres le premier rendu ; a reserver aux mots courts d un menu."
+  }
+}

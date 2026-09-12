@@ -15,6 +15,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /** Demonstration principale : confirmation avec pied d'actions. */
 function ConfirmDemo(): ReactElement {
@@ -89,6 +90,24 @@ function FormDemo(): ReactElement {
           <Input label="Description" hint="Facultative." />
         </div>
       </Dialog>
+    </>
+  )
+}
+
+/** Demonstration : message simple sans pied d'actions. */
+function MessageDemo(): ReactElement {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button tone="ghost" onClick={() => setOpen(true)}>
+        Voir le message
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Export termine"
+        description="Le fichier est disponible dans vos telechargements. Echap ou un clic a cote referme."
+      />
     </>
   )
 }
@@ -177,6 +196,36 @@ const [open, setOpen] = useState(false)
         >
           <FormDemo />
         </DemoBlock>
+      </Section>
+
+      <Section
+        title="Variantes"
+        lead="Chaque carte ouvre une vraie boite : cliquez pour la voir."
+      >
+        <VariantGrid
+          variants={[
+            {
+              title: 'Confirmation',
+              description: 'Pied Annuler / Confirmer, ton danger.',
+              node: <ConfirmDemo />,
+            },
+            {
+              title: 'Avec formulaire',
+              description: 'Champs en children, actions en pied.',
+              node: <FormDemo />,
+            },
+            {
+              title: 'Fermeture explicite',
+              description: 'closeOnBackdrop desactive.',
+              node: <NoBackdropDemo />,
+            },
+            {
+              title: 'Message simple',
+              description: 'Titre et description, sans pied.',
+              node: <MessageDemo />,
+            },
+          ]}
+        />
       </Section>
 
       <Section title="Props">

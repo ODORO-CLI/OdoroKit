@@ -1,0 +1,50 @@
+{
+  "name": "inertia-drag",
+  "category": "effect",
+  "title": "Glisser avec inertie",
+  "description": "L element se laisse trainer au pointeur, continue sur sa lancee au lacher, puis revient elastiquement a sa place.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/InertiaDrag.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "friction",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Freinage de la lancee. Plus haut, plus court.",
+      "min": 1,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "spring",
+      "type": "number",
+      "required": false,
+      "default": 120,
+      "description": "Raideur du rappel vers la place d origine.",
+      "min": 10,
+      "max": 400,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, une integration velocite-friction-ressort et une ecriture de transform par image. Rien n ecoute et position fixe sous mouvement reduit."
+  },
+  "id": "effect/inertia-drag",
+  "sources": {
+    "component.tsx": "/**\n * Glisser avec inertie : l'element se laisse trainer, file sur sa lancee,\n * puis revient a sa place en ressort.\n *\n * ## Une seule integration, deux regimes\n *\n * Pendant la prise, le pointeur ecrit directement la position — un objet\n * tenu doit coller a la main, tout amortissement se sentirait comme du\n * caoutchouc — et la boucle en derive la velocite, lissee d'un cran pour ne\n * pas retenir le bruit d'echantillonnage du dernier evenement.\n *\n * Au lacher, la meme boucle change de regime : la velocite acquise porte\n * l'element, et un ressort amorti le rappelle a l'origine\n * (`a = -ressort x position - friction x velocite`). C'est la physique la plus\n * simple qui donne a la fois la lancee, le depassement elastique et le retour.\n * Le pas de temps est borne : une image longue — onglet revenu au premier\n * plan — ferait exploser l'integration.\n *\n * ## Ce que le composant ne fait pas\n *\n * Pas de clavier : le glisser est un agrement, l'element n'a pas d'etat final\n * a atteindre — il revient toujours a sa place. Sous mouvement reduit, rien\n * n'ecoute et rien ne bouge : la position est fixe.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useEffect, useState, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface InertiaDragOwnProps {\n  /** Ce qui se laisse trainer. */\n  children: ReactNode\n  /** Freinage de la lancee. Plus haut, plus court. @defaultValue 8 */\n  friction?: number\n  /** Raideur du rappel vers la place d'origine. @defaultValue 120 */\n  spring?: number\n}\n\n/** Toutes les proprietes. */\nexport type InertiaDragProps = Customisable<InertiaDragOwnProps>\n\n/**\n * Rend un element trainable, avec inertie et retour elastique.\n *\n * @example\n * <InertiaDrag>\n *   <span className=\"o-inline-flex o-h-16 o-w-16 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-current\">\n *     Moi\n *   </span>\n * </InertiaDrag>\n *\n * @example\n * // Un retour raide, presque sans depassement.\n * <InertiaDrag friction={20} spring={300}>\n *   <Badge>Promo</Badge>\n * </InertiaDrag>\n */\nexport function InertiaDrag({\n  children,\n  friction = 8,\n  spring = 120,\n  ...rest\n}: InertiaDragProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  useEffect(() => {\n    if (host === null || reduced) return\n\n    const position = { x: 0, y: 0 }\n    const previous = { x: 0, y: 0 }\n    const velocity = { x: 0, y: 0 }\n    const grip = { x: 0, y: 0 }\n    let dragging = false\n\n    const onDown = (event: PointerEvent): void => {\n      dragging = true\n      grip.x = event.clientX - position.x\n      grip.y = event.clientY - position.y\n      // La capture garde le suivi meme quand le pointeur sort de l'element :\n      // sans elle, un geste vif lache la prise en pleine course.\n      host.setPointerCapture(event.pointerId)\n      host.style.cursor = 'grabbing'\n      event.preventDefault()\n    }\n\n    const onMove = (event: PointerEvent): void => {\n      if (!dragging) return\n      position.x = event.clientX - grip.x\n      position.y = event.clientY - grip.y\n    }\n\n    const onUp = (): void => {\n      dragging = false\n      host.style.cursor = ''\n    }\n\n    host.addEventListener('pointerdown', onDown)\n    host.addEventListener('pointermove', onMove)\n    host.addEventListener('pointerup', onUp)\n    host.addEventListener('pointercancel', onUp)\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        // Pas de temps borne : voir l'en-tete du module.\n        const dt = Math.min(Math.max(delta, 1 / 240), 1 / 30)\n\n        if (dragging) {\n          // La velocite se deduit du chemin parcouru, lissee d'un cran pour\n          // que la lancee reflete le geste et non le dernier soubresaut.\n          velocity.x += ((position.x - previous.x) / dt - velocity.x) * 0.5\n          velocity.y += ((position.y - previous.y) / dt - velocity.y) * 0.5\n        } else {\n          velocity.x += (-spring * position.x - friction * velocity.x) * dt\n          velocity.y += (-spring * position.y - friction * velocity.y) * dt\n          position.x += velocity.x * dt\n          position.y += velocity.y * dt\n\n          // Au voisinage du repos, on y est : laisser osciller des fractions\n          // de pixel garderait la boucle occupee a ne rien montrer.\n          if (\n            Math.abs(position.x) < 0.1 &&\n            Math.abs(position.y) < 0.1 &&\n            Math.abs(velocity.x) < 1 &&\n            Math.abs(velocity.y) < 1\n          ) {\n            position.x = 0\n            position.y = 0\n            velocity.x = 0\n            velocity.y = 0\n          }\n        }\n\n        previous.x = position.x\n        previous.y = position.y\n        host.style.transform = `translate3d(${position.x.toFixed(2)}px,${position.y.toFixed(2)}px,0)`\n      },\n      { name: 'inertia-drag', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      host.removeEventListener('pointerdown', onDown)\n      host.removeEventListener('pointermove', onMove)\n      host.removeEventListener('pointerup', onUp)\n      host.removeEventListener('pointercancel', onUp)\n      subscription.unsubscribe()\n      host.style.transform = ''\n      host.style.cursor = ''\n    }\n  }, [host, reduced, friction, spring])\n\n  // Sous mouvement reduit, l'element n'est pas trainable : lui laisser le\n  // curseur de prise promettrait un geste qui ne repond pas.\n  const { className, style } = mergePresentation(\n    {\n      className: reduced\n        ? 'o-inline-block'\n        : 'o-inline-block o-cursor-grab o-select-none o-touch-none o-will-change-transform',\n    },\n    rest,\n  )\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={style}>\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

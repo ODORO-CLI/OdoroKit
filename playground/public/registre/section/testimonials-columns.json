@@ -1,0 +1,87 @@
+{
+  "name": "testimonials-columns",
+  "category": "section",
+  "title": "Mur de temoignages",
+  "description": "Des colonnes de temoignages qui defilent en sens contraires, et s arretent des qu on les lit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/TestimonialsColumns.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-fg",
+    "--o-theme-muted"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly Testimonial[]",
+      "required": true,
+      "description": "Les temoignages, repartis en colonnes dans l ordre donne."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 40000,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 8000,
+      "max": 90000,
+      "step": 2000
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 480,
+      "unit": "px",
+      "description": "Hauteur visible du mur.",
+      "min": 240,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Intitule affiche au-dessus du mur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS confiees au compositeur, lancees seulement quand la section entre dans le champ. Aucun JavaScript par image."
+  },
+  "id": "section/testimonials-columns",
+  "sources": {
+    "component.tsx": "/**\n * Colonnes de temoignages qui defilent.\n *\n * ## Pourquoi des colonnes en sens contraires\n *\n * Une seule bande qui monte se lit comme un generique de fin : l'oeil la suit\n * et attend qu'elle finisse. Deux colonnes qui se croisent ne donnent aucun\n * sens de lecture privilegie, et l'oeil s'arrete sur ce qui l'interesse au\n * lieu de poursuivre le mouvement. C'est la difference entre un defilement\n * qu'on subit et un mur qu'on parcourt.\n *\n * ## La boucle sans couture, et l'erreur d'un demi-espace\n *\n * Le procede est connu : la liste est ecrite deux fois, et la piste glisse de\n * la moitie de sa hauteur. Il ne marche que si chaque element occupe exactement\n * la meme place, espace compris — or un `gap` de flexbox se pose **entre** les\n * elements, pas apres le dernier. Sur 2n elements, il y a 2n-1 intervalles, et\n * la piste revient donc un demi-espace trop tot : un sursaut par tour, assez\n * discret pour passer la relecture et assez visible pour agacer.\n *\n * L'espacement est ici une marge basse portee par chaque element. Chacun pese\n * alors sa hauteur plus l'espace, la moitie de la piste vaut exactement une\n * periode, et la boucle est invisible.\n *\n * ## Le second exemplaire n'existe pas pour la lecture\n *\n * Il est decoratif : un lecteur d'ecran qui entendrait chaque temoignage deux\n * fois croirait a un defaut de la page. Les doublons sont donc masques un a\n * un, ce qui laisse la vraie liste complete et lisible.\n *\n * ## Ce qui arrete le mouvement\n *\n * Le survol et le focus clavier — on ne lit pas un texte qui bouge — et\n * l'absence de la section a l'ecran : tant qu'elle n'est pas entree dans le\n * champ, aucune animation n'est lancee. Sous mouvement reduit, les colonnes\n * sont immobiles et le mur se parcourt au defilement de la page.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Un temoignage. */\nexport interface Testimonial {\n  /** Ce qui est dit. */\n  readonly quote: ReactNode\n  /** Qui le dit. */\n  readonly author: string\n  /** Fonction, entreprise, ou ce qui situe la personne. */\n  readonly role?: string\n  /** Adresse d'un portrait. Sans elle, les initiales tiennent lieu de vignette. */\n  readonly avatar?: string\n}\n\n/** Proprietes propres au composant. */\nexport interface TestimonialsColumnsOwnProps {\n  /** Les temoignages. Ils sont repartis en colonnes dans l'ordre donne. */\n  items: readonly Testimonial[]\n  /** Nombre de colonnes au-dela du palier moyen. @defaultValue 3 */\n  columns?: number\n  /** Duree d'un tour complet, en millisecondes. @defaultValue 40000 */\n  duration?: number\n  /** Hauteur visible du mur, en pixels. @defaultValue 480 */\n  height?: number\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n  /** Intitule affiche au-dessus du mur. */\n  title?: ReactNode\n}\n\n/** Toutes les proprietes. */\nexport type TestimonialsColumnsProps = Customisable<\n  TestimonialsColumnsOwnProps,\n  'section'\n>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-testimonials-columns'\n\n/** Pose les regles du mur, une fois par document. */\nfunction ensureColumnsRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-tcol-wall]{',\n    'display:grid;gap:1rem;overflow:hidden;',\n    'grid-template-columns:1fr;',\n    'height:var(--o-tcol-hauteur);',\n    // Le haut et le bas s'effacent : sans cela, les cartes sont coupees net\n    // par le bord et le mur ressemble a un contenu tronque plutot qu'a un\n    // defilement continu.\n    '-webkit-mask-image:var(--o-tcol-fondu);mask-image:var(--o-tcol-fondu);',\n    '}',\n    '@media (min-width:48rem){[data-o-tcol-wall]{',\n    'grid-template-columns:repeat(var(--o-tcol-colonnes),minmax(0,1fr))}}',\n\n    '[data-o-tcol-track]{display:flex;flex-direction:column;list-style:none;margin:0;padding:0;',\n    'animation:o-tcol-monte var(--o-tcol-duree) linear infinite;animation-play-state:paused}',\n    // L'espacement est une marge basse, jamais un `gap` : voir l'en-tete du\n    // module. Chaque element doit peser exactement la meme chose pour que la\n    // moitie de la piste vaille une periode.\n    '[data-o-tcol-track]>li{margin-block-end:1rem}',\n    '[data-o-tcol-col][data-sens=\"bas\"] [data-o-tcol-track]{animation-name:o-tcol-descend}',\n    '[data-o-tcol-vu] [data-o-tcol-track]{animation-play-state:running}',\n    '[data-o-tcol-col]:hover [data-o-tcol-track],',\n    '[data-o-tcol-col]:focus-within [data-o-tcol-track]{animation-play-state:paused}',\n\n    '@keyframes o-tcol-monte{from{transform:translateY(0)}to{transform:translateY(-50%)}}',\n    '@keyframes o-tcol-descend{from{transform:translateY(-50%)}to{transform:translateY(0)}}',\n\n    // Immobile, le mur reste un mur : il se parcourt au defilement de la page,\n    // et rien n'est cache.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-tcol-wall]{height:auto;-webkit-mask-image:none;mask-image:none}',\n    '[data-o-tcol-track]{animation:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Initiales d'un nom, pour la vignette de repli. */\nfunction initiales(nom: string): string {\n  return nom\n    .split(/\\s+/)\n    .slice(0, 2)\n    .map((mot) => mot.charAt(0).toUpperCase())\n    .join('')\n}\n\n/** Repartit les temoignages en colonnes, en conservant l'ordre de lecture. */\nfunction repartir(\n  items: readonly Testimonial[],\n  colonnes: number,\n): readonly (readonly Testimonial[])[] {\n  const paquets: Testimonial[][] = Array.from({ length: colonnes }, () => [])\n  items.forEach((item, index) => {\n    paquets[index % colonnes]?.push(item)\n  })\n  return paquets.filter((paquet) => paquet.length > 0)\n}\n\n/** Une carte de temoignage. */\nfunction Carte({ item }: { item: Testimonial }): ReactElement {\n  return (\n    <figure\n      className=\"o-rounded-xl o-p-5\"\n      style={{\n        backgroundColor: 'var(--o-theme-surface)',\n        border: '1px solid var(--o-theme-line)',\n        color: 'var(--o-theme-fg)',\n      }}\n    >\n      <blockquote className=\"o-text-sm o-leading-relaxed\">{item.quote}</blockquote>\n      <figcaption className=\"o-mt-4 o-flex o-items-center o-gap-3\">\n        {item.avatar === undefined ? (\n          <span\n            aria-hidden\n            className=\"o-flex o-size-10 o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-xs o-font-semibold\"\n            style={{\n              backgroundColor: 'color-mix(in oklab, var(--o-theme-fg) 10%, transparent)',\n            }}\n          >\n            {initiales(item.author)}\n          </span>\n        ) : (\n          <img\n            src={item.avatar}\n            alt=\"\"\n            className=\"o-size-10 o-shrink-0 o-rounded-full o-object-cover\"\n          />\n        )}\n        <span className=\"o-min-w-0\">\n          <span className=\"o-block o-text-sm o-font-medium o-truncate\">\n            {item.author}\n          </span>\n          {item.role !== undefined && (\n            <span\n              className=\"o-block o-text-xs o-truncate\"\n              style={{ color: 'var(--o-theme-muted)' }}\n            >\n              {item.role}\n            </span>\n          )}\n        </span>\n      </figcaption>\n    </figure>\n  )\n}\n\n/**\n * Un mur de temoignages en colonnes qui se croisent.\n *\n * @example\n * <TestimonialsColumns\n *   label=\"Ce qu on en dit\"\n *   items={[\n *     { quote: 'Installe en une commande, retouche le lendemain.', author: 'Camille Roy' },\n *     { quote: 'Le repli sans WebGL nous a evite une refonte.', author: 'Sami Belkacem' },\n *   ]}\n * />\n */\nexport function TestimonialsColumns({\n  items,\n  columns = 3,\n  duration = 40000,\n  height = 480,\n  label,\n  title,\n  ...rest\n}: TestimonialsColumnsProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.05 })\n  ensureColumnsRules()\n\n  const paquets = repartir(items, Math.max(1, Math.round(columns)))\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-8' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={style as CSSProperties}\n    >\n      {title === undefined ? null : (\n        <h2\n          className=\"o-text-2xl o-font-semibold o-tracking-tight\"\n          style={{ color: 'var(--o-theme-fg)' }}\n        >\n          {title}\n        </h2>\n      )}\n\n      <div\n        data-o-tcol-wall=\"\"\n        data-o-tcol-vu={vu && !reduced ? '' : undefined}\n        style={\n          {\n            '--o-tcol-colonnes': String(paquets.length),\n            '--o-tcol-duree': `${String(duration)}ms`,\n            '--o-tcol-hauteur': `${String(height)}px`,\n            '--o-tcol-fondu':\n              'linear-gradient(to bottom, transparent, var(--o-theme-fg) 10%, var(--o-theme-fg) 90%, transparent)',\n          } as CSSProperties\n        }\n      >\n        {paquets.map((paquet, colonne) => (\n          <div\n            key={colonne}\n            data-o-tcol-col=\"\"\n            // Une colonne sur deux descend : deux sens opposes retirent au mur\n            // son sens de lecture, et l'oeil s'arrete au lieu de suivre.\n            data-sens={colonne % 2 === 1 ? 'bas' : 'haut'}\n          >\n            <ul data-o-tcol-track=\"\">\n              {paquet.map((item, index) => (\n                <li key={`vrai-${String(index)}`}>\n                  <Carte item={item} />\n                </li>\n              ))}\n              {/*\n                Le second exemplaire ne sert qu'a fermer la boucle. Il est\n                masque element par element : un lecteur d'ecran doit entendre\n                la liste une fois. Immobile, il n'a plus de raison d'etre — et\n                montrerait chaque temoignage deux fois de suite.\n              */}\n              {!reduced &&\n                paquet.map((item, index) => (\n                  <li key={`copie-${String(index)}`} aria-hidden>\n                    <Carte item={item} />\n                  </li>\n                ))}\n            </ul>\n          </div>\n        ))}\n      </div>\n    </section>\n  )\n}\n"
+  }
+}

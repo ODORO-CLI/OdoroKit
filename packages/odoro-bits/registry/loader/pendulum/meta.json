@@ -1,0 +1,57 @@
+{
+  "name": "pendulum",
+  "category": "loader",
+  "title": "Pendule",
+  "description": "Une masse au bout d une tige oscille le long d un arc en pointille, lente aux extremes et rapide a la verticale, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Pendulum.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Diametre de la masse. La longueur de la tige en depend.",
+      "min": 6,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la masse, de la tige, du pivot et de l arc. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de rotation tenue par le compositeur, aucun JavaScript apres le premier rendu. Masse a la verticale sous son arc sous mouvement reduit."
+  }
+}

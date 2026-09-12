@@ -1,0 +1,64 @@
+{
+  "name": "cta-band",
+  "category": "section",
+  "title": "Bandeau d appel a l action",
+  "description": "Un appel principal, une action secondaire discrete, et un reflet qui passe une seule fois a l entree.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/CtaBand.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-400",
+    "--o-palette-brand-500",
+    "--o-palette-brand-600",
+    "--o-palette-white",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Ce qu on propose, en une phrase."
+    },
+    {
+      "name": "primary",
+      "type": "CtaAction",
+      "required": true,
+      "description": "L action principale : une adresse ou une fonction."
+    },
+    {
+      "name": "body",
+      "type": "ReactNode",
+      "description": "Une precision sous le titre."
+    },
+    {
+      "name": "secondary",
+      "type": "CtaAction",
+      "description": "Une seconde action, discrete."
+    },
+    {
+      "name": "headingLevel",
+      "type": "'h2' | 'h3'",
+      "default": "h2",
+      "description": "Niveau de titre rendu, selon la place du bandeau dans le plan de la page.",
+      "options": ["h2", "h3"]
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, une transition et une animation jouee une seule fois. Rien ne tourne ensuite."
+  }
+}

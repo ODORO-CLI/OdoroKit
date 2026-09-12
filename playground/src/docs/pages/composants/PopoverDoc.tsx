@@ -114,6 +114,44 @@ export function PopoverDoc(): ReactElement {
 >
   <SizeForm />
 </Popover>`}
+          variants={[
+            {
+              title: 'Vers le haut',
+              description: 'Le panneau apparait au-dessus.',
+              values: { placement: 'top' },
+            },
+            {
+              title: 'Alignement fin',
+              description: 'align end cale le panneau a droite.',
+              values: { align: 'end' },
+            },
+            {
+              title: 'Panneau simple',
+              description: 'Un texte court, sans formulaire.',
+              node: (
+                <Popover
+                  trigger="Aide"
+                  triggerClassName={buttonClasses({ tone: 'ghost', size: 'sm' })}
+                >
+                  <p className="o-text-sm o-w-56">
+                    Le panneau recoit le focus et se ferme sur Echap.
+                  </p>
+                </Popover>
+              ),
+            },
+            {
+              title: 'Avec formulaire',
+              description: 'Champs et bouton dans le panneau.',
+              node: (
+                <Popover
+                  trigger="Dimensions"
+                  triggerClassName={buttonClasses({ tone: 'secondary', size: 'sm' })}
+                >
+                  <SizeForm />
+                </Popover>
+              ),
+            },
+          ]}
         />
         <Callout>
           Le declencheur est un{' '}

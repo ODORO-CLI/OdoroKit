@@ -1,0 +1,93 @@
+{
+  "name": "acid-squares",
+  "category": "background",
+  "title": "Carres acides",
+  "description": "Des carres imbriques qui tournent chacun un peu plus vite que celui qui l enferme, en couleurs acides alternees ; le pavage en repete plusieurs, en contre-phase.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "acid-squares.shader.ts",
+      "target": "background/acid-squares.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/AcidSquares.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-lime-400",
+    "--o-palette-fuchsia-500"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Vitesse de rotation du carre exterieur, en tours par minute fois dix.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "required": false,
+      "default": 7,
+      "description": "Nombre de carres imbriques par cellule. Retrograde a 4 en qualite basse.",
+      "min": 2,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Nombre de cellules sur la hauteur.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Decalage angulaire entre deux carres voisins, en radians.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-lime-400, --o-palette-fuchsia-500",
+      "description": "Tokens dont les couleurs sont lues : le fond, puis les deux teintes alternees."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une rotation et une distance par carre imbrique, jusqu a quatorze par fragment ; quatre en qualite basse. La densite ne change pas le cout.",
+    "fallback": "gradient"
+  },
+  "id": "background/acid-squares",
+  "sources": {
+    "acid-squares.shader.ts": "/**\n * Shader des carres acides.\n *\n * ## L'idee mathematique\n *\n * Dans chaque cellule, des carres concentriques de taille decroissante, du\n * plus grand au plus petit. Chacun tourne autour du centre commun un peu\n * plus vite que celui qui l'enferme, et part avec un decalage angulaire\n * fixe sur lui : vus ensemble, ils forment une spirale carree qui semble\n * se visser sur elle-meme.\n *\n * Le fragment est peint par le plus petit carre qui le contient — la boucle\n * va du plus grand au plus petit et ecrase la couleur a chaque fois. Les\n * teintes alternent d'un carre a l'autre, et les cellules voisines tournent\n * en sens contraire : deux cellules cote a cote ne se lisent pas comme une\n * meme texture repetee.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB`, `uColorC` — les deux teintes alternees.\n * - `uSpeed` — vitesse de rotation du carre exterieur.\n * - `uRings` — nombre de carres imbriques, et donc le cout.\n * - `uDensity` — nombre de cellules sur la hauteur.\n * - `uTwist` — decalage angulaire entre deux carres voisins, en radians.\n */\nexport const ACID_SQUARES_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uRings;\nuniform float uDensity;\nuniform float uTwist;\n\nvec2 acidRotate(vec2 p, float angle) {\n  float c = cos(angle);\n  float s = sin(angle);\n  return vec2(c * p.x - s * p.y, s * p.x + c * p.y);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float scale = max(uDensity, 1.0);\n  // Les cellules sont centrees sur le cadre : une seule cellule tient au\n  // milieu, plusieurs se repartissent autour.\n  vec2 p = (vec2(vUv.x * aspect, vUv.y) - vec2(aspect, 1.0) * 0.5) * scale;\n  vec2 cell = floor(p + 0.5);\n  vec2 local = p - cell;\n\n  // Les cellules voisines tournent en sens contraire.\n  float direction = mod(cell.x + cell.y, 2.0) < 0.5 ? 1.0 : -1.0;\n  float t = uTime * uSpeed * direction;\n\n  int rings = int(clamp(uRings, 1.0, 14.0));\n  float px = scale / max(uResolution.y, 1.0) * 1.5;\n\n  vec3 colour = uColorA;\n\n  // Bornes constantes : la specification du langage l'exige ; la qualite\n  // sort plus tot. Du plus grand au plus petit : le dernier qui contient le\n  // fragment est celui qui le peint.\n  for (int i = 0; i < 14; i += 1) {\n    if (i >= rings) break;\n    float fi = float(i);\n    float size = 0.5 * (1.0 - fi / float(rings)) * 0.96;\n    float angle = t * (1.0 + fi * 0.35) + fi * uTwist;\n\n    vec2 q = acidRotate(local, angle);\n    float d = max(abs(q.x), abs(q.y));\n\n    float inside = 1.0 - smoothstep(size - px, size + px, d);\n    vec3 tint = mod(fi, 2.0) < 0.5 ? uColorB : uColorC;\n    // Le carre s'assombrit vers son bord : chaque anneau se lit en relief.\n    float depth = 0.75 + 0.25 * smoothstep(size, size * 0.6, d);\n    colour = mix(colour, tint * depth, inside);\n  }\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Carres acides : des carres imbriques qui tournent en decalage, en\n * couleurs acides.\n *\n * ## Pourquoi les couleurs sont crues\n *\n * L'effet vit du contraste entre deux teintes qui alternent : des nuances\n * proches donneraient un moire gris. Les tokens par defaut sont donc pris\n * loin l'un de l'autre sur le cercle des teintes, et loin du fond.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous\n * mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { ACID_SQUARES_FRAGMENT } from './acid-squares.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface AcidSquaresControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface AcidSquaresOwnProps {\n  /** Vitesse de rotation du carre exterieur. @defaultValue 0.25 */\n  speed?: number\n  /** Nombre de carres imbriques par cellule. @defaultValue 7 */\n  rings?: number\n  /** Nombre de cellules sur la hauteur. @defaultValue 2 */\n  density?: number\n  /** Decalage angulaire entre deux carres voisins, en radians. @defaultValue 0.12 */\n  twist?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<AcidSquaresControls>\n}\n\n/** Toutes les proprietes. */\nexport type AcidSquaresProps = Customisable<AcidSquaresOwnProps>\n\n/** Tokens employes par defaut : le fond, puis les deux teintes alternees. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-lime-400',\n  '--o-palette-fuchsia-500',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-lime-200 dark:o-via-lime-900 o-to-fuchsia-100 dark:o-to-fuchsia-950'\n\n/**\n * Carres imbriques en qualite basse.\n *\n * Chaque carre est une rotation et une distance par fragment : c'est le\n * seul levier de cout, et il n'a pas besoin d'etre une prop pour etre\n * retrograde.\n */\nconst LOW_RINGS = 4\n\n/**\n * Carres acides.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <AcidSquares className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function AcidSquares({\n  speed = 0.25,\n  rings = 7,\n  density = 2,\n  twist = 0.12,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: AcidSquaresProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: ACID_SQUARES_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uRings: rings, uDensity: density, uTwist: twist },\n    name: 'acid-squares',\n    degrade: (quality) => ({\n      uRings: quality === 'low' ? Math.min(rings, LOW_RINGS) : rings,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

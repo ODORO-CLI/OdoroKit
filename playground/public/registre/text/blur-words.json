@@ -1,0 +1,100 @@
+{
+  "name": "blur-words",
+  "category": "text",
+  "title": "Nettoyage",
+  "description": "Le bloc est flou et ses mots redeviennent nets un a un, dans un ordre tire au sort, jusqu a ce que tout se lise.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/BlurWords.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Flou d un mot pas encore nettoye.",
+      "min": 0,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "dim",
+      "type": "number",
+      "required": false,
+      "default": 0.25,
+      "description": "Opacite d un mot pas encore nettoye, de 0 a 1.",
+      "min": 0,
+      "max": 0.9,
+      "step": 0.05
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 520,
+      "unit": "ms",
+      "description": "Duree du nettoyage d un mot.",
+      "min": 100,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 200,
+      "unit": "ms",
+      "description": "Retard entre deux mots du tirage.",
+      "min": 20,
+      "max": 800,
+      "step": 10
+    },
+    {
+      "name": "pause",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Temps de lecture avant que tout redevienne flou.",
+      "min": 200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "boucle",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Rejouer le cycle sans fin."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation par mot, posee une fois puis tenue par le compositeur : aucun JavaScript pendant le cycle. Le flou est un filtre par mot, a garder modeste sur un long texte."
+  },
+  "id": "text/blur-words",
+  "sources": {
+    "component.tsx": "/**\n * Nettoyage : le bloc est flou, et ses mots redeviennent nets un a un, dans\n * un ordre tire au sort, jusqu'a ce que tout se lise.\n *\n * ## Ce que ce composant fait et que `blur-reveal` ne fait pas\n *\n * `blur-reveal` va du flou au net dans l'ordre de lecture, une fois, a\n * l'entree dans le champ : c'est une arrivee. Ici l'ordre est tire au sort et\n * le cycle se rejoue, si bien qu'on ne devine jamais quel mot va sortir du\n * flou. L'effet ne raconte pas un texte qui arrive, il raconte un texte qu'on\n * essaie de dechiffrer.\n *\n * ## Un cycle entier tient dans une seule animation par mot\n *\n * L'ordre du tirage n'est pas joue par une suite de minuteurs : il est cuit\n * dans les images cles. Chaque mot recoit une animation de la duree du cycle\n * complet, dont les instants sont calcules a partir de son rang de tirage —\n * flou jusqu'a son tour, net apres, et le retour au flou pour tout le monde a\n * la fin.\n *\n * Le cycle se repete alors tout seul, sans une ligne de JavaScript pendant\n * qu'il tourne, et le compositeur tient les opacites et les flous. Le tirage\n * est fait une fois au depart : le rejouer a chaque tour demanderait de\n * reconstruire toutes les animations, et le cout du hasard depasserait\n * largement ce qu'il apporte.\n *\n * ## Toutes les animations partent au meme instant\n *\n * Leur date de depart est posee a la main sur la meme valeur de timeline.\n * Sans cela, deux mots crees dans la meme image peuvent commencer a des\n * instants differents, et le tirage se decale d'un cycle a l'autre.\n *\n * ## Le flou n'est pose que si le nettoyage aura lieu\n *\n * Le piege de toutes les revelations : cacher en CSS, montrer en JavaScript.\n * Le flou de depart est porte par la premiere image cle de l'animation\n * elle-meme — sans elle, le texte est simplement la, net.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les mots sont retires\n * de l'arbre d'accessibilite. Les espaces restent des espaces, hors des blocs\n * en ligne : c'est ce qui permet au paragraphe d'aller a la ligne.\n *\n * ## Mouvement reduit\n *\n * Aucun decoupage, aucun flou : le texte est rendu tel quel. C'est l'etat ou\n * tout se lit, et c'est bien la fin de chaque cycle.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface BlurWordsOwnProps {\n  /** Texte a nettoyer. Une chaine : elle est decoupee en mots. */\n  children: string\n  /** Balise rendue. @defaultValue 'p' */\n  as?: ElementType\n  /** Flou d'un mot pas encore nettoye, en pixels. @defaultValue 6 */\n  blur?: number\n  /** Opacite d'un mot pas encore nettoye, de 0 a 1. @defaultValue 0.25 */\n  dim?: number\n  /** Duree du nettoyage d'un mot, en millisecondes. @defaultValue 520 */\n  duration?: number\n  /** Retard entre deux mots du tirage, en millisecondes. @defaultValue 200 */\n  step?: number\n  /** Temps de lecture avant que tout redevienne flou, en millisecondes. @defaultValue 1600 */\n  pause?: number\n  /** Rejouer le cycle sans fin. @defaultValue true */\n  boucle?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type BlurWordsProps = Customisable<BlurWordsOwnProps, 'p'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-blur-words'\n\n/** Part de la pause consacree a la lecture ; le reste retourne au flou. */\nconst LECTURE = 0.6\n\n/** Pose les regles du nettoyage, une fois par document. */\nfunction ensureBlurWordsRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = ['[data-o-blur-words-word]{display:inline-block}'].join('')\n  document.head.append(style)\n}\n\n/**\n * Rend une permutation des indices, par melange de Fisher-Yates.\n *\n * Une permutation quelconque : que deux mots voisins sortent l'un apres\n * l'autre arrive, et c'est ce qui rend le tirage credible.\n */\nfunction permutation(taille: number): number[] {\n  const ordre = Array.from({ length: taille }, (_, index) => index)\n  for (let index = taille - 1; index > 0; index -= 1) {\n    const tire = Math.floor(Math.random() * (index + 1))\n    const garde = ordre[index] ?? index\n    ordre[index] = ordre[tire] ?? tire\n    ordre[tire] = garde\n  }\n  return ordre\n}\n\n/**\n * Nettoie les mots d'un texte un a un, dans un ordre tire au sort.\n *\n * @example\n * <BlurWords as=\"p\" className=\"o-text-2xl\">\n *   Un composant qu on ne peut pas modifier n est pas a vous.\n * </BlurWords>\n *\n * @example\n * // Un seul passage, tres flou, sans retour en arriere.\n * <BlurWords boucle={false} blur={12} step={90}>Une seule fois</BlurWords>\n */\nexport function BlurWords({\n  children,\n  as: Tag = 'p',\n  blur = 6,\n  dim = 0.25,\n  duration = 520,\n  step = 200,\n  pause = 1600,\n  boucle = true,\n  ...rest\n}: BlurWordsProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>()\n\n  ensureBlurWordsRule()\n\n  useEffect(() => {\n    const element = ref.current\n    if (element === null || reduced || !vu) return\n\n    const mots = [...element.querySelectorAll<HTMLElement>('[data-o-blur-words-word]')]\n    if (mots.length === 0) return\n\n    const total = mots.length\n    const ordre = permutation(total)\n    const cycle = total * step + duration + pause\n\n    const trouble = {\n      opacity: Math.min(1, Math.max(0, dim)),\n      filter: `blur(${String(blur)}px)`,\n    }\n    const net = { opacity: 1, filter: 'blur(0px)' }\n\n    const animations = mots.map((mot, index) => {\n      const rang = ordre[index] ?? index\n      const debut = (rang * step) / cycle\n      const fin = (rang * step + duration) / cycle\n      const lecture = (total * step + duration + pause * LECTURE) / cycle\n\n      const images = boucle\n        ? [\n            { ...trouble, offset: 0 },\n            { ...trouble, offset: debut },\n            { ...net, offset: fin },\n            { ...net, offset: Math.max(fin, lecture) },\n            // Tout le monde retourne au flou ensemble : c'est la fin du\n            // cycle, et le tour suivant repart du meme point.\n            { ...trouble, offset: 1 },\n          ]\n        : [\n            { ...trouble, offset: 0 },\n            { ...trouble, offset: debut },\n            { ...net, offset: fin },\n            { ...net, offset: 1 },\n          ]\n\n      return mot.animate(images, {\n        duration: cycle,\n        iterations: boucle ? Number.POSITIVE_INFINITY : 1,\n        easing: 'linear',\n        fill: 'both',\n      })\n    })\n\n    // Meme instant de depart pour tout le monde : sans cela, le tirage se\n    // decale d'un cycle a l'autre. Voir l'en-tete du module.\n    const depart = document.timeline.currentTime\n    for (const animation of animations) animation.startTime = depart\n\n    return () => {\n      for (const animation of animations) animation.cancel()\n    }\n  }, [ref, reduced, vu, children, blur, dim, duration, step, pause, boucle])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, net, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const mots = children.split(' ').filter((mot) => mot.length > 0)\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={style}>\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {mots.map((mot, index) => (\n          <span key={`${mot}-${String(index)}`}>\n            <span data-o-blur-words-word=\"\">{mot}</span>\n            {index < mots.length - 1 ? ' ' : null}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

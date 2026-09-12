@@ -1,0 +1,100 @@
+{
+  "name": "wipe-diagonal",
+  "category": "loader",
+  "title": "Balayage oblique",
+  "description": "Une plaque qui quitte l ecran d un seul mouvement, bord de fuite incline, sur une course mesuree au format du cadre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/WipeDiagonal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond de la plaque."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre : le filet de l arete et le libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "direction",
+      "type": "'left' | 'right'",
+      "default": "left",
+      "options": ["left", "right"],
+      "description": "Cote par lequel la plaque s en va."
+    },
+    {
+      "name": "slant",
+      "type": "number",
+      "default": 14,
+      "unit": "deg",
+      "description": "Inclinaison de l arete.",
+      "min": 0,
+      "max": 35,
+      "step": 1
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps la plaque reste en place.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree du balayage.",
+      "min": 200,
+      "max": 3000,
+      "step": 100
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : la plaque couvre tant que c est vrai, et part au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut du balayage, pour que le contenu entre derriere l arete."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule transformation composee. Deux lectures de mise en page : au montage, et a chaque redimensionnement du cadre."
+  }
+}

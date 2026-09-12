@@ -1,0 +1,58 @@
+{
+  "name": "masked-heading",
+  "category": "text",
+  "title": "Titre masque",
+  "description": "Une image est vue a travers les lettres du titre et se balance lentement, sans decouper le contenu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/MaskedHeading.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Image vue a travers les lettres. Purement decorative."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 220,
+      "unit": "%",
+      "description": "Largeur de l image, en part de celle du titre.",
+      "min": 100,
+      "max": 600,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 14000,
+      "unit": "ms",
+      "description": "Duree d un aller.",
+      "min": 2000,
+      "max": 40000,
+      "step": 500
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element, une position de fond animee. Le cout tient a la taille de l image chargee, pas au composant."
+  }
+}

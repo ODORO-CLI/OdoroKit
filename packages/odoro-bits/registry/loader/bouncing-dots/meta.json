@@ -1,0 +1,57 @@
+{
+  "name": "bouncing-dots",
+  "category": "loader",
+  "title": "Points qui sautent",
+  "description": "Trois points bondissent l un apres l autre, montee vive et retombee lourde, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BouncingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d un point. La hauteur du saut en depend.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree d un saut complet, montee, retombee et pause au sol.",
+      "min": 300,
+      "max": 2500,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Trois points poses sur leur ligne de sol sous mouvement reduit."
+  }
+}

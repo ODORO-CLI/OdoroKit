@@ -1,0 +1,83 @@
+{
+  "name": "dunes",
+  "category": "background",
+  "title": "Dunes",
+  "description": "Des cretes superposees, sinus plus bruit, empilees du haut vers le bas : chaque couche plus claire et plus lente, en parallaxe.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "dunes.shader.ts",
+      "target": "background/dunes.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Dunes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-orange-600",
+    "--o-palette-amber-300"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.1,
+      "description": "Vitesse de derive des couches.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "layers",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de cretes empilees. Retrograde a 3 en qualite basse.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Hauteur des ondulations.",
+      "min": 0.02,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-orange-600, --o-palette-amber-300",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Un sinus et un bruit 1D par crete, jusqu a six cretes par fragment. En qualite basse, elles tombent a trois.",
+    "fallback": "gradient"
+  },
+  "id": "background/dunes",
+  "sources": {
+    "dunes.shader.ts": "/**\n * Shader des dunes.\n *\n * ## L'idee mathematique\n *\n * Des cretes superposees : n courbes horizon — un sinus charpente plus un\n * bruit de valeur qui casse sa regularite — empilees du haut vers le bas.\n * Chaque couche recouvre la precedente par un simple seuillage vertical, et\n * derive a sa propre vitesse : c'est la parallaxe qui donne la profondeur,\n * pas un degrade. Les couches basses sont plus claires, comme un sable qui\n * recoit la lumiere rasante.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le ciel.\n * - `uColorB` — la crete la plus lointaine.\n * - `uColorC` — la crete la plus proche, la plus claire.\n * - `uSpeed` — vitesse de derive des couches.\n * - `uLayers` — nombre de cretes empilees.\n * - `uAmplitude` — hauteur des ondulations.\n */\nexport const DUNES_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uLayers;\nuniform float uAmplitude;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat duneHash(float p) {\n  return fract(sin(p * 127.1) * 43758.5453123);\n}\n\n// Bruit de valeur 1D : interpolation lissee entre deux tirages entiers.\nfloat duneNoise(float p) {\n  float cell = floor(p);\n  float local = fract(p);\n  float smoothed = local * local * (3.0 - 2.0 * local);\n  return mix(duneHash(cell), duneHash(cell + 1.0), smoothed);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float x = vUv.x * aspect;\n  float t = uTime * uSpeed;\n  int couches = int(clamp(uLayers, 2.0, 6.0));\n\n  vec3 colour = uColorA;\n\n  for (int i = 0; i < 6; i += 1) {\n    if (i >= couches) break;\n\n    float k = float(i) / max(float(couches) - 1.0, 1.0);\n\n    // Chaque couche descend d'un cran et ralentit : les cretes proches\n    // avancent moins que les lointaines, et ce desaccord est la parallaxe.\n    float base = 0.78 - k * 0.55;\n    float phase = t * (1.2 - 0.9 * k) + float(i) * 4.7;\n\n    // Un sinus pour la charpente, un bruit pour casser sa regularite : le\n    // sinus seul ferait une vague mecanique, le bruit seul un trait nerveux.\n    float crete = base + uAmplitude * (\n      sin(x * 2.1 + phase) * 0.5 +\n      (duneNoise(x * 3.7 + phase * 0.6 + float(i) * 13.0) - 0.5) * 1.0\n    );\n\n    // Remplissage sous la courbe : la couche recouvre tout ce qui est\n    // au-dessous d'elle, avec un bord adouci d'un demi-pour-cent d'ecran.\n    float dessous = smoothstep(crete + 0.004, crete - 0.004, vUv.y);\n\n    // Plus proche, plus clair : la teinte de couche va du lointain au rasant.\n    vec3 teinte = mix(uColorB, uColorC, k);\n    colour = mix(colour, teinte, dessous);\n  }\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Dunes : des cretes superposees qui derivent en parallaxe.\n *\n * ## Le principe\n *\n * Des courbes horizon — sinus charpente plus bruit — empilees du haut vers le\n * bas, chacune remplie sous elle par seuillage vertical. Chaque couche est\n * plus claire et plus lente que la precedente : c'est le desaccord des\n * vitesses qui fait la profondeur, pas un degrade.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { DUNES_FRAGMENT } from './dunes.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface DunesControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface DunesOwnProps {\n  /** Vitesse de derive des couches. @defaultValue 0.1 */\n  speed?: number\n  /** Nombre de cretes empilees. @defaultValue 4 */\n  layers?: number\n  /** Hauteur des ondulations. @defaultValue 0.12 */\n  amplitude?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<DunesControls>\n}\n\n/** Toutes les proprietes. */\nexport type DunesProps = Customisable<DunesOwnProps>\n\n/** Tokens employes par defaut : le ciel, la crete lointaine, la crete rasante. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-orange-600',\n  '--o-palette-amber-300',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-b o-from-amber-100 dark:o-from-amber-950 o-to-orange-200 dark:o-to-orange-950'\n\n/**\n * Dunes.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Dunes className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Dunes({\n  speed = 0.1,\n  layers = 4,\n  amplitude = 0.12,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: DunesProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: DUNES_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uLayers: layers, uAmplitude: amplitude },\n    name: 'dunes',\n    // Chaque crete est un sinus et un bruit de plus par pixel : c'est le\n    // reglage qui pese, donc celui qui est borne.\n    degrade: (quality) => ({\n      uLayers: quality === 'low' ? Math.min(layers, 3) : layers,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

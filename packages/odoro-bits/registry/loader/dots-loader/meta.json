@@ -1,0 +1,57 @@
+{
+  "name": "dots-loader",
+  "category": "loader",
+  "title": "Points qui respirent",
+  "description": "Trois points pulsent en canon, par une seule animation CSS a delais negatifs.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DotsLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d un point.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree d un cycle de respiration.",
+      "min": 300,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Trois points pleins et immobiles sous mouvement reduit."
+  }
+}

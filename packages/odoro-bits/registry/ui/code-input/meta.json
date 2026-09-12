@@ -1,0 +1,51 @@
+{
+  "name": "code-input",
+  "category": "ui",
+  "title": "Champ de code",
+  "description": "Une case par caractere, la saisie avance seule, le collage remplit tout, la case active respire.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CodeInput.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-duration-fast"],
+  "props": [
+    {
+      "name": "length",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de cases.",
+      "min": 4,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "masked",
+      "type": "boolean",
+      "default": false,
+      "description": "Masque les caracteres saisis."
+    },
+    {
+      "name": "onComplete",
+      "type": "(code: string) => void",
+      "description": "Appele quand toutes les cases sont remplies."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(code: string) => void",
+      "description": "Appele a chaque changement, avec le code partiel."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation d anneau sur la seule case active. Sous mouvement reduit l anneau est fixe."
+  }
+}

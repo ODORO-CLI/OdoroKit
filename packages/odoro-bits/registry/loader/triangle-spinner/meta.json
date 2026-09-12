@@ -1,0 +1,67 @@
+{
+  "name": "triangle-spinner",
+  "category": "loader",
+  "title": "Triangle qui se trace",
+  "description": "Un triangle en trait se dessine sur sa piste depuis le sommet, puis s efface dans le meme sens, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/TriangleSpinner.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Largeur du triangle.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un cycle : trace, puis effacement.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du trait. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux chemins SVG, une animation de tirets sur le second, aucun JavaScript apres le premier rendu. Triangle entierement trace et immobile sous mouvement reduit."
+  }
+}

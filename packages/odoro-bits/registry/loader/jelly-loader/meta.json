@@ -1,0 +1,57 @@
+{
+  "name": "jelly-loader",
+  "category": "loader",
+  "title": "Gelee qui tremble",
+  "description": "Un pave arrondi s affaisse sur sa base, rebondit, et ses oscillations s eteignent avant de repartir, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/JellyLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Cote du pave au repos ; la boite reserve la place du rebond.",
+      "min": 16,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un tremblement complet, jusqu a l arret.",
+      "min": 600,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la gelee. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation sur un seul element : l echelle est tenue par le compositeur, les rayons de coin redessinent un rectangle de quelques dizaines de pixels. Pave au repos et immobile sous mouvement reduit."
+  }
+}

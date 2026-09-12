@@ -1,0 +1,54 @@
+{
+  "name": "feature-tabs",
+  "category": "section",
+  "title": "Onglets de fonctionnalites",
+  "description": "Un jeu d onglets conforme aux pratiques ARIA, avec un visuel par fonctionnalite et un trait qui glisse.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/FeatureTabs.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slower",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "features",
+      "type": "readonly Feature[]",
+      "required": true,
+      "description": "Les fonctionnalites, dans l ordre des onglets."
+    },
+    {
+      "name": "render",
+      "type": "(index: number) => ReactNode",
+      "required": true,
+      "description": "Rend le visuel de l onglet actif."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du jeu d onglets, annonce aux technologies d assistance."
+    },
+    {
+      "name": "initial",
+      "type": "number",
+      "default": 0,
+      "description": "Onglet ouvert au premier rendu.",
+      "min": 0,
+      "max": 6,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu par changement d onglet, une transition CSS pour le trait. Aucune mesure de mise en page."
+  }
+}

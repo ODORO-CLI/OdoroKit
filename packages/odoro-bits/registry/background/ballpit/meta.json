@@ -1,0 +1,88 @@
+{
+  "name": "ballpit",
+  "category": "background",
+  "title": "Piscine a balles",
+  "description": "Des balles colorees qui tombent, rebondissent entre elles et contre le cadre, et que le pointeur repousse ; une seule geometrie instanciee, une physique simple et bornee.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Ballpit.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 80,
+      "description": "Nombre de balles. Retrograde a 32 en qualite basse, plafonne a 160.",
+      "min": 10,
+      "max": 160,
+      "step": 10
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 0.32,
+      "description": "Rayon moyen d une balle, en unites de scene ; chaque balle varie autour.",
+      "min": 0.15,
+      "max": 0.6,
+      "step": 0.01
+    },
+    {
+      "name": "gravity",
+      "type": "number",
+      "default": 6,
+      "description": "Pesanteur. Elle penche lentement d un cote puis de l autre, pour que le tas ne se fige jamais.",
+      "min": 0,
+      "max": 15,
+      "step": 0.5
+    },
+    {
+      "name": "bounce",
+      "type": "number",
+      "default": 0.55,
+      "description": "Restitution des chocs. A 1, les balles ne perdent rien.",
+      "min": 0,
+      "max": 0.95,
+      "step": 0.05
+    },
+    {
+      "name": "push",
+      "type": "number",
+      "default": 8,
+      "description": "Force avec laquelle le pointeur repousse les balles.",
+      "min": 0,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-palette-brand-500, --o-palette-fuchsia-500, --o-palette-sky-400",
+      "description": "Tokens des balles, distribues a tour de role. Le fond suit toujours le theme."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Un seul maillage instancie ; les chocs sont testes par paires, en n2 sur au plus 160 balles, avec un pas de temps borne. Le nombre de balles suit la qualite, et le rendu se suspend hors du champ."
+  }
+}

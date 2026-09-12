@@ -1,0 +1,57 @@
+{
+  "name": "bouncing-ball",
+  "category": "loader",
+  "title": "Balle qui rebondit",
+  "description": "Une balle tombe en accelerant, s ecrase au sol, repart en ralentissant, et son ombre suit sa hauteur, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BouncingBall.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Diametre de la balle. La hauteur du rebond en depend.",
+      "min": 6,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree d un rebond complet, du sommet au sommet.",
+      "min": 300,
+      "max": 2400,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la balle et de son ombre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Balle posee au sol sur son ombre pleine sous mouvement reduit."
+  }
+}

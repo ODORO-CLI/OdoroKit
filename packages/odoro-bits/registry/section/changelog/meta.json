@@ -1,0 +1,50 @@
+{
+  "name": "changelog",
+  "category": "section",
+  "title": "Journal des versions",
+  "description": "Une liste de definitions ou la version est le terme et ses changements la description, filtrable par nature.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/Changelog.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-line",
+    "--o-palette-emerald-600",
+    "--o-palette-brand-600",
+    "--o-palette-amber-600",
+    "--o-palette-rose-600",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "releases",
+      "type": "readonly Release[]",
+      "required": true,
+      "description": "Les versions, de la plus recente a la plus ancienne."
+    },
+    {
+      "name": "filterable",
+      "type": "boolean",
+      "default": true,
+      "description": "Propose les interrupteurs de nature au-dessus du journal."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule affiche au-dessus du journal."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, des transitions decalees, et un rendu par bascule de filtre. Aucun JavaScript par image."
+  }
+}

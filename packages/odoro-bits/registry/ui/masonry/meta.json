@@ -1,0 +1,89 @@
+{
+  "name": "masonry",
+  "category": "ui",
+  "title": "Maconnerie",
+  "description": "Une galerie en colonnes de hauteurs libres, dont chaque vignette monte a sa place quand elle entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Masonry.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les images de la galerie, dans l ordre de lecture. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la galerie pour les lecteurs d ecran."
+    },
+    {
+      "name": "onSelect",
+      "type": "(src: string) => void",
+      "description": "Appele au clic ou a Entree sur une vignette. Sans lui, les vignettes ne sont pas des cibles."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "description": "Nombre maximal de colonnes. Il en tient moins quand la place manque."
+    },
+    {
+      "name": "minWidth",
+      "type": "number",
+      "default": 200,
+      "unit": "px",
+      "min": 120,
+      "max": 420,
+      "step": 10,
+      "description": "Largeur minimale d une colonne. C est elle qui decide combien il en tient."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "description": "Ecart entre deux vignettes, en hauteur comme en largeur."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "description": "Retard ajoute d une colonne a la suivante dans la montee."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les colonnes sont celles du navigateur : aucune mesure, aucune position calculee. La montee est une transition retardee par une variable, liberee par un unique observateur qui ecrit un attribut sur la vignette — pas un rendu React par vignette. Sous mouvement reduit, tout est en place au premier rendu."
+  }
+}

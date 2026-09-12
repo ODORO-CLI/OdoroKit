@@ -100,6 +100,40 @@ export function TooltipDoc(): ReactElement {
           )}>
   <Button tone="secondary">Survolez-moi</Button>
 </Tooltip>`}
+          variants={[
+            {
+              title: 'En haut',
+              values: { placement: 'top' },
+            },
+            {
+              title: 'En bas',
+              values: { placement: 'bottom' },
+            },
+            {
+              title: 'A gauche',
+              values: { placement: 'left' },
+            },
+            {
+              title: 'A droite',
+              values: { placement: 'right' },
+            },
+            {
+              title: 'Delai long',
+              description: 'Une seconde avant apparition.',
+              values: { delay: 1000 },
+            },
+            {
+              title: 'Sur une icone',
+              description: "L'infobulle complete l'aria-label.",
+              node: (
+                <Tooltip content="Copier dans le presse-papiers">
+                  <Button tone="ghost" aria-label="Copier">
+                    <CopyIcon />
+                  </Button>
+                </Tooltip>
+              ),
+            },
+          ]}
         />
       </Section>
 

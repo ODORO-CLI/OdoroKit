@@ -1,0 +1,76 @@
+{
+  "name": "ring-dots",
+  "category": "loader",
+  "title": "Points en couronne",
+  "description": "Des points fixes disposes en cercle, dont l eclat tourne de l un a l autre en fondu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/RingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Diametre de la couronne.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "dot",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de points sur la couronne.",
+      "min": 4,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree pour que l eclat fasse le tour.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation d opacite par point, tenue par le compositeur, aucun JavaScript apres le premier rendu. Tous les points pleins sous mouvement reduit."
+  }
+}

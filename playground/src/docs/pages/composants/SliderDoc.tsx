@@ -70,6 +70,51 @@ export function SliderDoc(): ReactElement {
               DEFAUTS,
             )} />`
           }
+          variants={[
+            {
+              title: 'Valeur affichee',
+              description: 'showValue place la valeur courante pres du libelle.',
+              values: { showValue: true },
+            },
+            {
+              title: 'Pas de 10',
+              description: 'La valeur avance de dix en dix.',
+              values: { step: 10 },
+            },
+            { title: 'Plage 0-1000', values: { max: 1000, step: 100 } },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Format euros',
+              description: 'formatValue met en forme la valeur affichee.',
+              node: (
+                <Slider
+                  label="Budget"
+                  min={0}
+                  max={2000}
+                  step={50}
+                  defaultValue={800}
+                  showValue
+                  formatValue={(value) => `${value} EUR`}
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Avec erreur',
+              description: 'La piste passe au registre danger.',
+              node: (
+                <Slider
+                  label="Nombre d'invites"
+                  min={0}
+                  max={20}
+                  defaultValue={18}
+                  showValue
+                  error="La salle est limitee a 12 personnes."
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+          ]}
         />
       </Section>
 

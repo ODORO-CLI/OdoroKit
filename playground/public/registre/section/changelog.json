@@ -1,0 +1,67 @@
+{
+  "name": "changelog",
+  "category": "section",
+  "title": "Journal des versions",
+  "description": "Une liste de definitions ou la version est le terme et ses changements la description, filtrable par nature.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "section/Changelog.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-fg",
+    "--o-theme-muted",
+    "--o-theme-line",
+    "--o-palette-emerald-600",
+    "--o-palette-brand-600",
+    "--o-palette-amber-600",
+    "--o-palette-rose-600",
+    "--o-duration-slower",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "releases",
+      "type": "readonly Release[]",
+      "required": true,
+      "description": "Les versions, de la plus recente a la plus ancienne."
+    },
+    {
+      "name": "filterable",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Propose les interrupteurs de nature au-dessus du journal."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Intitule affiche au-dessus du journal."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, des transitions decalees, et un rendu par bascule de filtre. Aucun JavaScript par image."
+  },
+  "id": "section/changelog",
+  "sources": {
+    "component.tsx": "/**\n * Journal des versions.\n *\n * ## Pourquoi une liste de definitions\n *\n * Un journal est une suite de couples : une version, et ce qu'elle a change.\n * C'est exactement la relation qu'une `<dl>` decrit — le terme et sa\n * description — et c'est la seule structure qui la rende explicite. Une suite\n * de titres et de listes donne le meme dessin et laisse un lecteur d'ecran\n * deviner que « 2.4.0 » se rapporte aux six lignes qui suivent.\n *\n * Le rangement compte pour autre chose : chercher « quand telle chose a-t-elle\n * change » dans un journal est une operation frequente, et une structure juste\n * la rend possible sans avoir a tout lire.\n *\n * ## La date est une date, pas du texte\n *\n * `<time>` avec son attribut : c'est ce qui distingue une date d'une chaine\n * qui lui ressemble. Sans lui, « 12/03 » est ambigu dans la moitie du monde.\n *\n * ## Le filtre retire des lignes, pas des versions\n *\n * Filtrer par nature — ajouts, corrections, retraits — ne doit pas faire\n * disparaitre une version entiere : on ne saurait plus si elle n'a rien change\n * ou si elle n'existe pas. La version reste donc affichee, et le compte des\n * lignes cachees est dit.\n *\n * Les boutons portent `aria-pressed` : ce sont des interrupteurs, pas des\n * actions, et l'etat de chacun doit s'entendre avant d'appuyer.\n *\n * ## La revelation\n *\n * Une cascade a l'entree dans le champ, en transitions CSS, et rien de plus.\n * Sous mouvement reduit, l'etat de depart n'est pas pose : le journal est\n * simplement la.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Nature d'un changement. */\nexport type ChangeKind = 'ajout' | 'evolution' | 'correction' | 'retrait'\n\n/** Une ligne du journal. */\nexport interface ChangeNote {\n  /** Nature du changement. */\n  readonly kind: ChangeKind\n  /** Ce qui a change. */\n  readonly text: ReactNode\n}\n\n/** Une version publiee. */\nexport interface Release {\n  /** Numero de version, tel qu'il est publie. */\n  readonly version: string\n  /** Date affichee. */\n  readonly date: string\n  /** Date lisible par une machine, au format `YYYY-MM-DD`. */\n  readonly dateTime?: string\n  /** Une phrase qui resume la version. */\n  readonly summary?: ReactNode\n  /** Les changements, dans l'ordre d'importance. */\n  readonly notes: readonly ChangeNote[]\n}\n\n/** Proprietes propres au composant. */\nexport interface ChangelogOwnProps {\n  /** Les versions, de la plus recente a la plus ancienne. */\n  releases: readonly Release[]\n  /** Propose les interrupteurs de nature au-dessus du journal. @defaultValue true */\n  filterable?: boolean\n  /** Nom de la section, annonce aux technologies d'assistance. */\n  label?: string\n  /** Intitule affiche au-dessus du journal. */\n  title?: ReactNode\n}\n\n/** Toutes les proprietes. */\nexport type ChangelogProps = Customisable<ChangelogOwnProps, 'section'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-changelog'\n\n/** Ce que chaque nature affiche, et la teinte qui la porte. */\nconst NATURES: Readonly<Record<ChangeKind, { libelle: string; teinte: string }>> = {\n  ajout: { libelle: 'Ajout', teinte: 'var(--o-palette-emerald-600)' },\n  evolution: { libelle: 'Evolution', teinte: 'var(--o-palette-brand-600)' },\n  correction: { libelle: 'Correction', teinte: 'var(--o-palette-amber-600)' },\n  retrait: { libelle: 'Retrait', teinte: 'var(--o-palette-rose-600)' },\n}\n\n/** Les natures, dans l'ordre des interrupteurs. */\nconst ORDRE: readonly ChangeKind[] = ['ajout', 'evolution', 'correction', 'retrait']\n\n/** Pose les regles du journal, une fois par document. */\nfunction ensureChangelogRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-log]{margin:0}',\n    '[data-o-log-entree]{padding-block:1.5rem}',\n    '[data-o-log-entree]+[data-o-log-entree]{border-top:1px solid var(--o-theme-line)}',\n    '@media (min-width:48rem){[data-o-log-entree]{',\n    'display:grid;grid-template-columns:10rem minmax(0,1fr);gap:1.5rem}',\n    // Le numero reste en vue pendant qu'on lit ses lignes : sur une version a\n    // vingt changements, on ne sait plus laquelle on lit sans cela.\n    '[data-o-log-entree]>dt{position:sticky;top:1rem;align-self:start}}',\n    '[data-o-log-entree]>dd{margin:0}',\n\n    '[data-o-log-notes]{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.5rem}',\n    '[data-o-log-notes]>li{display:flex;gap:0.6rem;align-items:baseline}',\n    '[data-o-log-pastille]{',\n    'flex-shrink:0;min-width:5.5rem;text-align:center;border-radius:9999px;',\n    'padding:0.1rem 0.5rem;font-size:0.6875rem;font-weight:500}',\n\n    '[data-o-log-cache] [data-o-log-entree]{',\n    'opacity:0;transform:translateY(14px);',\n    'transition:opacity var(--o-duration-slower) var(--o-ease-entrance),',\n    'transform var(--o-duration-slower) var(--o-ease-entrance);',\n    'transition-delay:var(--o-log-delai)}',\n    '[data-o-log-vu] [data-o-log-entree]{opacity:1;transform:none}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-log-cache] [data-o-log-entree]{opacity:1;transform:none;transition:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Un journal des versions filtrable.\n *\n * @example\n * <Changelog\n *   title=\"Journal\"\n *   releases={[\n *     {\n *       version: '2.4.0',\n *       date: '12 mars 2026',\n *       dateTime: '2026-03-12',\n *       notes: [{ kind: 'ajout', text: 'Douze sections entrent au registre.' }],\n *     },\n *   ]}\n * />\n */\nexport function Changelog({\n  releases,\n  filterable = true,\n  label,\n  title,\n  ...rest\n}: ChangelogProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({ amount: 0.1 })\n  const [retirees, setRetirees] = useState<readonly ChangeKind[]>([])\n\n  ensureChangelogRules()\n\n  const basculer = (nature: ChangeKind): void => {\n    setRetirees((precedentes) =>\n      precedentes.includes(nature)\n        ? precedentes.filter((autre) => autre !== nature)\n        : [...precedentes, nature],\n    )\n  }\n\n  const { className, style } = mergePresentation(\n    { className: 'o-flex o-flex-col o-gap-6' },\n    rest,\n  )\n\n  return (\n    <section\n      {...rest}\n      ref={ref}\n      aria-label={label}\n      className={className}\n      style={style as CSSProperties}\n    >\n      {title === undefined ? null : (\n        <h2\n          className=\"o-text-2xl o-font-semibold o-tracking-tight\"\n          style={{ color: 'var(--o-theme-fg)' }}\n        >\n          {title}\n        </h2>\n      )}\n\n      {filterable && (\n        <div\n          role=\"group\"\n          aria-label=\"Natures affichees\"\n          className=\"o-flex o-flex-wrap o-gap-2\"\n        >\n          {ORDRE.map((nature) => {\n            const active = !retirees.includes(nature)\n            return (\n              <button\n                key={nature}\n                type=\"button\"\n                // Un interrupteur, pas une action : son etat doit s'entendre\n                // avant qu'on appuie dessus.\n                aria-pressed={active}\n                onClick={() => {\n                  basculer(nature)\n                }}\n                className=\"o-rounded-full o-px-3 o-py-1 o-text-xs o-font-medium focus:o-ring\"\n                style={{\n                  cursor: 'pointer',\n                  color: active ? NATURES[nature].teinte : 'var(--o-theme-muted)',\n                  backgroundColor: active\n                    ? `color-mix(in oklab, ${NATURES[nature].teinte} 14%, transparent)`\n                    : 'transparent',\n                  border: `1px solid ${\n                    active\n                      ? `color-mix(in oklab, ${NATURES[nature].teinte} 40%, transparent)`\n                      : 'var(--o-theme-line)'\n                  }`,\n                }}\n              >\n                {NATURES[nature].libelle}\n              </button>\n            )\n          })}\n        </div>\n      )}\n\n      <dl\n        data-o-log=\"\"\n        data-o-log-cache={reduced ? undefined : ''}\n        data-o-log-vu={vu && !reduced ? '' : undefined}\n      >\n        {releases.map((release, index) => {\n          const visibles = release.notes.filter((note) => !retirees.includes(note.kind))\n          const cachees = release.notes.length - visibles.length\n\n          return (\n            // La specification autorise expressement un `div` autour d'un\n            // couple `dt`/`dd` : c'est le seul moyen de les grouper pour la\n            // mise en page sans casser la relation que la liste porte.\n            <div\n              key={release.version}\n              data-o-log-entree=\"\"\n              style={{ '--o-log-delai': `${String(index * 70)}ms` } as CSSProperties}\n            >\n              <dt>\n                <span\n                  className=\"o-block o-font-mono o-text-lg o-font-semibold o-tracking-tight\"\n                  style={{ color: 'var(--o-theme-fg)' }}\n                >\n                  {release.version}\n                </span>\n                <time\n                  {...(release.dateTime === undefined\n                    ? {}\n                    : { dateTime: release.dateTime })}\n                  className=\"o-mt-1 o-block o-text-xs\"\n                  style={{ color: 'var(--o-theme-muted)' }}\n                >\n                  {release.date}\n                </time>\n              </dt>\n\n              <dd>\n                {release.summary !== undefined && (\n                  <p\n                    className=\"o-mb-3 o-text-sm o-leading-relaxed\"\n                    style={{ color: 'var(--o-theme-fg)' }}\n                  >\n                    {release.summary}\n                  </p>\n                )}\n\n                <ul data-o-log-notes=\"\">\n                  {visibles.map((note, rang) => (\n                    <li key={`${note.kind}-${String(rang)}`}>\n                      <span\n                        data-o-log-pastille=\"\"\n                        style={{\n                          color: NATURES[note.kind].teinte,\n                          backgroundColor: `color-mix(in oklab, ${NATURES[note.kind].teinte} 14%, transparent)`,\n                        }}\n                      >\n                        {NATURES[note.kind].libelle}\n                      </span>\n                      <span className=\"o-text-sm\" style={{ color: 'var(--o-theme-fg)' }}>\n                        {note.text}\n                      </span>\n                    </li>\n                  ))}\n                </ul>\n\n                {/*\n                  La version reste affichee meme quand le filtre a tout retire :\n                  la faire disparaitre laisserait croire qu'elle n'existe pas.\n                */}\n                {cachees > 0 && (\n                  <p\n                    className=\"o-mt-2 o-text-xs\"\n                    style={{ color: 'var(--o-theme-muted)' }}\n                  >\n                    {cachees === 1\n                      ? '1 ligne masquee par le filtre.'\n                      : `${String(cachees)} lignes masquees par le filtre.`}\n                  </p>\n                )}\n              </dd>\n            </div>\n          )\n        })}\n      </dl>\n    </section>\n  )\n}\n"
+  }
+}

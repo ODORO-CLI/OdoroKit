@@ -1,0 +1,85 @@
+{
+  "name": "eye-follow",
+  "category": "background",
+  "title": "Yeux qui suivent",
+  "description": "Une grille de grands yeux dessines au trait, dont l iris se tourne vers le curseur ; chacun cligne a son propre rythme, en se refermant sur lui-meme.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "eye-follow.shader.ts",
+      "target": "background/eye-follow.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/EyeFollow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "eyes",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre d yeux sur la hauteur. Borne a dix par le shader.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "gaze",
+      "type": "number",
+      "required": false,
+      "default": 0.9,
+      "description": "Amplitude du regard. A zero, les yeux fixent devant eux.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "blink",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Frequence des clignements. A zero, les yeux restent ouverts.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond et l eclat, le trait et la pupille, l iris."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Cinq distances et six lissages par fragment, sans boucle ; le pointeur est recopie dans un tableau mute en place, sans rendu React par image.",
+    "fallback": "static"
+  },
+  "id": "background/eye-follow",
+  "sources": {
+    "eye-follow.shader.ts": "/**\n * Shader des yeux qui suivent.\n *\n * ## L'idee mathematique\n *\n * Un oeil par cellule d'une grille. La forme de l'oeil n'est pas une ellipse\n * mais l'intersection de deux disques decales verticalement : c'est ce qui\n * lui donne ses deux coins pointus, qu'une ellipse n'a pas. En distance\n * signee, une intersection est un maximum — deux longueurs, un `max`, et la\n * forme est faite.\n *\n * Le regard est la direction de la cellule vers le pointeur, ecrasee :\n * beaucoup en abscisse, peu en ordonnee. Un iris qui se deplacerait autant\n * dans les deux sens sortirait de l'oeil par le haut avant d'en atteindre le\n * coin.\n *\n * Le clignement est un ecrasement du repere local en ordonnee, pas un volet\n * pose par-dessus : l'oeil se referme donc sur lui-meme, et sa paupiere n'a\n * pas a etre dessinee. Chaque oeil cligne a son propre rythme, tire de ses\n * coordonnees de cellule.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond, et l eclat dans l iris.\n * - `uColorB` — le trait de l oeil et sa pupille.\n * - `uColorC` — l iris.\n * - `uPointer` — position amortie du pointeur, en coordonnees de texture.\n * - `uEyes` — nombre d yeux sur la hauteur.\n * - `uGaze` — amplitude du regard, entre zero et un.\n * - `uBlink` — frequence des clignements. Zero les coupe.\n */\nexport const EYE_FOLLOW_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec2 uPointer;\nuniform float uEyes;\nuniform float uGaze;\nuniform float uBlink;\n\n// Rythme propre a un oeil, stable d'une image a l'autre.\nfloat eyeSeed(vec2 cell) {\n  return fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 uv = vec2(vUv.x * aspect, vUv.y);\n\n  float scale = clamp(uEyes, 1.0, 10.0);\n  vec2 p = uv * scale;\n  vec2 cell = floor(p);\n  vec2 local = fract(p) - 0.5;\n\n  vec2 centre = (cell + 0.5) / scale;\n  vec2 m = uPointer * vec2(aspect, 1.0);\n\n  // Le regard : direction vers le pointeur, amplitude bornee et ecrasee.\n  vec2 towards = m - centre;\n  float span = length(towards);\n  vec2 dir = span > 0.0001 ? towards / span : vec2(0.0, 0.0);\n  float reach = min(span * 2.5, 1.0) * clamp(uGaze, 0.0, 1.0);\n  vec2 look = vec2(dir.x * 0.20, dir.y * 0.07) * reach;\n\n  // Le clignement : une impulsion etroite dans le cycle propre a l'oeil.\n  float seed = eyeSeed(cell);\n  float beat = fract(uTime * (0.10 + 0.09 * seed) * max(uBlink, 0.0) + seed);\n  float lid = (beat - 0.5) * 26.0;\n  float shut = exp(-lid * lid) * step(0.0001, uBlink);\n  float open = max(1.0 - shut, 0.07);\n\n  // Le repere de l'oeil, ecrase par la paupiere.\n  vec2 q = vec2(local.x, local.y / open);\n\n  // L'intersection de deux disques : un max de deux distances signees.\n  float upper = length(q - vec2(0.0, 0.36)) - 0.55;\n  float lower = length(q - vec2(0.0, -0.36)) - 0.55;\n  float shape = max(upper, lower);\n\n  float px = scale / max(uResolution.y, 1.0) * 1.6;\n  float inside = 1.0 - smoothstep(0.0, px * 2.0, shape);\n  float outline = 1.0 - smoothstep(px, px * 3.0, abs(shape));\n\n  // L'iris, la pupille, et l'eclat decale vers le haut a gauche.\n  float iris = 1.0 - smoothstep(0.0, px * 2.0, length(q - look) - 0.15);\n  float pupil = 1.0 - smoothstep(0.0, px * 2.0, length(q - look) - 0.065);\n  float spark =\n    1.0 - smoothstep(0.0, px * 2.0, length(q - look - vec2(0.055, 0.055)) - 0.028);\n\n  vec3 colour = uColorA;\n  colour = mix(colour, mix(uColorA, uColorB, 0.07), inside);\n  colour = mix(colour, uColorC, iris * inside);\n  colour = mix(colour, uColorB, pupil * inside);\n  colour = mix(colour, uColorA, spark * inside);\n  colour = mix(colour, uColorB, outline * 0.7);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Yeux qui suivent : une grille d'yeux dessines au trait, dont l'iris se\n * tourne vers le curseur et qui clignent chacun a son rythme.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur, avec amortissement : chaque oeil calcule la\n * direction de sa cellule vers le curseur et y pose son iris, d'autant plus\n * loin du centre que le curseur est loin, jusqu'a une amplitude bornee. A la\n * sortie du cadre, le hook ramene la cible au centre — tous les yeux\n * reviennent au milieu.\n *\n * ## Pourquoi ce fond peut servir de contenu\n *\n * C'est le seul du lot qui ne soit pas une texture : une page qui le pose\n * derriere un titre gagne un regard, pas une matiere. Il vaut donc mieux\n * peu d'yeux et gros que beaucoup et petits — le reglage par defaut se\n * range du premier cote.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : le composant mute en place un tableau stable\n * passe en uniform, et la surface relit ses uniforms a chaque image. La\n * recopie se fait dans la boucle du moteur, en priorite d'entree.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche : le\n * suivi du pointeur est un agrement, pas un contenu.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { EYE_FOLLOW_FRAGMENT } from './eye-follow.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface EyeFollowControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface EyeFollowOwnProps {\n  /** Nombre d'yeux sur la hauteur. Borne a dix par le shader. @defaultValue 3 */\n  eyes?: number\n  /** Amplitude du regard, entre zero et un. @defaultValue 0.9 */\n  gaze?: number\n  /** Frequence des clignements. Zero les coupe. @defaultValue 1 */\n  blink?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<EyeFollowControls>\n}\n\n/** Toutes les proprietes. */\nexport type EyeFollowProps = Customisable<EyeFollowOwnProps>\n\n/** Tokens employes par defaut : le fond, le trait et la pupille, l'iris. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-fg',\n  '--o-palette-brand-500',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Yeux qui suivent.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <EyeFollow className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function EyeFollow({\n  eyes = 3,\n  gaze = 0.9,\n  blink = 1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: EyeFollowProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tableau stable, mute en place : la surface relit les uniforms a chaque\n  // image, l'identite ne change pas, la mutation suffit — aucun setState.\n  const uPointer = useRef<number[]>([0.5, 0.5]).current\n\n  // Vitesse 5 : un oeil rattrape vite, mais pas instantanement.\n  const pointer = usePointerDamped({ host, speed: 5, name: 'eye-follow : pointeur' })\n\n  useEffect(() => {\n    const subscription = clock.subscribe(\n      () => {\n        // Du repere du hook (centre, y vers le bas) vers celui de la texture\n        // (coin bas-gauche, y vers le haut).\n        uPointer[0] = (pointer.current.x + 1) / 2\n        uPointer[1] = 1 - (pointer.current.y + 1) / 2\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'eye-follow : pont' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uPointer])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: EYE_FOLLOW_FRAGMENT,\n      colors,\n      uniforms: { uPointer, uEyes: eyes, uGaze: gaze, uBlink: blink },\n      name: 'eye-follow',\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

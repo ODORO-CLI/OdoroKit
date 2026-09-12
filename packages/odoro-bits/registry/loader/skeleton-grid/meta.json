@@ -1,0 +1,102 @@
+{
+  "name": "skeleton-grid",
+  "category": "loader",
+  "title": "Grille en attente",
+  "description": "Des vignettes au meme rapport, chacune avec sa legende, balayees en diagonale : la galerie occupe deja la place exacte de ses images.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "default": 2,
+      "description": "Nombre de rangees.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de colonnes.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "ratio",
+      "type": "string",
+      "default": "4/3",
+      "description": "Rapport largeur sur hauteur d une vignette.",
+      "options": ["16/9", "4/3", "3/2", "1/1"]
+    },
+    {
+      "name": "caption",
+      "type": "boolean",
+      "default": true,
+      "description": "Reserver la place d une legende sous chaque vignette."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Ecart entre les vignettes.",
+      "min": 4,
+      "max": 40,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Rayon des angles d une vignette.",
+      "min": 0,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reflet qui traverse les vignettes plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement de la galerie",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par vignette, ou une opacite, aucun JavaScript apres le premier rendu. Le rapport reserve la hauteur : aucune mise en page ne saute a l arrivee des images. Vignettes pleines et immobiles sous mouvement reduit."
+  }
+}

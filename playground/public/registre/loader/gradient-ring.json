@@ -1,0 +1,76 @@
+{
+  "name": "gradient-ring",
+  "category": "loader",
+  "title": "Anneau degrade",
+  "description": "Un anneau conique qui s eteint sur tout le tour, de la tete pleine a la queue transparente, en rotation.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GradientRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Epaisseur de l anneau.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la tete. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique masque en anneau, une rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Anneau immobile, tete en haut, sous mouvement reduit."
+  },
+  "id": "loader/gradient-ring",
+  "sources": {
+    "component.tsx": "/**\n * Anneau degrade : un degrade conique masque en anneau, en rotation.\n *\n * ## Un degrade, un masque, une rotation\n *\n * Le disque porte un degrade conique qui va du transparent a la couleur\n * pleine sur un tour complet. Un masque radial ne garde que la couronne\n * exterieure : le disque devient un anneau dont l'intensite croit sur tout\n * le tour, sans tete ni queue nettes. C'est ce qui le distingue d'un arc\n * sur une piste : ici rien n'est decoupe, la couleur s'eteint continument.\n *\n * Le degrade se termine par une couture — pleine couleur a 360 degres,\n * transparent a 0 degre. Un point rond de l'epaisseur de l'anneau est pose\n * sur cette couture : il devient la tete du mouvement et arrondit une fin de\n * degrade qui, seule, serait coupee au rasoir.\n *\n * Le masque est un degrade radial dont la couleur ne compte pas, seule son\n * opacite : `currentColor` y fait office de plein, sans introduire une\n * valeur de couleur qui n'appartiendrait a aucun theme.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. L'anneau, lui, est\n * retire de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, l'anneau reste tete en haut : un anneau qui\n * s'eteint sur son tour se lit encore comme un chargeur, seul le mouvement\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-gradient-ring'\n\n/** Pose l'anneau, son masque et sa rotation, une fois par document. */\nfunction ensureGradientRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const mask =\n    'radial-gradient(farthest-side, transparent calc(100% - var(--o-grad-thickness)), currentColor calc(100% - var(--o-grad-thickness) + 0.5px))'\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-gradient-ring]{position:relative;display:inline-block;line-height:0}',\n    '[data-o-grad-disc]{',\n    'position:absolute;inset:0;border-radius:50%;',\n    'background:conic-gradient(from 0deg, transparent, var(--o-grad-color));',\n    `-webkit-mask:${mask};mask:${mask};`,\n    'animation:o-gradient-ring-spin var(--o-grad-speed) linear infinite;',\n    '}',\n    // La tete : un point rond sur la couture du degrade.\n    '[data-o-grad-disc]::after{',\n    'content:\"\";position:absolute;top:0;left:50%;',\n    'width:var(--o-grad-thickness);height:var(--o-grad-thickness);',\n    'border-radius:50%;background:var(--o-grad-color);',\n    'transform:translateX(-50%);',\n    '}',\n    '@keyframes o-gradient-ring-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-grad-disc]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface GradientRingOwnProps {\n  /** Diametre de l'anneau, en pixels. @defaultValue 48 */\n  size?: number\n  /** Epaisseur de l'anneau, en pixels. @defaultValue 6 */\n  thickness?: number\n  /** Duree d'un tour, en millisecondes. @defaultValue 1000 */\n  speed?: number\n  /** Couleur de la tete. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type GradientRingProps = Customisable<GradientRingOwnProps, 'span'>\n\n/**\n * Signale une attente par un anneau qui s'eteint sur son tour.\n *\n * @example\n * <GradientRing />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <GradientRing size={80} thickness={10} speed={1800} color=\"var(--o-palette-brand-500)\" />\n */\nexport function GradientRing({\n  size = 48,\n  thickness = 6,\n  speed = 1000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: GradientRingProps): ReactElement {\n  ensureGradientRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    // Une epaisseur au-dela du rayon fermerait l'anneau en disque.\n    '--o-grad-thickness': `${String(Math.min(thickness, size / 2))}px`,\n    '--o-grad-speed': `${String(speed)}ms`,\n    '--o-grad-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-gradient-ring=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-grad-disc=\"\" />\n    </span>\n  )\n}\n"
+  }
+}

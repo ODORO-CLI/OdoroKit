@@ -126,6 +126,34 @@ export function AccordionDoc(): ReactElement {
     { id: 'theme', title: 'Le theme sombre est-il gere ?', content: '...' },
   ]}
 />`}
+          variants={[
+            {
+              title: 'Sections independantes',
+              description: 'type multiple, chaque section vit seule.',
+              values: { type: 'multiple' },
+            },
+            {
+              title: 'Non repliable',
+              description: 'Une section reste toujours ouverte.',
+              values: { collapsible: false },
+            },
+            {
+              title: 'Ouvert sur la premiere',
+              description: 'defaultValue pointe la premiere section.',
+              node: (
+                <Accordion
+                  items={FAQ_ITEMS}
+                  defaultValue="installation"
+                  className="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Section desactivee',
+              description: 'Visible mais inactivable.',
+              node: <Accordion items={DISABLED_ITEMS} className="o-w-full" />,
+            },
+          ]}
         />
       </Section>
 

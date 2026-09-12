@@ -1,0 +1,65 @@
+{
+  "name": "bouncing-ball",
+  "category": "loader",
+  "title": "Balle qui rebondit",
+  "description": "Une balle tombe en accelerant, s ecrase au sol, repart en ralentissant, et son ombre suit sa hauteur, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BouncingBall.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Diametre de la balle. La hauteur du rebond en depend.",
+      "min": 6,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree d un rebond complet, du sommet au sommet.",
+      "min": 300,
+      "max": 2400,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la balle et de son ombre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Balle posee au sol sur son ombre pleine sous mouvement reduit."
+  },
+  "id": "loader/bouncing-ball",
+  "sources": {
+    "component.tsx": "/**\n * Balle qui rebondit : une balle tombe, s'ecrase au sol, repart, et son\n * ombre grandit a mesure qu'elle s'approche.\n *\n * ## Une chute n'est pas une montee a l'envers\n *\n * Une balle qui tombe accelere ; une balle qui remonte ralentit. La meme\n * courbe dans les deux sens — l'`ease-in-out` que l'on pose par reflexe —\n * donne une balle qui flotte, sans poids. Ici la chute est en `ease-in`, la\n * remontee en `ease-out`, et entre les deux la balle s'aplatit au sol :\n * c'est l'ecrasement qui dit qu'il y a eu un choc, et la reprise de forme\n * qui dit qu'elle est elastique. L'origine de l'ecrasement est le bas de la\n * balle, pour qu'elle reste posee au sol pendant qu'elle se deforme.\n *\n * L'ombre est ce qui donne la hauteur : sans elle, une balle qui monte et\n * descend est un point qui bouge. Elle se resserre et palit quand la balle\n * est loin, s'etale et fonce quand elle touche. Deux animations, tenues par\n * le compositeur, aucun JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. La balle et son ombre\n * sont retirees de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la balle est posee au sol, sur son ombre pleine :\n * c'est la ou une balle finit toujours, et la figure se reconnait encore.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-bouncing-ball'\n\n/** Hauteur du rebond, en diametres de balle. */\nconst HEIGHT = 2.4\n\n/** Pose la balle, son ombre et le rebond, une fois par document. */\nfunction ensureBallRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La colonne reserve la hauteur du saut au-dessus de la balle : le\n    // chargeur ne change pas de taille selon l'image ou on le regarde.\n    '[data-o-bouncing-ball]{',\n    'display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-end;',\n    `height:calc(var(--o-ball-size) * ${String(HEIGHT + 1.5)});`,\n    'width:calc(var(--o-ball-size) * 1.6);',\n    '}',\n    '[data-o-ball]{',\n    'width:var(--o-ball-size);height:var(--o-ball-size);',\n    'border-radius:50%;background:var(--o-ball-color);',\n    'transform-origin:50% 100%;',\n    'animation:o-bouncing-ball-jump var(--o-ball-speed) infinite;',\n    '}',\n    '[data-o-ball-shadow]{',\n    'width:calc(var(--o-ball-size) * 1.2);height:calc(var(--o-ball-size) * 0.28);',\n    'margin-top:calc(var(--o-ball-size) * 0.12);',\n    'border-radius:50%;background:var(--o-ball-color);opacity:0.4;',\n    'animation:o-bouncing-ball-shade var(--o-ball-speed) infinite;',\n    '}',\n    // Chute en accelerant, ecrasement au sol, remontee en ralentissant.\n    '@keyframes o-bouncing-ball-jump{',\n    `0%{transform:translateY(calc(var(--o-ball-size) * -${String(HEIGHT)})) scale(1);animation-timing-function:ease-in}`,\n    '44%{transform:translateY(0) scale(1);animation-timing-function:ease-out}',\n    '50%{transform:translateY(0) scale(1.25,0.72);animation-timing-function:ease-in}',\n    '56%{transform:translateY(0) scale(1);animation-timing-function:ease-out}',\n    `100%{transform:translateY(calc(var(--o-ball-size) * -${String(HEIGHT)})) scale(1)}`,\n    '}',\n    // L'ombre suit la hauteur : petite et pale au sommet, large et pleine\n    // au contact.\n    '@keyframes o-bouncing-ball-shade{',\n    '0%{transform:scaleX(0.45);opacity:0.12;animation-timing-function:ease-in}',\n    '44%,56%{transform:scaleX(1);opacity:0.4;animation-timing-function:ease-out}',\n    '100%{transform:scaleX(0.45);opacity:0.12}',\n    '}',\n    // Une balle posee sur son ombre : la figure est dite, sans rebond.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-ball],[data-o-ball-shadow]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BouncingBallOwnProps {\n  /** Diametre de la balle, en pixels. @defaultValue 12 */\n  size?: number\n  /** Duree d'un rebond complet, en millisecondes. @defaultValue 800 */\n  speed?: number\n  /** Couleur de la balle et de son ombre. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BouncingBallProps = Customisable<BouncingBallOwnProps, 'span'>\n\n/**\n * Signale une attente par une balle qui rebondit sur son ombre.\n *\n * @example\n * <BouncingBall />\n *\n * @example\n * // Plus grosse, plus lente, dans la teinte de marque.\n * <BouncingBall size={18} speed={1200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function BouncingBall({\n  size = 12,\n  speed = 800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BouncingBallProps): ReactElement {\n  ensureBallRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-ball-size': `${String(size)}px`,\n    '--o-ball-speed': `${String(speed)}ms`,\n    '--o-ball-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-bouncing-ball=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-ball=\"\" />\n      <span aria-hidden data-o-ball-shadow=\"\" />\n    </span>\n  )\n}\n"
+  }
+}

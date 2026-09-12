@@ -1,0 +1,83 @@
+{
+  "name": "pulse-block",
+  "category": "loader",
+  "title": "Bloc qui pulse",
+  "description": "Une surface en attente dont le ton respire entre le filet et la surface, sans bande et sans jamais devenir transparente.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PulseBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur du bloc.",
+      "min": 8,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "Amplitude de la respiration, de 0 (immobile) a 1 (jusqu a la surface).",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un cycle.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un repeint par image sur un seul element, sans mise en page recalculee ni couche supplementaire ; aucun JavaScript apres le premier rendu. Ton plein et fige sous mouvement reduit."
+  },
+  "id": "loader/pulse-block",
+  "sources": {
+    "component.tsx": "/**\n * Bloc qui pulse : une surface en attente dont le ton respire, sans bande\n * et sans jamais devenir transparente.\n *\n * ## Le ton respire, pas l'opacite\n *\n * La facon courante de faire pulser un squelette est de faire varier son\n * opacite. Elle a un defaut qu'on ne voit qu'une fois le composant pose :\n * au creux de la pulsation, le bloc laisse passer ce qu'il y a derriere —\n * une image de fond, une autre carte, un degrade. Le substitut se met alors\n * a montrer autre chose que lui-meme, et l'attente devient un clignotement.\n *\n * Ici c'est la **teinte** qui varie : le bloc reste opaque du debut a la\n * fin, et seul son melange de filet et de surface se rapproche de la\n * surface. `depth` dit de combien. Le cout est un repeint par image sur un\n * seul element — pas de mise en page recalculee, pas de couche\n * supplementaire a composer.\n *\n * ## Ce qu'il dit, et ce que le reflet dit\n *\n * `shimmer-block` traverse la meme surface d'une bande : il donne un sens\n * de lecture, quelque chose arrive de la gauche. La pulsation n'en donne\n * aucun ; elle dit « pas encore », et rien d'autre. C'est le bon choix\n * quand plusieurs blocs attendent ensemble sans ordre entre eux, ou quand\n * une bande de plus, a cote d'un vrai chargement, ferait deux mouvements\n * concurrents.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; le bloc est retire de\n * l'arbre d'accessibilite. Sous mouvement reduit, il se fige a sa valeur\n * pleine : la surface reste visible, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-pulse-block'\n\n/** Part de filet dans le ton plein du bloc, en pourcentage. */\nconst FULL_MIX = 72\n\n/** Pose le bloc et sa respiration, une fois par document. */\nfunction ensurePulseBlockRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-pbk]{display:block;width:100%}',\n    '[data-o-pbk-face]{',\n    'display:block;width:100%;height:var(--o-pbk-height);',\n    'border-radius:var(--o-pbk-radius);',\n    'background-color:color-mix(in oklab,var(--o-theme-line) var(--o-pbk-full),var(--o-theme-surface));',\n    'animation:o-pbk-breathe var(--o-pbk-speed) ease-in-out infinite;',\n    '}',\n    // Le creux se rapproche de la surface sans jamais la traverser : le\n    // bloc reste opaque, et ne montre jamais ce qu'il y a derriere.\n    '@keyframes o-pbk-breathe{',\n    '0%,100%{background-color:color-mix(in oklab,var(--o-theme-line) var(--o-pbk-full),var(--o-theme-surface))}',\n    '50%{background-color:color-mix(in oklab,var(--o-theme-line) var(--o-pbk-low),var(--o-theme-surface))}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pbk-face]{animation:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface PulseBlockOwnProps {\n  /** Hauteur du bloc, en pixels. @defaultValue 96 */\n  height?: number\n  /** Rayon des angles, en pixels. @defaultValue 12 */\n  radius?: number\n  /** Amplitude de la respiration, de 0 (immobile) a 1 (jusqu'a la surface). @defaultValue 0.55 */\n  depth?: number\n  /** Duree d'un cycle, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type PulseBlockProps = Customisable<PulseBlockOwnProps, 'div'>\n\n/**\n * Reserve une surface et la fait respirer.\n *\n * @example\n * <PulseBlock height={140} />\n *\n * @example\n * // Une respiration a peine perceptible, lente.\n * <PulseBlock height={48} depth={0.25} speed={2400} />\n */\nexport function PulseBlock({\n  height = 96,\n  radius = 12,\n  depth = 0.55,\n  speed = 1400,\n  label = 'Chargement',\n  ...rest\n}: PulseBlockProps): ReactElement {\n  ensurePulseBlockRule()\n\n  const amount = Math.min(1, Math.max(0, depth))\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-pbk-height': `${String(height)}px`,\n    '--o-pbk-radius': `${String(radius)}px`,\n    '--o-pbk-full': `${String(FULL_MIX)}%`,\n    // Le creux est calcule ici plutot qu'en CSS : `color-mix` accepte une\n    // variable pour son pourcentage, mais pas une expression de plus.\n    '--o-pbk-low': `${String(Math.round(FULL_MIX * (1 - amount)))}%`,\n    '--o-pbk-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <div {...rest} className={className} style={hostStyle} data-o-pbk=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-pbk-face=\"\" />\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "noise",
+  "category": "background",
+  "title": "Grain",
+  "description": "Un bruit de film statique, genere par un filtre SVG en data-URI. Aucun script apres le rendu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Noise.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "opacity",
+      "type": "number",
+      "default": 0.1,
+      "description": "Opacite du grain, entre 0 et 1.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 0.8,
+      "description": "Frequence de base du bruit. Plus haut, plus fin.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "monochrome",
+      "type": "boolean",
+      "default": true,
+      "description": "Desature le grain."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre SVG evalue une fois puis mis en cache comme image : aucun script, aucun contexte graphique."
+  }
+}

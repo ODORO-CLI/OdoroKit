@@ -1,0 +1,74 @@
+{
+  "name": "city-blocks",
+  "category": "background",
+  "title": "Blocs de ville",
+  "description": "Un damier de blocs instancies, vus en isometrie et eclaires, qui s elevent et redescendent en cascade diagonale ; chaque bloc garde une hauteur de base propre et la teinte va des blocs bas aux blocs hauts.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/CityBlocks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-indigo-500", "--o-palette-sky-300"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 14,
+      "description": "Blocs par cote du damier. Retrograde a dix en qualite basse.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.6,
+      "description": "Vitesse de la cascade.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 2.4,
+      "description": "Hauteur maximale des blocs, en unites de scene.",
+      "min": 0.2,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 0.25,
+      "description": "Espace entre les blocs, en fraction de bloc.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-indigo-500, --o-palette-sky-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les blocs bas, les blocs hauts."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Une seule geometrie instanciee, un appel de dessin ; la boucle ne reecrit que les matrices, une par bloc. En qualite basse, le cote tombe a dix, donc les blocs a la moitie. Le rendu se suspend hors du champ."
+  }
+}

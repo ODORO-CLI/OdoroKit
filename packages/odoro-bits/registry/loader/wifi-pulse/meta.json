@@ -1,0 +1,67 @@
+{
+  "name": "wifi-pulse",
+  "category": "loader",
+  "title": "Onde wifi",
+  "description": "Trois arcs concentriques se tracent du plus proche au plus lointain, tiennent ensemble, puis s effacent d un coup, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/WifiPulse.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Epaisseur des arcs. Le point d emission la suit.",
+      "min": 2,
+      "max": 14,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un cycle complet. Le retard entre deux arcs en est une fraction.",
+      "min": 800,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des arcs et du point. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS unique partagee par les trois arcs et decalee par un retard, plus une pour le point, tenues par le compositeur. Onde complete et immobile sous mouvement reduit."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "use-media-query",
+  "category": "hooks",
+  "title": "Requete de media",
+  "description": "Dit si une requete de media s applique, et le redit quand cela bascule, sans ecouteur de redimensionnement.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useMediaQuery.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "query",
+      "type": "string",
+      "required": true,
+      "default": "(min-width: 60rem)",
+      "description": "Requete, dans la grammaire du CSS."
+    },
+    {
+      "name": "serveur",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Reponse rendue la ou matchMedia n existe pas : rendu serveur, test."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement par requete, partage entre tous les appels. Un rendu quand la reponse bascule, pas un par cran de redimensionnement."
+  },
+  "id": "hooks/use-media-query",
+  "sources": {
+    "hook.ts": "/**\n * Reponse d'une requete de media, suivie dans le temps.\n *\n * ## Pourquoi pas une mesure de largeur\n *\n * La facon courante — un ecouteur `resize` qui range `window.innerWidth` dans\n * un etat — est fausse a trois titres. Elle provoque un rendu React par cran\n * de redimensionnement, la ou la reponse ne change qu'une fois sur tout le\n * trajet. Elle ignore tout ce qui n'est pas une largeur : l'orientation, le\n * pointeur grossier, le mouvement reduit, le mode sombre. Et elle duplique les\n * points de rupture de la feuille de style dans le JavaScript, ou ils\n * divergeront des la premiere retouche.\n *\n * `matchMedia` repond a la meme question que le CSS, avec la meme grammaire,\n * et ne previent que lorsque la reponse bascule.\n *\n * ## Pourquoi `useSyncExternalStore`\n *\n * Parce que la source est exterieure a React et peut changer **entre** le\n * rendu et l'effet qui s'abonnerait. Un `useState` plus `useEffect` laisse\n * cette fenetre ouverte : on peint une mise en page mobile sur un ecran large,\n * puis on la corrige a l'image suivante. React sait fermer cette fenetre, a\n * condition qu'on lui declare la source telle qu'elle est.\n *\n * C'est aussi ce qui rend le crochet sur au rendu serveur : la troisieme\n * fonction dit quoi repondre quand il n'y a pas de fenetre, plutot que de\n * laisser `matchMedia` lever au milieu du rendu.\n *\n * ## Pourquoi les listes sont mises en cache\n *\n * `getSnapshot` est appele plusieurs fois par rendu. Fabriquer un\n * `MediaQueryList` a chaque appel en creerait autant d'objets, et surtout\n * l'abonnement porterait sur une liste differente de celle qu'on interroge.\n * Une liste par requete, gardee pour la duree de la page : le navigateur les\n * partage de toute facon.\n *\n * @module\n */\n\nimport { useCallback, useSyncExternalStore } from 'react'\n\n/** Options de `useMediaQuery`. */\nexport interface MediaQueryOptions {\n  /**\n   * Reponse rendue la ou `matchMedia` n'existe pas : rendu serveur, ancien\n   * navigateur, environnement de test.\n   *\n   * Le defaut est `false`, ce qui revient a dire « la requete ne s'applique\n   * pas ». C'est le choix prudent tant que les requetes sont ecrites en\n   * ajout — `(min-width: 60rem)` decrit ce qu'on ajoute sur grand ecran — et\n   * il faut le renverser pour une requete ecrite en retrait.\n   *\n   * @defaultValue false\n   */\n  serveur?: boolean\n}\n\n/** Listes partagees, une par requete. */\nconst listes = new Map<string, MediaQueryList>()\n\n/** Liste d'une requete, ou `null` si le navigateur ne sait pas repondre. */\nfunction liste(query: string): MediaQueryList | null {\n  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {\n    return null\n  }\n  const connue = listes.get(query)\n  if (connue !== undefined) return connue\n  const creee = window.matchMedia(query)\n  listes.set(query, creee)\n  return creee\n}\n\n/**\n * Dit si une requete de media s'applique, et le redit quand cela change.\n *\n * @param query Requete, dans la grammaire du CSS.\n *\n * @example\n * const large = useMediaQuery('(min-width: 60rem)')\n * return large ? <Colonnes /> : <Pile />\n *\n * @example\n * // Une requete ecrite en retrait : le repli serveur doit etre renverse.\n * const grossier = useMediaQuery('(pointer: coarse)', { serveur: true })\n */\nexport function useMediaQuery(query: string, options: MediaQueryOptions = {}): boolean {\n  const { serveur = false } = options\n\n  const subscribe = useCallback(\n    (notifier: () => void): (() => void) => {\n      const cible = liste(query)\n      if (cible === null) return () => undefined\n\n      // `addEventListener` sur une liste de media est recent a l'echelle du\n      // navigateur ; l'ancienne forme reste la seule disponible sur les\n      // Safari encore en circulation.\n      if (typeof cible.addEventListener === 'function') {\n        cible.addEventListener('change', notifier)\n        return () => {\n          cible.removeEventListener('change', notifier)\n        }\n      }\n\n      cible.addListener(notifier)\n      return () => {\n        cible.removeListener(notifier)\n      }\n    },\n    [query],\n  )\n\n  const lire = useCallback((): boolean => liste(query)?.matches ?? serveur, [query, serveur])\n  const lireServeur = useCallback((): boolean => serveur, [serveur])\n\n  return useSyncExternalStore(subscribe, lire, lireServeur)\n}\n"
+  }
+}

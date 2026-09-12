@@ -1,0 +1,67 @@
+{
+  "name": "infinity-loop",
+  "category": "loader",
+  "title": "Boucle infinie",
+  "description": "Un trait court parcourt un huit couche, lent au bout des boucles et rapide au croisement, comme une bille sur un rail, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/InfinityLoop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 64,
+      "unit": "px",
+      "description": "Largeur du huit. Sa hauteur en vaut un peu plus de la moitie.",
+      "min": 32,
+      "max": 160,
+      "step": 2
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur du trait et du rail.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un tour complet du huit.",
+      "min": 800,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du trait et du rail. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de decalage de tiret sur un trace SVG, tenue par le compositeur. Trait pose au bout d une boucle sous mouvement reduit."
+  }
+}

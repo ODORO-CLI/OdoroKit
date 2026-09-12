@@ -1,0 +1,103 @@
+{
+  "name": "hand-written",
+  "category": "text",
+  "title": "Signature manuscrite",
+  "description": "Un paraphe se trace d un seul geste le long de son chemin, boucles comprises, sans qu on le voie d avance.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/HandWritten.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "required": false,
+      "description": "Trace de la signature, en donnees de chemin SVG. Un seul trait continu."
+    },
+    {
+      "name": "viewBox",
+      "type": "string",
+      "required": false,
+      "default": "0 0 320 110",
+      "description": "Vue du trace. A changer avec le chemin."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 280,
+      "unit": "px",
+      "description": "Largeur du dessin.",
+      "min": 80,
+      "max": 720,
+      "step": 10
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "Epaisseur du trait, en unites de la vue.",
+      "min": 1,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree du trace.",
+      "min": 300,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "default": "currentColor",
+      "description": "Couleur de l encre."
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "required": false,
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": [
+        "montage",
+        "vue",
+        "survol"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule animation, sur un seul chemin. Le decalage de tiret n est pas compose : il repeint le trait a chaque image, ce qui reste negligeable sur un dessin de cette taille."
+  },
+  "id": "text/hand-written",
+  "sources": {
+    "component.tsx": "/**\n * Signature : un trace se dessine d'un seul geste, comme au stylo.\n *\n * ## Un tiret aussi long que le chemin\n *\n * Le trait n'est pas revele par un masque qui glisse : c'est un tiret dont la\n * longueur vaut le chemin entier, deplace par son propre decalage. Quand le\n * decalage vaut la longueur, le tiret est entierement sorti et rien n'est\n * peint ; quand il retombe a zero, le trait est complet. Le crayon avance\n * donc le long de la courbe, en suivant ses boucles et ses retours — ce\n * qu'aucun masque rectangulaire ne saurait faire.\n *\n * Le chemin declare une longueur de cent : les images cles se lisent en pour\n * cent et valent pour n'importe quelle signature, quelle que soit la longueur\n * reelle de son contour. C'est ce qui permet de passer la sienne en propriete\n * sans toucher a rien d'autre.\n *\n * ## Pas de forme en creux\n *\n * `logo-draw` laisse voir sa marque en filigrane pendant le trace : un logo a\n * demi dessine n'est qu'un fragment, et l'oeil a besoin de savoir ce qui\n * manque. Une signature, non — la voir d'avance detruirait le seul interet du\n * geste. On ne la lit qu'une fois posee.\n *\n * ## Le trace complet est l'etat de depart\n *\n * Le decalage vaut zero dans la feuille : sans JavaScript, la signature est\n * la, entiere. C'est le code de l'animation qui la retire avant de la\n * reposer, jamais le rendu.\n *\n * ## Ce que la signature n'est pas\n *\n * Un dessin, pas un texte. Le nom qu'elle porte figure une fois, d'un seul\n * tenant, pour les lecteurs d'ecran ; le trace est retire de l'arbre\n * d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * La signature entierement tracee, a l'arret : c'est l'etat d'arrivee.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, type ElementType, type ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Ce qui declenche le trace. */\nexport type HandWrittenDeclenchement = 'montage' | 'vue' | 'survol'\n\n/** Proprietes propres au composant. */\nexport interface HandWrittenOwnProps {\n  /** Nom que la signature porte, annonce aux lecteurs d'ecran. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /**\n   * Trace de la signature, en donnees de chemin SVG. Un seul trait continu :\n   * une signature ne leve pas le stylo.\n   * @defaultValue un paraphe\n   */\n  path?: string\n  /** Vue du trace. A changer avec le chemin. @defaultValue '0 0 320 110' */\n  viewBox?: string\n  /** Largeur du dessin, en pixels. @defaultValue 280 */\n  width?: number\n  /** Epaisseur du trait, en unites de la vue. @defaultValue 5 */\n  thickness?: number\n  /** Duree du trace, en millisecondes. @defaultValue 1800 */\n  duration?: number\n  /** Couleur de l'encre. @defaultValue la couleur du texte */\n  color?: string\n  /**\n   * Quand tracer.\n   *\n   * `vue` attend l'entree dans le champ, `montage` part tout de suite,\n   * `survol` rejoue a chaque entree du pointeur.\n   *\n   * @defaultValue 'vue'\n   */\n  declenchement?: HandWrittenDeclenchement\n}\n\n/** Toutes les proprietes. */\nexport type HandWrittenProps = Customisable<HandWrittenOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-hand-written'\n\n/**\n * Paraphe par defaut : une boucle initiale, trois jambages, et le trait de\n * soulignement qui revient sous le mot sans que le stylo se soit leve.\n */\nconst PARAPHE = [\n  'M 26 74',\n  'C 18 44, 44 18, 66 26',\n  'C 86 34, 78 66, 60 74',\n  'C 46 80, 34 74, 40 60',\n  'C 52 32, 84 26, 104 40',\n  'C 118 50, 112 72, 96 74',\n  'C 84 76, 80 64, 88 56',\n  'C 100 44, 122 44, 132 58',\n  'C 140 70, 134 78, 124 74',\n  'C 112 70, 116 52, 132 48',\n  'C 146 44, 152 56, 148 70',\n  'C 146 78, 152 80, 158 72',\n  'C 168 58, 186 50, 198 58',\n  'C 210 66, 204 80, 190 78',\n  'C 178 76, 178 60, 192 52',\n  'C 214 40, 252 44, 270 62',\n  'C 280 72, 274 86, 258 84',\n  'C 232 80, 176 90, 120 92',\n  'C 84 93, 48 90, 30 84',\n].join(' ')\n\n/** Vue du paraphe par defaut. */\nconst PARAPHE_VUE = '0 0 320 110'\n\n/** Sortie reguliere, a peine ralentie a la fin : une main ne freine pas. */\nconst COURBE = 'cubic-bezier(0.35, 0.1, 0.3, 1)'\n\n/** Pose le trace, une fois par document. */\nfunction ensureHandRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-hand]{display:inline-block;line-height:0}',\n    '[data-o-hand] svg{display:block;height:auto}',\n    // Decalage nul : la signature est posee. Voir l'en-tete du module.\n    '[data-o-hand-line]{stroke-dasharray:100 100;stroke-dashoffset:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Trace une signature manuscrite.\n *\n * @example\n * <HandWritten>Odoro</HandWritten>\n *\n * @example\n * // Sa propre signature, dans sa propre vue, rejouee au survol.\n * <HandWritten\n *   path=\"M 10 60 C 60 10, 120 90, 190 40\"\n *   viewBox=\"0 0 200 100\"\n *   declenchement=\"survol\"\n * >\n *   Camille\n * </HandWritten>\n */\nexport function HandWritten({\n  children,\n  as: Tag = 'span',\n  path = PARAPHE,\n  viewBox = PARAPHE_VUE,\n  width = 280,\n  thickness = 5,\n  duration = 1800,\n  color = 'currentColor',\n  declenchement = 'vue',\n  ...rest\n}: HandWrittenProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLElement>({\n    immediat: declenchement === 'montage',\n  })\n\n  ensureHandRule()\n\n  useEffect(() => {\n    const element = ref.current\n    if (element === null || reduced) return\n\n    const trait = element.querySelector<SVGPathElement>('[data-o-hand-line]')\n    if (trait === null) return\n\n    let animation: Animation | null = null\n\n    const arreter = (): void => {\n      animation?.cancel()\n      animation = null\n    }\n\n    const jouer = (): void => {\n      arreter()\n      animation = trait.animate(\n        [{ strokeDashoffset: '100' }, { strokeDashoffset: '0' }],\n        { duration, easing: COURBE, fill: 'both' },\n      )\n    }\n\n    if (declenchement === 'survol') {\n      // Rien n'est efface d'avance : la signature attend, posee, et c'est\n      // l'animation elle-meme qui la retire le temps de la reecrire.\n      const entrer = (): void => {\n        jouer()\n      }\n      element.addEventListener('pointerenter', entrer)\n      return () => {\n        element.removeEventListener('pointerenter', entrer)\n        arreter()\n      }\n    }\n\n    if (!vu) {\n      // L'etat efface est ecrit ici, pas dans le rendu : voir l'en-tete.\n      trait.style.strokeDashoffset = '100'\n      return\n    }\n\n    jouer()\n    return () => {\n      arreter()\n      trait.style.removeProperty('stroke-dashoffset')\n    }\n  }, [ref, reduced, vu, path, duration, declenchement])\n\n  // La largeur est une base, pas une contrainte : elle passe en premier pour\n  // qu'un `style` de l'appelant l'emporte.\n  const { className, style } = mergePresentation(\n    { style: { width: `${String(width)}px` } },\n    rest,\n  )\n\n  return (\n    <Tag {...rest} ref={ref} className={className} style={style} data-o-hand=\"\">\n      {/* Le nom, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <svg aria-hidden viewBox={viewBox} width=\"100%\">\n        <path\n          data-o-hand-line=\"\"\n          d={path}\n          pathLength={100}\n          fill=\"none\"\n          stroke={color}\n          strokeWidth={thickness}\n          strokeLinecap=\"round\"\n          strokeLinejoin=\"round\"\n        />\n      </svg>\n    </Tag>\n  )\n}\n"
+  }
+}

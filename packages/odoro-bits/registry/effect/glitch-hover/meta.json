@@ -1,0 +1,45 @@
+{
+  "name": "glitch-hover",
+  "category": "effect",
+  "title": "Glitch au survol",
+  "description": "Au survol ou au focus, le contenu part en tranches decalees avec une frange chromatique, le temps d une breve rafale.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GlitchHover.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-red-400", "--o-palette-cyan-400"],
+  "props": [
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Amplitude du decalage des tranches.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "slices",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de tranches par copie.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux copies animees par Web Animations le temps d une rafale de quatre cents millisecondes ; rien au repos. Copies absentes et zone statique sous mouvement reduit."
+  }
+}

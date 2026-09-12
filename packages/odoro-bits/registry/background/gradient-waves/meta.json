@@ -1,0 +1,82 @@
+{
+  "name": "gradient-waves",
+  "category": "background",
+  "title": "Vagues de degrade",
+  "description": "Des bandes de degrade repete, sans trait ni marche, deplacees par une houle qui ne se referme jamais.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "gradient-waves.shader.ts",
+      "target": "background/gradient-waves.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GradientWaves.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-indigo-400",
+    "--o-palette-cyan-300"
+  ],
+  "props": [
+    {
+      "name": "bands",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de bandes sur la hauteur.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 0.12,
+      "description": "Hauteur de la houle, en fraction du cadre.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.4,
+      "description": "Vitesse de la houle.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "softness",
+      "type": "number",
+      "default": 0.6,
+      "description": "Largeur des transitions. Bas, les bandes sont franches.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-indigo-400, --o-palette-cyan-300",
+      "description": "Tokens dont les couleurs sont lues : le fond, les deux teintes des bandes."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sinus et quatre smoothstep par fragment, sans boucle. En qualite basse, une seule harmonique de houle reste."
+  }
+}

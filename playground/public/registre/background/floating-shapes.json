@@ -1,0 +1,81 @@
+{
+  "name": "floating-shapes",
+  "category": "background",
+  "title": "Formes flottantes",
+  "description": "Cinq solides simples, pleins ou en fil de fer, qui derivent et tournent sur eux-memes ; sous le pointeur chacun se decale d une part qui depend de sa profondeur.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/FloatingShapes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped",
+    "hooks/use-poster"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-purple-400"
+  ],
+  "props": [
+    {
+      "name": "shapes",
+      "type": "number",
+      "required": false,
+      "default": 18,
+      "description": "Nombre de solides. Retrograde a neuf en qualite basse.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de derive et de rotation.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Amplitude de la parallaxe sous le pointeur. A zero, les solides l ignorent.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-purple-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, les solides pleins, les solides en fil de fer."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Cinq geometries et deux materiaux partages ; un solide de plus ne coute qu un appel de dessin. En qualite basse, le nombre de solides tombe a neuf. Le rendu se suspend hors du champ.",
+    "fallback": "poster"
+  },
+  "id": "background/floating-shapes",
+  "sources": {
+    "component.tsx": "/**\n * Formes flottantes : des solides simples qui derivent, tournent sur eux-memes\n * et se decalent en parallaxe sous le pointeur.\n *\n * ## Pourquoi la parallaxe est repartie sur la profondeur\n *\n * Faire pivoter la scene entiere sous le pointeur donne un mouvement de\n * camera, pas une profondeur : tout se deplace du meme angle, et l'oeil n'en\n * tire aucune information. Ici chaque solide se decale d'une fraction qui\n * depend de sa distance a la camera — les proches beaucoup, les lointains a\n * peine. C'est le seul indice qui separe reellement les plans.\n *\n * ## Cinq geometries, deux materiaux, autant de solides qu'on veut\n *\n * Les geometries et les materiaux sont construits une fois et partages : un\n * solide de plus ne coute qu'un appel de dessin, pas une allocation. La\n * moitie des solides est en fil de fer, ce qui donne au groupe deux registres\n * au lieu d'un et evite la soupe de volumes pleins.\n *\n * ## Sous mouvement reduit\n *\n * La scene est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  type Customisable,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\nimport { usePoster } from '@registre/hooks/usePoster'\n\n/** Proprietes propres au composant. */\nexport interface FloatingShapesOwnProps {\n  /** Nombre de solides. @defaultValue 18 */\n  shapes?: number\n  /** Vitesse de derive et de rotation. @defaultValue 1 */\n  speed?: number\n  /** Amplitude de la parallaxe sous le pointeur. @defaultValue 1 */\n  parallax?: number\n  /** Tokens : le fond, les solides pleins, les solides en fil de fer. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type FloatingShapesProps = Customisable<FloatingShapesOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-brand-500',\n  '--o-palette-purple-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-purple-100 dark:o-to-purple-950'\n\n/** Nombre de solides en qualite basse. */\nconst LOW_SHAPES = 9\n\ntype Three = SceneContext['three']\ntype Object3D = InstanceType<Three['Object3D']>\ntype Group = InstanceType<Three['Group']>\ntype Material = InstanceType<Three['MeshLambertMaterial']>\n\n/** Ce qu'un solide garde entre les images. */\ninterface Floater {\n  readonly mesh: Object3D\n  /** Position de repos, avant parallaxe. */\n  readonly home: readonly [number, number, number]\n  /** Vitesse de rotation propre, en radians par seconde. */\n  readonly spin: readonly [number, number]\n  /** Phase et amplitude du flottement vertical. */\n  readonly bob: readonly [number, number]\n  /** Part de parallaxe, deduite de la profondeur. */\n  readonly depth: number\n}\n\n/** Ce que la scene garde entre la construction et les images. */\ninterface Floating {\n  readonly group: Group\n  readonly items: readonly Floater[]\n  readonly solid: Material\n  readonly wire: Material\n}\n\n/** Nombre pseudo-aleatoire deterministe : la composition est la meme a chaque montage. */\nfunction hash(seed: number): number {\n  const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453\n  return value - Math.floor(value)\n}\n\n/**\n * Formes flottantes.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <FloatingShapes className=\"o-absolute o-inset-0\" />\n *   <div className=\"o-relative o-z-10\">…</div>\n * </div>\n */\nexport function FloatingShapes({\n  shapes = 18,\n  speed = 1,\n  parallax = 1,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: FloatingShapesProps): ReactElement {\n  const { theme } = useMotionState()\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  const floating = useRef<Floating | null>(null)\n  const context = useRef<SceneContext | null>(null)\n\n  const settings = useRef({ speed, parallax })\n  settings.current = { speed, parallax }\n\n  const pointer = usePointerDamped({ host, speed: 2.5, name: 'floating-shapes : pointeur' })\n\n  const { ref, ready, refused } = useScene<HTMLDivElement>({\n    name: 'formes-flottantes',\n    setup: (scene: SceneContext) => {\n      context.current = scene\n      const { three, renderer, camera, quality } = scene\n\n      const [bg, full, wired] = colors.map((token) => readTokenColour(token, ref.current))\n\n      // Le fond de la scene est le fond de la page. Le token est en sRGB et\n      // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :\n      // sans la conversion inverse, le fond ressort un cran plus clair.\n      renderer.setClearColor(\n        new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),\n        1,\n      )\n\n      camera.position.set(0, 0, 6)\n      camera.lookAt(0, 0, 0)\n\n      const count = quality === 'low' ? Math.min(shapes, LOW_SHAPES) : Math.max(shapes, 1)\n\n      // Les geometries sont construites une fois et partagees : un solide de\n      // plus ne coute qu'un appel de dessin.\n      const library = [\n        new three.BoxGeometry(0.6, 0.6, 0.6),\n        new three.TetrahedronGeometry(0.45),\n        new three.OctahedronGeometry(0.42),\n        new three.IcosahedronGeometry(0.4),\n        new three.TorusGeometry(0.32, 0.11, 8, 20),\n      ] as const\n\n      const solid = new three.MeshLambertMaterial({ transparent: true, opacity: 0.9 })\n      solid.color.setRGB(full?.[0] ?? 0, full?.[1] ?? 0, full?.[2] ?? 0)\n      const wire = new three.MeshLambertMaterial({\n        wireframe: true,\n        transparent: true,\n        opacity: 0.8,\n      })\n      wire.color.setRGB(wired?.[0] ?? 0, wired?.[1] ?? 0, wired?.[2] ?? 0)\n\n      // Deux lumieres sans couleur propre : une ambiante pour que l'ombre ne\n      // soit pas noire, une directionnelle pour que les faces se distinguent.\n      const group = new three.Group()\n      group.name = 'formes'\n      group.add(new three.AmbientLight(undefined, 0.7))\n      const sun = new three.DirectionalLight(undefined, 1.5)\n      sun.position.set(2, 3, 4)\n      group.add(sun)\n\n      const items: Floater[] = []\n      for (let index = 0; index < count; index += 1) {\n        const geometry = library[index % library.length]\n        if (geometry === undefined) continue\n\n        const mesh = new three.Mesh(geometry, index % 2 === 0 ? solid : wire)\n\n        // La profondeur est tiree d'abord : elle commande la taille apparente,\n        // la part de parallaxe, et l'ecartement lateral.\n        const depth = hash(index + 0.5)\n        const z = -4.5 + depth * 5.5\n        const spread = 4.2 - depth * 1.4\n        const home = [\n          (hash(index + 1.5) - 0.5) * 2 * spread,\n          (hash(index + 2.5) - 0.5) * 2 * spread * 0.62,\n          z,\n        ] as const\n\n        mesh.position.set(home[0], home[1], home[2])\n        mesh.scale.setScalar(0.7 + depth * 0.8)\n\n        items.push({\n          mesh,\n          home,\n          spin: [\n            (hash(index + 3.5) - 0.5) * 0.7,\n            (hash(index + 4.5) - 0.5) * 0.7,\n          ] as const,\n          bob: [hash(index + 5.5) * 6.283, 0.1 + hash(index + 6.5) * 0.22] as const,\n          // Un solide proche se decale beaucoup, un lointain a peine.\n          depth,\n        })\n        group.add(mesh)\n      }\n\n      scene.scene.add(group)\n      floating.current = { group, items, solid, wire }\n\n      return () => {\n        scene.scene.remove(group)\n        floating.current = null\n      }\n    },\n\n    frame: (_, { time, delta }) => {\n      const live = floating.current\n      if (live === null) return\n      const { speed: rate, parallax: shift } = settings.current\n\n      // Le pointeur, du repere du hook vers celui de la scene.\n      const px = pointer.current.x\n      const py = -pointer.current.y\n\n      for (const item of live.items) {\n        const { mesh, home, spin, bob, depth } = item\n\n        mesh.rotation.x += (spin[0] ?? 0) * rate * delta\n        mesh.rotation.y += (spin[1] ?? 0) * rate * delta\n\n        // La parallaxe : la part depend de la profondeur, pas de l'objet.\n        const share = (0.15 + depth * 0.85) * shift\n        mesh.position.x = (home[0] ?? 0) + px * share * 0.7\n        mesh.position.y =\n          (home[1] ?? 0) +\n          py * share * 0.45 +\n          Math.sin(time * rate * 0.6 + (bob[0] ?? 0)) * (bob[1] ?? 0)\n      }\n    },\n  })\n\n  // Le theme a bascule : les tokens sont relus et les materiaux repeints en\n  // place. La scene n'est pas reconstruite.\n  useEffect(() => {\n    const scene = context.current\n    const live = floating.current\n    if (scene === null || live === null || host === null) return\n    const [bg, full, wired] = colors.map((token) => readTokenColour(token, host))\n    const paint = (material: Material, tint: ShaderColour | undefined): void => {\n      material.color.setRGB(tint?.[0] ?? 0, tint?.[1] ?? 0, tint?.[2] ?? 0)\n    }\n    paint(live.solid, full)\n    paint(live.wire, wired)\n    scene.renderer.setClearColor(\n      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),\n      1,\n    )\n  }, [theme, colors, host, ready])\n\n  const pending = usePoster({ ready, refused })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {pending.visible ? (\n        <div style={pending.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

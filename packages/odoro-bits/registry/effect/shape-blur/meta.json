@@ -1,0 +1,67 @@
+{
+  "name": "shape-blur",
+  "category": "effect",
+  "title": "Forme floue",
+  "description": "Une silhouette geometrique tres floue derive sous le contenu, en suivant le pointeur avec retard.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ShapeBlur.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "shape",
+      "type": "'circle' | 'square' | 'triangle' | 'hexagon'",
+      "default": "hexagon",
+      "description": "Silhouette employee.",
+      "options": ["circle", "square", "triangle", "hexagon"]
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 240,
+      "unit": "px",
+      "description": "Cote de la silhouette.",
+      "min": 60,
+      "max": 720,
+      "step": 20
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Flou applique a la silhouette.",
+      "min": 0,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2,
+      "description": "Vitesse de rattrapage du pointeur. Plus haut, plus sec.",
+      "min": 1,
+      "max": 9,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la silhouette."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un element decoupe et floute par le compositeur, deplace par une transformation ecrite dans la boucle du moteur. Aucun rendu React par image."
+  }
+}

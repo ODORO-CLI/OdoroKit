@@ -1,0 +1,64 @@
+{
+  "name": "hero-scroll-morph",
+  "category": "section",
+  "title": "Hero qui s ouvre au defilement",
+  "description": "Un hero dont la fenetre sur le media s elargit au fil du defilement, sans jamais recalculer la mise en page.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/HeroScrollMorph.tsx" }],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-fg", "--o-theme-muted", "--o-radius-3xl"],
+  "props": [
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Titre du hero."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Le media : image, video, capture, scene."
+    },
+    {
+      "name": "subtitle",
+      "type": "ReactNode",
+      "description": "Phrase sous le titre."
+    },
+    {
+      "name": "caption",
+      "type": "ReactNode",
+      "description": "Legende sous le media, qui apparait a mesure que la fenetre s ouvre."
+    },
+    {
+      "name": "startWidth",
+      "type": "number",
+      "default": 62,
+      "unit": "%",
+      "description": "Largeur visible du media au repos.",
+      "min": 20,
+      "max": 100,
+      "step": 2
+    },
+    {
+      "name": "travel",
+      "type": "number",
+      "default": 0.6,
+      "description": "Part de la hauteur de la section sur laquelle la transformation s acheve.",
+      "min": 0.2,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une mesure par image et une ecriture de variable seulement quand le centieme change. La transformation passe par clip-path et transform : aucun recalcul de mise en page. Rien ne tourne sous mouvement reduit."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "glitch-blocks",
+  "category": "background",
+  "title": "Blocs qui sautent",
+  "description": "Un degrade lent dont des blocs se decalent par a-coups, teintes inversees ou ecartees, et des bandes entieres qui sautent d un seul tenant ; tout est hache par paliers, rien ne glisse.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "glitch-blocks.shader.ts",
+      "target": "background/glitch-blocks.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GlitchBlocks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-violet-500", "--o-palette-cyan-400"],
+  "props": [
+    {
+      "name": "blocks",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de rangees de blocs sur la hauteur. Borne a quarante par le shader.",
+      "min": 2,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "default": 6,
+      "description": "Paliers par seconde. Retrograde a trois en qualite basse.",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "default": 0.5,
+      "description": "Part des blocs qui sautent a chaque palier. Zero fige l image.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse du degrade de fond.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-cyan-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la premiere teinte du degrade, la seconde."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois lectures d image — trois sinus chacune — et six hachages par fragment, sans boucle. En qualite basse, la cadence des paliers est bornee a trois."
+  }
+}

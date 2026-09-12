@@ -1,0 +1,77 @@
+{
+  "name": "laser-flow",
+  "category": "effect",
+  "title": "Balayage laser",
+  "description": "Un faisceau incline traverse le cadre en boucle, un trait net double d une nappe diffuse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/LaserFlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 3200,
+      "unit": "ms",
+      "description": "Duree d une traversee.",
+      "min": 600,
+      "max": 9000,
+      "step": 100
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 14,
+      "unit": "deg",
+      "description": "Inclinaison du faisceau.",
+      "min": -45,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait net.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 90,
+      "unit": "px",
+      "description": "Largeur de la nappe diffuse qui accompagne le trait.",
+      "min": 0,
+      "max": 320,
+      "step": 10
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du faisceau."
+    },
+    {
+      "name": "frame",
+      "type": "boolean",
+      "default": true,
+      "description": "Allume aussi un filet sur le contour du cadre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux elements deplaces par une animation CSS, dont un flou fixe. Aucun JavaScript par image."
+  }
+}

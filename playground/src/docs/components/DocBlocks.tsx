@@ -140,7 +140,7 @@ export function PropsTable({ rows }: { rows: readonly PropRow[] }): ReactElement
               <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {row.type}
               </td>
-              <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500 o-whitespace-nowrap">
+              <td className="o-px-4 o-py-2 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400 o-whitespace-nowrap">
                 {row.defaultValue ?? '—'}
               </td>
               <td className="o-px-4 o-py-2 o-text-zinc-500 dark:o-text-zinc-400">

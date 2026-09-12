@@ -60,10 +60,10 @@ export interface TunnelOwnProps {
 export type TunnelProps = Customisable<TunnelOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-sky-400'] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-sky-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-zinc-950'
+const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
  * Tunnel.

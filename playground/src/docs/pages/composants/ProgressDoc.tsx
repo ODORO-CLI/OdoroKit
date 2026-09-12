@@ -93,6 +93,37 @@ export function ProgressDoc(): ReactElement {
             </div>
           )}
           code={(v) => `<Progress${jsxProps(v, DEFAUTS)} label="Progression" />`}
+          variants={[
+            {
+              title: 'Indeterminee',
+              description: 'Une barre partielle defile quand la duree est inconnue.',
+              values: { indeterminate: true },
+            },
+            {
+              title: 'Succes a 100',
+              values: { tone: 'success', value: 100 },
+            },
+            {
+              title: 'Danger fine',
+              values: { tone: 'danger', size: 'sm', value: 15 },
+            },
+            {
+              title: 'Avec valeur',
+              description: 'Le pourcentage affiche a droite de la piste.',
+              values: { showValue: true },
+            },
+            {
+              title: 'Barres empilees',
+              description: 'Trois progressions a valeurs differentes.',
+              node: (
+                <div className="o-flex o-flex-col o-gap-3 o-w-56">
+                  <Progress value={25} label="Import des images" />
+                  <Progress value={60} tone="warning" label="Conversion" />
+                  <Progress value={100} tone="success" label="Publication" />
+                </div>
+              ),
+            },
+          ]}
         />
         <Callout>
           Donnez toujours un <code className="o-font-mono o-text-sm">label</code> : c'est

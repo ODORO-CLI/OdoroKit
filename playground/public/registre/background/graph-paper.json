@@ -1,0 +1,66 @@
+{
+  "name": "graph-paper",
+  "category": "background",
+  "title": "Papier millimetre",
+  "description": "Deux quadrillages emboites, maille fine et maille epaisse toutes les cinq. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/GraphPaper.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-sky-500",
+    "--o-theme-bg"
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "unit": "px",
+      "description": "Pas de la maille fine. La maille epaisse en vaut cinq.",
+      "min": 4,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Opacite des traits, entre 0 et 1.",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des traits."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre degrades CSS repetes : aucun script, aucun contexte graphique."
+  },
+  "id": "background/graph-paper",
+  "sources": {
+    "component.tsx": "/**\n * Papier millimetre : deux quadrillages emboites, en degrades repetes.\n *\n * ## Pourquoi deux mailles plutot qu'une\n *\n * Un quadrillage simple donne une texture ; le papier millimetre donne une\n * echelle. C'est la maille epaisse, posee toutes les cinq mailles fines, qui\n * produit cette lecture : l'oeil groupe les petites cellules par paquets et la\n * surface devient mesurable au lieu d'etre seulement reguliere.\n *\n * ## Pourquoi aucun script\n *\n * Quatre degrades lineaires repetes decrivent exactement le motif, et le\n * compositeur du navigateur les dessine seul. Une surface graphique ou un\n * canvas coutera toujours plus pour un resultat identique — et l'arbitre\n * n'accorde qu'une surface par backend, alors que celui-ci se pose autant de\n * fois qu'on veut.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface GraphPaperOwnProps {\n  /** Pas de la maille fine, en pixels. La maille epaisse en vaut cinq. @defaultValue 8 */\n  size?: number\n  /** Opacite des traits, entre 0 et 1. @defaultValue 0.4 */\n  strength?: number\n  /** Couleur des traits. */\n  color?: string\n  /** Couleur du fond. */\n  background?: string\n}\n\n/** Toutes les proprietes. */\nexport type GraphPaperProps = Customisable<GraphPaperOwnProps>\n\n/**\n * Papier millimetre de fond.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <GraphPaper className=\"o-absolute o-inset-0\" size={10} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function GraphPaper({\n  size = 8,\n  strength = 0.4,\n  color = 'var(--o-palette-sky-500, oklch(68.5% 0.169 237.323))',\n  background = 'var(--o-theme-bg, oklch(98.5% 0 0))',\n  ...rest\n}: GraphPaperProps): ReactElement {\n  // La maille fine est volontairement plus palie que l'epaisse : c'est cet\n  // ecart, pas la couleur, qui fait lire les paquets de cinq.\n  const fine = `color-mix(in oklab, ${color} ${String(Math.round(strength * 45))}%, transparent)`\n  const bold = `color-mix(in oklab, ${color} ${String(Math.round(strength * 100))}%, transparent)`\n  const step = `${String(size)}px`\n  const major = `${String(size * 5)}px`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          backgroundColor: background,\n          backgroundImage: [\n            `linear-gradient(to right, ${bold} 1px, transparent 1px)`,\n            `linear-gradient(to bottom, ${bold} 1px, transparent 1px)`,\n            `linear-gradient(to right, ${fine} 1px, transparent 1px)`,\n            `linear-gradient(to bottom, ${fine} 1px, transparent 1px)`,\n          ].join(','),\n          backgroundSize: `${major} ${major}, ${major} ${major}, ${step} ${step}, ${step} ${step}`,\n        } as CSSProperties\n      }\n      aria-hidden\n    />\n  )\n}\n"
+  }
+}

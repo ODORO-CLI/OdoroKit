@@ -1,0 +1,37 @@
+{
+  "name": "file-drop",
+  "category": "ui",
+  "title": "Zone de depot",
+  "description": "La zone se souleve au survol d un fichier, sa bordure en pointilles defile, l input natif fait le reste.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FileDrop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-duration-base", "--o-ease-standard"],
+  "props": [
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "default": true,
+      "description": "Accepte plusieurs fichiers a la fois."
+    },
+    {
+      "name": "onFiles",
+      "type": "(files: readonly File[]) => void",
+      "description": "Appele avec les fichiers deposes ou choisis."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les pointilles ne defilent que pendant le survol d un fichier, et jamais sous mouvement reduit. Le depot lui-meme est l input natif."
+  }
+}

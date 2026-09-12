@@ -326,19 +326,24 @@
   --o-palette-taupe-950: oklch(14.7% 0.004 49.3);
   --o-palette-black: #000;
   --o-palette-white: #fff;
-  --o-palette-brand-50: oklch(97.0% 0.014 275);
-  --o-palette-brand-100: oklch(93.6% 0.032 275);
-  --o-palette-brand-200: oklch(87.4% 0.060 275);
-  --o-palette-brand-300: oklch(79.0% 0.101 275);
-  --o-palette-brand-400: oklch(69.2% 0.152 275);
-  --o-palette-brand-500: oklch(59.8% 0.198 275);
-  --o-palette-brand-600: oklch(52.4% 0.212 275);
-  --o-palette-brand-700: oklch(44.6% 0.190 275);
-  --o-palette-brand-800: oklch(37.4% 0.156 275);
-  --o-palette-brand-900: oklch(31.6% 0.124 275);
-  --o-palette-brand-950: oklch(22.0% 0.088 275);
+  --o-palette-brand-50: oklch(98.0% 0.016 73.684);
+  --o-palette-brand-100: oklch(95.4% 0.038 75.164);
+  --o-palette-brand-200: oklch(90.1% 0.076 70.697);
+  --o-palette-brand-300: oklch(83.7% 0.128 66.290);
+  --o-palette-brand-400: oklch(75.0% 0.183 55.934);
+  --o-palette-brand-500: oklch(70.5% 0.213 47.604);
+  --o-palette-brand-600: oklch(64.6% 0.222 41.116);
+  --o-palette-brand-700: oklch(55.3% 0.195 38.402);
+  --o-palette-brand-800: oklch(47.0% 0.157 37.304);
+  --o-palette-brand-900: oklch(40.8% 0.123 38.172);
+  --o-palette-brand-950: oklch(26.6% 0.079 36.259);
   --o-palette-transparent: transparent;
   --o-palette-current: currentColor;
+  --o-theme-bg: var(--o-palette-zinc-50);
+  --o-theme-surface: var(--o-palette-white);
+  --o-theme-fg: var(--o-palette-zinc-900);
+  --o-theme-muted: var(--o-palette-zinc-500);
+  --o-theme-line: var(--o-palette-zinc-200);
   --o-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial,
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --o-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
@@ -529,7 +534,7 @@ mark{background-color:oklch(90.5% 0.182 98.111 / 0.55);color:inherit;border-radi
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
 
 /* Preflight — theme sombre. */
-:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="dark"]{color-scheme:dark;--o-theme-bg:var(--o-palette-zinc-950);--o-theme-surface:var(--o-palette-zinc-900);--o-theme-fg:var(--o-palette-zinc-50);--o-theme-muted:var(--o-palette-zinc-400);--o-theme-line:var(--o-palette-zinc-800)}
 :root[data-theme="dark"] *,*::before,*::after{border-color:var(--o-palette-zinc-800)}
 :root[data-theme="dark"] body{color:var(--o-palette-zinc-50);background-color:var(--o-palette-zinc-950)}
 :root[data-theme="dark"] :where(a){color:var(--o-palette-brand-300)}
@@ -537,7 +542,7 @@ mark{background-color:oklch(90.5% 0.182 98.111 / 0.55);color:inherit;border-radi
 :root[data-theme="dark"] ::selection{background-color:var(--o-palette-brand-900)}
 :root[data-theme="dark"] mark{background-color:oklch(82.8% 0.189 84.429 / 0.35)}
 @media (prefers-color-scheme:dark){
-:root:not([data-theme="light"]){color-scheme:dark}
+:root:not([data-theme="light"]){color-scheme:dark;--o-theme-bg:var(--o-palette-zinc-950);--o-theme-surface:var(--o-palette-zinc-900);--o-theme-fg:var(--o-palette-zinc-50);--o-theme-muted:var(--o-palette-zinc-400);--o-theme-line:var(--o-palette-zinc-800)}
 :root:not([data-theme="light"]) *,*::before,*::after{border-color:var(--o-palette-zinc-800)}
 :root:not([data-theme="light"]) body{color:var(--o-palette-zinc-50);background-color:var(--o-palette-zinc-950)}
 :root:not([data-theme="light"]) :where(a){color:var(--o-palette-brand-300)}

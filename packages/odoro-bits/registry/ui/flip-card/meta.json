@@ -1,0 +1,55 @@
+{
+  "name": "flip-card",
+  "category": "ui",
+  "title": "Carte a retournement",
+  "description": "Deux faces et une bascule en trois dimensions, au clic comme au clavier.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/FlipCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "front",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Face montree au repos."
+    },
+    {
+      "name": "back",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Face revelee par la bascule."
+    },
+    {
+      "name": "direction",
+      "type": "'horizontal' | 'vertical'",
+      "default": "horizontal",
+      "description": "Axe de la rotation.",
+      "options": ["horizontal", "vertical"]
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree de la bascule.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation, tenue par le compositeur. Sous mouvement reduit la bascule devient un fondu croise."
+  }
+}

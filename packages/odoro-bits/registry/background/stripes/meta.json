@@ -1,0 +1,66 @@
+{
+  "name": "stripes",
+  "category": "background",
+  "title": "Rayures",
+  "description": "Des bandes diagonales en un seul degrade repete. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Stripes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500", "--o-theme-bg"],
+  "props": [
+    {
+      "name": "width",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Largeur d une bande.",
+      "min": 2,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 22,
+      "unit": "px",
+      "description": "Ecart entre deux bandes.",
+      "min": 0,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 45,
+      "unit": "deg",
+      "description": "Inclinaison des bandes.",
+      "min": -90,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des bandes."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade CSS repete : aucun script, aucun contexte graphique."
+  }
+}

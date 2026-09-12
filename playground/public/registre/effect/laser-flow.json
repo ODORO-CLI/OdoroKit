@@ -1,0 +1,89 @@
+{
+  "name": "laser-flow",
+  "category": "effect",
+  "title": "Balayage laser",
+  "description": "Un faisceau incline traverse le cadre en boucle, un trait net double d une nappe diffuse.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/LaserFlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 3200,
+      "unit": "ms",
+      "description": "Duree d une traversee.",
+      "min": 600,
+      "max": 9000,
+      "step": 100
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "deg",
+      "description": "Inclinaison du faisceau.",
+      "min": -45,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait net.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "px",
+      "description": "Largeur de la nappe diffuse qui accompagne le trait.",
+      "min": 0,
+      "max": 320,
+      "step": 10
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du faisceau."
+    },
+    {
+      "name": "frame",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Allume aussi un filet sur le contour du cadre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux elements deplaces par une animation CSS, dont un flou fixe. Aucun JavaScript par image."
+  },
+  "id": "effect/laser-flow",
+  "sources": {
+    "component.tsx": "/**\n * Balayage laser : un faisceau traverse le cadre en boucle.\n *\n * ## Ce qui le distingue du trait de bordure\n *\n * Le trait de bordure court **le long** du contour ; ce faisceau-ci traverse\n * la surface **de part en part**. L'un souligne une carte parmi ses voisines,\n * l'autre donne l'impression qu'une machine est en train de lire ce qu'elle\n * contient. Ils ne se remplacent pas, et se posent meme ensemble.\n *\n * ## Deux couches, parce qu'un laser n'est pas un trait\n *\n * Un seul rectangle clair donne un rendu de separateur, pas de lumiere. Ce\n * qui fait le laser, c'est le contraste entre un coeur net de deux pixels et\n * une nappe cent fois plus large, floue et pale, qui l'accompagne. Les deux\n * voyagent ensemble dans le meme rail.\n *\n * ## Pourquoi un rail plutot qu'un deplacement du faisceau\n *\n * Un pourcentage de `translate` se rapporte a l'element deplace. Anime sur le\n * faisceau — large de deux pixels — il faudrait des milliers de pourcents, et\n * la valeur dependrait de l'epaisseur reglee. Le rail, lui, fait exactement la\n * taille du cadre : le deplacer de moitie deplace le faisceau d'une demi-\n * largeur de cadre, quelle que soit son epaisseur.\n *\n * Sous mouvement reduit, aucun faisceau : un balayage n'a pas d'etat final,\n * seul son passage existe. Le filet de contour, lui, reste.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface LaserFlowOwnProps {\n  /** Contenu balaye. */\n  children: ReactNode\n  /** Duree d'une traversee, en millisecondes. @defaultValue 3200 */\n  duration?: number\n  /** Inclinaison du faisceau, en degres. @defaultValue 14 */\n  angle?: number\n  /** Epaisseur du trait net, en pixels. @defaultValue 2 */\n  width?: number\n  /** Largeur de la nappe diffuse, en pixels. @defaultValue 90 */\n  glow?: number\n  /** Couleur du faisceau. @defaultValue la teinte de marque */\n  color?: string\n  /** Allume aussi un filet sur le contour du cadre. @defaultValue true */\n  frame?: boolean\n}\n\n/** Toutes les proprietes. */\nexport type LaserFlowProps = Customisable<LaserFlowOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-laser-flow'\n\n/** Pose les regles du faisceau, une fois par document. */\nfunction ensureLaserRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-laser]{position:relative;isolation:isolate}',\n    // Le rail fait la taille du cadre : un pourcent de son deplacement vaut\n    // un pourcent de la largeur, et non de l'epaisseur du faisceau.\n    '[data-o-laser-track]{',\n    'position:absolute;inset:0;pointer-events:none;',\n    'animation:o-laser var(--o-laser-duration) linear infinite',\n    '}',\n    '@keyframes o-laser{',\n    'from{transform:translate3d(-58%,0,0)}',\n    'to{transform:translate3d(58%,0,0)}',\n    '}',\n    // Les deux couches partent du milieu du rail et debordent en hauteur :\n    // l'inclinaison ne doit jamais decouvrir leurs extremites.\n    '[data-o-laser-beam]{',\n    'position:absolute;top:-60%;height:220%;left:50%;',\n    'transform:rotate(var(--o-laser-angle))',\n    '}',\n    '[data-o-laser-glow]{',\n    'width:var(--o-laser-glow);margin-left:calc(var(--o-laser-glow) / -2);',\n    'background:var(--o-laser-color);opacity:0.22;',\n    'filter:blur(calc(var(--o-laser-glow) / 3))',\n    '}',\n    '[data-o-laser-core]{',\n    'width:var(--o-laser-width);margin-left:calc(var(--o-laser-width) / -2);',\n    'background:linear-gradient(to bottom,transparent,var(--o-laser-color) 25%,var(--o-laser-color) 75%,transparent)',\n    '}',\n    '[data-o-laser-frame]{',\n    'position:absolute;inset:0;pointer-events:none;border-radius:inherit;',\n    'box-shadow:inset 0 0 0 1px var(--o-laser-color);opacity:0.35',\n    '}',\n    '@media (prefers-reduced-motion:reduce){[data-o-laser-track]{display:none}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait traverser un faisceau sur son contenu.\n *\n * @example\n * <LaserFlow className=\"o-rounded-xl o-overflow-hidden o-p-8\">\n *   <h3>Analyse en cours</h3>\n * </LaserFlow>\n *\n * @example\n * // Un balayage lent et large, sans filet de contour.\n * <LaserFlow duration={7000} glow={220} frame={false} angle={-24}>\n *   <pre>…</pre>\n * </LaserFlow>\n */\nexport function LaserFlow({\n  children,\n  duration = 3200,\n  angle = 14,\n  width = 2,\n  glow = 90,\n  color = 'var(--o-palette-brand-500)',\n  frame = true,\n  ...rest\n}: LaserFlowProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureLaserRules()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-laser-duration': `${String(duration)}ms`,\n          '--o-laser-angle': `${String(angle)}deg`,\n          '--o-laser-width': `${String(width)}px`,\n          '--o-laser-glow': `${String(glow)}px`,\n          '--o-laser-color': color,\n        } as CSSProperties\n      }\n      data-o-laser=\"\"\n    >\n      {children}\n      {reduced ? null : (\n        <span aria-hidden data-o-laser-track=\"\">\n          <span data-o-laser-beam=\"\" data-o-laser-glow=\"\" />\n          <span data-o-laser-beam=\"\" data-o-laser-core=\"\" />\n        </span>\n      )}\n      {frame ? <span aria-hidden data-o-laser-frame=\"\" /> : null}\n    </div>\n  )\n}\n"
+  }
+}

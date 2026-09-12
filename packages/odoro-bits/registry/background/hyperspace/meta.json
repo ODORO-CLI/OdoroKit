@@ -1,0 +1,69 @@
+{
+  "name": "hyperspace",
+  "category": "background",
+  "title": "Hyperespace",
+  "description": "Des etoiles filantes vers la camera depuis un point de fuite, lues en polaire et en logarithme ; les trainees s allongent avec la vitesse.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "hyperspace.shader.ts",
+      "target": "background/hyperspace.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Hyperspace.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-indigo-300", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse du defilement vers la camera. Les trainees s allongent avec elle.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 64,
+      "description": "Nombre de rayons sur un tour, pour la couche proche.",
+      "min": 16,
+      "max": 140,
+      "step": 4
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "default": 1,
+      "description": "Allongement des trainees, en plus de celui que donne la vitesse.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-indigo-300, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps des trainees, leur tete."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois familles de rayons, une cellule evaluee par famille et par fragment : un logarithme et une arc-tangente par pixel. En qualite basse, la troisieme famille est retiree."
+  }
+}

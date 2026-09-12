@@ -1,0 +1,61 @@
+{
+  "name": "warp-text",
+  "category": "text",
+  "title": "Deformation au defilement",
+  "description": "Le defilement commande la courbure de la ligne : elle pend en bas du champ, se bombe en haut, et redevient droite au centre de l ecran.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/WarpText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 28,
+      "unit": "px",
+      "description": "Fleche maximale de la courbe.",
+      "min": 0,
+      "max": 140,
+      "step": 2
+    },
+    {
+      "name": "inclinaison",
+      "type": "number",
+      "default": 6,
+      "unit": "deg",
+      "description": "Inclinaison maximale des lettres de bord.",
+      "min": 0,
+      "max": 30,
+      "step": 0.5
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "default": 1,
+      "description": "Course du reglage, en hauteurs de fenetre.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule variable ecrite par image : quarante lettres coutent autant que cinq. Les transformations sont tenues par le compositeur."
+  }
+}

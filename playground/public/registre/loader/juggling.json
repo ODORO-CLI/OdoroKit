@@ -1,0 +1,65 @@
+{
+  "name": "juggling",
+  "category": "loader",
+  "title": "Jonglage",
+  "description": "Trois balles passent d une main a l autre : passe basse dans un sens, grand arc dans l autre, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Juggling.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d une balle. L ecart des mains et la hauteur de l arc en dependent.",
+      "min": 5,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1800,
+      "unit": "ms",
+      "description": "Duree d un tour complet d une balle, aller et retour.",
+      "min": 800,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des balles. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Six animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Trois balles posees en ligne sous mouvement reduit."
+  },
+  "id": "loader/juggling",
+  "sources": {
+    "component.tsx": "/**\n * Jonglage : trois balles passent d'une main a l'autre, une passe basse\n * dans un sens, un grand arc dans l'autre.\n *\n * ## Pourquoi une douche, et pas une cascade\n *\n * La figure classique — la cascade, ou chaque balle decrit le meme arc dans\n * les deux sens — ne se laisse pas rejouer par trois copies decalees d'une\n * meme animation : deux balles finissent par se croiser au meme point, a la\n * meme hauteur, et se traversent. La douche, elle, n'a pas ce probleme :\n * une main envoie haut, l'autre rend bas et vite, les deux trajets ne se\n * rencontrent jamais. C'est aussi la figure la plus lisible a cette taille,\n * parce que l'oeil suit un seul grand arc.\n *\n * Chaque balle porte deux animations sur deux elements emboites : le\n * deplacement horizontal, lineaire — rien ne freine une balle de cote — et\n * le deplacement vertical, en `ease-out` a la montee et `ease-in` a la\n * descente, ce qui est une parabole a peu de chose pres. Les separer permet\n * de leur donner des courbes differentes ; une seule animation devrait\n * choisir.\n *\n * Les balles restent un instant dans chaque main avant de repartir : sans\n * ce temps de prise, elles rebondiraient au lieu d'etre lancees.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les balles sont\n * retirees de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les trois balles sont posees en ligne, en bas : la\n * figure se lit encore, seul le lancer s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-juggling'\n\n/** Nombre de balles. */\nconst BALLS = 3\n\n/** Distance entre les deux mains, en diametres de balle. */\nconst SPAN = 3\n\n/** Hauteur du grand arc, en diametres de balle. */\nconst ARC = 3\n\n/** Hauteur de la passe basse, en part du grand arc. */\nconst PASS = 0.35\n\n/** Pose les balles et leurs deux trajets, une fois par document. */\nfunction ensureJugglingRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-juggling]{',\n    'position:relative;display:inline-block;',\n    `width:calc(var(--o-juggle-size) * ${String(SPAN + 1)});`,\n    `height:calc(var(--o-juggle-size) * ${String(ARC + 1)});`,\n    '}',\n    // L'element exterieur porte le trajet horizontal ; au repos, chaque\n    // balle a sa place en bas, pour que les trois ne se superposent pas.\n    '[data-o-juggle-path]{',\n    'position:absolute;left:0;bottom:0;',\n    'width:var(--o-juggle-size);height:var(--o-juggle-size);',\n    'transform:translateX(var(--o-juggle-rest));',\n    'animation:o-juggling-across var(--o-juggle-speed) linear infinite;',\n    'animation-delay:var(--o-juggle-delay);',\n    '}',\n    // L'element interieur porte la hauteur, avec ses propres courbes.\n    '[data-o-juggle-ball]{',\n    'display:block;width:100%;height:100%;',\n    'border-radius:50%;background:var(--o-juggle-color);',\n    'animation:o-juggling-height var(--o-juggle-speed) infinite;',\n    'animation-delay:var(--o-juggle-delay);',\n    '}',\n    // Passe basse de gauche a droite, prise, grand arc de droite a gauche,\n    // prise. Le trajet est lineaire : rien ne freine une balle de cote.\n    '@keyframes o-juggling-across{',\n    '0%,6%{transform:translateX(0)}',\n    `26%,36%{transform:translateX(calc(var(--o-juggle-size) * ${String(SPAN)}))}`,\n    '92%,100%{transform:translateX(0)}',\n    '}',\n    // Montee en ralentissant, descente en accelerant : une parabole a peu\n    // de chose pres, et deux hauteurs differentes selon le sens.\n    '@keyframes o-juggling-height{',\n    '0%,6%{transform:translateY(0);animation-timing-function:ease-out}',\n    `16%{transform:translateY(calc(var(--o-juggle-size) * -${String(ARC * PASS)}));animation-timing-function:ease-in}`,\n    '26%,36%{transform:translateY(0);animation-timing-function:ease-out}',\n    `64%{transform:translateY(calc(var(--o-juggle-size) * -${String(ARC)}));animation-timing-function:ease-in}`,\n    '92%,100%{transform:translateY(0)}',\n    '}',\n    // Trois balles posees en ligne : la figure est dite, sans lancer.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-juggle-path],[data-o-juggle-ball]{animation:none}',\n    '[data-o-juggle-ball]{transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface JugglingOwnProps {\n  /** Diametre d'une balle, en pixels. @defaultValue 10 */\n  size?: number\n  /** Duree d'un tour complet d'une balle, en millisecondes. @defaultValue 1800 */\n  speed?: number\n  /** Couleur des balles. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type JugglingProps = Customisable<JugglingOwnProps, 'span'>\n\n/**\n * Signale une attente par trois balles jonglees.\n *\n * @example\n * <Juggling />\n *\n * @example\n * // Plus grosses, plus lentes, dans la teinte de marque.\n * <Juggling size={14} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Juggling({\n  size = 10,\n  speed = 1800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: JugglingProps): ReactElement {\n  ensureJugglingRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-juggle-size': `${String(size)}px`,\n    '--o-juggle-speed': `${String(speed)}ms`,\n    '--o-juggle-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-juggling=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: BALLS }, (_, ball) => (\n        <span\n          key={ball}\n          aria-hidden\n          data-o-juggle-path=\"\"\n          style={\n            {\n              // Un tiers de tour d'ecart, en negatif : les trois balles\n              // sont en l'air ou en main des la premiere image.\n              '--o-juggle-delay': `${String(Math.round((-speed * ball) / BALLS))}ms`,\n              '--o-juggle-rest': `${String((size * SPAN * ball) / (BALLS - 1))}px`,\n            } as CSSProperties\n          }\n        >\n          <span data-o-juggle-ball=\"\" />\n        </span>\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

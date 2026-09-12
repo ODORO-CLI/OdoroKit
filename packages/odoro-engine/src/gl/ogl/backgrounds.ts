@@ -221,6 +221,6 @@ void main() {
   // normalisation, ces zones saturent au lieu de se melanger.
   vec3 blended = (uColorA * wa + uColorB * wb + uColorC * wc) / max(total, 0.001);
 
-  gl_FragColor = vec4(mix(uColorA * 0.25, blended, clamp(total, 0.0, 1.0)), 1.0);
+  gl_FragColor = vec4(mix(uColorA, blended, clamp(total, 0.0, 1.0)), 1.0);
 }
 `

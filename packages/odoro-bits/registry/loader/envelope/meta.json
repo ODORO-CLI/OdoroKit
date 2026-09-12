@@ -1,0 +1,57 @@
+{
+  "name": "envelope",
+  "category": "loader",
+  "title": "Enveloppe",
+  "description": "Le rabat bascule autour de sa charniere, la lettre monte hors de l enveloppe, redescend, et le rabat se referme, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Envelope.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-surface"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 64,
+      "unit": "px",
+      "description": "Cote du dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle : ouverture, sortie, retour, fermeture.",
+      "min": 1200,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits de l enveloppe. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS sur des elements SVG et une decoupe statique, tenues par le compositeur, aucun JavaScript apres le premier rendu. Enveloppe ouverte et lettre sortie sous mouvement reduit."
+  }
+}

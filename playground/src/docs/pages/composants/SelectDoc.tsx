@@ -77,6 +77,45 @@ export function SelectDoc(): ReactElement {
   ]}
 />`
           }
+          variants={[
+            { title: 'Petit', values: { size: 'sm' } },
+            { title: 'Grand', values: { size: 'lg' } },
+            { title: 'Desactive', values: { disabled: true } },
+            {
+              title: 'Avec placeholder',
+              description: 'Une option vide et desactivee tant que rien n est choisi.',
+              values: { placeholder: 'Selectionner un pays' },
+            },
+            {
+              title: 'Avec erreur',
+              description: 'error met le champ en etat invalide.',
+              node: (
+                <Select
+                  label="Pays"
+                  placeholder="Choisir un pays"
+                  error="Le pays est obligatoire."
+                  options={PAYS}
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+            {
+              title: 'Option desactivee',
+              description: 'Visible dans le panneau, non selectionnable.',
+              node: (
+                <Select
+                  label="Formule"
+                  defaultValue="pro"
+                  options={[
+                    { value: 'gratuit', label: 'Gratuite' },
+                    { value: 'pro', label: 'Pro' },
+                    { value: 'entreprise', label: 'Entreprise (bientot)', disabled: true },
+                  ]}
+                  wrapperClassName="o-w-full"
+                />
+              ),
+            },
+          ]}
         />
       </Section>
 

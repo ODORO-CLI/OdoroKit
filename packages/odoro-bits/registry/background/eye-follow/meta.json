@@ -1,0 +1,69 @@
+{
+  "name": "eye-follow",
+  "category": "background",
+  "title": "Yeux qui suivent",
+  "description": "Une grille de grands yeux dessines au trait, dont l iris se tourne vers le curseur ; chacun cligne a son propre rythme, en se refermant sur lui-meme.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "eye-follow.shader.ts",
+      "target": "background/eye-follow.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/EyeFollow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-theme-fg", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "eyes",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre d yeux sur la hauteur. Borne a dix par le shader.",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "gaze",
+      "type": "number",
+      "default": 0.9,
+      "description": "Amplitude du regard. A zero, les yeux fixent devant eux.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "blink",
+      "type": "number",
+      "default": 1,
+      "description": "Frequence des clignements. A zero, les yeux restent ouverts.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-fg, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond et l eclat, le trait et la pupille, l iris."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Cinq distances et six lissages par fragment, sans boucle ; le pointeur est recopie dans un tableau mute en place, sans rendu React par image."
+  }
+}

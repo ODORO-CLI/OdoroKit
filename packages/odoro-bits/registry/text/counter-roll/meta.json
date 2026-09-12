@@ -1,0 +1,63 @@
+{
+  "name": "counter-roll",
+  "category": "text",
+  "title": "Odometre",
+  "description": "Un nombre en colonnes de chiffres qui roulent verticalement jusqu a leur position, en cascade depuis la droite.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/CounterRoll.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": true,
+      "description": "Valeur affichee."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree du roulement d une colonne.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 80,
+      "unit": "ms",
+      "description": "Delai entre deux colonnes, depuis la droite.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "description": "Langue du formatage. Par defaut, celle du navigateur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une translation CSS par colonne, jouee une fois a l entree dans le champ. Aucun JavaScript pendant l animation."
+  }
+}

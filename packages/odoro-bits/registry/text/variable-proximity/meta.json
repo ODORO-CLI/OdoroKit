@@ -1,0 +1,69 @@
+{
+  "name": "variable-proximity",
+  "category": "text",
+  "title": "Graisse de proximite",
+  "description": "Une loupe de graisse suit le pointeur sur tout un paragraphe, chaque lettre rejoignant son epaisseur a son rythme, avec un repli en graisses discretes.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/VariableProximity.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "rayon",
+      "type": "number",
+      "default": 180,
+      "unit": "px",
+      "description": "Portee de la loupe.",
+      "min": 40,
+      "max": 600,
+      "step": 10
+    },
+    {
+      "name": "graisseBasse",
+      "type": "number",
+      "default": 300,
+      "description": "Graisse loin du pointeur, sur l axe wght.",
+      "min": 100,
+      "max": 900,
+      "step": 25
+    },
+    {
+      "name": "graisseHaute",
+      "type": "number",
+      "default": 800,
+      "description": "Graisse sous le pointeur, sur l axe wght.",
+      "min": 100,
+      "max": 1000,
+      "step": 25
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 10,
+      "description": "Vitesse a laquelle une lettre rejoint sa graisse. Plus bas, plus longue est la traine.",
+      "min": 1,
+      "max": 24,
+      "step": 0.5
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Une lecture de boite par image, plus un reglage de graisse par lettre quand il change vraiment. Sur un long paragraphe, chaque changement de graisse recompose la ligne : garder le bloc court."
+  }
+}

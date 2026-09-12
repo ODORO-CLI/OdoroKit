@@ -1,0 +1,44 @@
+{
+  "name": "scroll-velocity",
+  "category": "effect",
+  "title": "Inclinaison au defilement",
+  "description": "Le conteneur s incline et se decale avec la vitesse de defilement, puis se redresse en douceur a l arret.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/ScrollVelocity.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 1,
+      "description": "Ampleur de l inclinaison et du decalage.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "default": 8,
+      "description": "Vitesse du lissage et du retour. Plus haut, plus sec.",
+      "min": 1,
+      "max": 24,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle, une lecture de position et deux variables CSS ecrites par image. Aucune souscription et conteneur immobile sous mouvement reduit."
+  }
+}

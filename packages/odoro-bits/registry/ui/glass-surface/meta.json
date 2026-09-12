@@ -1,0 +1,77 @@
+{
+  "name": "glass-surface",
+  "category": "ui",
+  "title": "Surface de verre",
+  "description": "Un panneau de verre depoli pose sur la page : le fond se devine a travers, l epaisseur se lit sur les aretes, et la surface redevient opaque la ou le flou de fond manque.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/GlassSurface.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-white",
+    "--o-theme-surface",
+    "--o-theme-line"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Le contenu pose sur le verre."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-brand-500, --o-palette-white",
+      "description": "Tokens de la teinte du verre et de sa lumiere, dans cet ordre. La teinte colore la masse et le halo, la lumiere fait les aretes."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "description": "Flou applique au fond vu a travers le verre."
+    },
+    {
+      "name": "tint",
+      "type": "number",
+      "default": 0.14,
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02,
+      "description": "Part de teinte dans la masse du verre, de zero a un."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 1,
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "description": "Force des aretes et du halo : l epaisseur apparente de la plaque."
+    },
+    {
+      "name": "sheen",
+      "type": "boolean",
+      "default": true,
+      "description": "Ajoute le reflet diagonal fige qui court sur la plaque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Rien ne bouge et rien n est calcule : un filtre de fond, quatre ombres et un degrade. Le cout est celui du flou de fond, paye par le compositeur ; une regle de repli rend le panneau opaque quand le navigateur ne sait pas flouter son arriere-plan."
+  }
+}

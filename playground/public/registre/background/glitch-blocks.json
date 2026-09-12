@@ -1,0 +1,93 @@
+{
+  "name": "glitch-blocks",
+  "category": "background",
+  "title": "Blocs qui sautent",
+  "description": "Un degrade lent dont des blocs se decalent par a-coups, teintes inversees ou ecartees, et des bandes entieres qui sautent d un seul tenant ; tout est hache par paliers, rien ne glisse.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "glitch-blocks.shader.ts",
+      "target": "background/glitch-blocks.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/GlitchBlocks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-violet-500",
+    "--o-palette-cyan-400"
+  ],
+  "props": [
+    {
+      "name": "blocks",
+      "type": "number",
+      "required": false,
+      "default": 12,
+      "description": "Nombre de rangees de blocs sur la hauteur. Borne a quarante par le shader.",
+      "min": 2,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "rate",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "description": "Paliers par seconde. Retrograde a trois en qualite basse.",
+      "min": 0.5,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "amount",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Part des blocs qui sautent a chaque palier. Zero fige l image.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Vitesse du degrade de fond.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-cyan-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la premiere teinte du degrade, la seconde."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois lectures d image — trois sinus chacune — et six hachages par fragment, sans boucle. En qualite basse, la cadence des paliers est bornee a trois.",
+    "fallback": "gradient"
+  },
+  "id": "background/glitch-blocks",
+  "sources": {
+    "glitch-blocks.shader.ts": "/**\n * Shader des blocs qui sautent.\n *\n * ## L'idee mathematique\n *\n * Une image de fond — un degrade lent — et, par-dessus, une grille de blocs\n * dont chaque rangee est decalee d'un montant qui lui est propre, pour que\n * les blocs ne s'alignent pas en colonnes. A chaque palier de temps, un\n * tirage par bloc decide s'il saute. Un bloc qui saute lit l'image ailleurs\n * — decalee horizontalement — et l'ecrit avec ses teintes inversees ou\n * ecartees.\n *\n * Tout est hache par paliers, rien ne glisse : entre deux paliers, l'image\n * est parfaitement immobile. C'est ce qui fait un a-coup ; un decalage\n * continu ferait une ondulation.\n *\n * Deux echelles de sauts. Les blocs, petits, frequents. Et des bandes\n * entieres — une rangee sur dix, a un palier sur douze — decalees d'un\n * seul tenant, comme une image dont une ligne de balayage a ete perdue.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la premiere teinte du degrade.\n * - `uColorC` — la seconde, et la teinte des blocs inverses.\n * - `uBlocks` — nombre de rangees de blocs sur la hauteur.\n * - `uRate` — paliers par seconde.\n * - `uAmount` — part des blocs qui sautent a chaque palier.\n * - `uSpeed` — vitesse du degrade de fond.\n */\nexport const GLITCH_BLOCKS_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uBlocks;\nuniform float uRate;\nuniform float uAmount;\nuniform float uSpeed;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat blockHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// L'image de fond : un degrade lent en deux teintes. Rendu entre zero et un\n// pour chaque teinte.\nvec2 blockImage(vec2 uv, float t) {\n  float a = 0.5 + 0.5 * sin(uv.x * 2.2 + uv.y * 1.6 + t);\n  float b = 0.5 + 0.5 * sin(uv.y * 3.0 - t * 0.7 + sin(uv.x * 2.0 + t * 0.5));\n  return vec2(a, a * b);\n}\n\nvec3 blockPaint(vec2 uv, float t) {\n  vec2 image = blockImage(uv, t);\n  vec3 colour = mix(uColorA, uColorB, image.x * 0.8);\n  return mix(colour, uColorC, image.y * 0.7);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float t = uTime * uSpeed;\n  float palier = floor(uTime * max(uRate, 0.1));\n  float amount = clamp(uAmount, 0.0, 1.0);\n\n  // La grille de blocs : chaque rangee a son decalage, pour que rien ne\n  // s'aligne en colonnes.\n  float rows = clamp(uBlocks, 2.0, 40.0);\n  float row = floor(vUv.y * rows);\n  float rowShift = blockHash(vec2(row, 17.0));\n  vec2 cell = vec2(floor(vUv.x * aspect * rows * 0.7 + rowShift), row);\n\n  // Le tirage du bloc a ce palier : saute-t-il, de combien, comment.\n  float draw = blockHash(cell + palier * 0.618);\n  float jumps = step(1.0 - amount * 0.35, draw);\n  float offset = (blockHash(cell * 1.3 + palier) - 0.5) * 0.25 * jumps;\n  float invert = step(0.5, blockHash(cell * 2.1 + palier * 1.7)) * jumps;\n\n  // Les bandes entieres : une rangee sur dix, a un palier sur douze.\n  float bandDraw = blockHash(vec2(row * 0.37, palier));\n  float band = step(1.0 - amount * 0.1, bandDraw) * step(0.92, blockHash(vec2(palier, 5.0)));\n  offset += (blockHash(vec2(palier, row)) - 0.5) * 0.12 * band;\n\n  vec2 uv = vec2(vUv.x * aspect + offset, vUv.y);\n  vec3 colour = blockPaint(uv, t);\n\n  // Un bloc inverse ecrit ses teintes a l'envers : la premiere devient la\n  // seconde et le fond passe au premier plan. Un bloc ecarte lit chaque\n  // teinte a une position differente.\n  vec2 image = blockImage(uv, t);\n  vec3 inverted = mix(uColorC, uColorA, image.x * 0.8);\n  inverted = mix(inverted, uColorB, image.y * 0.5);\n\n  vec2 split = blockImage(uv + vec2(0.03 * jumps, 0.0), t);\n  vec3 spread = mix(uColorA, uColorB, image.x * 0.8);\n  spread = mix(spread, uColorC, split.y * 0.9);\n\n  colour = mix(colour, spread, jumps * (1.0 - invert));\n  colour = mix(colour, inverted, invert);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Blocs qui sautent : une image dont des blocs se decalent par a-coups,\n * teintes inversees ou ecartees.\n *\n * ## Le principe\n *\n * Tout est hache par paliers de temps : entre deux paliers, rien ne bouge.\n * A chaque palier, un tirage par bloc decide s'il saute ; un bloc qui saute\n * lit l'image ailleurs et l'ecrit a l'envers. Des bandes entieres sautent\n * plus rarement, d'un seul tenant.\n *\n * Ce qui distingue cette entree de `tv-static` : il y a une image, et elle\n * se casse ; et de `vhs-tracking` : ici les sauts sont des rectangles nets,\n * pas des bandes qui roulent.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { GLITCH_BLOCKS_FRAGMENT } from './glitch-blocks.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface GlitchBlocksControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface GlitchBlocksOwnProps {\n  /** Nombre de rangees de blocs sur la hauteur. Borne a quarante par le shader. @defaultValue 12 */\n  blocks?: number\n  /** Paliers par seconde. @defaultValue 6 */\n  rate?: number\n  /** Part des blocs qui sautent a chaque palier. Zero fige l'image. @defaultValue 0.5 */\n  amount?: number\n  /** Vitesse du degrade de fond. @defaultValue 0.3 */\n  speed?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<GlitchBlocksControls>\n}\n\n/** Toutes les proprietes. */\nexport type GlitchBlocksProps = Customisable<GlitchBlocksOwnProps>\n\n/** Tokens employes par defaut : le fond, les deux teintes du degrade. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-violet-500',\n  '--o-palette-cyan-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-violet-100 dark:o-via-violet-950 o-to-cyan-100 dark:o-to-cyan-950'\n\n/**\n * Blocs qui sautent.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <GlitchBlocks className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function GlitchBlocks({\n  blocks = 12,\n  rate = 6,\n  amount = 0.5,\n  speed = 0.3,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: GlitchBlocksProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: GLITCH_BLOCKS_FRAGMENT,\n    colors,\n    uniforms: { uBlocks: blocks, uRate: rate, uAmount: amount, uSpeed: speed },\n    name: 'glitch-blocks',\n    // Le fragment coute autant a chaque image ; ce qui pese, c'est le\n    // rythme des images reellement differentes, donc il est borne.\n    degrade: (quality) => ({\n      uRate: quality === 'low' ? Math.min(rate, 3) : rate,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

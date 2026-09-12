@@ -1,0 +1,93 @@
+{
+  "name": "skeleton-card",
+  "category": "loader",
+  "title": "Carte en attente",
+  "description": "La carte est deja dessinee, surface et filet compris ; seuls son image, son titre, ses lignes et son pied restent des blocs vides.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonCard.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "lines",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Nombre de lignes de texte sous le titre.",
+      "min": 0,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "media",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reserver la place d une image en haut de la carte."
+    },
+    {
+      "name": "footer",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reserver la place d un pied : pastille et legende."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Rayon des angles de la carte.",
+      "min": 0,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reflet qui traverse les blocs plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement de la carte",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par bloc, ou une opacite : la carte elle-meme ne bouge jamais, aucun JavaScript apres le premier rendu. Blocs pleins et immobiles sous mouvement reduit."
+  },
+  "id": "loader/skeleton-card",
+  "sources": {
+    "component.tsx": "/**\n * Carte en attente : la carte est deja la — sa surface, son filet, ses\n * marges — et seul son contenu manque.\n *\n * ## Ce que la carte garde, et ce qu'elle perd\n *\n * `skeleton-lines` remplace un paragraphe : il n'y a rien autour de lui. Une\n * carte, elle, a un contenant, et ce contenant n'attend pas — il est deja\n * dessine, avec sa surface (`--o-theme-surface`) et son filet\n * (`--o-theme-line`). Ne dessiner que des blocs gris, sans carte autour,\n * ferait sauter la mise en page a l'arrivee du contenu : c'est le defaut\n * classique du squelette, promettre une hauteur et en livrer une autre.\n *\n * A l'interieur, la hierarchie est conservee : une image, un titre plus\n * epais, des lignes de texte, et un pied avec sa pastille. Un squelette qui\n * empile des barres identiques annonce « du contenu » ; celui-ci annonce\n * **ce** contenu-la.\n *\n * ## Reflet ou pulsation, sur les blocs seuls\n *\n * L'animation ne porte jamais sur la carte : un contenant qui clignote se\n * lit comme une erreur. Seuls les blocs vides bougent, en cascade avec le\n * reflet, ensemble avec la pulsation.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; les blocs sont retires de\n * l'arbre d'accessibilite. Sous mouvement reduit, ils restent pleins et\n * immobiles : la carte vide reste visible, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-skeleton-card'\n\n/** Largeur de la derniere ligne de texte, en pourcentage. */\nconst LAST_WIDTH = 58\n\n/** Pose la carte, ses blocs et leur animation, une fois par document. */\nfunction ensureSkeletonCardRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La carte est un contenant reel : elle occupe deja la place que le\n    // contenu prendra, filet compris.\n    '[data-o-skcard]{',\n    'display:block;width:100%;box-sizing:border-box;',\n    'padding:1rem;border-radius:var(--o-skcard-radius);',\n    'background:var(--o-theme-surface);',\n    'border:1px solid var(--o-theme-line);',\n    '}',\n    '[data-o-skcard-body]{display:flex;flex-direction:column;gap:0.75rem}',\n    '[data-o-skcard-text]{display:flex;flex-direction:column;gap:0.5rem}',\n    '[data-o-skcard-foot]{display:flex;align-items:center;gap:0.6rem}',\n    '[data-o-skcard-fill]{',\n    'position:relative;display:block;overflow:hidden;',\n    'border-radius:calc(var(--o-skcard-radius) * 0.6);',\n    'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',\n    '}',\n    // L'image garde son rapport : c'est elle qui fixe la hauteur de la carte.\n    '[data-o-skcard-media]{aspect-ratio:16/9;width:100%}',\n    '[data-o-skcard-title]{height:1.1rem;width:70%}',\n    '[data-o-skcard-line]{height:0.6rem}',\n    '[data-o-skcard-avatar]{width:2rem;height:2rem;border-radius:50%;flex:none}',\n    '[data-o-skcard-meta]{height:0.6rem;width:40%}',\n    '[data-o-skcard-shimmer] [data-o-skcard-fill]::after{',\n    'content:\"\";position:absolute;inset:0;',\n    'background:linear-gradient(90deg,transparent 0 30%,color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent 70% 100%);',\n    'transform:translateX(-100%);',\n    'animation:o-skcard-sweep var(--o-skcard-speed) linear infinite;',\n    'animation-delay:var(--o-skcard-delay);',\n    '}',\n    '@keyframes o-skcard-sweep{to{transform:translateX(100%)}}',\n    '[data-o-skcard-pulse] [data-o-skcard-fill]{',\n    'animation:o-skcard-pulse var(--o-skcard-speed) ease-in-out infinite;',\n    '}',\n    '@keyframes o-skcard-pulse{0%,100%{opacity:1}50%{opacity:0.45}}',\n    // La carte vide reste lisible, sans mouvement.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-skcard-fill]{animation:none;opacity:1}',\n    '[data-o-skcard-shimmer] [data-o-skcard-fill]::after{animation:none;opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SkeletonCardOwnProps {\n  /** Nombre de lignes de texte sous le titre. @defaultValue 2 */\n  lines?: number\n  /** Reserver la place d'une image en haut de la carte. @defaultValue true */\n  media?: boolean\n  /** Reserver la place d'un pied : pastille et legende. @defaultValue true */\n  footer?: boolean\n  /** Rayon des angles de la carte, en pixels. @defaultValue 14 */\n  radius?: number\n  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */\n  shimmer?: boolean\n  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement de la carte' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SkeletonCardProps = Customisable<SkeletonCardOwnProps, 'div'>\n\n/**\n * Reserve la place d'une carte entiere pendant son chargement.\n *\n * @example\n * <SkeletonCard />\n *\n * @example\n * // Une carte de texte seul, pulsee.\n * <SkeletonCard media={false} lines={4} shimmer={false} />\n */\nexport function SkeletonCard({\n  lines = 2,\n  media = true,\n  footer = true,\n  radius = 14,\n  shimmer = true,\n  speed = 1600,\n  label = 'Chargement de la carte',\n  ...rest\n}: SkeletonCardProps): ReactElement {\n  ensureSkeletonCardRule()\n\n  const count = Math.max(0, Math.round(lines))\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-skcard-radius': `${String(radius)}px`,\n    '--o-skcard-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  /** Retard du reflet, du haut de la carte vers son pied. */\n  const delay = (rank: number): CSSProperties =>\n    ({ '--o-skcard-delay': `${String(Math.round((speed / 10) * rank))}ms` }) as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-skcard=\"\"\n      data-o-skcard-shimmer={shimmer ? '' : undefined}\n      data-o-skcard-pulse={shimmer ? undefined : ''}\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden data-o-skcard-body=\"\">\n        {media ? <span data-o-skcard-fill=\"\" data-o-skcard-media=\"\" style={delay(0)} /> : null}\n        <span data-o-skcard-fill=\"\" data-o-skcard-title=\"\" style={delay(1)} />\n        {count > 0 ? (\n          <span data-o-skcard-text=\"\">\n            {Array.from({ length: count }, (_, index) => (\n              <span\n                key={index}\n                data-o-skcard-fill=\"\"\n                data-o-skcard-line=\"\"\n                style={\n                  {\n                    ...delay(2 + index),\n                    // La derniere ligne s'arrete avant le bord : c'est ce\n                    // qui fait lire un paragraphe et non un tableau.\n                    width:\n                      index === count - 1 && count > 1\n                        ? `${String(LAST_WIDTH)}%`\n                        : undefined,\n                  } as CSSProperties\n                }\n              />\n            ))}\n          </span>\n        ) : null}\n        {footer ? (\n          <span data-o-skcard-foot=\"\">\n            <span data-o-skcard-fill=\"\" data-o-skcard-avatar=\"\" style={delay(2 + count)} />\n            <span data-o-skcard-fill=\"\" data-o-skcard-meta=\"\" style={delay(3 + count)} />\n          </span>\n        ) : null}\n      </span>\n    </div>\n  )\n}\n"
+  }
+}

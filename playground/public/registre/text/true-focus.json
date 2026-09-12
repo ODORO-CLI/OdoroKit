@@ -1,0 +1,88 @@
+{
+  "name": "true-focus",
+  "category": "text",
+  "title": "Mise au point",
+  "description": "Un cadre de quatre angles saute de mot en mot ; le mot vise redevient net pendant que les autres restent flous, et le survol prend la main.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/TrueFocus.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "unit": "px",
+      "description": "Flou d un mot hors mise au point.",
+      "min": 0,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "attenue",
+      "type": "number",
+      "required": false,
+      "default": 0.55,
+      "description": "Opacite d un mot hors mise au point, de 0 a 1.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Temps passe sur un mot.",
+      "min": 300,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du deplacement du cadre.",
+      "min": 80,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "couleur",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du cadre."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React par mot vise, soit un par seconde environ ; le deplacement du cadre et le flou sont des transitions CSS. Le flou est un filtre par mot, a garder modeste sur un long texte."
+  },
+  "id": "text/true-focus",
+  "sources": {
+    "component.tsx": "/**\n * Mise au point : un cadre d'angles saute de mot en mot, et le mot vise\n * redevient net pendant que les autres restent flous.\n *\n * ## Un viseur, pas une revelation\n *\n * `blur-reveal` va du flou vers le net une fois pour toutes ; ici le flou est\n * l'etat normal du texte, et un seul mot en sort a la fois. L'effet ne raconte\n * pas une arrivee, il raconte une lecture : quelque chose regarde le texte, et\n * on voit ou il regarde.\n *\n * Le cadre est fait de quatre angles ouverts, pas d'un rectangle plein : un\n * rectangle enfermerait le mot, quatre angles le designent.\n *\n * ## Le flou n'est pose que si le viseur existe\n *\n * Le piege de tous les effets qui cachent : si le JavaScript ne vient jamais,\n * le texte reste dans son etat initial. Un paragraphe entierement flou serait\n * pire qu'un paragraphe absent — il a l'air d'un bug.\n *\n * Le flou est donc porte par un attribut pose depuis un effet. Sans lui, tout\n * le texte est net et le cadre n'existe pas.\n *\n * ## Le cadre est place, pas dessine\n *\n * Sa position et sa taille sont relevees sur le mot vise, en coordonnees de\n * l'element — `offsetLeft` et compagnie, qui n'obligent a aucune conversion.\n * Le deplacement lui-meme est une transition CSS : rien n'est anime en\n * JavaScript, et le cadre traverse la ligne, voire change de ligne, sans un\n * seul calcul de trajectoire.\n *\n * ## Le survol prend la main\n *\n * Pointer un mot le met au point et suspend le cycle. C'est la seule reponse\n * juste : sans elle, le mot qu'on vient de designer se ferait voler la mise\n * au point une seconde plus tard.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les mots sont retires\n * de l'arbre d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * Aucun flou, aucun cadre : tout le texte est net. C'est l'etat ou tout se\n * lit, et c'est bien l'etat d'arrivee de chaque passage du viseur.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface TrueFocusOwnProps {\n  /** Texte a mettre au point. Une chaine : elle est decoupee en mots. */\n  children: string\n  /** Balise rendue. @defaultValue 'p' */\n  as?: ElementType\n  /** Flou d'un mot hors mise au point, en pixels. @defaultValue 5 */\n  blur?: number\n  /** Opacite d'un mot hors mise au point, de 0 a 1. @defaultValue 0.55 */\n  attenue?: number\n  /** Temps passe sur un mot, en millisecondes. @defaultValue 1400 */\n  hold?: number\n  /** Duree du deplacement du cadre, en millisecondes. @defaultValue 600 */\n  course?: number\n  /** Couleur du cadre. @defaultValue la teinte de marque */\n  couleur?: string\n}\n\n/** Toutes les proprietes. */\nexport type TrueFocusProps = Customisable<TrueFocusOwnProps, 'p'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-true-focus'\n\n/** Jeu laisse entre le mot et son cadre, en pixels. */\nconst MARGE = 6\n\n/** Longueur d'un angle du cadre, en pixels. */\nconst ANGLE = 10\n\n/** Epaisseur du trait du cadre, en pixels. */\nconst TRAIT = 2\n\n/** Pose le viseur et le flou, une fois par document. */\nfunction ensureFocusRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-focus]{position:relative}',\n    '[data-o-focus-word]{display:inline-block}',\n    // Le flou n'existe que sous l'attribut pose par l'effet : voir l'en-tete.\n    '[data-o-focus=\"pret\"] [data-o-focus-word]{',\n    'filter:blur(var(--o-focus-flou));opacity:var(--o-focus-attenue);',\n    'transition:filter var(--o-focus-course) ease,opacity var(--o-focus-course) ease;',\n    '}',\n    '[data-o-focus=\"pret\"] [data-o-focus-word][data-o-focus-vise]{',\n    'filter:blur(0);opacity:1;',\n    '}',\n    '[data-o-focus-frame]{',\n    'position:absolute;left:0;top:0;opacity:0;pointer-events:none;',\n    'transition:transform var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',\n    'width var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',\n    'height var(--o-focus-course) cubic-bezier(0.22,1,0.36,1),',\n    'opacity var(--o-focus-course) ease;',\n    '}',\n    '[data-o-focus=\"pret\"] [data-o-focus-frame]{opacity:1}',\n    '[data-o-focus-corner]{',\n    'position:absolute;width:var(--o-focus-angle);height:var(--o-focus-angle);',\n    'border:var(--o-focus-trait) solid var(--o-focus-couleur);',\n    '}',\n    '[data-o-focus-corner=\"hg\"]{top:0;left:0;border-right:0;border-bottom:0}',\n    '[data-o-focus-corner=\"hd\"]{top:0;right:0;border-left:0;border-bottom:0}',\n    '[data-o-focus-corner=\"bg\"]{bottom:0;left:0;border-right:0;border-top:0}',\n    '[data-o-focus-corner=\"bd\"]{bottom:0;right:0;border-left:0;border-top:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait sauter une mise au point de mot en mot.\n *\n * @example\n * <TrueFocus as=\"h2\" className=\"o-text-4xl o-font-bold\">\n *   Chaque mot a son tour\n * </TrueFocus>\n *\n * @example\n * // Viseur lent, flou marque, cadre dans la couleur du texte.\n * <TrueFocus hold={2600} blur={9} couleur=\"currentColor\">Lentement</TrueFocus>\n */\nexport function TrueFocus({\n  children,\n  as: Tag = 'p',\n  blur = 5,\n  attenue = 0.55,\n  hold = 1400,\n  course = 600,\n  couleur = 'var(--o-palette-brand-500)',\n  ...rest\n}: TrueFocusProps): ReactElement {\n  const { reduced } = useMotionState()\n  const hote = useRef<HTMLElement | null>(null)\n  const [index, setIndex] = useState(0)\n  const [pret, setPret] = useState(false)\n  const [fige, setFige] = useState(false)\n\n  ensureFocusRule()\n\n  const mots = children.split(' ').filter((mot) => mot.length > 0)\n  const total = mots.length\n\n  // Le flou arrive apres le premier rendu, et jamais sous mouvement reduit.\n  useEffect(() => {\n    setPret(!reduced)\n  }, [reduced])\n\n  useEffect(() => {\n    if (reduced || fige || total < 2) return\n\n    // Une horloge, pas la boucle du moteur : un mot toutes les secondes et\n    // demie, c'est un changement toutes les quatre-vingt-dix images.\n    const minuteur = setTimeout(() => {\n      setIndex((precedent) => (precedent + 1) % total)\n    }, hold)\n\n    return () => clearTimeout(minuteur)\n  }, [reduced, fige, index, hold, total])\n\n  useEffect(() => {\n    const element = hote.current\n    if (element === null || reduced) return\n\n    const cadre = element.querySelector<HTMLElement>('[data-o-focus-frame]')\n    if (cadre === null) return\n\n    const placer = (): void => {\n      const vise = element.querySelectorAll<HTMLElement>('[data-o-focus-word]')[index]\n      if (vise === undefined) return\n      // `offset*` est deja exprime dans le repere de l'element positionne :\n      // aucune boite a convertir, aucune position de defilement a retrancher.\n      cadre.style.width = `${String(vise.offsetWidth + MARGE * 2)}px`\n      cadre.style.height = `${String(vise.offsetHeight + MARGE * 2)}px`\n      cadre.style.transform = `translate(${String(vise.offsetLeft - MARGE)}px, ${String(vise.offsetTop - MARGE)}px)`\n    }\n    placer()\n\n    // La ligne se recompose, le cadre suit : sans cela, il resterait sur la\n    // place que le mot occupait avant le changement de largeur.\n    const observateur = new ResizeObserver(placer)\n    observateur.observe(element)\n    return () => observateur.disconnect()\n  }, [reduced, index, children])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const styleRacine = {\n    ...style,\n    '--o-focus-flou': `${String(blur)}px`,\n    '--o-focus-attenue': Math.min(1, Math.max(0, attenue)),\n    '--o-focus-course': `${String(course)}ms`,\n    '--o-focus-couleur': couleur,\n    '--o-focus-angle': `${String(ANGLE)}px`,\n    '--o-focus-trait': `${String(TRAIT)}px`,\n  } as CSSProperties\n\n  return (\n    <Tag\n      {...rest}\n      ref={hote}\n      className={className}\n      style={styleRacine}\n      data-o-focus={pret ? 'pret' : ''}\n      onPointerLeave={() => {\n        setFige(false)\n      }}\n    >\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {mots.map((mot, position) => (\n          <span key={`${mot}-${String(position)}`}>\n            <span\n              data-o-focus-word=\"\"\n              data-o-focus-vise={position === index ? '' : undefined}\n              onPointerEnter={() => {\n                setIndex(position)\n                setFige(true)\n              }}\n            >\n              {mot}\n            </span>\n            {position < total - 1 ? ' ' : null}\n          </span>\n        ))}\n        <span data-o-focus-frame=\"\">\n          <span data-o-focus-corner=\"hg\" />\n          <span data-o-focus-corner=\"hd\" />\n          <span data-o-focus-corner=\"bg\" />\n          <span data-o-focus-corner=\"bd\" />\n        </span>\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

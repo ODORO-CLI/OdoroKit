@@ -1,0 +1,54 @@
+{
+  "name": "glitch-hover",
+  "category": "effect",
+  "title": "Glitch au survol",
+  "description": "Au survol ou au focus, le contenu part en tranches decalees avec une frange chromatique, le temps d une breve rafale.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GlitchHover.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-red-400",
+    "--o-palette-cyan-400"
+  ],
+  "props": [
+    {
+      "name": "intensity",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Amplitude du decalage des tranches.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "slices",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de tranches par copie.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux copies animees par Web Animations le temps d une rafale de quatre cents millisecondes ; rien au repos. Copies absentes et zone statique sous mouvement reduit."
+  },
+  "id": "effect/glitch-hover",
+  "sources": {
+    "component.tsx": "/**\n * Glitch au survol : le contenu part en tranches decalees, brievement.\n *\n * ## Deux copies, animees hors de l'etat React\n *\n * Le contenu est rendu trois fois : l'original, intact, et deux copies\n * superposees, invisibles au repos et muettes aux lecteurs d'ecran. La rafale\n * est une animation Web Animations sur chaque copie : une suite de tranches\n * `clip-path` decalees en translation, chaque etape en `step-end` — le glitch\n * est fait de sauts, pas de glissements. Rien ne passe par un rendu React :\n * la rafale part, se termine, et les copies redeviennent invisibles\n * d'elles-memes puisque l'animation ne remplit pas.\n *\n * ## L'aberration coloree\n *\n * Chaque copie porte une ombre portee teintee d'un cote — l'une chaude,\n * l'autre froide, lues dans la palette. C'est l'ecart entre les deux qui\n * fabrique la frange chromatique des ecrans mal calibres, sans dedoubler le\n * contenu une troisieme fois.\n *\n * Le tirage des tranches a lieu au declenchement, cote client : chaque rafale\n * est differente, et aucun hasard ne traverse le rendu initial.\n *\n * Sous mouvement reduit, les copies ne sont pas rendues et rien n'ecoute le\n * survol : la zone est statique.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface GlitchHoverOwnProps {\n  /** Contenu qui part en glitch. */\n  children: ReactNode\n  /** Amplitude du decalage des tranches, en pixels. @defaultValue 6 */\n  intensity?: number\n  /** Nombre de tranches par copie. @defaultValue 3 */\n  slices?: number\n}\n\n/** Toutes les proprietes. */\nexport type GlitchHoverProps = Customisable<GlitchHoverOwnProps>\n\n/** Duree d'une rafale : courte, c'est ce qui la rend credible. */\nconst BURST = 400\n\n/** Style commun aux deux copies : posees sur l'original, muettes, invisibles. */\nconst COPY_STYLE: CSSProperties = {\n  position: 'absolute',\n  inset: 0,\n  pointerEvents: 'none',\n  opacity: 0,\n}\n\n/**\n * Fabrique la suite de tranches d'une copie.\n *\n * @param direction Cote du decalage, +1 ou -1 : les deux copies partent en\n * sens opposes, c'est leur croisement qui se lit comme un glitch.\n */\nfunction makeBurst(direction: 1 | -1, intensity: number, slices: number): Keyframe[] {\n  const frames: Keyframe[] = [\n    { clipPath: 'inset(0 0 100% 0)', transform: 'translateX(0)', opacity: 0, easing: 'step-end' },\n  ]\n\n  const steps = Math.max(2, Math.round(slices)) * 2\n  for (let index = 0; index < steps; index += 1) {\n    const top = Math.random() * 82\n    const height = 5 + Math.random() * 14\n    const offset = direction * (0.4 + Math.random() * 0.6) * intensity\n    frames.push({\n      clipPath: `inset(${top.toFixed(1)}% 0 ${Math.max(0, 100 - top - height).toFixed(1)}% 0)`,\n      transform: `translateX(${offset.toFixed(1)}px)`,\n      opacity: 0.9,\n      easing: 'step-end',\n    })\n  }\n\n  frames.push({ clipPath: 'inset(0 0 100% 0)', transform: 'translateX(0)', opacity: 0 })\n  return frames\n}\n\n/**\n * Fait glitcher sa zone au survol et au focus.\n *\n * Poser les marges internes sur le contenu plutot que sur l'enveloppe : les\n * copies se calent sur la boite de l'enveloppe, et un padding sur celle-ci\n * les decalerait de l'original.\n *\n * @example\n * <GlitchHover className=\"o-inline-block\">\n *   <div className=\"o-rounded-xl o-border-w-1 o-p-6\">Vignette</div>\n * </GlitchHover>\n *\n * @example\n * // Une rafale plus violente, en six tranches.\n * <GlitchHover intensity={12} slices={6}>\n *   <img src={cover} alt=\"Pochette\" />\n * </GlitchHover>\n */\nexport function GlitchHover({\n  children,\n  intensity = 6,\n  slices = 3,\n  ...rest\n}: GlitchHoverProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const warm = useRef<HTMLDivElement | null>(null)\n  const cold = useRef<HTMLDivElement | null>(null)\n\n  useEffect(() => {\n    if (host === null || reduced) return\n\n    let running = 0\n\n    const trigger = (): void => {\n      // Une rafale a la fois : relancer pendant le vol hacherait la fin de\n      // la precedente sans rien ajouter.\n      if (running > 0) return\n\n      const copies: readonly [HTMLDivElement | null, 1 | -1][] = [\n        [warm.current, 1],\n        [cold.current, -1],\n      ]\n      for (const [copy, direction] of copies) {\n        if (copy === null) continue\n        running += 1\n        const animation = copy.animate(makeBurst(direction, intensity, slices), {\n          duration: BURST,\n          fill: 'none',\n        })\n        animation.onfinish = () => {\n          running -= 1\n        }\n        animation.oncancel = () => {\n          running -= 1\n        }\n      }\n    }\n\n    // `focusin` remonte depuis les enfants focusables : un bouton dans la\n    // zone declenche la rafale au clavier aussi.\n    host.addEventListener('pointerenter', trigger)\n    host.addEventListener('focusin', trigger)\n    return () => {\n      host.removeEventListener('pointerenter', trigger)\n      host.removeEventListener('focusin', trigger)\n    }\n  }, [host, reduced, intensity, slices])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div {...rest} ref={setHost} className={className} style={{ position: 'relative', ...style }}>\n      {children}\n      {/* Sous mouvement reduit, les copies n'existent pas : rien a animer,\n          rien a superposer. */}\n      {reduced ? null : (\n        <>\n          <div\n            aria-hidden\n            ref={warm}\n            style={{\n              ...COPY_STYLE,\n              filter: 'drop-shadow(1px 0 0 var(--o-palette-red-400, currentColor))',\n            }}\n          >\n            {children}\n          </div>\n          <div\n            aria-hidden\n            ref={cold}\n            style={{\n              ...COPY_STYLE,\n              filter: 'drop-shadow(-1px 0 0 var(--o-palette-cyan-400, currentColor))',\n            }}\n          >\n            {children}\n          </div>\n        </>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

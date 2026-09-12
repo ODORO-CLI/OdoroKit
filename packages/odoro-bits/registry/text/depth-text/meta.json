@@ -1,0 +1,86 @@
+{
+  "name": "depth-text",
+  "category": "text",
+  "title": "Titre extrude",
+  "description": "Le titre est double en couches reculees en profondeur, et le bloc tourne lentement pour en decouvrir la tranche.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/DepthText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de couches d extrusion.",
+      "min": 1,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Decalage d une couche a la suivante.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "couleur",
+      "type": "string",
+      "description": "Couleur de la tranche."
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "default": 16,
+      "unit": "deg",
+      "description": "Amplitude de la rotation.",
+      "min": 0,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 6000,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet.",
+      "min": 1500,
+      "max": 20000,
+      "step": 250
+    },
+    {
+      "name": "perspective",
+      "type": "number",
+      "default": 600,
+      "unit": "px",
+      "description": "Distance de fuite. Plus bas, plus marque.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule transformation animee, celle de la pile ; les couches la suivent dans son espace 3D. Aucun JavaScript apres le premier rendu."
+  }
+}

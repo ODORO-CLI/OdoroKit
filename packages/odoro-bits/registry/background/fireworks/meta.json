@@ -1,0 +1,79 @@
+{
+  "name": "fireworks",
+  "category": "background",
+  "title": "Feux d artifice",
+  "description": "Un bouquet d etincelles eclate a chaque clic et retombe sous la gravite, positions resolues analytiquement ; six bouquets vivent a la fois, et un bouquet automatique part a intervalle regle.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "fireworks.shader.ts",
+      "target": "background/fireworks.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Fireworks.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-amber-200"],
+  "props": [
+    {
+      "name": "sparks",
+      "type": "number",
+      "default": 32,
+      "description": "Etincelles par bouquet. Retrograde a 14 en qualite basse.",
+      "min": 8,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "gravity",
+      "type": "number",
+      "default": 0.25,
+      "description": "Force de la retombee.",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.05
+    },
+    {
+      "name": "decay",
+      "type": "number",
+      "default": 1.1,
+      "description": "Vitesse d extinction des etincelles.",
+      "min": 0.4,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "auto",
+      "type": "number",
+      "default": 2.6,
+      "unit": "s",
+      "description": "Periode des bouquets automatiques, en secondes. Zero les coupe.",
+      "min": 0,
+      "max": 8,
+      "step": 0.2
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-amber-200",
+      "description": "Tokens dont les couleurs sont lues : le ciel, les deux teintes d etincelles melangees par bouquet."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Jusqu a sept bouquets de quarante-huit etincelles par fragment, une exponentielle et un sinus par etincelle ; les bouquets eteints sortent avant la boucle. En qualite basse, quatorze etincelles par bouquet. Chaque clic date un bouquet dans un tampon circulaire mute en place, sans rendu React par image."
+  }
+}

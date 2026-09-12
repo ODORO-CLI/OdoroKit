@@ -1,0 +1,63 @@
+{
+  "name": "testimonials-columns",
+  "category": "section",
+  "title": "Mur de temoignages",
+  "description": "Des colonnes de temoignages qui defilent en sens contraires, et s arretent des qu on les lit.",
+  "engine": { "gsap": [], "gl": false },
+  "files": [{ "path": "component.tsx", "target": "section/TestimonialsColumns.tsx" }],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": ["--o-theme-surface", "--o-theme-line", "--o-theme-fg", "--o-theme-muted"],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly Testimonial[]",
+      "required": true,
+      "description": "Les temoignages, repartis en colonnes dans l ordre donne."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 3,
+      "description": "Colonnes au-dela du palier moyen.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 40000,
+      "unit": "ms",
+      "description": "Duree d un tour complet.",
+      "min": 8000,
+      "max": 90000,
+      "step": 2000
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 480,
+      "unit": "px",
+      "description": "Hauteur visible du mur.",
+      "min": 240,
+      "max": 900,
+      "step": 20
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "description": "Nom de la section, annonce aux technologies d assistance."
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "description": "Intitule affiche au-dessus du mur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS confiees au compositeur, lancees seulement quand la section entre dans le champ. Aucun JavaScript par image."
+  }
+}

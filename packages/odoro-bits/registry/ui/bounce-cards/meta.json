@@ -1,0 +1,62 @@
+{
+  "name": "bounce-cards",
+  "category": "ui",
+  "title": "Cartes rebondissantes",
+  "description": "Un eventail ouvert dont les cartes arrivent en rebondissant une a une, et s ecartent pour celle qu on survole.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/BounceCards.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Les cartes, de deux a six. La premiere donne sa taille a la rangee."
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 6,
+      "unit": "deg",
+      "description": "Angle entre deux cartes voisines.",
+      "min": 0,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Ecart horizontal entre deux cartes.",
+      "min": 16,
+      "max": 140,
+      "step": 4
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "description": "Decalage d arrivee entre deux cartes.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation par carte, six au plus, tenues par le compositeur ; l ecart des voisines est en CSS pur. Sous mouvement reduit l eventail est ouvert sans trajet."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "name": "shutter",
+  "category": "loader",
+  "title": "Obturateur",
+  "description": "Un rideau en lamelles verticales qui partent une sur deux vers le haut et vers le bas : la page entre par un peigne qui s ecarte.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Shutter.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Le fond des lamelles."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "description": "L encre du libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "blades",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de lamelles.",
+      "min": 2,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 32,
+      "unit": "ms",
+      "description": "Decalage entre deux lamelles.",
+      "min": 0,
+      "max": 150,
+      "step": 2
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps l obturateur reste ferme.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "default": 750,
+      "unit": "ms",
+      "description": "Duree du depart d une lamelle.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat controle : l obturateur couvre tant que c est vrai, et s ouvre au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "description": "Appele au debut de la sortie, pour que le contenu entre par le peigne."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lamelle par element, une translation chacune, decalee par un delai CSS. Aucun JavaScript par image."
+  }
+}

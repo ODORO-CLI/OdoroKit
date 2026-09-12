@@ -1,0 +1,75 @@
+{
+  "name": "wake",
+  "category": "background",
+  "title": "Sillage",
+  "description": "Le curseur laisse une trainee de halos dates qui s eteignent avec l age ; seize depots vivent a la fois.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "wake.shader.ts",
+      "target": "background/wake.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Wake.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-teal-400",
+    "--o-palette-emerald-200"
+  ],
+  "props": [
+    {
+      "name": "life",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "description": "Duree de vie d un depot, en secondes.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 0.08,
+      "description": "Rayon des halos de la trainee.",
+      "min": 0.02,
+      "max": 0.25,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-teal-400, --o-palette-emerald-200",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "notes": "Seize halos gaussiens par fragment ; la trainee echantillonne le pointeur dans la boucle du moteur, un depot toutes les 40 ms quand il bouge, sans rendu React par image.",
+    "fallback": "gradient"
+  },
+  "id": "background/wake",
+  "sources": {
+    "wake.shader.ts": "/**\n * Shader du sillage.\n *\n * ## L'idee mathematique\n *\n * Le curseur laisse une trainee : seize positions echantillonnees dans la\n * boucle du moteur, chacune un halo gaussien — exponentielle du carre de la\n * distance — dont l'intensite decroit en exponentielle de l'age. Les halos se\n * somment, et la somme sert deux fois : une premiere pour la teinte, une\n * seconde, plus exigeante, pour le coeur lumineux du trace le plus frais.\n *\n * Un depot a -1000 donne un age enorme, donc une intensite nulle : les\n * emplacements vides du tampon sont inertes d'office.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la trainee.\n * - `uColorC` — le coeur frais de la trainee.\n * - `uTrail` — seize depots (x, y, temps de depot), tampon circulaire.\n * - `uLife` — duree de vie d'un depot, en secondes.\n * - `uSize` — rayon des halos.\n */\nexport const WAKE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform vec3 uTrail[16];\nuniform float uLife;\nuniform float uSize;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vUv * vec2(aspect, 1.0);\n\n  float size = max(uSize, 0.005);\n  float glow = 0.0;\n\n  // Bornes constantes : la specification du langage l'exige, et seize depots\n  // suffisent a dessiner une trainee continue au rythme d'un depot par 40 ms.\n  for (int i = 0; i < 16; i += 1) {\n    vec3 depot = uTrail[i];\n    vec2 centre = depot.xy * vec2(aspect, 1.0);\n    float age = uTime - depot.z;\n\n    vec2 ecart = p - centre;\n    float fade = exp(-max(age, 0.0) / max(uLife, 0.05));\n\n    glow += exp(-dot(ecart, ecart) / (size * size)) * fade;\n  }\n\n  vec3 colour = mix(uColorA, uColorB, clamp(glow * 0.6, 0.0, 1.0));\n\n  // Le coeur frais : seule une somme dense de halos jeunes atteint ce seuil,\n  // donc l'eclat vit pres du curseur et s'eteint le long de la trainee.\n  colour = mix(colour, uColorC, smoothstep(0.9, 1.8, glow) * 0.8);\n\n  // Vignette discrete, pour que le noir ne soit pas un aplat.\n  float ecartCadre = length((vUv - 0.5) * vec2(aspect, 1.0));\n  colour *= 1.0 - smoothstep(0.55, 1.1, ecartCadre) * 0.3;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Sillage : le curseur laisse une trainee lumineuse qui s'eteint.\n *\n * ## A quoi ce fond reagit\n *\n * Au deplacement du pointeur : la boucle du moteur echantillonne sa position\n * — une toutes les 40 ms environ, et seulement s'il a bouge d'un seuil — dans\n * un tampon circulaire de seize depots dates. Chaque depot est un halo qui\n * s'eteint avec l'age : la trainee suit le geste et s'efface derriere lui.\n *\n * L'amortissement du pointeur est volontairement sec (vitesse 9) : trop\n * amorti, le sillage tracerait la version lissee du geste, pas le geste.\n *\n * ## Le pont pointeur → shader\n *\n * Aucun rendu React par image : le tampon est un tableau stable de quarante-\n * huit flottants (seize fois x, y, temps de depot), mute en place dans la\n * souscription d'horloge. La surface relit ses uniforms a chaque image — la\n * mutation suffit. Les depots sont dates avec le temps de l'horloge du moteur,\n * le meme que `uTime` du shader.\n *\n * ## Sous mouvement reduit\n *\n * La surface est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\nimport { WAKE_FRAGMENT } from './wake.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface WakeControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface WakeOwnProps {\n  /** Duree de vie d'un depot, en secondes. @defaultValue 1.2 */\n  life?: number\n  /** Rayon des halos de la trainee. @defaultValue 0.08 */\n  size?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<WakeControls>\n}\n\n/** Toutes les proprietes. */\nexport type WakeProps = Customisable<WakeOwnProps>\n\n/** Tokens employes par defaut : le fond, la trainee, son coeur frais. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-teal-400',\n  '--o-palette-emerald-200',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-950'\n\n/** Nombre de depots vivants a la fois. */\nconst SLOTS = 16\n\n/** Intervalle minimal entre deux depots, en secondes. */\nconst DEPOSIT_EVERY = 0.04\n\n/** Deplacement minimal entre deux depots, en coordonnees de texture. */\nconst DEPOSIT_THRESHOLD = 0.012\n\n/**\n * Sillage.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Wake className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Wake({\n  life = 1.2,\n  size = 0.08,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: WakeProps): ReactElement {\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  // Tampon stable, mute en place : seize fois (x, y, temps de depot). Un\n  // depot a -1000 donne un age enorme, donc un halo inerte d'office.\n  const uTrail = useRef<number[]>(Array.from({ length: SLOTS * 3 }, () => -1000)).current\n\n  // Vitesse 9 : presque le pointeur brut. Un amortissement lent tracerait la\n  // version lissee du geste, et le sillage ne suivrait pas vraiment.\n  const pointer = usePointerDamped({ host, speed: 9, name: 'wake : pointeur' })\n\n  useEffect(() => {\n    let lastDeposit = -1000\n    let lastX = 0.5\n    let lastY = 0.5\n\n    const subscription = clock.subscribe(\n      ({ time }) => {\n        const x = (pointer.current.x + 1) / 2\n        const y = 1 - (pointer.current.y + 1) / 2\n\n        // Un depot par intervalle, et seulement si le pointeur a bouge : au\n        // repos, la trainee s'eteint au lieu de s'entasser sur place.\n        if (time - lastDeposit < DEPOSIT_EVERY) return\n        const moved = Math.hypot(x - lastX, y - lastY)\n        if (moved < DEPOSIT_THRESHOLD) return\n\n        for (let i = SLOTS - 1; i > 0; i -= 1) {\n          uTrail[i * 3] = uTrail[(i - 1) * 3] ?? -1000\n          uTrail[i * 3 + 1] = uTrail[(i - 1) * 3 + 1] ?? -1000\n          uTrail[i * 3 + 2] = uTrail[(i - 1) * 3 + 2] ?? -1000\n        }\n        uTrail[0] = x\n        uTrail[1] = y\n        uTrail[2] = time\n\n        lastDeposit = time\n        lastX = x\n        lastY = y\n      },\n      { priority: CLOCK_PRIORITY.input, name: 'wake : depots' },\n    )\n    return () => subscription.unsubscribe()\n  }, [pointer, uTrail])\n\n  const { ref, setHost: setShaderHost, ready, refused, colours } =\n    useTokenShader<HTMLDivElement>({\n      fragment: WAKE_FRAGMENT,\n      colors,\n      uniforms: { uTrail, uLife: life, uSize: size },\n      name: 'wake',\n    })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        setShaderHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

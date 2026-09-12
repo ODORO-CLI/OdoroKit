@@ -1,0 +1,57 @@
+{
+  "name": "cube-fold",
+  "category": "loader",
+  "title": "Carre qui se plie",
+  "description": "Un patron en croix dont les quatre volets se relevent un a un pour fermer une boite, puis se rabattent, en CSS 3D.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/CubeFold.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 20,
+      "unit": "px",
+      "description": "Cote d une face. Le patron deplie en occupe trois.",
+      "min": 8,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Duree d un cycle : pliage, tenue, depliage.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des faces ; les volets en sont une nuance. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq faces plates, quatre animations de rotation 3D tenues par le compositeur, aucun JavaScript apres le premier rendu. Boite fermee et immobile sous mouvement reduit."
+  }
+}

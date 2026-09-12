@@ -1,0 +1,97 @@
+{
+  "name": "percent-ring",
+  "category": "loader",
+  "title": "Anneau de progression",
+  "description": "Un anneau complet qui se remplit depuis le sommet, le pourcentage au centre ; ou un arc qui tourne quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PercentRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "required": false,
+      "default": 42,
+      "unit": "%",
+      "description": "Progression, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Arc tournant sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 80,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 32,
+      "max": 240,
+      "step": 8
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "unit": "px",
+      "description": "Epaisseur de l anneau.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour de l arc indetermine.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du remplissage. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition sur le decalage du tirete en mode determine, une rotation CSS en mode indetermine ; rien ne recalcule la mise en page. Valeur sautee sans transition, arc immobile au sommet, sous mouvement reduit."
+  },
+  "id": "loader/percent-ring",
+  "sources": {
+    "component.tsx": "/**\n * Anneau de progression : un anneau complet qui se remplit depuis le sommet,\n * le pourcentage au centre.\n *\n * ## Le remplissage est un decalage\n *\n * La piste et le remplissage sont le meme cercle. Le tirete du second a la\n * longueur de la circonference, et son decalage retient la part qui n'est\n * pas encore atteinte : passer de 40 a 60 ne change qu'un nombre, que le\n * navigateur fait glisser sans recalculer la mise en page. Le cercle part\n * de trois heures ; un quart de tour en arriere le fait partir du sommet,\n * la ou l'on attend le zero d'une horloge.\n *\n * ## Deux modes, deux honnetetes\n *\n * Le mode determine recoit `value` et le montre tel quel : l'anneau est un\n * `role=\"progressbar\"` complet, valeur comprise, et le chiffre au centre est\n * du texte reel. Le mode `indeterminate` ne pretend rien mesurer : un arc\n * d'un quart de tour tourne sans fin, le centre reste vide, et le\n * `progressbar` est declare **sans** valeur — c'est ainsi que la\n * specification decrit une progression inconnue. Afficher un pourcentage\n * invente serait le mensonge classique des chargeurs.\n *\n * Sous mouvement reduit, la valeur saute sans transition, et l'arc\n * indetermine reste au sommet : la figure se lit encore, seul le mouvement\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-percent-ring'\n\n/** Pose l'anneau, sa transition et sa rotation, une fois par document. */\nfunction ensurePercentRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-percent-ring]{position:relative;display:inline-block;line-height:0}',\n    '[data-o-percent-ring] svg{display:block}',\n    // Le cercle part du sommet : la rotation est posee en CSS pour que la\n    // version animee puisse la remplacer sans se battre avec un attribut.\n    '[data-o-pct-fill]{',\n    'transform-box:view-box;transform-origin:50% 50%;transform:rotate(-90deg);',\n    'transition:stroke-dashoffset var(--o-duration-base) var(--o-ease-standard);',\n    '}',\n    '[data-o-pct-indeterminate] [data-o-pct-fill]{',\n    'transition:none;',\n    'animation:o-percent-ring-spin var(--o-pct-speed) linear infinite;',\n    '}',\n    '@keyframes o-percent-ring-spin{from{transform:rotate(-90deg)}to{transform:rotate(270deg)}}',\n    '[data-o-pct-value]{',\n    'position:absolute;inset:0;',\n    'display:flex;align-items:center;justify-content:center;',\n    'line-height:1;font-weight:600;font-variant-numeric:tabular-nums;',\n    'font-size:var(--o-pct-font);',\n    '}',\n    '[data-o-pct-unit]{font-size:0.55em;font-weight:500;opacity:0.6;margin-left:0.1em}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-pct-fill]{transition:none}',\n    '[data-o-pct-indeterminate] [data-o-pct-fill]{animation:none;transform:rotate(-90deg)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface PercentRingOwnProps {\n  /** Progression, de 0 a 100. Ignoree en mode indetermine. @defaultValue 42 */\n  value?: number\n  /** Arc tournant sans valeur, quand rien n'est mesurable. @defaultValue false */\n  indeterminate?: boolean\n  /** Diametre de l'anneau, en pixels. @defaultValue 80 */\n  size?: number\n  /** Epaisseur de l'anneau, en pixels. @defaultValue 5 */\n  thickness?: number\n  /** Duree d'un tour de l'arc indetermine, en millisecondes. @defaultValue 1000 */\n  speed?: number\n  /** Couleur du remplissage. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type PercentRingProps = Customisable<PercentRingOwnProps, 'span'>\n\n/**\n * Anneau de progression, determine ou tournant.\n *\n * @example\n * // Progression reelle.\n * <PercentRing value={sent / total * 100} />\n *\n * @example\n * // Attente sans mesure, dans la teinte de marque.\n * <PercentRing indeterminate color=\"var(--o-palette-brand-500)\" />\n */\nexport function PercentRing({\n  value = 42,\n  indeterminate = false,\n  size = 80,\n  thickness = 5,\n  speed = 1000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: PercentRingProps): ReactElement {\n  ensurePercentRule()\n\n  const clamped = Math.min(100, Math.max(0, value))\n\n  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en\n  // pixels est convertie pour que le trait garde sa mesure a toute taille.\n  const stroke = Math.min((thickness / size) * 100, 25)\n  const radius = 50 - stroke / 2\n  const circumference = 2 * Math.PI * radius\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-pct-speed': `${String(speed)}ms`,\n    '--o-pct-font': `${String(Math.round(size * 0.26))}px`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-percent-ring=\"\"\n      data-o-pct-indeterminate={indeterminate ? '' : undefined}\n      role=\"progressbar\"\n      aria-label={label}\n      // Un progressbar sans aria-valuenow est indetermine : c'est la maniere\n      // normative de dire « j'avance, mais je ne sais pas de combien ».\n      aria-valuemin={indeterminate ? undefined : 0}\n      aria-valuemax={indeterminate ? undefined : 100}\n      aria-valuenow={indeterminate ? undefined : Math.round(clamped)}\n    >\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <circle\n          cx=\"50\"\n          cy=\"50\"\n          r={radius}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          opacity={0.15}\n        />\n        <circle\n          data-o-pct-fill=\"\"\n          cx=\"50\"\n          cy=\"50\"\n          r={radius}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          // A zero, un bout rond dessinerait encore un point.\n          strokeLinecap={indeterminate || clamped > 0 ? 'round' : 'butt'}\n          strokeDasharray={\n            indeterminate\n              ? `${String(circumference * 0.25)} ${String(circumference)}`\n              : `${String(circumference)} ${String(circumference)}`\n          }\n          strokeDashoffset={indeterminate ? undefined : circumference * (1 - clamped / 100)}\n        />\n      </svg>\n      {indeterminate ? null : (\n        <span aria-hidden data-o-pct-value=\"\">\n          {Math.round(clamped)}\n          <span data-o-pct-unit=\"\">%</span>\n        </span>\n      )}\n    </span>\n  )\n}\n"
+  }
+}

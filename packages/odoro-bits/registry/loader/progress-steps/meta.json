@@ -1,0 +1,86 @@
+{
+  "name": "progress-steps",
+  "category": "loader",
+  "title": "Etapes de progression",
+  "description": "Des etapes numerotees reliees par une barre : la progression remplit la barre et coche les etapes franchies, ou un reflet parcourt la barre quand rien n est mesurable.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ProgressSteps.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": 40,
+      "unit": "%",
+      "description": "Progression, de 0 a 100. Ignoree en mode indetermine.",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Reflet qui parcourt la barre sans valeur, quand rien n est mesurable."
+    },
+    {
+      "name": "steps",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre d etapes, reparties a egale distance sur la barre.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 28,
+      "unit": "px",
+      "description": "Diametre d une etape. La taille du numero en depend.",
+      "min": 16,
+      "max": 56,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Periode de la pulsation de l etape en cours et du reflet indetermine.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des etapes franchies et de la barre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une echelle de transformation et des transitions de couleur en mode determine, une animation CSS en mode indetermine : rien ne recalcule la mise en page. Valeur sautee sans transition, etape en cours sans pulsation, barre pleine et attenuee, sous mouvement reduit."
+  }
+}

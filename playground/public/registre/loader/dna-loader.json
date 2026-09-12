@@ -1,0 +1,75 @@
+{
+  "name": "dna-loader",
+  "category": "loader",
+  "title": "Helice d ADN",
+  "description": "Deux brins de points tournent l un autour de l autre, grands devant et pales derriere, relies par des barreaux, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DnaLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point. L amplitude de l helice en depend.",
+      "min": 3,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "pairs",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Nombre de paires de points. Un tour d helice les traverse tous.",
+      "min": 4,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un tour complet de l helice.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points et des barreaux. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS par paire, tenues par le compositeur ; les poses au repos sont calculees une fois au rendu. Helice figee dans sa forme sous mouvement reduit."
+  },
+  "id": "loader/dna-loader",
+  "sources": {
+    "component.tsx": "/**\n * Helice d'ADN : deux brins de points tournent l'un autour de l'autre,\n * relies par des barreaux qui s'allongent et se resserrent.\n *\n * ## Une helice vue de cote est un sinus, et une profondeur\n *\n * Chaque point tourne sur un cercle vu par la tranche : sa hauteur est un\n * sinus du temps, et sa distance a l'oeil un cosinus. Le second n'est pas\n * un detail : c'est lui qui fait lire une helice plutot que deux vagues\n * qui se croisent. Un point qui passe devant est grand et plein, un point\n * qui passe derriere est petit et pale, et l'ordre de superposition change\n * au passage — sans quoi le point de derriere viendrait couvrir celui de\n * devant a chaque croisement.\n *\n * Une seule animation, echantillonnee tous les trente degres, en lineaire :\n * une courbe d'acceleration ne peut pas servir a la fois le sinus de la\n * hauteur et le cosinus de la profondeur, alors le sinus est trace par\n * points, assez serres pour que l'oeil ne voie pas les segments. Chaque\n * colonne joue la meme animation avec un decalage de phase ; le second brin\n * a un demi-tour de retard sur le premier ; le barreau entre les deux est\n * aussi long que leur ecart, c'est-a-dire la valeur absolue du meme sinus.\n *\n * Les phases sont posees en negatif : l'helice est complete des la premiere\n * image, et sa forme au repos — calculee ici, colonne par colonne — est\n * exactement une image de son mouvement.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Les brins sont retires\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, l'helice reste figee dans sa forme : chaque point\n * garde la hauteur et la profondeur de sa phase, et la figure se lit encore\n * comme une helice.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-dna-loader'\n\n/** Amplitude de la hauteur, en diametres de point. */\nconst AMPLITUDE = 1.6\n\n/** Echantillons par tour : un tous les trente degres. */\nconst STEPS = 12\n\n/** Ce qu'un point montre a une phase donnee. */\ninterface Pose {\n  /** Hauteur, en part de l'amplitude. */\n  readonly y: number\n  /** Echelle : pleine devant, reduite derriere. */\n  readonly scale: number\n  /** Opacite : pleine devant, palie derriere. */\n  readonly opacity: number\n  /** Ordre de superposition : devant ou derriere le barreau. */\n  readonly layer: number\n}\n\n/** Position d'un point a une phase, en radians. */\nfunction poseAt(phase: number): Pose {\n  const depth = Math.cos(phase)\n  // Le point est devant sur la moitie du tour centree sur la phase zero ;\n  // la bascule tombe entre deux echantillons, pas dessus.\n  const degrees = (((phase * 180) / Math.PI) % 360 + 360) % 360\n  return {\n    y: Math.sin(phase),\n    scale: 0.75 + 0.25 * depth,\n    opacity: 0.7 + 0.3 * depth,\n    layer: degrees < 105 || degrees >= 285 ? 2 : 1,\n  }\n}\n\n/** Pose les brins, les barreaux et leur rotation, une fois par document. */\nfunction ensureDnaRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const turn = Array.from({ length: STEPS + 1 }, (_, step) => {\n    const pose = poseAt((2 * Math.PI * step) / STEPS)\n    return `${((step * 100) / STEPS).toFixed(3)}%{transform:translateY(calc(var(--o-dna-amp) * ${pose.y.toFixed(3)})) scale(${pose.scale.toFixed(3)});opacity:${pose.opacity.toFixed(3)};z-index:${String(pose.layer)}}`\n  })\n  const rung = Array.from({ length: STEPS + 1 }, (_, step) => {\n    const length = Math.abs(Math.sin((2 * Math.PI * step) / STEPS))\n    return `${((step * 100) / STEPS).toFixed(3)}%{transform:scaleY(${length.toFixed(3)})}`\n  })\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-dna-loader]{',\n    'display:inline-flex;align-items:center;',\n    'gap:calc(var(--o-dna-size) * 0.7);',\n    `height:calc(var(--o-dna-size) * ${String(2 * AMPLITUDE + 1)});`,\n    '}',\n    '[data-o-dna-pair]{',\n    'position:relative;width:var(--o-dna-size);height:100%;',\n    '}',\n    // Le barreau est centre et s'etire depuis son milieu : ses deux bouts\n    // suivent les deux points.\n    '[data-o-dna-rung]{',\n    'position:absolute;left:50%;top:50%;',\n    'width:calc(var(--o-dna-size) * 0.18);',\n    `height:calc(var(--o-dna-size) * ${String(2 * AMPLITUDE)});`,\n    'margin-left:calc(var(--o-dna-size) * -0.09);',\n    `margin-top:calc(var(--o-dna-size) * ${String(-AMPLITUDE)});`,\n    'background:var(--o-dna-color);opacity:0.35;',\n    'transform:scaleY(var(--o-dna-rung));',\n    'animation:o-dna-loader-rung var(--o-dna-speed) linear infinite;',\n    'animation-delay:var(--o-dna-delay);',\n    '}',\n    // Au repos, chaque point tient sa pose de phase ; en mouvement,\n    // l'animation la remplace image par image.\n    '[data-o-dna-dot]{',\n    'position:absolute;left:0;top:50%;',\n    'width:var(--o-dna-size);height:var(--o-dna-size);',\n    'margin-top:calc(var(--o-dna-size) * -0.5);',\n    'border-radius:50%;background:var(--o-dna-color);',\n    'transform:translateY(calc(var(--o-dna-amp) * var(--o-dna-y))) scale(var(--o-dna-s));',\n    'opacity:var(--o-dna-o);z-index:var(--o-dna-z);',\n    'animation:o-dna-loader-turn var(--o-dna-speed) linear infinite;',\n    'animation-delay:var(--o-dna-delay);',\n    '}',\n    `@keyframes o-dna-loader-turn{${turn.join('')}}`,\n    `@keyframes o-dna-loader-rung{${rung.join('')}}`,\n    // L'helice figee dans sa forme : chaque point garde sa pose.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-dna-dot],[data-o-dna-rung]{animation:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface DnaLoaderOwnProps {\n  /** Diametre d'un point, en pixels. @defaultValue 6 */\n  size?: number\n  /** Nombre de paires de points, soit de barreaux. Un tour d'helice les traverse tous. @defaultValue 8 */\n  pairs?: number\n  /** Duree d'un tour complet, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Couleur des points et des barreaux. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type DnaLoaderProps = Customisable<DnaLoaderOwnProps, 'span'>\n\n/** Variables de pose d'un point, pour son etat au repos. */\nfunction poseVars(phase: number): CSSProperties {\n  const pose = poseAt(phase)\n  return {\n    '--o-dna-y': pose.y.toFixed(3),\n    '--o-dna-s': pose.scale.toFixed(3),\n    '--o-dna-o': pose.opacity.toFixed(3),\n    '--o-dna-z': String(pose.layer),\n  } as CSSProperties\n}\n\n/**\n * Signale une attente par une helice d'ADN qui tourne.\n *\n * @example\n * <DnaLoader />\n *\n * @example\n * // Plus de paires, plus lent, dans la teinte de marque.\n * <DnaLoader pairs={12} speed={2400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function DnaLoader({\n  size = 6,\n  pairs = 8,\n  speed = 1600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: DnaLoaderProps): ReactElement {\n  ensureDnaRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const count = Math.max(2, Math.round(pairs))\n\n  const loaderStyle = {\n    ...style,\n    '--o-dna-size': `${String(size)}px`,\n    '--o-dna-amp': `${String(size * AMPLITUDE)}px`,\n    '--o-dna-speed': `${String(speed)}ms`,\n    '--o-dna-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-dna-loader=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: count }, (_, pair) => {\n        // Une part de tour par colonne, en negatif : l'helice est la des la\n        // premiere image, et sa pose au repos coincide avec sa phase.\n        const phase = (2 * Math.PI * pair) / count\n        const delay = Math.round((-speed * pair) / count)\n        return (\n          <span key={pair} aria-hidden data-o-dna-pair=\"\">\n            <span\n              data-o-dna-rung=\"\"\n              style={\n                {\n                  '--o-dna-delay': `${String(delay)}ms`,\n                  '--o-dna-rung': Math.abs(Math.sin(phase)).toFixed(3),\n                } as CSSProperties\n              }\n            />\n            <span\n              data-o-dna-dot=\"\"\n              style={{ ...poseVars(phase), '--o-dna-delay': `${String(delay)}ms` } as CSSProperties}\n            />\n            <span\n              data-o-dna-dot=\"\"\n              style={\n                {\n                  ...poseVars(phase + Math.PI),\n                  '--o-dna-delay': `${String(delay - Math.round(speed / 2))}ms`,\n                } as CSSProperties\n              }\n            />\n          </span>\n        )\n      })}\n    </span>\n  )\n}\n"
+  }
+}

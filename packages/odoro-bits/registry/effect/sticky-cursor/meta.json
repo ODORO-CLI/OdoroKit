@@ -1,0 +1,88 @@
+{
+  "name": "sticky-cursor",
+  "category": "effect",
+  "title": "Curseur collant",
+  "description": "Une pastille suit le pointeur, s etire en vol, puis prend exactement la taille et l arrondi du bouton qu elle survole.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/StickyCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 20,
+      "unit": "px",
+      "description": "Diametre de la pastille au repos.",
+      "min": 8,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "stick",
+      "type": "number",
+      "default": 0.3,
+      "description": "De combien la pastille suit encore le pointeur une fois accrochee.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "padding",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Marge ajoutee autour de la cible.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 16,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "default": 0.45,
+      "description": "Etirement en vol.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "targets",
+      "type": "string",
+      "description": "Le selecteur de ce a quoi la pastille colle."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la pastille. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone ou la pastille vit. Absente, elle prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element mu par image, dans une couche qui porte contain ; l arrondi de la cible n est lu qu au moment de l accroche. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

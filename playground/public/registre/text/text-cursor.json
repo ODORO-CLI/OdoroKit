@@ -1,0 +1,81 @@
+{
+  "name": "text-cursor",
+  "category": "text",
+  "title": "Texte qui suit",
+  "description": "Les lettres courent apres le pointeur en chaine : chacune ne vise que sa voisine, et le mot se courbe en fouet avant de se remettre en ligne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/TextCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-pointer-damped"
+  ],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 26,
+      "unit": "px",
+      "description": "Course maximale d une lettre.",
+      "min": 0,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "raideur",
+      "type": "number",
+      "required": false,
+      "default": 9,
+      "description": "Raideur de la chaine. Plus haut, plus le mot reste groupe.",
+      "min": 1,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "inclinaison",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "unit": "deg/px",
+      "description": "Inclinaison prise dans les virages.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Vitesse de rattrapage du pointeur. Plus haut, plus sec.",
+      "min": 1,
+      "max": 12,
+      "step": 0.5
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation ecrite par lettre et par image, et rien du tout quand le mot est au repos. A reserver aux titres."
+  },
+  "id": "text/text-cursor",
+  "sources": {
+    "component.tsx": "/**\n * Texte qui suit : les lettres courent apres le pointeur, en chaine.\n *\n * ## Une chaine, pas un bloc qui se deplace\n *\n * `echo-text` fabrique des copies du texte et les fait trainer derriere le\n * pointeur ; l'original, lui, ne bouge pas. Ici il n'y a pas de copie : c'est\n * le texte lui-meme qui part. La premiere lettre vise le pointeur, la\n * deuxieme vise la premiere, la troisieme la deuxieme — chaque lettre ne\n * connait que celle qui la precede.\n *\n * De cette regle tres simple sort un comportement que personne n'a ecrit : le\n * mot se courbe en fouet dans les virages, s'etire quand le pointeur file, et\n * se remet en ligne tout seul des qu'il s'arrete. Aucune trajectoire n'est\n * calculee, aucune courbe n'est posee.\n *\n * ## La chaine se remonte par la queue\n *\n * Les lettres sont parcourues de la derniere a la premiere. Chacune lit donc\n * la position que sa voisine avait a l'image d'avant, et non celle qu'elle\n * vient de prendre : c'est ce retard d'une image par maillon qui fait la\n * traine. Dans l'autre sens, l'information remonterait la chaine entiere dans\n * la meme image et le mot se deplacerait d'un bloc.\n *\n * ## Rien n'est ecrit quand rien ne bouge\n *\n * Tant que le deplacement total d'une image reste sous un seuil, la boucle ne\n * touche a aucun style. Un titre laisse tranquille ne coute donc que la\n * comparaison, pas les ecritures.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les lettres sont\n * retirees de l'arbre d'accessibilite.\n *\n * ## Mouvement reduit\n *\n * Le suivi du pointeur est un agrement, pas un contenu : le texte est rendu\n * tel quel, en ligne, sans decoupage.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport { useRef, useEffect, type ElementType, type ReactElement } from 'react'\n\nimport { usePointerDamped } from '@registre/hooks/usePointerDamped'\n\n/** Proprietes propres au composant. */\nexport interface TextCursorOwnProps {\n  /** Texte a faire suivre. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Course maximale d'une lettre, en pixels. @defaultValue 26 */\n  amplitude?: number\n  /** Raideur de la chaine. Plus haut, plus le mot reste groupe. @defaultValue 9 */\n  raideur?: number\n  /** Inclinaison prise dans les virages, en degres par pixel d'ecart. @defaultValue 0.4 */\n  inclinaison?: number\n  /** Vitesse de rattrapage du pointeur. Plus haut, plus sec. @defaultValue 4 */\n  speed?: number\n}\n\n/** Toutes les proprietes. */\nexport type TextCursorProps = Customisable<TextCursorOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = ' '\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-text-cursor'\n\n/**\n * Deplacement total d'une image en deca duquel plus rien n'est ecrit.\n *\n * Un dixieme de pixel cumule sur le mot entier ne se voit pas ; le mesurer\n * coute une soustraction, l'ecrire coute une chaine de caracteres et une\n * invalidation par lettre.\n */\nconst SEUIL = 0.1\n\n/** Une position dans le plan. */\ninterface Point {\n  x: number\n  y: number\n}\n\n/** Pose les regles de la chaine, une fois par document. */\nfunction ensureCursorRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-text-cursor]{display:inline-block}',\n    '[data-o-text-cursor-letter]{display:inline-block;will-change:transform}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait courir les lettres d'un texte derriere le pointeur.\n *\n * @example\n * <TextCursor as=\"h1\" className=\"o-text-5xl o-font-bold\">\n *   Attrape-moi\n * </TextCursor>\n *\n * @example\n * // Chaine molle et longue traine, sans inclinaison.\n * <TextCursor amplitude={48} raideur={3} inclinaison={0}>Elastique</TextCursor>\n */\nexport function TextCursor({\n  children,\n  as: Tag = 'span',\n  amplitude = 26,\n  raideur = 9,\n  inclinaison = 0.4,\n  speed = 4,\n  ...rest\n}: TextCursorProps): ReactElement {\n  const { reduced } = useMotionState()\n  const hote = useRef<HTMLElement | null>(null)\n\n  // La fenetre entiere, pas le titre : un mot qui ne repondrait qu'au-dessus\n  // de lui-meme ne serait jamais vu bouger.\n  const pointeur = usePointerDamped({ speed, name: 'texte qui suit' })\n\n  ensureCursorRule()\n\n  useEffect(() => {\n    const element = hote.current\n    if (element === null || reduced) return\n\n    const lettres = [\n      ...element.querySelectorAll<HTMLElement>('[data-o-text-cursor-letter]'),\n    ]\n    if (lettres.length === 0) return\n\n    // Les positions vivent ici, jamais dans un etat React : elles changent a\n    // chaque image et React ne dessine rien de tout cela.\n    const places: Point[] = lettres.map(() => ({ x: 0, y: 0 }))\n\n    const abonnement = clock.subscribe(\n      ({ delta }) => {\n        const cibleX = pointeur.current.x * amplitude\n        const cibleY = pointeur.current.y * amplitude\n\n        // Amortissement independant de la cadence : voir usePointerDamped.\n        const facteur = 1 - Math.exp(-raideur * delta)\n        let course = 0\n\n        // De la queue vers la tete : chaque maillon lit la position que son\n        // voisin avait a l'image d'avant. Voir l'en-tete du module.\n        for (let index = places.length - 1; index >= 0; index -= 1) {\n          const place = places[index]\n          const devant = index === 0 ? null : (places[index - 1] ?? null)\n          if (place === undefined) continue\n\n          const viseX = devant === null ? cibleX : devant.x\n          const viseY = devant === null ? cibleY : devant.y\n\n          const pasX = (viseX - place.x) * facteur\n          const pasY = (viseY - place.y) * facteur\n          place.x += pasX\n          place.y += pasY\n          course += Math.abs(pasX) + Math.abs(pasY)\n        }\n\n        if (course < SEUIL) return\n\n        for (let index = 0; index < places.length; index += 1) {\n          const place = places[index]\n          const lettre = lettres[index]\n          if (place === undefined || lettre === undefined) continue\n\n          const devant = index === 0 ? null : (places[index - 1] ?? null)\n          // L'ecart avec le maillon de devant dit dans quel sens la chaine\n          // tire : la lettre se couche dans le virage.\n          const ecart = (devant === null ? cibleX : devant.x) - place.x\n\n          lettre.style.transform = `translate(${place.x.toFixed(2)}px, ${place.y.toFixed(2)}px) rotate(${(ecart * inclinaison).toFixed(2)}deg)`\n        }\n      },\n      { name: 'texte qui suit', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      abonnement.unsubscribe()\n      for (const lettre of lettres) lettre.style.removeProperty('transform')\n    }\n  }, [reduced, pointeur, children, amplitude, raideur, inclinaison])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, en ligne, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const lettres = [...children]\n\n  return (\n    <Tag {...rest} ref={hote} className={className} style={style} data-o-text-cursor=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) => (\n          <span key={`${lettre}-${String(index)}`} data-o-text-cursor-letter=\"\">\n            {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                l'insecable garde sa largeur. */}\n            {lettre === ' ' ? NBSP : lettre}\n          </span>\n        ))}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

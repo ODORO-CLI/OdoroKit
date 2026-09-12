@@ -1,0 +1,60 @@
+{
+  "name": "scroll-reveal",
+  "category": "text",
+  "title": "Revelation au defilement",
+  "description": "Une tete de lecture liee au defilement allume les mots un a un, et les eteint si l on remonte.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/ScrollReveal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "dim",
+      "type": "number",
+      "default": 0.18,
+      "description": "Opacite d un mot pas encore atteint, de 0 a 1.",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.02
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Flou d un mot pas encore atteint.",
+      "min": 0,
+      "max": 16,
+      "step": 0.5
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "default": 0.7,
+      "description": "Course du reglage, en hauteurs de fenetre.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule variable ecrite par image : deux cents mots coutent autant que cinq. Le flou est un filtre par mot, a garder modeste sur un long texte."
+  }
+}

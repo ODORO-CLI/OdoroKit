@@ -1,0 +1,93 @@
+{
+  "name": "light-pillar",
+  "category": "background",
+  "title": "Colonne de lumiere",
+  "description": "Une colonne verticale qui respire : un coeur gaussien net, un halo exponentiel sans fin, des stries qui montent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "light-pillar.shader.ts",
+      "target": "background/light-pillar.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/LightPillar.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-sky-400",
+    "--o-palette-amber-200"
+  ],
+  "props": [
+    {
+      "name": "x",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Position horizontale de l axe, en fraction du cadre.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 0.12,
+      "description": "Largeur du coeur, en fraction de la hauteur.",
+      "min": 0.03,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "breath",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Vitesse de la respiration.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "required": false,
+      "default": 0.8,
+      "description": "Etendue du halo.",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-sky-400, --o-palette-amber-200",
+      "description": "Tokens dont les couleurs sont lues : le fond, le halo, le coeur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Deux exponentielles et trois sinus par fragment, sans boucle. En qualite basse, une seule harmonique de stries reste.",
+    "fallback": "gradient"
+  },
+  "id": "background/light-pillar",
+  "sources": {
+    "light-pillar.shader.ts": "/**\n * Shader de la colonne de lumiere.\n *\n * ## L'idee mathematique\n *\n * Une colonne verticale, c'est une distance a un axe. Deux profils s'y\n * superposent : une gaussienne etroite pour le coeur, une exponentielle\n * large pour le halo — la lumiere reelle a un centre net et une traine qui\n * ne finit jamais tout a fait, et une seule courbe ne fait pas les deux.\n *\n * La respiration est la largeur qui oscille, sur deux periodes non\n * multiples pour ne pas battre comme un metronome. Les stries sont un bruit\n * 1D de la hauteur qui monte : trois sinus de frequences non multiples,\n * pour que la lumiere semble couler dans la colonne plutot que clignoter.\n *\n * La lumiere se pose sur le fond par melange borne vers ses teintes, jamais\n * par assombrissement : la colonne reste lisible sur un fond clair.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le halo.\n * - `uColorC` — le coeur.\n * - `uX` — position horizontale de l'axe, en fraction du cadre.\n * - `uWidth` — largeur du coeur, en fraction de la hauteur.\n * - `uBreath` — vitesse de la respiration.\n * - `uGlow` — etendue du halo.\n * - `uDetail` — nombre d'harmoniques des stries, et donc leur cout.\n */\nexport const LIGHT_PILLAR_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uX;\nuniform float uWidth;\nuniform float uBreath;\nuniform float uGlow;\nuniform float uDetail;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  float axe = uX * aspect;\n  float t = uTime;\n  int harmoniques = int(clamp(uDetail, 1.0, 3.0));\n\n  // La respiration : deux periodes non multiples, pour que la colonne ne\n  // batte jamais deux fois de la meme facon.\n  float souffle = 0.5\n    + 0.3 * sin(t * uBreath * 1.3)\n    + 0.2 * sin(t * uBreath * 0.47 + 1.7);\n  float largeur = max(uWidth, 0.01) * (0.8 + 0.4 * souffle);\n\n  // Les stries : un bruit 1D de la hauteur qui monte, en harmoniques bornees.\n  float strie = 0.5 + 0.5 * sin(vUv.y * 9.0 - t * 0.8);\n  if (harmoniques >= 2) {\n    strie = strie * 0.6 + (0.5 + 0.5 * sin(vUv.y * 23.0 + t * 1.3)) * 0.4;\n  }\n  if (harmoniques >= 3) {\n    strie = strie * 0.75 + (0.5 + 0.5 * sin(vUv.y * 51.0 - t * 2.1)) * 0.25;\n  }\n\n  // Le coeur, gaussien et net ; le halo, exponentiel et sans fin.\n  float d = abs(p.x - axe);\n  float coeur = exp(-(d * d) / (largeur * largeur * 0.25));\n  float halo = exp(-d / (largeur * 4.0)) * uGlow;\n\n  // Les extremites : la colonne s'eteint vers les bords, un peu plus vite en\n  // haut, comme un jet qui se disperse en montant.\n  float hauteur = smoothstep(0.0, 0.18, vUv.y) * smoothstep(1.0, 0.7, vUv.y);\n\n  // Le pied : la lumiere qui touche le sol s'etale en une flaque.\n  float pied = exp(-(d * d) * 6.0 - vUv.y * vUv.y * 30.0) * 0.5;\n\n  // Les stries marquent le coeur ; sur le halo, elles ne font qu'affleurer,\n  // sinon elles barrent tout le cadre de bandes horizontales.\n  float voile = clamp((halo * (0.88 + 0.12 * strie) + pied) * hauteur, 0.0, 1.0);\n  vec3 colour = mix(uColorA, uColorB, voile);\n  colour = mix(colour, uColorC, clamp(coeur * hauteur * (0.6 + 0.4 * strie), 0.0, 1.0));\n  colour += uColorC * coeur * hauteur * 0.25 * souffle;\n\n  gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Colonne de lumiere : une colonne verticale qui respire : un coeur gaussien net, un halo exponentiel sans fin, des stries qui montent.\n *\n * ## Le principe\n *\n * Une colonne, c'est une distance a un axe : une gaussienne etroite pour\n * le coeur, une exponentielle large pour le halo, parce qu'une seule\n * courbe ne fait pas a la fois le centre net et la traine sans fin de la\n * lumiere. La largeur respire sur deux periodes non multiples, et un\n * bruit 1D de la hauteur fait couler la lumiere dans la colonne.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { LIGHT_PILLAR_FRAGMENT } from './light-pillar.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface LightPillarControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface LightPillarOwnProps {\n  /** Position horizontale de l axe, en fraction du cadre. @defaultValue 0.5 */\n  x?: number\n  /** Largeur du coeur, en fraction de la hauteur. @defaultValue 0.12 */\n  width?: number\n  /** Vitesse de la respiration. @defaultValue 0.6 */\n  breath?: number\n  /** Etendue du halo. @defaultValue 0.8 */\n  glow?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<LightPillarControls>\n}\n\n/** Toutes les proprietes. */\nexport type LightPillarProps = Customisable<LightPillarOwnProps>\n\n/** Tokens employes par defaut : le fond, le halo, le coeur. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-sky-400',\n  '--o-palette-amber-200',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-r o-from-zinc-50 dark:o-from-zinc-950 o-via-sky-200 dark:o-via-sky-900 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Detail hors qualite basse.\n *\n * La colonne ne coute rien ; ce sont les harmoniques des stries qui\n * pesent, donc c'est elles qui sont bornees.\n */\nconst DETAIL = 3\n\n/** Detail en qualite basse. */\nconst LOW_DETAIL = 1\n\n/**\n * Colonne de lumiere.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <LightPillar className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function LightPillar({\n  x = 0.5,\n  width = 0.12,\n  breath = 0.6,\n  glow = 0.8,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: LightPillarProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: LIGHT_PILLAR_FRAGMENT,\n    colors,\n    uniforms: {\n      uX: x,\n      uWidth: width,\n      uBreath: breath,\n      uGlow: glow,\n      uDetail: DETAIL,\n    },\n    name: 'light-pillar',\n    degrade: (quality) => ({\n      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

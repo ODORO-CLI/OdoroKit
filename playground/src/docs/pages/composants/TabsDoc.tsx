@@ -15,6 +15,7 @@ import {
   PropsTable,
   Section,
 } from '../../components/DocBlocks.jsx'
+import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 
 /** Onglets de la demonstration principale. */
 const DEMO_ITEMS: readonly TabItem[] = [
@@ -47,6 +48,64 @@ const DEMO_ITEMS: readonly TabItem[] = [
       </p>
     ),
     disabled: true,
+  },
+]
+
+/** Contenu court d'un panneau de la galerie. */
+function PanelText({ children }: { children: string }): ReactElement {
+  return <p className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">{children}</p>
+}
+
+/** Trois onglets textuels simples. */
+const SIMPLE_TABS: readonly TabItem[] = [
+  { id: 'apercu', label: 'Apercu', content: <PanelText>Vue d'ensemble.</PanelText> },
+  { id: 'code', label: 'Code', content: <PanelText>Extrait de code.</PanelText> },
+  { id: 'export', label: 'Export', content: <PanelText>Formats proposes.</PanelText> },
+]
+
+/** Trois onglets dont un desactive. */
+const DISABLED_TABS: readonly TabItem[] = [
+  { id: 'apercu', label: 'Apercu', content: <PanelText>Vue d'ensemble.</PanelText> },
+  { id: 'code', label: 'Code', content: <PanelText>Extrait de code.</PanelText> },
+  {
+    id: 'facturation',
+    label: 'Facturation',
+    content: <PanelText>Section reservee.</PanelText>,
+    disabled: true,
+  },
+]
+
+/** Compteur affiche dans un libelle d'onglet. */
+function TabCount({ value }: { value: number }): ReactElement {
+  return (
+    <span className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500 o-tabular-nums">
+      {' '}
+      {value}
+    </span>
+  )
+}
+
+/** Onglets avec compteurs dans les libelles. */
+const COUNTED_TABS: readonly TabItem[] = [
+  {
+    id: 'ouverts',
+    label: (
+      <>
+        Ouverts
+        <TabCount value={12} />
+      </>
+    ),
+    content: <PanelText>Douze tickets ouverts.</PanelText>,
+  },
+  {
+    id: 'fermes',
+    label: (
+      <>
+        Fermes
+        <TabCount value={48} />
+      </>
+    ),
+    content: <PanelText>Quarante-huit tickets fermes.</PanelText>,
   },
 ]
 
@@ -124,6 +183,40 @@ export function TabsDoc(): ReactElement {
         >
           <ControlledDemo />
         </DemoBlock>
+      </Section>
+
+      <Section title="Variantes">
+        <VariantGrid
+          variants={[
+            {
+              title: 'Trois onglets',
+              description: 'La forme la plus courante.',
+              node: <Tabs label="Sections" items={SIMPLE_TABS} className="o-w-full" />,
+            },
+            {
+              title: 'Onglet desactive',
+              description: 'Les fleches le sautent.',
+              node: <Tabs label="Sections" items={DISABLED_TABS} className="o-w-full" />,
+            },
+            {
+              title: 'Compteurs',
+              description: 'Un nombre dans chaque libelle.',
+              node: <Tabs label="Tickets" items={COUNTED_TABS} className="o-w-full" />,
+            },
+            {
+              title: 'Onglet initial choisi',
+              description: 'defaultValue ouvre sur le deuxieme.',
+              node: (
+                <Tabs
+                  label="Sections"
+                  items={SIMPLE_TABS}
+                  defaultValue="code"
+                  className="o-w-full"
+                />
+              ),
+            },
+          ]}
+        />
       </Section>
 
       <Section title="Navigation clavier">

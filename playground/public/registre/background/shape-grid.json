@@ -1,0 +1,83 @@
+{
+  "name": "shape-grid",
+  "category": "background",
+  "title": "Grille de formes",
+  "description": "Une grille de petites formes, rond, carre ou triangle selon la cellule, qui tournent chacune a sa vitesse et respirent en decalage.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "shape-grid.shader.ts",
+      "target": "background/shape-grid.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/ShapeGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-brand-500",
+    "--o-palette-sky-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.4,
+      "description": "Vitesse de rotation moyenne.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 9,
+      "description": "Nombre de cellules sur la hauteur.",
+      "min": 3,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 0.28,
+      "description": "Rayon des formes, en fraction de la cellule.",
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-sky-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, puis les deux teintes entre lesquelles chaque forme se place."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une cellule evaluee par fragment, un champ de distance et une rotation. La densite ne change pas le cout.",
+    "fallback": "static"
+  },
+  "id": "background/shape-grid",
+  "sources": {
+    "shape-grid.shader.ts": "/**\n * Shader de la grille de formes.\n *\n * ## L'idee mathematique\n *\n * Une forme par cellule, choisie parmi trois par un hachage de la cellule :\n * un disque, un carre, un triangle equilateral. Chacune est un champ de\n * distance signe, ce qui donne un bord net a n'importe quelle taille et un\n * anti-crenelage d'un seul `smoothstep`.\n *\n * Chaque forme tourne a sa propre vitesse, dans son propre sens, et respire\n * d'un sinus de phase propre : deux formes voisines ne sont jamais en\n * phase, et la grille ne se lit pas comme une texture qui tourne d'un bloc.\n * La teinte se place entre les deux couleurs selon un second hachage.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB`, `uColorC` — les deux teintes entre lesquelles chaque forme se place.\n * - `uSpeed` — vitesse de rotation moyenne.\n * - `uDensity` — nombre de cellules sur la hauteur.\n * - `uSize` — rayon des formes, en fraction de la cellule.\n */\nexport const SHAPE_GRID_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uDensity;\nuniform float uSize;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat shapeHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\nvec2 shapeRotate(vec2 p, float angle) {\n  float c = cos(angle);\n  float s = sin(angle);\n  return vec2(c * p.x - s * p.y, s * p.x + c * p.y);\n}\n\n// Triangle equilateral centre, de rayon r.\nfloat shapeTriangle(vec2 p, float r) {\n  const float k = 1.7320508;\n  p.x = abs(p.x) - r;\n  p.y = p.y + r / k;\n  if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) / 2.0;\n  p.x -= clamp(p.x, -2.0 * r, 0.0);\n  return -length(p) * sign(p.y);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float scale = max(uDensity, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y) * scale;\n  vec2 cell = floor(p);\n  vec2 local = fract(p) - 0.5;\n\n  float h1 = shapeHash(cell);\n  float h2 = shapeHash(cell + vec2(37.3, 17.7));\n  float h3 = shapeHash(cell + vec2(91.1, 53.9));\n\n  // Sens et vitesse propres, phase propre : rien ne tourne d'un bloc.\n  float direction = h2 < 0.5 ? -1.0 : 1.0;\n  float angle = uTime * uSpeed * direction * (0.6 + 0.8 * h3) + h1 * 6.2831853;\n  float breath = 0.85 + 0.15 * sin(uTime * 1.3 + h2 * 6.2831853);\n  float r = max(uSize, 0.02) * breath;\n\n  vec2 q = shapeRotate(local, angle);\n\n  float kind = floor(h1 * 3.0);\n  float d;\n  if (kind < 1.0) {\n    d = length(q) - r;\n  } else if (kind < 2.0) {\n    d = max(abs(q.x), abs(q.y)) - r * 0.85;\n  } else {\n    d = shapeTriangle(q, r * 1.1);\n  }\n\n  float px = scale / max(uResolution.y, 1.0) * 1.5;\n  float fill = 1.0 - smoothstep(-px, px, d);\n\n  vec3 tint = mix(uColorB, uColorC, h3);\n  vec3 colour = mix(uColorA, tint, fill);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Grille de formes : rond, carre ou triangle par cellule, chacun tournant a\n * sa vitesse.\n *\n * ## Ce qui le distingue des trames de points\n *\n * La matrice de points et la grille de spots posent un point identique par\n * cellule et animent la trame entiere. Ici, chaque cellule porte une forme\n * differente, orientee et cadencee a part : c'est une collection, pas une\n * trame.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface et sous\n * mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SHAPE_GRID_FRAGMENT } from './shape-grid.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface ShapeGridControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface ShapeGridOwnProps {\n  /** Vitesse de rotation moyenne. @defaultValue 0.4 */\n  speed?: number\n  /** Nombre de cellules sur la hauteur. @defaultValue 9 */\n  density?: number\n  /** Rayon des formes, en fraction de la cellule. @defaultValue 0.28 */\n  size?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<ShapeGridControls>\n}\n\n/** Toutes les proprietes. */\nexport type ShapeGridProps = Customisable<ShapeGridOwnProps>\n\n/** Tokens employes par defaut : le fond, puis les deux teintes des formes. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-brand-500',\n  '--o-palette-sky-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Grille de formes.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <ShapeGrid className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function ShapeGrid({\n  speed = 0.4,\n  density = 9,\n  size = 0.28,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: ShapeGridProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SHAPE_GRID_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uDensity: density, uSize: size },\n    name: 'shape-grid',\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "orbiting-dots",
+  "category": "effect",
+  "title": "Points en orbite",
+  "description": "Des satellites tournent autour du contenu, sur deux anneaux croises.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/OrbitingDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 6,
+      "description": "Nombre de points.",
+      "min": 1,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Rayon de l orbite exterieure.",
+      "min": 8,
+      "max": 200,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 6000,
+      "unit": "ms",
+      "description": "Duree d une revolution de l anneau exterieur.",
+      "min": 1000,
+      "max": 20000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une rotation CSS par point, tenue par le compositeur. Sous mouvement reduit les points restent en place sur leur cercle."
+  }
+}

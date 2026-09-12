@@ -1,0 +1,77 @@
+{
+  "name": "electric-border",
+  "category": "ui",
+  "title": "Bordure electrique",
+  "description": "Un contour SVG qui crepite : des eclairs courent le long du trait dans les deux sens, et le halo vacille par a-coups, sans aucun filtre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ElectricBorder.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-sky-400", "--o-palette-white"],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Contenu encadre."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-sky-400, --o-palette-white",
+      "description": "Tokens du courant et des eclairs qui le parcourent."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Epaisseur du trait.",
+      "min": 1,
+      "max": 5,
+      "step": 0.5
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Rayon des angles du cadre.",
+      "min": 0,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un tour des eclairs.",
+      "min": 400,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 0.8,
+      "description": "Force du halo, de zero a un.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre traces SVG d un meme rectangle : un halo large, un coeur, deux rangees d eclairs en tirets dont le decalage defile. Aucun filtre, aucune turbulence par image ; le vacillement est une animation d opacite par paliers. Sous mouvement reduit le trait est allume, fixe."
+  }
+}

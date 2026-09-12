@@ -45,7 +45,13 @@ import { SearchDialog } from './SearchDialog.jsx'
 import { ThemeToggle } from './ThemeToggle.jsx'
 
 /** Hauteur de la barre superieure : 4rem, partagee par les calages `top`. */
-const HEADER_OFFSET = '4rem'
+/**
+ * Hauteur de la barre fixe.
+ *
+ * Exportee parce que tout ce qui colle en dessous doit partir de la : une barre
+ * collee a zero passerait sous celle-ci et disparaitrait.
+ */
+export const HEADER_OFFSET = '4rem'
 
 /** Cle de persistance de l'etat replie/deplie des categories. */
 const ASIDE_STORAGE_KEY = 'odoro-docs-aside'
@@ -196,7 +202,7 @@ function SectionBlock({
 
             {(section.groups ?? []).map((group) => (
               <div key={group.title} className="o-flex o-flex-col">
-                <p className="o-border-l o-border-zinc-200 dark:o-border-zinc-800 o-pl-3 o-pt-3 o-pb-1 o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
+                <p className="o-border-l o-border-zinc-200 dark:o-border-zinc-800 o-pl-3 o-pt-3 o-pb-1 o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
                   {group.title}
                 </p>
                 {group.pages.map((page) => (
@@ -262,6 +268,36 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }): ReactElement {
 /* -------------------------------------------------------------------------- */
 
 /** Entrees de premier niveau de la barre. */
+/**
+ * Les routes qui se passent de la colonne laterale.
+ *
+ * Une vitrine et une bibliotheque ne sont pas de la documentation : leur
+ * visiteur ne cherche pas une page precise dans une arborescence, il regarde ce
+ * qu'on lui montre. Leur imposer deux cent cinquante pixels de sommaire
+ * reviendrait a lui demander de choisir avant d'avoir vu.
+ *
+ * La barre superieure, elle, reste : c'est par elle qu'on repart.
+ */
+const SANS_COLONNE: readonly string[] = ['/', '/templates']
+
+/** Cette route se passe-t-elle de la colonne de navigation ? */
+function sansColonne(pathname: string): boolean {
+  return SANS_COLONNE.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+}
+
+/**
+ * Cette route touche-t-elle les bords ?
+ *
+ * Se passer de la colonne et se passer de marges sont deux choses. La vitrine
+ * et la page d accueil posent elles-memes leurs marges, section par section, et
+ * leur en-tete doit toucher le bord. La galerie des templates, elle, reste une
+ * page de documentation : sans colonne, mais dans la meme gouttiere que les
+ * autres, faute de quoi son titre commence au ras de la fenetre.
+ */
+function pleineLargeur(pathname: string): boolean {
+  return pathname === '/' || pathname.startsWith('/templates/')
+}
+
 const TOP_LINKS: readonly { label: string; to: string; prefixes: readonly string[] }[] = [
   {
     label: 'Guide',
@@ -272,22 +308,40 @@ const TOP_LINKS: readonly { label: string; to: string; prefixes: readonly string
   { label: 'Motions', to: '/docs/motion', prefixes: ['/docs/motion'] },
   { label: 'Moteur', to: '/docs/moteur', prefixes: ['/docs/moteur'] },
   { label: 'Registre', to: '/docs/registre', prefixes: ['/docs/registre'] },
+  { label: 'Templates', to: '/templates', prefixes: ['/templates'] },
 ]
 
-/** Marque : pastille en degrade, nom, millésime de version. */
+/**
+ * Le logo : un anneau a l'angle vif, trace en `currentColor`.
+ *
+ * Vectoriel plutot qu'image : il prend la couleur qu'on lui donne, reste net
+ * a toute taille, et ne pese rien. Le trace reprend le fichier `icons/03-angle-vif`.
+ */
+export function LogoMark({ className }: { className?: string }): ReactElement {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true" className={className}>
+      <path
+        d="M20.25 20.25H50a29.75 29.75 0 1 1-29.75 29.75Z"
+        stroke="currentColor"
+        strokeWidth="10.5"
+        strokeLinejoin="miter"
+      />
+    </svg>
+  )
+}
+
+/** Marque : le logo, le nom en bas de casse comme sur la signature, la version. */
 function Brand(): ReactElement {
   return (
     <Link
       to="/"
       className="o-inline-flex o-items-center o-gap-2 o-no-underline o-shrink-0"
     >
-      <span className="o-inline-flex o-items-center o-justify-center o-size-7 o-rounded-lg o-bg-gradient-to-br o-from-brand-600 o-to-fuchsia-600 o-text-white o-text-sm o-font-extrabold o-shadow-xs">
-        O
+      <LogoMark className="o-size-7 o-text-brand-500" />
+      <span className="o-text-lg o-font-bold o-tracking-tight o-text-zinc-900 dark:o-text-zinc-50">
+        odoro
       </span>
-      <span className="o-text-base o-font-bold o-tracking-tight o-text-zinc-900 dark:o-text-zinc-50">
-        Odoro
-      </span>
-      <span className="max-md:o-hidden o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-full o-px-1.5 o-py-0.5">
+      <span className="max-md:o-hidden o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-full o-px-1.5 o-py-0.5">
         v0
       </span>
     </Link>
@@ -349,6 +403,8 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const { pathname } = useLocation()
+  const large = pleineLargeur(pathname)
+  const colonneCachee = sansColonne(pathname)
 
   // Ctrl+K / Cmd+K ouvre la recherche depuis n'importe ou.
   useEffect(() => {
@@ -374,7 +430,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         type="button"
         onClick={() => setSearchOpen(true)}
         aria-label="Rechercher dans la documentation"
-        className="o-inline-flex o-items-center o-gap-2 o-h-9 md:o-w-56 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 max-md:o-px-2 md:o-px-3 o-text-sm o-text-zinc-400 dark:o-text-zinc-500 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 hover:o-bg-white dark:hover:o-bg-zinc-800 o-transition-colors o-cursor-pointer"
+        className="o-inline-flex o-items-center o-gap-2 o-h-9 md:o-w-56 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 max-md:o-px-2 md:o-px-3 o-text-sm o-text-zinc-500 dark:o-text-zinc-400 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 hover:o-bg-white dark:hover:o-bg-zinc-800 o-transition-colors o-cursor-pointer"
       >
         <svg
           width="14"
@@ -392,7 +448,7 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <path d="m21 21-4.3-4.3" />
         </svg>
         <span className="max-md:o-hidden o-flex-1 o-text-left">Rechercher...</span>
-        <kbd className="max-md:o-hidden o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-rounded-sm o-px-1.5 o-py-0.5 o-bg-white dark:o-bg-zinc-950">
+        <kbd className="max-md:o-hidden o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-rounded-sm o-px-1.5 o-py-0.5 o-bg-white dark:o-bg-zinc-950">
           Ctrl K
         </kbd>
       </button>
@@ -456,20 +512,35 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
         </div>
       </header>
 
+      {/* Les pages sans colonne prennent toute la largeur : leurs sections
+          posent elles-memes leurs marges, et un hero doit toucher les bords. */}
       <div
-        className="o-mx-auto o-max-w-7xl o-flex o-px-4 md:o-px-6"
+        className={large ? 'o-flex' : 'o-mx-auto o-flex o-max-w-7xl o-px-4 md:o-px-6'}
         style={{ paddingTop: HEADER_OFFSET }}
       >
-        <aside
-          className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-py-6 o-pr-4"
-          style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
-        >
-          <SideNav />
-        </aside>
+        {!colonneCachee && (
+          <aside
+            className="max-lg:o-hidden o-sticky o-w-64 o-shrink-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-py-6 o-pr-4"
+            style={{ top: HEADER_OFFSET, height: `calc(100dvh - ${HEADER_OFFSET})` }}
+          >
+            <SideNav />
+          </aside>
+        )}
 
         {/* La couleur de bordure est posee sans condition d'ecran : elle est
             sans effet tant que `lg:o-border-l` n'a pas donne d'epaisseur. */}
-        <main className="o-flex-1 o-min-w-0 o-py-10 lg:o-pl-10 lg:o-border-l o-border-zinc-100 dark:o-border-zinc-900 o-view-transition-page">
+        <main
+          className={[
+            'o-flex-1 o-min-w-0 o-view-transition-page',
+            // Une vitrine, comme la page d accueil, fait sa propre place :
+            // son en-tete doit toucher la barre.
+            pathname === '/' || pathname.startsWith('/templates/') ? 'o-py-0' : 'o-py-10',
+            // Le filet de separation n'a de sens qu'a cote de la colonne.
+            colonneCachee
+              ? ''
+              : 'lg:o-pl-10 lg:o-border-l o-border-zinc-100 dark:o-border-zinc-900',
+          ].join(' ')}
+        >
           {children}
         </main>
       </div>

@@ -1,0 +1,50 @@
+{
+  "name": "crosshatch",
+  "category": "background",
+  "title": "Croisillons",
+  "description": "Deux trames diagonales croisees a plus et moins 45 degres. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/Crosshatch.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-zinc-500"],
+  "props": [
+    {
+      "name": "spacing",
+      "type": "number",
+      "default": 14,
+      "unit": "px",
+      "description": "Ecart entre deux traits d une meme trame.",
+      "min": 6,
+      "max": 48,
+      "step": 2
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.12,
+      "description": "Opacite des traits, entre 0 et 1.",
+      "min": 0.02,
+      "max": 0.5,
+      "step": 0.02
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux degrades CSS repetes : aucun script, aucun contexte graphique."
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "wave-text",
+  "category": "text",
+  "title": "Vague",
+  "description": "Chaque lettre monte et descend en decale, sans aucun JavaScript apres le premier rendu.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/WaveText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Hauteur de la vague.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d une oscillation complete.",
+      "min": 400,
+      "max": 4000,
+      "step": 100
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation animee par lettre, toutes tenues par le compositeur. A reserver aux titres : un paragraphe entier ferait beaucoup de calques."
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "scramble-loader",
+  "category": "loader",
+  "title": "Texte brouille qui se resout",
+  "description": "Un mot brouille de signes qui se resout caractere par caractere dans un ordre aleatoire, tient en tremblant, puis se brouille de nouveau.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ScrambleLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-font-mono"
+  ],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Le texte qui se resout."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2200,
+      "unit": "ms",
+      "description": "Duree de la resolution, du brouillage complet au texte net.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du texte. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un abonnement a la boucle du moteur qui ecrit les caracteres directement dans le DOM, une vingtaine de fois par seconde, sans rendu React par image. Texte net et immobile sous mouvement reduit."
+  },
+  "id": "loader/scramble-loader",
+  "sources": {
+    "component.tsx": "/**\n * Texte brouille qui se resout : un mot fait de signes qui se resout\n * caractere par caractere dans un ordre aleatoire, tient en tremblant, puis\n * se brouille de nouveau.\n *\n * ## Il ne se pose jamais tout a fait\n *\n * Le decodage de la categorie texte joue une fois, de gauche a droite, et\n * livre un titre : sa fin est le but. Un chargeur n'a pas de fin a livrer.\n * Ici la resolution se fait dans un ordre tire au sort, sans front lisible,\n * et le mot net n'est qu'un palier : pendant la tenue, un caractere au\n * hasard se rebrouille un instant et revient, comme un signal qui tient\n * mal. Puis tout se brouille et recommence. C'est un etat, pas un resultat.\n *\n * Chaque cycle tire un nouvel ordre : deux resolutions identiques a la suite\n * se liraient comme une video en boucle.\n *\n * ## Une fonte a chasse fixe, et un brouillage a cadence fixe\n *\n * Les signes du brouillage n'ont pas la largeur des lettres qu'ils\n * remplacent ; dans une fonte proportionnelle, le mot tremblerait en\n * largeur a chaque tic. La fonte mono du systeme fige chaque case a un\n * caractere. Et le brouillage change de signe vingt fois par seconde, pas a\n * chaque image : plus vite, ce n'est plus que du gris. Le tic est compte en\n * temps ecoule sur la boucle du moteur, independamment de l'ecran.\n *\n * ## Les caracteres s'ecrivent dans le DOM, pas dans l'etat\n *\n * Dix cases qui changent vingt fois par seconde feraient deux cents rendus\n * React par seconde pour des noeuds texte. Chaque case est donc ecrite par\n * reference ; l'etat resolu est un attribut que la feuille traduit en\n * pleine encre.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran.\n * Les cases sont retirees de l'arbre d'accessibilite : brouillees, elles\n * seraient lues comme une suite de signes.\n *\n * Sous mouvement reduit, le texte est net d'emblee : il se lit encore comme\n * une attente, seul le brouillage s'arrete.\n *\n * @module\n */\n\nimport { clock, mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-scramble-loader'\n\n/** Les signes du brouillage. */\nconst GLYPHS = '!<>-_/[]{}=+*^?#%&@$0123456789'\n\n/** Part de la resolution ou tout reste brouille, avant le premier caractere net. */\nconst SCRAMBLE_SHARE = 0.25\n\n/** Duree de la tenue, en part de la resolution. */\nconst HOLD_SHARE = 0.7\n\n/** Intervalle entre deux signes d'une case brouillee, en millisecondes. */\nconst TICK_MS = 48\n\n/** Pendant la tenue : ecart entre deux tremblements, et duree d'un tremblement. */\nconst FLICKER_GAP_MS = 320\nconst FLICKER_MS = 110\n\n/** Espace insecable : une espace ordinaire dans un bloc en ligne s'effondrerait. */\nconst NBSP = String.fromCharCode(160)\n\n/** Un signe au hasard. */\nfunction glyph(): string {\n  return GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length))\n}\n\n/** Pose les cases et leurs deux etats, une fois par document. */\nfunction ensureScrambleLoaderRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-sl]{',\n    'display:inline-block;white-space:nowrap;font-weight:600;',\n    'font-family:var(--o-font-mono);font-size:var(--o-sl-size);color:var(--o-sl-color);',\n    '}',\n    // Une case brouillee est a demi-encre ; nette, elle passe en pleine\n    // encre. C'est l'attribut, pas le caractere, qui porte la difference.\n    '[data-o-sl-char]{display:inline-block;min-width:1ch;text-align:center;opacity:0.45;transition:opacity 160ms}',\n    '[data-o-sl-char][data-o-sl-set]{opacity:1}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ScrambleLoaderOwnProps {\n  /** Le texte qui se resout. @defaultValue 'Chargement' */\n  text?: string\n  /** Corps du texte, en pixels. @defaultValue 16 */\n  size?: number\n  /** Duree de la resolution, du brouillage complet au texte net, en millisecondes. @defaultValue 2200 */\n  speed?: number\n  /** Couleur du texte. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ScrambleLoaderProps = Customisable<ScrambleLoaderOwnProps, 'span'>\n\n/**\n * Signale une attente par un texte qui se resout depuis un brouillage.\n *\n * @example\n * <ScrambleLoader />\n *\n * @example\n * // Un autre mot, plus lent, dans la teinte de marque.\n * <ScrambleLoader text=\"Connexion\" speed={3000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function ScrambleLoader({\n  text = 'Chargement',\n  size = 16,\n  speed = 2200,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: ScrambleLoaderProps): ReactElement {\n  ensureScrambleLoaderRule()\n  const { reduced } = useMotionState()\n  const cells = useRef<(HTMLSpanElement | null)[]>([])\n  const chars = Array.from(text)\n\n  useEffect(() => {\n    const letters = Array.from(text)\n    const nodes: { node: HTMLSpanElement; char: string; fixed: boolean }[] = []\n    letters.forEach((char, index) => {\n      const node = cells.current[index]\n      if (node === null || node === undefined) return\n      // Une espace n'a rien a resoudre : elle est nette d'emblee.\n      nodes.push({ node, char: char === ' ' ? NBSP : char, fixed: char === ' ' })\n    })\n    if (nodes.length === 0) return\n\n    const settle = (index: number): void => {\n      const cell = nodes[index]\n      if (cell === undefined) return\n      cell.node.textContent = cell.char\n      cell.node.setAttribute('data-o-sl-set', '')\n    }\n\n    if (reduced) {\n      nodes.forEach((_, index) => {\n        settle(index)\n      })\n      return\n    }\n\n    const cycle = speed * (1 + HOLD_SHARE)\n    const set = nodes.map(() => false)\n    let reveal = nodes.map(() => 1)\n    let elapsed = 0\n    let sinceTick = 0\n    let cycleIndex = -1\n    let flickerIndex = -1\n    let flickerAt = 0\n    let flickerUntil = 0\n\n    // Un nouvel ordre a chaque cycle ; les espaces sont nettes d'emblee.\n    const plan = (): void => {\n      reveal = nodes.map(() => SCRAMBLE_SHARE + Math.random() * (1 - SCRAMBLE_SHARE))\n      set.fill(false)\n      nodes.forEach((cell, index) => {\n        if (cell.fixed) {\n          set[index] = true\n          settle(index)\n        } else {\n          cell.node.removeAttribute('data-o-sl-set')\n        }\n      })\n      flickerIndex = -1\n      flickerAt = speed + FLICKER_GAP_MS\n    }\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        const step = delta * 1000\n        elapsed += step\n        sinceTick += step\n\n        const index = Math.floor(elapsed / cycle)\n        if (index !== cycleIndex) {\n          cycleIndex = index\n          plan()\n        }\n        const local = elapsed - index * cycle\n\n        // Resolution : chaque case se fige a son heure, les autres tournent.\n        if (local < speed) {\n          const progress = local / speed\n          nodes.forEach((_, position) => {\n            if (set[position] === true) return\n            if (progress >= (reveal[position] ?? 1)) {\n              set[position] = true\n              settle(position)\n            }\n          })\n          if (sinceTick < TICK_MS) return\n          sinceTick = 0\n          nodes.forEach((cell, position) => {\n            if (set[position] === true) return\n            cell.node.textContent = glyph()\n          })\n          return\n        }\n\n        // Tenue : un caractere au hasard tremble un instant, puis revient.\n        if (flickerIndex >= 0) {\n          const cell = nodes[flickerIndex]\n          if (local >= flickerUntil) {\n            settle(flickerIndex)\n            flickerIndex = -1\n            flickerAt = local + FLICKER_GAP_MS\n          } else if (sinceTick >= TICK_MS && cell !== undefined) {\n            sinceTick = 0\n            cell.node.textContent = glyph()\n          }\n          return\n        }\n        if (local >= flickerAt && local < cycle - FLICKER_MS) {\n          const candidates = nodes.map((cell, position) => (cell.fixed ? -1 : position)).filter((p) => p >= 0)\n          const pick = candidates[Math.floor(Math.random() * candidates.length)]\n          const cell = pick === undefined ? undefined : nodes[pick]\n          if (pick === undefined || cell === undefined) return\n          flickerIndex = pick\n          flickerUntil = local + FLICKER_MS\n          cell.node.removeAttribute('data-o-sl-set')\n          cell.node.textContent = glyph()\n        }\n      },\n      { name: 'scramble-loader' },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [text, speed, reduced])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-sl-size': `${String(size)}px`,\n    '--o-sl-color': color,\n  } as CSSProperties\n\n  return (\n    <span {...rest} className={className} style={loaderStyle} data-o-sl=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden>\n        {chars.map((char, index) => (\n          <span\n            key={index}\n            data-o-sl-char=\"\"\n            ref={(node) => {\n              cells.current[index] = node\n            }}\n          >\n            {char === ' ' ? NBSP : char}\n          </span>\n        ))}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "name": "animated-list",
+  "category": "ui",
+  "title": "Liste en cascade",
+  "description": "Une liste qui se remplit ligne apres ligne quand elle entre dans le champ, dont la ligne survolee s allume par un filet, et qui se parcourt aux fleches.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/AnimatedList.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slow",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les lignes, dans l ordre d affichage."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la liste pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Ligne choisie, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Ligne choisie au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(id: string) => void",
+      "description": "Appele quand le choix change."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 60,
+      "unit": "ms",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "description": "Retard ajoute par ligne dans la cascade."
+    },
+    {
+      "name": "fade",
+      "type": "boolean",
+      "default": true,
+      "description": "Voile les bords haut et bas de la zone qui defile."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La cascade est une seule animation d images cles, retardee par un index ecrit en variable CSS : aucune minuterie, aucun rendu React pendant le remplissage. Sous mouvement reduit les lignes sont en place des le premier rendu."
+  }
+}

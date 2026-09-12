@@ -1,0 +1,102 @@
+{
+  "name": "folder",
+  "category": "ui",
+  "title": "Dossier",
+  "description": "Un dossier ferme qui s ouvre au clic comme au clavier : le rabat bascule vers l avant et les fiches sortent en eventail, atteignables une a une.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/Folder.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-duration-slow",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string; hint?: string }[]",
+      "required": true,
+      "description": "Les fiches rangees dans le dossier, dans l ordre de l eventail."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du dossier, ecrit sur le rabat et annonce aux technologies d assistance."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "description": "Etat du dossier, en mode controle."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "default": false,
+      "description": "Etat du dossier au montage, en mode non controle."
+    },
+    {
+      "name": "onOpenChange",
+      "type": "(open: boolean) => void",
+      "description": "Appele quand le dossier s ouvre ou se referme."
+    },
+    {
+      "name": "onSelect",
+      "type": "(id: string) => void",
+      "description": "Appele au clic ou a Entree sur une fiche sortie."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "default": "--o-palette-brand-500, --o-theme-surface",
+      "description": "Tokens de la teinte du carton et de la couleur des fiches, dans cet ordre."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": 220,
+      "unit": "px",
+      "min": 140,
+      "max": 420,
+      "step": 10,
+      "description": "Largeur du dossier."
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 8,
+      "unit": "deg",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "description": "Angle entre deux fiches une fois sorties."
+    },
+    {
+      "name": "rise",
+      "type": "number",
+      "default": 62,
+      "unit": "%",
+      "min": 20,
+      "max": 110,
+      "step": 2,
+      "description": "Hauteur de sortie des fiches, en part de la hauteur du dossier."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux transitions par fiche, tenues par le compositeur : aucune boucle, aucune mesure. Fermees, les fiches sont hors de l ordre de tabulation et hors de l arbre d accessibilite. Sous mouvement reduit, l eventail est en place sans trajet."
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "spot-grid",
+  "category": "background",
+  "title": "Points masques",
+  "description": "Une grille de points en degrade repete, estompee vers les bords par un masque radial. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/SpotGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-muted"],
+  "props": [
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 24,
+      "unit": "px",
+      "description": "Pas de la grille.",
+      "min": 8,
+      "max": 80,
+      "step": 4
+    },
+    {
+      "name": "dot",
+      "type": "number",
+      "default": 2,
+      "unit": "px",
+      "description": "Rayon d un point.",
+      "min": 1,
+      "max": 6,
+      "step": 0.5
+    },
+    {
+      "name": "vignette",
+      "type": "number",
+      "default": 0.6,
+      "description": "Force de la vignette, entre 0 et 1. Zero la retire.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade radial repete et un masque : aucun script, aucun contexte graphique."
+  }
+}

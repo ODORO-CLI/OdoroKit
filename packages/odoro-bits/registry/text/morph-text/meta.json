@@ -1,0 +1,72 @@
+{
+  "name": "morph-text",
+  "category": "text",
+  "title": "Fusion",
+  "description": "Un mot se coule dans le suivant : un flou passe a travers un seuil de contraste soude leurs lettres, avec un fondu croise en repli.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/MorphText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "mots",
+      "type": "readonly string[]",
+      "required": true,
+      "description": "Mots fondus l un dans l autre, en boucle. Au moins deux."
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Temps pendant lequel un mot reste lisible.",
+      "min": 300,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "morph",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree d une fusion.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "flou",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Flou traverse par chaque mot pendant la fusion.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "fusion",
+      "type": "number",
+      "default": 4,
+      "unit": "px",
+      "description": "Force du soudage, en etalement du filtre.",
+      "min": 0,
+      "max": 12,
+      "step": 0.5
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un filtre SVG sur du texte le fait passer par une couche matricielle : le lissage sous-pixel est perdu pendant la fusion. A reserver a deux ou trois mots courts, pas a une phrase."
+  }
+}

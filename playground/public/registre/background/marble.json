@@ -1,0 +1,93 @@
+{
+  "name": "marble",
+  "category": "background",
+  "title": "Marbre",
+  "description": "Des veines de marbre en bruit deforme trois fois, tres lentes, fines et contrastees, relevees d un filet d accent.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "marble.shader.ts",
+      "target": "background/marble.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Marble.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-muted",
+    "--o-palette-amber-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.03,
+      "description": "Vitesse de la deformation. Le marbre bouge a peine.",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "description": "Echelle du motif. Plus haut, plus fin.",
+      "min": 0.4,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "veins",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Finesse des veines. Plus haut, plus fines et plus nettes.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "octaves",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Octaves de chaque bruit. Retrograde a 2 en qualite basse.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-amber-400",
+      "description": "Tokens dont les couleurs sont lues : la pierre, les veines, le filet d accent."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "ogl",
+    "notes": "Trois sommes d octaves enchainees par fragment, chacune deformant le domaine de la suivante. En qualite basse, les octaves tombent a deux.",
+    "fallback": "gradient"
+  },
+  "id": "background/marble",
+  "sources": {
+    "marble.shader.ts": "/**\n * Shader du marbre.\n *\n * ## L'idee mathematique\n *\n * Une deformation de domaine en trois etages : un bruit est lu la ou un\n * second bruit l'a deplace, lui-meme lu la ou un troisieme l'a deplace. Un\n * seul etage donne des volutes ; trois donnent les plis serres et les\n * torsions d'une pierre qui a coule avant de se figer.\n *\n * Les veines ne sont pas un palier du bruit : elles sont les lignes de\n * niveau d'un sinus du bruit deforme — la ou le sinus s'annule — affinees\n * par une puissance. C'est ce qui les rend fines et continues, la ou un\n * simple seuil donnerait des taches. Un second reseau, plus fin et plus\n * rare, porte l'accent.\n *\n * Le temps n'entre que dans le premier etage, tres lentement : le marbre\n * n'est pas cense bouger, seulement respirer assez pour qu'on ne le prenne\n * pas pour une image.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — la pierre.\n * - `uColorB` — les veines.\n * - `uColorC` — le filet d'accent.\n * - `uSpeed` — vitesse de la deformation.\n * - `uScale` — echelle du motif.\n * - `uVeins` — finesse des veines.\n * - `uOctaves` — octaves de chaque bruit, et donc le cout.\n */\nexport const MARBLE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uScale;\nuniform float uVeins;\nuniform float uOctaves;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat marbreHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\n// Bruit de valeur : interpolation lissee entre les quatre coins de la cellule.\nfloat marbreNoise(vec2 p) {\n  vec2 cell = floor(p);\n  vec2 local = fract(p);\n  vec2 smoothed = local * local * (3.0 - 2.0 * local);\n\n  float a = marbreHash(cell);\n  float b = marbreHash(cell + vec2(1.0, 0.0));\n  float c = marbreHash(cell + vec2(0.0, 1.0));\n  float d = marbreHash(cell + vec2(1.0, 1.0));\n\n  return mix(mix(a, b, smoothed.x), mix(c, d, smoothed.x), smoothed.y);\n}\n\n// Somme d'octaves : chaque passe deux fois plus fine et deux fois plus faible.\nfloat marbreFbm(vec2 p, int octaves) {\n  float total = 0.0;\n  float amplitude = 0.5;\n  float normalisation = 0.0;\n\n  for (int i = 0; i < 5; i += 1) {\n    if (i >= octaves) break;\n    total += marbreNoise(p) * amplitude;\n    normalisation += amplitude;\n    p *= 2.0;\n    amplitude *= 0.5;\n  }\n\n  return total / max(normalisation, 0.0001);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vUv * vec2(aspect, 1.0) * max(uScale, 0.1);\n  int octaves = int(clamp(uOctaves, 1.0, 5.0));\n  float t = uTime * uSpeed;\n\n  // Les trois etages : chaque bruit deplace le domaine du suivant. Deux\n  // composantes par etage, lues a des decalages differents, pour que le\n  // deplacement ait une direction et pas seulement une amplitude.\n  vec2 q = vec2(\n    marbreFbm(p + vec2(t, 0.0), octaves),\n    marbreFbm(p + vec2(5.2, 1.3) - t * 0.7, octaves)\n  );\n  vec2 r = vec2(\n    marbreFbm(p + 4.0 * q + vec2(1.7, 9.2), octaves),\n    marbreFbm(p + 4.0 * q + vec2(8.3, 2.8), octaves)\n  );\n  float v = marbreFbm(p + 4.0 * r, octaves);\n\n  // Les veines : les zeros d'un sinus du bruit deforme, affines par une\n  // puissance qui croit avec le reglage. La deformation par r ajoute les\n  // torsions serrees qui font la difference avec des lignes ondulees.\n  float finesse = mix(3.0, 14.0, clamp(uVeins, 0.0, 1.0));\n  float onde = sin(v * 12.0 + r.x * 4.0);\n  float veine = pow(1.0 - abs(onde), finesse);\n\n  // Un reseau plus fin et plus rare, pour l'accent : sa frequence est plus\n  // haute, et son seuil plus severe.\n  float ondeFine = sin(v * 31.0 - r.y * 6.0 + q.x * 3.0);\n  float filet = pow(1.0 - abs(ondeFine), finesse * 2.0) * smoothstep(0.45, 0.7, q.y);\n\n  // La pierre : une marbrure douce dans la couleur du fond, pour qu'elle ne\n  // soit pas un aplat entre les veines.\n  vec3 pierre = uColorA * (1.0 - (q.x - 0.5) * 0.1);\n  pierre = mix(pierre, uColorB, smoothstep(0.55, 0.9, r.y) * 0.18);\n\n  vec3 colour = mix(pierre, uColorB, clamp(veine, 0.0, 1.0));\n  colour = mix(colour, uColorC, clamp(filet, 0.0, 1.0) * 0.85);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Marbre : des veines fines en bruit deforme trois fois, presque immobiles.\n *\n * ## Le principe\n *\n * Trois bruits enchaines, chacun deplacant le domaine du suivant : les plis\n * serres d'une pierre qui a coule avant de se figer. Les veines sont les\n * zeros d'un sinus du resultat, affines par une puissance — fines et\n * continues, pas des taches. Le temps n'entre que dans le premier etage,\n * tres lentement.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { MARBLE_FRAGMENT } from './marble.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface MarbleControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface MarbleOwnProps {\n  /** Vitesse de la deformation. @defaultValue 0.03 */\n  speed?: number\n  /** Echelle du motif. Plus haut, plus fin. @defaultValue 1.2 */\n  scale?: number\n  /** Finesse des veines. @defaultValue 0.6 */\n  veins?: number\n  /** Octaves de chaque bruit. @defaultValue 4 */\n  octaves?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<MarbleControls>\n}\n\n/** Toutes les proprietes. */\nexport type MarbleProps = Customisable<MarbleOwnProps>\n\n/** Tokens employes par defaut : la pierre, les veines, l'accent. */\nconst DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-amber-400'] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-via-zinc-200 dark:o-via-zinc-800 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Octaves en qualite basse.\n *\n * Cinq sommes d'octaves par fragment — deux par etage de deformation, une\n * pour la matiere — donc chaque octave se paie cinq fois. C'est le seul\n * levier de cout du shader.\n */\nconst LOW_OCTAVES = 2\n\n/**\n * Marbre.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Marble className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Marble({\n  speed = 0.03,\n  scale = 1.2,\n  veins = 0.6,\n  octaves = 4,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: MarbleProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: MARBLE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uScale: scale, uVeins: veins, uOctaves: octaves },\n    name: 'marble',\n    degrade: (quality) => ({\n      uOctaves: quality === 'low' ? Math.min(octaves, LOW_OCTAVES) : octaves,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

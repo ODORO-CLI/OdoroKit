@@ -1,0 +1,64 @@
+{
+  "name": "use-interval-clock",
+  "category": "hooks",
+  "title": "Intervalle sur l horloge",
+  "description": "Repete une action a cadence tenue dans la boucle du moteur, et s arrete quand l onglet est cache.",
+  "engine": {
+    "gsap": [
+      "core"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useIntervalClock.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "interval",
+      "type": "number",
+      "required": false,
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree entre deux battements.",
+      "min": 100,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "actif",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Battre ou non. C est par la que passe le mouvement reduit."
+    },
+    {
+      "name": "immediat",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Battre une premiere fois sans attendre l intervalle."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false,
+      "default": "intervalle",
+      "description": "Nom affiche dans le panneau de diagnostic."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun minuteur ouvert : une addition par image dans la boucle deja en place. Un battement au plus par image."
+  },
+  "id": "hooks/use-interval-clock",
+  "sources": {
+    "hook.ts": "/**\n * Repetition a intervalle regulier, calee sur l'horloge du moteur.\n *\n * ## Ce que `setInterval` fait de travers dans une page animee\n *\n * Il continue quand l'onglet est cache. Le navigateur le ralentit — une fois\n * par seconde au mieux — mais il ne l'arrete pas : un carrousel de mots\n * revenu au premier plan a defile trois cents fois dans le vide, et la\n * batterie l'a paye. La boucle du moteur, elle, est adossee a l'affichage :\n * un onglet cache ne recoit aucune image, donc aucun battement, et la reprise\n * se fait la ou l'on s'etait arrete.\n *\n * Il derive, aussi. `setInterval(f, 1000)` appelle rarement `f` a une seconde\n * d'ecart : le delai part apres l'execution precedente, et la file de taches\n * ajoute ce qu'elle veut. Deux intervalles egaux lances ensemble se\n * desynchronisent en quelques minutes, ce qui se voit tout de suite quand ils\n * animent deux elements voisins. Ici le temps ecoule est accumule et le reste\n * est reporte : la cadence est tenue sur la duree.\n *\n * Et il ouvre un minuteur de plus. Une page qui affiche vingt compteurs ouvre\n * vingt minuteurs, que rien ne coordonne avec les images ; ici, tout passe par\n * l'unique boucle du moteur, qui les execute dans un ordre connu.\n *\n * ## Pourquoi le rattrapage est borne a un battement par image\n *\n * Apres un blocage — un onglet revenu, un script long — le temps ecoule\n * depasserait plusieurs intervalles. Les rejouer tous dans la meme image\n * produirait une rafale : un compteur qui saute de trente, une animation qui\n * clignote. Le temps en trop est donc jete, parce que ce qui compte pour une\n * repetition d'interface est la cadence a venir, pas le rattrapage du passe.\n *\n * @module\n */\n\nimport { CLOCK_PRIORITY, clock } from '@odoro-cli/engine'\nimport { useEffect, useRef } from 'react'\n\n/** Options de `useIntervalClock`. */\nexport interface IntervalClockOptions {\n  /** Duree entre deux battements, en millisecondes. @defaultValue 1000 */\n  interval?: number\n  /**\n   * Battre ou non.\n   *\n   * C'est par la que passe le mouvement reduit : le crochet n'anime rien par\n   * lui-meme et ne peut pas juger a la place de l'appelant. Un carrousel qui\n   * defile tout seul passe `actif={!reduced}` ; un compte a rebours, qui est\n   * un contenu et non un agrement, bat quand meme.\n   *\n   * @defaultValue true\n   */\n  actif?: boolean\n  /**\n   * Battre une premiere fois immediatement, sans attendre l'intervalle.\n   *\n   * @defaultValue false\n   */\n  immediat?: boolean\n  /** Nom affiche dans le panneau de diagnostic. */\n  name?: string\n}\n\n/**\n * Appelle une fonction a intervalle regulier, dans la boucle du moteur.\n *\n * @param callback Appelee a chaque battement. Sa derniere version est toujours\n * celle qui s'execute : la changer ne redemarre pas le compte.\n *\n * @example\n * const [index, setIndex] = useState(0)\n * const { reduced } = useMotionState()\n *\n * useIntervalClock(() => setIndex((n) => (n + 1) % mots.length), {\n *   interval: 2400,\n *   actif: !reduced,\n *   name: 'mots-tournants',\n * })\n */\nexport function useIntervalClock(\n  callback: () => void,\n  options: IntervalClockOptions = {},\n): void {\n  const {\n    interval = 1000,\n    actif = true,\n    immediat = false,\n    name = 'intervalle',\n  } = options\n\n  // La fonction vit dans une ref : sans cela, une fonction fabriquee au rendu\n  // — le cas normal — redemarrerait le compte a chaque rendu, et l'intervalle\n  // ne serait jamais atteint sur une page qui rend souvent.\n  const garde = useRef(callback)\n  useEffect(() => {\n    garde.current = callback\n  }, [callback])\n\n  useEffect(() => {\n    if (!actif || interval <= 0) return\n\n    const periode = interval / 1000\n    let accumule = 0\n\n    if (immediat) garde.current()\n\n    const subscription = clock.subscribe(\n      ({ deltaRaw }) => {\n        // Le temps reel, pas le temps lisse : une cadence se compte en\n        // secondes vraies. Borne a une periode, pour qu'un blocage produise un\n        // battement et non une rafale.\n        accumule += deltaRaw > periode ? periode : deltaRaw\n        if (accumule < periode) return\n        accumule -= periode\n        garde.current()\n      },\n      { priority: CLOCK_PRIORITY.default, name },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [interval, actif, immediat, name])\n}\n"
+  }
+}

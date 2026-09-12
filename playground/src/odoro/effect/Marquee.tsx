@@ -68,6 +68,7 @@ function ensureMarqueeRule(): void {
     '[data-o-marquee-reverse] > div{animation-name:o-marquee-reverse}',
     '[data-o-marquee-pause]:hover > div{animation-play-state:paused}',
     '@media (prefers-reduced-motion:reduce){[data-o-marquee] > div{animation:none}}',
+    '[data-o-marquee-fige] > div{animation:none}',
   ].join('')
   document.head.append(style)
 }
@@ -128,7 +129,12 @@ export function Marquee({
           '--o-marquee-fade': `${String(fade)}%`,
         } as CSSProperties
       }
-      data-o-marquee={reduced ? undefined : ''}
+      // L attribut porte aussi la coupe et le masque, pas seulement
+      // l animation : le retirer sous mouvement reduit laissait la copie
+      // sortir de la bande et poussait la page de trois cents pixels. La
+      // regle @media de la feuille arrete deja le defilement.
+      data-o-marquee=""
+      data-o-marquee-fige={reduced ? '' : undefined}
       data-o-marquee-reverse={reverse ? '' : undefined}
       data-o-marquee-pause={pauseOnHover ? '' : undefined}
     >

@@ -60,10 +60,10 @@ export interface HalftoneOwnProps {
 export type HalftoneProps = Customisable<HalftoneOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = ['--o-palette-zinc-950', '--o-palette-amber-300'] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-amber-300'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-zinc-950'
+const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
 
 /**
  * Trame.

@@ -1,0 +1,100 @@
+{
+  "name": "sticky-cursor",
+  "category": "effect",
+  "title": "Curseur collant",
+  "description": "Une pastille suit le pointeur, s etire en vol, puis prend exactement la taille et l arrondi du bouton qu elle survole.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/StickyCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 20,
+      "unit": "px",
+      "description": "Diametre de la pastille au repos.",
+      "min": 8,
+      "max": 60,
+      "step": 2
+    },
+    {
+      "name": "stick",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "De combien la pastille suit encore le pointeur une fois accrochee.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "padding",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "px",
+      "description": "Marge ajoutee autour de la cible.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 16,
+      "description": "Vitesse de rattrapage. Plus haut, plus sec.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "required": false,
+      "default": 0.45,
+      "description": "Etirement en vol.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "targets",
+      "type": "string",
+      "required": false,
+      "description": "Le selecteur de ce a quoi la pastille colle."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur de la pastille. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Zone ou la pastille vit. Absente, elle prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul element mu par image, dans une couche qui porte contain ; l arrondi de la cible n est lu qu au moment de l accroche. Rien sans pointeur fin ni sous mouvement reduit."
+  },
+  "id": "effect/sticky-cursor",
+  "sources": {
+    "component.tsx": "/**\n * Curseur collant : une pastille qui epouse le bouton qu'elle survole.\n *\n * ## Coller, ce n'est pas encadrer\n *\n * Le viseur pose quatre crochets autour d'une cible : il la designe, de\n * l'exterieur. Celui-ci prend sa place — il devient le fond du bouton, avec sa\n * taille et son arrondi, et le libelle se lit par-dessus. C'est le curseur des\n * barres de navigation, celui qui donne l'impression qu'un seul jeton glisse\n * d'un onglet a l'autre.\n *\n * ## L'arrondi est lu sur la cible, une fois\n *\n * Rien ne sert de deviner : au moment ou la pastille accroche, l'arrondi\n * calcule de l'element est recopie, et une transition CSS s'occupe du passage.\n * Le relire a chaque image demanderait un style calcule par image — la mesure\n * la plus chere du navigateur — pour une valeur qui ne change jamais pendant\n * le survol.\n *\n * ## Pourquoi la taille est ecrite, et non mise a l'echelle\n *\n * Une mise a l'echelle deformerait l'arrondi et l'epaisseur du filet : un\n * bouton large deviendrait une capsule ovale. La largeur et la hauteur sont\n * donc amorties puis ecrites telles quelles. C'est une mise en page par image,\n * mais sur un seul element hors flux, dans une couche qui porte `contain` —\n * le cout reste local, et c'est le prix d'une forme juste.\n *\n * ## L'etirement ne vit qu'entre deux cibles\n *\n * En vol, la pastille s'allonge dans le sens du deplacement : c'est ce qui la\n * fait lire comme une matiere plutot qu'un rectangle telepote. Une fois\n * accrochee, l'etirement retombe a zero — un bouton mis en valeur par un fond\n * penche serait un defaut, pas un effet.\n *\n * ## Ou elle ne se montre pas\n *\n * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non plus :\n * la pastille est un agrement continu, sans etat final a poser. Le curseur du\n * systeme reste visible.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface StickyCursorOwnProps {\n  /**\n   * Zone ou la pastille vit.\n   *\n   * Fournie, elle n'ecoute que cette zone et y est coupee. Absente, elle prend\n   * la page entiere, en couche fixe qui n'intercepte rien.\n   */\n  children?: ReactNode\n  /** Diametre de la pastille au repos, en pixels. @defaultValue 20 */\n  size?: number\n  /**\n   * De combien la pastille suit encore le pointeur une fois accrochee, de zero\n   * a un. A zero elle se centre net sur la cible.\n   *\n   * @defaultValue 0.3\n   */\n  stick?: number\n  /** Marge ajoutee autour de la cible, en pixels. @defaultValue 6 */\n  padding?: number\n  /** Vitesse de rattrapage. Plus haut, plus sec. @defaultValue 16 */\n  speed?: number\n  /** Etirement en vol, de zero a un. @defaultValue 0.45 */\n  stretch?: number\n  /**\n   * Ce a quoi la pastille colle.\n   *\n   * @defaultValue 'a, button, [role=\"button\"], [data-o-sticky]'\n   */\n  targets?: string\n  /** Couleur de la pastille. Une valeur, pas un role. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type StickyCursorProps = Customisable<StickyCursorOwnProps>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-sticky-cursor'\n\n/** Allongement maximal, en fraction de la taille. */\nconst MAX_STRETCH = 0.6\n\n/** Pose les regles de la pastille, une fois par document. */\nfunction ensureStickyCursorRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // La position de la zone vit dans une regle sans specificite : une\n    // classe de l appelant — `o-absolute` pour la poser dans un cadre —\n    // doit pouvoir la remplacer, ce qu'un style en ligne interdirait.\n    ':where([data-o-sticky-host=\"zone\"]){position:relative;overflow:hidden}',\n    ':where([data-o-sticky-host=\"page\"]){position:fixed;inset:0;z-index:9998;pointer-events:none}',\n    '[data-o-sticky-layer]{',\n    'position:absolute;inset:0;overflow:hidden;pointer-events:none;',\n    // La mise en page de la pastille ne doit pas remonter dans la page : voir\n    // l'en-tete du module.\n    'contain:layout style;',\n    'opacity:0;transition:opacity 160ms linear;',\n    '}',\n    '[data-o-sticky-pad]{',\n    'position:absolute;left:0;top:0;will-change:transform;',\n    'transition:border-radius 220ms ease;',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait coller une pastille aux elements survoles.\n *\n * @example\n * // Une barre de navigation ou un seul jeton glisse d un onglet a l autre.\n * <StickyCursor>\n *   <nav className=\"o-flex o-gap-2\">…</nav>\n * </StickyCursor>\n *\n * @example\n * // Sur la page entiere, plus grosse et parfaitement centree sur ses cibles.\n * <StickyCursor size={28} stick={0} padding={10} />\n */\nexport function StickyCursor({\n  children,\n  size = 20,\n  stick = 0.3,\n  padding = 6,\n  speed = 16,\n  stretch = 0.45,\n  targets = 'a, button, [role=\"button\"], [data-o-sticky]',\n  color = 'currentColor',\n  ...rest\n}: StickyCursorProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n  const wrapping = children !== undefined\n\n  ensureStickyCursorRule()\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (typeof window === 'undefined') return\n    // Pointeur grossier : rien a coller, rien n'est cree.\n    if (!window.matchMedia('(pointer: fine)').matches) return\n\n    const layer = document.createElement('div')\n    layer.setAttribute('data-o-sticky-layer', '')\n    layer.setAttribute('aria-hidden', 'true')\n    host.append(layer)\n\n    const pad = document.createElement('span')\n    pad.setAttribute('data-o-sticky-pad', '')\n    // Une teinte, pas un aplat : la pastille passe sous le libelle du bouton,\n    // qui doit rester lisible.\n    pad.style.background = `color-mix(in oklab, ${color} 16%, transparent)`\n    pad.style.border = `1px solid color-mix(in oklab, ${color} 45%, transparent)`\n    pad.style.borderRadius = '9999px'\n    pad.style.width = `${String(size)}px`\n    pad.style.height = `${String(size)}px`\n    layer.append(pad)\n\n    let box = host.getBoundingClientRect()\n    let locked: Element | null = null\n    let seen = false\n    let radius = '9999px'\n\n    let wantX = -size * 6\n    let wantY = -size * 6\n    let wantW = size\n    let wantH = size\n\n    let centreX = wantX\n    let centreY = wantY\n    let width = size\n    let height = size\n    let grip = 0\n\n    let pointerX = wantX\n    let pointerY = wantY\n\n    /** Recalcule la cible : la boite accrochee, ou la pastille au pointeur. */\n    const aim = (): void => {\n      if (locked === null) {\n        wantX = pointerX\n        wantY = pointerY\n        wantW = size\n        wantH = size\n        return\n      }\n      const rect = locked.getBoundingClientRect()\n      const cx = rect.left - box.left + rect.width / 2\n      const cy = rect.top - box.top + rect.height / 2\n      // `stick` est une fraction de trajet : a zero la pastille se centre, a un\n      // elle reste sous le doigt tout en ayant pris la forme de la cible.\n      wantX = cx + (pointerX - cx) * stick\n      wantY = cy + (pointerY - cy) * stick\n      wantW = rect.width + padding * 2\n      wantH = rect.height + padding * 2\n    }\n\n    const onFrameChange = (): void => {\n      box = host.getBoundingClientRect()\n      aim()\n    }\n\n    const onMove = (event: Event): void => {\n      const pointer = event as PointerEvent\n      if (pointer.pointerType === 'touch') return\n      pointerX = pointer.clientX - box.left\n      pointerY = pointer.clientY - box.top\n      if (!seen) {\n        centreX = pointerX\n        centreY = pointerY\n        seen = true\n        layer.style.opacity = '1'\n      }\n      aim()\n    }\n\n    const onOver = (event: Event): void => {\n      const node = event.target\n      const found = node instanceof Element ? node.closest(targets) : null\n      if (found !== locked) {\n        locked = found\n        // L'arrondi est lu au moment de l'accroche, jamais dans la boucle.\n        radius = found === null ? '9999px' : window.getComputedStyle(found).borderRadius\n        pad.style.borderRadius = radius\n      }\n      aim()\n    }\n\n    const onLeave = (): void => {\n      layer.style.opacity = '0'\n      locked = null\n      seen = false\n    }\n\n    const surface: HTMLElement | Window = wrapping ? host : window\n    surface.addEventListener('pointermove', onMove, { passive: true })\n    surface.addEventListener('pointerover', onOver, { passive: true })\n    surface.addEventListener('pointerleave', onLeave)\n    window.addEventListener('resize', onFrameChange, { passive: true })\n    window.addEventListener('scroll', onFrameChange, { passive: true, capture: true })\n\n    const subscription = clock.subscribe(\n      ({ delta }) => {\n        if (!seen) return\n        const factor = 1 - Math.exp(-speed * delta)\n        const stepX = (wantX - centreX) * factor\n        const stepY = (wantY - centreY) * factor\n        centreX += stepX\n        centreY += stepY\n        width += (wantW - width) * factor\n        height += (wantH - height) * factor\n        grip += ((locked === null ? 0 : 1) - grip) * factor\n\n        pad.style.width = `${width.toFixed(1)}px`\n        pad.style.height = `${height.toFixed(1)}px`\n\n        const travelled = Math.hypot(stepX, stepY)\n        // L'etirement s'eteint a mesure que la pastille accroche.\n        const pull =\n          Math.min(MAX_STRETCH, (travelled / Math.max(size, 1)) * stretch) * (1 - grip)\n        const angle = (Math.atan2(stepY, stepX) * 180) / Math.PI\n\n        pad.style.transform = [\n          `translate3d(${(centreX - width / 2).toFixed(1)}px,${(centreY - height / 2).toFixed(1)}px,0)`,\n          `rotate(${angle.toFixed(1)}deg)`,\n          `scale(${(1 + pull).toFixed(3)},${(1 - pull * 0.5).toFixed(3)})`,\n          `rotate(${(-angle).toFixed(1)}deg)`,\n        ].join(' ')\n      },\n      { name: 'sticky-cursor : pastille', priority: CLOCK_PRIORITY.default },\n    )\n\n    return () => {\n      surface.removeEventListener('pointermove', onMove)\n      surface.removeEventListener('pointerover', onOver)\n      surface.removeEventListener('pointerleave', onLeave)\n      window.removeEventListener('resize', onFrameChange)\n      window.removeEventListener('scroll', onFrameChange, { capture: true })\n      subscription.unsubscribe()\n      layer.remove()\n    }\n  }, [host, reduced, size, stick, padding, speed, stretch, targets, color, wrapping])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      style={style as CSSProperties}\n      data-o-sticky-host={wrapping ? 'zone' : 'page'}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

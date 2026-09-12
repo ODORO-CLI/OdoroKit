@@ -1,0 +1,59 @@
+{
+  "name": "theme-switch",
+  "category": "ui",
+  "title": "Interrupteur jour nuit",
+  "description": "Un soleil devient lune, la piste change de teinte et des etoiles s allument cote nuit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ThemeSwitch.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-sky-400",
+    "--o-palette-indigo-950",
+    "--o-palette-amber-400",
+    "--o-palette-zinc-50",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "description": "Etat nuit, en mode controle."
+    },
+    {
+      "name": "defaultChecked",
+      "type": "boolean",
+      "default": false,
+      "description": "Etat au montage, en mode non controle."
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "(checked: boolean) => void",
+      "description": "Appele quand l utilisateur bascule."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Hauteur de l interrupteur.",
+      "min": 24,
+      "max": 64,
+      "step": 4
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Des transitions de transformation, d opacite et de couleur, rien par frame. Purement decoratif : il ne touche pas au theme du site. Sous mouvement reduit la bascule est instantanee."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "floating-shapes",
+  "category": "background",
+  "title": "Formes flottantes",
+  "description": "Cinq solides simples, pleins ou en fil de fer, qui derivent et tournent sur eux-memes ; sous le pointeur chacun se decale d une part qui depend de sa profondeur.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/FloatingShapes.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped", "hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-purple-400"],
+  "props": [
+    {
+      "name": "shapes",
+      "type": "number",
+      "default": 18,
+      "description": "Nombre de solides. Retrograde a neuf en qualite basse.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de derive et de rotation.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "parallax",
+      "type": "number",
+      "default": 1,
+      "description": "Amplitude de la parallaxe sous le pointeur. A zero, les solides l ignorent.",
+      "min": 0,
+      "max": 3,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-palette-purple-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, les solides pleins, les solides en fil de fer."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Cinq geometries et deux materiaux partages ; un solide de plus ne coute qu un appel de dessin. En qualite basse, le nombre de solides tombe a neuf. Le rendu se suspend hors du champ."
+  }
+}

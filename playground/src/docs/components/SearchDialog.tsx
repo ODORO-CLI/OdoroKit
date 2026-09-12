@@ -92,7 +92,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
         <Icon
           icon={Search}
           size={16}
-          className="o-text-zinc-400 dark:o-text-zinc-500 o-shrink-0"
+          className="o-text-zinc-500 dark:o-text-zinc-400 o-shrink-0"
         />
         <input
           type="text"
@@ -117,7 +117,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
           aria-label="Rechercher"
           className="o-w-full o-h-12 o-bg-transparent o-text-base o-text-zinc-900 dark:o-text-zinc-50 o-outline-none"
         />
-        <kbd className="o-shrink-0 o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-sm o-px-1.5 o-py-0.5">
+        <kbd className="o-shrink-0 o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-rounded-sm o-px-1.5 o-py-0.5">
           Echap
         </kbd>
       </div>
@@ -155,7 +155,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
                   {page.description}
                 </span>
               </span>
-              <span className="o-shrink-0 o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+              <span className="o-shrink-0 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {page.section}
               </span>
             </button>

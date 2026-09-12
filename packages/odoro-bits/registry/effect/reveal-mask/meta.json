@@ -1,0 +1,60 @@
+{
+  "name": "reveal-mask",
+  "category": "effect",
+  "title": "Rideau par bandes",
+  "description": "A l entree dans le champ, le contenu est revele par des bandes verticales qui se retirent en cascade puis quittent le DOM.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/RevealMask.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": ["--o-theme-bg"],
+  "props": [
+    {
+      "name": "bands",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de bandes.",
+      "min": 3,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du retrait d une bande.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "description": "Decalage entre deux bandes voisines.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des bandes. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur jusqu a l entree dans le champ, une animation Web Animations par bande, surcouche retiree du DOM a la fin. Contenu immediatement visible sous mouvement reduit."
+  }
+}

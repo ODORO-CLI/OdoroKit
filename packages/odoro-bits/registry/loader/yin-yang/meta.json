@@ -1,0 +1,57 @@
+{
+  "name": "yin-yang",
+  "category": "loader",
+  "title": "Yin et yang",
+  "description": "Le symbole tourne comme une toupie relancee d une chiquenaude : deux tours qui s eteignent, un arret, et on recommence, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/YinYang.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 44,
+      "unit": "px",
+      "description": "Diametre du symbole.",
+      "min": 20,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d une chiquenaude, deux tours et l arret compris.",
+      "min": 1000,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la moitie sombre et du contour ; l autre moitie est le fond. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de rotation sur un groupe SVG, tenue par le compositeur ; la moitie claire est le fond, vu a travers. Symbole droit et immobile sous mouvement reduit."
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "hyperspace",
+  "category": "background",
+  "title": "Hyperespace",
+  "description": "Des etoiles filantes vers la camera depuis un point de fuite, lues en polaire et en logarithme ; les trainees s allongent avec la vitesse.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "hyperspace.shader.ts",
+      "target": "background/hyperspace.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Hyperspace.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-indigo-300",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse du defilement vers la camera. Les trainees s allongent avec elle.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "description": "Nombre de rayons sur un tour, pour la couche proche.",
+      "min": 16,
+      "max": 140,
+      "step": 4
+    },
+    {
+      "name": "stretch",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Allongement des trainees, en plus de celui que donne la vitesse.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-indigo-300, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps des trainees, leur tete."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Trois familles de rayons, une cellule evaluee par famille et par fragment : un logarithme et une arc-tangente par pixel. En qualite basse, la troisieme famille est retiree.",
+    "fallback": "gradient"
+  },
+  "id": "background/hyperspace",
+  "sources": {
+    "hyperspace.shader.ts": "/**\n * Shader de l'hyperespace.\n *\n * ## L'idee mathematique\n *\n * Le cadre est lu en coordonnees polaires depuis son centre, le point de fuite.\n * L'angle decoupe le plan en rayons ; le long de chaque rayon, la distance est\n * lue en logarithme : une cellule de longueur constante dans ce domaine est\n * minuscule pres du centre et large au bord, ce qui est exactement la\n * perspective d'un objet qui fonce vers la camera. Le temps translate ce\n * domaine vers l'exterieur, et chaque cellule hachee porte ou non une etoile.\n *\n * La trainee est une rampe le long de la cellule : tete nette a l'avant, queue\n * qui s'eteint derriere, d'une longueur qui croit avec la vitesse — a l'arret\n * on verrait des points, a pleine vitesse des traits. L'epaisseur est mesuree\n * en distance reelle au rayon, pas en angle, pour que le trait reste aussi fin\n * pres du centre qu'au bord.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le corps des trainees.\n * - `uColorC` — la tete chaude des trainees.\n * - `uSpeed` — vitesse du defilement vers la camera.\n * - `uDensity` — nombre de rayons sur un tour, pour la couche proche.\n * - `uStretch` — allongement des trainees, en plus de celui que donne la vitesse.\n * - `uLayers` — nombre de couches evaluees, et donc le cout.\n */\nexport const HYPERSPACE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uDensity;\nuniform float uStretch;\nuniform float uLayers;\n\n// Nombre pseudo-aleatoire : projection sur une direction arbitraire, sinus\n// amplifie, partie fractionnaire.\nfloat hyperHash(vec2 p) {\n  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 uv = (vUv - 0.5) * vec2(aspect, 1.0);\n  float r = length(uv);\n  float a = atan(uv.y, uv.x);\n  float t = uTime * uSpeed;\n  int layers = int(clamp(uLayers, 1.0, 3.0));\n\n  vec3 colour = uColorA;\n\n  // La longueur de trainee suit la vitesse : c'est ce qui fait lire le\n  // defilement comme une acceleration plutot que comme une pluie de points.\n  float len = clamp(0.12 + uStretch * uSpeed * 0.35, 0.05, 0.95);\n\n  // Trois couches de rayons, decalees en angle et en cadence : sans elles,\n  // les etoiles d'un meme rayon sortiraient toutes du meme trou.\n  for (int layer = 0; layer < 3; layer += 1) {\n    if (layer >= layers) break;\n    float depth = float(layer);\n    float n = max(uDensity, 8.0) * (1.0 + depth * 0.5);\n\n    float ang = (a + depth * 1.7) / 6.28318 * n;\n    float ray = floor(ang);\n\n    // Ecart au rayon en distance reelle : angle residuel fois rayon. Le trait\n    // garde ainsi la meme finesse a toute distance du centre.\n    float lateral = (fract(ang) - 0.5) * (6.28318 / n) * r;\n\n    // Distance en logarithme, translatee par le temps : la cellule fuit vers\n    // l'exterieur en accelerant, comme le veut la perspective.\n    float z = log(max(r, 0.01)) * 3.0 - t * (1.0 + depth * 0.35) + hyperHash(vec2(ray, 3.7 + depth)) * 97.0;\n    float id = floor(z);\n    float f = fract(z);\n    float seed = hyperHash(vec2(ray, id) + depth * 31.0);\n\n    // Une cellule sur deux environ porte une etoile.\n    float exists = step(0.5, seed);\n\n    // Tete nette a l'avant de la cellule, queue qui s'eteint derriere.\n    float along = smoothstep(1.0 - len, 1.0, f) * (1.0 - smoothstep(0.97, 1.0, f));\n\n    float width = 0.0025 + 0.002 * seed;\n    float across = exp(-lateral * lateral / (width * width));\n\n    // Pres du point de fuite les etoiles sont encore loin : invisibles.\n    float approche = smoothstep(0.03, 0.5, r);\n\n    float bright = exists * along * across * approche * (1.0 - depth * 0.3);\n    vec3 teinte = mix(uColorB, uColorC, smoothstep(0.85, 1.0, f));\n    colour += teinte * bright;\n  }\n\n  // Une lueur faible au point de fuite : la ou tout converge.\n  colour += uColorB * 0.12 * exp(-r * r / 0.02);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Hyperespace : des etoiles filantes vers la camera, etirees selon la vitesse.\n *\n * ## Le principe\n *\n * Le cadre est lu en polaire depuis son point de fuite, et la distance en\n * logarithme : une cellule de longueur constante y est minuscule au centre et\n * large au bord, ce qui est la perspective d'un objet qui fonce vers l'oeil.\n * La trainee s'allonge avec la vitesse — des points a l'arret, des traits a\n * pleine vitesse.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { HYPERSPACE_FRAGMENT } from './hyperspace.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface HyperspaceControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface HyperspaceOwnProps {\n  /** Vitesse du defilement vers la camera. @defaultValue 1 */\n  speed?: number\n  /** Nombre de rayons sur un tour. @defaultValue 64 */\n  density?: number\n  /** Allongement des trainees, en plus de celui que donne la vitesse. @defaultValue 1 */\n  stretch?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<HyperspaceControls>\n}\n\n/** Toutes les proprietes. */\nexport type HyperspaceProps = Customisable<HyperspaceOwnProps>\n\n/** Tokens employes par defaut : le fond, le corps des trainees, leur tete. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-indigo-300',\n  '--o-theme-fg',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-indigo-200 dark:o-to-indigo-950'\n\n/**\n * Couches hors qualite basse.\n *\n * Chaque couche est une famille de rayons evaluee par fragment : c'est le\n * seul levier de cout, et la troisieme couche est la plus faible.\n */\nconst LAYERS = 3\n\n/** Couches en qualite basse. */\nconst LOW_LAYERS = 2\n\n/**\n * Hyperespace.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Hyperspace className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Hyperspace({\n  speed = 1,\n  density = 64,\n  stretch = 1,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: HyperspaceProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: HYPERSPACE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uDensity: density, uStretch: stretch, uLayers: LAYERS },\n    name: 'hyperspace',\n    degrade: (quality) => ({ uLayers: quality === 'low' ? LOW_LAYERS : LAYERS }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

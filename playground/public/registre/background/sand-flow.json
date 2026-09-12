@@ -1,0 +1,93 @@
+{
+  "name": "sand-flow",
+  "category": "background",
+  "title": "Sable qui coule",
+  "description": "Des filets de grains qui tombent sur un tas : une grille fine qui defile, effilochee loin de l axe, et la meme grille immobile sous un profil de bosses.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "sand-flow.shader.ts",
+      "target": "background/sand-flow.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/SandFlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-amber-500",
+    "--o-palette-yellow-200"
+  ],
+  "props": [
+    {
+      "name": "streams",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de filets.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "grain",
+      "type": "number",
+      "required": false,
+      "default": 110,
+      "description": "Nombre de grains par hauteur de cadre. Retrograde a 70 en qualite basse.",
+      "min": 40,
+      "max": 220,
+      "step": 10
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse de chute.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "heap",
+      "type": "number",
+      "required": false,
+      "default": 0.22,
+      "description": "Hauteur du tas, en hauteurs de cadre.",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.02
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-amber-500, --o-palette-yellow-200",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Jusqu a six filets evalues par fragment pour trouver le plus proche, puis deux grains — un qui tombe, un au repos — a trois hachages chacun. En qualite basse, le grain grossit.",
+    "fallback": "gradient"
+  },
+  "id": "background/sand-flow",
+  "sources": {
+    "sand-flow.shader.ts": "/**\n * Shader du sable qui coule.\n *\n * ## L'idee mathematique\n *\n * Le sable n'est pas une nappe : c'est une grille de grains. Chaque cellule\n * d'une grille fine tire au sort un grain, place a un endroit hache de la\n * cellule ; pour faire couler un filet, il suffit de faire defiler la grille\n * vers le bas, chaque filet a sa propre vitesse. La densite des grains suit\n * la distance a l'axe du filet, si bien que ses bords sont effiloches, grain\n * par grain, plutot que coupes net.\n *\n * En bas, un tas : un profil de hauteur fait de bosses sous chaque filet,\n * rempli de la meme grille, mais immobile. Les grains qui tombent\n * disparaissent a la surface du tas, et un peu de poussiere s'y souleve.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — le sable.\n * - `uColorC` — les grains clairs, qui accrochent la lumiere.\n * - `uStreams` — nombre de filets.\n * - `uGrain` — nombre de grains par hauteur de cadre.\n * - `uSpeed` — vitesse de chute.\n * - `uHeap` — hauteur du tas, en hauteurs de cadre.\n */\nexport const SAND_FLOW_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uStreams;\nuniform float uGrain;\nuniform float uSpeed;\nuniform float uHeap;\n\n// Plafond des filets : la boucle est bornee par une constante.\nconst int MAX_STREAMS = 6;\n\nfloat sableHash(float p) {\n  return fract(sin(p * 127.1) * 43758.5453123);\n}\n\nfloat sableHash2(vec2 p) {\n  p = fract(p * vec2(123.34, 456.21));\n  p += dot(p, p + 45.32);\n  return fract(p.x * p.y);\n}\n\nfloat sableNoise(float p) {\n  float cell = floor(p);\n  float local = fract(p);\n  float smoothed = local * local * (3.0 - 2.0 * local);\n  return mix(sableHash(cell), sableHash(cell + 1.0), smoothed);\n}\n\n// Un grain dans sa cellule : present si le tirage passe le seuil, dessine en\n// disque a un endroit hache de la cellule. Rend 0 ou la couverture du disque.\nfloat sableGrain(vec2 q, float seuil, float rayon, float pixel) {\n  vec2 cell = floor(q);\n  float tirage = sableHash2(cell);\n  if (tirage > seuil) return 0.0;\n  vec2 centre = cell + 0.5 + (vec2(sableHash2(cell + 3.7), sableHash2(cell + 9.1)) - 0.5) * 0.5;\n  float d = length(q - centre);\n  return 1.0 - smoothstep(rayon - pixel, rayon + pixel, d);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = vec2(vUv.x * aspect, vUv.y);\n  float grain = max(uGrain, 20.0);\n  // Un pixel, en cellules de grain : sert au lissage des disques.\n  float pixel = grain / max(uResolution.y, 1.0);\n  int total = int(clamp(uStreams, 1.0, float(MAX_STREAMS)));\n\n  // Le filet le plus proche : sa distance, sa vitesse et son point de chute.\n  float proche = 10.0;\n  float vitesse = 1.0;\n  float largeur = 0.02;\n  float indiceProche = 0.0;\n  float tas = 0.0;\n\n  for (int i = 0; i < MAX_STREAMS; i += 1) {\n    if (i >= total) break;\n    float indice = float(i);\n    float graine = sableHash(indice * 5.3 + 1.1);\n    // Les filets se repartissent sur la largeur, un peu decales au hasard.\n    float base = (indice + 0.5) / float(total) * aspect + (graine - 0.5) * 0.12 * aspect / float(total);\n    // Un filet ondule a peine : le sable tombe droit, a un souffle pres.\n    float axe = base + (sableNoise(vUv.y * 2.5 + uTime * 0.35 + graine * 30.0) - 0.5) * 0.03;\n    float ecart = abs(p.x - axe);\n    if (ecart < proche) {\n      proche = ecart;\n      vitesse = 0.75 + graine * 0.5;\n      largeur = 0.014 + sableHash(indice * 2.9) * 0.016;\n      indiceProche = indice;\n    }\n    // Chaque filet eleve une bosse sous lui.\n    float bosse = exp(-pow((p.x - base) / (0.09 + graine * 0.05), 2.0));\n    tas += bosse;\n  }\n\n  // Le profil du tas : une base plate, des bosses, un grain de surface.\n  float hauteur = uHeap * (0.35 + 0.65 * min(tas, 1.3) / 1.3)\n    + (sableNoise(p.x * 18.0) - 0.5) * 0.012;\n  float dansTas = step(vUv.y, hauteur);\n\n  vec3 colour = uColorA;\n\n  // Le filet qui tombe : la grille defile vers le bas a la vitesse du\n  // filet, et la densite s'effiloche avec la distance a l'axe.\n  float densite = 0.6 * smoothstep(largeur, largeur * 0.25, proche);\n  vec2 chute = vec2(p.x, vUv.y + uTime * uSpeed * vitesse * 0.9 + indiceProche * 3.7) * grain;\n  float grainChute = sableGrain(chute, densite, 0.36, pixel) * (1.0 - dansTas);\n  // Une ombre douce le long du filet : il reste visible entre deux grains.\n  float voile = smoothstep(largeur * 1.5, 0.0, proche) * 0.1 * (1.0 - dansTas);\n\n  // Le tas : la meme grille, immobile, plus dense, dont la surface s'ouvre\n  // grain par grain.\n  float surface = smoothstep(0.0, 0.015, hauteur - vUv.y);\n  vec2 repos = p * grain * 1.15 + 17.0;\n  float grainTas = sableGrain(repos, 0.45 + 0.4 * surface, 0.4, pixel) * dansTas;\n  float ombreTas = dansTas * (0.35 + 0.35 * surface);\n\n  // La poussiere au point de chute : un souffle qui palpite.\n  float palpite = 0.6 + 0.4 * sableNoise(uTime * 6.0 + indiceProche * 11.0);\n  float poussiere = exp(-pow(proche / 0.05, 2.0)) * exp(-max(vUv.y - hauteur, 0.0) * 30.0)\n    * (1.0 - dansTas) * 0.18 * palpite;\n\n  // Les grains clairs sont tires au sort parmi les grains, chacun d'apres\n  // sa propre cellule : un grain qui tombe garde sa teinte en tombant.\n  vec2 cellule = grainChute > grainTas ? floor(chute) : floor(repos);\n  float clair = step(0.78, sableHash2(cellule + 2.0));\n\n  colour = mix(colour, uColorB, clamp(voile + ombreTas + poussiere, 0.0, 1.0));\n  float grains = max(grainChute, grainTas);\n  colour = mix(colour, mix(uColorB, uColorC, clair), grains * 0.95);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Sable qui coule : des filets de grains qui tombent sur un tas.\n *\n * ## Le principe\n *\n * Pas de nappe : une grille fine dont chaque cellule tire au sort un grain.\n * Un filet est cette grille qui defile vers le bas, a sa vitesse propre, avec\n * une densite qui s'effiloche loin de l'axe ; le tas, en bas, est la meme\n * grille immobile, sous un profil de bosses elevees par chaque filet. Les\n * grains disparaissent a la surface du tas, et un peu de poussiere s'y\n * souleve.\n *\n * Ce qui distingue cette entree de `dunes` : celle-ci est un relief eclaire,\n * une surface continue ; ici tout est grain, et tout tombe.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur.\n *\n * Le repli est affiche pendant le chargement du backend, quand WebGL manque,\n * quand l'arbitre refuse la surface et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { SAND_FLOW_FRAGMENT } from './sand-flow.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface SandFlowControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface SandFlowOwnProps {\n  /** Nombre de filets. Borne a six par le shader. @defaultValue 3 */\n  streams?: number\n  /** Nombre de grains par hauteur de cadre. @defaultValue 110 */\n  grain?: number\n  /** Vitesse de chute. @defaultValue 1 */\n  speed?: number\n  /** Hauteur du tas, en hauteurs de cadre. @defaultValue 0.22 */\n  heap?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<SandFlowControls>\n}\n\n/** Toutes les proprietes. */\nexport type SandFlowProps = Customisable<SandFlowOwnProps>\n\n/** Tokens employes par defaut : le fond, le sable, les grains clairs. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-amber-500',\n  '--o-palette-yellow-200',\n] as const\n\n/** Repli par defaut : le tas fige en degrade, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-t o-from-amber-300 dark:o-from-amber-900 o-via-zinc-50 dark:o-via-zinc-950 o-to-zinc-50 dark:o-to-zinc-950'\n\n/**\n * Sable qui coule.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <SandFlow className=\"o-absolute o-inset-0\" streams={4} />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function SandFlow({\n  streams = 3,\n  grain = 110,\n  speed = 1,\n  heap = 0.22,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: SandFlowProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: SAND_FLOW_FRAGMENT,\n    colors,\n    uniforms: { uStreams: streams, uGrain: grain, uSpeed: speed, uHeap: heap },\n    name: 'sand-flow',\n    // Un grain plus fin que le pixel scintille a densite reduite : en qualite\n    // basse, les grains grossissent plutot que de disparaitre.\n    degrade: (quality) => ({\n      uGrain: quality === 'low' ? Math.min(grain, 70) : grain,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

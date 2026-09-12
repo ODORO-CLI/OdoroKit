@@ -1,0 +1,76 @@
+{
+  "name": "segment-ring",
+  "category": "loader",
+  "title": "Anneau a segments",
+  "description": "Un anneau en segments fixes qui s allument un a un et s eteignent lentement derriere le front.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SegmentRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Epaisseur des segments.",
+      "min": 1,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "segments",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de segments sur le tour.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree pour que le front fasse le tour.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des segments. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation d opacite par segment, tenue par le compositeur, aucun JavaScript apres le premier rendu. Tous les segments allumes sous mouvement reduit."
+  }
+}

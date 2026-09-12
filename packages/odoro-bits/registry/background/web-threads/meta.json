@@ -1,0 +1,74 @@
+{
+  "name": "web-threads",
+  "category": "background",
+  "title": "Toile de fils",
+  "description": "Des points relies a leurs voisins par des segments, une toile qui tremble au repos et vibre sous le pointeur ; les fils a portee s eclairent.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/WebThreads.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster", "hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-theme-muted", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "points",
+      "type": "number",
+      "default": 80,
+      "description": "Nombre de points. Les liens croissent plus vite que les points.",
+      "min": 20,
+      "max": 160,
+      "step": 5
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 1.1,
+      "description": "Rayon de liaison entre points, en unites de scene.",
+      "min": 0.4,
+      "max": 2.5,
+      "step": 0.1
+    },
+    {
+      "name": "vibration",
+      "type": "number",
+      "default": 0.4,
+      "description": "Amplitude du tremblement au repos.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "reach",
+      "type": "number",
+      "default": 1.4,
+      "description": "Portee du pointeur, en unites de scene.",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-theme-muted, --o-palette-brand-500",
+      "description": "Tokens dont les couleurs sont lues : le fond de la scene, les fils, les noeuds et l eclat des fils a portee."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Une geometrie de segments dont seuls les sommets bougent ; en qualite basse, les points tombent a quarante, donc les liens a pres du quart. Le rendu se suspend hors du champ."
+  }
+}

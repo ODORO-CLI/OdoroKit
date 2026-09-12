@@ -1,0 +1,95 @@
+{
+  "name": "skeleton-table",
+  "category": "loader",
+  "title": "Tableau en attente",
+  "description": "Des rangees separees par leurs filets, une premiere colonne large et des cellules de longueurs inegales : un tableau se lit avant ses donnees.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonTable.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de rangees de donnees, en-tete exclu.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de colonnes.",
+      "min": 1,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "header",
+      "type": "boolean",
+      "default": true,
+      "description": "Dessiner une rangee d en-tete plus dense."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Hauteur d une cellule.",
+      "min": 6,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 5,
+      "unit": "px",
+      "description": "Rayon des angles d une cellule.",
+      "min": 0,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "default": true,
+      "description": "Reflet qui traverse les cellules plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement du tableau",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par cellule, ou une opacite, aucun JavaScript apres le premier rendu. Longueurs deterministes : aucun tressaillement d un rendu a l autre. Cellules pleines et immobiles sous mouvement reduit."
+  }
+}

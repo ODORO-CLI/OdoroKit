@@ -1,0 +1,77 @@
+{
+  "name": "radial-glow",
+  "category": "background",
+  "title": "Halo",
+  "description": "Deux lueurs radiales superposees sur un fond profond, pour asseoir un hero. Aucun contexte graphique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/RadialGlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-fuchsia-500"],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 0.9,
+      "description": "Etendue du halo, en fraction du cadre.",
+      "min": 0.2,
+      "max": 1.6,
+      "step": 0.05
+    },
+    {
+      "name": "x",
+      "type": "number",
+      "default": 0.5,
+      "description": "Position horizontale du halo, entre 0 et 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "y",
+      "type": "number",
+      "default": 0.3,
+      "description": "Position verticale du halo, entre 0 et 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.5,
+      "description": "Intensite des lueurs, entre 0 et 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la lueur principale."
+    },
+    {
+      "name": "accent",
+      "type": "string",
+      "description": "Couleur de la lueur d accent."
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "description": "Couleur du fond."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux degrades radiaux peints une fois : aucun script, aucun contexte graphique."
+  }
+}

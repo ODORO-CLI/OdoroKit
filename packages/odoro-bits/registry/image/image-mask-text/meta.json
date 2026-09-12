@@ -1,0 +1,81 @@
+{
+  "name": "image-mask-text",
+  "category": "image",
+  "title": "Image dans le texte",
+  "description": "Un mot rempli par la photo, le reste du cadre sous un voile qu un halo ouvre autour du pointeur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ImageMaskText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement de l image. Chaine vide si le mot dit deja tout."
+    },
+    {
+      "name": "text",
+      "type": "string",
+      "required": true,
+      "description": "Le mot rempli par l image."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 18,
+      "description": "Taille du mot, en pour cent de la largeur du cadre.",
+      "min": 6,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "veil",
+      "type": "number",
+      "default": 0.92,
+      "description": "Opacite du voile pose sur l image, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.02
+    },
+    {
+      "name": "halo",
+      "type": "number",
+      "default": 190,
+      "unit": "px",
+      "description": "Rayon du halo qui ouvre le voile. Zero le supprime.",
+      "min": 0,
+      "max": 420,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux variables CSS ecrites au deplacement du pointeur, un degrade radial repeint par le compositeur, aucun rendu React. Voile uniforme et cadre inerte sous mouvement reduit ; le mot reprend l encre du theme la ou le decoupage par le texte manque."
+  }
+}

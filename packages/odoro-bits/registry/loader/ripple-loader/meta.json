@@ -1,0 +1,57 @@
+{
+  "name": "ripple-loader",
+  "category": "loader",
+  "title": "Ondes concentriques",
+  "description": "Quatre anneaux fixes qu une crete traverse du centre vers le bord : la structure reste, seul le passage se deplace, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/RippleLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 56,
+      "unit": "px",
+      "description": "Diametre de l anneau exterieur.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un passage complet de la crete.",
+      "min": 800,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des anneaux. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule regle d animation partagee par quatre anneaux, decalee par des delais negatifs ; echelle et opacite sont tenues par le compositeur. Quatre anneaux poses et immobiles sous mouvement reduit."
+  }
+}

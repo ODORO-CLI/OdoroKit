@@ -83,6 +83,52 @@ export function CardDoc(): ReactElement {
 >
   <p>Trois modules livres cette semaine.</p>
 </Card>`}
+          variants={[
+            {
+              title: 'Elevee',
+              description: 'Ombre portee au lieu du lisere.',
+              values: { variant: 'elevated' },
+            },
+            {
+              title: 'Fantome',
+              description: 'Ni lisere ni ombre, fond seul.',
+              values: { variant: 'ghost' },
+            },
+            {
+              title: 'Interactive',
+              description: 'Elevation au survol et curseur pointeur.',
+              values: { interactive: true },
+            },
+            {
+              title: 'Sans marge interne',
+              values: { padding: 'none' },
+            },
+            {
+              title: 'Media et pied',
+              description: 'Degrade en media, bouton en pied.',
+              node: (
+                <Card
+                  media={
+                    <div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-16" />
+                  }
+                  title="Nouvelle identite"
+                  description="Le degrade tient lieu d'illustration."
+                  footer={<Button size="sm">Decouvrir</Button>}
+                  className="o-w-56"
+                />
+              ),
+            },
+            {
+              title: 'Grille de cartes',
+              description: 'Deux cartes interactives cote a cote.',
+              node: (
+                <div className="o-grid o-grid-cols-2 o-gap-3">
+                  <Card interactive title="Composants" description="31 composants." />
+                  <Card interactive title="Routeur" description="Routeur client." />
+                </div>
+              ),
+            },
+          ]}
         />
       </Section>
 

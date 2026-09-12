@@ -48,6 +48,41 @@ export function SpinnerDoc(): ReactElement {
             <Spinner size={v.size as 'sm' | 'md' | 'lg'} label={v.label as string} />
           )}
           code={(v) => `<Spinner${jsxProps(v, DEFAUTS)} />`}
+          variants={[
+            {
+              title: 'Petit',
+              values: { size: 'sm' },
+            },
+            {
+              title: 'Grand',
+              values: { size: 'lg' },
+            },
+            {
+              title: 'Libelle personnalise',
+              description: 'Annonce aux lecteurs d\'ecran, masque visuellement.',
+              values: { label: 'Envoi en cours' },
+            },
+            {
+              title: 'Dans un bouton',
+              description: 'La prop loading de Button integre le spinner.',
+              node: <Button loading>Enregistrement</Button>,
+            },
+            {
+              title: 'Centre dans une carte',
+              description: 'Le motif d\'attente d\'un contenu qui arrive.',
+              node: (
+                <Card className="o-w-56">
+                  <div className="o-flex o-items-center o-justify-center o-py-8">
+                    <Spinner
+                      size="lg"
+                      label="Chargement des projets"
+                      className="o-text-brand-600 dark:o-text-brand-400"
+                    />
+                  </div>
+                </Card>
+              ),
+            },
+          ]}
         />
         <Callout>
           Le dessin herite de <code className="o-font-mono o-text-sm">currentColor</code>{' '}

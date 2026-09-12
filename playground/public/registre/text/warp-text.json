@@ -1,0 +1,69 @@
+{
+  "name": "warp-text",
+  "category": "text",
+  "title": "Deformation au defilement",
+  "description": "Le defilement commande la courbure de la ligne : elle pend en bas du champ, se bombe en haut, et redevient droite au centre de l ecran.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/WarpText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 28,
+      "unit": "px",
+      "description": "Fleche maximale de la courbe.",
+      "min": 0,
+      "max": 140,
+      "step": 2
+    },
+    {
+      "name": "inclinaison",
+      "type": "number",
+      "required": false,
+      "default": 6,
+      "unit": "deg",
+      "description": "Inclinaison maximale des lettres de bord.",
+      "min": 0,
+      "max": 30,
+      "step": 0.5
+    },
+    {
+      "name": "course",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Course du reglage, en hauteurs de fenetre.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une seule variable ecrite par image : quarante lettres coutent autant que cinq. Les transformations sont tenues par le compositeur."
+  },
+  "id": "text/warp-text",
+  "sources": {
+    "component.tsx": "/**\n * Deformation au defilement : la ligne se creuse puis se bombe en traversant\n * le champ.\n *\n * ## Le defilement commande une courbure, pas une position\n *\n * `scroll-float` fait deriver les mots et `scroll-reveal` les allume. Ici la\n * ligne garde sa place : ce que le defilement commande, c'est sa **forme**.\n * Quand le bloc est bas dans le champ, la ligne pend en chainette ; quand il\n * arrive au milieu de l'ecran, elle est parfaitement droite ; quand il monte\n * vers le haut, elle se bombe dans l'autre sens.\n *\n * Le point d'equilibre est donc le centre de l'ecran, la ou l'oeil se pose :\n * le texte est droit exactement au moment ou on le lit, et courbe le reste du\n * temps.\n *\n * ## Une seule variable ecrite par image\n *\n * La boucle du moteur ecrit `--o-wt-k` sur le conteneur, un nombre signe\n * entre moins un et un. Chaque lettre porte deux constantes calculees au\n * rendu — sa part de fleche et sa pente — et compose sa propre transformation\n * en `calc`. La courbe n'est jamais calculee en JavaScript puis distribuee :\n * c'est la meme valeur, lue avec deux coefficients differents par chacune.\n *\n * Une ligne de quarante caracteres coute donc exactement le meme travail par\n * image qu'une de cinq.\n *\n * ## La forme de la courbe\n *\n * La fleche suit `1 - u * u`, maximale au milieu et nulle aux extremites : c'est\n * l'arc le plus simple qui tienne par ses deux bouts. L'inclinaison suit la\n * pente de cette meme courbe, `-u`, pour que les lettres se couchent dans le\n * sens du trait au lieu de rester debout sur une ligne penchee — c'est ce\n * detail qui fait la difference entre une deformation et un simple\n * empilement de decalages.\n *\n * ## La ligne droite est la valeur par defaut\n *\n * `--o-wt-k` vaut zero dans la feuille : sans JavaScript, sans boucle, le\n * texte est droit et parfaitement lisible.\n *\n * ## Le decoupage est un artifice d'affichage\n *\n * Le texte complet figure une fois, d'un seul tenant ; les lettres sont\n * retirees de l'arbre d'accessibilite.\n *\n * @module\n */\n\nimport {\n  CLOCK_PRIORITY,\n  clock,\n  mergePresentation,\n  useMotionState,\n  type Customisable,\n} from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface WarpTextOwnProps {\n  /** Texte a deformer. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Fleche maximale de la courbe, en pixels. @defaultValue 28 */\n  amplitude?: number\n  /** Inclinaison maximale des lettres de bord, en degres. @defaultValue 6 */\n  inclinaison?: number\n  /** Course du reglage, en hauteurs de fenetre. @defaultValue 1 */\n  course?: number\n}\n\n/** Toutes les proprietes. */\nexport type WarpTextProps = Customisable<WarpTextOwnProps, 'span'>\n\n/** Espace insecable : une espace ordinaire s'ecrase dans un bloc en ligne. */\nconst NBSP = ' '\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-warp-text'\n\n/** Pose la courbure, une fois par document. */\nfunction ensureWarpRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Zero au repos : sans boucle, la ligne est droite. Voir l'en-tete.\n    '[data-o-warp]{display:inline-block;--o-wt-k:0}',\n    '[data-o-warp-letter]{',\n    'display:inline-block;',\n    'transform:translateY(calc(var(--o-wt-k) * var(--o-wt-b) * var(--o-wt-amp)))',\n    ' rotate(calc(var(--o-wt-k) * var(--o-wt-t) * var(--o-wt-tilt)));',\n    '}',\n    // Sans mouvement, la ligne reste droite : c'est son etat de lecture.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-warp-letter]{transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Premier ancetre dont le contenu defile reellement, ou rien : la page sert. */\nfunction ancetreDefilant(element: HTMLElement): HTMLElement | null {\n  let noeud = element.parentElement\n  while (noeud !== null) {\n    const debord = getComputedStyle(noeud).overflowY\n    if (\n      (debord === 'auto' || debord === 'scroll') &&\n      noeud.scrollHeight > noeud.clientHeight\n    ) {\n      return noeud\n    }\n    noeud = noeud.parentElement\n  }\n  return null\n}\n\n/**\n * Courbe une ligne de texte au fil du defilement.\n *\n * @example\n * <WarpText as=\"h2\" className=\"o-text-5xl o-font-bold\">\n *   La ligne se plie\n * </WarpText>\n *\n * @example\n * // Fleche marquee, lettres tres couchees, course courte.\n * <WarpText amplitude={64} inclinaison={14} course={0.5}>Elastique</WarpText>\n */\nexport function WarpText({\n  children,\n  as: Tag = 'span',\n  amplitude = 28,\n  inclinaison = 6,\n  course = 1,\n  ...rest\n}: WarpTextProps): ReactElement {\n  const { reduced } = useMotionState()\n  const hote = useRef<HTMLElement | null>(null)\n\n  ensureWarpRule()\n\n  useEffect(() => {\n    const element = hote.current\n    if (element === null || reduced) return\n\n    // L'ancetre est cherche une fois : il ne change pas pendant la vie du\n    // composant, et le chercher a chaque image couterait pour rien.\n    const defilant = ancetreDefilant(element)\n\n    const abonnement = clock.subscribe(\n      () => {\n        const boite = element.getBoundingClientRect()\n        const vueHaut = defilant === null ? 0 : defilant.getBoundingClientRect().top\n        const vueHauteur = defilant === null ? window.innerHeight : defilant.clientHeight\n\n        const centreBloc = boite.top + boite.height / 2\n        const centreVue = vueHaut + vueHauteur / 2\n        // Un demi-champ de course de chaque cote du centre : la ligne est\n        // droite au milieu, pliee a fond aux bords.\n        const portee = Math.max(1, (vueHauteur * course) / 2)\n        const brut = (centreBloc - centreVue) / portee\n\n        element.style.setProperty('--o-wt-k', Math.min(1, Math.max(-1, brut)).toFixed(4))\n      },\n      { name: 'deformation au defilement', priority: CLOCK_PRIORITY.input },\n    )\n\n    return () => {\n      abonnement.unsubscribe()\n      element.style.removeProperty('--o-wt-k')\n    }\n  }, [reduced, course, children])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Mouvement reduit : le texte est la, droit, sans decoupage.\n  if (reduced) {\n    return (\n      <Tag {...rest} className={className} style={style}>\n        {children}\n      </Tag>\n    )\n  }\n\n  const lettres = [...children]\n  const dernier = Math.max(1, lettres.length - 1)\n\n  const styleRacine = {\n    ...style,\n    '--o-wt-amp': `${String(amplitude)}px`,\n    '--o-wt-tilt': `${String(inclinaison)}deg`,\n  } as CSSProperties\n\n  return (\n    <Tag {...rest} ref={hote} className={className} style={styleRacine} data-o-warp=\"\">\n      {/* Le texte complet, d'un seul tenant, pour les lecteurs d'ecran. */}\n      <span className=\"o-sr-only\">{children}</span>\n      <span aria-hidden>\n        {lettres.map((lettre, index) => {\n          // Place de la lettre sur la ligne, de -1 a 1.\n          const u = lettres.length < 2 ? 0 : (index / dernier) * 2 - 1\n          return (\n            <span\n              key={`${lettre}-${String(index)}`}\n              data-o-warp-letter=\"\"\n              style={\n                {\n                  // Fleche de l'arc, nulle aux bouts ; pente de ce meme arc,\n                  // nulle au milieu. Voir l'en-tete du module.\n                  '--o-wt-b': (1 - u * u).toFixed(4),\n                  '--o-wt-t': (-u).toFixed(4),\n                } as CSSProperties\n              }\n            >\n              {/* Une espace ordinaire s'ecrase dans un bloc en ligne :\n                  l'insecable garde sa largeur. */}\n              {lettre === ' ' ? NBSP : lettre}\n            </span>\n          )\n        })}\n      </span>\n    </Tag>\n  )\n}\n"
+  }
+}

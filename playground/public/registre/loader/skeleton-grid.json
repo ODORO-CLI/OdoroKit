@@ -1,0 +1,120 @@
+{
+  "name": "skeleton-grid",
+  "category": "loader",
+  "title": "Grille en attente",
+  "description": "Des vignettes au meme rapport, chacune avec sa legende, balayees en diagonale : la galerie occupe deja la place exacte de ses images.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SkeletonGrid.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "rows",
+      "type": "number",
+      "required": false,
+      "default": 2,
+      "description": "Nombre de rangees.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Nombre de colonnes.",
+      "min": 1,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "ratio",
+      "type": "string",
+      "required": false,
+      "default": "4/3",
+      "description": "Rapport largeur sur hauteur d une vignette.",
+      "options": [
+        "16/9",
+        "4/3",
+        "3/2",
+        "1/1"
+      ]
+    },
+    {
+      "name": "caption",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reserver la place d une legende sous chaque vignette."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Ecart entre les vignettes.",
+      "min": 4,
+      "max": 40,
+      "step": 2
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Rayon des angles d une vignette.",
+      "min": 0,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "shimmer",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Reflet qui traverse les vignettes plutot qu une pulsation d ensemble."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un passage du reflet ou d une pulsation.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement de la galerie",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transformation par vignette, ou une opacite, aucun JavaScript apres le premier rendu. Le rapport reserve la hauteur : aucune mise en page ne saute a l arrivee des images. Vignettes pleines et immobiles sous mouvement reduit."
+  },
+  "id": "loader/skeleton-grid",
+  "sources": {
+    "component.tsx": "/**\n * Grille en attente : des vignettes au meme rapport, chacune avec sa\n * legende, balayees en diagonale.\n *\n * ## Le rapport avant tout\n *\n * Une galerie qui charge sans reserver la hauteur de ses vignettes fait\n * sauter la page entiere a chaque image arrivee. C'est le seul vrai travail\n * de ce squelette : `ratio` fixe le rapport de chaque case, et la grille\n * occupe des maintenant la place exacte que les images occuperont.\n *\n * La legende sous chaque vignette est plus courte que la case : c'est ce\n * decalage qui distingue une galerie d'un damier.\n *\n * ## Une diagonale, pas une ligne\n *\n * Le retard du reflet suit la somme de la ligne et de la colonne : l'onde\n * traverse la grille en biais. Un retard par colonne seule ferait defiler\n * des bandes verticales, et l'oeil suivrait la bande au lieu de lire la\n * grille ; en diagonale, le mouvement reste une respiration d'ensemble.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle ; les vignettes sont\n * retirees de l'arbre d'accessibilite. Sous mouvement reduit, elles restent\n * pleines et immobiles : la grille vide reste visible, elle ne s'efface pas.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-skeleton-grid'\n\n/** Rapports acceptes pour une vignette. */\nconst RATIOS = ['16/9', '4/3', '3/2', '1/1'] as const\n\n/** Longueurs de legende, en pourcentage de la vignette. */\nconst CAPTIONS = [72, 54, 84, 62] as const\n\n/** Pose la grille, ses vignettes et leur animation, une fois par document. */\nfunction ensureSkeletonGridRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-skgrid]{',\n    'display:grid;width:100%;',\n    'grid-template-columns:repeat(var(--o-skgrid-columns),minmax(0,1fr));',\n    'gap:var(--o-skgrid-gap);',\n    '}',\n    '[data-o-skgrid-cell]{display:flex;flex-direction:column;gap:calc(var(--o-skgrid-gap) * 0.45)}',\n    '[data-o-skgrid-fill]{',\n    'position:relative;display:block;overflow:hidden;',\n    'background:color-mix(in oklab,var(--o-theme-line) 72%,var(--o-theme-surface));',\n    '}',\n    // Le rapport reserve la hauteur : c'est ce qui empeche la page de\n    // sauter quand les images arrivent.\n    '[data-o-skgrid-tile]{',\n    'width:100%;aspect-ratio:var(--o-skgrid-ratio);',\n    'border-radius:var(--o-skgrid-radius);',\n    '}',\n    '[data-o-skgrid-caption]{',\n    'height:0.55rem;border-radius:calc(var(--o-skgrid-radius) * 0.5);',\n    '}',\n    '[data-o-skgrid-shimmer] [data-o-skgrid-fill]::after{',\n    'content:\"\";position:absolute;inset:0;',\n    'background:linear-gradient(90deg,transparent 0 30%,color-mix(in oklab,var(--o-theme-surface) 85%,transparent) 50%,transparent 70% 100%);',\n    'transform:translateX(-100%);',\n    'animation:o-skgrid-sweep var(--o-skgrid-speed) linear infinite;',\n    'animation-delay:var(--o-skgrid-delay);',\n    '}',\n    '@keyframes o-skgrid-sweep{to{transform:translateX(100%)}}',\n    '[data-o-skgrid-pulse] [data-o-skgrid-fill]{',\n    'animation:o-skgrid-pulse var(--o-skgrid-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-skgrid-delay);',\n    '}',\n    '@keyframes o-skgrid-pulse{0%,100%{opacity:1}50%{opacity:0.45}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-skgrid-fill]{animation:none;opacity:1}',\n    '[data-o-skgrid-shimmer] [data-o-skgrid-fill]::after{animation:none;opacity:0}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SkeletonGridOwnProps {\n  /** Nombre de rangees. @defaultValue 2 */\n  rows?: number\n  /** Nombre de colonnes. @defaultValue 3 */\n  columns?: number\n  /** Rapport largeur sur hauteur d'une vignette. @defaultValue '4/3' */\n  ratio?: string\n  /** Reserver la place d'une legende sous chaque vignette. @defaultValue true */\n  caption?: boolean\n  /** Ecart entre les vignettes, en pixels. @defaultValue 14 */\n  gap?: number\n  /** Rayon des angles d'une vignette, en pixels. @defaultValue 10 */\n  radius?: number\n  /** Reflet qui traverse plutot qu'une pulsation d'ensemble. @defaultValue true */\n  shimmer?: boolean\n  /** Duree d'un passage du reflet ou d'une pulsation, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement de la galerie' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SkeletonGridProps = Customisable<SkeletonGridOwnProps, 'div'>\n\n/**\n * Reserve la place d'une galerie de vignettes.\n *\n * @example\n * <SkeletonGrid />\n *\n * @example\n * // Quatre colonnes carrees, sans legende.\n * <SkeletonGrid rows={2} columns={4} ratio=\"1/1\" caption={false} />\n */\nexport function SkeletonGrid({\n  rows = 2,\n  columns = 3,\n  ratio = '4/3',\n  caption = true,\n  gap = 14,\n  radius = 10,\n  shimmer = true,\n  speed = 1600,\n  label = 'Chargement de la galerie',\n  ...rest\n}: SkeletonGridProps): ReactElement {\n  ensureSkeletonGridRule()\n\n  const rowCount = Math.max(1, Math.round(rows))\n  const columnCount = Math.max(1, Math.round(columns))\n  // Un rapport inconnu casserait la grille sans rien dire : on retombe sur\n  // celui par defaut plutot que d'ecrire une valeur invalide.\n  const safeRatio = (RATIOS as readonly string[]).includes(ratio) ? ratio : '4/3'\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const hostStyle = {\n    ...style,\n    '--o-skgrid-columns': String(columnCount),\n    '--o-skgrid-ratio': safeRatio,\n    '--o-skgrid-gap': `${String(gap)}px`,\n    '--o-skgrid-radius': `${String(radius)}px`,\n    '--o-skgrid-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={hostStyle}\n      data-o-skgrid=\"\"\n      data-o-skgrid-shimmer={shimmer ? '' : undefined}\n      data-o-skgrid-pulse={shimmer ? undefined : ''}\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {Array.from({ length: rowCount * columnCount }, (_, index) => {\n        const row = Math.floor(index / columnCount)\n        const column = index % columnCount\n        // La somme ligne plus colonne : l'onde traverse en biais.\n        const delay = {\n          '--o-skgrid-delay': `${String(Math.round((speed / 12) * (row + column)))}ms`,\n        } as CSSProperties\n\n        return (\n          <span key={index} aria-hidden data-o-skgrid-cell=\"\">\n            <span data-o-skgrid-fill=\"\" data-o-skgrid-tile=\"\" style={delay} />\n            {caption ? (\n              <span\n                data-o-skgrid-fill=\"\"\n                data-o-skgrid-caption=\"\"\n                style={\n                  {\n                    ...delay,\n                    width: `${String(CAPTIONS[index % CAPTIONS.length] ?? 70)}%`,\n                  } as CSSProperties\n                }\n              />\n            ) : null}\n          </span>\n        )\n      })}\n    </div>\n  )\n}\n"
+  }
+}

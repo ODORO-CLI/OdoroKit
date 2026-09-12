@@ -1,0 +1,62 @@
+{
+  "name": "blur-reveal",
+  "category": "text",
+  "title": "Revelation floue",
+  "description": "Les mots passent du flou au net l un apres l autre, quand le texte entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/BlurReveal.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "p",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "description": "Delai entre deux mots.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Flou de depart.",
+      "min": 0,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree de la revelation d un mot.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une animation Web Animations par mot, jouee une seule fois. Le flou est plus couteux qu une opacite : a reserver aux titres."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "reveal-image",
+  "category": "image",
+  "title": "Image revelee",
+  "description": "Un rideau s ouvre a l entree dans le champ pendant que l image revient d un leger zoom.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/RevealImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "direction",
+      "type": "'up' | 'left'",
+      "required": false,
+      "default": "up",
+      "description": "Sens de l ouverture du rideau.",
+      "options": [
+        "up",
+        "left"
+      ]
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree de la revelation.",
+      "min": 300,
+      "max": 2400,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection detache apres le premier passage, puis deux transitions tenues par le compositeur. Visible d emblee sous mouvement reduit."
+  },
+  "id": "image/reveal-image",
+  "sources": {
+    "component.tsx": "/**\n * Image revelee : un rideau s'ouvre a l'entree dans le champ, pendant que\n * l'image revient d'un leger zoom.\n *\n * ## Deux mouvements, deux calques\n *\n * Le rideau est un `clip-path` sur un voile intermediaire ; le zoom est une\n * transformation sur l'image elle-meme. Les poser sur le meme element\n * obligerait a les exprimer dans une seule propriete, et l'un des deux\n * disparaitrait. Separes, chacun a sa transition, et le navigateur compose.\n *\n * Le decoupage plutot qu'une opacite : une image qui s'ouvre a un bord, une\n * image qui fond n'en a pas. C'est le bord qui donne l'impression qu'on\n * decouvre quelque chose qui etait deja la — renforcee par le zoom inverse,\n * qui part de plus pres et se pose.\n *\n * ## Le declenchement s'ouvre en cas de doute\n *\n * L'observation vient du crochet `useInView`, qui rend « vu » immediatement\n * quand l'observation est impossible. Le defaut inverse serait le pire : une\n * image jamais revelee est une image absente.\n *\n * ## Sous mouvement reduit\n *\n * L'image est visible d'emblee, sans rideau ni zoom : la revelation est un\n * geste d'entree, pas un contenu.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface RevealImageOwnProps {\n  /** Source de l'image. */\n  src: string\n  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */\n  alt: string\n  /** Rapport largeur sur hauteur. @defaultValue 1.777 */\n  ratio?: number\n  /** Sens de l'ouverture du rideau. @defaultValue 'up' */\n  direction?: 'up' | 'left'\n  /** Duree de la revelation, en millisecondes. @defaultValue 900 */\n  duration?: number\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une image. */\nexport type RevealImageProps = Customisable<RevealImageOwnProps, 'img'>\n\n/**\n * Revele une image a son entree dans le champ.\n *\n * @example\n * <RevealImage src=\"/photo.jpg\" alt=\"Vue de l atelier\" />\n *\n * @example\n * // Ouverture laterale, plus lente.\n * <RevealImage src=\"/photo.jpg\" alt=\"\" direction=\"left\" duration={1200} />\n */\nexport function RevealImage({\n  src,\n  alt,\n  ratio = 1.777,\n  direction = 'up',\n  duration = 900,\n  ...rest\n}: RevealImageProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLDivElement>({ amount: 0.35 })\n\n  // Sous mouvement reduit, l'etat final est le seul etat.\n  const shown = vu || reduced\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  // Le rideau part du bord oppose au sens de l'ouverture : « up » decouvre du\n  // bas vers le haut, « left » de la gauche vers la droite.\n  const closed = direction === 'up' ? 'inset(100% 0 0 0)' : 'inset(0 100% 0 0)'\n\n  const veil: CSSProperties = {\n    clipPath: shown ? 'inset(0 0 0 0)' : closed,\n    transition: reduced\n      ? undefined\n      : `clip-path ${String(duration)}ms var(--o-ease-entrance)`,\n  }\n\n  const image: CSSProperties = {\n    transform: shown ? 'scale(1)' : 'scale(1.15)',\n    transition: reduced\n      ? undefined\n      : `transform ${String(duration)}ms var(--o-ease-entrance)`,\n  }\n\n  return (\n    <div\n      ref={ref}\n      className={className}\n      style={{ ...style, aspectRatio: String(ratio) }}\n    >\n      <div className=\"o-absolute o-inset-0\" style={veil}>\n        <img\n          {...rest}\n          src={src}\n          alt={alt}\n          className=\"o-size-full o-object-cover o-will-change-transform\"\n          style={image}\n        />\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

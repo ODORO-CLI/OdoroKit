@@ -1,0 +1,64 @@
+{
+  "name": "blob-cursor",
+  "category": "effect",
+  "title": "Curseur gluant",
+  "description": "Une chaine de boules recollees par un filtre SVG : la trainee s etire quand le pointeur file, et se fond en une seule goutte des qu il s arrete.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/BlobCursor.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": 4,
+      "description": "Nombre de boules de la chaine.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de la tete.",
+      "min": 20,
+      "max": 120,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 14,
+      "description": "Vitesse de rattrapage de la tete. Plus haut, plus sec.",
+      "min": 4,
+      "max": 30,
+      "step": 1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la matiere. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone ou le blob vit. Absente, il se pose sur la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Huit elements au maximum, un filtre SVG pose une fois, une ecriture de transform par boule et par image. Rien du tout sans pointeur fin ni sous mouvement reduit."
+  }
+}

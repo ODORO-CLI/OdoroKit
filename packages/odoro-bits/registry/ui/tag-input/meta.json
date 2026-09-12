@@ -1,0 +1,80 @@
+{
+  "name": "tag-input",
+  "category": "ui",
+  "title": "Champ a etiquettes",
+  "description": "Entree ou virgule pose une etiquette, Retour sur un champ vide arme puis retire la derniere, et chaque etiquette nait d un petit rebond.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/TagInput.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-base",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du champ pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "readonly string[]",
+      "description": "Les etiquettes, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "readonly string[]",
+      "description": "Etiquettes au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(tags: readonly string[]) => void",
+      "description": "Appele a chaque ajout ou retrait."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "Ajouter...",
+      "description": "Texte d attente, affiche quand le champ est vide."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre maximal d etiquettes. Atteint, le champ se ferme.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "duplicates",
+      "type": "boolean",
+      "default": false,
+      "description": "Accepte deux fois la meme etiquette."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Neutralise le champ."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React par ajout ou retrait, aucun a la frappe hors du brouillon. L entree d une etiquette est une animation d images cles sur transform et opacity. Sous mouvement reduit les etiquettes apparaissent en place."
+  }
+}

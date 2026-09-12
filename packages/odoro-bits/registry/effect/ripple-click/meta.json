@@ -1,0 +1,50 @@
+{
+  "name": "ripple-click",
+  "category": "effect",
+  "title": "Onde au clic",
+  "description": "Un cercle part du point touche et s etend jusqu aux bords de la zone.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/RippleClick.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree de l expansion.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "opacity",
+      "type": "number",
+      "default": 0.25,
+      "description": "Opacite de depart de l onde.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de l onde. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un element cree par clic, anime par Web Animations, retire a la fin. Rien au repos, rien sous mouvement reduit."
+  }
+}

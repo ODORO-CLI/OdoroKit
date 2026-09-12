@@ -1,0 +1,93 @@
+{
+  "name": "wormhole",
+  "category": "background",
+  "title": "Vortex torsade",
+  "description": "Un couloir en z = 1/r dont l angle est tordu avec la profondeur : les aretes s enroulent en helice, l ensemble pivote, le point de fuite se promene et la teinte tourne autour de la paroi d une couleur a l autre.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "wormhole.shader.ts",
+      "target": "background/wormhole.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Wormhole.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-fuchsia-500",
+    "--o-palette-cyan-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Vitesse d avancee.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "twist",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Torsion des aretes avec la profondeur. Zero les rend droites.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "spin",
+      "type": "number",
+      "required": false,
+      "default": 0.3,
+      "description": "Vitesse de rotation de l ensemble.",
+      "min": -2,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "rings",
+      "type": "number",
+      "required": false,
+      "default": 8,
+      "description": "Densite des bandes de profondeur. Retrograde a cinq en qualite basse.",
+      "min": 1,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-fuchsia-500, --o-palette-cyan-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la premiere teinte des parois, la seconde et l eclat des aretes."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Une division, un arc tangente, quatre sinus et une puissance par fragment. En qualite basse, les bandes s espacent : serrees au loin, elles battent avec la grille de pixels.",
+    "fallback": "gradient"
+  },
+  "id": "background/wormhole",
+  "sources": {
+    "wormhole.shader.ts": "/**\n * Shader du vortex torsade.\n *\n * ## L'idee mathematique\n *\n * La meme perspective que le tunnel — la profondeur vaut l'inverse du rayon\n * — mais rien d'autre en commun. L'angle est tordu avec la profondeur :\n * plus un point est loin, plus il est tourne, si bien que les aretes du\n * couloir s'enroulent en helice au lieu de fuir droit vers le centre. Le\n * tout pivote en plus avec le temps, et le point de fuite se promene en\n * lente ellipse : le couloir est courbe, pas rectiligne.\n *\n * Les parois portent six aretes, lues en cosinus de l'angle tordu, et des\n * bandes de profondeur qui avancent. La teinte n'est pas fixe : elle tourne\n * autour de la paroi avec l'angle tordu et la profondeur, d'une couleur a\n * l'autre. L'eclat suit les aretes, la ou une bande les croise.\n *\n * Le point de fuite est eteint avant qu'il ne batte avec la grille de\n * pixels : ce n'est pas decoratif.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la premiere teinte des parois.\n * - `uColorC` — la seconde teinte, et l'eclat des aretes.\n * - `uSpeed` — vitesse d'avancee.\n * - `uTwist` — torsion des aretes avec la profondeur.\n * - `uSpin` — vitesse de rotation de l'ensemble.\n * - `uRings` — densite des bandes de profondeur.\n */\nexport const WORMHOLE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uTwist;\nuniform float uSpin;\nuniform float uRings;\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  vec2 p = (vUv - 0.5) * vec2(aspect, 1.0) * 2.0;\n\n  // Le point de fuite se promene : le couloir est courbe, pas rectiligne.\n  p -= 0.22 * vec2(sin(uTime * 0.6), cos(uTime * 0.45));\n\n  float r = length(p);\n  float angle = atan(p.y, p.x);\n  float z = 1.0 / max(r, 0.01);\n  float t = uTime * uSpeed;\n\n  // La torsion : l'angle tourne avec la profondeur ; le tout pivote.\n  float twisted = angle + z * uTwist * 0.25 + uTime * uSpin;\n\n  // La profondeur avance ; les bandes y sont lues en sinus.\n  float depth = z * max(uRings, 1.0) * 0.25 - t * 3.0;\n\n  // Les parois : six aretes torsadees, et des bandes qui avancent.\n  float ribs = 0.5 + 0.5 * cos(twisted * 6.0);\n  float band = smoothstep(0.25, 0.75, 0.5 + 0.5 * sin(depth));\n\n  // La teinte tourne autour de la paroi ; l'eclat suit les aretes.\n  float hue = 0.5 + 0.5 * sin(twisted * 3.0 + depth * 0.5);\n  float glint = pow(ribs, 6.0) * band;\n\n  // Le point de fuite est eteint avant qu'il ne batte avec les pixels.\n  float far = smoothstep(0.03, 0.35, r);\n\n  vec3 wall = mix(uColorB, uColorC, hue);\n  vec3 colour = mix(uColorA, wall, (0.25 + 0.75 * band) * far * (0.5 + 0.5 * ribs));\n  colour = mix(colour, uColorC, glint * far * 0.7);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Vortex torsade : un couloir dont les aretes s'enroulent en helice, qui\n * pivote, et dont la teinte tourne autour de la paroi.\n *\n * ## Le principe\n *\n * La profondeur vaut l'inverse du rayon, comme dans le tunnel ; mais l'angle\n * est tordu avec la profondeur, le tout pivote avec le temps et le point de\n * fuite se promene. Les parois portent six aretes en helice, des bandes qui\n * avancent, et une teinte qui glisse d'une couleur a l'autre.\n *\n * Ce qui distingue cette entree de `tunnel` : la torsion, la rotation, le\n * point de fuite mobile, et deux teintes au lieu d'une. Le tunnel est un\n * couloir droit et monochrome ; ceci est un vortex.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { WORMHOLE_FRAGMENT } from './wormhole.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface WormholeControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface WormholeOwnProps {\n  /** Vitesse d'avancee. @defaultValue 0.5 */\n  speed?: number\n  /** Torsion des aretes avec la profondeur. @defaultValue 1 */\n  twist?: number\n  /** Vitesse de rotation de l'ensemble. @defaultValue 0.3 */\n  spin?: number\n  /** Densite des bandes de profondeur. @defaultValue 8 */\n  rings?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<WormholeControls>\n}\n\n/** Toutes les proprietes. */\nexport type WormholeProps = Customisable<WormholeOwnProps>\n\n/** Tokens employes par defaut : le fond, les deux teintes des parois. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-fuchsia-500',\n  '--o-palette-cyan-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-100 dark:o-to-fuchsia-950'\n\n/**\n * Vortex torsade.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Wormhole className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Wormhole({\n  speed = 0.5,\n  twist = 1,\n  spin = 0.3,\n  rings = 8,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: WormholeProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: WORMHOLE_FRAGMENT,\n    colors,\n    uniforms: { uSpeed: speed, uTwist: twist, uSpin: spin, uRings: rings },\n    name: 'wormhole',\n    // Des bandes serrees au loin battent avec la grille de pixels a densite\n    // reduite : en qualite basse, elles s'espacent.\n    degrade: (quality) => ({\n      uRings: quality === 'low' ? Math.min(rings, 5) : rings,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

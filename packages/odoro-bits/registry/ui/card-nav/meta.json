@@ -1,0 +1,76 @@
+{
+  "name": "card-nav",
+  "category": "ui",
+  "title": "Barre en cartes",
+  "description": "Une barre compacte qui se deploie en une rangee de cartes teintees, chacune un lien, entrant l une apres l autre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/CardNav.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-sky-500",
+    "--o-palette-emerald-500",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { label: string; href?: string; icon?: ReactNode; description?: string }[]",
+      "required": true,
+      "description": "Les cartes, dans l ordre d affichage."
+    },
+    {
+      "name": "brand",
+      "type": "ReactNode",
+      "description": "Ce qui occupe la gauche de la barre : une marque, un titre."
+    },
+    {
+      "name": "cta",
+      "type": "ReactNode",
+      "description": "Ce qui occupe la droite de la barre, avant le bouton : un appel a l action."
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "default": "--o-palette-brand-500,--o-palette-sky-500,--o-palette-emerald-500",
+      "description": "Tokens de teinte, distribues aux cartes en boucle."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 60,
+      "unit": "ms",
+      "description": "Decalage d entree entre deux cartes.",
+      "min": 0,
+      "max": 200,
+      "step": 10
+    },
+    {
+      "name": "active",
+      "type": "number",
+      "description": "Index de la page courante."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Menu",
+      "description": "Intitule du bouton pour les lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "La hauteur est animee par une rangee de grille qui passe de zero a une fraction : rien n est mesure. Les cartes entrent par transition, avec un retard chacune. Sous mouvement reduit tout est en place d un coup."
+  }
+}

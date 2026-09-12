@@ -1,0 +1,57 @@
+{
+  "name": "pulse-dot",
+  "category": "loader",
+  "title": "Point qui pulse",
+  "description": "Un point plein d ou s echappent deux ondes concentriques, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PulseDot.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 32,
+      "unit": "px",
+      "description": "Diametre de l onde a son extension maximale.",
+      "min": 12,
+      "max": 96,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree de vie d une onde, de son depart a son extinction.",
+      "min": 500,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur du point et des ondes. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS tenues par le compositeur, aucun JavaScript apres le premier rendu. Point plein et une onde figee a mi-course sous mouvement reduit."
+  }
+}

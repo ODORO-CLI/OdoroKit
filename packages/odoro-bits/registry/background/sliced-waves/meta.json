@@ -1,0 +1,78 @@
+{
+  "name": "sliced-waves",
+  "category": "background",
+  "title": "Vague tranchee",
+  "description": "Une bande epaisse lue par colonnes : la hauteur est evaluee au centre de chaque tranche, la vague saute de marche en marche et chaque colonne bat a son propre rythme.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "sliced-waves.shader.ts",
+      "target": "background/sliced-waves.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/SlicedWaves.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-violet-500", "--o-palette-violet-200"],
+  "props": [
+    {
+      "name": "slices",
+      "type": "number",
+      "default": 40,
+      "description": "Nombre de tranches. Borne a cent vingt par le shader.",
+      "min": 6,
+      "max": 120,
+      "step": 1
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": 0.22,
+      "description": "Hauteur de la vague, en fraction du cadre.",
+      "min": 0,
+      "max": 0.4,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.9,
+      "description": "Vitesse de la vague.",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 0.28,
+      "description": "Epaisseur de la bande, en fraction du cadre.",
+      "min": 0.04,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-violet-200",
+      "description": "Tokens dont les couleurs sont lues : le fond, le corps de la bande, son bord superieur."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Une tranche evaluee par fragment, trois sinus. En qualite basse, les tranches tombent a vingt pour que le sillon ne scintille pas."
+  }
+}

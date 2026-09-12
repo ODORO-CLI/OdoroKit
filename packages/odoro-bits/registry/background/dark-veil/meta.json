@@ -1,0 +1,69 @@
+{
+  "name": "dark-veil",
+  "category": "background",
+  "title": "Voile sombre",
+  "description": "Une etoffe de bruit fractal deforme par lui-meme qui ondule au-dessus de deux lueurs errantes ; la lumiere ne passe que par ses trouees.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "dark-veil.shader.ts",
+      "target": "background/dark-veil.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/DarkVeil.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-violet-500", "--o-palette-indigo-950"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.5,
+      "description": "Vitesse de derive du voile.",
+      "min": 0,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.8,
+      "description": "Echelle des plis. Plus haut, plus fin.",
+      "min": 0.5,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "opacity",
+      "type": "number",
+      "default": 0.8,
+      "description": "Epaisseur du voile. A zero, seule la lueur reste.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-violet-500, --o-palette-indigo-950",
+      "description": "Tokens dont les couleurs sont lues : le fond, la lueur, la teinte du voile."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sommes d octaves par fragment : deux pour la deformation, une pour la matiere. En qualite basse, les octaves tombent a deux."
+  }
+}

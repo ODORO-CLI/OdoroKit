@@ -1,0 +1,104 @@
+{
+  "name": "button-group-input",
+  "category": "ui",
+  "title": "Groupe bouton et champ",
+  "description": "Un champ et son bouton soudes dans une meme pilule ; Entree envoie, et le bouton fait glisser une confirmation avant de revenir.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ButtonGroupInput.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-zinc-50",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom du champ pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Texte du champ, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Texte au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "description": "Appele a chaque frappe."
+    },
+    {
+      "name": "onSubmit",
+      "type": "(value: string) => void | Promise<unknown>",
+      "description": "Appele a l envoi. Une promesse tient le bouton occupe jusqu a sa fin."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "description": "Texte d attente du champ."
+    },
+    {
+      "name": "buttonLabel",
+      "type": "string",
+      "default": "Envoyer",
+      "description": "Libelle du bouton au repos."
+    },
+    {
+      "name": "doneLabel",
+      "type": "string",
+      "default": "Envoye",
+      "description": "Libelle glisse dans le bouton apres l envoi."
+    },
+    {
+      "name": "prefix",
+      "type": "ReactNode",
+      "description": "Ce qui precede le champ dans la pilule : une icone, un prefixe d adresse."
+    },
+    {
+      "name": "type",
+      "type": "'text' | 'email' | 'url' | 'search'",
+      "default": "text",
+      "description": "Type du champ.",
+      "options": ["text", "email", "url", "search"]
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "default": 1800,
+      "unit": "ms",
+      "description": "Temps pendant lequel la confirmation reste affichee.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Neutralise le champ et le bouton."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un rendu React a l envoi et un au retour, rien entre les deux ; la confirmation glisse par une transition de transformation. Sous mouvement reduit les libelles se remplacent sans glisser."
+  }
+}

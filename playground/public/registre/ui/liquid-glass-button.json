@@ -1,0 +1,85 @@
+{
+  "name": "liquid-glass-button",
+  "category": "ui",
+  "title": "Bouton verre liquide",
+  "description": "Une pastille de verre depoli posee sur la page : le fond se devine a travers, un reflet coule au survol, et la pression l ecrase avant qu elle ne reprenne sa forme.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LiquidGlassButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-white",
+    "--o-duration-slow"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "required": false,
+      "description": "Cible du lien. Avec elle, le bouton est rendu comme un lien."
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string]",
+      "required": false,
+      "default": "--o-palette-brand-500, --o-palette-white",
+      "description": "Tokens de la teinte du verre et de sa lumiere."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "unit": "px",
+      "description": "Flou du fond vu a travers le verre.",
+      "min": 0,
+      "max": 32,
+      "step": 2
+    },
+    {
+      "name": "tint",
+      "type": "number",
+      "required": false,
+      "default": 0.18,
+      "description": "Part de teinte dans le verre, de zero a un.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.02
+    },
+    {
+      "name": "spring",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du retour elastique apres la pression.",
+      "min": 200,
+      "max": 1400,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre d arriere-plan par bouton, statique : il ne se recalcule que si ce qui est derriere bouge. Les transitions portent sur transform et opacity. Sous mouvement reduit le reflet est pose a sa place d arrivee et la pression ne rebondit plus."
+  },
+  "id": "ui/liquid-glass-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton verre liquide : une pastille de verre depoli, un reflet qui coule\n * au survol, une pression qui l'ecrase avant le retour elastique.\n *\n * ## Ce n'est pas le bouton a maree\n *\n * Le bouton a maree est opaque, et son mouvement est un calque qui monte\n * derriere le libelle. Ici la surface est translucide — le fond de la page se\n * devine a travers, flou et sature — et le mouvement est celui d'une matiere\n * molle : le reflet glisse d'un bord a l'autre comme une goutte, et la\n * pression deforme la pastille au lieu de la colorer.\n *\n * ## Le verre est une somme de bords, pas une image\n *\n * Un `backdrop-filter` seul donne un rectangle flou. Ce qui fait le verre,\n * c'est la lumiere sur ses aretes : un filet clair en haut, la ou la lumiere\n * frappe, un filet teinte en bas, la ou l'epaisseur retient la couleur, et un\n * halo porte de la teinte sous la pastille. Trois ombres internes et une\n * externe, toutes tirees de deux tokens.\n *\n * ## Le retour est plus lent que l'aller\n *\n * La pression est immediate : le doigt appuie, le verre cede. Le retour\n * prend sa duree et depasse sa cible avant de s'y poser — c'est cette\n * asymetrie qui fait la matiere liquide plutot que le ressort mecanique.\n *\n * ## Sous mouvement reduit\n *\n * Le reflet est deja a sa place d'arrivee, et la pression n'a plus de\n * rebond. Le verre reste du verre : l'information — translucide, en relief\n * — ne depend pas du mouvement.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  type CSSProperties,\n  type ElementType,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface LiquidGlassButtonOwnProps {\n  /** Libelle du bouton. */\n  children: ReactNode\n  /** Cible du lien. Avec elle, le bouton est rendu comme un lien. */\n  href?: string\n  /**\n   * Tokens de la teinte du verre et de sa lumiere.\n   *\n   * Deux, dans cet ordre. La teinte colore le verre et son halo ; la lumiere\n   * fait les aretes et le reflet.\n   */\n  colors?: readonly [string, string]\n  /** Flou du fond vu a travers le verre, en pixels. @defaultValue 14 */\n  blur?: number\n  /** Part de teinte dans le verre, de zero a un. @defaultValue 0.18 */\n  tint?: number\n  /** Duree du retour elastique apres la pression, en millisecondes. @defaultValue 600 */\n  spring?: number\n}\n\n/** Toutes les proprietes. */\nexport type LiquidGlassButtonProps = Customisable<LiquidGlassButtonOwnProps, 'button'>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = ['--o-palette-brand-500', '--o-palette-white'] as const\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-liquid-glass-button'\n\n/** Pose le verre, ses aretes et son reflet, une fois par document. */\nfunction ensureGlassRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-lglass]{',\n    'position:relative;isolation:isolate;overflow:hidden;cursor:pointer;',\n    'display:inline-flex;align-items:center;justify-content:center;gap:0.5em;',\n    'border:1px solid color-mix(in oklab,var(--o-lglass-light) 35%,transparent);',\n    'font:inherit;color:inherit;text-decoration:none;',\n    'background:color-mix(in oklab,var(--o-lglass-tint) calc(var(--o-lglass-part) * 100%),transparent);',\n    '-webkit-backdrop-filter:blur(var(--o-lglass-blur)) saturate(160%);',\n    'backdrop-filter:blur(var(--o-lglass-blur)) saturate(160%);',\n    // Les aretes : lumiere en haut, epaisseur teintee en bas, halo dessous.\n    'box-shadow:inset 0 1px 0 color-mix(in oklab,var(--o-lglass-light) 60%,transparent),',\n    'inset 0 -1px 0 color-mix(in oklab,var(--o-lglass-tint) 40%,transparent),',\n    'inset 1px 0 0 color-mix(in oklab,var(--o-lglass-light) 20%,transparent),',\n    '0 10px 30px -12px color-mix(in oklab,var(--o-lglass-tint) 55%,transparent);',\n    // Aller sec, retour lent et depassant : voir l'en-tete du module.\n    'transition:transform var(--o-lglass-spring) cubic-bezier(0.34,1.56,0.64,1),',\n    'background-color var(--o-duration-slow) linear;',\n    '}',\n    '[data-o-lglass]:is(:hover,:focus-visible){',\n    'background:color-mix(in oklab,var(--o-lglass-tint) calc(var(--o-lglass-part) * 100% + 8%),transparent)}',\n    '[data-o-lglass]:focus-visible{outline:2px solid currentColor;outline-offset:3px}',\n    '[data-o-lglass]:active{transform:scale(0.94,0.9);transition-duration:80ms}',\n    '[data-o-lglass]:disabled,[data-o-lglass][aria-disabled=\"true\"]{',\n    'opacity:0.5;cursor:not-allowed;pointer-events:none}',\n\n    // Le reflet : une goutte de lumiere, gare en haut a gauche, qui coule\n    // vers le bas a droite au survol.\n    '[data-o-lglass]::before{',\n    'content:\"\";position:absolute;z-index:-1;pointer-events:none;',\n    'inset:-40% auto auto -20%;width:80%;height:90%;border-radius:50%;',\n    'background:radial-gradient(closest-side,color-mix(in oklab,var(--o-lglass-light) 55%,transparent),transparent);',\n    'transition:translate var(--o-lglass-spring) cubic-bezier(0.34,1.3,0.64,1),',\n    'scale var(--o-lglass-spring) cubic-bezier(0.34,1.3,0.64,1);',\n    '}',\n    '[data-o-lglass]:is(:hover,:focus-visible)::before{translate:70% 55%;scale:1.3 0.8}',\n    '[data-o-lglass]>span{position:relative;z-index:1}',\n\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-lglass],[data-o-lglass]::before{transition:none}',\n    '[data-o-lglass]:active{transform:none}',\n    '[data-o-lglass]::before{translate:70% 55%;scale:1.3 0.8}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Bouton de verre depoli, teinte et en relief.\n *\n * @example\n * <LiquidGlassButton onClick={reserver}>Reserver une place</LiquidGlassButton>\n *\n * @example\n * // Verre plus epais, teinte ciel, sur une image de fond.\n * <LiquidGlassButton\n *   href=\"/galerie\"\n *   colors={['--o-palette-sky-400', '--o-palette-white']}\n *   blur={24}\n *   tint={0.3}\n * >\n *   Ouvrir la galerie\n * </LiquidGlassButton>\n */\nexport function LiquidGlassButton({\n  children,\n  href,\n  colors = DEFAULT_TOKENS,\n  blur = 14,\n  tint = 0.18,\n  spring = 600,\n  ...rest\n}: LiquidGlassButtonProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureGlassRules()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-rounded-full o-px-6 o-py-3 o-font-medium' },\n    rest,\n  )\n\n  const Tag = (href === undefined ? 'button' : 'a') as ElementType\n  const { disabled, type, ...attributes } = rest\n\n  return (\n    <Tag\n      {...(href === undefined\n        ? { type: type ?? 'button', disabled }\n        : { href, 'aria-disabled': disabled === true ? 'true' : undefined })}\n      {...attributes}\n      data-o-lglass=\"\"\n      className={className}\n      style={\n        {\n          '--o-lglass-tint': `var(${colors[0]})`,\n          '--o-lglass-light': `var(${colors[1]})`,\n          '--o-lglass-blur': `${String(blur)}px`,\n          '--o-lglass-part': String(tint),\n          '--o-lglass-spring': `${String(reduced ? 0 : spring)}ms`,\n          ...style,\n        } as CSSProperties\n      }\n    >\n      <span>{children}</span>\n    </Tag>\n  )\n}\n"
+  }
+}

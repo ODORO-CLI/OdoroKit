@@ -1,0 +1,90 @@
+{
+  "name": "terrain-wireframe",
+  "category": "background",
+  "title": "Relief en fil de fer",
+  "description": "Une nappe quadrillee en segments dont les cretes, lues dans un bruit decale du temps, defilent vers la camera et s effacent dans un brouillard de la couleur du fond ; une vallee centrale reste plate.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "background/TerrainWireframe.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-poster"
+  ],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-palette-teal-500",
+    "--o-palette-teal-200"
+  ],
+  "props": [
+    {
+      "name": "columns",
+      "type": "number",
+      "required": false,
+      "default": 80,
+      "description": "Colonnes de la nappe ; les rangees en valent la moitie. Retrograde a quarante en qualite basse.",
+      "min": 16,
+      "max": 160,
+      "step": 8
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "description": "Vitesse de defilement, en unites de scene par seconde.",
+      "min": 0,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "required": false,
+      "default": 1.6,
+      "description": "Hauteur des cretes, en unites de scene.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "valley",
+      "type": "number",
+      "required": false,
+      "default": 0.6,
+      "description": "Largeur de la vallee centrale, entre zero et un. Zero la supprime.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-palette-teal-500, --o-palette-teal-200",
+      "description": "Tokens dont les couleurs sont lues : le fond et le brouillard, les lignes, les cretes."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement de la scene et quand elle ne viendra pas."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Une geometrie de segments dont seules les hauteurs sont reecrites, deux octaves de bruit par sommet et par image ; en qualite basse, les colonnes tombent a quarante, donc les sommets au quart. Le rendu se suspend hors du champ.",
+    "fallback": "poster"
+  },
+  "id": "background/terrain-wireframe",
+  "sources": {
+    "component.tsx": "/**\n * Relief en fil de fer : une nappe quadrillee dont les cretes defilent vers\n * la camera, et s'effacent dans le brouillard au loin.\n *\n * ## Pourquoi une scene, et pas un shader plein ecran\n *\n * Un shader de fragment peut projeter un sol en posant z = 1/y — c'est ce\n * que fait `night-drive` — mais pas un relief : il faudrait, pour chaque\n * pixel, chercher le point de la nappe qui se projette dessus, et cette\n * recherche n'a pas de forme close. Une scene porte la nappe comme une\n * geometrie de segments dont seules les hauteurs changent ; la projection\n * est faite par le pipeline, une fois par sommet. C'est le cas ou les lignes\n * du moteur 3D coutent moins cher que leur equivalent par fragment.\n *\n * ## Comment le relief defile\n *\n * Les sommets ne bougent pas en profondeur : c'est le bruit qui est lu a\n * une profondeur decalee du temps. Les cretes semblent avancer, la nappe\n * reste en place — aucun sommet ne franchit jamais le bord de la scene. Le\n * bruit est un bruit de valeur a deux octaves, evalue une fois par sommet\n * et par image ; quelques milliers de sommets, c'est une boucle courte.\n *\n * Une vallee centrale est menagee dans le relief : les cretes montent sur\n * les cotes, le centre reste plat. Sans elle, le regard buterait sur la\n * crete la plus proche.\n *\n * ## Sous mouvement reduit\n *\n * La scene est refusee par le moteur et le repli statique s'affiche.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  readTokenColour,\n  useMotionState,\n  type Customisable,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { useScene, type SceneContext } from '@odoro-cli/engine/three'\nimport { useEffect, useRef, useState, type ReactElement } from 'react'\n\nimport { usePoster } from '@registre/hooks/usePoster'\n\n/** Proprietes propres au composant. */\nexport interface TerrainWireframeOwnProps {\n  /** Colonnes de la nappe. Les rangees en valent la moitie. @defaultValue 80 */\n  columns?: number\n  /** Vitesse de defilement, en unites de scene par seconde. @defaultValue 1.2 */\n  speed?: number\n  /** Hauteur des cretes, en unites de scene. @defaultValue 1.6 */\n  height?: number\n  /** Largeur de la vallee centrale, entre zero et un. Zero la supprime. @defaultValue 0.6 */\n  valley?: number\n  /** Tokens : le fond et le brouillard, les lignes, les cretes. */\n  colors?: readonly [string, string, string]\n  /** Classes du repli. */\n  poster?: string\n}\n\n/** Toutes les proprietes. */\nexport type TerrainWireframeProps = Customisable<TerrainWireframeOwnProps>\n\n/** Tokens employes par defaut. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-palette-teal-500',\n  '--o-palette-teal-200',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_POSTER =\n  'o-bg-gradient-to-t o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-100 dark:o-to-teal-950'\n\n/**\n * Colonnes en qualite basse.\n *\n * Le cout est dans la boucle de bruit, un appel par sommet et par image ;\n * diviser les colonnes par deux divise les sommets par quatre.\n */\nconst LOW_COLUMNS = 40\n\n/** Largeur de la nappe, en unites de scene. */\nconst WIDTH = 18\n\n/** Profondeur de la nappe, en unites de scene. */\nconst DEPTH = 16\n\n/** Echelle du bruit : cretes par unite de scene. */\nconst SCALE = 0.35\n\ntype Three = SceneContext['three']\ntype Fog = InstanceType<Three['Fog']>\n\n/** Ce que la scene garde entre la construction et les images. */\ninterface Relief {\n  readonly columns: number\n  readonly rows: number\n  /** Tampon de sommets, x et z fixes, y reecrit par image. */\n  readonly positions: Float32Array\n  /** Tampon de couleurs, un melange lignes/cretes selon la hauteur. */\n  readonly colours: Float32Array\n  readonly positionAttribute: { needsUpdate: boolean }\n  readonly colourAttribute: { needsUpdate: boolean }\n  readonly fog: Fog\n}\n\n/** Nombre pseudo-aleatoire deterministe sur une grille entiere. */\nfunction hash(x: number, y: number): number {\n  const value = Math.sin(x * 127.1 + y * 311.7) * 43758.5453\n  return value - Math.floor(value)\n}\n\n/** Bruit de valeur : quatre tirages interpoles en lissage cubique. */\nfunction noise(x: number, y: number): number {\n  const ix = Math.floor(x)\n  const iy = Math.floor(y)\n  const fx = x - ix\n  const fy = y - iy\n  const ux = fx * fx * (3 - 2 * fx)\n  const uy = fy * fy * (3 - 2 * fy)\n  const a = hash(ix, iy)\n  const b = hash(ix + 1, iy)\n  const c = hash(ix, iy + 1)\n  const d = hash(ix + 1, iy + 1)\n  return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy\n}\n\n/**\n * Relief en fil de fer.\n *\n * @example\n * <div className=\"o-relative o-h-96 o-overflow-hidden o-rounded-xl\">\n *   <TerrainWireframe className=\"o-absolute o-inset-0\" />\n *   <div className=\"o-relative o-z-10\">…</div>\n * </div>\n */\nexport function TerrainWireframe({\n  columns = 80,\n  speed = 1.2,\n  height = 1.6,\n  valley = 0.6,\n  colors = DEFAULT_TOKENS,\n  poster = DEFAULT_POSTER,\n  ...rest\n}: TerrainWireframeProps): ReactElement {\n  const { theme } = useMotionState()\n  const [host, setHost] = useState<HTMLDivElement | null>(null)\n\n  const relief = useRef<Relief | null>(null)\n  const context = useRef<SceneContext | null>(null)\n\n  // Les couleurs sont lues par ref dans la boucle : un changement de theme\n  // les remplace sans reconstruire la scene.\n  const shades = useRef<readonly ShaderColour[]>([])\n\n  const settings = useRef({ speed, height, valley })\n  settings.current = { speed, height, valley }\n\n  const { ref, ready, refused } = useScene<HTMLDivElement>({\n    name: 'relief',\n    setup: (scene: SceneContext) => {\n      context.current = scene\n      const { three, renderer, camera, quality } = scene\n\n      shades.current = colors.map((token) => readTokenColour(token, ref.current))\n      const [bg] = shades.current\n\n      // Le fond de la scene est le fond de la page, et le brouillard a la\n      // meme couleur : les cretes lointaines s'y effacent sans bord visible.\n      // Le token est en sRGB et le moteur encode sa couleur d'effacement du\n      // lineaire vers le sRGB : sans la conversion inverse, le fond ressort\n      // un cran plus clair.\n      const bgColour = new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear()\n      renderer.setClearColor(bgColour, 1)\n      const fog = new three.Fog(bgColour, 4, DEPTH + 2)\n      scene.scene.fog = fog\n\n      // La camera est basse et regarde loin devant : le relief se lit en\n      // perspective, l'horizon dans le tiers superieur.\n      camera.position.set(0, 1.8, 3.5)\n      camera.lookAt(0, 0.2, -DEPTH)\n\n      const cols = quality === 'low' ? Math.min(columns, LOW_COLUMNS) : Math.max(columns, 8)\n      const rows = Math.max(Math.round(cols / 2), 4)\n      const count = (cols + 1) * (rows + 1)\n\n      // Les sommets : x et z sont fixes, y est reecrit par image.\n      const positions = new Float32Array(count * 3)\n      const colours = new Float32Array(count * 3)\n      for (let row = 0; row <= rows; row += 1) {\n        for (let col = 0; col <= cols; col += 1) {\n          const at = (row * (cols + 1) + col) * 3\n          positions[at] = (col / cols - 0.5) * WIDTH\n          positions[at + 1] = 0\n          positions[at + 2] = 2 - (row / rows) * DEPTH\n        }\n      }\n\n      // Les segments : chaque sommet est relie a son voisin de droite et a\n      // celui de derriere. Pas de diagonales : un quadrillage, pas des\n      // triangles.\n      const pairs: number[] = []\n      for (let row = 0; row <= rows; row += 1) {\n        for (let col = 0; col <= cols; col += 1) {\n          const index = row * (cols + 1) + col\n          if (col < cols) pairs.push(index, index + 1)\n          if (row < rows) pairs.push(index, index + cols + 1)\n        }\n      }\n\n      const geometry = new three.BufferGeometry()\n      const positionAttribute = new three.BufferAttribute(positions, 3)\n      const colourAttribute = new three.BufferAttribute(colours, 3)\n      positionAttribute.setUsage(three.DynamicDrawUsage)\n      colourAttribute.setUsage(three.DynamicDrawUsage)\n      geometry.setAttribute('position', positionAttribute)\n      geometry.setAttribute('color', colourAttribute)\n      geometry.setIndex(pairs)\n\n      // Les couleurs viennent des sommets : c'est ce qui permet d'eclaircir\n      // une crete sans un materiau par segment.\n      const material = new three.LineBasicMaterial({\n        vertexColors: true,\n        transparent: true,\n        opacity: 0.85,\n        depthWrite: false,\n      })\n\n      const lines = new three.LineSegments(geometry, material)\n      lines.name = 'relief'\n      scene.scene.add(lines)\n\n      relief.current = {\n        columns: cols,\n        rows,\n        positions,\n        colours,\n        positionAttribute,\n        colourAttribute,\n        fog,\n      }\n\n      return () => {\n        scene.scene.remove(lines)\n        scene.scene.fog = null\n        relief.current = null\n      }\n    },\n\n    frame: (_, { time }) => {\n      const nappe = relief.current\n      if (nappe === null) return\n      const { speed: rate, height: amplitude, valley: hollow } = settings.current\n      const [, line, peak] = shades.current\n      const lr = line?.[0] ?? 0\n      const lg = line?.[1] ?? 0\n      const lb = line?.[2] ?? 0\n      const pr = peak?.[0] ?? 0\n      const pg = peak?.[1] ?? 0\n      const pb = peak?.[2] ?? 0\n\n      // Le bruit est lu a une profondeur decalee du temps : les cretes\n      // avancent, les sommets restent.\n      const offset = time * rate\n      const count = (nappe.columns + 1) * (nappe.rows + 1)\n      const halfValley = hollow * 3\n\n      for (let index = 0; index < count; index += 1) {\n        const at = index * 3\n        const x = nappe.positions[at] ?? 0\n        const z = nappe.positions[at + 2] ?? 0\n        const sx = x * SCALE\n        const sz = (z - offset) * SCALE\n\n        // Deux octaves : la seconde, deux fois plus fine et deux fois plus\n        // faible, casse la rondeur de la premiere.\n        let bump = noise(sx, sz) * 0.7 + noise(sx * 2 + 17, sz * 2 + 31) * 0.3\n\n        // La vallee : plat au centre, plein sur les cotes.\n        if (halfValley > 0) {\n          const edge = Math.min(Math.max((Math.abs(x) - halfValley) / 2.5, 0), 1)\n          bump *= edge * edge * (3 - 2 * edge)\n        }\n\n        const y = bump * amplitude\n        nappe.positions[at + 1] = y\n\n        const share = Math.min(Math.max(y / Math.max(amplitude, 0.001), 0), 1)\n        nappe.colours[at] = lr + (pr - lr) * share\n        nappe.colours[at + 1] = lg + (pg - lg) * share\n        nappe.colours[at + 2] = lb + (pb - lb) * share\n      }\n\n      nappe.positionAttribute.needsUpdate = true\n      nappe.colourAttribute.needsUpdate = true\n    },\n  })\n\n  // Le theme a bascule : les tokens sont relus et les couleurs remplacees en\n  // place. Les lignes lisent la ref a l'image suivante ; le fond et le\n  // brouillard sont peints ici, parce qu'ils ne sont pas relus par image.\n  useEffect(() => {\n    const scene = context.current\n    const nappe = relief.current\n    if (scene === null || nappe === null || host === null) return\n    shades.current = colors.map((token) => readTokenColour(token, host))\n    const [bg] = shades.current\n    const bgColour = new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear()\n    scene.renderer.setClearColor(bgColour, 1)\n    nappe.fog.color.copy(bgColour)\n  }, [theme, colors, host, ready])\n\n  const pending = usePoster({ ready, refused })\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {pending.visible ? (\n        <div style={pending.style} className={`o-absolute o-inset-0 ${poster}`} />\n      ) : null}\n    </div>\n  )\n}\n"
+  }
+}

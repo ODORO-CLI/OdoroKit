@@ -122,8 +122,8 @@ function ensureCurtainRule(): void {
  * <CurtainWipe origin={[12, 18]} holdMs={800} onDone={ouvrir} />
  */
 export function CurtainWipe({
-  background = 'var(--o-palette-zinc-950)',
-  ink = 'var(--o-palette-zinc-50)',
+  background = 'var(--o-theme-bg)',
+  ink = 'var(--o-theme-fg)',
   label,
   holdMs = 1200,
   wipeMs = 1000,

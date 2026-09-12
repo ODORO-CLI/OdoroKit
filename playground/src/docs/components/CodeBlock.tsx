@@ -77,7 +77,7 @@ function tokenize(code: string): Token[] {
  * hautes au fond sombre — l'inverse manquerait de contraste dans les deux cas.
  */
 const TOKEN_CLASS: Record<Token['kind'], string> = {
-  comment: 'o-text-zinc-400 dark:o-text-zinc-500',
+  comment: 'o-text-zinc-500 dark:o-text-zinc-400',
   string: 'o-text-emerald-600 dark:o-text-emerald-300',
   keyword: 'o-text-sky-600 dark:o-text-sky-300',
   tag: 'o-text-fuchsia-600 dark:o-text-fuchsia-300',
@@ -144,7 +144,7 @@ export function CodeBlock({
       className={`o-rounded-lg o-overflow-hidden o-border-w-1 o-bg-zinc-50 dark:o-bg-zinc-950 o-border-zinc-200 dark:o-border-zinc-800 ${className ?? ''}`}
     >
       <div className="o-flex o-items-center o-justify-between o-px-3 o-py-1 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
-        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+        <span className="o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400">
           {lang ?? 'tsx'}
         </span>
         <span className="o-inline-flex o-items-center o-gap-1">

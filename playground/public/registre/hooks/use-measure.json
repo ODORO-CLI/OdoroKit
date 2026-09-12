@@ -1,0 +1,37 @@
+{
+  "name": "use-measure",
+  "category": "hooks",
+  "title": "Mesure d un element",
+  "description": "Taille et position d un element, relevees par un observateur quand elles changent vraiment.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useMeasure.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "arrondi",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Arrondir au pixel : sans lui, une largeur fractionnaire oscille et provoque des rendus pour rien."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur par element, aucune mesure par image. Le nombre de rendus est celui des changements de boite."
+  },
+  "id": "hooks/use-measure",
+  "sources": {
+    "hook.ts": "/**\n * Taille et position d'un element, relevees quand elles changent.\n *\n * ## Pourquoi un observateur, et pas une boucle\n *\n * Mesurer dans la boucle de rendu donnerait une valeur toujours juste, au prix\n * d'une lecture de mise en page a chaque image — pour un nombre qui, sur une\n * page ordinaire, ne bouge pas de la minute. Le navigateur sait dire quand il\n * a change : `ResizeObserver` ne se reveille que lors d'un vrai changement de\n * boite, et il voit ce qu'un ecouteur `resize` ne voit pas — une colonne\n * voisine qui s'ouvre, une police qui arrive, un contenu qui grandit.\n *\n * ## Pourquoi un etat React ici, alors qu'ailleurs c'est une ref\n *\n * Parce que la valeur sert a **decider**, pas a animer. On mesure pour choisir\n * un nombre de colonnes, dimensionner une toile, placer un panneau : autant de\n * choses qui passent par un rendu de toute facon. Le nombre de rendus est\n * celui des changements reels, c'est-a-dire presque aucun.\n *\n * C'est la difference avec le pointeur ou le defilement, qui changent a chaque\n * image et n'ont donc rien a faire dans un etat.\n *\n * ## L'arrondi n'est pas cosmetique\n *\n * Une largeur en pourcentage vaut 341.328125 pixels, et le moindre reflow la\n * fait osciller d'un centieme. Sans arrondi, chacune de ces oscillations\n * provoque un rendu — et si ce rendu change la mise en page, l'observateur se\n * reveille a nouveau. C'est ainsi qu'on obtient la boucle que le navigateur\n * signale par « ResizeObserver loop completed with undelivered notifications ».\n *\n * ## Ce que ce crochet ne fait pas\n *\n * La position est celle du dernier releve, dans le repere de la fenetre. Elle\n * ne suit pas le defilement : le suivre demanderait une mesure par image,\n * c'est-a-dire exactement ce que ce crochet evite. Pour un element qui bouge\n * pendant qu'on defile, la progression de defilement est l'outil juste.\n *\n * @module\n */\n\nimport { useCallback, useEffect, useRef, useState, type RefObject } from 'react'\n\n/** Boite relevee, en pixels, dans le repere de la fenetre. */\nexport interface Box {\n  readonly width: number\n  readonly height: number\n  readonly top: number\n  readonly left: number\n}\n\n/** Options de `useMeasure`. */\nexport interface MeasureOptions {\n  /**\n   * Arrondir au pixel.\n   *\n   * Voir l'en-tete : sans arrondi, une largeur fractionnaire fait osciller la\n   * mesure et provoque des rendus pour rien. A ne desactiver que pour une\n   * toile, ou le sous-pixel se voit.\n   *\n   * @defaultValue true\n   */\n  arrondi?: boolean\n}\n\n/** Ce que le crochet rend. */\nexport interface MeasureResult<T extends Element> {\n  /** A poser sur l'element a mesurer. */\n  readonly ref: RefObject<T | null>\n  /** Derniere boite relevee. Nulle tant que rien n'a ete mesure. */\n  readonly box: Box\n  /** `true` des qu'une premiere mesure a eu lieu. */\n  readonly pret: boolean\n  /**\n   * Force un releve.\n   *\n   * Necessaire apres un changement que l'observateur ne voit pas : un element\n   * qu'on vient de deplacer sans le redimensionner.\n   */\n  mesurer(): void\n}\n\n/** Boite avant toute mesure. */\nconst VIDE: Box = { width: 0, height: 0, top: 0, left: 0 }\n\n/** Deux boites identiques n'ont pas a provoquer de rendu. */\nfunction identiques(a: Box, b: Box): boolean {\n  return (\n    a.width === b.width && a.height === b.height && a.top === b.top && a.left === b.left\n  )\n}\n\n/**\n * Mesure un element, et remesure quand il change.\n *\n * @example\n * const { ref, box, pret } = useMeasure<HTMLDivElement>()\n * return (\n *   <div ref={ref}>\n *     {pret ? <Toile largeur={box.width} hauteur={box.height} /> : null}\n *   </div>\n * )\n */\nexport function useMeasure<T extends Element>(\n  options: MeasureOptions = {},\n): MeasureResult<T> {\n  const { arrondi = true } = options\n\n  const ref = useRef<T | null>(null)\n  const [etat, setEtat] = useState<{ box: Box; pret: boolean }>({\n    box: VIDE,\n    pret: false,\n  })\n\n  const mesurer = useCallback((): void => {\n    const cible = ref.current\n    if (cible === null) return\n\n    const rect = cible.getBoundingClientRect()\n    const ajuste = (valeur: number): number => (arrondi ? Math.round(valeur) : valeur)\n    const releve: Box = {\n      width: ajuste(rect.width),\n      height: ajuste(rect.height),\n      top: ajuste(rect.top),\n      left: ajuste(rect.left),\n    }\n\n    setEtat((precedent) =>\n      precedent.pret && identiques(precedent.box, releve)\n        ? precedent\n        : { box: releve, pret: true },\n    )\n  }, [arrondi])\n\n  useEffect(() => {\n    const cible = ref.current\n    if (cible === null) return\n\n    mesurer()\n\n    // La fenetre en plus de l'element : un element de taille fixe change de\n    // position quand la fenetre se reduit, et l'observateur ne le voit pas.\n    window.addEventListener('resize', mesurer, { passive: true })\n\n    if (typeof ResizeObserver === 'undefined') {\n      // Sans observateur, la mesure initiale et le redimensionnement de la\n      // fenetre valent mieux que rien : c'est le comportement d'avant, pas une\n      // panne.\n      return () => {\n        window.removeEventListener('resize', mesurer)\n      }\n    }\n\n    const observateur = new ResizeObserver(() => {\n      // On remesure par `getBoundingClientRect` plutot que de lire l'entree :\n      // celle-ci donne une taille, jamais une position dans la fenetre.\n      mesurer()\n    })\n    observateur.observe(cible)\n\n    return () => {\n      observateur.disconnect()\n      window.removeEventListener('resize', mesurer)\n    }\n  }, [mesurer])\n\n  return { ref, box: etat.box, pret: etat.pret, mesurer }\n}\n"
+  }
+}

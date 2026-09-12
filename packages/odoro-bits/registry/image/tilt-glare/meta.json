@@ -1,0 +1,66 @@
+{
+  "name": "tilt-glare",
+  "category": "image",
+  "title": "Inclinaison et reflet",
+  "description": "Une carte-image qui pivote vers le pointeur, reflet a l oppose, sans un rendu React pendant le geste.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/TiltGlare.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-zinc-50"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 10,
+      "unit": "deg",
+      "description": "Inclinaison maximale.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "glare",
+      "type": "number",
+      "default": 0.25,
+      "description": "Intensite du reflet, de 0 a 1. Zero le supprime.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une boucle d amortissement qui ecrit une transformation et deux variables CSS, sans rendu React. Plat sous mouvement reduit, et inerte au doigt : sans pointeur fin, rien ne s abonne."
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "pulse-block",
+  "category": "loader",
+  "title": "Bloc qui pulse",
+  "description": "Une surface en attente dont le ton respire entre le filet et la surface, sans bande et sans jamais devenir transparente.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/PulseBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface"
+  ],
+  "props": [
+    {
+      "name": "height",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur du bloc.",
+      "min": 8,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "depth",
+      "type": "number",
+      "default": 0.55,
+      "description": "Amplitude de la respiration, de 0 (immobile) a 1 (jusqu a la surface).",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un cycle.",
+      "min": 600,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un repeint par image sur un seul element, sans mise en page recalculee ni couche supplementaire ; aucun JavaScript apres le premier rendu. Ton plein et fige sous mouvement reduit."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "gradient-ring",
+  "category": "loader",
+  "title": "Anneau degrade",
+  "description": "Un anneau conique qui s eteint sur tout le tour, de la tete pleine a la queue transparente, en rotation.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GradientRing.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre de l anneau.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Epaisseur de l anneau.",
+      "min": 2,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1000,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 300,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la tete. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade conique masque en anneau, une rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Anneau immobile, tete en haut, sous mouvement reduit."
+  }
+}

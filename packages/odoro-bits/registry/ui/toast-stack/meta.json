@@ -1,0 +1,80 @@
+{
+  "name": "toast-stack",
+  "category": "ui",
+  "title": "Pile de notifications",
+  "description": "Des notifications qui s empilent l une devant l autre, s etalent au survol, et se retirent apres un delai que le survol met en pause.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/ToastStack.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-palette-emerald-500",
+    "--o-palette-amber-500",
+    "--o-palette-rose-500",
+    "--o-duration-fast",
+    "--o-duration-slow",
+    "--o-ease-emphasized",
+    "--o-z-toast"
+  ],
+  "props": [
+    {
+      "name": "toasts",
+      "type": "readonly { id: string; title: string; description?: string; tone?: 'info' | 'succes' | 'alerte' | 'erreur' }[]",
+      "required": true,
+      "description": "Les notifications, de la plus ancienne a la plus recente."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Notifications",
+      "description": "Nom de la region pour les lecteurs d ecran."
+    },
+    {
+      "name": "onDismiss",
+      "type": "(id: string) => void",
+      "description": "Appele quand une notification se retire, d elle-meme ou a la main."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 4000,
+      "unit": "ms",
+      "min": 0,
+      "max": 10000,
+      "step": 500,
+      "description": "Delai avant retrait. Zero laisse la notification jusqu au clic."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 3,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "description": "Nombre de notifications visibles dans le paquet."
+    },
+    {
+      "name": "side",
+      "type": "string",
+      "default": "bottom",
+      "options": ["bottom", "top"],
+      "description": "Cote ou la pile est ancree."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Les decalages sont mesures apres le rendu et ecrits en variables sur les elements ; les cartes se deplacent par transformation. Une minuterie par carte, mise en pause avec la barre de vie. Sous mouvement reduit, les cartes paraissent en place et le retrait reste."
+  }
+}

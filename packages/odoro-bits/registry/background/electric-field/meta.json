@@ -1,0 +1,78 @@
+{
+  "name": "electric-field",
+  "category": "background",
+  "title": "Champ electrique",
+  "description": "Une echelle de Jacob : un arc qui s amorce entre deux electrodes, monte porte par l air chaud et se rompt en haut, son chemin rehache trente fois par seconde pour crepiter.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "electric-field.shader.ts",
+      "target": "background/electric-field.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/ElectricField.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg", "--o-palette-cyan-400", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.35,
+      "description": "Montees de l arc par seconde.",
+      "min": 0.1,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "name": "jitter",
+      "type": "number",
+      "default": 0.5,
+      "description": "Amplitude du deplacement du chemin.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "glow",
+      "type": "number",
+      "default": 0.5,
+      "description": "Portee de la lueur autour du trait.",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "branches",
+      "type": "number",
+      "default": 3,
+      "description": "Octaves du deplacement, donc la brisure du chemin. Retrograde a 2 en qualite basse.",
+      "min": 1,
+      "max": 5,
+      "step": 1
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-cyan-400, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues. Trois noms de variables CSS."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "static",
+    "notes": "Trois arcs par fragment — le vif et deux fantomes — a quelques octaves de bruit 1D chacun, deux exponentielles par arc. En qualite basse, les octaves tombent a deux."
+  }
+}

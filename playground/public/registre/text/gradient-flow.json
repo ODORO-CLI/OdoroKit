@@ -1,0 +1,74 @@
+{
+  "name": "gradient-flow",
+  "category": "text",
+  "title": "Degrade en mouvement",
+  "description": "Une nappe de couleur traverse le texte en boucle, sans aucun JavaScript a l execution.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/GradientFlow.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500"
+  ],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "required": false,
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 4000,
+      "unit": "ms",
+      "description": "Duree d un cycle complet.",
+      "min": 1000,
+      "max": 12000,
+      "step": 100
+    },
+    {
+      "name": "angle",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "deg",
+      "description": "Angle du degrade.",
+      "min": 0,
+      "max": 360,
+      "step": 5
+    },
+    {
+      "name": "from",
+      "type": "string",
+      "required": false,
+      "description": "Premiere couleur. Une valeur, pas un role."
+    },
+    {
+      "name": "to",
+      "type": "string",
+      "required": false,
+      "description": "Seconde couleur. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un degrade anime par le compositeur. Sous mouvement reduit le degrade reste, seul son deplacement s arrete."
+  },
+  "id": "text/gradient-flow",
+  "sources": {
+    "component.tsx": "/**\n * Degrade en mouvement : une nappe de couleur traverse le texte, en boucle.\n *\n * ## Zero JavaScript a l'execution\n *\n * Le texte est peint par son fond — un degrade plus large que lui, dont la\n * position est animee. Le compositeur du navigateur fait tout : aucune\n * boucle, aucun abonnement, aucun rendu React apres le premier.\n *\n * Le degrade fait trois fois la largeur du texte et boucle sur lui-meme :\n * la couleur de depart est aussi celle d'arrivee, donc le raccord du cycle\n * est invisible.\n *\n * ## La contrepartie du decoupage\n *\n * `background-clip: text` suppose de rendre la couleur du texte\n * transparente. Un navigateur qui ne saurait pas decouper afficherait donc\n * un texte invisible. La regle est enfermee dans une requete de support :\n * sans elle, le texte garde sa couleur heritee et perd seulement son\n * degrade, ce qui est le bon sens de la degradation.\n *\n * Sous mouvement reduit, le degrade reste : c'est la couleur du texte, pas\n * un geste. Seul son deplacement s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ElementType, type ReactElement } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface GradientFlowOwnProps {\n  /** Texte a peindre. */\n  children: string\n  /** Balise rendue. @defaultValue 'span' */\n  as?: ElementType\n  /** Duree d'un cycle, en millisecondes. @defaultValue 4000 */\n  speed?: number\n  /** Angle du degrade, en degres. @defaultValue 90 */\n  angle?: number\n  /** Premiere couleur. @defaultValue teinte de marque */\n  from?: string\n  /** Seconde couleur. @defaultValue fuchsia de la palette */\n  to?: string\n}\n\n/** Toutes les proprietes. */\nexport type GradientFlowProps = Customisable<GradientFlowOwnProps, 'span'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-gradient-flow'\n\n/** Pose le degrade et son mouvement, une fois par document. */\nfunction ensureFlowRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '@keyframes o-gradient-flow{from{background-position:0% 50%}to{background-position:-200% 50%}}',\n    '@supports (background-clip:text) or (-webkit-background-clip:text){',\n    '[data-o-gradient-flow]{',\n    // Quatre jalons dont le premier et le dernier partagent la couleur : le\n    // motif se repete sans couture quand la position boucle.\n    'background-image:linear-gradient(var(--o-flow-angle),var(--o-flow-from),var(--o-flow-to),var(--o-flow-from));',\n    'background-size:200% 100%;',\n    '-webkit-background-clip:text;background-clip:text;',\n    'color:transparent;-webkit-text-fill-color:transparent;',\n    'animation:o-gradient-flow var(--o-flow-speed) linear infinite;',\n    '}}',\n    '@media (prefers-reduced-motion:reduce){[data-o-gradient-flow]{animation:none;background-position:0% 50%}}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Fait couler un degrade a travers un texte.\n *\n * @example\n * <GradientFlow as=\"h1\" className=\"o-text-5xl o-font-extrabold\">\n *   Construire en couleur\n * </GradientFlow>\n *\n * @example\n * // Les couleurs sont libres : ce sont des valeurs, pas des roles.\n * <GradientFlow from=\"var(--o-palette-sky-400)\" to=\"var(--o-palette-emerald-300)\">\n *   Odoro\n * </GradientFlow>\n */\nexport function GradientFlow({\n  children,\n  as: Tag = 'span',\n  speed = 4000,\n  angle = 90,\n  from = 'var(--o-palette-brand-500)',\n  to = 'var(--o-palette-fuchsia-500)',\n  ...rest\n}: GradientFlowProps): ReactElement {\n  ensureFlowRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const flowStyle = {\n    ...style,\n    '--o-flow-from': from,\n    '--o-flow-to': to,\n    '--o-flow-angle': `${String(angle)}deg`,\n    '--o-flow-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  // Le mouvement reduit est traite par la feuille, pas par le rendu : le\n  // degrade est la couleur du texte et doit rester, seul son deplacement\n  // s'arrete. Retirer l'attribut retirerait la couleur avec.\n  return (\n    <Tag {...rest} className={className} style={flowStyle} data-o-gradient-flow=\"\">\n      {children}\n    </Tag>\n  )\n}\n"
+  }
+}

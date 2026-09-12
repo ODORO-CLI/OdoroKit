@@ -1,0 +1,93 @@
+{
+  "name": "circuit",
+  "category": "background",
+  "title": "Circuit imprime",
+  "description": "Des pistes tirees tuile par tuile — traits droits et coudes qui se raccordent d eux-memes — avec une pastille a chaque extremite, et des impulsions qui les parcourent a des rythmes decales.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "circuit.shader.ts",
+      "target": "background/circuit.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Circuit.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-emerald-400"
+  ],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "Nombre de tuiles sur la hauteur. Borne a quarante par le shader, a six en qualite basse.",
+      "min": 2,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "required": false,
+      "default": 0.08,
+      "description": "Epaisseur des pistes, en fraction de tuile.",
+      "min": 0.02,
+      "max": 0.3,
+      "step": 0.01
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1,
+      "description": "Vitesse des impulsions.",
+      "min": 0,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "pulses",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Part des pistes parcourues a un instant donne. Zero les eteint.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-emerald-400",
+      "description": "Tokens dont les couleurs sont lues : le substrat, les pistes et les pastilles, les impulsions."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Cinq hachages de tuile, huit distances et une exponentielle par fragment, sans boucle. En qualite basse, les tuiles s elargissent.",
+    "fallback": "static"
+  },
+  "id": "background/circuit",
+  "sources": {
+    "circuit.shader.ts": "/**\n * Shader du circuit imprime.\n *\n * ## L'idee mathematique\n *\n * Un circuit est une grille de tuiles. Chaque tuile tire son type — un\n * trait droit, horizontal ou vertical, ou l'un des quatre coudes — et le\n * trait est la distance signee au segment qui va du centre de la tuile au\n * milieu de chacun de ses bords ouverts. Aucun chemin n'est construit :\n * deux tuiles voisines qui s'ouvrent l'une vers l'autre se raccordent\n * d'elles-memes, et deux qui ne s'ouvrent pas l'une vers l'autre laissent\n * une extremite de piste.\n *\n * Ces extremites sont les pastilles. Un bord est terminal si la tuile s'y\n * ouvre et pas sa voisine, ou l'inverse ; la pastille est un anneau au\n * milieu de ce bord, dessine par les deux tuiles depuis la meme condition\n * — chacune sa moitie, sans couture. C'est ce qui fait un circuit et non\n * un labyrinthe : les pistes finissent sur des pastilles.\n *\n * Les impulsions courent le long de l'axe de la tuile : une exponentielle\n * de la partie fractionnaire de la coordonnee le long de la piste, decalee\n * par le temps et par une graine propre a la rangee ou a la colonne, pour\n * que les pistes ne pulsent pas en choeur.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le substrat.\n * - `uColorB` — les pistes et les pastilles.\n * - `uColorC` — les impulsions.\n * - `uCells` — nombre de tuiles sur la hauteur.\n * - `uWidth` — epaisseur des pistes, en fraction de tuile.\n * - `uSpeed` — vitesse des impulsions.\n * - `uPulses` — part des pistes parcourues a un instant donne.\n */\nexport const CIRCUIT_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uCells;\nuniform float uWidth;\nuniform float uSpeed;\nuniform float uPulses;\n\n// Nombre pseudo-aleatoire, stable par tuile.\nfloat circuitHash(vec2 cell) {\n  return fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);\n}\n\n// Les bords ouverts d'une tuile : gauche, droite, haut, bas. Six types,\n// deux traits droits et quatre coudes.\nvec4 circuitOpen(vec2 cell) {\n  float kind = floor(circuitHash(cell) * 6.0);\n  if (kind < 0.5) return vec4(1.0, 1.0, 0.0, 0.0);\n  if (kind < 1.5) return vec4(0.0, 0.0, 1.0, 1.0);\n  if (kind < 2.5) return vec4(1.0, 0.0, 1.0, 0.0);\n  if (kind < 3.5) return vec4(0.0, 1.0, 0.0, 1.0);\n  if (kind < 4.5) return vec4(1.0, 0.0, 0.0, 1.0);\n  return vec4(0.0, 1.0, 1.0, 0.0);\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float cells = clamp(uCells, 2.0, 40.0);\n  vec2 p = vUv * vec2(aspect, 1.0) * cells;\n\n  // Un pixel, en unites de tuile.\n  float px = cells / max(uResolution.y, 1.0);\n\n  vec2 id = floor(p);\n  vec2 f = fract(p) - 0.5;\n\n  vec4 open = circuitOpen(id);\n\n  // La distance au trait : le minimum sur les bords ouverts de la distance\n  // au segment centre-bord. Un bord ferme est repousse a l'infini.\n  float far = 10.0;\n  float dLeft = mix(far, length(vec2(max(f.x, 0.0), f.y)), open.x);\n  float dRight = mix(far, length(vec2(min(f.x, 0.0), f.y)), open.y);\n  float dUp = mix(far, length(vec2(f.x, min(f.y, 0.0))), open.z);\n  float dDown = mix(far, length(vec2(f.x, max(f.y, 0.0))), open.w);\n  float trace = min(min(dLeft, dRight), min(dUp, dDown));\n\n  // Les bords terminaux : ouverts d'un seul cote.\n  float tLeft = abs(open.x - circuitOpen(id - vec2(1.0, 0.0)).y);\n  float tRight = abs(open.y - circuitOpen(id + vec2(1.0, 0.0)).x);\n  float tUp = abs(open.z - circuitOpen(id + vec2(0.0, 1.0)).w);\n  float tDown = abs(open.w - circuitOpen(id - vec2(0.0, 1.0)).z);\n\n  float pad = min(\n    min(mix(far, length(f - vec2(-0.5, 0.0)), tLeft), mix(far, length(f - vec2(0.5, 0.0)), tRight)),\n    min(mix(far, length(f - vec2(0.0, 0.5)), tUp), mix(far, length(f - vec2(0.0, -0.5)), tDown))\n  );\n\n  float width = clamp(uWidth, 0.02, 0.3);\n  float line = 1.0 - smoothstep(width * 0.5 - px, width * 0.5 + px, trace);\n  float ring = 1.0 - smoothstep(px, px * 2.5, abs(pad - width * 1.6));\n  float hole = 1.0 - smoothstep(width * 0.6 - px, width * 0.6 + px, pad);\n\n  // L'impulsion : le long de l'axe de la tuile, avec une graine par piste.\n  float horizontal = max(open.x, open.y);\n  float along = mix(p.y, p.x, horizontal);\n  float seed = mix(circuitHash(vec2(id.x, 41.0)), circuitHash(vec2(43.0, id.y)), horizontal);\n  float carried = step(1.0 - clamp(uPulses, 0.0, 1.0), circuitHash(vec2(seed, floor(uTime * 0.25 + seed))));\n  float pulse = exp(-fract(along * 0.2 - uTime * uSpeed * 0.4 + seed) * 7.0) * carried;\n\n  vec3 colour = mix(uColorA, uColorB, max(line, ring) * 0.9);\n  colour = mix(colour, uColorA, hole * line);\n  colour = mix(colour, uColorC, line * (1.0 - hole) * pulse);\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Circuit imprime : des pistes tirees par tuiles, des pastilles a leurs\n * extremites, et des impulsions qui les parcourent.\n *\n * ## Le principe\n *\n * Chaque tuile tire un trait droit ou un coude ; deux voisines qui\n * s'ouvrent l'une vers l'autre se raccordent d'elles-memes, et un bord\n * ouvert d'un seul cote porte une pastille. Aucun chemin n'est construit.\n * Les impulsions courent le long de l'axe de chaque piste, avec une graine\n * par rangee ou par colonne pour qu'elles ne pulsent pas en choeur.\n *\n * Ce qui distingue cette entree de `maze` : des pastilles aux extremites,\n * des coudes droits, et des impulsions plutot qu'une tete qui dessine ; et\n * de `truchet` : rien ne pivote, les pistes sont fixes et parcourues.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { CIRCUIT_FRAGMENT } from './circuit.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface CircuitControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface CircuitOwnProps {\n  /** Nombre de tuiles sur la hauteur. Borne a quarante par le shader. @defaultValue 10 */\n  cells?: number\n  /** Epaisseur des pistes, en fraction de tuile. @defaultValue 0.08 */\n  width?: number\n  /** Vitesse des impulsions. @defaultValue 1 */\n  speed?: number\n  /** Part des pistes parcourues a un instant donne. Zero les eteint. @defaultValue 0.5 */\n  pulses?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<CircuitControls>\n}\n\n/** Toutes les proprietes. */\nexport type CircuitProps = Customisable<CircuitOwnProps>\n\n/** Tokens employes par defaut : le substrat, les pistes, les impulsions. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-emerald-400',\n] as const\n\n/** Repli par defaut : une teinte figee, dans les memes tons. */\nconst DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'\n\n/**\n * Circuit imprime.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Circuit className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Circuit({\n  cells = 10,\n  width = 0.08,\n  speed = 1,\n  pulses = 0.5,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: CircuitProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: CIRCUIT_FRAGMENT,\n    colors,\n    uniforms: { uCells: cells, uWidth: width, uSpeed: speed, uPulses: pulses },\n    name: 'circuit',\n    // Des pistes fines sur des tuiles petites scintillent a densite de\n    // pixels reduite : en qualite basse, les tuiles s'elargissent.\n    degrade: (quality) => ({\n      uCells: quality === 'low' ? Math.min(cells, 6) : cells,\n    }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

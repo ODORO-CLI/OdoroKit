@@ -1,0 +1,51 @@
+{
+  "name": "spotlight-text",
+  "category": "text",
+  "title": "Texte au projecteur",
+  "description": "Le remplissage n apparait que sous un halo qui suit le pointeur ; hors survol, un texte attenue reste lisible.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SpotlightText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 120,
+      "unit": "px",
+      "description": "Rayon du halo.",
+      "min": 40,
+      "max": 320,
+      "step": 10
+    },
+    {
+      "name": "rest",
+      "type": "number",
+      "default": 0.25,
+      "description": "Opacite du texte hors du halo.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Le pointeur ecrit deux variables CSS, le masque les lit : aucun rendu React par mouvement, rien au repos. Inerte sans pointeur fin."
+  }
+}

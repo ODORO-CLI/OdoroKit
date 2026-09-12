@@ -1,0 +1,83 @@
+{
+  "name": "image-glitch",
+  "category": "image",
+  "title": "Image glitchee",
+  "description": "Deux fantomes teintes se decalent par tranches au-dessus de la photo, en paliers, tant que le pointeur reste.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/ImageGlitch.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-cyan-400", "--o-palette-rose-500"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Decalage des tranches.",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un cycle de decrochage.",
+      "min": 400,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "default": true,
+      "description": "Ne decrocher qu au survol et au focus. Sinon, en continu."
+    },
+    {
+      "name": "cool",
+      "type": "string",
+      "description": "Teinte du premier fantome. Une valeur, pas une couleur en dur."
+    },
+    {
+      "name": "warm",
+      "type": "string",
+      "description": "Teinte du second fantome. Une valeur, pas une couleur en dur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux calques dont l animation est declaree une fois pour le document et reste en pause : le survol la remet en marche, sans rien creer ni rendre. Les fantomes ne sont pas rendus sous mouvement reduit."
+  }
+}

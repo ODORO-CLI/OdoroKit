@@ -1,0 +1,61 @@
+{
+  "name": "liquid-button",
+  "category": "ui",
+  "title": "Bouton a maree",
+  "description": "Un calque colore monte derriere le libelle au survol, avec un leger deborde elastique.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/LiquidButton.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-zinc-50"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "required": true,
+      "description": "Libelle du bouton."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 450,
+      "unit": "ms",
+      "description": "Duree de la montee du calque.",
+      "min": 150,
+      "max": 1200,
+      "step": 50
+    },
+    {
+      "name": "direction",
+      "type": "'up' | 'left'",
+      "required": false,
+      "default": "up",
+      "description": "Sens d arrivee du calque colore.",
+      "options": [
+        "up",
+        "left"
+      ]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une transition de transformation et une de couleur, tenues par le compositeur. Sous mouvement reduit la montee devient un fondu."
+  },
+  "id": "ui/liquid-button",
+  "sources": {
+    "component.tsx": "/**\n * Bouton a maree : le fond monte derriere le libelle au survol.\n *\n * ## Le calque deborde volontairement\n *\n * Le calque colore mesure cent dix pour cent de la hauteur du bouton, et la\n * courbe d'arrivee depasse legerement sa cible avant de s'y poser. Sans ce\n * surplus de matiere, le rebond decouvrirait une bande de fond nu au sommet\n * du bouton — un artefact d'une frame, mais visible a chaque survol.\n *\n * ## Le libelle change de couleur au croisement\n *\n * Le texte passe de la couleur courante a celle prevue pour le calque, avec\n * une transition plus courte que la montee et un leger retard : il bascule\n * au moment ou la vague le traverse, pas avant. Deux couches de texte en\n * `mix-blend-mode` feraient plus spectaculaire, mais le rendu depend alors\n * du fond de la page — une transition de couleur est previsible partout.\n *\n * ## Sous mouvement reduit, la maree devient un fondu\n *\n * L'information — le bouton repond au survol — reste ; seul le deplacement\n * disparait. Le calque ne bouge plus, il apparait.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { type CSSProperties, type ReactElement, type ReactNode } from 'react'\n\n/** Proprietes propres au composant. */\nexport interface LiquidButtonOwnProps {\n  /** Libelle du bouton. */\n  children: ReactNode\n  /** Duree de la montee du calque, en millisecondes. @defaultValue 450 */\n  duration?: number\n  /** Sens d'arrivee du calque colore. @defaultValue 'up' */\n  direction?: 'up' | 'left'\n}\n\n/** Toutes les proprietes. */\nexport type LiquidButtonProps = Customisable<LiquidButtonOwnProps, 'button'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-liquid-button'\n\n/** Pose les regles du bouton, une fois par document. */\nfunction ensureLiquidRules(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-liquid]{',\n    'position:relative;overflow:hidden;isolation:isolate;cursor:pointer;',\n    'border:1px solid color-mix(in oklch,currentColor 25%,transparent);',\n    'background:transparent;color:inherit;font:inherit;',\n    '}',\n\n    // Le calque : plus grand que le bouton, gare hors champ.\n    '[data-o-liquid]::before{',\n    'content:\"\";position:absolute;inset:-5%;z-index:-1;',\n    'background:var(--o-liquid-fill);',\n    'transform:var(--o-liquid-rest);',\n    // La courbe depasse sa cible puis s y pose : c est le rebond elastique.\n    'transition:transform var(--o-liquid-duration) cubic-bezier(0.32,1.35,0.4,1);',\n    '}',\n    '[data-o-liquid][data-o-liquid-dir=\"up\"]{--o-liquid-rest:translateY(103%)}',\n    '[data-o-liquid][data-o-liquid-dir=\"left\"]{--o-liquid-rest:translateX(103%)}',\n    '[data-o-liquid]:is(:hover,:focus-visible)::before{transform:translate(0,0)}',\n\n    // Le libelle bascule de couleur quand la vague le traverse.\n    '[data-o-liquid]>span{',\n    'position:relative;z-index:1;display:inline-block;',\n    'transition:color calc(var(--o-liquid-duration) / 2) linear;',\n    'transition-delay:calc(var(--o-liquid-duration) / 4);',\n    '}',\n    '[data-o-liquid]:is(:hover,:focus-visible)>span{color:var(--o-liquid-ink)}',\n\n    // Mouvement reduit : le calque ne monte plus, il apparait.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-liquid]::before{transform:translate(0,0);opacity:0;',\n    'transition:opacity 200ms linear}',\n    '[data-o-liquid]:is(:hover,:focus-visible)::before{opacity:1}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Bouton dont le fond monte au survol, comme une maree.\n *\n * @example\n * <LiquidButton onClick={envoyer}>Envoyer</LiquidButton>\n *\n * @example\n * // Le calque arrive par la droite, plus lentement.\n * <LiquidButton direction=\"left\" duration={700}>Nous suivre</LiquidButton>\n */\nexport function LiquidButton({\n  children,\n  duration = 450,\n  direction = 'up',\n  ...rest\n}: LiquidButtonProps): ReactElement {\n  const { reduced } = useMotionState()\n  ensureLiquidRules()\n\n  const { className, style } = mergePresentation(\n    { className: 'o-rounded-full o-px-6 o-py-3 o-font-medium' },\n    rest,\n  )\n\n  return (\n    <button\n      type=\"button\"\n      {...rest}\n      data-o-liquid=\"\"\n      data-o-liquid-dir={direction}\n      className={className}\n      style={\n        {\n          ...style,\n          '--o-liquid-duration': `${String(reduced ? 0 : duration)}ms`,\n          '--o-liquid-fill': 'var(--o-palette-brand-500)',\n          '--o-liquid-ink': 'var(--o-palette-zinc-50)',\n        } as CSSProperties\n      }\n    >\n      <span>{children}</span>\n    </button>\n  )\n}\n"
+  }
+}

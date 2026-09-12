@@ -1,0 +1,72 @@
+{
+  "name": "reveal-mask",
+  "category": "effect",
+  "title": "Rideau par bandes",
+  "description": "A l entree dans le champ, le contenu est revele par des bandes verticales qui se retirent en cascade puis quittent le DOM.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/RevealMask.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "hooks/use-in-view"
+  ],
+  "tokens": [
+    "--o-theme-bg"
+  ],
+  "props": [
+    {
+      "name": "bands",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "description": "Nombre de bandes.",
+      "min": 3,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 600,
+      "unit": "ms",
+      "description": "Duree du retrait d une bande.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "ms",
+      "description": "Decalage entre deux bandes voisines.",
+      "min": 0,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des bandes. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur jusqu a l entree dans le champ, une animation Web Animations par bande, surcouche retiree du DOM a la fin. Contenu immediatement visible sous mouvement reduit."
+  },
+  "id": "effect/reveal-mask",
+  "sources": {
+    "component.tsx": "/**\n * Rideau par bandes : le contenu est revele par des bandes verticales qui se\n * retirent en cascade.\n *\n * ## Des surcouches, pas un masque sur le contenu\n *\n * Le contenu est rendu normalement des le premier instant ; ce sont des\n * bandes opaques posees par-dessus qui le cachent, puis remontent l'une apres\n * l'autre. Masquer le contenu lui-meme — opacite, clip — le ferait disparaitre\n * pour les lecteurs d'ecran et pour la recherche dans la page, alors qu'il\n * est la et n'attend que d'etre vu.\n *\n * Chaque bande est lancee par l'API Web Animations avec un delai croissant ;\n * quand la derniere se termine, la surcouche entiere quitte le DOM. Rien ne\n * reste au-dessus du contenu, pas meme d'invisible.\n *\n * ## Le declenchement vient du champ\n *\n * Le rideau attend que la zone entre dans le champ, via le crochet\n * `useInView` — qui s'ouvre de lui-meme si l'observation est impossible : un\n * rideau qui ne se leve jamais est le pire defaut possible.\n *\n * Sous mouvement reduit, la surcouche n'est pas rendue du tout : le contenu\n * est immediatement visible.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport { useEffect, useState, type ReactElement, type ReactNode } from 'react'\n\nimport { useInView } from '@registre/hooks/useInView'\n\n/** Proprietes propres au composant. */\nexport interface RevealMaskOwnProps {\n  /** Contenu a reveler. */\n  children: ReactNode\n  /** Nombre de bandes. @defaultValue 4 */\n  bands?: number\n  /** Duree du retrait d'une bande, en millisecondes. @defaultValue 600 */\n  duration?: number\n  /** Decalage entre deux bandes voisines, en millisecondes. @defaultValue 90 */\n  step?: number\n  /** Couleur des bandes. @defaultValue le token d'encre */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type RevealMaskProps = Customisable<RevealMaskOwnProps>\n\n/**\n * Revele son contenu par bandes, a l'entree dans le champ.\n *\n * Pour rejouer l'animation, remonter le composant — une `key` differente\n * suffit.\n *\n * @example\n * <RevealMask>\n *   <img src={couverture} alt=\"Couverture du numero 12\" />\n * </RevealMask>\n *\n * @example\n * // Six bandes serrees, dans la couleur de marque.\n * <RevealMask bands={6} step={60} color=\"var(--o-palette-brand-500)\">\n *   <article className=\"o-p-8\">…</article>\n * </RevealMask>\n */\nexport function RevealMask({\n  children,\n  bands = 4,\n  duration = 600,\n  step = 90,\n  color = 'var(--o-theme-bg, currentColor)',\n  ...rest\n}: RevealMaskProps): ReactElement {\n  const { reduced } = useMotionState()\n  const { ref, vu } = useInView<HTMLDivElement>()\n  const [veil, setVeil] = useState<HTMLDivElement | null>(null)\n  const [done, setDone] = useState(false)\n\n  useEffect(() => {\n    if (veil === null || !vu) return\n\n    const strips = veil.querySelectorAll('[data-o-reveal-band]')\n    let finished = 0\n    const animations: Animation[] = []\n\n    strips.forEach((strip, index) => {\n      const animation = strip.animate(\n        // Un cran au-dela de 100% : un sous-pixel de bande qui traine se\n        // voit comme un fil sombre en haut du contenu.\n        [{ transform: 'translateY(0)' }, { transform: 'translateY(-101%)' }],\n        {\n          duration,\n          delay: index * step,\n          easing: 'cubic-bezier(0.2, 0, 0, 1)',\n          fill: 'forwards',\n        },\n      )\n      animation.onfinish = () => {\n        finished += 1\n        // La surcouche ne part que lorsque la derniere bande est levee :\n        // la retirer bande par bande ferait autant de rendus React.\n        if (finished === strips.length) setDone(true)\n      }\n      animations.push(animation)\n    })\n\n    return () => {\n      for (const animation of animations) animation.cancel()\n    }\n  }, [veil, vu, duration, step])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={ref}\n      className={className}\n      style={{ position: 'relative', overflow: 'hidden', ...style }}\n    >\n      {children}\n      {/* Sous mouvement reduit, pas de rideau du tout ; une fois leve, il\n          quitte le DOM. */}\n      {reduced || done ? null : (\n        <div\n          aria-hidden\n          ref={setVeil}\n          style={{\n            position: 'absolute',\n            inset: 0,\n            display: 'grid',\n            gridTemplateColumns: `repeat(${String(Math.max(1, Math.round(bands)))}, 1fr)`,\n            pointerEvents: 'none',\n          }}\n        >\n          {Array.from({ length: Math.max(1, Math.round(bands)) }, (_, index) => (\n            <span key={index} data-o-reveal-band=\"\" style={{ background: color }} />\n          ))}\n        </div>\n      )}\n    </div>\n  )\n}\n"
+  }
+}

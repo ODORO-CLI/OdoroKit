@@ -1,0 +1,57 @@
+{
+  "name": "pixel-transition",
+  "category": "effect",
+  "title": "Transition en damier",
+  "description": "Un damier de pixels recouvre le premier contenu case par case, le remplace par le second, puis se retire.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/PixelTransition.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": ["--o-theme-fg"],
+  "props": [
+    {
+      "name": "cells",
+      "type": "number",
+      "default": 12,
+      "description": "Nombre de colonnes. Les lignes suivent les proportions.",
+      "min": 4,
+      "max": 32,
+      "step": 1
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 520,
+      "unit": "ms",
+      "description": "Duree du recouvrement, avant l echange des contenus.",
+      "min": 120,
+      "max": 2000,
+      "step": 20
+    },
+    {
+      "name": "trigger",
+      "type": "'hover' | 'click' | 'view'",
+      "default": "hover",
+      "description": "Ce qui declenche le passage au second contenu.",
+      "options": ["hover", "click", "view"]
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des cases. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une grille de cases dont l opacite est animee par la feuille, chacune avec son retard. Deux rendus React par passage, aucun pendant."
+  }
+}

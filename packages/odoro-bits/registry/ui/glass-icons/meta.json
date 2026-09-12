@@ -1,0 +1,91 @@
+{
+  "name": "glass-icons",
+  "category": "ui",
+  "title": "Icones de verre",
+  "description": "Une planche de pastilles de verre depoli, chacune posee sur une lueur coloree que le verre diffuse, qui se souleve et pivote de trois quarts au survol comme au focus.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/GlassIcons.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-500",
+    "--o-palette-emerald-500",
+    "--o-palette-white",
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-duration-slow",
+    "--o-ease-emphasized"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { id: string; label: string; icon: ReactNode }[]",
+      "required": true,
+      "description": "Les pastilles, dans l ordre. Le libelle est du texte reel, affiche sous la pastille."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la planche pour les lecteurs d ecran."
+    },
+    {
+      "name": "onSelect",
+      "type": "(id: string) => void",
+      "description": "Appele au clic ou a Entree sur une pastille. Obligatoire : une pastille mene quelque part.",
+      "required": true
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "default": "--o-palette-brand-500, --o-palette-fuchsia-500, --o-palette-sky-500, --o-palette-emerald-500",
+      "description": "Tokens des lueurs, attribues aux pastilles dans l ordre et en boucle."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 76,
+      "unit": "px",
+      "min": 48,
+      "max": 140,
+      "step": 4,
+      "description": "Cote d une pastille."
+    },
+    {
+      "name": "blur",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "description": "Flou du verre : c est lui qui etale la lueur sous la pastille."
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 16,
+      "unit": "deg",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "description": "Angle de trois quarts pris par la pastille au survol."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucune boucle et aucun ecouteur : deux transitions par pastille, tenues par le compositeur. Le cout est celui du flou de fond, paye seulement sur la surface de la pastille. Sous mouvement reduit, la pastille s allume sans pivoter ; sans flou de fond, elle devient opaque et teintee."
+  }
+}

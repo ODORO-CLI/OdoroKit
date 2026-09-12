@@ -1,0 +1,76 @@
+{
+  "name": "infinity-loop",
+  "category": "loader",
+  "title": "Boucle infinie",
+  "description": "Un trait court parcourt un huit couche, lent au bout des boucles et rapide au croisement, comme une bille sur un rail, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/InfinityLoop.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 64,
+      "unit": "px",
+      "description": "Largeur du huit. Sa hauteur en vaut un peu plus de la moitie.",
+      "min": 32,
+      "max": 160,
+      "step": 2
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur du trait et du rail.",
+      "min": 1,
+      "max": 10,
+      "step": 0.5
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un tour complet du huit.",
+      "min": 800,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du trait et du rail. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation CSS de decalage de tiret sur un trace SVG, tenue par le compositeur. Trait pose au bout d une boucle sous mouvement reduit."
+  },
+  "id": "loader/infinity-loop",
+  "sources": {
+    "component.tsx": "/**\n * Boucle infinie : un trait court parcourt un huit couche, lent aux bouts\n * des boucles, rapide au croisement.\n *\n * ## Un huit qui se croise, pas deux ronds qui se touchent\n *\n * Le trace est une seule courbe fermee, en quatre segments cubiques, dont\n * les tangentes se raccordent au centre : le trait y passe en ligne droite\n * d'une boucle a l'autre, comme sur un vrai symbole d'infini. Deux cercles\n * accoles donneraient un point anguleux au milieu, ou le trait ferait un\n * demi-tour sur place.\n *\n * Le trait est un tiret sur ce chemin, deplace par son decalage. Le chemin\n * declare une longueur de cent : le tiret et son decalage se lisent alors\n * en pour cent du trace, quelle que soit sa longueur reelle, et les images\n * cles tombent juste. Le decalage avance par demi-tours en `ease-in-out`,\n * cales pour que le ralenti tombe au bout de chaque boucle et la pointe de\n * vitesse au croisement : c'est le mouvement d'une bille sur un rail en\n * huit, qui remonte en freinant et redescend en accelerant. Un decalage\n * lineaire — le choix par defaut — donnerait un trait sans poids.\n *\n * Une animation sur un element SVG, tenue par le compositeur, aucun\n * JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le trace est retire de\n * l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le trait est pose au bout d'une boucle, sur son\n * rail en trait clair : la figure se lit encore, seul le parcours s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-infinity-loop'\n\n/**\n * Le huit, dans une vue de 100 sur 56.\n *\n * Il part du centre vers la boucle droite, la parcourt, repasse au centre\n * dans le meme sens, parcourt la boucle gauche, et revient.\n */\nconst EIGHT =\n  'M 50 28 C 64 0, 92 0, 92 28 C 92 56, 64 56, 50 28 C 36 0, 8 0, 8 28 C 8 56, 36 56, 50 28'\n\n/** Longueur du tiret, en pour cent du trace. */\nconst DASH = 24\n\n/**\n * Decalage de depart, en pour cent du trace.\n *\n * Le bout de la boucle droite est au quart du trace ; le tiret y est\n * centre a l'instant le plus lent, et le centre du tiret est a la moitie de\n * sa longueur derriere sa tete.\n */\nconst START = 25 - DASH / 2\n\n/** Pose le rail, le tiret et son parcours, une fois par document. */\nfunction ensureInfinityRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-infinity-loop]{display:inline-block;line-height:0}',\n    '[data-o-infinity-loop] svg{display:block}',\n    '[data-o-infinity-dash]{',\n    `stroke-dasharray:${String(DASH)} ${String(100 - DASH)};`,\n    `stroke-dashoffset:${String(-START)};`,\n    'animation:o-infinity-loop-run var(--o-infinity-speed) infinite;',\n    '}',\n    // Deux demi-tours par cycle : ralenti au bout de chaque boucle, pointe\n    // de vitesse au croisement.\n    '@keyframes o-infinity-loop-run{',\n    `0%{stroke-dashoffset:${String(-START)};animation-timing-function:ease-in-out}`,\n    `50%{stroke-dashoffset:${String(-START - 50)};animation-timing-function:ease-in-out}`,\n    `100%{stroke-dashoffset:${String(-START - 100)}}`,\n    '}',\n    // Le tiret pose au bout d'une boucle : la figure est dite, a l'arret.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-infinity-dash]{animation:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface InfinityLoopOwnProps {\n  /** Largeur du huit, en pixels. @defaultValue 64 */\n  size?: number\n  /** Epaisseur du trait, en pixels. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un tour complet du huit, en millisecondes. @defaultValue 2000 */\n  speed?: number\n  /** Couleur du trait et du rail. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type InfinityLoopProps = Customisable<InfinityLoopOwnProps, 'span'>\n\n/**\n * Signale une attente par un trait qui parcourt un huit couche.\n *\n * @example\n * <InfinityLoop />\n *\n * @example\n * // Plus large, plus fin, plus lent, dans la teinte de marque.\n * <InfinityLoop size={96} thickness={3} speed={3000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function InfinityLoop({\n  size = 64,\n  thickness = 4,\n  speed = 2000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: InfinityLoopProps): ReactElement {\n  ensureInfinityRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le dessin vit dans une vue de 100 unites de large : l'epaisseur\n  // demandee en pixels est convertie pour que le trait garde sa mesure a\n  // toute taille. Le huit laisse huit unites de marge sur les cotes, ce qui\n  // borne l'epaisseur.\n  const stroke = Math.min((thickness / size) * 100, 14)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size * 0.56)}px`,\n    color,\n    '--o-infinity-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-infinity-loop=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 56\" width=\"100%\" height=\"100%\">\n        <path\n          d={EIGHT}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeOpacity={0.2}\n          strokeLinecap=\"round\"\n        />\n        <path\n          data-o-infinity-dash=\"\"\n          d={EIGHT}\n          pathLength={100}\n          fill=\"none\"\n          stroke=\"currentColor\"\n          strokeWidth={stroke}\n          strokeLinecap=\"round\"\n        />\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

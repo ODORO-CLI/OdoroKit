@@ -1,0 +1,85 @@
+{
+  "name": "tree-view",
+  "category": "ui",
+  "title": "Arborescence pliable",
+  "description": "Une arborescence complete au clavier — haut et bas parcourent, droite ouvre puis descend, gauche referme puis remonte — dont les branches se deroulent en cascade.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/TreeView.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-palette-brand-500",
+    "--o-duration-fast",
+    "--o-duration-base",
+    "--o-ease-standard",
+    "--o-ease-entrance"
+  ],
+  "props": [
+    {
+      "name": "nodes",
+      "type": "readonly { id: string; label: string; hint?: string; children?: readonly TreeNode[] }[]",
+      "required": true,
+      "description": "Les noeuds racines, dans l ordre d affichage."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de l arborescence pour les lecteurs d ecran."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "description": "Noeud choisi, en mode controle."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "description": "Noeud choisi au montage, en mode non controle."
+    },
+    {
+      "name": "onChange",
+      "type": "(id: string) => void",
+      "description": "Appele quand le choix change."
+    },
+    {
+      "name": "open",
+      "type": "readonly string[]",
+      "description": "Branches ouvertes, en mode controle."
+    },
+    {
+      "name": "defaultOpen",
+      "type": "readonly string[]",
+      "description": "Branches ouvertes au montage, en mode non controle."
+    },
+    {
+      "name": "onOpenChange",
+      "type": "(open: readonly string[]) => void",
+      "description": "Appele avec la liste des branches ouvertes."
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "default": 30,
+      "unit": "ms",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "description": "Retard ajoute par ligne dans le deroulement d une branche."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une branche fermee n est pas montee : l arbre ne rend que ce qui se voit. Le deroulement est une animation d images cles retardee par un index en variable CSS. Sous mouvement reduit, les branches apparaissent en place."
+  }
+}

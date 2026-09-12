@@ -1,0 +1,93 @@
+{
+  "name": "oscilloscope",
+  "category": "background",
+  "title": "Oscilloscope",
+  "description": "Un spot qui balaie l ecran de gauche a droite sur une graticule, et un phosphore qui garde sa trace en s eteignant : le signal est fige par balayage, la remanence fait le reste.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "oscilloscope.shader.ts",
+      "target": "background/oscilloscope.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Oscilloscope.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-line",
+    "--o-palette-green-400"
+  ],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 0.5,
+      "description": "Balayages par seconde.",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "decay",
+      "type": "number",
+      "required": false,
+      "default": 1.2,
+      "description": "Vitesse d extinction du phosphore. Plus bas, plus de remanence.",
+      "min": 0.2,
+      "max": 4,
+      "step": 0.1
+    },
+    {
+      "name": "frequency",
+      "type": "number",
+      "required": false,
+      "default": 3,
+      "description": "Periodes du signal dans le cadre.",
+      "min": 0.5,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "required": false,
+      "default": 0.28,
+      "description": "Hauteur du signal, en fraction du cadre.",
+      "min": 0.05,
+      "max": 0.45,
+      "step": 0.01
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "required": false,
+      "default": "--o-theme-bg, --o-theme-line, --o-palette-green-400",
+      "description": "Tokens dont les couleurs sont lues : le fond, la graticule, le phosphore."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "required": false,
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": "ogl",
+    "notes": "Six sinus et deux exponentielles par fragment. En qualite basse, le phosphore s eteint deux fois plus vite : la trace remanente est la partie qui scintille a densite reduite.",
+    "fallback": "gradient"
+  },
+  "id": "background/oscilloscope",
+  "sources": {
+    "oscilloscope.shader.ts": "/**\n * Shader de l'oscilloscope.\n *\n * ## L'idee mathematique\n *\n * Un oscilloscope ne dessine pas une courbe : un spot balaie l'ecran de\n * gauche a droite, et le phosphore garde la trace de son passage en\n * s'eteignant. Le fragment reconstruit donc l'age de son propre pixel : le\n * spot est a l'abscisse `fract(t)` du balayage courant, et un fragment a\n * gauche de lui a ete eclaire dans ce balayage, un fragment a droite dans le\n * precedent. L'age est la difference des deux instants, et l'intensite son\n * exponentielle decroissante — c'est la remanence.\n *\n * Le signal est fige par balayage : ses phases dependent du numero de\n * balayage, pas du temps continu. Sans cela la trace ondulerait derriere le\n * spot, ce qu'aucun phosphore ne fait.\n *\n * La distance a la trace est divisee par la norme de sa pente, comme pour\n * tout y = f(x). Une graticule fixe, en dessous, donne l'echelle.\n *\n * ## Uniforms\n *\n * - `uTime` — temps en secondes, fourni par le moteur.\n * - `uResolution` — taille du canevas en pixels, fournie par le moteur.\n * - `uColorA` — le fond.\n * - `uColorB` — la graticule.\n * - `uColorC` — le phosphore.\n * - `uSpeed` — balayages par seconde.\n * - `uDecay` — vitesse d'extinction du phosphore.\n * - `uFrequency` — periodes du signal dans le cadre.\n * - `uAmplitude` — hauteur du signal, en fraction du cadre.\n */\nexport const OSCILLOSCOPE_FRAGMENT = /* glsl */ `\nprecision highp float;\n\nvarying vec2 vUv;\n\nuniform float uTime;\nuniform vec2 uResolution;\nuniform vec3 uColorA;\nuniform vec3 uColorB;\nuniform vec3 uColorC;\nuniform float uSpeed;\nuniform float uDecay;\nuniform float uFrequency;\nuniform float uAmplitude;\n\n// Le signal du balayage n : trois sinus dont les phases dependent de n.\nfloat signal(float x, float n) {\n  float w = uFrequency * 6.2831853;\n  return sin(x * w + n * 0.4) * 0.6\n    + sin(x * w * 2.3 + n * 0.9) * 0.25\n    + sin(x * w * 0.5 + n * 1.7) * 0.15;\n}\n\n// Derivee du signal par rapport a x, pour normaliser l'epaisseur.\nfloat pente(float x, float n) {\n  float w = uFrequency * 6.2831853;\n  return cos(x * w + n * 0.4) * 0.6 * w\n    + cos(x * w * 2.3 + n * 0.9) * 0.25 * w * 2.3\n    + cos(x * w * 0.5 + n * 1.7) * 0.15 * w * 0.5;\n}\n\nvoid main() {\n  float aspect = uResolution.x / max(uResolution.y, 1.0);\n  float px = 1.0 / max(uResolution.y, 1.0);\n  float x = vUv.x;\n\n  // Le balayage courant et la position du spot.\n  float speed = max(uSpeed, 0.01);\n  float sweeps = uTime * speed;\n  float current = floor(sweeps);\n  float spot = fract(sweeps);\n\n  // Ce fragment a ete eclaire dans ce balayage s'il est derriere le spot,\n  // dans le precedent sinon. L'age en decoule.\n  float behind = step(x, spot);\n  float n = current - (1.0 - behind);\n  float lit = (n + x) / speed;\n  float age = uTime - lit;\n\n  float y = 0.5 + signal(x, n) * uAmplitude;\n  float slope = pente(x, n) * uAmplitude / aspect;\n  float d = abs(vUv.y - y) / sqrt(1.0 + slope * slope);\n\n  float persistence = exp(-age * uDecay);\n  float core = 1.0 - smoothstep(px * 0.8, px * 2.2, d);\n  float glow = exp(-d * 90.0);\n  float trace = (core + glow * 0.6) * persistence;\n\n  // Le spot lui-meme : un point plus vif la ou le balayage en est.\n  float head = exp(-length(vec2((x - spot) * aspect, vUv.y - y)) * 60.0);\n\n  // La graticule : dix divisions en largeur, huit en hauteur.\n  vec2 cell = abs(fract(vUv * vec2(10.0, 8.0) + 0.5) - 0.5);\n  vec2 cellPx = cell / vec2(10.0, 8.0) * uResolution;\n  float rule = 1.0 - smoothstep(0.5, 1.5, min(cellPx.x, cellPx.y));\n  float axes = 1.0 - smoothstep(px, px * 2.0, min(abs(vUv.x - 0.5), abs(vUv.y - 0.5)));\n\n  vec3 colour = mix(uColorA, uColorB, rule * 0.35 + axes * 0.5);\n  colour = mix(colour, uColorC, clamp(trace, 0.0, 1.0));\n  colour += uColorC * head * 0.8;\n\n  gl_FragColor = vec4(colour, 1.0);\n}\n`\n",
+    "component.tsx": "/**\n * Oscilloscope : un spot qui balaie l'ecran, et le phosphore qui garde sa trace.\n *\n * ## Le principe\n *\n * Rien n'est trace : chaque fragment reconstruit l'instant ou le spot l'a\n * eclaire — dans ce balayage s'il est derriere le spot, dans le precedent\n * sinon — et son intensite est l'exponentielle de cet age. Le signal est fige\n * par balayage, comme sur un vrai ecran : la trace ne bouge pas derriere le\n * spot, elle s'eteint.\n *\n * ## Ce que ce composant delegue\n *\n * Il ne porte que ce qui le distingue : son shader, ses reglages et son repli.\n * La lecture des tokens, leur conversion en flottants et leur relecture au\n * changement de theme viennent du moteur — les recopier ici en ferait autant\n * de versions a maintenir qu'il y a de fonds.\n *\n * Le repli n'est pas une precaution : il est affiche pendant le chargement du\n * backend, quand WebGL manque, quand l'arbitre refuse la surface — il n'en\n * accorde qu'une par backend — et sous mouvement reduit.\n *\n * @module\n */\n\nimport {\n  mergePresentation,\n  useOnReady,\n  useTokenShader,\n  type Customisable,\n  type ReadyCallback,\n  type ShaderColour,\n} from '@odoro-cli/engine'\nimport { type ReactElement } from 'react'\n\nimport { OSCILLOSCOPE_FRAGMENT } from './oscilloscope.shader.js'\n\n/** Ce que l'echappatoire recoit. */\nexport interface OscilloscopeControls {\n  /** Couleurs effectivement transmises au shader. */\n  readonly colours: readonly ShaderColour[]\n  /** Motif du refus, s'il y en a un. */\n  readonly refused: string | undefined\n}\n\n/** Proprietes propres au composant. */\nexport interface OscilloscopeOwnProps {\n  /** Balayages par seconde. @defaultValue 0.5 */\n  speed?: number\n  /** Vitesse d'extinction du phosphore. Plus bas, plus de remanence. @defaultValue 1.2 */\n  decay?: number\n  /** Periodes du signal dans le cadre. @defaultValue 3 */\n  frequency?: number\n  /** Hauteur du signal, en fraction du cadre. @defaultValue 0.28 */\n  amplitude?: number\n  /** Tokens dont les couleurs sont lues. */\n  colors?: readonly string[]\n  /** Classes du repli. */\n  fallback?: string\n  /** Echappatoire. */\n  onReady?: ReadyCallback<OscilloscopeControls>\n}\n\n/** Toutes les proprietes. */\nexport type OscilloscopeProps = Customisable<OscilloscopeOwnProps>\n\n/** Tokens employes par defaut : le fond, la graticule, le phosphore. */\nconst DEFAULT_TOKENS = [\n  '--o-theme-bg',\n  '--o-theme-line',\n  '--o-palette-green-400',\n] as const\n\n/** Repli par defaut : un degrade fige, dans les memes tons. */\nconst DEFAULT_FALLBACK =\n  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-green-950'\n\n/**\n * Oscilloscope.\n *\n * @example\n * <div className=\"o-relative o-min-h-screen\">\n *   <Oscilloscope className=\"o-absolute o-inset-0\" />\n *   <main className=\"o-relative\">…</main>\n * </div>\n */\nexport function Oscilloscope({\n  speed = 0.5,\n  decay = 1.2,\n  frequency = 3,\n  amplitude = 0.28,\n  colors = DEFAULT_TOKENS,\n  fallback = DEFAULT_FALLBACK,\n  onReady,\n  ...rest\n}: OscilloscopeProps): ReactElement {\n  const { ref, setHost, ready, refused, colours } = useTokenShader<HTMLDivElement>({\n    fragment: OSCILLOSCOPE_FRAGMENT,\n    colors,\n    uniforms: {\n      uSpeed: speed,\n      uDecay: decay,\n      uFrequency: frequency,\n      uAmplitude: amplitude,\n    },\n    name: 'oscilloscope',\n    // Une trace fine a densite de pixels reduite scintille : en qualite basse\n    // le phosphore s'eteint plus vite, et la remanence — la partie qui\n    // scintille — raccourcit d'autant.\n    degrade: (quality) => ({ uDecay: quality === 'low' ? decay * 2 : decay }),\n  })\n\n  useOnReady(onReady, ready ? { colours, refused } : null, ref.current)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  return (\n    <div\n      {...rest}\n      ref={(element) => {\n        setHost(element)\n        ref.current = element\n      }}\n      className={className}\n      style={style}\n      aria-hidden\n    >\n      {ready && refused === undefined ? null : (\n        <div className={`o-absolute o-inset-0 ${fallback}`} />\n      )}\n    </div>\n  )\n}\n"
+  }
+}

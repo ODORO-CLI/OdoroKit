@@ -1,0 +1,65 @@
+{
+  "name": "newton-cradle",
+  "category": "loader",
+  "title": "Pendule de Newton",
+  "description": "Cinq billes suspendues : celle de gauche frappe, celle de droite s envole, et retour, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/NewtonCradle.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "unit": "px",
+      "description": "Diametre d une bille. La longueur des fils en depend.",
+      "min": 5,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un aller-retour complet, gauche puis droite.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des billes, des fils et de la barre. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux animations CSS de rotation tenues par le compositeur, les trois billes du milieu ne bougent jamais. Cinq billes au repos, alignees, sous mouvement reduit."
+  },
+  "id": "loader/newton-cradle",
+  "sources": {
+    "component.tsx": "/**\n * Pendule de Newton : cinq billes suspendues, celle de gauche frappe, celle\n * de droite s'envole, et retour.\n *\n * ## Deux billes bougent, trois ne bougent jamais\n *\n * C'est l'objet reel qui l'impose : dans un pendule de Newton, seules les\n * billes des extremites se balancent, les autres transmettent le choc sans\n * broncher. Le composant respecte cela — deux animations, pas cinq — et\n * c'est aussi ce qui le rend credible : un pendule ou tout bougerait ne\n * serait plus un pendule.\n *\n * Le cycle est un enchainement, pas une oscillation symetrique. La bille de\n * gauche tombe en accelerant et s'arrete net sur ses voisines ; a cet\n * instant precis la bille de droite part, ralentit au sommet, retombe. Les\n * courbes sont posees image cle par image cle : `ease-in` pour une chute,\n * `ease-out` pour une montee. Un `ease-in-out` global ferait flotter les\n * billes, et le choc — ce qui fait tout l'interet de la figure — n'aurait\n * plus lieu.\n *\n * Chaque bille pend a un fil, et tourne autour du point d'attache : la\n * rotation est celle du fil entier, la bille suit.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le pendule est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les cinq billes pendent alignees, au repos : c'est\n * l'etat ou le pendule revient a chaque choc, et la figure se reconnait\n * encore.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-newton-cradle'\n\n/** Pose le pendule et ses deux balancements, une fois par document. */\nfunction ensureCradleRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    // Le conteneur laisse de la marge de chaque cote : a trente-huit degres,\n    // un fil de quatre billes de long s'ecarte d'environ deux billes et\n    // demie, et la bille levee ne doit pas mordre sur ses voisins de page.\n    '[data-o-newton-cradle]{',\n    'position:relative;display:inline-flex;align-items:flex-start;',\n    'padding:0 calc(var(--o-cradle-size) * 2.5);',\n    'border-top:2px solid var(--o-cradle-color);',\n    '}',\n    // Un fil et sa bille tournent ensemble, autour du point d'attache.\n    '[data-o-newton-arm]{',\n    'display:flex;flex-direction:column;align-items:center;',\n    'width:var(--o-cradle-size);transform-origin:50% 0;',\n    'animation-duration:var(--o-cradle-speed);animation-iteration-count:infinite;',\n    '}',\n    '[data-o-newton-arm=\"left\"]{animation-name:o-newton-cradle-left}',\n    '[data-o-newton-arm=\"right\"]{animation-name:o-newton-cradle-right}',\n    '[data-o-newton-thread]{',\n    'width:1px;height:calc(var(--o-cradle-size) * 3);',\n    'background:var(--o-cradle-color);opacity:0.5;',\n    '}',\n    '[data-o-newton-ball]{',\n    'width:var(--o-cradle-size);height:var(--o-cradle-size);',\n    'border-radius:50%;background:var(--o-cradle-color);',\n    '}',\n    // Gauche : deja levee au depart, elle tombe (ease-in), attend le retour\n    // du choc, et remonte (ease-out) pour recommencer.\n    '@keyframes o-newton-cradle-left{',\n    '0%{transform:rotate(38deg);animation-timing-function:ease-in}',\n    '25%,75%{transform:rotate(0deg);animation-timing-function:ease-out}',\n    '100%{transform:rotate(38deg)}',\n    '}',\n    // Droite : immobile jusqu'au choc, elle part (ease-out), culmine, et\n    // retombe (ease-in) sur ses voisines.\n    '@keyframes o-newton-cradle-right{',\n    '0%,25%{transform:rotate(0deg);animation-timing-function:ease-out}',\n    '50%{transform:rotate(-38deg);animation-timing-function:ease-in}',\n    '75%,100%{transform:rotate(0deg)}',\n    '}',\n    // Cinq billes alignees : le pendule au repos, reconnaissable.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-newton-arm]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface NewtonCradleOwnProps {\n  /** Diametre d'une bille, en pixels. @defaultValue 10 */\n  size?: number\n  /** Duree d'un aller-retour complet, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Couleur des billes, des fils et de la barre. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type NewtonCradleProps = Customisable<NewtonCradleOwnProps, 'span'>\n\n/** Role de chaque bras : seules les extremites se balancent. */\nconst ARMS = ['left', 'still', 'still', 'still', 'right'] as const\n\n/**\n * Signale une attente par un pendule de Newton.\n *\n * @example\n * <NewtonCradle />\n *\n * @example\n * // Plus gros, plus lent, dans la teinte de marque.\n * <NewtonCradle size={14} speed={2000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function NewtonCradle({\n  size = 10,\n  speed = 1400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: NewtonCradleProps): ReactElement {\n  ensureCradleRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-cradle-size': `${String(size)}px`,\n    '--o-cradle-speed': `${String(speed)}ms`,\n    '--o-cradle-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-newton-cradle=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      {ARMS.map((arm, index) => (\n        <span key={index} aria-hidden data-o-newton-arm={arm}>\n          <span data-o-newton-thread=\"\" />\n          <span data-o-newton-ball=\"\" />\n        </span>\n      ))}\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "fan-blades",
+  "category": "loader",
+  "title": "Pales de ventilateur",
+  "description": "Des pales courbes tournent a vitesse constante dans un carter circulaire, autour d un moyeu, en SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/FanBlades.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du carter.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "blades",
+      "type": "number",
+      "default": 3,
+      "description": "Nombre de pales.",
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un tour.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des pales, du moyeu et du carter. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un groupe SVG et une rotation CSS tenue par le compositeur, aucun JavaScript apres le premier rendu. Pales immobiles sous mouvement reduit."
+  }
+}

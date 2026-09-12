@@ -1,0 +1,69 @@
+{
+  "name": "splash-pointer",
+  "category": "effect",
+  "title": "Eclaboussure",
+  "description": "Chaque clic envoie des gouttes qui montent, ralentissent et retombent, avec une couronne d impact au point touche.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/SplashPointer.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "drops",
+      "type": "number",
+      "default": 14,
+      "description": "Nombre de gouttes par impact.",
+      "min": 3,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "default": 90,
+      "unit": "px",
+      "description": "Portee horizontale des gouttes.",
+      "min": 30,
+      "max": 200,
+      "step": 10
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree du vol.",
+      "min": 200,
+      "max": 1800,
+      "step": 50
+    },
+    {
+      "name": "gravity",
+      "type": "number",
+      "default": 1.4,
+      "description": "Poids des gouttes : plus haut, plus elles retombent vite.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des gouttes. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Rien au repos : chaque clic cree ses gouttes, les confie a Web Animations et les retire a la fin. Aucune souscription a la boucle. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

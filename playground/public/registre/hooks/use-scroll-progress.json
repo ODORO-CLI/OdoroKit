@@ -1,0 +1,73 @@
+{
+  "name": "use-scroll-progress",
+  "category": "hooks",
+  "title": "Avancee au defilement",
+  "description": "Dit ou en est un element, ou la page, dans le champ visible, sans rendu React par image.",
+  "engine": {
+    "gsap": [
+      "core"
+    ],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useScrollProgress.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "target",
+      "type": "HTMLElement | null",
+      "required": false,
+      "description": "Element mesure. Sans lui, c est l avancee du document."
+    },
+    {
+      "name": "scroller",
+      "type": "HTMLElement | null",
+      "required": false,
+      "description": "Conteneur qui defile, quand ce n est pas la fenetre."
+    },
+    {
+      "name": "range",
+      "type": "'traversee' | 'ancrage'",
+      "required": false,
+      "default": "traversee",
+      "description": "L element entre et sort du champ, ou le champ le parcourt de l interieur.",
+      "options": [
+        "traversee",
+        "ancrage"
+      ]
+    },
+    {
+      "name": "reduced",
+      "type": "'final' | 'suivre'",
+      "required": false,
+      "default": "final",
+      "description": "Sous mouvement reduit : publier l etat final, ou mesurer quand meme.",
+      "options": [
+        "final",
+        "suivre"
+      ]
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false,
+      "default": "progression-defilement",
+      "description": "Nom affiche dans le panneau de diagnostic."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de rectangle par image, en priorite layout, quel que soit le nombre d elements. Publication bornee a cent paliers."
+  },
+  "id": "hooks/use-scroll-progress",
+  "sources": {
+    "hook.ts": "/**\n * Avancee d'un element, ou d'une page, dans le champ visible.\n *\n * ## Pourquoi ce crochet plutot que ScrollTrigger\n *\n * Le moteur sait deja suivre le defilement, mais par GSAP et son plugin\n * `ScrollTrigger` — trente kilo-octets de plus, et un plugin a enregistrer,\n * pour une soustraction entre deux rectangles. Le prix est justifie quand on\n * epingle une section ou qu'on synchronise une timeline complete ; il ne l'est\n * pas quand on veut simplement savoir « ou en est cet element ».\n *\n * Ce crochet fait cette soustraction, et rien d'autre.\n *\n * ## Pourquoi la mesure passe par l'horloge, et pas par un ecouteur `scroll`\n *\n * Un ecouteur par element parait plus economique — il ne travaille que pendant\n * le defilement. En pratique c'est l'inverse. Les evenements de defilement\n * arrivent plus souvent qu'une image sur les pilotes tactiles, et chacun\n * declenche une lecture de rectangle : on mesure plusieurs fois pour la meme\n * image affichee. Dix elements observes font dix ecouteurs qui se reveillent\n * tous a chaque cran de molette.\n *\n * En passant par l'horloge, la mesure a lieu **une fois par image**, quel que\n * soit le nombre d'elements, et en priorite `layout` : toutes les lectures de\n * mise en page se groupent avant les ecritures de la frame, ce qui evite\n * l'aller-retour ou l'on lit, on ecrit, et on relit un calcul que le\n * navigateur vient de jeter.\n *\n * ## Pourquoi une ref et un abonnement, plutot qu'un etat\n *\n * La valeur change a chaque image pendant tout un defilement. La rendre comme\n * etat, ce sont soixante rendus React par seconde pour deplacer un rectangle\n * que le compositeur anime seul.\n *\n * `progress.current` est donc la valeur exacte, lue dans la boucle par ceux\n * qui y sont deja. `subscribe` existe pour l'autre besoin, reel : afficher un\n * pourcentage en chiffres, franchir une etape. Il ne publie qu'aux paliers —\n * voir {@link PALIERS} — parce qu'un affichage arrondi au pour cent n'a rien a\n * faire d'un centieme de decimale.\n *\n * ## Un seul axe\n *\n * La verticale. Un defilement horizontal se mesure autrement — c'est la\n * position d'un conteneur, pas la traversee d'un champ — et pretendre couvrir\n * les deux avec les memes options donnerait un crochet ou la moitie des\n * reglages ne s'applique jamais.\n *\n * @module\n */\n\nimport { CLOCK_PRIORITY, clock, motionPolicy } from '@odoro-cli/engine'\nimport { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react'\n\n/**\n * Ce que la course de 0 a 1 recouvre.\n *\n * - `traversee` — 0 quand le haut de l'element touche le bas du champ, 1 quand\n *   son bas en touche le haut. C'est la course d'une revelation : l'element\n *   entre, passe, sort.\n * - `ancrage` — 0 quand le haut de l'element atteint le haut du champ, 1 quand\n *   son bas en atteint le bas. C'est la course d'une section haute qu'on\n *   parcourt de l'interieur : une frise, un recit en etapes.\n */\nexport type ScrollRange = 'traversee' | 'ancrage'\n\n/** Conduite a tenir sous mouvement reduit. */\nexport type ScrollReduced = 'final' | 'suivre'\n\n/** Options de `useScrollProgress`. */\nexport interface ScrollProgressOptions {\n  /**\n   * Element mesure. Sans lui, c'est l'avancee du document — ou du conteneur —\n   * qui est rendue.\n   */\n  target?: HTMLElement | null\n  /**\n   * Conteneur qui defile, quand ce n'est pas la fenetre : un panneau, une\n   * boite de dialogue. Il definit le champ dans lequel l'element est situe.\n   */\n  scroller?: HTMLElement | null\n  /** Ce que la course recouvre. @defaultValue 'traversee' */\n  range?: ScrollRange\n  /**\n   * Sous mouvement reduit, `final` publie 1 une fois pour toutes et ne mesure\n   * plus rien : un texte revele par la progression doit etre lu, pas fige a\n   * son etat initial. `suivre` mesure quand meme, pour ce dont la valeur est\n   * le contenu — une barre de lecture dit ou l'on en est, ce n'est pas une\n   * animation.\n   *\n   * @defaultValue 'final'\n   */\n  reduced?: ScrollReduced\n  /** Nom affiche dans le panneau de diagnostic. */\n  name?: string\n}\n\n/** Ce que le crochet rend. */\nexport interface ScrollProgressHandle {\n  /** Progression courante, de 0 a 1. A lire dans la boucle. */\n  readonly progress: RefObject<number>\n  /**\n   * S'abonne aux paliers de la progression. Le nouvel abonne recoit tout de\n   * suite la valeur courante — sans quoi il resterait a zero jusqu'au premier\n   * mouvement, ce qui est faux des qu'on arrive au milieu d'une page.\n   *\n   * @returns De quoi se desabonner.\n   */\n  subscribe(listener: (value: number) => void): () => void\n}\n\n/**\n * Nombre de paliers de publication.\n *\n * Cent : plus fin que ce qu'un pourcentage affiche, et deux ordres de grandeur\n * en dessous du nombre d'images d'un defilement complet.\n */\nconst PALIERS = 100\n\n/**\n * Suit l'avancee d'un element, ou de la page, dans le champ.\n *\n * @example\n * // Une revelation : la valeur est lue dans la boucle, sans rendu React.\n * const [cible, setCible] = useState<HTMLElement | null>(null)\n * const { progress } = useScrollProgress({ target: cible })\n *\n * @example\n * // Un pourcentage affiche : l'abonnement, borne aux paliers.\n * const { subscribe } = useScrollProgress()\n * const [part, setPart] = useState(0)\n * useEffect(() => subscribe(setPart), [subscribe])\n */\nexport function useScrollProgress(\n  options: ScrollProgressOptions = {},\n): ScrollProgressHandle {\n  const {\n    target = null,\n    scroller = null,\n    range = 'traversee',\n    reduced = 'final',\n    name = 'progression-defilement',\n  } = options\n\n  const progress = useRef(0)\n  const publie = useRef(-1)\n  const listeners = useRef<Set<(value: number) => void>>(new Set())\n\n  const subscribe = useCallback((listener: (value: number) => void): (() => void) => {\n    listeners.current.add(listener)\n    listener(progress.current)\n    return () => {\n      listeners.current.delete(listener)\n    }\n  }, [])\n\n  useEffect(() => {\n    const ecrire = (valeur: number): void => {\n      const borne = valeur < 0 ? 0 : valeur > 1 ? 1 : valeur\n      progress.current = borne\n\n      const palier = Math.round(borne * PALIERS)\n      if (palier === publie.current) return\n      publie.current = palier\n      // Une copie : un abonne qui se retire depuis sa propre notification est\n      // le cas courant d'une etape qui ne doit se franchir qu'une fois.\n      for (const listener of [...listeners.current]) listener(borne)\n    }\n\n    // Voir les options : sous mouvement reduit, l'etat final, pas l'initial.\n    if (reduced === 'final' && motionPolicy.state.reduced) {\n      ecrire(1)\n      return\n    }\n\n    const mesurer = (): number => {\n      if (target === null) {\n        if (scroller !== null) {\n          const course = scroller.scrollHeight - scroller.clientHeight\n          return course <= 0 ? 0 : scroller.scrollTop / course\n        }\n        const racine = document.documentElement\n        const course = racine.scrollHeight - window.innerHeight\n        return course <= 0 ? 0 : window.scrollY / course\n      }\n\n      const champ =\n        scroller === null\n          ? { haut: 0, hauteur: window.innerHeight }\n          : {\n              haut: scroller.getBoundingClientRect().top,\n              hauteur: scroller.clientHeight,\n            }\n\n      const rect = target.getBoundingClientRect()\n      const haut = rect.top - champ.haut\n\n      if (range === 'ancrage') {\n        const course = rect.height - champ.hauteur\n        // Un element plus court que le champ ne se parcourt pas de\n        // l'interieur : la course est nulle, et la reponse binaire.\n        if (course <= 0) return haut <= 0 ? 1 : 0\n        return -haut / course\n      }\n\n      const course = champ.hauteur + rect.height\n      return course <= 0 ? 0 : (champ.hauteur - haut) / course\n    }\n\n    const subscription = clock.subscribe(\n      () => {\n        ecrire(mesurer())\n      },\n      // Priorite `layout` : les lectures de mise en page de toute la frame se\n      // groupent ici, avant que quiconque ecrive.\n      { priority: CLOCK_PRIORITY.layout, name },\n    )\n\n    return () => {\n      subscription.unsubscribe()\n    }\n  }, [target, scroller, range, reduced, name])\n\n  return useMemo(() => ({ progress, subscribe }), [subscribe])\n}\n"
+  }
+}

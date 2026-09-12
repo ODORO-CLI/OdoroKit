@@ -118,6 +118,53 @@ export function ButtonDoc(): ReactElement {
               DEFAUTS,
             )}>${String(v.text)}</Button>`
           }
+          variants={[
+            { title: 'Secondaire', values: { tone: 'secondary' } },
+            {
+              title: 'Fantome',
+              description: 'Sans fond, pour les actions discretes.',
+              values: { tone: 'ghost' },
+            },
+            {
+              title: 'Danger',
+              description: 'Pour les actions destructrices.',
+              values: { tone: 'danger', text: 'Supprimer' },
+            },
+            { title: 'Petit', values: { size: 'sm' } },
+            {
+              title: 'Chargement',
+              description: 'Le libelle reste en place pendant le chargement.',
+              values: { loading: true },
+            },
+            {
+              title: 'Pleine largeur',
+              values: { block: true },
+            },
+            {
+              title: 'Icone en tete',
+              description: 'Un element decoratif via startSlot.',
+              node: <Button startSlot={<PlusIcon />}>Nouveau projet</Button>,
+            },
+            {
+              title: 'Groupe de deux',
+              description: 'Action principale et action discrete.',
+              node: (
+                <div className="o-flex o-items-center o-gap-3">
+                  <Button>Enregistrer</Button>
+                  <Button tone="ghost">Annuler</Button>
+                </div>
+              ),
+            },
+            {
+              title: 'Lien habille',
+              description: 'Un <a> vetu par buttonClasses.',
+              node: (
+                <a href="#variantes" className={buttonClasses({ tone: 'secondary' })}>
+                  Lire la documentation
+                </a>
+              ),
+            },
+          ]}
         />
       </Section>
 

@@ -1,0 +1,64 @@
+{
+  "name": "reveal-image",
+  "category": "image",
+  "title": "Image revelee",
+  "description": "Un rideau s ouvre a l entree dans le champ pendant que l image revient d un leger zoom.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/RevealImage.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": ["--o-ease-entrance"],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "direction",
+      "type": "'up' | 'left'",
+      "default": "up",
+      "description": "Sens de l ouverture du rideau.",
+      "options": ["up", "left"]
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree de la revelation.",
+      "min": 300,
+      "max": 2400,
+      "step": 50
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection detache apres le premier passage, puis deux transitions tenues par le compositeur. Visible d emblee sous mouvement reduit."
+  }
+}

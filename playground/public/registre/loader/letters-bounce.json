@@ -1,0 +1,72 @@
+{
+  "name": "letters-bounce",
+  "category": "loader",
+  "title": "Lettres qui sautent",
+  "description": "Chaque lettre du mot s ecrase, saute et retombe a son tour, de gauche a droite, puis le mot se pose avant le saut suivant, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LettersBounce.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Le texte affiche, lettre par lettre."
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 18,
+      "unit": "px",
+      "description": "Corps du texte.",
+      "min": 10,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2000,
+      "unit": "ms",
+      "description": "Duree d un cycle, la pause comprise.",
+      "min": 800,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du texte. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une animation de transformation par lettre, tenue par le compositeur, aucun JavaScript apres le premier rendu. Mot pose et immobile sous mouvement reduit."
+  },
+  "id": "loader/letters-bounce",
+  "sources": {
+    "component.tsx": "/**\n * Lettres qui sautent : chaque lettre s'ecrase, saute et retombe a son tour,\n * de gauche a droite, puis le mot entier se pose avant le saut suivant.\n *\n * ## Un saut, pas une vague\n *\n * Une vague fait monter et descendre les lettres sur une sinusoide, sans\n * arret : c'est un titre qui ondule. Un saut a une preparation, un apogee et\n * un atterrissage. Ici chaque lettre s'ecrase d'abord sur sa ligne de base,\n * part, s'etire au sommet, puis retombe en s'aplatissant. C'est la sequence\n * qui rend le mouvement lisible comme un rebond, et non comme un flottement.\n *\n * Le saut n'occupe qu'un tiers du cycle de chaque lettre ; le reste est une\n * pose. Les lettres sont decalees d'un petit pas, en delais negatifs, et\n * l'ensemble tient dans les deux premiers tiers du cycle : le mot entier est\n * donc immobile un moment avant que la premiere lettre ne reparte. Sans\n * cette respiration, une suite de sauts en continu se lirait de nouveau\n * comme une vague.\n *\n * Le pas s'adapte a la longueur du texte : un mot long ne deborde pas de\n * sa fenetre, il resserre les sauts.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran.\n * Les lettres, decoupees dans des elements separes, sont retirees de l'arbre\n * d'accessibilite : un lecteur d'ecran les epellerait.\n *\n * Sous mouvement reduit, le mot reste pose sur sa ligne : il se lit encore\n * comme une attente, seul le saut s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-letters-bounce'\n\n/** Part du cycle occupee par la sequence des sauts, la pause etant le reste. */\nconst SEQUENCE_SHARE = 0.62\n\n/** Pas maximal entre deux lettres, en part du cycle. */\nconst MAX_STEP_SHARE = 0.07\n\n/** Pose les lettres et leur saut, une fois par document. */\nfunction ensureLettersBounceRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-lb]{',\n    'display:inline-block;white-space:nowrap;font-weight:600;',\n    'font-size:var(--o-lb-size);color:var(--o-lb-color);',\n    '}',\n    '[data-o-lb-letter]{',\n    'display:inline-block;transform-origin:50% 100%;',\n    'animation:o-lb-jump var(--o-lb-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-lb-delay);',\n    '}',\n    // Ecrasement, envol, etirement au sommet, atterrissage : le saut tient\n    // dans le premier tiers, la lettre se pose pour le reste.\n    '@keyframes o-lb-jump{',\n    '0%,34%,100%{transform:translateY(0) scale(1,1)}',\n    '6%{transform:translateY(0) scale(1.15,0.8)}',\n    '18%{transform:translateY(-0.5em) scale(0.94,1.08)}',\n    '28%{transform:translateY(0) scale(1.08,0.9)}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-lb-letter]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface LettersBounceOwnProps {\n  /** Le texte affiche, lettre par lettre. @defaultValue 'Chargement' */\n  text?: string\n  /** Corps du texte, en pixels. @defaultValue 18 */\n  size?: number\n  /** Duree d'un cycle, la pause comprise, en millisecondes. @defaultValue 2000 */\n  speed?: number\n  /** Couleur du texte. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type LettersBounceProps = Customisable<LettersBounceOwnProps, 'span'>\n\n/**\n * Signale une attente par un mot dont les lettres sautent a tour de role.\n *\n * @example\n * <LettersBounce />\n *\n * @example\n * // Un autre mot, plus vif, dans la teinte de marque.\n * <LettersBounce text=\"Envoi\" speed={1400} color=\"var(--o-palette-brand-500)\" />\n */\nexport function LettersBounce({\n  text = 'Chargement',\n  size = 18,\n  speed = 2000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: LettersBounceProps): ReactElement {\n  ensureLettersBounceRule()\n\n  const { className, style } = mergePresentation({}, rest)\n  const letters = Array.from(text)\n\n  // Le pas se resserre quand le mot s'allonge, pour que la sequence entiere\n  // tienne dans sa part du cycle et laisse la pause intacte.\n  const stepShare = Math.min(MAX_STEP_SHARE, SEQUENCE_SHARE / Math.max(1, letters.length))\n\n  const loaderStyle = {\n    ...style,\n    '--o-lb-size': `${String(size)}px`,\n    '--o-lb-speed': `${String(speed)}ms`,\n    '--o-lb-color': color,\n  } as CSSProperties\n\n  return (\n    <span {...rest} className={className} style={loaderStyle} data-o-lb=\"\" role=\"status\">\n      <span className=\"o-sr-only\">{label}</span>\n      <span aria-hidden>\n        {letters.map((letter, index) => (\n          <span\n            key={index}\n            data-o-lb-letter=\"\"\n            style={\n              {\n                // Negatif, pour que le canon soit en place des la premiere\n                // image : une lettre est d'autant plus en retard sur la\n                // premiere qu'elle en est loin.\n                '--o-lb-delay': `${String(Math.round(index * stepShare * speed - speed))}ms`,\n              } as CSSProperties\n            }\n          >\n            {/* Une espace insecable : une espace ordinaire dans un bloc en ligne s'effondrerait. */}\n            {letter === ' ' ? '\\u00A0' : letter}\n          </span>\n        ))}\n      </span>\n    </span>\n  )\n}\n"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "spiral-dots",
+  "category": "loader",
+  "title": "Points en spirale",
+  "description": "Quatorze points poses le long d une spirale s allument tour a tour du centre vers l exterieur, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/SpiralDots.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Cote du dessin. Les points grandissent avec lui.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un parcours complet de la spirale.",
+      "min": 600,
+      "max": 5000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un SVG de quatorze cercles, animes en opacite et en echelle par CSS. La spirale reste dessinee, en degrade fixe du centre vers l exterieur, sous mouvement reduit."
+  },
+  "id": "loader/spiral-dots",
+  "sources": {
+    "component.tsx": "/**\n * Points en spirale : quatorze points poses le long d'une spirale\n * s'allument tour a tour, du centre vers l'exterieur.\n *\n * ## Pourquoi un SVG\n *\n * Une spirale est une courbe : placer ses points en CSS demanderait de les\n * positionner un par un en pixels absolus, et la figure ne suivrait plus la\n * taille demandee. Dans un `viewBox`, les positions sont calculees une fois\n * en unites de dessin, et le navigateur met le tout a l'echelle.\n *\n * La spirale est d'Archimede : le rayon croit avec l'angle, a pas constant.\n * Les points grossissent en s'eloignant du centre, parce que l'espace entre\n * eux grandit aussi — des points de meme taille laisseraient la spirale se\n * deliter vers l'exterieur.\n *\n * ## Une seule animation, quatorze phases\n *\n * Chaque point joue la meme montee et la meme extinction, avec sa propre\n * avance : le centre a la plus grande, la peripherie part de zero. Le\n * signal semble courir le long du fil, alors qu'aucun point ne bouge.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, la spirale reste dessinee, en degrade fixe du\n * centre pale a la peripherie pleine : la figure se lit encore comme un\n * chargeur, seul le parcours s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-spiral-dots'\n\n/** Nombre de points sur la spirale. */\nconst COUNT = 14\n\n/** Pose l'allumage des points, une fois par document. */\nfunction ensureSpiralRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-spiral-dots]{display:inline-block;line-height:0}',\n    '[data-o-spiral-dot]{',\n    'fill:var(--o-spiral-color);',\n    // L'echelle se fait autour du point lui-meme, pas de l'origine du dessin.\n    'transform-box:fill-box;transform-origin:center;',\n    'animation:o-spiral-dots-light var(--o-spiral-speed) ease-in-out infinite;',\n    'animation-delay:var(--o-spiral-delay);',\n    '}',\n    // Un point est allume un cinquieme du cycle : assez court pour qu'on\n    // voie le signal courir, assez long pour que trois points se chevauchent.\n    '@keyframes o-spiral-dots-light{',\n    '0%,20%,100%{opacity:0.2;transform:scale(0.7)}',\n    '10%{opacity:1;transform:scale(1.3)}',\n    '}',\n    // La spirale entiere, en degrade fixe : elle dit encore « attente ».\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-spiral-dot]{animation:none;transform:none;opacity:var(--o-spiral-rest)}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface SpiralDotsOwnProps {\n  /** Cote du dessin, en pixels. @defaultValue 48 */\n  size?: number\n  /** Duree d'un parcours complet, en millisecondes. @defaultValue 1600 */\n  speed?: number\n  /** Couleur des points. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type SpiralDotsProps = Customisable<SpiralDotsOwnProps, 'span'>\n\n/**\n * Points de la spirale, en unites du `viewBox` de cent sur cent.\n *\n * Un tour et demi, du centre a quelques unites du bord. Calcules une fois :\n * ils ne dependent ni de la taille ni de la vitesse.\n */\nconst DOTS = Array.from({ length: COUNT }, (_, index) => {\n  const t = index / (COUNT - 1)\n  const angle = t * 3 * Math.PI - Math.PI / 2\n  const radius = 4 + t * 40\n  return {\n    x: 50 + Math.cos(angle) * radius,\n    y: 50 + Math.sin(angle) * radius,\n    r: 1.8 + t * 3.2,\n    rest: 0.3 + t * 0.7,\n  }\n})\n\n/**\n * Signale une attente par un signal qui court le long d'une spirale.\n *\n * @example\n * <SpiralDots />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <SpiralDots size={96} speed={2600} color=\"var(--o-palette-brand-500)\" />\n */\nexport function SpiralDots({\n  size = 48,\n  speed = 1600,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: SpiralDotsProps): ReactElement {\n  ensureSpiralRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    '--o-spiral-speed': `${String(speed)}ms`,\n    '--o-spiral-color': color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-spiral-dots=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden width={size} height={size} viewBox=\"0 0 100 100\">\n        {DOTS.map((dot, index) => (\n          <circle\n            key={index}\n            data-o-spiral-dot=\"\"\n            cx={dot.x.toFixed(2)}\n            cy={dot.y.toFixed(2)}\n            r={dot.r.toFixed(2)}\n            style={\n              {\n                // Le centre a le plus d'avance, la peripherie part de zero :\n                // le signal court vers l'exterieur, en negatif pour etre\n                // deja en route a la premiere image.\n                '--o-spiral-delay': `${String(Math.round((-speed * (COUNT - 1 - index)) / COUNT))}ms`,\n                '--o-spiral-rest': dot.rest.toFixed(2),\n              } as CSSProperties\n            }\n          />\n        ))}\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

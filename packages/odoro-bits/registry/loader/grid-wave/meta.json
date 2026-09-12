@@ -1,0 +1,57 @@
+{
+  "name": "grid-wave",
+  "category": "loader",
+  "title": "Grille en vague",
+  "description": "Seize points en carre se soulevent et grossissent le long d une diagonale, une vague qui traverse la grille, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GridWave.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point au repos. L ecart et la hauteur de la vague en dependent.",
+      "min": 3,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un passage complet de la vague.",
+      "min": 500,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Seize animations CSS de transformation tenues par le compositeur, aucun JavaScript apres le premier rendu. Grille plate et immobile sous mouvement reduit."
+  }
+}

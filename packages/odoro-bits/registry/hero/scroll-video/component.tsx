@@ -282,7 +282,7 @@ export function ScrollVideo({
       // que le declencheur mesure, et elle seule.
       style={{ height: `${String(Math.max(1, range + 1) * 100)}vh`, ...style }}
     >
-      <div className="o-sticky o-top-0 o-h-screen o-w-full o-overflow-hidden o-bg-zinc-950">
+      <div className="o-sticky o-top-0 o-h-screen o-w-full o-overflow-hidden o-bg-zinc-50 dark:o-bg-zinc-950">
         <video
           ref={video}
           src={src}
@@ -305,7 +305,7 @@ export function ScrollVideo({
 
         <div
           aria-hidden
-          className="o-pointer-events-none o-absolute o-inset-0 o-bg-gradient-to-b o-from-zinc-950 o-via-transparent o-to-zinc-950"
+          className="o-pointer-events-none o-absolute o-inset-0 o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-via-transparent o-to-zinc-50 dark:o-to-zinc-950"
         />
 
         {title === undefined ? null : (
@@ -313,7 +313,7 @@ export function ScrollVideo({
             ref={titleRef}
             className="o-pointer-events-none o-absolute o-inset-0 o-flex o-items-center o-justify-center o-px-8 o-text-center"
           >
-            <h1 className="o-text-5xl o-font-bold o-tracking-tight o-text-zinc-50 md:o-text-8xl">
+            <h1 className="o-text-5xl o-font-bold o-tracking-tight o-text-zinc-900 dark:o-text-zinc-50 md:o-text-8xl">
               {title}
             </h1>
           </div>
@@ -325,7 +325,7 @@ export function ScrollVideo({
             style={{ opacity: 0 }}
             className="o-pointer-events-none o-absolute o-inset-0 o-flex o-items-center o-justify-center o-px-10 o-text-center"
           >
-            <p className="o-text-2xl o-font-medium o-text-zinc-50 md:o-text-4xl">
+            <p className="o-text-2xl o-font-medium o-text-zinc-900 dark:o-text-zinc-50 md:o-text-4xl">
               {tagline}
             </p>
           </div>
@@ -356,7 +356,7 @@ export function ScrollVideo({
 
         {/* Le fil de progression : la seule indication de l'avancee dans la
             video, la barre du navigateur mesurant la page et non la course. */}
-        <div aria-hidden className="o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-800">
+        <div aria-hidden className="o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-200 dark:o-bg-zinc-800">
           <div
             ref={barRef}
             className="o-h-full o-w-full o-bg-zinc-50"

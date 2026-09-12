@@ -1,0 +1,57 @@
+{
+  "name": "shape-morph",
+  "category": "loader",
+  "title": "Rond, carre, triangle",
+  "description": "Une forme pleine passe du rond au carre puis au triangle et revient, par interpolation d un seul chemin SVG.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ShapeMorph.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 40,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 16,
+      "max": 128,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Duree d un cycle complet, les trois formes comprises.",
+      "min": 900,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur de la forme. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un seul chemin SVG dont le trace est interpole par le navigateur, aucun filtre, aucun JavaScript apres le premier rendu. Rond plein et immobile sous mouvement reduit."
+  }
+}

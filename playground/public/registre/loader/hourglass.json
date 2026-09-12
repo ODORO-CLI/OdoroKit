@@ -1,0 +1,65 @@
+{
+  "name": "hourglass",
+  "category": "loader",
+  "title": "Sablier",
+  "description": "Le sable coule a debit constant du haut vers le bas, puis le sablier se retourne d un geste et recommence, en SVG et CSS.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Hourglass.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Hauteur du sablier.",
+      "min": 24,
+      "max": 120,
+      "step": 2
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 3000,
+      "unit": "ms",
+      "description": "Duree d un cycle, ecoulement et retournement compris.",
+      "min": 1200,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du verre et du sable. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre animations CSS sur des elements SVG, tenues par le compositeur, deux decoupes statiques. Sable entierement en bas, sablier droit, sous mouvement reduit."
+  },
+  "id": "loader/hourglass",
+  "sources": {
+    "component.tsx": "/**\n * Sablier : le sable coule du haut vers le bas, puis le sablier se\n * retourne et tout recommence.\n *\n * ## Le sable coule a vitesse constante, le retournement non\n *\n * C'est la propriete qui fait du sablier un instrument de mesure : le\n * debit par le col ne depend pas de la hauteur de sable au-dessus. La\n * descente du niveau est donc lineaire, et le tas du bas monte au meme\n * rythme. Le retournement, lui, est un geste de main : il part doucement,\n * accelere, et se pose — `ease-in-out`, sur un demi-tour.\n *\n * Le sable est decoupe par la forme interieure de chaque ampoule : c'est un\n * `clipPath`, et les deux formes de sable ne font que glisser derriere lui.\n * Le tas du bas a une pointe, comme du sable qui tombe d'un point ; le\n * sable du haut a un creux au milieu, comme du sable qui s'ecoule par un\n * trou. Ce sont la meme forme, tournee d'un demi-tour — ce qui fait que la\n * fin du cycle, le sablier retourne avec son tas en haut, est exactement\n * l'image de depart. La boucle se referme sans saut.\n *\n * Quatre animations sur des elements SVG, tenues par le compositeur, aucun\n * JavaScript apres le premier rendu.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le sablier est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le sable est entierement en bas : c'est l'etat ou\n * un sablier finit, et la figure se reconnait encore.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { useId, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-hourglass'\n\n/** Contour du verre, les deux ampoules et le col. */\nconst GLASS =\n  'M 28 10 L 72 10 L 72 22 Q 72 40 53 49 L 53 51 Q 72 60 72 78 L 72 90 L 28 90 L 28 78 Q 28 60 47 51 L 47 49 Q 28 40 28 22 Z'\n\n/** Interieur de l'ampoule du haut : la ou le sable peut se voir. */\nconst TOP_BULB = 'M 30 12 L 70 12 L 70 22 Q 70 39 52 48.5 L 48 48.5 Q 30 39 30 22 Z'\n\n/** Interieur de l'ampoule du bas. */\nconst BOTTOM_BULB = 'M 48 51.5 L 52 51.5 Q 70 61 70 78 L 70 88 L 30 88 L 30 78 Q 30 61 48 51.5 Z'\n\n/** Le tas du bas, en pointe. */\nconst MOUND = 'M 30 90 L 30 76 Q 42 70 50 60 Q 58 70 70 76 L 70 90 Z'\n\n/** Le sable du haut : le meme tas, tourne d'un demi-tour, donc creuse. */\nconst HOLLOW = 'M 70 10 L 70 24 Q 58 30 50 40 Q 42 30 30 24 L 30 10 Z'\n\n/**\n * Course du sable, en unites de la vue.\n *\n * Assez pour que le sable du haut sorte entierement de son ampoule, et que\n * le tas du bas parte entierement sous la sienne.\n */\nconst TRAVEL = 40\n\n/** Pose le sablier, le sable et le retournement, une fois par document. */\nfunction ensureHourglassRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-hourglass]{display:inline-block;line-height:0}',\n    '[data-o-hourglass] svg{display:block}',\n    '[data-o-hourglass-body],[data-o-hourglass-sand],[data-o-hourglass-stream]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    'animation-duration:var(--o-hourglass-speed);animation-iteration-count:infinite;',\n    '}',\n    '[data-o-hourglass-body]{animation-name:o-hourglass-flip}',\n    // Au repos, le sable est en bas : le haut a glisse hors de son ampoule,\n    // le tas est monte dans la sienne.\n    `[data-o-hourglass-sand=\"top\"]{transform:translateY(${String(TRAVEL)}px);animation-name:o-hourglass-drain}`,\n    '[data-o-hourglass-sand=\"bottom\"]{transform:translateY(0);animation-name:o-hourglass-fill}',\n    '[data-o-hourglass-stream]{opacity:0;animation-name:o-hourglass-stream}',\n    // Un debit constant : le niveau descend en lineaire jusqu'a vide, puis\n    // attend le retournement.\n    '@keyframes o-hourglass-drain{',\n    '0%{transform:translateY(0);animation-timing-function:linear}',\n    `72%,100%{transform:translateY(${String(TRAVEL)}px)}`,\n    '}',\n    '@keyframes o-hourglass-fill{',\n    `0%{transform:translateY(${String(TRAVEL)}px);animation-timing-function:linear}`,\n    '72%,100%{transform:translateY(0)}',\n    '}',\n    // Le filet de sable est un trait en pointille dont le motif descend :\n    // ce sont les grains qui tombent. Il s'eteint quand le haut est vide.\n    '@keyframes o-hourglass-stream{',\n    '0%{stroke-dashoffset:0;opacity:1;animation-timing-function:linear}',\n    '70%{stroke-dashoffset:-72px;opacity:1}',\n    '74%,100%{stroke-dashoffset:-72px;opacity:0}',\n    '}',\n    // Un geste de main : un demi-tour qui part doucement et se pose. Le\n    // sablier retourne, tas en haut, est l'image de depart.\n    '@keyframes o-hourglass-flip{',\n    '0%,78%{transform:rotate(0deg);animation-timing-function:ease-in-out}',\n    '96%,100%{transform:rotate(180deg)}',\n    '}',\n    // Tout le sable en bas, sablier droit : la figure est dite, ecoulee.\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-hourglass-body],[data-o-hourglass-sand],[data-o-hourglass-stream]{animation:none}',\n    '[data-o-hourglass-body]{transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface HourglassOwnProps {\n  /** Hauteur du sablier, en pixels. @defaultValue 48 */\n  size?: number\n  /** Duree d'un cycle, ecoulement et retournement compris, en millisecondes. @defaultValue 3000 */\n  speed?: number\n  /** Couleur du verre et du sable. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type HourglassProps = Customisable<HourglassOwnProps, 'span'>\n\n/**\n * Signale une attente par un sablier qui s'ecoule et se retourne.\n *\n * @example\n * <Hourglass />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <Hourglass size={80} speed={5000} color=\"var(--o-palette-brand-500)\" />\n */\nexport function Hourglass({\n  size = 48,\n  speed = 3000,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: HourglassProps): ReactElement {\n  ensureHourglassRule()\n\n  // Les decoupes sont referencees par identifiant dans le document : deux\n  // sabliers sur la meme page ne doivent pas se partager le meme.\n  const id = useId().replace(/[^a-zA-Z0-9_-]/g, '')\n  const topClip = `o-hourglass-top-${id}`\n  const bottomClip = `o-hourglass-bottom-${id}`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-hourglass-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-hourglass=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <defs>\n          <clipPath id={topClip}>\n            <path d={TOP_BULB} />\n          </clipPath>\n          <clipPath id={bottomClip}>\n            <path d={BOTTOM_BULB} />\n          </clipPath>\n        </defs>\n        <g data-o-hourglass-body=\"\">\n          <rect x={22} y={4} width={56} height={6} rx={2} fill=\"currentColor\" />\n          <rect x={22} y={90} width={56} height={6} rx={2} fill=\"currentColor\" />\n          <g clipPath={`url(#${topClip})`}>\n            <path data-o-hourglass-sand=\"top\" d={HOLLOW} fill=\"currentColor\" fillOpacity={0.8} />\n          </g>\n          <g clipPath={`url(#${bottomClip})`}>\n            <path data-o-hourglass-sand=\"bottom\" d={MOUND} fill=\"currentColor\" fillOpacity={0.8} />\n          </g>\n          <line\n            data-o-hourglass-stream=\"\"\n            x1={50}\n            y1={49}\n            x2={50}\n            y2={86}\n            stroke=\"currentColor\"\n            strokeWidth={2}\n            strokeDasharray=\"1.5 2.5\"\n            strokeOpacity={0.8}\n          />\n          <path\n            d={GLASS}\n            fill=\"none\"\n            stroke=\"currentColor\"\n            strokeWidth={2.5}\n            strokeLinejoin=\"round\"\n          />\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

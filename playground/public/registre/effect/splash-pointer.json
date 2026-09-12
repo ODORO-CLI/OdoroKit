@@ -1,0 +1,78 @@
+{
+  "name": "splash-pointer",
+  "category": "effect",
+  "title": "Eclaboussure",
+  "description": "Chaque clic envoie des gouttes qui montent, ralentissent et retombent, avec une couronne d impact au point touche.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/SplashPointer.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "drops",
+      "type": "number",
+      "required": false,
+      "default": 14,
+      "description": "Nombre de gouttes par impact.",
+      "min": 3,
+      "max": 28,
+      "step": 1
+    },
+    {
+      "name": "spread",
+      "type": "number",
+      "required": false,
+      "default": 90,
+      "unit": "px",
+      "description": "Portee horizontale des gouttes.",
+      "min": 30,
+      "max": 200,
+      "step": 10
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree du vol.",
+      "min": 200,
+      "max": 1800,
+      "step": 50
+    },
+    {
+      "name": "gravity",
+      "type": "number",
+      "required": false,
+      "default": 1.4,
+      "description": "Poids des gouttes : plus haut, plus elles retombent vite.",
+      "min": 0.2,
+      "max": 3,
+      "step": 0.1
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des gouttes. Une valeur, pas un role."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Rien au repos : chaque clic cree ses gouttes, les confie a Web Animations et les retire a la fin. Aucune souscription a la boucle. Rien sans pointeur fin ni sous mouvement reduit."
+  },
+  "id": "effect/splash-pointer",
+  "sources": {
+    "component.tsx": "/**\n * Eclaboussure : au clic, des gouttes partent et retombent.\n *\n * ## Une balistique, pas une rosace\n *\n * Les etincelles partent en ligne droite et s'eteignent : c'est un eclat. Une\n * eclaboussure, elle, a un poids — les gouttes montent, ralentissent, puis\n * tombent, et celles qui partent a plat retombent plus loin que celles qui\n * partent haut. Sans cette courbe, on retrouve une rosace reguliere, qui se\n * lit comme un mecanisme.\n *\n * La courbe n'est pas simulee image par image. Chaque goutte recoit une\n * vitesse initiale, et sa trajectoire est **echantillonnee** en cinq points\n * remis a l'API Web Animations sous forme d'images-cles. Le navigateur\n * interpole entre elles sur son propre fil : rien ne tourne dans le fil\n * principal, et la boucle du moteur n'est pas sollicitee du tout.\n *\n * ## Les gouttes vivent dans le DOM, pas dans l'etat\n *\n * Chaque impact cree ses elements, les lance, et les retire a la fin de leur\n * animation. Les porter dans l'etat de React imposerait deux rendus par clic\n * pour des objets que personne ne lit : ils sont decoratifs, ephemeres, et\n * leur cycle de vie est exactement celui de leur animation.\n *\n * ## L'onde d'impact\n *\n * Une couronne part avec les gouttes et s'efface plus vite qu'elles. Elle\n * fait le lien entre le point clique et la gerbe : sans elle, les gouttes ont\n * l'air de venir de nulle part.\n *\n * ## Ou elle ne se montre pas\n *\n * Sans pointeur fin, aucun element n'est cree. Sous mouvement reduit non\n * plus : une eclaboussure est un geste entier, et le geste est ce qu'on nous\n * demande d'omettre.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface SplashPointerOwnProps {\n  /** Zone qui recoit les clics. */\n  children: ReactNode\n  /** Nombre de gouttes par impact. @defaultValue 14 */\n  drops?: number\n  /** Portee horizontale des gouttes, en pixels. @defaultValue 90 */\n  spread?: number\n  /** Duree du vol, en millisecondes. @defaultValue 700 */\n  duration?: number\n  /** Poids des gouttes : plus haut, plus elles retombent vite. @defaultValue 1.4 */\n  gravity?: number\n  /** Couleur des gouttes. Une valeur, pas un role. @defaultValue la couleur du texte */\n  color?: string\n}\n\n/** Toutes les proprietes. */\nexport type SplashPointerProps = Customisable<SplashPointerOwnProps>\n\n/** Au-dela, la gerbe devient une tache et chaque clic coute pour rien. */\nconst MAX_DROPS = 28\n\n/** Points ou la trajectoire est echantillonnee. Voir l'en-tete du module. */\nconst SAMPLES = 5\n\n/**\n * Fait eclabousser chaque clic sur sa zone.\n *\n * L'enveloppe est transparente : elle se pose autour d'un bouton, d'une\n * carte ou d'une zone entiere, sans rien changer a leur mise en page.\n *\n * @example\n * <SplashPointer>\n *   <button type=\"button\" className=\"o-px-6 o-py-3\">Envoyer</button>\n * </SplashPointer>\n *\n * @example\n * // Gerbe ample et lourde, teintee.\n * <SplashPointer drops={22} spread={140} gravity={2.2} color=\"var(--o-palette-brand-500)\">\n *   <div className=\"o-p-10\">Toute la carte repond</div>\n * </SplashPointer>\n */\nexport function SplashPointer({\n  children,\n  drops = 14,\n  spread = 90,\n  duration = 700,\n  gravity = 1.4,\n  color = 'currentColor',\n  ...rest\n}: SplashPointerProps): ReactElement {\n  const { reduced } = useMotionState()\n  const [host, setHost] = useState<HTMLElement | null>(null)\n\n  useEffect(() => {\n    if (host === null || reduced) return\n    if (typeof window === 'undefined') return\n    // Pointeur grossier : rien ne s'abonne, aucun element n'est cree.\n    if (!window.matchMedia('(pointer: fine)').matches) return\n\n    const total = Math.max(3, Math.min(MAX_DROPS, Math.round(drops)))\n\n    const onPointerDown = (event: PointerEvent): void => {\n      if (event.pointerType === 'touch') return\n      const box = host.getBoundingClientRect()\n      const x = event.clientX - box.left\n      const y = event.clientY - box.top\n\n      // La couronne d'impact, plus breve que les gouttes.\n      const ring = document.createElement('span')\n      ring.setAttribute('aria-hidden', 'true')\n      ring.setAttribute('data-o-splash', '')\n      ring.style.position = 'absolute'\n      ring.style.left = `${x.toFixed(1)}px`\n      ring.style.top = `${y.toFixed(1)}px`\n      ring.style.width = '18px'\n      ring.style.height = '18px'\n      ring.style.margin = '-9px'\n      ring.style.borderRadius = '50%'\n      ring.style.border = `1.5px solid ${color}`\n      ring.style.pointerEvents = 'none'\n      host.append(ring)\n      const wave = ring.animate(\n        [\n          { transform: 'scale(0.2)', opacity: 0.9 },\n          { transform: `scale(${(spread / 24).toFixed(2)})`, opacity: 0 },\n        ],\n        { duration: Math.round(duration * 0.6), easing: 'cubic-bezier(0, 0, 0.2, 1)', fill: 'forwards' },\n      )\n      wave.onfinish = () => ring.remove()\n\n      for (let index = 0; index < total; index += 1) {\n        // Reparti sur le tour, puis brouille : une roue parfaite se lirait\n        // comme un mecanisme. Le tirage a lieu au clic, cote client seulement,\n        // il ne peut donc pas creer d'ecart d'hydratation.\n        const angle = ((index + Math.random() * 0.7) / total) * Math.PI * 2\n        const power = spread * (0.55 + Math.random() * 0.7)\n        const speedX = Math.cos(angle) * power\n        // Toutes les gouttes partent vers le haut : c'est la gravite qui les\n        // ramene, et c'est de la que vient la courbe.\n        const speedY = -Math.abs(Math.sin(angle)) * power * 0.9 - power * 0.35\n        const side = 3 + Math.random() * 4\n\n        const drop = document.createElement('span')\n        drop.setAttribute('aria-hidden', 'true')\n        drop.setAttribute('data-o-splash', '')\n        drop.style.position = 'absolute'\n        drop.style.left = `${x.toFixed(1)}px`\n        drop.style.top = `${y.toFixed(1)}px`\n        drop.style.width = `${side.toFixed(1)}px`\n        drop.style.height = `${side.toFixed(1)}px`\n        drop.style.margin = `${(-side / 2).toFixed(1)}px`\n        drop.style.borderRadius = '50%'\n        drop.style.background = color\n        drop.style.pointerEvents = 'none'\n        host.append(drop)\n\n        const frames: Keyframe[] = []\n        for (let step = 0; step < SAMPLES; step += 1) {\n          const time = step / (SAMPLES - 1)\n          const flightX = speedX * time\n          const flightY = speedY * time + gravity * power * time * time\n          frames.push({\n            offset: time,\n            transform: `translate3d(${flightX.toFixed(1)}px,${flightY.toFixed(1)}px,0) scale(${(1 - time * 0.5).toFixed(2)})`,\n            opacity: time < 0.6 ? 1 : (1 - time) / 0.4,\n          })\n        }\n\n        const flight = drop.animate(frames, { duration, easing: 'linear', fill: 'forwards' })\n        flight.onfinish = () => drop.remove()\n      }\n    }\n\n    host.addEventListener('pointerdown', onPointerDown)\n    return () => {\n      host.removeEventListener('pointerdown', onPointerDown)\n      // Les gouttes en vol appartiennent a cette instance : elles partent avec\n      // elle.\n      for (const orphan of host.querySelectorAll('[data-o-splash]')) orphan.remove()\n    }\n  }, [host, reduced, drops, spread, duration, gravity, color])\n\n  const { className, style } = mergePresentation({}, rest)\n\n  return (\n    <div\n      {...rest}\n      ref={setHost}\n      className={className}\n      // Les gouttes sont absolues dans la zone et coupees a ses bords : sans le\n      // debordement cache, une gerbe pres du bord s'etalerait sur la page.\n      style={{ position: 'relative', overflow: 'hidden', ...style } as CSSProperties}\n    >\n      {children}\n    </div>\n  )\n}\n"
+  }
+}

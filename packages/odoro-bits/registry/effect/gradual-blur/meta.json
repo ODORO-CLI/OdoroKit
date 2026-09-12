@@ -1,0 +1,73 @@
+{
+  "name": "gradual-blur",
+  "category": "effect",
+  "title": "Flou de bord",
+  "description": "Le bord d une zone defilante se voile d un flou qui s epaissit vers l exterieur, et s efface en fin de course.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/GradualBlur.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-theme-bg"],
+  "props": [
+    {
+      "name": "side",
+      "type": "'bottom' | 'top' | 'left' | 'right'",
+      "default": "bottom",
+      "description": "Bord voile.",
+      "options": ["bottom", "top", "left", "right"]
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Profondeur de la bande voilee.",
+      "min": 16,
+      "max": 320,
+      "step": 8
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 10,
+      "unit": "px",
+      "description": "Flou atteint tout au bord.",
+      "min": 1,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "layers",
+      "type": "number",
+      "default": 5,
+      "description": "Nombre de couches. Plus il y en a, plus la montee est douce.",
+      "min": 2,
+      "max": 8,
+      "step": 1
+    },
+    {
+      "name": "tint",
+      "type": "string",
+      "description": "Teinte posee sur la bande, par-dessus le flou."
+    },
+    {
+      "name": "scrollable",
+      "type": "boolean",
+      "default": true,
+      "description": "Fait de la zone un conteneur defilant, et efface le voile en fin de course."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quelques couches de backdrop-filter, calculees par le compositeur. La disparition en fin de course ecrit une variable CSS depuis la boucle du moteur, sans rendu React."
+  }
+}

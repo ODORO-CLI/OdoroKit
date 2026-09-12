@@ -1,0 +1,69 @@
+{
+  "name": "shuffle",
+  "category": "text",
+  "title": "Battage",
+  "description": "Chaque lettre part de la place d une autre, mesuree sur le rendu, puis rejoint la sienne.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/Shuffle.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 800,
+      "unit": "ms",
+      "description": "Duree du retour d une lettre.",
+      "min": 200,
+      "max": 2500,
+      "step": 20
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 35,
+      "unit": "ms",
+      "description": "Retard entre deux lettres.",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    {
+      "name": "tilt",
+      "type": "number",
+      "default": 20,
+      "unit": "deg",
+      "description": "Inclinaison maximale au depart.",
+      "min": 0,
+      "max": 90,
+      "step": 5
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": ["montage", "vue", "survol"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lecture de position par lettre au depart, puis une animation composee chacune. Aucun JavaScript par image."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "lens-zoom",
+  "category": "image",
+  "title": "Loupe",
+  "description": "Un disque suit le pointeur et montre l image agrandie a l endroit survole, sans que le cadre perde sa vue d ensemble.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/LensZoom.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-shadow-lg",
+    "--o-duration-base",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "required": false,
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur du cadre.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "required": false,
+      "default": 2.5,
+      "description": "Grossissement dans le disque.",
+      "min": 1.2,
+      "max": 6,
+      "step": 0.1
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 180,
+      "unit": "px",
+      "description": "Diametre du disque.",
+      "min": 60,
+      "max": 320,
+      "step": 10
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Cinq variables CSS ecrites au deplacement du pointeur, une transformation et un fond repeints par le compositeur, aucun rendu React. Ni disque ni ecouteur sous mouvement reduit ; les evenements tactiles sont ignores."
+  },
+  "id": "image/lens-zoom",
+  "sources": {
+    "component.tsx": "/**\n * Loupe : un disque suit le pointeur et montre l'image agrandie a l'endroit\n * survole, le reste du cadre restant intact.\n *\n * ## Ce qui la distingue du zoom au survol\n *\n * Le zoom au survol agrandit toute l'image dans son cadre : on perd la vue\n * d'ensemble pour gagner du detail. La loupe fait l'inverse — le cadre garde\n * sa vue d'ensemble, et le detail n'existe que dans le disque. C'est l'outil\n * d'une planche, d'une carte, d'une photo de produit : on inspecte sans\n * perdre le contexte.\n *\n * ## Le disque montre la meme image, pas une copie\n *\n * Le fond du disque est la meme source que l'element `img` : le navigateur ne\n * telecharge rien de plus, les deux calques partagent l'entree de cache. Ce\n * qui change est l'echelle et l'origine du fond, ecrites en variables CSS\n * depuis l'evenement de pointeur — aucun rendu React pendant le geste.\n *\n * ## Pourquoi la taille naturelle est relue a chaque deplacement\n *\n * L'image est cadree en `cover` : son echelle a l'ecran depend de ses\n * proportions naturelles autant que de celles du cadre. Sans elles, le disque\n * montrerait une image etiree, decalee de la vraie des que les deux rapports\n * different. Deux lectures de propriete par evenement coutent moins qu'un\n * etat React, et restent justes apres un changement de source.\n *\n * ## Au doigt, et sous mouvement reduit\n *\n * Sur un ecran tactile il n'y a pas de survol : une loupe qui n'apparait\n * qu'au toucher, sous le doigt qui la cache, ne sert personne — les\n * evenements tactiles sont donc ignores. Sous mouvement reduit, l'image reste\n * nette et entiere, sans disque ni ecouteur.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useRef,\n  type CSSProperties,\n  type PointerEvent as ReactPointerEvent,\n  type ReactElement,\n} from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-lens-zoom'\n\n/**\n * Pose les regles de la loupe, une fois par document.\n *\n * Elles ne peuvent pas etre des styles en ligne : l'apparition du disque\n * depend du survol du cadre, pas du disque lui-meme.\n */\nfunction ensureLensRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-lz-glass]{',\n    'position:absolute;left:0;top:0;box-sizing:border-box;pointer-events:none;',\n    'width:var(--o-lz-size);height:var(--o-lz-size);border-radius:9999px;',\n    // Le disque est place par une transformation : elle ne declenche ni\n    // reflux ni repeinture du cadre, contrairement a `left` et `top`.\n    'transform:translate3d(var(--o-lz-x),var(--o-lz-y),0);',\n    'background-image:var(--o-lz-src);background-repeat:no-repeat;',\n    'background-size:var(--o-lz-bs);background-position:var(--o-lz-bx) var(--o-lz-by);',\n    'border:1px solid var(--o-theme-line);box-shadow:var(--o-shadow-lg);',\n    'opacity:0;transition:opacity var(--o-duration-base) var(--o-ease-standard);',\n    '}',\n    '[data-o-lens-actif] [data-o-lz-glass]{opacity:1}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface LensZoomOwnProps {\n  /** Source de l'image. */\n  src: string\n  /** Texte de remplacement. Chaine vide si l'image est purement decorative. */\n  alt: string\n  /** Rapport largeur sur hauteur du cadre. @defaultValue 1.777 */\n  ratio?: number\n  /**\n   * Grossissement dans le disque.\n   *\n   * Au-dela de quatre, une photo ordinaire montre surtout ses pixels.\n   *\n   * @defaultValue 2.5\n   */\n  zoom?: number\n  /** Diametre du disque, en pixels. @defaultValue 180 */\n  size?: number\n}\n\n/** Toutes les proprietes : les siennes, plus celles d'une image. */\nexport type LensZoomProps = Customisable<LensZoomOwnProps, 'img'>\n\n/**\n * Promene une loupe sur une image.\n *\n * @example\n * <LensZoom src=\"/planche.jpg\" alt=\"Planche de detail\" />\n *\n * @example\n * // Un disque plus petit et plus fort, pour une carte.\n * <LensZoom src=\"/carte.png\" alt=\"Carte du reseau\" zoom={4} size={140} />\n */\nexport function LensZoom({\n  src,\n  alt,\n  ratio = 1.777,\n  zoom = 2.5,\n  size = 180,\n  ...rest\n}: LensZoomProps): ReactElement {\n  const { reduced } = useMotionState()\n  const picture = useRef<HTMLImageElement | null>(null)\n  ensureLensRule()\n\n  const grossissement = Math.min(6, Math.max(1.2, zoom))\n  const diametre = Math.max(60, size)\n\n  const { className, style } = mergePresentation(\n    { className: 'o-relative o-overflow-hidden' },\n    rest,\n  )\n\n  const hostStyle = {\n    ...style,\n    aspectRatio: String(ratio),\n    // Les guillemets de la source sont neutralises : une apostrophe double\n    // dans un nom de fichier fermerait la fonction `url`.\n    '--o-lz-src': `url(\"${src.replaceAll('\"', '%22')}\")`,\n    '--o-lz-size': `${String(diametre)}px`,\n    '--o-lz-x': '0px',\n    '--o-lz-y': '0px',\n    '--o-lz-bs': 'auto',\n    '--o-lz-bx': '0px',\n    '--o-lz-by': '0px',\n  } as CSSProperties\n\n  /** Place le disque et son fond sous le pointeur. */\n  const suivre = (event: ReactPointerEvent<HTMLDivElement>): void => {\n    // Voir l'en-tete : le doigt cacherait ce que la loupe montre.\n    if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return\n\n    const frame = event.currentTarget\n    const box = frame.getBoundingClientRect()\n    const x = event.clientX - box.left\n    const y = event.clientY - box.top\n\n    const image = picture.current\n    // Tant que l'image n'a pas de taille naturelle, le cadre lui-meme sert de\n    // reference : le disque est alors legerement etire, jamais absent.\n    const nw = image !== null && image.naturalWidth > 0 ? image.naturalWidth : box.width\n    const nh =\n      image !== null && image.naturalHeight > 0 ? image.naturalHeight : box.height\n\n    // Echelle du cadrage `cover`, puis origine de l'image affichee : ce sont\n    // exactement les nombres que le navigateur applique a l'element `img`.\n    const cover = Math.max(box.width / Math.max(nw, 1), box.height / Math.max(nh, 1))\n    const ox = (box.width - nw * cover) / 2\n    const oy = (box.height - nh * cover) / 2\n\n    // Point de l'image, en pixels naturels, sous le pointeur.\n    const u = (x - ox) / Math.max(cover, 0.0001)\n    const v = (y - oy) / Math.max(cover, 0.0001)\n\n    const echelle = cover * grossissement\n    frame.style.setProperty('--o-lz-x', `${(x - diametre / 2).toFixed(1)}px`)\n    frame.style.setProperty('--o-lz-y', `${(y - diametre / 2).toFixed(1)}px`)\n    frame.style.setProperty(\n      '--o-lz-bs',\n      `${(nw * echelle).toFixed(1)}px ${(nh * echelle).toFixed(1)}px`,\n    )\n    frame.style.setProperty('--o-lz-bx', `${(diametre / 2 - u * echelle).toFixed(1)}px`)\n    frame.style.setProperty('--o-lz-by', `${(diametre / 2 - v * echelle).toFixed(1)}px`)\n    frame.setAttribute('data-o-lens-actif', '')\n  }\n\n  return (\n    <div\n      className={className}\n      style={hostStyle}\n      onPointerMove={reduced ? undefined : suivre}\n      onPointerLeave={\n        reduced\n          ? undefined\n          : (event) => {\n              event.currentTarget.removeAttribute('data-o-lens-actif')\n            }\n      }\n    >\n      <img\n        loading=\"lazy\"\n        decoding=\"async\"\n        {...rest}\n        ref={picture}\n        src={src}\n        alt={alt}\n        className=\"o-size-full o-object-cover\"\n      />\n\n      {/* Le disque est decoratif : ce qu'il montre est deja dans l'image. */}\n      {reduced ? null : <div aria-hidden data-o-lz-glass=\"\" />}\n    </div>\n  )\n}\n"
+  }
+}

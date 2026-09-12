@@ -1,0 +1,63 @@
+{
+  "name": "use-keyboard-list",
+  "category": "hooks",
+  "title": "Liste au clavier",
+  "description": "Fleches, Home et End sur une liste, avec un seul arret de tabulation et le focus qui suit.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "hook.ts",
+      "target": "hooks/useKeyboardList.ts"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "required": true,
+      "default": 5,
+      "description": "Nombre d elements de la liste.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "orientation",
+      "type": "'verticale' | 'horizontale'",
+      "default": "verticale",
+      "description": "Sens de la liste, donc paire de fleches employee.",
+      "options": ["verticale", "horizontale"]
+    },
+    {
+      "name": "boucle",
+      "type": "boolean",
+      "default": true,
+      "description": "Repartir au debut apres le dernier element."
+    },
+    {
+      "name": "initial",
+      "type": "number",
+      "default": 0,
+      "description": "Element actif au montage.",
+      "min": 0,
+      "max": 11,
+      "step": 1
+    },
+    {
+      "name": "onValider",
+      "type": "(index: number) => void",
+      "description": "Appelee sur Entree ou Espace, avec l index actif."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Aucun ecouteur global : un gestionnaire sur le conteneur. Un rendu par deplacement."
+  }
+}

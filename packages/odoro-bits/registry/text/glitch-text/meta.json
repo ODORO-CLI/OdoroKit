@@ -1,0 +1,62 @@
+{
+  "name": "glitch-text",
+  "category": "text",
+  "title": "Glitch",
+  "description": "Un texte casse par rafales breves, net entre deux, avec une aberration rouge et cyan.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/GlitchText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-red-500", "--o-palette-cyan-400"],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 3,
+      "unit": "px",
+      "description": "Amplitude du decalage des copies.",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 2600,
+      "unit": "ms",
+      "description": "Temps moyen entre deux rafales. L intervalle reel varie autour de cette valeur.",
+      "min": 600,
+      "max": 9000,
+      "step": 100
+    },
+    {
+      "name": "channelA",
+      "type": "string",
+      "description": "Couleur du premier canal decale."
+    },
+    {
+      "name": "channelB",
+      "type": "string",
+      "description": "Couleur du second canal decale."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un minuteur entre les rafales, une animation CSS pendant. Aucun JavaScript par image, rien du tout au repos."
+  }
+}

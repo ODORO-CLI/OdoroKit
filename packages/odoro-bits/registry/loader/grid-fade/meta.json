@@ -1,0 +1,57 @@
+{
+  "name": "grid-fade",
+  "category": "loader",
+  "title": "Grille en fondu",
+  "description": "Neuf points en carre s eteignent et se rallument en ondes concentriques, du centre vers les coins, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/GridFade.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 8,
+      "unit": "px",
+      "description": "Diametre d un point. L ecart entre points en depend.",
+      "min": 4,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1200,
+      "unit": "ms",
+      "description": "Duree d un cycle complet d extinction et de retour.",
+      "min": 400,
+      "max": 3500,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Neuf animations CSS d opacite tenues par le compositeur, aucun JavaScript apres le premier rendu. Neuf points pleins et immobiles sous mouvement reduit."
+  }
+}

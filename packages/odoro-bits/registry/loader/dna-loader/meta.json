@@ -1,0 +1,66 @@
+{
+  "name": "dna-loader",
+  "category": "loader",
+  "title": "Helice d ADN",
+  "description": "Deux brins de points tournent l un autour de l autre, grands devant et pales derriere, relies par des barreaux, en CSS pur.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/DnaLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "default": 6,
+      "unit": "px",
+      "description": "Diametre d un point. L amplitude de l helice en depend.",
+      "min": 3,
+      "max": 14,
+      "step": 1
+    },
+    {
+      "name": "pairs",
+      "type": "number",
+      "default": 8,
+      "description": "Nombre de paires de points. Un tour d helice les traverse tous.",
+      "min": 4,
+      "max": 16,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1600,
+      "unit": "ms",
+      "description": "Duree d un tour complet de l helice.",
+      "min": 600,
+      "max": 4000,
+      "step": 50
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des points et des barreaux. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois animations CSS par paire, tenues par le compositeur ; les poses au repos sont calculees une fois au rendu. Helice figee dans sa forme sous mouvement reduit."
+  }
+}

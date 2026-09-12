@@ -1,0 +1,74 @@
+{
+  "name": "split-flap",
+  "category": "text",
+  "title": "Palettes",
+  "description": "Chaque caractere defile sur deux demi-cartes articulees, comme un tableau de departs, jusqu a se poser sur sa lettre.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/SplitFlap.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-in-view"],
+  "tokens": [],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "alphabet",
+      "type": "string",
+      "description": "Caracteres du rouleau. Le premier est la carte vierge."
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "default": 90,
+      "unit": "ms",
+      "description": "Duree d un battement.",
+      "min": 30,
+      "max": 400,
+      "step": 10
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 60,
+      "unit": "ms",
+      "description": "Retard de depart entre deux cellules.",
+      "min": 0,
+      "max": 300,
+      "step": 10
+    },
+    {
+      "name": "largeur",
+      "type": "number",
+      "default": 0.72,
+      "unit": "em",
+      "description": "Largeur minimale d une carte.",
+      "min": 0.4,
+      "max": 1.4,
+      "step": 0.02
+    },
+    {
+      "name": "declenchement",
+      "type": "'montage' | 'vue' | 'survol'",
+      "default": "vue",
+      "description": "Des le montage, a l entree dans le champ, ou a chaque survol.",
+      "options": ["montage", "vue", "survol"]
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une comparaison d echeance par cellule et par image tant que le tableau tourne, puis plus rien. Deux rotations composees par carte tournee."
+  }
+}

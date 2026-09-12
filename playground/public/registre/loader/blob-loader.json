@@ -1,0 +1,66 @@
+{
+  "name": "blob-loader",
+  "category": "loader",
+  "title": "Blob qui bourgeonne",
+  "description": "Une masse centrale laisse partir un bourgeon dont le cou s etire puis se rompt, par un flou seuille qui soude deux cercles.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/BlobLoader.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 56,
+      "unit": "px",
+      "description": "Cote de la zone de dessin.",
+      "min": 24,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 2800,
+      "unit": "ms",
+      "description": "Duree d un tour du bourgeon, deux ruptures comprises.",
+      "min": 1000,
+      "max": 8000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur du blob. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": false,
+    "notes": "Un filtre de flou seuille sur deux cercles : le seul poste couteux du lot, recalcule a chaque image sur une petite surface. Reservez-le a une piece unique dans la page. Bourgeon rentre et masse ronde immobile sous mouvement reduit.",
+    "fallback": "static"
+  },
+  "id": "loader/blob-loader",
+  "sources": {
+    "component.tsx": "/**\n * Blob qui se deforme : une masse centrale laisse partir un bourgeon, le\n * cou s'etire, se rompt, puis le bourgeon revient se fondre.\n *\n * ## Deux cercles qui n'en font qu'un\n *\n * Le dessin ne contient que deux cercles. Ce qui les soude est un filtre :\n * un flou gaussien etale leurs bords l'un vers l'autre, puis une matrice de\n * couleur multiplie fortement l'alpha et le decale vers le bas. Tout ce qui\n * etait a demi transparent devient franchement opaque ou franchement vide,\n * et le seuil ainsi pose retaille un contour net autour des deux formes\n * melangees. La ou leurs halos se recouvrent, un cou apparait ; quand ils\n * s'eloignent assez, il s'amincit et casse.\n *\n * Aucune interpolation de trace, donc, et aucun calcul par image : la\n * deformation est un effet de bord de la distance entre deux cercles.\n *\n * Le noyau se retracte quand le bourgeon s'ecarte et se regonfle quand il\n * revient. C'est une petite tricherie de conservation de matiere, mais\n * l'oeil l'attend : sans elle, le blob semble fabriquer de la substance.\n *\n * La region du filtre est elargie d'un quart de part et d'autre : par\n * defaut elle serre la boite englobante de trop pres, et le flou serait\n * coupe net sur ses bords.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin est retire\n * de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, le bourgeon reste au centre : les deux cercles\n * sont concentriques et le filtre n'en rend qu'une seule masse ronde,\n * immobile.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport { useId, type CSSProperties, type ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-blob-loader'\n\n/**\n * Matrice de seuil : les couleurs passent telles quelles, l'alpha est\n * multiplie puis abaisse. Le produit vaut un au-dela d'environ un demi et\n * zero en deca : le degrade du flou redevient un bord.\n */\nconst THRESHOLD = '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10'\n\n/** Pose le blob, son bourgeon et sa respiration, une fois par document. */\nfunction ensureBlobRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-blob-loader]{display:inline-block;line-height:0}',\n    '[data-o-blob-loader] svg{display:block}',\n    '[data-o-blob-arm],[data-o-blob-bud],[data-o-blob-core]{',\n    'transform-box:view-box;transform-origin:50px 50px;',\n    '}',\n    // Le bras tourne d'un tour par cycle ; le bourgeon sort et rentre deux\n    // fois pendant ce tour, soit une rupture a chaque demi-tour.\n    '[data-o-blob-arm]{',\n    'animation:o-blob-loader-turn var(--o-blob-speed) linear infinite;',\n    '}',\n    '@keyframes o-blob-loader-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',\n    '[data-o-blob-bud]{',\n    'animation:o-blob-loader-reach var(--o-blob-speed) ease-in-out infinite;',\n    '}',\n    '@keyframes o-blob-loader-reach{',\n    '0%,50%,100%{transform:translateX(2px) scale(0.66)}',\n    '25%,75%{transform:translateX(29px) scale(1)}',\n    '}',\n    '[data-o-blob-core]{',\n    'animation:o-blob-loader-breathe var(--o-blob-speed) ease-in-out infinite;',\n    '}',\n    '@keyframes o-blob-loader-breathe{',\n    '0%,50%,100%{transform:scale(1)}',\n    '25%,75%{transform:scale(0.86)}',\n    '}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-blob-arm],[data-o-blob-bud],[data-o-blob-core]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface BlobLoaderOwnProps {\n  /** Cote de la zone de dessin, en pixels. @defaultValue 56 */\n  size?: number\n  /** Duree d'un tour du bourgeon, en millisecondes. @defaultValue 2800 */\n  speed?: number\n  /** Couleur du blob. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type BlobLoaderProps = Customisable<BlobLoaderOwnProps, 'span'>\n\n/**\n * Signale une attente par une masse qui bourgeonne et se ressoude.\n *\n * @example\n * <BlobLoader />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <BlobLoader size={96} speed={4200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function BlobLoader({\n  size = 56,\n  speed = 2800,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: BlobLoaderProps): ReactElement {\n  ensureBlobRule()\n\n  // Un identifiant par instance : deux blobs sur la meme page ne doivent\n  // pas se partager un filtre.\n  const goo = `o-blob-loader-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n    '--o-blob-speed': `${String(speed)}ms`,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-blob-loader=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        <defs>\n          <filter id={goo} x=\"-25%\" y=\"-25%\" width=\"150%\" height=\"150%\">\n            <feGaussianBlur in=\"SourceGraphic\" stdDeviation=\"5\" result=\"o-blob-blur\" />\n            <feColorMatrix in=\"o-blob-blur\" type=\"matrix\" values={THRESHOLD} />\n          </filter>\n        </defs>\n        <g filter={`url(#${goo})`} fill=\"currentColor\">\n          <circle data-o-blob-core=\"\" cx=\"50\" cy=\"50\" r=\"17\" />\n          <g data-o-blob-arm=\"\">\n            <circle data-o-blob-bud=\"\" cx=\"50\" cy=\"50\" r=\"9.5\" />\n          </g>\n        </g>\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

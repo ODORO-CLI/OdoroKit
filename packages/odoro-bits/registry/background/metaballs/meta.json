@@ -1,0 +1,78 @@
+{
+  "name": "metaballs",
+  "category": "background",
+  "title": "Metaballs",
+  "description": "Des boules de gel qui fusionnent en champ scalaire, eclairees par une normale deduite du champ ; une boule suit le pointeur.",
+  "engine": {
+    "gsap": [],
+    "gl": "ogl"
+  },
+  "files": [
+    {
+      "path": "metaballs.shader.ts",
+      "target": "background/metaballs.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Metaballs.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-theme-fg"],
+  "props": [
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 0.3,
+      "description": "Vitesse de derive des boules.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 7,
+      "description": "Nombre de boules libres, sans compter celle du pointeur. Retrograde a 4 en qualite basse.",
+      "min": 2,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "default": 1,
+      "description": "Seuil du champ. Plus bas, plus de matiere et des cols plus larges.",
+      "min": 0.5,
+      "max": 2,
+      "step": 0.05
+    },
+    {
+      "name": "gloss",
+      "type": "number",
+      "default": 0.7,
+      "description": "Force du reflet.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-brand-500, --o-theme-fg",
+      "description": "Tokens dont les couleurs sont lues : le fond, le gel, le reflet."
+    },
+    {
+      "name": "fallback",
+      "type": "string",
+      "description": "Classes du repli, affiche pendant le chargement et si WebGL manque."
+    }
+  ],
+  "perf": {
+    "tier": "medium",
+    "backend": "ogl",
+    "fallback": "gradient",
+    "notes": "Trois sommes de champs par fragment — une pour la matiere, deux pour la normale par differences finies. Le nombre de boules est le seul levier de cout et suit la qualite."
+  }
+}

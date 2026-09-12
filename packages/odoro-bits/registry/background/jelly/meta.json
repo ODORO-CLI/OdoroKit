@@ -1,0 +1,78 @@
+{
+  "name": "jelly",
+  "category": "background",
+  "title": "Gelee",
+  "description": "Une masse translucide qui tremble la ou on clique : un creux, une onde qui court sur la surface et un balancement de toute la masse, dates par l horloge du moteur.",
+  "engine": {
+    "gsap": [],
+    "gl": "three"
+  },
+  "files": [
+    {
+      "path": "jelly.shader.ts",
+      "target": "background/jelly.shader.ts"
+    },
+    {
+      "path": "component.tsx",
+      "target": "background/Jelly.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": ["hooks/use-poster"],
+  "tokens": ["--o-theme-bg", "--o-palette-lime-500", "--o-palette-lime-200"],
+  "props": [
+    {
+      "name": "wobble",
+      "type": "number",
+      "default": 0.22,
+      "description": "Amplitude du tremblement, en rayons.",
+      "min": 0.05,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "name": "stiffness",
+      "type": "number",
+      "default": 9,
+      "description": "Raideur : la frequence des ondes.",
+      "min": 2,
+      "max": 20,
+      "step": 0.5
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "default": 1.6,
+      "description": "Amortissement : la vitesse a laquelle un coup s eteint.",
+      "min": 0.4,
+      "max": 5,
+      "step": 0.1
+    },
+    {
+      "name": "rpm",
+      "type": "number",
+      "default": 1,
+      "description": "Vitesse de rotation, en tours par minute.",
+      "min": 0,
+      "max": 8,
+      "step": 0.5
+    },
+    {
+      "name": "colors",
+      "type": "readonly [string, string, string]",
+      "default": "--o-theme-bg, --o-palette-lime-500, --o-palette-lime-200",
+      "description": "Tokens du fond, du corps, des reflets."
+    },
+    {
+      "name": "poster",
+      "type": "string",
+      "description": "Classes du repli, affiche tant que la scene n est pas prete."
+    }
+  ],
+  "perf": {
+    "tier": "heavy",
+    "backend": "three",
+    "fallback": "poster",
+    "notes": "Scene 3D : environ 130 Ko compresses au premier affichage. Trois evaluations de hauteur par sommet — le point et deux voisins pour la normale — a quatre impacts et une lecture de bruit chacune. La subdivision suit la qualite retenue, et le rendu se suspend hors du champ."
+  }
+}

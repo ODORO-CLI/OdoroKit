@@ -1,0 +1,71 @@
+{
+  "name": "crosshair",
+  "category": "effect",
+  "title": "Reticule",
+  "description": "Deux traits traversent la zone et se croisent sous le pointeur, avec un vide au croisement et le releve chiffre des coordonnees.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "effect/Crosshair.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": 1,
+      "unit": "px",
+      "description": "Epaisseur des traits.",
+      "min": 1,
+      "max": 4,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 20,
+      "description": "Vitesse de rattrapage. Plus haut, plus colle.",
+      "min": 3,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": 16,
+      "unit": "px",
+      "description": "Vide laisse au croisement.",
+      "min": 0,
+      "max": 64,
+      "step": 2
+    },
+    {
+      "name": "coords",
+      "type": "boolean",
+      "default": true,
+      "description": "Affiche les coordonnees du croisement."
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "description": "Couleur des traits. Une valeur, pas un role."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Zone visee. Absente, le reticule prend la page entiere."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Quatre segments et une etiquette, mus par des transformations seules ; le releve chiffre n est reecrit qu au changement de pixel. Rien sans pointeur fin ni sous mouvement reduit."
+  }
+}

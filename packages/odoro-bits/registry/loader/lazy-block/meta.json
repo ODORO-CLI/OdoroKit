@@ -1,0 +1,97 @@
+{
+  "name": "lazy-block",
+  "category": "loader",
+  "title": "Bloc differe",
+  "description": "Un substitut couvre le contenu deja present, respire, puis s efface pour le laisser paraitre sans que la mise en page saute.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/LazyBlock.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-line",
+    "--o-theme-surface",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "description": "Le contenu couvert, puis revele."
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "default": 1400,
+      "unit": "ms",
+      "description": "Attente avant la revelation.",
+      "min": 0,
+      "max": 6000,
+      "step": 100
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 500,
+      "unit": "ms",
+      "description": "Duree du croisement.",
+      "min": 100,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "loop",
+      "type": "boolean",
+      "default": true,
+      "description": "Rejouer le cycle en boucle : le regime d une vitrine ou d une maquette. A couper pour un seul passage, pilote par la page."
+    },
+    {
+      "name": "hold",
+      "type": "number",
+      "default": 2400,
+      "unit": "ms",
+      "description": "Temps ou le contenu reste visible avant de repartir.",
+      "min": 400,
+      "max": 8000,
+      "step": 200
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": 96,
+      "unit": "px",
+      "description": "Hauteur minimale pendant l attente.",
+      "min": 24,
+      "max": 400,
+      "step": 4
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 12,
+      "unit": "px",
+      "description": "Rayon des angles du substitut.",
+      "min": 0,
+      "max": 48,
+      "step": 1
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Chargement du contenu",
+      "description": "Libelle annonce aux lecteurs d ecran pendant l attente."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Deux minuteurs, pas d abonnement a la boucle d images ; une opacite en transition et un repeint sur le substitut. Le contenu est dans le document des le depart, donc aucune mise en page ne saute. Contenu visible immediatement, sans cycle, sous mouvement reduit."
+  }
+}

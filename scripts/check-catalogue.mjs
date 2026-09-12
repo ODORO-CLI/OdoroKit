@@ -68,7 +68,11 @@ const { chromium } = await import('playwright')
 const browser = await chromium.launch()
 const page = await browser.newPage()
 
-await page.goto(`${base}/`, { waitUntil: 'networkidle' })
+// La documentation commence a `/docs`, pas a la racine : celle-ci porte
+// desormais la vitrine, qui n'a volontairement pas de colonne laterale. Partir
+// de `/` ne trouverait aucun lien, et le controle declarerait tout absent —
+// ce qu'il a fait, la premiere fois.
+await page.goto(`${base}/docs`, { waitUntil: 'networkidle' })
 const paths = await page.evaluate(() =>
   [...document.querySelectorAll('nav[aria-label="Documentation"] a')].map(
     (a) => new URL(a.href).pathname,

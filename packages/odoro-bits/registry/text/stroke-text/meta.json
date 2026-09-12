@@ -1,0 +1,62 @@
+{
+  "name": "stroke-text",
+  "category": "text",
+  "title": "Contour qui se remplit",
+  "description": "Un texte en contour dont le remplissage monte du bas quand il entre dans le champ.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "text/StrokeText.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": ["--o-palette-brand-300", "--o-palette-brand-500"],
+  "props": [
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "span",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "strokeWidth",
+      "type": "number",
+      "default": 1.5,
+      "unit": "px",
+      "description": "Epaisseur du contour.",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.5
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 900,
+      "unit": "ms",
+      "description": "Duree de la montee du remplissage.",
+      "min": 200,
+      "max": 3000,
+      "step": 50
+    },
+    {
+      "name": "contour",
+      "type": "string",
+      "description": "Couleur du contour."
+    },
+    {
+      "name": "remplissage",
+      "type": "string",
+      "description": "Couleur du remplissage."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un observateur d intersection, puis une seule animation de clip-path, jouee une fois. Rien ne s execute au repos."
+  }
+}

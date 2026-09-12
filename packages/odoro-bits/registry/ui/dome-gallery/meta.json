@@ -1,0 +1,82 @@
+{
+  "name": "dome-gallery",
+  "category": "ui",
+  "title": "Galerie en dome",
+  "description": "Les images sont collees sur l interieur d un dome que l on fait tourner au doigt ou aux fleches ; celles qui passent derriere disparaissent d elles-memes.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "ui/DomeGallery.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500"
+  ],
+  "props": [
+    {
+      "name": "items",
+      "type": "readonly { src: string; alt: string; caption?: string }[]",
+      "required": true,
+      "description": "Les images posees sur le dome, dans l ordre. Chaque image porte son texte de remplacement."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "description": "Nom de la galerie, annonce aux technologies d assistance."
+    },
+    {
+      "name": "radius",
+      "type": "number",
+      "default": 360,
+      "unit": "px",
+      "min": 220,
+      "max": 900,
+      "step": 20,
+      "description": "Rayon du dome. Plus il est grand, plus la courbure est douce."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 8,
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "description": "Nombre d images par rangee. Une rangee incomplete se repartit sur son propre compte."
+    },
+    {
+      "name": "pitch",
+      "type": "number",
+      "default": 34,
+      "unit": "deg",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "description": "Angle entre deux rangees."
+    },
+    {
+      "name": "tile",
+      "type": "number",
+      "default": 180,
+      "unit": "px",
+      "min": 100,
+      "max": 320,
+      "step": 10,
+      "description": "Largeur d une image sur le dome."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Chaque image porte une transformation fixe, ecrite une fois au rendu ; la boucle n ecrit qu une rotation, celle du dome entier. Elle s arrete des que le dome est cale. Les images qui passent derriere sont retirees du rendu par la face cachee, sans calcul. Sous mouvement reduit, le dome saute a sa position sans amortissement."
+  }
+}

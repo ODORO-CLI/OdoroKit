@@ -61,13 +61,13 @@ export type MosaicProps = Customisable<MosaicOwnProps>
 
 /** Tokens employes par defaut. */
 const DEFAULT_TOKENS = [
-  '--o-palette-zinc-900',
+  '--o-theme-surface',
   '--o-palette-brand-600',
   '--o-palette-fuchsia-500',
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-900 o-to-brand-900'
+const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-brand-900'
 
 /**
  * Mosaique.

@@ -1,0 +1,76 @@
+{
+  "name": "arc-trio",
+  "category": "loader",
+  "title": "Trio d arcs",
+  "description": "Trois arcs de longueurs differentes sur un meme cercle, a trois vitesses : ils se rattrapent, se recouvrent, se separent.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/ArcTrio.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [],
+  "props": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "default": 48,
+      "unit": "px",
+      "description": "Diametre du cercle.",
+      "min": 16,
+      "max": 160,
+      "step": 4
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "required": false,
+      "default": 4,
+      "unit": "px",
+      "description": "Epaisseur des arcs.",
+      "min": 1,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "required": false,
+      "default": 1400,
+      "unit": "ms",
+      "description": "Duree d un tour de l arc le plus long.",
+      "min": 400,
+      "max": 5000,
+      "step": 100
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "description": "Couleur des arcs. Une valeur, pas un role."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Libelle annonce aux lecteurs d ecran."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Trois rotations CSS sur des groupes SVG, aucun JavaScript apres le premier rendu. Les arcs restent a un tiers de tour les uns des autres sous mouvement reduit."
+  },
+  "id": "loader/arc-trio",
+  "sources": {
+    "component.tsx": "/**\n * Trio d'arcs : trois arcs de longueurs differentes sur un meme cercle.\n *\n * ## Un seul cercle, trois vitesses\n *\n * Les trois arcs partagent le meme rayon — ce n'est pas un chargeur\n * concentrique. Ils n'ont ni la meme longueur ni la meme vitesse : le long\n * est lent, le court est vif. A vitesses inegales, ils se rattrapent, se\n * recouvrent un instant — l'opacite s'additionne, l'arc semble s'epaissir —\n * puis se separent. C'est cette respiration irreguliere qui fait le\n * chargeur : trois arcs a la meme vitesse ne seraient qu'un anneau\n * tournant a trous.\n *\n * Chaque arc est un cercle SVG dont le tirete ne peint qu'une portion. Le\n * point de depart de chacun est fixe par un attribut SVG sur un groupe\n * exterieur, et la rotation par une animation CSS sur un groupe interieur :\n * les deux transformations ne se disputent pas la meme propriete, sinon\n * l'animation effacerait le decalage.\n *\n * ## Un statut, pas un dessin\n *\n * L'element porte `role=\"status\"` et un libelle pour les lecteurs d'ecran :\n * l'attente est une information, pas une decoration. Le dessin, lui, est\n * retire de l'arbre d'accessibilite.\n *\n * Sous mouvement reduit, les arcs restent a un tiers de tour les uns des\n * autres : la figure se lit encore comme un chargeur, seul le mouvement\n * s'arrete.\n *\n * @module\n */\n\nimport { mergePresentation, type Customisable } from '@odoro-cli/engine'\nimport type { CSSProperties, ReactElement } from 'react'\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-arc-trio'\n\n/** Pose la rotation des arcs, une fois par document. */\nfunction ensureTrioRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-arc-trio]{display:inline-block;line-height:0}',\n    '[data-o-arc-trio] svg{display:block}',\n    // La boite de reference est la vue SVG : l'origine de la rotation est le\n    // centre du dessin, pas celui du seul arc peint.\n    '[data-o-trio-arc]{',\n    'transform-box:view-box;transform-origin:50% 50%;',\n    'animation:o-arc-trio-spin var(--o-trio-speed) linear infinite;',\n    '}',\n    '@keyframes o-arc-trio-spin{from{transform:rotate(0turn)}to{transform:rotate(1turn)}}',\n    '@media (prefers-reduced-motion:reduce){',\n    '[data-o-trio-arc]{animation:none;transform:none}',\n    '}',\n  ].join('')\n  document.head.append(style)\n}\n\n/** Proprietes propres au composant. */\nexport interface ArcTrioOwnProps {\n  /** Diametre du cercle, en pixels. @defaultValue 48 */\n  size?: number\n  /** Epaisseur des arcs, en pixels. @defaultValue 4 */\n  thickness?: number\n  /** Duree d'un tour de l'arc le plus long, en millisecondes. @defaultValue 1400 */\n  speed?: number\n  /** Couleur des arcs. @defaultValue la couleur du texte */\n  color?: string\n  /** Libelle annonce aux lecteurs d'ecran. @defaultValue 'Chargement' */\n  label?: string\n}\n\n/** Toutes les proprietes. */\nexport type ArcTrioProps = Customisable<ArcTrioOwnProps, 'span'>\n\n/**\n * Les trois arcs : part du cercle, multiplicateur de duree, opacite.\n *\n * Le long est lent et plein ; le court est vif et leger. L'ordre des\n * vitesses est inverse a celui des longueurs pour que l'oeil suive toujours\n * un arc net et rapide devant une masse plus lente.\n */\nconst ARCS = [\n  { share: 0.3, tempo: 1, opacity: 1 },\n  { share: 0.17, tempo: 0.62, opacity: 0.7 },\n  { share: 0.08, tempo: 0.4, opacity: 0.45 },\n] as const\n\n/**\n * Signale une attente par trois arcs qui se rattrapent sur un meme cercle.\n *\n * @example\n * <ArcTrio />\n *\n * @example\n * // Plus grand, plus lent, dans la teinte de marque.\n * <ArcTrio size={80} thickness={6} speed={2200} color=\"var(--o-palette-brand-500)\" />\n */\nexport function ArcTrio({\n  size = 48,\n  thickness = 4,\n  speed = 1400,\n  color = 'currentColor',\n  label = 'Chargement',\n  ...rest\n}: ArcTrioProps): ReactElement {\n  ensureTrioRule()\n\n  const { className, style } = mergePresentation({}, rest)\n\n  // Le dessin vit dans une vue de 100 unites : l'epaisseur demandee en\n  // pixels est convertie pour que le trait garde sa mesure a toute taille.\n  const stroke = Math.min((thickness / size) * 100, 25)\n  const radius = 50 - stroke / 2\n  const circumference = 2 * Math.PI * radius\n\n  const loaderStyle = {\n    ...style,\n    width: `${String(size)}px`,\n    height: `${String(size)}px`,\n    color,\n  } as CSSProperties\n\n  return (\n    <span\n      {...rest}\n      className={className}\n      style={loaderStyle}\n      data-o-arc-trio=\"\"\n      role=\"status\"\n    >\n      <span className=\"o-sr-only\">{label}</span>\n      <svg aria-hidden viewBox=\"0 0 100 100\" width=\"100%\" height=\"100%\">\n        {ARCS.map((arc, index) => (\n          <g key={index} transform={`rotate(${String(index * 120 - 90)} 50 50)`}>\n            <g\n              data-o-trio-arc=\"\"\n              style={\n                {\n                  '--o-trio-speed': `${String(Math.round(speed * arc.tempo))}ms`,\n                } as CSSProperties\n              }\n            >\n              <circle\n                cx=\"50\"\n                cy=\"50\"\n                r={radius}\n                fill=\"none\"\n                stroke=\"currentColor\"\n                strokeWidth={stroke}\n                strokeLinecap=\"round\"\n                strokeDasharray={`${String(circumference * arc.share)} ${String(circumference)}`}\n                opacity={arc.opacity}\n              />\n            </g>\n          </g>\n        ))}\n      </svg>\n    </span>\n  )\n}\n"
+  }
+}

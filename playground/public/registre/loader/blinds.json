@@ -1,0 +1,120 @@
+{
+  "name": "blinds",
+  "category": "loader",
+  "title": "Stores",
+  "description": "Un rideau en lames horizontales qui basculent de chant l une apres l autre, sous un point de fuite commun.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "loader/Blinds.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-theme-bg",
+    "--o-theme-fg"
+  ],
+  "props": [
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "description": "Le fond des lames."
+    },
+    {
+      "name": "ink",
+      "type": "string",
+      "required": false,
+      "description": "L encre du libelle."
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": false,
+      "description": "Ce qui s affiche au centre pendant l attente."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "required": false,
+      "default": "Chargement",
+      "description": "Ce que les lecteurs d ecran annoncent."
+    },
+    {
+      "name": "slats",
+      "type": "number",
+      "required": false,
+      "default": 10,
+      "description": "Nombre de lames.",
+      "min": 2,
+      "max": 24,
+      "step": 1
+    },
+    {
+      "name": "stagger",
+      "type": "number",
+      "required": false,
+      "default": 55,
+      "unit": "ms",
+      "description": "Decalage entre deux lames.",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "required": false,
+      "default": 1200,
+      "unit": "ms",
+      "description": "Combien de temps le store reste ferme.",
+      "min": 200,
+      "max": 4000,
+      "step": 100
+    },
+    {
+      "name": "exitMs",
+      "type": "number",
+      "required": false,
+      "default": 700,
+      "unit": "ms",
+      "description": "Duree de la bascule d une lame.",
+      "min": 200,
+      "max": 2000,
+      "step": 50
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": false,
+      "description": "Etat controle : le store couvre tant que c est vrai, et s ouvre au premier faux."
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Couvre le parent positionne plutot que la fenetre, et ne verrouille plus le defilement."
+    },
+    {
+      "name": "onDone",
+      "type": "() => void",
+      "required": false,
+      "description": "Appele au debut de la sortie, pour que le contenu entre entre les lames."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Une lame par element, une rotation composee chacune, decalee par un delai CSS. Aucun JavaScript par image."
+  },
+  "id": "loader/blinds",
+  "sources": {
+    "component.tsx": "/**\n * Rideau en stores horizontaux qui basculent sur leur axe.\n *\n * ## Basculer, pas glisser\n *\n * Tous les autres rideaux du registre translatent, percent ou effacent. Celui-ci\n * **pivote** : chaque lame tourne d'un quart de tour autour de son axe median,\n * et disparait en se mettant de chant. C'est le seul geste du lot qui donne une\n * epaisseur a la plaque — on comprend que le rideau etait un objet, pas une\n * couche de couleur.\n *\n * La rotation vit dans une perspective posee sur le conteneur, pas sur chaque\n * lame : une perspective par lame donnerait a chacune son propre point de fuite,\n * et les lames du haut ne s'inclineraient pas dans le meme sens que celles du\n * bas. Un seul point de fuite, donc, et un store qui a l'air d'un store.\n *\n * ## Le decalage fait la lecture\n *\n * Les lames ne partent pas ensemble. Un decalage constant, de haut en bas,\n * transforme dix rotations simultanees — illisibles — en une vague qui descend.\n * C'est ce decalage qui coute : la sortie dure `exitMs` **plus** le decalage\n * total, et le composant en tient compte pour se retirer du DOM.\n *\n * ## Un pixel de recouvrement\n *\n * Chaque lame mesure un pixel de plus que sa part exacte. Sur une hauteur qui\n * ne se divise pas en un compte entier de pixels, des raies de fond\n * apparaitraient entre les lames avant meme le debut du geste.\n *\n * ## La sortie part au DEBUT, pas apres\n *\n * `onDone` est appele quand la premiere lame **commence** a basculer. Le contenu\n * entre entre les lames pendant qu'elles s'ouvrent ; attendre la fin donnerait\n * un store, un temps mort, puis une page.\n *\n * ## Contenu ou plein ecran\n *\n * Par defaut le rideau est `fixed`, couvre la fenetre et verrouille le\n * defilement du document. Avec `contained`, il devient `absolute`, se resout\n * contre le premier ancetre positionne et laisse le defilement tranquille.\n *\n * @module\n */\n\nimport { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'\nimport {\n  useEffect,\n  useRef,\n  useState,\n  type CSSProperties,\n  type ReactElement,\n  type ReactNode,\n} from 'react'\n\n/** Proprietes propres au composant. */\nexport interface BlindsOwnProps {\n  /** Le fond des lames. @defaultValue le fond du theme */\n  background?: string\n  /** L'encre du libelle. @defaultValue l'encre du theme */\n  ink?: string\n  /** Ce qui s'affiche au centre pendant l'attente : un nom, une marque. */\n  label?: ReactNode\n  /**\n   * Ce que les lecteurs d'ecran annoncent. Chaine vide pour n'annoncer que le\n   * libelle.\n   *\n   * @defaultValue 'Chargement'\n   */\n  status?: string\n  /** Nombre de lames. @defaultValue 10 */\n  slats?: number\n  /** Decalage entre deux lames, en millisecondes. @defaultValue 55 */\n  stagger?: number\n  /** Combien de temps le store reste ferme, en millisecondes. @defaultValue 1200 */\n  holdMs?: number\n  /** Duree de la bascule d'une lame, en millisecondes. @defaultValue 700 */\n  exitMs?: number\n  /**\n   * Etat controle : le store couvre tant que c'est `true`, et s'ouvre au\n   * premier `false`. Renseigne, il remplace `holdMs`.\n   */\n  open?: boolean\n  /** Couvre le parent positionne plutot que la fenetre. @defaultValue false */\n  contained?: boolean\n  /** Appele au **debut** de la sortie. Voir l'en-tete du module. */\n  onDone?: () => void\n}\n\n/** Toutes les proprietes. */\nexport type BlindsProps = Customisable<BlindsOwnProps, 'div'>\n\n/** Identifiant de la feuille injectee. */\nconst STYLE_ID = 'o-blinds'\n\n/** Pose les regles du store, une fois par document. */\nfunction ensureBlindsRule(): void {\n  if (typeof document === 'undefined') return\n  if (document.getElementById(STYLE_ID) !== null) return\n\n  const style = document.createElement('style')\n  style.id = STYLE_ID\n  style.textContent = [\n    '[data-o-blind]{',\n    'position:fixed;inset:0;z-index:9999;overflow:hidden;',\n    'color:var(--o-blind-ink);',\n    '}',\n    '[data-o-blind][data-o-blind-contained]{position:absolute}',\n    '[data-o-blind][data-o-blind-out]{pointer-events:none}',\n    // Une seule perspective, sur le rack : un point de fuite commun a toutes\n    // les lames. Voir l'en-tete.\n    '[data-o-blind-rack]{position:absolute;inset:0;perspective:1400px}',\n    '[data-o-blind-slat]{',\n    'position:absolute;left:0;right:0;',\n    'top:calc(var(--o-blind-i) * 100% / var(--o-blind-n));',\n    'height:calc(100% / var(--o-blind-n) + 1px);',\n    'background:var(--o-blind-bg);',\n    'transform-origin:50% 50%;transform:rotateX(0deg);',\n    'transition:transform var(--o-blind-exit) cubic-bezier(0.65,0,0.35,1) var(--o-blind-d),',\n    // De chant, une lame ne fait pourtant pas zero pixel de haut : l'arrondi\n    // du rendu lui laisse une raie. Elle s'efface donc sur le dernier tiers de\n    // sa rotation, quand elle n'est deja plus qu'un trait.\n    'opacity calc(var(--o-blind-exit) * 0.3) linear',\n    'calc(var(--o-blind-d) + var(--o-blind-exit) * 0.7);',\n    '}',\n    '[data-o-blind-out] [data-o-blind-slat]{transform:rotateX(-90deg);opacity:0}',\n    '[data-o-blind-status]{',\n    'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;',\n    'transition:opacity 220ms ease;',\n    '}',\n    '[data-o-blind-out] [data-o-blind-status]{opacity:0}',\n  ].join('')\n  document.head.append(style)\n}\n\n/**\n * Couvre la page d'un store, puis en fait basculer les lames.\n *\n * @example\n * <Blinds label=\"Odoro\" onDone={ouvrir} />\n *\n * @example\n * // Beaucoup de lames fines, une vague rapide.\n * <Blinds slats={18} stagger={30} exitMs={520} onDone={ouvrir} />\n */\nexport function Blinds({\n  background = 'var(--o-theme-bg)',\n  ink = 'var(--o-theme-fg)',\n  label,\n  status = 'Chargement',\n  slats = 10,\n  stagger = 55,\n  holdMs = 1200,\n  exitMs = 700,\n  open,\n  contained = false,\n  onDone,\n  ...rest\n}: BlindsProps): ReactElement | null {\n  const { reduced } = useMotionState()\n  const [sortant, setSortant] = useState(false)\n  const [parti, setParti] = useState(false)\n\n  // Dans une ref : la sortie ne s'annonce qu'une fois, et un rendu de plus ne\n  // doit pas rejouer le rappel.\n  const annonce = useRef(false)\n  const rappel = useRef(onDone)\n  rappel.current = onDone\n\n  ensureBlindsRule()\n\n  const nombre = Math.max(2, Math.round(slats))\n\n  useEffect(() => {\n    const annoncer = (): void => {\n      if (annonce.current) return\n      annonce.current = true\n      rappel.current?.()\n    }\n\n    // Mouvement reduit : la sortie est immediate. Le store n'apportait qu'un\n    // geste, et le geste est ce qu'on nous demande d'omettre.\n    if (reduced) {\n      annoncer()\n      setParti(true)\n      return\n    }\n\n    if (open !== undefined) {\n      if (!open) {\n        setSortant(true)\n        annoncer()\n      }\n      return\n    }\n\n    const minuteur = window.setTimeout(() => {\n      setSortant(true)\n      annoncer()\n    }, holdMs)\n\n    return () => {\n      window.clearTimeout(minuteur)\n    }\n  }, [reduced, open, holdMs])\n\n  // Le retrait du DOM. Un minuteur, et non `transitionend` : dix lames decalees\n  // emettent dix evenements, et le premier arrive quand neuf lames couvrent\n  // encore l'ecran.\n  useEffect(() => {\n    if (!sortant) return\n\n    const minuteur = window.setTimeout(\n      () => {\n        setParti(true)\n      },\n      exitMs + (nombre - 1) * stagger + 40,\n    )\n\n    return () => {\n      window.clearTimeout(minuteur)\n    }\n  }, [sortant, exitMs, nombre, stagger])\n\n  // Le verrou de defilement, seulement quand le store couvre la fenetre.\n  useEffect(() => {\n    if (contained || parti || reduced) return\n\n    // Un verrou COMPTE, et non memorise. Deux rideaux peuvent se chevaucher\n    // — rechargement a chaud, navigation, rendu concurrent — et le second\n    // memoriserait alors la valeur posee par le premier, « hidden », pour la\n    // restaurer en sortant : la page resterait bloquee sans erreur ni trace.\n    const racine = document.documentElement\n    const verrous = Number(racine.dataset['oPorteVerrous'] ?? '0')\n    if (verrous === 0) racine.dataset['oPorteAvant'] = racine.style.overflow\n    racine.dataset['oPorteVerrous'] = String(verrous + 1)\n    racine.style.overflow = 'hidden'\n\n    let rendu = false\n    const rendreLaMain = (): void => {\n      if (rendu) return\n      rendu = true\n      const reste = Number(racine.dataset['oPorteVerrous'] ?? '1') - 1\n      if (reste > 0) {\n        racine.dataset['oPorteVerrous'] = String(reste)\n        return\n      }\n      racine.style.overflow = racine.dataset['oPorteAvant'] ?? ''\n      delete racine.dataset['oPorteVerrous']\n      delete racine.dataset['oPorteAvant']\n    }\n\n    // Le garde-fou. Plus long que le plafond de n importe quel rideau, donc\n    // invisible en marche normale : il n existe que pour qu un retard ne\n    // puisse jamais laisser la page sans defilement.\n    const secours = window.setTimeout(rendreLaMain, 8000)\n\n    return () => {\n      window.clearTimeout(secours)\n      rendreLaMain()\n    }\n  }, [contained, parti, reduced])\n\n  if (parti) return null\n\n  const { className, style } = mergePresentation({}, rest)\n\n  const styleStore = {\n    ...style,\n    '--o-blind-bg': background,\n    '--o-blind-ink': ink,\n    '--o-blind-exit': `${String(exitMs)}ms`,\n    '--o-blind-n': String(nombre),\n  } as CSSProperties\n\n  return (\n    <div\n      {...rest}\n      className={className}\n      style={styleStore}\n      data-o-blind=\"\"\n      {...(sortant ? { 'data-o-blind-out': '' } : {})}\n      {...(contained ? { 'data-o-blind-contained': '' } : {})}\n    >\n      {/* Les lames sont du decor : elles ne doivent pas etre lues. */}\n      <div data-o-blind-rack=\"\" aria-hidden=\"true\">\n        {Array.from({ length: nombre }, (_, index) => (\n          <div\n            key={index}\n            data-o-blind-slat=\"\"\n            style={\n              {\n                '--o-blind-i': String(index),\n                '--o-blind-d': `${String(index * stagger)}ms`,\n              } as CSSProperties\n            }\n          />\n        ))}\n      </div>\n\n      <div data-o-blind-status=\"\" role=\"status\">\n        {status.length > 0 && <span className=\"o-sr-only\">{status}</span>}\n        {label}\n      </div>\n    </div>\n  )\n}\n"
+  }
+}

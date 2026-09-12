@@ -1,0 +1,77 @@
+{
+  "name": "duotone",
+  "category": "image",
+  "title": "Bichromie",
+  "description": "L image rendue en deux tons par calques superposes, qui revient en couleurs au survol comme au focus.",
+  "engine": {
+    "gsap": [],
+    "gl": false
+  },
+  "files": [
+    {
+      "path": "component.tsx",
+      "target": "image/Duotone.tsx"
+    }
+  ],
+  "dependencies": [],
+  "registryDependencies": [],
+  "tokens": [
+    "--o-palette-indigo-950",
+    "--o-palette-amber-200",
+    "--o-duration-slow",
+    "--o-ease-standard"
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "required": true,
+      "description": "Source de l image."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "required": true,
+      "description": "Texte de remplacement. Chaine vide si l image est decorative."
+    },
+    {
+      "name": "ratio",
+      "type": "number",
+      "default": 1.777,
+      "description": "Rapport largeur sur hauteur.",
+      "min": 0.5,
+      "max": 2.5,
+      "step": 0.05
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 1,
+      "description": "Force de la bichromie, de 0 a 1.",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "name": "hover",
+      "type": "boolean",
+      "default": true,
+      "description": "Revenir en couleurs au survol et au focus."
+    },
+    {
+      "name": "shadow",
+      "type": "string",
+      "description": "Ton des ombres. Une valeur, pas une couleur en dur."
+    },
+    {
+      "name": "light",
+      "type": "string",
+      "description": "Ton des lumieres. Une valeur, pas une couleur en dur."
+    }
+  ],
+  "perf": {
+    "tier": "light",
+    "backend": false,
+    "notes": "Un filtre et deux calques pleins composes par le navigateur, sans traitement d image. Le retour en couleurs est une transition de filter et d opacity ; instantane sous mouvement reduit."
+  }
+}
