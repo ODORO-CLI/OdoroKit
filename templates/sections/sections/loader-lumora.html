@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Lumora Intro Counter</title>
+<!--
+  GetLayers · Section — Lumora Intro Counter (role: loader)
+
+  An inverted full-screen slab holds the page shut while a hairline meter fills and a
+  three-digit counter climbs 000 → 100 over exactly 1300ms on ease-in-out-cubic. The
+  slab then springs up off the top edge; the moment that spring COMES TO REST it flips
+  the intro gate, and the first screen plays its entrance on a fixed delay ladder.
+
+  Ported verbatim from src/components/common/page-loader.tsx + src/hooks/ui-store.ts
+  (the `useIntro` gate) + src/views/home/{header,hero,hero-card,partners}.tsx. The
+  production build is @react-spring/web + spring-text-engine over a Lenis clock; the
+  springs below are the SAME integrator react-spring uses (1ms substeps, tension*1e-6,
+  friction*1e-3, mass 1), so the tension/friction pairs are the real ones, not fitted
+  beziers. Line reveals are duration tweens because that is what the source uses too
+  (lineConfig: { duration: 900, easing: easeOutCubic }).
+
+  Self-contained: no external assets. The hero's full-bleed liquid-reveal photograph is
+  substituted with a token-tinted gradient plate — it is the SUBJECT of the reveal, not
+  part of the loader mechanic, so nothing timing-related is lost.
+
+  Skin surface is the --gl-* token block below and nothing else.
+-->
+<style>
+:root{
+  /* ── skin: the only surface you retint ─────────────────────────────────── */
+  --gl-bg:            #ffffff;
+  --gl-ink:           #0a0a0a;
+  --gl-ink-muted:     #8d8d8d;
+  --gl-accent:        #cf8047;
+  --gl-line:          #e6e5e2;
+
+  --gl-font-display:  "Onest", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --gl-font-body:     "Onest", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --gl-tracking-display: -0.02em;
+  --gl-weight-display: 600;
+  --gl-weight-body:    500;
+
+  --gl-radius:        0.875rem;
+  --gl-radius-lg:     2rem;
+
+  --gl-duration:      300ms;
+  --gl-ease:          cubic-bezier(.33,1,.68,1);   /* easeOutCubic — the house curve */
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--gl-bg);color:var(--gl-ink);
+  font-family:var(--gl-font-body);font-weight:var(--gl-weight-body);
+  -webkit-font-smoothing:antialiased;overflow:hidden;
+}
+ul{list-style:none}
+
+/* ============================================================================
+   THE LOADER SLAB — fixed, above everything, inverted against the page.
+   `translateY` is driven by a spring in JS; nothing here transitions.
+============================================================================ */
+#loader{
+  position:fixed;inset:0;z-index:120;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;
+  background:var(--gl-ink);color:var(--gl-bg);
+  border-bottom-left-radius:var(--gl-radius-lg);border-bottom-right-radius:var(--gl-radius-lg);
+  will-change:transform;
+}
+#loader[hidden]{display:none}
+
+#loader-content{
+  display:flex;flex-direction:column;align-items:center;gap:1.25rem;
+  padding:0 1.5rem;text-align:center;will-change:transform,opacity;
+}
+.pl-brand{
+  display:flex;align-items:center;gap:.625rem;
+  font-family:var(--gl-font-display);font-weight:var(--gl-weight-display);
+  font-size:clamp(1.5rem,3.4vw,1.875rem);letter-spacing:var(--gl-tracking-display);
+}
+.pl-brand .mark{color:var(--gl-accent);font-size:1.25em;line-height:1}
+.pl-tag{max-width:24ch;font-size:.875rem;color:color-mix(in srgb,var(--gl-bg) 55%,transparent)}
+
+.pl-meter{display:flex;flex-direction:column;gap:.75rem;width:min(22rem,72vw)}
+.pl-track{height:1px;width:100%;overflow:hidden;background:color-mix(in srgb,var(--gl-bg) 15%,transparent)}
+/* the fill is the ONE place a CSS transition is correct: the counter updates in
+   integer steps, and 100ms/ease-out smooths the staircase without changing pacing. */
+.pl-fill{height:100%;width:0%;background:var(--gl-accent);transition:width 100ms ease-out}
+.pl-read{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.05em;
+  color:color-mix(in srgb,var(--gl-bg) 45%,transparent);
+}
+.pl-read .num{font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--gl-bg) 80%,transparent)}
+
+/* ============================================================================
+   THE PLACEHOLDER FIRST SCREEN — everything below is here to DEMONSTRATE the
+   handoff. Each `.gate` element starts at its `from` state and is animated by
+   the delay ladder once the gate opens. Nothing here reveals on its own.
+============================================================================ */
+.stage{position:relative;height:100%;overflow:hidden;border-bottom-left-radius:var(--gl-radius-lg);border-bottom-right-radius:var(--gl-radius-lg)}
+/* every gated element starts invisible — the gate is the only thing that reveals it */
+.gate{opacity:0;will-change:transform,opacity}
+.plate{
+  position:absolute;inset:0;z-index:0;
+  background:
+    radial-gradient(120% 90% at 68% 22%, color-mix(in srgb,var(--gl-accent) 26%,transparent) 0%, transparent 58%),
+    linear-gradient(160deg, color-mix(in srgb,var(--gl-ink) 8%,var(--gl-bg)) 0%, color-mix(in srgb,var(--gl-ink) 26%,var(--gl-bg)) 100%);
+}
+.plate::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,color-mix(in srgb,var(--gl-bg) 35%,transparent),transparent 30%,transparent 70%,color-mix(in srgb,var(--gl-bg) 35%,transparent));
+}
+.watermark{
+  pointer-events:none;position:absolute;inset-inline:0;bottom:12%;z-index:1;
+  text-align:center;user-select:none;
+  font-family:var(--gl-font-display);font-weight:700;line-height:1;
+  font-size:clamp(4rem,17vw,13rem);color:var(--gl-bg);
+}
+
+.shell{width:100%;max-width:88rem;margin:0 auto;padding-inline:clamp(1.25rem,3vw,2rem)}
+
+.topbar{position:absolute;inset-inline:0;top:0;z-index:30}
+.topbar .row{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding-block:1.25rem}
+.brand{display:flex;align-items:center;gap:.5rem;font-family:var(--gl-font-display);
+  font-weight:var(--gl-weight-display);font-size:1.125rem;letter-spacing:var(--gl-tracking-display)}
+.brand .mark{color:var(--gl-accent)}
+.topbar nav ul{display:none;gap:2rem;font-size:.875rem}
+@media (min-width:1024px){.topbar nav ul{display:flex}}
+.topbar nav li{opacity:.8}
+.chip{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--gl-line);
+  border-radius:var(--gl-radius);padding:.5rem 1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+
+.grid{position:relative;z-index:20;display:flex;flex-direction:column;gap:2rem;
+  padding-block:clamp(6rem,14vh,9rem) 0;min-height:100%}
+@media (min-width:1024px){.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2.5rem;align-items:center}}
+.col-left{display:flex;flex-direction:column;gap:1.75rem;justify-content:center}
+@media (min-width:1024px){.col-left{grid-column:span 7}}
+.col-right{display:flex;flex-direction:column;gap:2rem;align-items:flex-start}
+@media (min-width:1024px){.col-right{grid-column:span 5;align-items:flex-end}}
+
+.eyebrow{display:inline-flex;align-items:center;gap:.6rem;font-size:.8125rem;width:fit-content}
+.eyebrow .dot{width:.4rem;height:.4rem;border-radius:999px;background:var(--gl-accent)}
+h1{max-width:18ch;font-family:var(--gl-font-display);font-weight:var(--gl-weight-display);
+  font-size:clamp(2.25rem,5.2vw,3.9rem);line-height:.98;letter-spacing:var(--gl-tracking-display)}
+/* one mask per LINE — the line rides up from behind its own clip */
+.line{display:block;overflow:hidden}
+.line > span{display:block;will-change:transform,opacity}
+
+.meta{display:flex;align-items:center;gap:.75rem;font-size:.875rem}
+.meta .stars{display:flex;gap:.1rem;color:var(--gl-accent)}
+.ctas{display:flex;flex-wrap:wrap;gap:.75rem}
+.pill{display:inline-flex;align-items:center;gap:.6rem;border-radius:999px;padding:.85rem 1.5rem;
+  font-size:.9rem;line-height:1}
+.pill.solid{background:var(--gl-ink);color:var(--gl-bg)}
+.pill.outline{box-shadow:inset 0 0 0 1px var(--gl-line)}
+
+.card{width:min(19rem,100%);border-radius:var(--gl-radius);padding:.5rem;
+  background:color-mix(in srgb,var(--gl-bg) 70%,transparent);
+  outline:1px solid color-mix(in srgb,var(--gl-line) 70%,transparent);backdrop-filter:blur(10px)}
+.card .in{display:flex;gap:.5rem;align-items:stretch}
+.card .tile{display:grid;place-items:center;aspect-ratio:1;width:6rem;flex:0 0 auto;
+  border-radius:var(--gl-radius);background:var(--gl-ink);color:var(--gl-accent);font-size:1.75rem}
+.card .body{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:.75rem;
+  border-radius:var(--gl-radius);padding:.75rem;background:color-mix(in srgb,var(--gl-ink) 6%,transparent)}
+.card .cap{font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;opacity:.45}
+.card .ttl{font-size:.9rem;line-height:1.25}
+.card .dots{display:flex;gap:.25rem}
+.card .dots i{height:.25rem;width:.375rem;border-radius:999px;background:color-mix(in srgb,var(--gl-ink) 20%,transparent)}
+.card .dots i:first-child{width:1rem;background:color-mix(in srgb,var(--gl-ink) 70%,transparent)}
+
+.partners{width:min(19rem,100%)}
+.partners p{margin-bottom:.75rem;font-size:.75rem;opacity:.45;text-align:right}
+.partners ul{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem 1rem;font-size:.75rem;opacity:.7}
+
+.rail{position:absolute;inset-inline:0;bottom:0;z-index:20}
+.rail .row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  border-top:1px solid color-mix(in srgb,var(--gl-ink) 10%,transparent);
+  padding-block:1.25rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+.rail .mid{display:none}
+@media (min-width:640px){.rail .mid{display:inline}}
+
+/* replay affordance — not part of the section, just lets you watch it again */
+#replay{position:fixed;right:1rem;bottom:1rem;z-index:200;border:1px solid var(--gl-line);
+  border-radius:999px;background:var(--gl-bg);color:var(--gl-ink);cursor:pointer;
+  padding:.55rem 1.1rem;font:inherit;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
+  opacity:0;transition:opacity var(--gl-duration) var(--gl-ease)}
+#replay.on{opacity:.75}
+#replay:hover{opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  #loader{display:none!important}
+  .gate{opacity:1!important;transform:none!important}
+}
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- ── the loader slab ─────────────────────────────────────────────────────── -->
+<div id="loader" aria-hidden="true">
+  <div id="loader-content">
+    <span class="pl-brand"><span class="mark">✦</span><span id="pl-brand-word">Lumora</span></span>
+    <p class="pl-tag" id="pl-tagline">Bold ideas, shipped with quiet precision.</p>
+  </div>
+  <div class="pl-meter">
+    <div class="pl-track"><div class="pl-fill" id="pl-fill"></div></div>
+    <div class="pl-read">
+      <span id="pl-label">Loading</span>
+      <span class="num" id="pl-num">000</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── the first screen the loader hands off to (placeholder) ──────────────── -->
+<section class="stage" aria-label="Placeholder first screen">
+  <div class="plate" aria-hidden="true"></div>
+  <span class="watermark gate" data-gate="watermark" aria-hidden="true">LUMORA</span>
+
+  <header class="topbar gate" data-gate="header">
+    <div class="shell row">
+      <span class="brand"><span class="mark">✦</span>Lumora</span>
+      <nav aria-label="Primary"><ul><li>Home</li><li>Work</li><li>Services</li><li>Studio</li><li>Contact</li></ul></nav>
+      <span class="chip">Menu</span>
+    </div>
+  </header>
+
+  <div class="shell grid">
+    <div class="col-left">
+      <span class="eyebrow gate" data-gate="eyebrow"><span class="dot"></span>Independent Studio</span>
+
+      <h1 id="headline" data-lines="Bold ideas, shipped|with quiet precision"></h1>
+
+      <div class="meta gate" data-gate="meta">
+        <span class="stars" aria-hidden="true">★★★★★</span>
+        <span>200+ brands shipped</span>
+      </div>
+
+      <div class="ctas gate" data-gate="ctas">
+        <span class="pill solid">Let's Talk</span>
+        <span class="pill outline">View Work</span>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="card gate" data-gate="card">
+        <div class="in">
+          <div class="tile">✦</div>
+          <div class="body">
+            <div>
+              <span class="cap">Conversion design</span>
+              <p class="ttl">Crafted to convert.</p>
+            </div>
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="partners gate" data-gate="partners">
+        <p>Trusted by</p>
+        <ul><li>Kaido</li><li>Northpeak</li><li>Vellum</li><li>Orbit</li><li>Brightline</li><li>Cobalt</li><li>Mesa</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail gate" data-gate="rail">
+    <div class="shell row">
+      <span>Working since 2014</span>
+      <span class="mid">Remote-first, worldwide</span>
+      <span>Scroll to explore ↓</span>
+    </div>
+  </div>
+</section>
+
+<button id="replay" type="button">Replay intro</button>
+
+<script type="module">
+/* ============================================================================
+   CONFIG — every tunable number. These ARE the asset; the values below are the
+   production ones, lifted 1:1 from page-loader.tsx and the hero/header leaves.
+============================================================================ */
+const CONFIG = {
+  /* the counter */
+  fillMs: 1300,                 // FILL_MS — total time 000 → 100
+  fillEasing: 'easeInOutCubic', // NOT linear: hesitates at both ends, races the middle
+
+  /* the exit — real springs, mass 1 */
+  slabSpring:    { tension: 220, friction: 30 },  // the slab leaving upward, 0% → -100%
+  contentSpring: { tension: 260, friction: 26 },  // the inner block leaving 12px ahead of it
+  contentDriftPx: -12,
+
+  /* the entrance ladder — every delay is measured from the slab spring's REST,
+     i.e. from the instant the gate opens, not from the counter hitting 100 */
+  reveal: {
+    header:    { delay: 150, y: -14, spring: { tension: 210, friction: 26 } },
+    eyebrow:   { delay: 200, y:  10, spring: null },  // null → react-spring default 170/26
+    headline:  { delay: 250, lineStagger: 120, lineDuration: 900, lineEasing: 'easeOutCubic' },
+    watermark: { delay: 300, y:  20, spring: { tension: 120, friction: 30 }, toOpacity: 0.4 },
+    card:      { delay: 400, y:  16, scaleFrom: 0.96, spring: { tension: 200, friction: 24 } },
+    partners:  { delay: 550, y:  14, spring: { tension: 200, friction: 24 } },
+    meta:      { delay: 650, y:  10, spring: null },
+    ctas:      { delay: 750, y:  12, spring: null },
+    rail:      { delay: 900, y:   0, spring: null },  // opacity only
+  },
+}
+
+/* ============================================================================
+   SPRING — react-spring's own integrator, not an approximation. 1ms substeps;
+   tension is scaled by 1e-6 and friction by 1e-3 because velocity is per-ms.
+   Rest is declared when both velocity and remaining distance fall under the
+   precision floor — which is why `onRest` fires later than "the counter is done"
+   and is the correct thing to hang the gate on.
+============================================================================ */
+function springTo({ from, to, tension, friction, mass = 1, onFrame, onRest }) {
+  let position = from
+  let velocity = 0
+  const precision = from === to ? 0.005 : Math.min(1, Math.abs(to - from) * 0.001)
+  let last = null
+
+  const advance = (now) => {
+    if (last === null) last = now
+    const dt = Math.min(now - last, 64) // clamp a backgrounded tab
+    last = now
+    const steps = Math.max(1, Math.ceil(dt))
+    for (let n = 0; n < steps; n += 1) {
+      const springForce  = -tension  * 0.000001 * (position - to)
+      const dampingForce = -friction * 0.001    * velocity
+      velocity += ((springForce + dampingForce) / mass) * 1
+      position += velocity * 1
+    }
+    onFrame(position)
+    if (Math.abs(velocity) > precision || Math.abs(to - position) > precision) {
+      requestAnimationFrame(advance)
+    } else {
+      onFrame(to)
+      onRest && onRest()
+    }
+  }
+  requestAnimationFrame(advance)
+}
+
+/* @react-spring/web `easings` — the two curves this section uses. */
+const easings = {
+  easeInOutCubic: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  easeOutCubic:   (t) => 1 - Math.pow(1 - t, 3),
+}
+
+/* ============================================================================
+   HEADLINE — one mask per LINE. The source uses spring-text-engine with
+   `overflow`, lineOut { y:"100%", opacity:0 } → lineIn { y:"0%", opacity:1 };
+   the lines are pre-authored (data-lines, pipe-separated) rather than measured,
+   so the break points are a compositional choice, not a wrapping accident.
+============================================================================ */
+const headline = document.getElementById('headline')
+const lines = headline.dataset.lines.split('|')
+headline.setAttribute('aria-label', lines.join(' '))
+const lineInners = lines.map((text) => {
+  const mask = document.createElement('span')
+  mask.className = 'line'
+  const inner = document.createElement('span')
+  inner.textContent = text
+  inner.style.transform = 'translateY(100%)'
+  inner.style.opacity = '0'
+  mask.appendChild(inner)
+  headline.appendChild(mask)
+  return inner
+})
+
+/* ============================================================================
+   GATE — a single boolean. Everything above the fold sits in its `from` state
+   until it flips; nothing downstream observes the counter at all.
+============================================================================ */
+const gates = new Map()
+document.querySelectorAll('.gate').forEach((el) => gates.set(el.dataset.gate, el))
+
+function primeGates() {
+  for (const [name, el] of gates) {
+    const spec = CONFIG.reveal[name]
+    el.style.opacity = '0'
+    const y = spec && spec.y ? spec.y : 0
+    const s = spec && spec.scaleFrom ? ` scale(${spec.scaleFrom})` : ''
+    el.style.transform = `translateY(${y}px)${s}`
+  }
+  lineInners.forEach((inner) => {
+    inner.style.transform = 'translateY(100%)'
+    inner.style.opacity = '0'
+  })
+}
+
+function revealGate(name) {
+  const el = gates.get(name)
+  const spec = CONFIG.reveal[name]
+  const cfg = spec.spring || { tension: 170, friction: 26 } // react-spring's default
+  const toOpacity = spec.toOpacity ?? 1
+  const fromY = spec.y || 0
+  const fromScale = spec.scaleFrom ?? 1
+  setTimeout(() => {
+    springTo({
+      from: 0, to: 1, tension: cfg.tension, friction: cfg.friction,
+      onFrame: (t) => {
+        el.style.opacity = String(t * toOpacity)
+        const y = fromY * (1 - t)
+        const scale = fromScale + (1 - fromScale) * t
+        el.style.transform = `translateY(${y}px)${spec.scaleFrom ? ` scale(${scale})` : ''}`
+      },
+    })
+  }, spec.delay)
+}
+
+function revealHeadline() {
+  const { delay, lineStagger, lineDuration, lineEasing } = CONFIG.reveal.headline
+  lineInners.forEach((inner, i) => {
+    setTimeout(() => {
+      const t0 = performance.now()
+      const ease = easings[lineEasing]
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / lineDuration)
+        const e = ease(p)
+        inner.style.transform = `translateY(${(1 - e) * 100}%)`
+        inner.style.opacity = String(e)
+        if (p < 1) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    }, delay + i * lineStagger)
+  })
+}
+
+function openGate() {
+  revealGate('header')
+  revealGate('eyebrow')
+  revealHeadline()
+  revealGate('watermark')
+  revealGate('card')
+  revealGate('partners')
+  revealGate('meta')
+  revealGate('ctas')
+  revealGate('rail')
+  document.getElementById('replay').classList.add('on')
+  // In the template this is also where scroll is released: useScroll().start().
+  document.body.style.overflow = 'auto'
+}
+
+/* ============================================================================
+   THE LOADER ITSELF — count, then exit, then open the gate on REST.
+============================================================================ */
+const loader = document.getElementById('loader')
+const fill = document.getElementById('pl-fill')
+const num = document.getElementById('pl-num')
+const content = document.getElementById('loader-content')
+
+function runLoader() {
+  primeGates()
+  document.body.style.overflow = 'hidden'   // scroll is locked for the whole intro
+  document.getElementById('replay').classList.remove('on')
+  loader.hidden = false
+  loader.style.transform = 'translateY(0%)'
+  content.style.opacity = '1'
+  content.style.transform = 'translateY(0px)'
+  fill.style.width = '0%'
+  num.textContent = '000'
+
+  const startedAt = performance.now()
+  const ease = easings[CONFIG.fillEasing]
+
+  const step = (now) => {
+    const t = Math.min((now - startedAt) / CONFIG.fillMs, 1)
+    const progress = Math.round(ease(t) * 100)
+    fill.style.width = `${progress}%`
+    num.textContent = String(progress).padStart(3, '0')
+    if (t < 1) {
+      requestAnimationFrame(step)
+      return
+    }
+    exitLoader()
+  }
+  requestAnimationFrame(step)
+}
+
+function exitLoader() {
+  // The inner block leaves first and slightly faster — the slab is still on
+  // screen while its contents are already gone, which is what keeps the exit
+  // from reading as one flat card sliding away.
+  springTo({
+    from: 0, to: 1,
+    tension: CONFIG.contentSpring.tension, friction: CONFIG.contentSpring.friction,
+    onFrame: (t) => {
+      content.style.opacity = String(1 - t)
+      content.style.transform = `translateY(${CONFIG.contentDriftPx * t}px)`
+    },
+  })
+
+  springTo({
+    from: 0, to: -100,
+    tension: CONFIG.slabSpring.tension, friction: CONFIG.slabSpring.friction,
+    onFrame: (y) => { loader.style.transform = `translateY(${y}%)` },
+    // THE GATE. Not the counter reaching 100 — the slab spring coming to rest.
+    onRest: () => {
+      loader.hidden = true   // the source unmounts the component here
+      openGate()
+    },
+  })
+}
+
+document.getElementById('replay').addEventListener('click', runLoader)
+
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  loader.hidden = true
+  document.getElementById('replay').classList.add('on')
+  document.body.style.overflow = 'auto'
+} else {
+  runLoader()
+}
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

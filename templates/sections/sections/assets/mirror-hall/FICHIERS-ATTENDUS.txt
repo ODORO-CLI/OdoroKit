@@ -1,0 +1,8 @@
+amber-flux.webp
+copper-vein.webp
+gilded-smoke.webp
+ink-bloom.webp
+molten-drift.webp
+silver-storm.webp
+solar-tide.webp
+tide-pool.webp

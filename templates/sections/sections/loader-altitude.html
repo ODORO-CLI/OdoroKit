@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Altitude Loader</title>
+<!--
+  GetLayers · Section — Altitude Loader (role: loader)
+
+  A full-screen ground with comets drifting down-left behind a hairline progress ring and a
+  counting figure. The figure springs to 90 on trust, waits for the window `load` event (with a
+  1300ms minimum-visible floor), then snaps to 100 — and AT 100 the ground opens like an aperture:
+  a soft-edged radial hole grows from the centre past the corners. The gate flips as the aperture
+  STARTS to open, so the page underneath is already animating in through the opening.
+
+  Extracted from the `altitude` template:
+    · src/components/common/preloader/preloader.tsx   — the count, the gate, the aperture mask
+    · src/components/common/preloader/comet-field.ts  — the ambient 2D canvas field
+    · src/hooks/intro/use-intro.ts                    — the zustand gate the whole page waits on
+    · src/views/home/hero/*.tsx                       — the entrance stagger demonstrated below
+
+  Every duration, spring config, stagger and gate condition below is VERBATIM from that source.
+  The spring integrator is @react-spring/core's SpringValue.advance reproduced exactly (1ms
+  sub-steps, react-spring's own precision / restVelocity defaults), so `{tension, friction, mass}`
+  literals behave identically outside React. `spring-text-engine`'s markup and its
+  `delay = delayIn + index * stagger` formula are reproduced the same way.
+
+  Self-contained. Two substitutions, both called out where they happen:
+    · the template's 17.5MB starry-night hero video is stood in for by a CSS night-sky gradient
+    · the WebGL2 cursor-fluid vortex that warps that video is NOT part of the loader and is omitted
+
+  Re-skin entirely through the --gl-* tokens in :root. Retime nothing.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gilda+Display&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================================
+   SKIN — the whole re-skin surface. Canonical GetLayers tokens only.
+   Nothing below this block contains a literal colour.
+   =========================================================================== */
+:root {
+  --gl-bg: #04305c;               /* the loader ground, and the page ground behind the media */
+  --gl-surface: #000000;          /* the translucent glass rails, used with alpha */
+  --gl-ink: #ffffff;              /* the counter figure, the display line, everything on media */
+  --gl-ink-muted: #c9dcf0;        /* the % unit, the ring, the labels */
+  --gl-line: #ffffff;             /* hairlines and column rules, used with alpha */
+  --gl-glow: #ffffff;             /* the comet streaks — read at runtime by the canvas field */
+  --gl-font-display: 'Gilda Display', Georgia, 'Times New Roman', serif;
+  --gl-font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --gl-tracking-display: 0.02em;
+  --gl-radius: 29px;              /* the action pill */
+  --gl-radius-lg: 70px;           /* the enquiry capsule */
+  --gl-duration-fast: 150ms;      /* discrete hover/focus colour only — never a reveal */
+  --gl-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--gl-bg);
+  color: var(--gl-ink);
+  font-family: var(--gl-font-body);
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   THE LOADER OVERLAY.
+   The exit is a MASK, not a fade — the overlay's opacity never changes from
+   first paint to unmount. See `aperture()` in the script.
+   --------------------------------------------------------------------------- */
+.preloader {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--gl-bg);
+}
+.preloader canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.preloader-ring {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 300px; height: 300px;
+}
+@media (min-width: 640px) { .preloader-ring { width: 340px; height: 340px; } }
+.preloader-ring svg {
+  position: absolute; width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  color: color-mix(in oklab, var(--gl-ink-muted) 70%, transparent);
+}
+.preloader-count {
+  margin: 0;
+  font-family: var(--gl-font-display);
+  font-size: 44px; line-height: 1.1;
+  letter-spacing: var(--gl-tracking-display);
+  color: var(--gl-ink);
+}
+.preloader-count .pc-unit { color: color-mix(in oklab, var(--gl-ink-muted) 60%, transparent); }
+
+/* ---------------------------------------------------------------------------
+   THE PAGE UNDERNEATH — a stand-in for the template's hero, here only to show
+   the handoff. Every entrance value on it is the real one.
+   --------------------------------------------------------------------------- */
+.page { position: fixed; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+/* STAND-IN: the template's full-bleed starry-night video (17.5MB) is replaced
+   by a static gradient so this file stays small. Nothing about the loader
+   depends on it. */
+.sky {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 80% at 78% 8%, color-mix(in oklab, var(--gl-ink) 16%, transparent) 0%, transparent 45%),
+    radial-gradient(90% 70% at 20% 96%, color-mix(in oklab, var(--gl-bg) 40%, black) 0%, transparent 60%),
+    linear-gradient(to bottom, color-mix(in oklab, var(--gl-bg) 70%, black) 0%, var(--gl-bg) 55%, color-mix(in oklab, var(--gl-bg) 55%, black) 100%);
+}
+.scrim { position: absolute; inset: 0; background: color-mix(in oklab, var(--gl-surface) 30%, transparent); }
+
+.mast {
+  position: relative; z-index: 20; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px; padding: 0 30px;
+  border-bottom: 1px solid color-mix(in oklab, var(--gl-line) 20%, transparent);
+}
+.mast nav ul { display: flex; align-items: center; gap: 40px; margin: 0; padding: 0; list-style: none; }
+.mast a {
+  font-size: 16px; line-height: 1.3; color: var(--gl-ink); text-decoration: none;
+  transition: color var(--gl-duration-fast) var(--gl-ease);
+}
+.mast a:hover { color: color-mix(in oklab, var(--gl-ink) 60%, transparent); }
+.mast .brand {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-family: var(--gl-font-display); font-size: 18px; line-height: 1.1;
+  letter-spacing: var(--gl-tracking-display); text-transform: uppercase;
+}
+
+/* The two column rules. Inset equally from each edge so they stay symmetric at
+   any width; hidden below the large breakpoint, where 260px is most of the screen. */
+.rule {
+  position: absolute; top: 60px; bottom: 0; z-index: 30;
+  width: 1px; transform-origin: top;
+  background: color-mix(in oklab, var(--gl-line) 20%, transparent);
+  display: none;
+}
+.rule-start { left: 260px; }
+.rule-end   { right: 260px; }
+@media (min-width: 1024px) { .rule { display: block; } }
+
+.band {
+  position: relative; z-index: 10; flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 32px; padding: 48px 30px;
+}
+
+.display {
+  display: flex; flex-direction: column; align-items: center;
+  width: 707px; max-width: 100%; margin: 0;
+  font-family: var(--gl-font-display);
+  font-size: 28px; line-height: 1.1;
+  letter-spacing: var(--gl-tracking-display);
+  text-align: center; color: var(--gl-ink);
+}
+@media (min-width: 1024px) { .display { font-size: 64px; } }
+
+/* The enquiry capsule. */
+.capsule-wrap { display: flex; width: 100%; justify-content: center; }
+.capsule {
+  display: flex; flex-direction: column; gap: 12px;
+  width: 553px; max-width: 100%; padding: 12px;
+  border: 1px solid color-mix(in oklab, var(--gl-line) 30%, transparent);
+  border-radius: var(--gl-radius);
+  background: color-mix(in oklab, var(--gl-surface) 20%, transparent);
+  box-shadow: inset 0 -4px 12px color-mix(in oklab, var(--gl-ink) 20%, transparent);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  transition: border-color var(--gl-duration-fast) var(--gl-ease);
+}
+.capsule:focus-within { border-color: color-mix(in oklab, var(--gl-line) 60%, transparent); }
+@media (min-width: 640px) {
+  .capsule {
+    flex-direction: row; align-items: center; gap: 34px;
+    height: 54px; padding: 3px 3px 3px 34px;
+    border-radius: var(--gl-radius-lg);
+  }
+}
+.capsule input {
+  width: 100%; border: 0; background: transparent;
+  font: inherit; font-size: 16px; line-height: 1.3; color: var(--gl-ink);
+}
+.capsule input::placeholder { color: var(--gl-ink); }
+.capsule input:focus { outline: none; }
+.capsule input:focus::placeholder { color: color-mix(in oklab, var(--gl-ink) 50%, transparent); }
+@media (min-width: 640px) { .capsule .field { width: 150px; } }
+.capsule button {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  flex-shrink: 0; height: 48px; padding: 0 48px;
+  border: 1px solid color-mix(in oklab, var(--gl-line) 80%, transparent);
+  border-radius: var(--gl-radius);
+  background: linear-gradient(104.458deg,
+    color-mix(in oklab, var(--gl-ink-muted) 55%, var(--gl-ink)) 10.028%,
+    var(--gl-ink-muted) 100%);
+  font-family: var(--gl-font-display); font-size: 18px; line-height: 1;
+  color: var(--gl-bg); cursor: pointer;
+  transition: opacity var(--gl-duration-fast) var(--gl-ease);
+}
+.capsule button:hover { opacity: .85; }
+.capsule button i { width: 4px; height: 4px; border-radius: 50%; background: var(--gl-bg); }
+
+/* The base stat rail. */
+.stats {
+  position: relative; z-index: 10; flex-shrink: 0;
+  display: grid; grid-template-columns: 1fr 1fr; align-items: start;
+  gap: 32px; padding: 30px;
+  border-top: 1px solid color-mix(in oklab, var(--gl-line) 20%, transparent);
+  background: color-mix(in oklab, var(--gl-surface) 40%, transparent);
+  backdrop-filter: blur(23.1px); -webkit-backdrop-filter: blur(23.1px);
+}
+@media (min-width: 1024px) { .stats { grid-template-columns: 1fr auto 1fr; } }
+.stats .pitch {
+  order: -1; grid-column: span 2;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  text-align: center;
+}
+@media (min-width: 1024px) { .stats .pitch { order: 0; grid-column: span 1; width: 524px; } }
+.stats .pitch h2 {
+  margin: 0; font-family: var(--gl-font-display); font-size: 24px; line-height: 1.1;
+  letter-spacing: var(--gl-tracking-display); font-weight: 400;
+}
+.stats .pitch .dot {
+  width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+  background: color-mix(in oklab, var(--gl-line) 20%, transparent);
+}
+.stats .pitch .body { font-size: 16px; line-height: 1.3; color: color-mix(in oklab, var(--gl-ink-muted) 85%, transparent); }
+.stats dl { display: flex; flex-direction: column-reverse; gap: 8px; margin: 0; }
+.stats dt { font-size: 16px; line-height: 1.3; white-space: nowrap; color: color-mix(in oklab, var(--gl-ink-muted) 85%, transparent); }
+.stats dd { margin: 0; font-family: var(--gl-font-display); font-size: 24px; line-height: 1.1; text-transform: uppercase; }
+.stats .end { justify-self: end; align-items: flex-end; text-align: right; }
+@media (min-width: 1024px) { .stats .start { order: -1; justify-self: start; } }
+
+/* ---------------------------------------------------------------------------
+   TEXT ENGINE markup — `spring-text-engine`'s own structure. The container is
+   flex, so `text-align` alone cannot centre it: the justify-content below is
+   load-bearing. A visually-hidden `seo` copy keeps the string crawler- and
+   copy/paste-visible while the animated subtree is aria-hidden.
+   NOTE: no `overflow` anywhere near the display line — clipping would crop the
+   blur halo, which is the point of this reveal.
+   --------------------------------------------------------------------------- */
+.te { position: relative; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; line-height: 1.1; }
+.te-seo { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0; pointer-events: none; user-select: none; }
+.te-inner { display: contents; }
+.line-word { display: inline-block; }
+.te-unit { display: inline-block; will-change: transform, opacity, filter; }
+
+/* ---------------------------------------------------------------------------
+   CONTROLS — not part of the section. Replay so the sequence can be watched
+   more than once, and a live readout of the two stages.
+   --------------------------------------------------------------------------- */
+#ui {
+  position: fixed; top: 14px; right: 14px; z-index: 100;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--gl-line) 22%, transparent);
+  background: color-mix(in oklab, var(--gl-surface) 55%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  font: 500 11px/1 ui-monospace, 'SF Mono', Menlo, monospace;
+  letter-spacing: .08em; color: var(--gl-ink-muted);
+}
+#ui button {
+  padding: 5px 10px; border-radius: 5px; cursor: pointer; font: inherit;
+  border: 1px solid color-mix(in oklab, var(--gl-line) 30%, transparent);
+  background: transparent; color: var(--gl-ink);
+  transition: background var(--gl-duration-fast) var(--gl-ease);
+}
+#ui button:hover { background: color-mix(in oklab, var(--gl-line) 14%, transparent); }
+#ui-stage { min-width: 132px; }
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- The page the loader hands off to. Mounted from first paint: nothing is
+     conditionally rendered, every element simply holds its "out" state until
+     the gate flips. -->
+<div class="page" id="page">
+  <div class="sky" aria-hidden="true"></div>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <header class="mast" id="mast">
+    <nav aria-label="Primary"><ul><li><a href="#">One</a></li><li><a href="#">Two</a></li></ul></nav>
+    <a class="brand" href="#">Placeholder</a>
+    <nav aria-label="Secondary"><ul><li><a href="#">Three</a></li><li><a href="#">Four</a></li></ul></nav>
+  </header>
+
+  <div class="rule rule-start" id="rule-start" aria-hidden="true"></div>
+  <div class="rule rule-end" id="rule-end" aria-hidden="true"></div>
+
+  <div class="band">
+    <h1 class="display" id="display">
+      <span class="te" data-heading-line="The count reaches one hundred,"></span>
+      <span class="te" data-heading-line="and the page opens through it."></span>
+    </h1>
+
+    <div class="capsule-wrap" id="capsule-wrap">
+      <form class="capsule" id="capsule">
+        <div class="field">
+          <label class="te-seo" for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" placeholder="Name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label class="te-seo" for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" placeholder="Email" autocomplete="email">
+        </div>
+        <button type="submit">Send<i aria-hidden="true"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="stats" id="stats">
+    <div class="pitch">
+      <h2>A short title line</h2>
+      <span class="dot" aria-hidden="true"></span>
+      <p class="te body" id="pitch-body" data-body="This paragraph reads in word by word once the rail has risen, so the bar arrives as one object and its copy fills in behind it."></p>
+    </div>
+    <dl class="start"><dt>First label</dt><dd>240+</dd></dl>
+    <dl class="end"><dt>Second label</dt><dd>60K</dd></dl>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div id="ui">
+  <span id="ui-stage">idle</span>
+  <button id="ui-replay" type="button">Replay</button>
+</div>
+<!-- END CONTROLS -->
+
+<!-- The overlay is cloned from here on every run, so Replay reproduces a cold
+     mount rather than rewinding a live one. -->
+<template id="preloader-template">
+  <div class="preloader" id="preloader" role="progressbar" aria-label="Loading"
+       aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <canvas id="comet-canvas" aria-hidden="true"></canvas>
+    <div class="preloader-ring">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle id="preloader-ring-arc" cx="50" cy="50" r="48" fill="none" stroke="currentColor"
+                stroke-width="0.25" stroke-linecap="round"
+                stroke-dasharray="301.59289474462014" stroke-dashoffset="301.59289474462014"></circle>
+      </svg>
+      <p class="preloader-count"><span id="preloader-count">0</span><span class="pc-unit">%</span></p>
+    </div>
+  </div>
+</template>
+
+<script>
+(function () {
+"use strict";
+
+/* ===========================================================================
+   CONFIG — every timing constant in the section, in one place.
+   All of it is verbatim from the altitude source. Do not retime.
+   =========================================================================== */
+var CONFIG = {
+  /* --- LOADER (preloader.tsx) ------------------------------------------- */
+  RING_RADIUS: 48,               // in the SVG's own 0..100 coordinate space
+  HOLD_AT: 90,                   // counting to 90 happens on trust…
+  MIN_VISIBLE_MS: 1300,          // …and the overlay never leaves sooner than this
+  COUNT_CONFIG:  { tension: 18,  friction: 26, mass: 1.4 },          // 0 → 90
+  FINISH_CONFIG: { tension: 130, friction: 26 },                     // 90 → 100
+  REVEAL_CONFIG: { tension: 90,  friction: 32, mass: 1, precision: 0.5 },
+  REVEAL_END: 145,               // mask radius at full reveal, % of the overlay
+  REVEAL_FEATHER: 14,            // width of the mask's soft edge, same units
+
+  /* --- COMET FIELD (comet-field.ts) ------------------------------------- */
+  COMET_COUNT: 14,
+  COMET_ANGLE: Math.PI * 0.28,   // down and to the LEFT
+  COMET_SPEED: [260, 620],       // px/s
+  COMET_LENGTH: [90, 320],       // px of tail
+  COMET_WIDTH: [0.6, 1.6],
+  COMET_ALPHA: [0.25, 0.9],
+
+  /* --- ENTRANCE STAGGER (hero-*.tsx) ------------------------------------ */
+  NAV:   { delay: 0,   from: { opacity: 0, y: -14 },            to: { opacity: 1, y: 0 },            config: { tension: 60, friction: 24 } },
+  RULES: { delay: 240, from: { scaleY: 0, opacity: 0 },         to: { scaleY: 1, opacity: 1 },       config: { tension: 40, friction: 26, mass: 1.2 } },
+  FORM:  { delay: 760, from: { opacity: 0, y: 22, blur: 8 },    to: { opacity: 1, y: 0, blur: 0 },   config: { tension: 60, friction: 26 } },
+  STATS: { delay: 900, from: { opacity: 0, y: 30 },             to: { opacity: 1, y: 0 },            config: { tension: 55, friction: 26 } },
+
+  // Display heading — per LETTER. The stagger continues across the two designed
+  // lines, so they read as one sweep rather than two reveals.
+  LETTER_BASE_DELAY: 120,
+  LETTER_STAGGER: 26,
+  LETTER_OUT: { y: 26, opacity: 0, blur: 10 },
+  LETTER_IN:  { y: 0,  opacity: 1, blur: 0 },
+  LETTER_CONFIG: { tension: 90, friction: 24, mass: 1.1 },
+  // The engine's default word gap is 0.3em, wider than a serif face actually
+  // sets a space, which pushes the first line over its measure and wraps it.
+  LETTER_COLUMN_GAP: 0.24,
+
+  // The pitch — per WORD, after the rail has risen.
+  WORD_BASE_DELAY: 1150,
+  WORD_STAGGER: 18,
+  WORD_OUT: { y: 16, opacity: 0, blur: 7 },
+  WORD_IN:  { y: 0,  opacity: 1, blur: 0 },
+  WORD_CONFIG: { tension: 80, friction: 24 }
+};
+
+var RING_CIRCUMFERENCE = 2 * Math.PI * CONFIG.RING_RADIUS;
+
+/* ===========================================================================
+   TICKER — src/lib/animation/ticker.ts. One shared rAF loop; starts on the
+   first subscriber and stops when the last one leaves.
+   =========================================================================== */
+var tickerSubs = [];
+var tickerRaf = null;
+
+function tickerFrame(time) {
+  var snapshot = tickerSubs.slice();
+  for (var i = 0; i < snapshot.length; i++) {
+    var sub = snapshot[i];
+    if (tickerSubs.indexOf(sub) === -1) continue;
+    if (time - sub.last <= sub.getFramerate()) continue;
+    sub.last = time;
+    try { sub.callback(time); }
+    catch (error) { console.error("[ticker] subscriber threw:", error); }
+  }
+  tickerRaf = requestAnimationFrame(tickerFrame);
+}
+
+function subscribeToTicker(callback, getFramerate) {
+  var sub = { callback: callback, getFramerate: getFramerate, last: performance.now() };
+  tickerSubs.push(sub);
+  if (tickerRaf === null) tickerRaf = requestAnimationFrame(tickerFrame);
+  return function () {
+    var index = tickerSubs.indexOf(sub);
+    if (index !== -1) tickerSubs.splice(index, 1);
+    if (tickerSubs.length === 0 && tickerRaf !== null) {
+      cancelAnimationFrame(tickerRaf);
+      tickerRaf = null;
+    }
+  };
+}
+
+/* ===========================================================================
+   SPRING ENGINE — the integrator from @react-spring/core (SpringValue.advance),
+   reproduced exactly so every tension / friction / mass literal above is used
+   as-is. 1ms sub-steps; rest test on react-spring's own precision and
+   restVelocity defaults.
+
+   `prefers-reduced-motion` makes every spring jump to its end state, which is
+   what react-spring's global skipAnimation does in the source. That means the
+   overlay clears immediately — the intended behaviour, not a bug.
+   =========================================================================== */
+var REDUCED = typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function Track(from, to, config) {
+  config = config || {};
+  this.to = to;
+  this.pos = from;
+  this.vel = 0;
+  this.done = from === to;
+  this.tension = config.tension != null ? config.tension : 170;
+  this.friction = config.friction != null ? config.friction : 26;
+  this.mass = config.mass != null ? config.mass : 1;
+  this.precision = config.precision != null
+    ? config.precision
+    : (from === to ? 0.005 : Math.min(1, Math.abs(to - from) * 0.001));
+  this.restVelocity = config.restVelocity != null ? config.restVelocity : this.precision / 10;
+}
+
+Track.prototype.advance = function (dt) {
+  if (this.done) return;
+  var velocity = this.vel;
+  var position = this.pos;
+  var to = this.to;
+  var numSteps = Math.ceil(dt); // step = 1ms
+  for (var n = 0; n < numSteps; n++) {
+    if (Math.abs(velocity) <= this.restVelocity) {
+      if (Math.abs(to - position) <= this.precision) { this.done = true; break; }
+    }
+    var springForce = -this.tension * 1e-6 * (position - to);
+    var dampingForce = -this.friction * 1e-3 * velocity;
+    var acceleration = (springForce + dampingForce) / this.mass;
+    velocity = velocity + acceleration;
+    position = position + velocity;
+  }
+  this.vel = velocity;
+  this.pos = this.done ? to : position;
+};
+
+var activeSprings = [];
+var springsUnsubscribe = null;
+var springsLast = 0;
+
+function springsFrame(time) {
+  var dt = springsLast ? Math.min(64, time - springsLast) : 16.667;
+  springsLast = time;
+  var snapshot = activeSprings.slice();
+  for (var i = 0; i < snapshot.length; i++) snapshot[i].advance(dt);
+}
+
+function springsStart() {
+  if (springsUnsubscribe) return;
+  springsLast = 0;
+  springsUnsubscribe = subscribeToTicker(springsFrame, function () { return 0; });
+}
+
+function springsStop() {
+  if (!springsUnsubscribe) return;
+  springsUnsubscribe();
+  springsUnsubscribe = null;
+}
+
+/**
+ * Registry of every spring this run created — the Replay control uses it to
+ * abandon the previous run wholesale. Nothing in the section itself needs it;
+ * in the React source each spring simply unmounts with its component.
+ */
+var allSprings = [];
+
+function Spring(from, config) {
+  this.tracks = {};
+  this.config = config || {};
+  for (var key in from) this.tracks[key] = new Track(from[key], from[key], this.config);
+  this.onChange = null;
+  this.onRest = null;
+  this.timer = null;
+  this.running = false;
+  allSprings.push(this);
+}
+
+/** Drop every spring from the previous run, silently — no onRest, no writes. */
+function abandonAllSprings() {
+  allSprings.forEach(function (spring) {
+    clearTimeout(spring.timer);
+    spring.onChange = null;
+    spring.onRest = null;
+    var index = activeSprings.indexOf(spring);
+    if (index !== -1) activeSprings.splice(index, 1);
+    spring.running = false;
+  });
+  allSprings = [];
+  if (activeSprings.length === 0) springsStop();
+}
+
+Spring.prototype.values = function () {
+  var out = {};
+  for (var key in this.tracks) out[key] = this.tracks[key].pos;
+  return out;
+};
+
+Spring.prototype.emit = function () { if (this.onChange) this.onChange(this.values()); };
+
+Spring.prototype._run = function (props) {
+  var config = props.config || this.config;
+  for (var key in props) {
+    if (key === "config" || key === "delay" || key === "onRest") continue;
+    var previous = this.tracks[key];
+    if (!previous) continue;
+    var next = new Track(previous.pos, props[key], config);
+    next.vel = previous.vel; // react-spring carries lastVelocity across an interrupt
+    this.tracks[key] = next;
+  }
+  this.onRest = props.onRest || null;
+  if (REDUCED) { this.finish(); return; }
+  if (!this.running) {
+    this.running = true;
+    activeSprings.push(this);
+    springsStart();
+  }
+  this.emit();
+};
+
+Spring.prototype.start = function (props) {
+  var self = this;
+  if (props.delay && !REDUCED) {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(function () { self._run(props); }, props.delay);
+    return;
+  }
+  this._run(props);
+};
+
+Spring.prototype.finish = function () {
+  for (var key in this.tracks) {
+    var track = this.tracks[key];
+    track.pos = track.to;
+    track.vel = 0;
+    track.done = true;
+  }
+  this._settle();
+};
+
+Spring.prototype._settle = function () {
+  if (this.running) {
+    var index = activeSprings.indexOf(this);
+    if (index !== -1) activeSprings.splice(index, 1);
+    this.running = false;
+    if (activeSprings.length === 0) springsStop();
+  }
+  this.emit();
+  if (this.onRest) { var rest = this.onRest; this.onRest = null; rest(); }
+};
+
+Spring.prototype.advance = function (dt) {
+  var idle = true;
+  for (var key in this.tracks) {
+    var track = this.tracks[key];
+    track.advance(dt);
+    if (!track.done) idle = false;
+  }
+  if (idle) { this._settle(); return; }
+  this.emit();
+};
+
+/**
+ * react-spring's transform shorthands, composed the same way: `y` becomes a
+ * translate3d, `scaleY` a scale, `blur` the numeric inside filter: blur().
+ */
+function applyMotion(element, values) {
+  var transform = "";
+  if (values.y != null) transform += "translate3d(0," + values.y + "px,0)";
+  if (values.scaleY != null) transform += (transform ? " " : "") + "scaleY(" + values.scaleY + ")";
+  if (transform) element.style.transform = transform;
+  if (values.opacity != null) element.style.opacity = values.opacity;
+  if (values.blur != null) element.style.filter = "blur(" + values.blur + "px)";
+}
+
+/** <Spring tag=… from=… to=… config=… delayIn=… enabled={isComplete}> */
+function springElement(element, spec) {
+  applyMotion(element, spec.from);
+  var spring = new Spring(spec.from, spec.config);
+  spring.onChange = function (values) { applyMotion(element, values); };
+  return function play() {
+    var props = { config: spec.config };
+    for (var key in spec.to) props[key] = spec.to[key];
+    if (spec.delay) props.delay = spec.delay;
+    spring.start(props);
+  };
+}
+
+/* ===========================================================================
+   TEXT ENGINE — the markup and the delay formula of `spring-text-engine`.
+   Delay, per its playIn(): delay = delayIn + index * stagger.
+   =========================================================================== */
+function buildTextEngine(container, text, options) {
+  container.innerHTML = "";
+  var columnGap = options.columnGap != null ? options.columnGap : 0.3;
+  container.style.columnGap = columnGap + "em";
+
+  var seo = document.createElement("span");
+  seo.className = "te-seo";
+  seo.textContent = text;
+  container.appendChild(seo);
+
+  var inner = document.createElement("span");
+  inner.className = "te-inner";
+  inner.setAttribute("aria-hidden", "true");
+  container.appendChild(inner);
+
+  var words = text.split(" ").filter(function (word) { return word.length > 0; });
+  var units = [];
+  var letterIndex = 0;
+
+  words.forEach(function (word, wordIndex) {
+    var lineWord = document.createElement("span");
+    lineWord.className = "line-word";
+    inner.appendChild(lineWord);
+
+    if (options.wordIn) {
+      var wordSpan = document.createElement("span");
+      wordSpan.className = "te-unit";
+      wordSpan.textContent = word;
+      lineWord.appendChild(wordSpan);
+      units.push({
+        el: wordSpan, from: options.wordOut, to: options.wordIn, config: options.wordConfig,
+        delay: (options.delayIn || 0) + wordIndex * (options.wordStagger || 0)
+      });
+      return;
+    }
+
+    for (var i = 0; i < word.length; i++) {
+      var letterSpan = document.createElement("span");
+      letterSpan.className = "te-unit";
+      letterSpan.textContent = word.charAt(i);
+      lineWord.appendChild(letterSpan);
+      units.push({
+        el: letterSpan, from: options.letterOut, to: options.letterIn, config: options.letterConfig,
+        delay: (options.delayIn || 0) + letterIndex * (options.letterStagger || 0)
+      });
+      letterIndex++;
+    }
+  });
+
+  units.forEach(function (unit) { applyMotion(unit.el, unit.from); });
+
+  return function play() {
+    units.forEach(function (unit) {
+      var spring = new Spring(unit.from, unit.config);
+      spring.onChange = function (values) { applyMotion(unit.el, values); };
+      var props = { config: unit.config, delay: unit.delay };
+      for (var key in unit.to) props[key] = unit.to[key];
+      spring.start(props);
+    });
+  };
+}
+
+/* ===========================================================================
+   INTRO GATE — the zustand store in src/hooks/intro/use-intro.ts.
+   Everything on the page stays mounted the whole time and simply holds its
+   "out" state until this flips. It flips when the counter reaches 100, NOT
+   when the overlay finishes clearing, so the page animates in THROUGH the
+   opening aperture.
+   =========================================================================== */
+function createIntro() {
+  return {
+    isComplete: false,
+    listeners: [],
+    complete: function () {
+      if (this.isComplete) return;
+      this.isComplete = true;
+      this.listeners.forEach(function (listener) { listener(); });
+    },
+    subscribe: function (listener) { this.listeners.push(listener); }
+  };
+}
+
+/* ===========================================================================
+   COLOUR — tokens are read at runtime, never baked into the canvas code.
+   =========================================================================== */
+var COLOR_FALLBACK = [1, 1, 1];
+
+function hexToRgb01(hex) {
+  var value = String(hex).trim().replace("#", "");
+  var expanded = value.length === 3
+    ? value.split("").map(function (char) { return char + char; }).join("")
+    : value;
+  if (!/^[0-9a-f]{6}$/i.test(expanded)) return COLOR_FALLBACK;
+  var int = parseInt(expanded, 16);
+  return [((int >> 16) & 255) / 255, ((int >> 8) & 255) / 255, (int & 255) / 255];
+}
+
+function readColorToken(token) {
+  return hexToRgb01(getComputedStyle(document.documentElement).getPropertyValue(token));
+}
+
+/* ===========================================================================
+   COMET FIELD — src/components/common/preloader/comet-field.ts.
+   Ambient scenery on a 2D canvas, deliberately NOT spring-driven: there is no
+   interaction for it to respond to. Each comet is a tapered gradient streak
+   with a bright head; when one leaves the frame it re-enters from the opposite
+   side with fresh randomised values, so the field never visibly loops.
+   =========================================================================== */
+var DIRECTION_X = -Math.cos(CONFIG.COMET_ANGLE);
+var DIRECTION_Y = Math.sin(CONFIG.COMET_ANGLE);
+
+function randomBetween(min, max) { return min + Math.random() * (max - min); }
+function randomIn(range) { return randomBetween(range[0], range[1]); }
+
+function createCometField(canvas, colour, count) {
+  if (count == null) count = CONFIG.COMET_COUNT;
+  var context = canvas.getContext("2d");
+  if (!context) return null;
+
+  var r = Math.round(colour[0] * 255);
+  var g = Math.round(colour[1] * 255);
+  var b = Math.round(colour[2] * 255);
+  var comets = [];
+
+  var spawn = function (comet, initial) {
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
+    // Travelling down-left, so fresh comets are seeded above the frame and off
+    // to the right — the band they drift in from. Spreading the entry across
+    // `width + a slice of height` keeps the field even instead of raining out
+    // of one corner.
+    comet.x = initial
+      ? randomBetween(0, width)
+      : randomBetween(0, width + height * Math.abs(DIRECTION_X));
+    comet.y = initial ? randomBetween(0, height) : -randomBetween(0.05, 0.7) * height;
+    comet.speed = randomIn(CONFIG.COMET_SPEED);
+    comet.length = randomIn(CONFIG.COMET_LENGTH);
+    comet.width = randomIn(CONFIG.COMET_WIDTH);
+    comet.alpha = randomIn(CONFIG.COMET_ALPHA);
+  };
+
+  for (var i = 0; i < count; i++) {
+    var comet = { x: 0, y: 0, speed: 0, length: 0, width: 0, alpha: 0 };
+    spawn(comet, true);
+    comets.push(comet);
+  }
+
+  var resize = function () {
+    var ratio = Math.min(window.devicePixelRatio || 1, 2);
+    var width = Math.max(1, Math.round(canvas.clientWidth * ratio));
+    var height = Math.max(1, Math.round(canvas.clientHeight * ratio));
+    if (canvas.width === width && canvas.height === height) return;
+    canvas.width = width;
+    canvas.height = height;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  };
+
+  var draw = function (deltaSeconds) {
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
+    context.clearRect(0, 0, width, height);
+    context.lineCap = "round";
+
+    for (var i = 0; i < comets.length; i++) {
+      var comet = comets[i];
+      comet.x += DIRECTION_X * comet.speed * deltaSeconds;
+      comet.y += DIRECTION_Y * comet.speed * deltaSeconds;
+
+      var tailX = comet.x - DIRECTION_X * comet.length;
+      var tailY = comet.y - DIRECTION_Y * comet.length;
+
+      var gradient = context.createLinearGradient(tailX, tailY, comet.x, comet.y);
+      gradient.addColorStop(0, "rgba(" + r + ", " + g + ", " + b + ", 0)");
+      gradient.addColorStop(1, "rgba(" + r + ", " + g + ", " + b + ", " + comet.alpha + ")");
+
+      context.strokeStyle = gradient;
+      context.lineWidth = comet.width;
+      context.beginPath();
+      context.moveTo(tailX, tailY);
+      context.lineTo(comet.x, comet.y);
+      context.stroke();
+
+      // The tail trails up and to the right of the head, so the comet is only
+      // fully gone once the TAIL has cleared the left or bottom edge.
+      if (tailX < 0 || tailY > height) spawn(comet, false);
+    }
+  };
+
+  resize();
+  return { resize: resize, draw: draw };
+}
+
+/* ===========================================================================
+   THE APERTURE, as a mask image.
+
+   The feather is on the INSIDE of the radius, not the outside. Putting the
+   transparent stop at the radius itself (`transparent r, opaque r+feather`)
+   means that at r = 0 the centre is already partly see-through: the page shows
+   through the middle of the overlay and washes out the counter sitting on it.
+   Anchoring the opaque stop at `r` instead keeps the overlay solid until the
+   reveal actually starts.
+   =========================================================================== */
+function aperture(radius) {
+  var inner = Math.max(0, radius - CONFIG.REVEAL_FEATHER);
+  return "radial-gradient(circle at 50% 50%, transparent " + inner + "%, black " + radius + "%)";
+}
+
+/* ===========================================================================
+   THE PAGE'S ENTRANCE — src/views/home/hero/*.tsx.
+   Built once per run and held in its "out" state; `intro.subscribe` plays the
+   lot the instant the gate flips.
+   =========================================================================== */
+function buildPage(intro) {
+  var plays = [];
+
+  plays.push(springElement(document.getElementById("mast"), CONFIG.NAV));
+  plays.push(springElement(document.getElementById("rule-start"), CONFIG.RULES));
+  plays.push(springElement(document.getElementById("rule-end"), CONFIG.RULES));
+  plays.push(springElement(document.getElementById("capsule-wrap"), CONFIG.FORM));
+  plays.push(springElement(document.getElementById("stats"), CONFIG.STATS));
+
+  // ONE ENGINE PER DESIGNED LINE. Feeding a whole sentence to a single engine
+  // re-wraps it — the container is a flex row of per-word inline-blocks, which
+  // measures differently from a plain paragraph, and two designed lines come
+  // out as three. The second line's delayIn continues the first one's stagger,
+  // so the two engines still read as a single sweep.
+  var lineNodes = document.querySelectorAll("[data-heading-line]");
+  var consumed = 0;
+  for (var i = 0; i < lineNodes.length; i++) {
+    var line = lineNodes[i].getAttribute("data-heading-line");
+    plays.push(buildTextEngine(lineNodes[i], line, {
+      columnGap: CONFIG.LETTER_COLUMN_GAP,
+      letterOut: CONFIG.LETTER_OUT,
+      letterIn: CONFIG.LETTER_IN,
+      letterStagger: CONFIG.LETTER_STAGGER,
+      letterConfig: CONFIG.LETTER_CONFIG,
+      delayIn: CONFIG.LETTER_BASE_DELAY + consumed * CONFIG.LETTER_STAGGER
+    }));
+    consumed += line.replace(/\s/g, "").length;
+  }
+
+  // The pitch reads in word by word, after the rail has risen.
+  var body = document.getElementById("pitch-body");
+  plays.push(buildTextEngine(body, body.getAttribute("data-body"), {
+    wordOut: CONFIG.WORD_OUT,
+    wordIn: CONFIG.WORD_IN,
+    wordStagger: CONFIG.WORD_STAGGER,
+    wordConfig: CONFIG.WORD_CONFIG,
+    delayIn: CONFIG.WORD_BASE_DELAY
+  }));
+
+  intro.subscribe(function () {
+    plays.forEach(function (play) { play(); });
+  });
+}
+
+document.getElementById("capsule").addEventListener("submit", function (event) {
+  event.preventDefault();
+});
+
+/* ===========================================================================
+   THE LOADER — src/components/common/preloader/preloader.tsx.
+   Timing is honest: the figure springs to 90 on its own, then waits for the
+   window `load` event before finishing. The gate flips at 100, i.e. as the
+   aperture starts to open.
+   =========================================================================== */
+var stage = document.getElementById("ui-stage");
+var teardown = null;
+
+function runLoader() {
+  if (teardown) teardown();
+  abandonAllSprings();
+
+  var intro = createIntro();
+  buildPage(intro);
+
+  var template = document.getElementById("preloader-template");
+  var overlay = template.content.firstElementChild.cloneNode(true);
+  document.body.insertBefore(overlay, document.getElementById("ui"));
+
+  var arc = overlay.querySelector("#preloader-ring-arc");
+  var label = overlay.querySelector("#preloader-count");
+  var cometCanvas = overlay.querySelector("#comet-canvas");
+
+  var counter = new Spring({ value: 0 }, CONFIG.COUNT_CONFIG);
+  counter.onChange = function (values) {
+    var rounded = Math.round(values.value);
+    label.textContent = rounded;
+    overlay.setAttribute("aria-valuenow", rounded);
+    arc.setAttribute("stroke-dashoffset", RING_CIRCUMFERENCE * (1 - values.value / 100));
+  };
+
+  var reveal = new Spring({ radius: 0 }, CONFIG.REVEAL_CONFIG);
+  reveal.onChange = function (values) {
+    var mask = aperture(values.radius);
+    overlay.style.setProperty("-webkit-mask-image", mask);
+    overlay.style.setProperty("mask-image", mask);
+  };
+
+  var field = createCometField(cometCanvas, readColorToken("--gl-glow"));
+  var stopField = null;
+  if (field) {
+    var previous = performance.now();
+    stopField = subscribeToTicker(function (time) {
+      var delta = Math.min((time - previous) / 1000, 0.05);
+      previous = time;
+      field.resize();
+      field.draw(delta);
+    }, function () { return 0; });
+  }
+
+  var timer = null;
+  var dismiss = function () {
+    if (stopField) { stopField(); stopField = null; }
+    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    stage.textContent = "dismissed";
+  };
+
+  teardown = function () {
+    if (timer) clearTimeout(timer);
+    if (stopField) { stopField(); stopField = null; }
+    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    teardown = null;
+  };
+
+  var mountedAt = performance.now();
+  stage.textContent = "counting → 90";
+  counter.start({ value: CONFIG.HOLD_AT, config: CONFIG.COUNT_CONFIG });
+
+  var run = function () {
+    stage.textContent = "load fired → 100";
+    counter.start({
+      value: 100,
+      config: CONFIG.FINISH_CONFIG,
+      onRest: function () {
+        // Flip the gate FIRST: the page starts moving as the aperture opens.
+        stage.textContent = "gate open · aperture";
+        intro.complete();
+        reveal.start({ radius: CONFIG.REVEAL_END, config: CONFIG.REVEAL_CONFIG, onRest: dismiss });
+      }
+    });
+  };
+
+  var finish = function () {
+    // Floor on how long the overlay stays up. On a warm cache `load` has often
+    // already fired by the time this mounts, and without a floor the whole
+    // intro is over in ~200ms — which reads as a glitch rather than a loader.
+    var remaining = CONFIG.MIN_VISIBLE_MS - (performance.now() - mountedAt);
+    if (remaining <= 0) { run(); return; }
+    stage.textContent = "holding at 90";
+    timer = setTimeout(run, remaining);
+  };
+
+  if (document.readyState === "complete") finish();
+  else window.addEventListener("load", finish, { once: true });
+}
+
+document.getElementById("ui-replay").addEventListener("click", runLoader);
+runLoader();
+
+})();
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

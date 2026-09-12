@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f97316" />
+
+    <!--
+      Favicon : le sigle ODORO, en ligne, dans la même définition géométrique que
+      `src/components/BrandMark.tsx` et que le GLB — contour extérieur rayon 50
+      centré (50, 50), intérieur rayon 35, coin carré en haut à gauche.
+      `fill-rule="evenodd"` creuse le contour intérieur ; sans lui le sigle
+      devient une goutte pleine.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0H50A50 50 0 1 1 0 50Z M15 15H50A35 35 0 1 1 15 50Z' fill='%23f97316'/%3E%3C/svg%3E"
+    />
+    <link rel="mask-icon" href="/assets/mark/odoro-mark.svg" color="#f97316" />
+
+    <title>ODORO — Moins de bruit. Plus de gravité.</title>
+    <meta
+      name="description"
+      content="ODORO est un studio numérique indépendant. Un champ de gravité WebGL en temps réel où des sphères entrent en collision, tombent, puis se réassemblent en sigle ODORO — et qui répond à votre curseur au fil du défilement."
+    />
+    <meta name="author" content="Studio ODORO" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:title" content="ODORO — Moins de bruit. Plus de gravité." />
+    <meta
+      property="og:description"
+      content="Un studio numérique indépendant. Un champ de gravité WebGL en temps réel qui tombe, se disperse et se réassemble en sigle — sous votre curseur."
+    />
+    <meta property="og:site_name" content="ODORO" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ODORO — Moins de bruit. Plus de gravité." />
+    <meta
+      name="twitter:description"
+      content="Un champ de gravité WebGL en temps réel qui tombe, se disperse et se réassemble en sigle ODORO — sous votre curseur."
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Under The Radar</title>
+<!--
+  GetLayers · Section — Under The Radar
+  A self-contained wheel/fan carousel: image cards arranged around a large circle whose centre sits
+  below the frame, so they fan across the top like a spread hand, framed by big editorial type
+  ("Under The Radar" / "Motion Designers"). Drag or let it drift to spin the wheel (infinite).
+  Pure HTML/CSS/JS — image cards load from assets/under-radar/*.webp. Type: Inter (Google Fonts).
+  Every parameter is exposed in the on-screen controls (top-right).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #e7e7ea; }
+  #section { position: fixed; inset: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    /* vars driven by the controls panel */
+    --bg: #e7e7ea; --type-color: #141414; --card-corner: 16px; --card-shadow: 0;
+    --headings-disp: block; --ui-disp: flex; }
+
+  .stage { position: fixed; inset: 0; overflow: hidden; background: var(--bg);
+    cursor: grab; touch-action: none; user-select: none; }
+  .stage.-drag { cursor: grabbing; }
+
+  /* big editorial type framing the fan */
+  .type { position: absolute; margin: 0; z-index: 1; color: var(--type-color); pointer-events: none;
+    display: var(--headings-disp);
+    font-weight: 800; line-height: .84; letter-spacing: -.03em; font-size: clamp(38px, min(12vw, 15.5vh), 122px); }
+  .type span { display: block; }
+  .type--top { top: clamp(10px, 2.5vh, 40px); right: clamp(14px, 5vw, 90px); text-align: right; }
+  /* bottom heading sits IN FRONT of the fan */
+  .type--bottom { bottom: clamp(10px, 2.5vh, 40px); left: clamp(14px, 5vw, 90px); text-align: left; z-index: 3; }
+
+  /* top-left UI — brand mark + live slide counter */
+  .ui-tl { position: absolute; top: clamp(14px, 3vh, 34px); left: clamp(14px, 5vw, 90px); z-index: 4;
+    display: var(--ui-disp); flex-direction: column; gap: 10px; pointer-events: none; }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 15px;
+    letter-spacing: -.01em; color: var(--type-color); }
+  .brand__mark { position: relative; width: 15px; height: 15px; border-radius: 50%; background: var(--type-color); }
+  .brand__mark::after { content: ''; position: absolute; inset: -5px; border-radius: 50%;
+    border: 1.5px solid color-mix(in srgb, var(--type-color) 28%, transparent); }
+  .counter { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 12px;
+    letter-spacing: .12em; color: color-mix(in srgb, var(--type-color) 50%, transparent); font-variant-numeric: tabular-nums; }
+  .counter b { color: var(--type-color); font-weight: 700; }
+  .counter i { width: 22px; height: 1px; background: color-mix(in srgb, var(--type-color) 32%, transparent); font-style: normal; }
+
+  /* the wheel — a zero-size point below the frame; cards sit on its rim */
+  .wheel { position: absolute; left: 50%; top: var(--cy, 140vh); width: 0; height: 0; z-index: 2;
+    transform: translate(-50%, -50%) rotate(var(--rot, 0deg)); will-change: transform; }
+  .card { position: absolute; left: 0; top: 0; width: var(--cw, 210px); height: var(--ch, 300px);
+    margin-left: calc(var(--cw, 210px) / -2); margin-top: calc(var(--ch, 300px) / -2);
+    border-radius: var(--card-corner); overflow: hidden; background: #0a0a0c;
+    box-shadow: 0 22px 46px -16px rgba(20,22,34, calc(.55 * var(--card-shadow)));
+    transform: rotate(var(--a)) translateY(calc(var(--r, 620px) * -1)); }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* CONTROLS — remove this block (+ the panel JS) to ship the section without the dev panel */
+  #ui { position: fixed; top: 12px; right: 12px; z-index: 10; width: 236px; max-height: 92vh; overflow: auto;
+    background: rgba(12,14,18,.9); border: 1px solid rgba(255,255,255,.14); border-radius: 8px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: #dbe6f2; font: 11px/1.35 'Inter', -apple-system, system-ui, sans-serif; user-select: none; }
+  #ui-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; cursor: pointer; }
+  #ui-head b { font-weight: 700; letter-spacing: .02em; }
+  #ui-head span { color: rgba(219,230,242,.5); font-size: 14px; }
+  #ui-body { padding: 2px 10px 10px; display: block; }
+  #ui.-collapsed #ui-body { display: none; }
+  .ui-grp { margin: 8px 0 2px; color: rgba(150,190,255,.8); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; }
+  .ui-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 5px 0; }
+  .ui-row label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(219,230,242,.82); }
+  .ui-row input[type=range] { width: 104px; }
+  .ui-row input[type=color] { width: 26px; height: 18px; padding: 0; border: 1px solid rgba(255,255,255,.2); border-radius: 3px; background: none; cursor: pointer; }
+  .ui-row input[type=checkbox] { width: 15px; height: 15px; accent-color: #3f7dff; cursor: pointer; }
+  .ui-row .val { width: 44px; text-align: right; font: 10px/1 ui-monospace, Menlo, monospace; color: rgba(150,190,255,.9); }
+  #ui-copy, #ui-reset { width: 100%; padding: 6px; cursor: pointer; color: #dbe6f2;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 5px; font: 11px/1 inherit; }
+  #ui-copy { margin-top: 10px; border-color: rgba(120,180,255,.4); color: #cfe4ff; }
+  #ui-reset { margin-top: 6px; }
+  #ui-copy:hover, #ui-reset:hover { background: rgba(255,255,255,.13); }
+  /* END CONTROLS */
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+<div id="section">
+  <div class="stage" id="stage">
+    <h2 class="type type--top"><span>Under</span><span>The</span><span>Radar</span></h2>
+    <div class="wheel" id="wheel"></div>
+    <h2 class="type type--bottom"><span>Motion</span><span>Designers</span></h2>
+    <div class="ui-tl">
+      <div class="brand"><span class="brand__mark"></span>GetLayers</div>
+      <div class="counter"><b id="ur-idx">01</b><i></i><span id="ur-total">08</span></div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div id="ui">
+    <div id="ui-head"><b>Under The Radar</b><span id="ui-caret">▾</span></div>
+    <div id="ui-body"></div>
+  </div>
+  <!-- END CONTROLS -->
+</div>
+
+<script>
+/* ============================================================
+   IMAGES — the content. Edit / reorder here.
+============================================================ */
+const IMAGES = [
+  'assets/under-radar/ink-1.webp', 'assets/under-radar/ink-2.webp',
+  'assets/under-radar/ink-3.webp', 'assets/under-radar/ink-4.webp',
+  'assets/under-radar/ink-5.webp', 'assets/under-radar/ink-6.webp',
+  'assets/under-radar/ink-7.webp', 'assets/under-radar/ink-8.webp',
+]
+
+/* ============================================================
+   CONFIG (P) — every tunable value, exposed in the controls panel.
+============================================================ */
+const P = {
+  // stage
+  bg: '#e7e7ea',
+  typeColor: '#141414',
+  // layout
+  slots: 22,
+  cardScale: 1,
+  cardAspect: 0.7,
+  corner: 16,
+  radiusVW: 0.7,
+  radiusMinK: 4,
+  topOffset: 0.48,
+  // motion
+  autoSpin: 0.05,
+  drag: 0.16,
+  inertia: 0.94,
+  // card
+  shadow: 0,
+  // show
+  showHeadings: 1,
+  showUI: 1,
+}
+
+const DEFAULTS = JSON.parse(JSON.stringify(P))
+const STORAGE_KEY = 'getlayers:under-radar'
+try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (s) for (const k in s) if (k in P) P[k] = s[k] } catch (e) {}
+const saveP = () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(P)) } catch (e) {} }
+
+const section = document.getElementById('section')
+const stage = document.getElementById('stage')
+const wheel = document.getElementById('wheel')
+const idxEl = document.getElementById('ur-idx')
+document.getElementById('ur-total').textContent = String(IMAGES.length).padStart(2, '0')
+let cards = [], curVi = -1
+
+/* ---------- build the ring (cycle images to fill `slots`) ---------- */
+function buildRing() {
+  wheel.innerHTML = ''; cards = []
+  const step = 360 / P.slots
+  for (let i = 0; i < P.slots; i++) {
+    const card = document.createElement('div')
+    card.className = 'card'
+    card.style.setProperty('--a', (i * step) + 'deg')
+    const img = document.createElement('img')
+    img.src = IMAGES[i % IMAGES.length]; img.alt = ''; img.draggable = false; img.loading = 'lazy'
+    card.appendChild(img); wheel.appendChild(card)
+    cards.push({ base: i * step, vi: i % IMAGES.length })
+  }
+}
+
+/* ---------- geometry (responsive) ---------- */
+function layout() {
+  const vw = innerWidth, vh = innerHeight
+  const ch = Math.max(150, Math.min(vh * 0.33, vw * 0.42, 340)) * P.cardScale
+  const cw = ch * P.cardAspect
+  const r = Math.max(vw * P.radiusVW, cw * P.radiusMinK)
+  wheel.style.setProperty('--cw', cw + 'px')
+  wheel.style.setProperty('--ch', ch + 'px')
+  wheel.style.setProperty('--r', r + 'px')
+  wheel.style.setProperty('--cy', (P.topOffset * vh + r) + 'px')
+}
+
+/* ---------- style vars (live) ---------- */
+function applyStyles() {
+  const s = section.style
+  s.setProperty('--bg', P.bg); s.setProperty('--type-color', P.typeColor)
+  s.setProperty('--card-corner', P.corner + 'px'); s.setProperty('--card-shadow', P.shadow)
+  s.setProperty('--headings-disp', P.showHeadings ? 'block' : 'none')
+  s.setProperty('--ui-disp', P.showUI ? 'flex' : 'none')
+}
+
+addEventListener('resize', layout)
+
+/* ---------- drag to spin + idle drift ---------- */
+let rot = 0, vel = 0, dragging = false, lastX = 0
+const applyRot = () => wheel.style.setProperty('--rot', rot + 'deg')
+stage.addEventListener('pointerdown', (e) => { dragging = true; lastX = e.clientX; vel = 0; stage.classList.add('-drag'); stage.setPointerCapture(e.pointerId) })
+stage.addEventListener('pointermove', (e) => {
+  if (!dragging) return
+  const dx = e.clientX - lastX; lastX = e.clientX
+  const d = dx * P.drag; rot += d; vel = d; applyRot()
+})
+const end = () => { dragging = false; stage.classList.remove('-drag') }
+stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end)
+
+/* ---------- counter → card nearest the top ---------- */
+function updateCounter() {
+  let best = 1e9, bestVi = 0
+  for (const c of cards) {
+    let a = (c.base + rot) % 360; if (a > 180) a -= 360; if (a < -180) a += 360
+    if (Math.abs(a) < best) { best = Math.abs(a); bestVi = c.vi }
+  }
+  if (bestVi !== curVi) { curVi = bestVi; idxEl.textContent = String(bestVi + 1).padStart(2, '0') }
+}
+
+let frame = 0
+function tick() {
+  if (!dragging) { rot += vel + P.autoSpin; vel *= P.inertia; applyRot() }
+  if ((frame++ & 7) === 0) updateCounter()
+  requestAnimationFrame(tick)
+}
+
+/* ============================================================
+   CONTROLS PANEL — schema-driven; live-updates styles/layout;
+   `slots` rebuilds the ring. (Strip this block for the catalog build.)
+============================================================ */
+const SCHEMA = [
+  ['Stage'],
+  ['bg', 'Background', 'color'], ['typeColor', 'Type colour', 'color'],
+  ['Layout'],
+  ['slots', 'Cards', 6, 30, 1, 'rebuild'], ['cardScale', 'Card size', 0.5, 1.8, 0.02], ['cardAspect', 'Card w/h', 0.5, 1.2, 0.02], ['corner', 'Corner', 0, 40, 1],
+  ['radiusVW', 'Radius (×vw)', 0.3, 1.4, 0.02], ['radiusMinK', 'Radius floor', 2, 6, 0.1], ['topOffset', 'Height', 0.1, 0.7, 0.02],
+  ['Motion'],
+  ['autoSpin', 'Auto-spin', 0, 0.3, 0.005], ['drag', 'Drag speed', 0.05, 0.5, 0.01], ['inertia', 'Inertia', 0.8, 0.99, 0.005],
+  ['Card'],
+  ['shadow', 'Shadow', 0, 2, 0.02],
+  ['Show'],
+  ['showHeadings', 'Headings', 'toggle'], ['showUI', 'Top-left UI', 'toggle'],
+]
+const REBUILD = new Set(['slots'])
+const valEls = {}, inpEls = {}
+const fmt = (v) => Number.isInteger(v) ? String(v) : String(parseFloat(v.toFixed(4)))
+function onChange(key, v) { P[key] = v; saveP(); if (REBUILD.has(key)) buildRing(); layout(); applyStyles() }
+function refreshInputs() { for (const k in inpEls) { const el = inpEls[k]; if (el.type === 'checkbox') el.checked = !!P[k]; else el.value = P[k]; if (valEls[k]) valEls[k].textContent = fmt(P[k]) } }
+
+;(() => {
+  const body = document.getElementById('ui-body')
+  for (const row of SCHEMA) {
+    if (row.length === 1) { const h = document.createElement('div'); h.className = 'ui-grp'; h.textContent = row[0]; body.appendChild(h); continue }
+    const [key, label, a, b, step] = row
+    const el = document.createElement('div'); el.className = 'ui-row'
+    const lab = document.createElement('label'); lab.textContent = label; el.appendChild(lab)
+    if (a === 'color') {
+      const inp = document.createElement('input'); inp.type = 'color'; inp.value = P[key]; inpEls[key] = inp
+      inp.addEventListener('input', () => onChange(key, inp.value)); el.appendChild(inp)
+    } else if (a === 'toggle') {
+      const inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = !!P[key]; inpEls[key] = inp
+      inp.addEventListener('input', () => onChange(key, inp.checked ? 1 : 0)); el.appendChild(inp)
+    } else {
+      const inp = document.createElement('input'); inp.type = 'range'; inp.min = a; inp.max = b; inp.step = step; inp.value = P[key]; inpEls[key] = inp
+      const val = document.createElement('span'); val.className = 'val'; val.textContent = fmt(P[key]); valEls[key] = val
+      inp.addEventListener('input', () => { onChange(key, parseFloat(inp.value)); val.textContent = fmt(P[key]) })
+      el.appendChild(inp); el.appendChild(val)
+    }
+    body.appendChild(el)
+  }
+  const copy = document.createElement('button'); copy.id = 'ui-copy'; copy.textContent = '⧉ copy config'
+  copy.addEventListener('click', () => copyConfig(copy)); body.appendChild(copy)
+  const reset = document.createElement('button'); reset.id = 'ui-reset'; reset.textContent = '↺ reset to defaults'
+  reset.addEventListener('click', () => { for (const k in DEFAULTS) P[k] = DEFAULTS[k]; try { localStorage.removeItem(STORAGE_KEY) } catch (e) {}; location.reload() })
+  body.appendChild(reset)
+  const head = document.getElementById('ui-head'), panel = document.getElementById('ui'), caret = document.getElementById('ui-caret')
+  head.addEventListener('click', () => { panel.classList.toggle('-collapsed'); caret.textContent = panel.classList.contains('-collapsed') ? '▸' : '▾' })
+})()
+
+const GROUPS = { bg: 'stage', slots: 'layout', autoSpin: 'motion', shadow: 'card', showHeadings: 'show' }
+function configText() {
+  const lines = ['const P = {']
+  for (const k in P) { if (GROUPS[k]) lines.push('  // ' + GROUPS[k]); const v = P[k]; lines.push(`  ${k}: ${typeof v === 'string' ? `'${v}'` : fmt(v)},`) }
+  lines.push('}')
+  return lines.join('\n')
+}
+async function copyConfig(btn) {
+  const text = configText()
+  try { await navigator.clipboard.writeText(text) }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy') } catch (e2) {} document.body.removeChild(ta) }
+  const old = btn.textContent; btn.textContent = '✓ copied'; setTimeout(() => { btn.textContent = old }, 1200)
+}
+
+/* ---------- go ---------- */
+buildRing(); layout(); applyStyles(); applyRot(); updateCounter(); tick()
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

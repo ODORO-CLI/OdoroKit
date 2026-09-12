@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Gravity Loader</title>
+<!--
+  GetLayers · Section — Gravity Loader (loader-gravity-webgl)
+
+  The pre-roll from the `gravity-webgl` template, lifted whole. A GRAVITY wordmark masks up
+  glyph-by-glyph over a hairline progress bar and a mono readout. The bar is NOT a timer: it
+  eases toward a 92% ceiling on its own and only completes once the 3D scene reports its first
+  rendered frame — so the reveal genuinely waits for the WebGL mount. On completion the loader
+  hands over twice, in the same frame: the gate flag flips (content reveals) and the scene's
+  `control.started` flips (the field is released from off-screen and sweeps in).
+
+  PORTED VERBATIM from src/components/Loader.tsx + src/index.css + src/App.tsx:
+    · glyph rise      spring(stiffness 120, damping 18, mass 0.9), stagger 0.055s, delay 0.12s
+                      → ζ=0.866, ω₀=11.547 rad/s, ζω₀=10, ω_d=5.7735, settles in ~0.75s — the
+                        exact damped-spring curve is sampled into @keyframes at runtime (see
+                        makeSpringKeyframes), because CSS has no spring and a hand-picked bezier
+                        would flatten its long tail.
+    · bar + meta in   opacity 0→1, y 10→0, 0.7s, delay 0.5s, cubic-bezier(.16,1,.3,1)
+    · bar fill        width transition 0.45s cubic-bezier(.23,1,.32,1) over a per-frame JS width
+    · counter law     ceiling = ready ? 100 : 92 ; v += (ceiling − v) · (ready ? 6 : 1.7) · dt
+                      dt clamped to 0.05s ; snap v→100 once (ready && v ≥ 99.4)
+    · completion      v ≥ 99.9 && ready  →  +160ms add .is-leaving  →  +560ms more, hand over
+    · loader exit     opacity 0.6s cubic-bezier(.77,0,.175,1)
+    · reveal stagger  header 0.8s/0s · hero fade 0.6s · eyebrow 0.8s/0.15s(y14) ·
+                      line1 1s/0.25s(y110%) · line2 1s/0.38s(y110%) · aside 0.8s/0.55s(y18) ·
+                      rail 1s/0.6s — all cubic-bezier(.16,1,.3,1), all measured from handover
+
+  STAND-IN: the real gate is a hand-rolled three.js sphere field (96 MeshPhysicalMaterial bodies,
+  ~600KB of library) whose rAF loop calls onReady() after its first render. Shipping that here
+  would make the file a scene, not a loader. The stand-in below is the same handshake with the
+  weight removed: a real WebGLRenderingContext that clears one frame and then reports ready on
+  exactly the same edge. Swap startGate() for your scene's mount and the loader is unchanged.
+
+  Re-skin through the --gl-* tokens only. The numbers above are the asset — do not "tidy" them.
+  Demo-only chrome (replay button, timing readout) is fenced with DEMO comments; strip to ship.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — the entire skin surface. Values here are the
+     gravity-webgl-style defaults; swap them, nothing else.
+  ============================================================ */
+  :root {
+    --gl-bg: #f5f7ff;
+    --gl-ink: #0a0a12;
+    --gl-ink-muted: #4a4a58;
+    --gl-line: #dfe4f5;
+    --gl-accent: #2f69ff;
+    --gl-glow: #2f69ff;
+    --gl-font-display: 'Raleway', ui-sans-serif, system-ui, sans-serif;
+    --gl-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --gl-tracking-display: -0.035em;
+    --gl-weight-display: 500;
+    --gl-duration-slow: 1s;
+    --gl-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Non-token internals of the mechanic — the two other curves the source ships. */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--gl-bg);
+    color: var(--gl-ink);
+    font-family: var(--gl-font-display);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* The scene sits behind everything and spans the whole journey. */
+  #gate { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; pointer-events: none; }
+
+  /* ============================================================
+     LOADER — the asset.
+  ============================================================ */
+  .loader-root {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 42%,
+      #ffffff 0%,
+      color-mix(in srgb, var(--gl-accent) 7%, #ffffff) 45%,
+      color-mix(in srgb, var(--gl-accent) 22%, #ffffff) 100%);
+    overflow: hidden;
+    transition: opacity 0.6s var(--ease-in-out);
+  }
+  .loader-root.is-leaving { opacity: 0; pointer-events: none; }
+  .loader-root.is-gone { display: none; }
+
+  .loader-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 30px;
+    width: clamp(220px, 36vw, 320px);
+  }
+
+  .loader-word {
+    font-family: var(--gl-font-display);
+    font-weight: var(--gl-weight-display);
+    letter-spacing: -0.04em;
+    font-size: clamp(40px, 7vw, 68px);
+    line-height: 1;
+    color: var(--gl-ink);
+    display: flex;
+  }
+  .loader-word .cell { display: inline-block; overflow: hidden; }
+  /* 110% start; the runtime-sampled spring drives it home. */
+  .loader-word .ch { display: inline-block; transform: translateY(110%); }
+  .loader-word.is-go .ch { animation: glyphRise 0.75s linear both; }
+
+  .loader-bar {
+    width: 100%; height: 2px; position: relative; overflow: hidden;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--gl-accent) 12%, transparent);
+  }
+  .loader-bar-fill {
+    position: absolute; inset: 0 auto 0 0; width: 0%;
+    border-radius: 99px;
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--gl-accent) 82%, #ffffff) 0%,
+      color-mix(in srgb, var(--gl-accent) 72%, #000000) 100%);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--gl-glow) 55%, transparent);
+    transition: width 0.45s var(--ease-out);
+  }
+
+  .loader-meta { display: flex; align-items: baseline; justify-content: space-between; width: 100%; }
+  .loader-status {
+    font-family: var(--gl-font-mono); font-size: 10px;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--gl-ink-muted) 70%, var(--gl-accent));
+  }
+  .loader-pct {
+    font-family: var(--gl-font-mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--gl-accent) 78%, #000000);
+  }
+
+  /* bar + meta share one entrance: 0.7s, delay 0.5s */
+  .loader-bar, .loader-meta {
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.7s 0.5s var(--gl-ease), transform 0.7s 0.5s var(--gl-ease);
+  }
+  .loader-bar.is-go, .loader-meta.is-go { opacity: 1; transform: none; }
+
+  /* ============================================================
+     GATED CONTENT — a placeholder standing in for the page, so the
+     handoff is visible. Every value is the template's real reveal.
+  ============================================================ */
+  .page { position: relative; z-index: 10; min-height: 100svh; display: flex; flex-direction: column; }
+
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; height: 80px; z-index: 30;
+    padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    opacity: 0; transform: translateY(-16px);
+    transition: opacity 0.8s var(--gl-ease), transform 0.8s var(--gl-ease);
+  }
+  @media (min-width: 768px) { .header { height: 96px; padding: 0 48px; } }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .orb {
+    width: 10px; height: 10px; border-radius: 999px;
+    background: radial-gradient(circle at 50% 28%,
+      color-mix(in srgb, var(--gl-accent) 75%, #fff) 0%,
+      var(--gl-accent) 48%,
+      color-mix(in srgb, var(--gl-accent) 72%, #000) 100%);
+    box-shadow: 0 0 12px var(--gl-glow);
+  }
+  .brand .name { font-weight: 700; font-size: 18px; letter-spacing: 0.32em; }
+  .header .stub {
+    font-family: var(--gl-font-mono); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--gl-ink-muted);
+  }
+
+  .hero { flex: 1; display: flex; align-items: flex-end; padding: 0 24px 48px; opacity: 0; transition: opacity 0.6s ease; }
+  @media (min-width: 768px) { .hero { padding: 0 48px 64px; } }
+  .hero-row { width: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+  @media (min-width: 768px) { .hero-row { flex-direction: row; align-items: flex-end; } }
+  .hero-left { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--gl-font-mono); font-size: 11px;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--gl-accent) 70%, #000);
+  }
+  .eyebrow .tick {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--gl-accent); box-shadow: 0 0 10px var(--gl-glow);
+  }
+  .eyebrow-wrap {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.8s 0.15s var(--gl-ease), transform 0.8s 0.15s var(--gl-ease);
+  }
+
+  h1.display {
+    margin: 0;
+    font-family: var(--gl-font-display);
+    font-weight: var(--gl-weight-display);
+    letter-spacing: var(--gl-tracking-display);
+    line-height: 0.92;
+    font-size: 3rem;
+  }
+  @media (min-width: 640px) { h1.display { font-size: 4.5rem; } }
+  @media (min-width: 768px) { h1.display { font-size: 112px; } }
+  /* Masked line rise — the paddingBottom/marginBottom pair keeps descenders alive. */
+  .mask { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+  .mask > span { display: block; transform: translateY(110%); transition: transform var(--gl-duration-slow) var(--gl-ease); }
+  .mask.l1 > span { transition-delay: 0.25s; }
+  .mask.l2 > span { transition-delay: 0.38s; }
+  .placeholder { color: color-mix(in srgb, var(--gl-ink) 16%, transparent); }
+
+  .hero-right {
+    flex-shrink: 0; opacity: 0; transform: translateY(18px);
+    transition: opacity 0.8s 0.55s var(--gl-ease), transform 0.8s 0.55s var(--gl-ease);
+  }
+  @media (min-width: 768px) { .hero-right { width: 280px; padding-bottom: 12px; } }
+  .hero-right .bar {
+    height: 10px; border-radius: 99px; margin-bottom: 10px;
+    background: color-mix(in srgb, var(--gl-ink) 10%, transparent);
+  }
+  .hero-right .bar.short { width: 62%; }
+  .hero-right .note {
+    margin-top: 24px; font-family: var(--gl-font-mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--gl-ink-muted);
+  }
+
+  .rail {
+    position: fixed; right: 22px; top: 50%; transform: translateY(-50%);
+    height: 140px; width: 1px; border-radius: 99px; z-index: 25;
+    background: color-mix(in srgb, var(--gl-ink) 14%, transparent);
+    opacity: 0; transition: opacity 1s 0.6s ease;
+  }
+  .rail .fill {
+    position: absolute; left: 0; top: 0; width: 1px; height: 22%;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--gl-accent) 72%, #000);
+    box-shadow: 0 0 8px var(--gl-glow);
+  }
+  @media (max-width: 767px) { .rail { display: none; } }
+
+  /* The gate. Nothing above this line runs until the loader hands over. */
+  body.is-revealed .header      { opacity: 1; transform: none; }
+  body.is-revealed .hero        { opacity: 1; }
+  body.is-revealed .eyebrow-wrap{ opacity: 1; transform: none; }
+  body.is-revealed .mask > span { transform: translateY(0); }
+  body.is-revealed .hero-right  { opacity: 1; transform: none; }
+  body.is-revealed .rail        { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loader-word .ch { transform: none; }
+    .loader-word.is-go .ch { animation: none; }
+  }
+
+  /* ---------- DEMO CHROME — strip this block (+ the DEMO script) to ship ---------- */
+  #demo {
+    position: fixed; left: 16px; bottom: 16px; z-index: 200;
+    font-family: var(--gl-font-mono); font-size: 10px; line-height: 1.7;
+    color: var(--gl-ink-muted); background: rgba(255,255,255,.72);
+    border: 1px solid var(--gl-line); border-radius: 8px; padding: 10px 12px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  #demo b { color: var(--gl-ink); font-weight: 700; }
+  #demo button {
+    margin-top: 8px; width: 100%; padding: 5px 8px; cursor: pointer;
+    font: inherit; color: var(--gl-ink);
+    background: rgba(255,255,255,.6); border: 1px solid var(--gl-line); border-radius: 5px;
+  }
+  #demo button:hover { background: #fff; }
+  /* ---------- END DEMO CHROME ---------- */
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge { --odoro-top: clamp(96px, 11vh, 112px);
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<canvas id="gate"></canvas>
+
+<div class="page">
+  <header class="header" id="header">
+    <div class="brand"><span class="orb"></span><span class="name">GRAVITY</span></div>
+    <div class="stub">nav · cta</div>
+  </header>
+
+  <section class="hero" id="hero">
+    <div class="hero-row">
+      <div class="hero-left">
+        <div class="eyebrow-wrap"><span class="eyebrow"><span class="tick"></span>Section eyebrow</span></div>
+        <h1 class="display">
+          <span class="mask l1"><span>Headline line</span></span>
+          <span class="mask l2"><span>and <span class="placeholder">its second.</span></span></span>
+        </h1>
+      </div>
+      <div class="hero-right">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar short"></div>
+        <div class="note">Placeholder content block</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="rail" id="rail"><div class="fill"></div></div>
+
+<div class="loader-root" id="loader">
+  <div class="loader-content">
+    <div class="loader-word" id="loaderWord" aria-label="Gravity"></div>
+    <div class="loader-bar" id="loaderBar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+    <div class="loader-meta" id="loaderMeta">
+      <span class="loader-status" id="loaderStatus">Calibrating gravity field</span>
+      <span class="loader-pct" id="loaderPct">000%</span>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO CHROME -->
+<div id="demo">
+  <div>scene ready <b id="tReady">—</b></div>
+  <div>bar 100% <b id="tFull">—</b></div>
+  <div>handover <b id="tDone">—</b></div>
+  <div>control.started <b id="tStarted">false</b></div>
+  <button id="replay">↺ replay loader</button>
+</div>
+<!-- END DEMO CHROME -->
+
+<script>
+/* ============================================================
+   SPRING → KEYFRAMES
+   motion/react's spring(stiffness 120, damping 18, mass 0.9) in closed form:
+     ζω₀ = c/2m = 10          ω₀ = √(k/m) = 11.547      ω_d = √(k/m − (c/2m)²) = 5.7735
+     y(t) = y₀ · e^(−10t) · ( cos(ω_d t) + (10/ω_d)·sin(ω_d t) )        y₀ = 110%
+   ζ = 0.866 → near-critically damped: a single ~0.5% undershoot past zero at
+   ~0.5s, no visible bounce. The character is the long, heavy tail — fast off the
+   mask edge, then a slow settle. Sampled into linear-timed @keyframes rather than
+   approximated with a bezier so the tail stays exactly where the source put it.
+============================================================ */
+(function makeSpringKeyframes() {
+  const Y0 = 110, ZW = 10, WD = Math.sqrt(120 / 0.9 - 100), DUR = 0.75, STEPS = 40;
+  let css = '@keyframes glyphRise {';
+  for (let i = 0; i <= STEPS; i++) {
+    const p = i / STEPS, t = p * DUR;
+    const y = i === STEPS ? 0 : Y0 * Math.exp(-ZW * t) * (Math.cos(WD * t) + (ZW / WD) * Math.sin(WD * t));
+    css += `${(p * 100).toFixed(2)}%{transform:translateY(${y.toFixed(3)}%)}`;
+  }
+  css += '}';
+  const el = document.createElement('style');
+  el.textContent = css;
+  document.head.appendChild(el);
+})();
+
+/* ============================================================
+   THE SCENE HANDLE — mirrors src/types.ts SceneControl. The loader
+   never touches `progress`; it only flips `started` on handover, and
+   the scene reads that flag on its next frame to release its entrance.
+============================================================ */
+const control = { progress: 0, started: false };
+
+/* ============================================================
+   GATE STAND-IN — a real WebGL context that reports ready on the
+   frame it first renders, exactly like FestivityCanvas does:
+       if (!reportedReady) { reportedReady = true; onReady(); }
+   Replace the body of this function with your scene mount.
+============================================================ */
+let gateRaf = 0;
+function startGate(onReady) {
+  const canvas = document.getElementById('gate');
+  const gl = canvas.getContext('webgl', { alpha: true, antialias: true, powerPreference: 'high-performance' });
+  const size = () => {
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    canvas.width = Math.floor(innerWidth * dpr);
+    canvas.height = Math.floor(innerHeight * dpr);
+  };
+  size();
+  window.addEventListener('resize', size);
+  let reported = false, entranceStart = 0, localStarted = false;
+  const frame = () => {
+    gateRaf = requestAnimationFrame(frame);
+    const t = performance.now() / 1000;
+    // The scene sees `started` flip and releases its entrance on that frame.
+    if (control.started && !localStarted) { localStarted = true; entranceStart = t; }
+    if (gl) {
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+    if (!reported) { reported = true; onReady(); }
+  };
+  gateRaf = requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   LOADER — verbatim from src/components/Loader.tsx.
+============================================================ */
+let sceneReady = false;
+let onHandover = () => {};
+
+function runLoader() {
+  const loader = document.getElementById('loader');
+  const word = document.getElementById('loaderWord');
+  const bar = document.getElementById('loaderBar');
+  const meta = document.getElementById('loaderMeta');
+  const fill = document.getElementById('loaderFill');
+  const pctEl = document.getElementById('loaderPct');
+  const statusEl = document.getElementById('loaderStatus');
+
+  // Wordmark: one overflow-masked cell per glyph, staggered 0.055s after a 0.12s lead-in.
+  word.innerHTML = '';
+  'GRAVITY'.split('').forEach((c, i) => {
+    const cell = document.createElement('span'); cell.className = 'cell';
+    const ch = document.createElement('span'); ch.className = 'ch'; ch.textContent = c;
+    ch.style.animationDelay = (0.12 + i * 0.055).toFixed(3) + 's';
+    cell.appendChild(ch); word.appendChild(cell);
+  });
+  requestAnimationFrame(() => {
+    word.classList.add('is-go'); bar.classList.add('is-go'); meta.classList.add('is-go');
+  });
+
+  let value = 0, last = performance.now(), done = false;
+
+  const tick = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.05);   // clamped so a stalled tab can't jump the bar
+    last = now;
+
+    if (sceneReady && value >= 99.4) {
+      value = 100;                                    // snap the last 0.6% so it can't crawl
+    } else {
+      const ceiling = sceneReady ? 100 : 92;          // 92% is the "still mounting" holding pattern
+      value += (ceiling - value) * (sceneReady ? 6 : 1.7) * dt;
+      if (value > ceiling) value = ceiling;
+    }
+
+    fill.style.width = value + '%';
+    const pct = Math.round(value);
+    pctEl.textContent = String(pct).padStart(3, '0') + '%';
+    statusEl.textContent = pct < 100 ? 'Calibrating gravity field' : 'Entering orbit';
+
+    if (value >= 99.9 && sceneReady && !done) {
+      done = true;
+      mark('tFull');
+      setTimeout(() => loader.classList.add('is-leaving'), 160);
+      setTimeout(() => {
+        // ONE frame, three effects: gate opens, scene released, loader retired.
+        // NOTE — the two upstream sources disagree here and this follows App.tsx
+        // (the manifest's composition root): the gate opens at +720ms, AFTER the
+        // plate has faded. portable.html instead flips both flags at +0ms, so the
+        // reveal and the scene's 2.2s entrance run UNDER the fading plate. Moving
+        // these three lines out of this timeout is all it takes to switch.
+        document.body.classList.add('is-revealed');
+        control.started = true;
+        loader.classList.add('is-gone');
+        mark('tDone'); mark('tStarted', 'true');
+        onHandover();
+      }, 160 + 560);
+      return;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ---------- DEMO CHROME ---------- */
+let t0 = performance.now();
+function mark(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text || Math.round(performance.now() - t0) + 'ms';
+}
+document.getElementById('replay').addEventListener('click', () => {
+  cancelAnimationFrame(gateRaf);
+  document.body.classList.remove('is-revealed');
+  const loader = document.getElementById('loader');
+  loader.classList.remove('is-leaving', 'is-gone');
+  document.getElementById('loaderFill').style.width = '0%';
+  ['loaderWord', 'loaderBar', 'loaderMeta'].forEach((k) => document.getElementById(k).classList.remove('is-go'));
+  ['tReady', 'tFull', 'tDone'].forEach((k) => (document.getElementById(k).textContent = '—'));
+  document.getElementById('tStarted').textContent = 'false';
+  control.started = false;
+  sceneReady = false;
+  boot();
+});
+/* ---------- END DEMO CHROME ---------- */
+
+function boot() {
+  t0 = performance.now();
+  startGate(() => { sceneReady = true; mark('tReady'); });
+  runLoader();
+}
+boot();
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

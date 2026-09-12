@@ -1,0 +1,23 @@
+{
+  "name": "starter-next",
+  "title": "Point de depart Next",
+  "order": 4,
+  "kind": "starter",
+  "description": "Le socle dont les autres derivent : ressorts partout, texte anime, defilement lisse, grille adaptative en rem.",
+  "stack": [
+    "Next 16",
+    "react-spring",
+    "Lenis",
+    "Tailwind v4"
+  ],
+  "tags": [
+    "socle",
+    "marketing",
+    "animation"
+  ],
+  "source": "next16-claude-starter, par Textura.",
+  "licence": "Unlicense",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

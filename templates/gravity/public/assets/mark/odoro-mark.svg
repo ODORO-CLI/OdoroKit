@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="ODORO">
+  <title>ODORO</title>
+  <!--
+    Le sigle ODORO — un coin carré en haut à gauche prolongé par un arc de 270°,
+    en trait d'épaisseur constante.
+
+    Tracé GÉOMÉTRIQUE, pas vectorisé : dans une boîte de 100 × 100, le contour
+    extérieur est un rayon de 50 centré sur (50, 50) et l'intérieur un rayon de 35,
+    ce qui donne les 15 unités d'épaisseur du logo fourni. La même définition sert
+    au sigle 3D (odoro-mark.glb) ET à la silhouette que le champ de sphères
+    réassemble dans FestivityCanvas — les trois ne peuvent pas diverger.
+
+    fill-rule evenodd creuse le contour intérieur : sans lui les deux sous-tracés
+    se remplissent et le sigle devient une goutte pleine.
+  -->
+  <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M0 0H50A50 50 0 1 1 0 50Z M15 15H50A35 35 0 1 1 15 50Z"
+        fill="#f97316" />
+</svg>

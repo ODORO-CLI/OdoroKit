@@ -21,7 +21,13 @@ export default tseslint.config(
       '**/dist/**',
       '**/node_modules/**',
       '**/coverage/**',
-      'packages/create-odoro/templates/**',
+      // Les templates du scaffolder : des donnees copiees chez l'utilisateur
+      // final, dont les dependances ne sont jamais installees ici.
+      'packages/odoro/templates/**',
+      // Les templates de sites : des projets tiers complets, chacun avec sa
+      // propre chaine et ses propres conventions. Les linter avec les regles
+      // de ce depot ne dit rien d'utile sur du code qu'on ne maintient pas.
+      'templates/**',
       'packages/odoro-libs/src/styles/generated/**',
     ],
   },

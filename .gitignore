@@ -35,3 +35,14 @@ playwright-report/
 kms-master-key
 *.key
 *.pem
+
+# Les artefacts de build des templates.
+#
+# `templates/` porte des projets complets, chacun avec sa propre chaine. Leurs
+# dependances et leurs sorties se reconstruisent ; les versionner ajouterait
+# plusieurs centaines de megaoctets a un depot qui vient de diviser par deux le
+# poids de ce qu'il publie.
+templates/*/node_modules/
+templates/*/.next/
+templates/*/dist/
+templates/*/.turbo/

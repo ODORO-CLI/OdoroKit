@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Equator</title>
+<!--
+  GetLayers · Section — Equator
+  A split, SCROLL-PINNED, synced showcase. LEFT: a purple panel with a vertical column of frosted
+  category pills. RIGHT: a beige panel with a shuffling deck of reel-cards. The two are locked to
+  one index: the section pins (sticky) while you scroll, and scroll progress advances the deck one
+  card at a time while the left list glides so the active card's category snaps into the solid-white
+  slot. It is FINITE — once you pass the last card the section unpins and the page scrolls on. You
+  can also flick/drag the deck, arrow-key it, or click a pill/card. Below the deck: the "equator"
+  wordmark + emblem, and a per-run progress bar.
+
+  Pure HTML + CSS + one small script — no WebGL, no framework, no external deps. Card art is the
+  "oily"/marbled set (assets/equator/*.webp); a c1/c2 gradient stays as the fallback behind each
+  image. Everything tunable lives in CONFIG.
+-->
+<style>
+  /* ---- reset (the file is standalone so it owns the page) ---- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #ece5dd; }
+
+  #section {
+    --purple1:  #d074f2;   /* left panel — top */
+    --purple2:  #c07cf1;   /* left panel — mid */
+    --purple3:  #d98ae4;   /* left panel — foot */
+    --beige:    #ece5dd;   /* right panel */
+    --ink:      #1b1b1e;   /* pill / wordmark ink */
+    --pill-off: rgba(255,255,255,.52);  /* frosted (inactive) pill */
+    --pill-on:  #ffffff;                /* highlighted pill */
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: Georgia, "Times New Roman", serif;
+    --ease: cubic-bezier(.22,.61,.36,1);
+    --corner: 20px;   /* card radius (dev-panel tunable) */
+    --tdur:   .6s;    /* card shuffle duration */
+    --ratio:  1.14;   /* card aspect (1 / ratio) */
+  }
+
+  /* #section is the tall SCROLL TRACK; its height (set by JS) is what the pin scrubs through */
+  #section { position: relative; width: 100%; color: var(--ink); font-family: var(--mono);
+    -webkit-font-smoothing: antialiased; }
+
+  /* the pin is the actual one-screen visual; it sticks while you scroll the track */
+  #section .pin {
+    position: sticky; top: 0; height: 100svh; overflow: hidden;
+    display: grid; grid-template-columns: 44% 56%;
+    background: var(--beige);
+  }
+
+  /* ================= LEFT — purple panel + pill column ================= */
+  #section .left {
+    position: relative; overflow: hidden;
+    background: linear-gradient(158deg, var(--purple1) 0%, var(--purple2) 55%, var(--purple3) 100%);
+  }
+  #section .rail {
+    position: absolute; inset: 0;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  }
+  #section .pill {
+    position: absolute; left: clamp(14px, 6%, 44px); top: 0;
+    display: inline-flex; align-items: center; gap: 13px; white-space: nowrap;
+    padding: 12px 24px 12px 16px; border-radius: 999px;
+    border: 1.5px solid rgba(255,255,255,.8);
+    background: var(--pill-off); color: var(--ink);
+    font-weight: 700; font-size: clamp(11px, 1.15vw, 15px); letter-spacing: .06em; text-transform: uppercase;
+    box-shadow: 0 6px 20px -6px rgba(90,20,130,.35);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    cursor: pointer; will-change: transform;
+    transition: background .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease);
+  }
+  #section .pill.-active { background: var(--pill-on); border-color: #fff;
+    box-shadow: 0 12px 34px -8px rgba(90,20,130,.45); }
+  #section .pill .ic { flex: none; width: 22px; height: 22px; display: grid; place-items: center; color: var(--ink); }
+  #section .pill .ic svg { width: 100%; height: 100%; display: block; }
+  #section .pill:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+  /* ================= RIGHT — beige panel + card deck ================= */
+  #section .right { position: relative; display: grid; place-items: center; padding: 5vh 4%; }
+
+  #section .deck {
+    position: relative;
+    width: min(74%, 360px); aspect-ratio: 1 / var(--ratio);
+    touch-action: pan-y;   /* let vertical gestures scroll the page; we handle horizontal flicks */
+  }
+  #section .rcard {
+    position: absolute; inset: 0; margin: 0; padding: 0; border: 0; cursor: pointer;
+    border-radius: var(--corner); overflow: hidden; background: #0c0e14;
+    transform-origin: 50% 50%; will-change: transform, opacity;
+    box-shadow: 0 34px 60px -26px rgba(40,20,60,.5), 0 8px 22px -12px rgba(40,20,60,.4);
+    transition: transform var(--tdur) var(--ease), opacity var(--tdur) var(--ease);
+    -webkit-tap-highlight-color: transparent;
+  }
+  #section .rcard__media { position: absolute; inset: 0;
+    background: linear-gradient(158deg, var(--c1), var(--c2)); }
+  #section .rcard__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* legibility scrim over the art (top for the caption, bottom for the tag) */
+  #section .rcard__media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,.5) 0%, rgba(0,0,0,.05) 22%, rgba(0,0,0,0) 52%, rgba(0,0,0,.55) 100%); }
+  #section .rcard__ghost { position: absolute; top: 50%; left: 50%; width: 56%; height: 56%; transform: translate(-50%,-50%);
+    color: rgba(255,255,255,.16); pointer-events: none; }
+  #section .rcard__ghost svg { width: 100%; height: 100%; }
+
+  #section .cap { position: absolute; top: 16px; left: 18px; right: 18px; z-index: 2; color: #fff;
+    display: flex; align-items: center; gap: 8px; text-shadow: 0 1px 8px rgba(0,0,0,.55); }
+  #section .cap svg { width: 12px; height: 12px; flex: none; }
+  #section .cap b { font-weight: 700; font-size: 11px; letter-spacing: .08em; }
+  #section .cap span { font-weight: 500; font-size: 11px; letter-spacing: .08em; opacity: .85; }
+
+  #section .tag { position: absolute; left: 16px; bottom: 16px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 8px 15px 8px 12px; border-radius: 999px; background: #fff; color: var(--ink);
+    font-weight: 700; font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+    box-shadow: 0 6px 18px -6px rgba(0,0,0,.4); }
+  #section .tag .ic { width: 16px; height: 16px; flex: none; display: grid; place-items: center; }
+  #section .tag .ic svg { width: 100%; height: 100%; }
+
+  /* deck-level reel chrome (stays over the front card) */
+  #section .chrome { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+  #section .chrome .prog { position: absolute; left: 11px; top: 15px; bottom: 15px; width: 3px;
+    border-radius: 3px; background: rgba(255,255,255,.32); overflow: hidden; }
+  #section .chrome .prog i { position: absolute; left: 0; top: 0; width: 100%; height: var(--p, 0%);
+    background: #fff; border-radius: 3px; }
+  #section .chrome .side { position: absolute; right: 12px; bottom: 14px; display: flex; flex-direction: column;
+    align-items: center; gap: 14px; color: #fff; }
+  #section .chrome .side .hz svg { width: 20px; height: 20px; filter: drop-shadow(0 1px 4px rgba(0,0,0,.4)); }
+  #section .chrome .side .plus { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 999px;
+    background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.5); backdrop-filter: blur(4px); }
+  #section .chrome .side .plus svg { width: 15px; height: 15px; }
+
+  /* right-panel footer + scroll cue */
+  #section .foot { position: absolute; left: 0; right: 0; bottom: clamp(16px, 3vh, 34px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(18px, 5%, 54px); pointer-events: none; }
+  #section .wordmark { font-family: var(--serif); font-weight: 400; font-size: clamp(20px, 2.2vw, 28px);
+    letter-spacing: .01em; color: #2a2a2a; }
+  #section .wordmark sup { font-size: .5em; vertical-align: super; opacity: .7; }
+  #section .emblem { width: clamp(24px, 2.4vw, 30px); height: auto; color: #2a2a2a; opacity: .85; }
+  #section .cue { position: absolute; top: clamp(16px, 3vh, 30px); right: clamp(18px, 5%, 54px); z-index: 3;
+    display: flex; align-items: center; gap: 8px; color: #7a736c; font-size: 10.5px; letter-spacing: .22em;
+    text-transform: uppercase; pointer-events: none; transition: opacity .4s var(--ease); }
+  #section .cue svg { width: 13px; height: 13px; animation: cuebob 1.7s var(--ease) infinite; }
+  #section.-scrolled .cue { opacity: 0; }
+  @keyframes cuebob { 0%,100% { transform: translateY(-2px) } 50% { transform: translateY(2px) } }
+
+  #section .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* ---- responsive: stack the panels on tablet / mobile ---- */
+  @media (max-width: 860px) {
+    #section .pin { grid-template-columns: 1fr; grid-template-rows: 40svh 60svh; }
+    #section .left { border-bottom: 1px solid rgba(0,0,0,.06); }
+    #section .rail { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+                             mask-image: linear-gradient(180deg, transparent 0, #000 16%, #000 84%, transparent 100%); }
+    #section .pill { left: 50%; transform-origin: 50% 50%; }   /* JS centres them horizontally on mobile */
+    #section .right { padding: 3vh 6%; }
+    #section .deck { width: min(62%, 300px); }
+    #section .cue { top: auto; bottom: clamp(12px, 2vh, 20px); right: 50%; transform: translateX(50%); }
+  }
+  @media (max-width: 480px) {
+    #section .pin { grid-template-rows: 36svh 64svh; }
+    #section .deck { width: min(74%, 280px); }
+    #section .pill { font-size: 12px; padding: 10px 18px 10px 13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #section .rcard { transition: none; }
+    #section .cue svg { animation: none; }
+  }
+
+  /* ============ DEV CONTROLS — remove this block (+ the #ui markup & JS) to ship without the panel ============ */
+  #ui { position: fixed; top: 12px; right: 12px; z-index: 20; width: 240px; max-height: 92vh; overflow: auto;
+    background: rgba(20,12,26,.9); border: 1px solid rgba(255,255,255,.14); border-radius: 8px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: #f0e9f6; font: 11px/1.35 ui-monospace, Menlo, monospace; user-select: none; }
+  #ui-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; cursor: pointer; }
+  #ui-head b { font-weight: 700; letter-spacing: .06em; }
+  #ui-head span { color: rgba(240,233,246,.5); font-size: 14px; }
+  #ui-body { padding: 2px 10px 10px; display: block; }
+  #ui.-collapsed #ui-body { display: none; }
+  .ui-grp { margin: 9px 0 2px; color: rgba(226,180,255,.8); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; }
+  .ui-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 5px 0; }
+  .ui-row label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(240,233,246,.85); }
+  .ui-row input[type=range] { width: 100px; accent-color: #c884ec; }
+  .ui-row input[type=color] { width: 26px; height: 18px; padding: 0; border: 1px solid rgba(255,255,255,.25); border-radius: 3px; background: none; cursor: pointer; }
+  .ui-row .val { width: 44px; text-align: right; color: rgba(226,180,255,.95); }
+  #ui-copy, #ui-reset { width: 100%; padding: 6px; cursor: pointer; color: #f0e9f6;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.18); border-radius: 5px; font: inherit; }
+  #ui-copy { margin-top: 10px; border-color: rgba(200,132,236,.5); color: #e6cbff; }
+  #ui-reset { margin-top: 6px; }
+  #ui-copy:hover, #ui-reset:hover { background: rgba(255,255,255,.14); }
+  /* ============ END DEV CONTROLS ============ */
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- ===== 4. MARKUP — the section (a tall scroll track holding a sticky pin) ===== -->
+<section id="section" aria-label="Impact showcase">
+  <div class="pin">
+    <div class="left">
+      <div class="rail" id="rail" role="tablist" aria-label="Impact categories"><!-- pills from CONFIG.cats --></div>
+    </div>
+
+    <div class="right">
+      <div class="cue" aria-hidden="true">Scroll<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+
+      <div class="deck" id="deck" aria-roledescription="carousel" aria-label="Featured stories">
+        <!-- cards injected from CONFIG.cards -->
+        <div class="chrome" aria-hidden="true">
+          <div class="prog"><i id="prog"></i></div>
+          <div class="side">
+            <span class="hz"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21l-1.45-1.32C5.4 14.99 2 11.9 2 8.11 2 5.02 4.42 2.6 7.5 2.6c1.74 0 3.41.81 4.5 2.09A6.02 6.02 0 0116.5 2.6C19.58 2.6 22 5.02 22 8.11c0 3.79-3.4 6.88-8.55 11.58L12 21z"/></svg></span>
+            <span class="plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span class="wordmark">equator<sup>™</sup></span>
+        <svg class="emblem" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="16" cy="16" r="14"/><path d="M2.4 16h27.2"/><path d="M16 2.2c4 3.6 4 24 0 27.6M16 2.2c-4 3.6-4 24 0 27.6"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <p class="sr-only" aria-live="polite" id="live"></p>
+</section>
+
+<!-- ===== DEV CONTROLS — remove this block (+ the #ui CSS & panel JS) to ship without the panel ===== -->
+<div id="ui">
+  <div id="ui-head"><b>Equator</b><span id="ui-caret">▾</span></div>
+  <div id="ui-body"></div>
+</div>
+<!-- ===== END DEV CONTROLS ===== -->
+
+<script type="module">
+/* ============================================================
+   3. CONFIG — every tunable value. `cats` and `cards` are parallel
+   (card i belongs to category i), so a single index drives both the
+   deck and the left highlight.
+============================================================ */
+const CONFIG = {
+  /* the 6 visual THEMES (icon · gradient · oily art) — cycled across the items below */
+  themes: [
+    { icon: 'gear',   c1: '#3f7d55', c2: '#16301f', img: 'assets/equator/copper-vein.webp' },
+    { icon: 'heart',  c1: '#c96a4b', c2: '#5e2419', img: 'assets/equator/molten-drift.webp' },
+    { icon: 'star',   c1: '#b06a92', c2: '#3f2038', img: 'assets/equator/gilded-smoke.webp' },
+    { icon: 'arrow',  c1: '#3f8f93', c2: '#123236', img: 'assets/equator/amber-flux.webp' },
+    { icon: 'globe',  c1: '#5b86c4', c2: '#1f2f54', img: 'assets/equator/solar-tide.webp' },
+    { icon: 'smiley', c1: '#c99a4a', c2: '#5f3f13', img: 'assets/equator/ink-bloom.webp' },
+  ],
+
+  /* the 20 items — each is one left pill + one deck card (theme = item index % themes.length) */
+  items: [
+    { label: 'Conservation',         title: 'Rewilding the Ridge',   place: 'Sapa, Vietnam' },
+    { label: 'Locally Owned',        title: 'Salt & Stone Kitchen',  place: 'Oaxaca, Mexico' },
+    { label: 'Supporting Jobs',      title: 'Forever Flowers',       place: 'Vientiane, Laos' },
+    { label: 'Reducing Crowds',      title: 'Backroads at Dawn',     place: 'Kotor, Montenegro' },
+    { label: 'Lowering Emissions',   title: 'The Slow Ferry',        place: 'Lofoten, Norway' },
+    { label: 'Community Investment', title: 'Weavers Collective',    place: 'Cusco, Peru' },
+    { label: 'Fair Wages',           title: 'The Coffee Terraces',   place: 'Yirgacheffe, Ethiopia' },
+    { label: 'Clean Water',          title: 'Springs of the Delta',  place: 'Siwa, Egypt' },
+    { label: 'Cultural Heritage',    title: 'Masters of Indigo',     place: 'Nara, Japan' },
+    { label: 'Wildlife Care',        title: 'The Elephant Valley',   place: 'Mondulkiri, Cambodia' },
+    { label: 'Plastic-Free',         title: 'Zero-Waste Harbour',    place: 'Cinque Terre, Italy' },
+    { label: 'Women-Led',            title: 'The Saffron Guild',     place: 'Kashmir, India' },
+    { label: 'Ethical Sourcing',     title: 'Highland Wool Route',   place: 'Torres del Paine, Chile' },
+    { label: 'Regenerative Farming', title: 'The Terraced Fields',   place: 'Bali, Indonesia' },
+    { label: 'Renewable Power',      title: 'Wind off the Fjord',    place: 'Faroe Islands' },
+    { label: 'Waste Reduction',      title: 'The Repair Quarter',    place: 'Porto, Portugal' },
+    { label: 'Youth Education',      title: 'Little Navigators',     place: 'Zanzibar, Tanzania' },
+    { label: 'Indigenous Rights',    title: 'Keepers of the Reef',   place: 'Cape York, Australia' },
+    { label: 'Reforestation',        title: 'A Million Seedlings',   place: 'Chiapas, Mexico' },
+    { label: 'Slow Travel',          title: 'The Night Train North', place: 'Kiruna, Sweden' },
+  ],
+}
+
+/* ---------- icon set (inline SVG) ---------- */
+const ICONS = {
+  gear:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7.5 7.5 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.61-.22l-2.39.96a7.3 7.3 0 00-1.62-.94l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 00-.61.22L2.68 8.84a.5.5 0 00.12.64l2.03 1.58a7.5 7.5 0 000 1.88l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32a.5.5 0 00.61.22l2.39-.96c.49.38 1.03.7 1.62.94l.36 2.54a.5.5 0 00.5.42h3.84a.5.5 0 00.5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96a.5.5 0 00.61-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.6a3.6 3.6 0 110-7.2 3.6 3.6 0 010 7.2z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21l-1.45-1.32C5.4 14.99 2 11.9 2 8.11 2 5.02 4.42 2.6 7.5 2.6c1.74 0 3.41.81 4.5 2.09A6.02 6.02 0 0116.5 2.6C19.58 2.6 22 5.02 22 8.11c0 3.79-3.4 6.88-8.55 11.58L12 21z"/></svg>',
+  star:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.9l6.5-.9L12 2.6z"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v14M6 12l6 6 6-6"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9.2"/><path d="M2.8 12h18.4M12 2.8c3 3.2 3 15.2 0 18.4M12 2.8c-3 3.2-3 15.2 0 18.4"/></svg>',
+  smiley:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M8.5 14.5c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>',
+}
+
+/* ============================================================
+   PARAMS — the dev-panel tunables (carousel motion + the shuffle
+   "effect" + the left list + palette). Persisted to localStorage;
+   `⧉ copy config` prints them back as a source block. Strip the
+   marked #ui block (CSS + markup + this + the panel JS) for catalog.
+============================================================ */
+const PARAMS = {
+  /* motion */
+  stepVh: 42, ease: 0.18, tdur: 0.6,
+  /* deck effect */
+  behindCount: 2, peekX: 6.5, peekY: -3, peekScale: 0.06, peekRot: 1.8,
+  behindOp: 0.55, behindFall: 0.5, exitX: -74, exitRot: -7, ratio: 1.14, corner: 20,
+  /* left list */
+  pillUnit: 66, focusFrac: 0.42, pillScale: 1.05,
+  /* palette */
+  purple1: '#d074f2', purple2: '#c07cf1', purple3: '#d98ae4', beige: '#ece5dd', ink: '#1b1b1e',
+}
+const TUNABLES = Object.keys(PARAMS)
+const DEFAULTS = { ...PARAMS }                                   // snapshot BEFORE restore
+const STORAGE_KEY = 'getlayers:equator'
+try { const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); if (s) for (const k of TUNABLES) if (k in s) PARAMS[k] = s[k] } catch (e) {}
+const saveP = () => { try { const o = {}; for (const k of TUNABLES) o[k] = PARAMS[k]; localStorage.setItem(STORAGE_KEY, JSON.stringify(o)) } catch (e) {} }
+
+/* ---------- refs + build ---------- */
+const section = document.getElementById('section')
+const rail    = document.getElementById('rail')
+const deck    = document.getElementById('deck')
+const prog    = document.getElementById('prog')
+const live    = document.getElementById('live')
+const chrome  = deck.querySelector('.chrome')
+
+/* derive the parallel cats + cards by cycling the themes across the 20 items */
+const THEMES = CONFIG.themes
+const cats = CONFIG.items.map((it, i) => ({ ...THEMES[i % THEMES.length], label: it.label }))
+const cards = CONFIG.items.map(it => ({ title: it.title, place: it.place }))
+const N = cats.length
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
+
+/* build the deck (one fixed card per category) */
+const cardEls = cards.map((cd, i) => {
+  const cat = cats[i]
+  const el = document.createElement('button')
+  el.type = 'button'; el.className = 'rcard'
+  el.setAttribute('aria-label', `${cd.title}, ${cd.place} — ${cat.label}`)
+  el.style.setProperty('--c1', cat.c1); el.style.setProperty('--c2', cat.c2)
+  el.innerHTML = `
+    <span class="rcard__media">${cat.img ? `<img src="${cat.img}" alt="${cd.title}" draggable="false" loading="lazy">` : ''}</span>
+    ${cat.img ? '' : `<span class="rcard__ghost">${ICONS[cat.icon]}</span>`}
+    <span class="cap"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.9l6.5-.9L12 2.6z"/></svg><b>${cd.title.toUpperCase()}</b><span>${cd.place.toUpperCase()}</span></span>
+    <span class="tag"><span class="ic">${ICONS[cat.icon]}</span>${cat.label.toUpperCase()}</span>`
+  el.addEventListener('click', () => { if (!moved) advance(1) })
+  deck.insertBefore(el, chrome)
+  return el
+})
+
+/* build the left column (finite — one pill per category) */
+const pillEls = cats.map((c, i) => {
+  const el = document.createElement('button')
+  el.type = 'button'; el.className = 'pill'; el.setAttribute('role', 'tab')
+  el.innerHTML = `<span class="ic">${ICONS[c.icon]}</span><span class="lb">${c.label}</span>`
+  el.setAttribute('aria-label', `${c.label} — show story ${i + 1} of ${N}`)
+  el.addEventListener('click', () => goToIndex(i))
+  rail.appendChild(el)
+  return el
+})
+
+/* ---------- geometry ---------- */
+let unit = PARAMS.pillUnit, focusY = 0, mobile = false
+function layout() {
+  section.style.height = (100 + (N - 1) * PARAMS.stepVh) + 'svh'
+  const lr = section.querySelector('.left').getBoundingClientRect()
+  mobile = matchMedia('(max-width: 860px)').matches
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  unit  = Math.min(PARAMS.pillUnit, Math.max(46, lr.height / 5.6))
+  if (mobile) unit += 0.25 * rem   // 0.25rem of breathing room between pills on mobile
+  focusY = lr.height * PARAMS.focusFrac
+  paintRail()
+}
+addEventListener('resize', layout)
+
+/* ---------- state ---------- */
+let active = 0                 // rounded index — drives deck + highlight (starts at the top card)
+let activeF = 0                // fractional scroll position
+let p = 0                      // eased float the left list follows
+let progFrac = 0               // 0..1 progress through the whole run
+
+/* push palette + card-shape params into the CSS custom properties */
+function applyStyles() {
+  const s = section.style, P = PARAMS
+  s.setProperty('--purple1', P.purple1); s.setProperty('--purple2', P.purple2); s.setProperty('--purple3', P.purple3)
+  s.setProperty('--beige', P.beige); s.setProperty('--ink', P.ink)
+  s.setProperty('--corner', P.corner + 'px'); s.setProperty('--tdur', P.tdur + 's'); s.setProperty('--ratio', P.ratio)
+  document.body.style.background = P.beige
+}
+
+/* deck: signed offsets (FINITE — no wrap; ends have fewer cards). All geometry from PARAMS. */
+function paintDeck() {
+  const P = PARAMS
+  for (let i = 0; i < N; i++) {
+    const o = i - active
+    const el = cardEls[i]
+    let t, z, op
+    if (o === 0) {
+      t = 'translate(0,0) scale(1) rotate(0deg)'; z = 40; op = 1
+    } else if (o >= 1) {                              // behind (peeking) + parked (frozen at the last slot)
+      const k = Math.min(o, P.behindCount + 1)
+      const s = Math.max(0.3, 1 - k * P.peekScale)
+      t = `translate(${(k * P.peekX).toFixed(2)}%, ${(k * P.peekY).toFixed(2)}%) scale(${s.toFixed(3)}) rotate(${(k * P.peekRot).toFixed(2)}deg)`
+      z = Math.max(6, 40 - k * 10)
+      op = o <= P.behindCount ? Math.max(0, P.behindOp * Math.pow(P.behindFall, o - 1)) : 0
+    } else {                                          // exiting / gone (slide off to the left, fade out)
+      const k = Math.min(-o, 2)
+      t = `translate(${(P.exitX - (k - 1) * 16).toFixed(1)}%, ${9 + (k - 1) * 3}%) scale(${(1.03 + (k - 1) * 0.02).toFixed(2)}) rotate(${(P.exitRot - (k - 1) * 2).toFixed(1)}deg)`
+      z = 16 - k; op = 0
+    }
+    el.style.transform = t; el.style.zIndex = z; el.style.opacity = op
+    el.style.pointerEvents = o === 0 ? 'auto' : 'none'
+  }
+}
+
+/* left column: translate each pill; the active one sits at the focus line */
+function paintRail() {
+  for (let i = 0; i < N; i++) {
+    const el = pillEls[i]
+    const on = i === active
+    el.classList.toggle('-active', on)
+    el.setAttribute('aria-selected', on ? 'true' : 'false')
+    const y = focusY - unit / 2 + (i - p) * unit
+    const sc = on ? PARAMS.pillScale : 1
+    el.style.transform = mobile
+      ? `translate(-50%, ${y.toFixed(1)}px) scale(${sc})`
+      : `translateY(${y.toFixed(1)}px) scale(${sc})`
+  }
+}
+
+function announce() {
+  const c = cats[active], cd = cards[active]
+  live.textContent = `${cd.title}, ${cd.place}. Category ${c.label}, ${active + 1} of ${N}.`
+}
+
+/* ---------- scroll → index (the section is pinned; scroll scrubs the deck) ---------- */
+function metrics() {
+  const rect = section.getBoundingClientRect()
+  const top = rect.top + scrollY
+  const range = Math.max(1, section.offsetHeight - innerHeight)
+  return { top, range }
+}
+function readScroll() {
+  const { top, range } = metrics()
+  progFrac = clamp((scrollY - top) / range, 0, 1)
+  activeF = progFrac * (N - 1)
+  const r = clamp(Math.round(activeF), 0, N - 1)
+  if (r !== active) { active = r; paintDeck(); announce() }
+  section.classList.toggle('-scrolled', progFrac > 0.02)
+}
+
+/* smooth-scroll the page so a given card lands centred (used by pills / keys / flicks) */
+function goToIndex(i) {
+  i = clamp(i, 0, N - 1)
+  const { top, range } = metrics()
+  const y = top + (i / (N - 1)) * range
+  scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' })
+}
+const advance = dir => goToIndex(active + dir)
+
+/* ---------- rAF loop: read scroll, ease the list, paint ---------- */
+function frame() {
+  readScroll()
+  p = reduce ? activeF : p + (activeF - p) * PARAMS.ease
+  if (Math.abs(activeF - p) < 0.002) p = activeF
+  prog.style.setProperty('--p', progFrac * 100 + '%')
+  paintRail()
+  requestAnimationFrame(frame)
+}
+
+/* ---------- drag / flick on the deck (horizontal → prev/next; vertical scrolls the page) ---------- */
+let downX = 0, downY = 0, dragging = false, moved = false
+deck.addEventListener('pointerdown', e => { downX = e.clientX; downY = e.clientY; dragging = true; moved = false })
+deck.addEventListener('pointermove', e => {
+  if (!dragging) return
+  if (Math.abs(e.clientX - downX) > 6 || Math.abs(e.clientY - downY) > 6) moved = true
+})
+deck.addEventListener('pointerup', e => {
+  if (!dragging) return
+  dragging = false
+  const dx = e.clientX - downX, dy = e.clientY - downY
+  if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) advance(dx < 0 ? 1 : -1)
+})
+deck.addEventListener('pointercancel', () => { dragging = false })
+
+/* ---------- keyboard ---------- */
+section.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { advance(1); e.preventDefault() }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { advance(-1); e.preventDefault() }
+  else if (e.key === 'Home') { goToIndex(0); e.preventDefault() }
+  else if (e.key === 'End') { goToIndex(N - 1); e.preventDefault() }
+})
+
+/* ============================================================
+   DEV CONTROLS — schema-driven panel that live-tunes PARAMS,
+   persists to localStorage, and copies the values back as source.
+   (Strip this block + the #ui markup/CSS for the catalog build.)
+============================================================ */
+const SCHEMA = [
+  ['Motion'],
+  ['stepVh', 'Scroll / card', 16, 90, 1], ['ease', 'List glide', 0.04, 0.5, 0.01], ['tdur', 'Shuffle time', 0.1, 1.4, 0.05],
+  ['Deck effect'],
+  ['behindCount', 'Behind cards', 0, 4, 1], ['peekX', 'Peek X', 0, 22, 0.5], ['peekY', 'Peek Y', -16, 8, 0.5],
+  ['peekScale', 'Peek shrink', 0, 0.22, 0.005], ['peekRot', 'Peek rotate', 0, 8, 0.2],
+  ['behindOp', 'Behind fade', 0, 1, 0.02], ['behindFall', 'Fade falloff', 0.2, 1, 0.02],
+  ['exitX', 'Exit slide', -130, 0, 2], ['exitRot', 'Exit rotate', -18, 6, 0.5],
+  ['ratio', 'Card ratio', 0.9, 1.6, 0.01], ['corner', 'Card corner', 0, 40, 1],
+  ['Left list'],
+  ['pillUnit', 'Pill stride', 46, 96, 1], ['focusFrac', 'Focus line', 0.2, 0.7, 0.01], ['pillScale', 'Active scale', 1, 1.2, 0.01],
+  ['Palette'],
+  ['purple1', 'Purple top', 'color'], ['purple2', 'Purple mid', 'color'], ['purple3', 'Purple foot', 'color'],
+  ['beige', 'Right panel', 'color'], ['ink', 'Ink', 'color'],
+]
+const valEls = {}, inpEls = {}
+const fmt = v => Number.isInteger(v) ? String(v) : String(parseFloat(v.toFixed(4)))
+const RELAYOUT = new Set(['stepVh', 'pillUnit', 'focusFrac'])
+function onChange(key, v) {
+  PARAMS[key] = v; saveP()
+  applyStyles()
+  if (RELAYOUT.has(key)) layout()
+  paintDeck(); paintRail()
+}
+
+function buildPanel() {
+  const body = document.getElementById('ui-body')
+  for (const row of SCHEMA) {
+    if (row.length === 1) { const h = document.createElement('div'); h.className = 'ui-grp'; h.textContent = row[0]; body.appendChild(h); continue }
+    const [key, label, a, b, step] = row
+    const el = document.createElement('div'); el.className = 'ui-row'
+    const lab = document.createElement('label'); lab.textContent = label; el.appendChild(lab)
+    if (a === 'color') {
+      const inp = document.createElement('input'); inp.type = 'color'; inp.value = PARAMS[key]; inpEls[key] = inp
+      inp.addEventListener('input', () => onChange(key, inp.value)); el.appendChild(inp)
+    } else {
+      const inp = document.createElement('input'); inp.type = 'range'; inp.min = a; inp.max = b; inp.step = step; inp.value = PARAMS[key]; inpEls[key] = inp
+      const val = document.createElement('span'); val.className = 'val'; val.textContent = fmt(PARAMS[key]); valEls[key] = val
+      inp.addEventListener('input', () => { onChange(key, parseFloat(inp.value)); val.textContent = fmt(PARAMS[key]) })
+      el.appendChild(inp); el.appendChild(val)
+    }
+    body.appendChild(el)
+  }
+  const copy = document.createElement('button'); copy.id = 'ui-copy'; copy.textContent = '⧉ copy config'
+  copy.addEventListener('click', () => copyConfig(copy)); body.appendChild(copy)
+  const reset = document.createElement('button'); reset.id = 'ui-reset'; reset.textContent = '↺ reset to defaults'
+  reset.addEventListener('click', () => { for (const k of TUNABLES) PARAMS[k] = DEFAULTS[k]; try { localStorage.removeItem(STORAGE_KEY) } catch (e) {} location.reload() })
+  body.appendChild(reset)
+  const head = document.getElementById('ui-head'), panel = document.getElementById('ui'), caret = document.getElementById('ui-caret')
+  head.addEventListener('click', () => { panel.classList.toggle('-collapsed'); caret.textContent = panel.classList.contains('-collapsed') ? '▸' : '▾' })
+  if (innerWidth < 860) { panel.classList.add('-collapsed'); caret.textContent = '▸' }
+}
+
+const GROUPS = { stepVh: 'motion', behindCount: 'deck effect', pillUnit: 'left list', purple1: 'palette' }
+function configText() {
+  const lines = ['/* Equator — tuned PARAMS; paste over the matching keys */']
+  for (const k of TUNABLES) {
+    if (GROUPS[k]) lines.push('// ' + GROUPS[k])
+    const v = PARAMS[k]
+    lines.push(`${k}: ${typeof v === 'string' ? `'${v}'` : fmt(v)},`)
+  }
+  return lines.join('\n')
+}
+async function copyConfig(btn) {
+  const text = configText()
+  try { await navigator.clipboard.writeText(text) }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy') } catch (e2) {} document.body.removeChild(ta) }
+  const old = btn.textContent; btn.textContent = '✓ copied'; setTimeout(() => { btn.textContent = old }, 1200)
+}
+
+/* ---------- go ---------- */
+applyStyles(); buildPanel(); layout(); paintDeck(); announce(); requestAnimationFrame(frame)
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

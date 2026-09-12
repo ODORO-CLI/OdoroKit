@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Artist Loader</title>
+<!--
+  GetLayers · Section — Artist Loader (role: loader)
+
+  A gallery-quiet intro gate. A full-bleed plate in the page ground holds two things and nothing
+  else: a small-caps studio label pinned bottom-left and an oversized display-face percentage
+  pinned bottom-right. The counter runs 0 → 100 on an ease-out-cubic curve over exactly 1500ms,
+  rests 160ms at 100, then the whole plate WIPES UP off the top of the screen over 900ms on the
+  house ease — and on the same frame the content beneath latches its reveal, so the page is already
+  animating in behind the departing plate. Scroll is locked from first paint and released 900ms
+  after the count ends, i.e. exactly as the wipe lands.
+
+  Ported verbatim from the Artist template's intro (sources/templates/artist/portable.html):
+  the 1500ms count, the 1 - (1-p)^3 easing, the 160ms rest, the 900ms wipe, the 900ms scroll gate,
+  and the four reveal primitives (masked heading words @70ms stagger, blurred body words @22ms,
+  e-up @1.75rem, e-fade) with their exact durations and curves. Those numbers are the asset.
+
+  Self-contained: no libraries, no images, no base64. The template's real intro sits on a photo-led
+  editorial page; here the handoff target is a lightweight CSS stand-in plate (hairline frame +
+  diagonal) so the choreography reads without shipping media. The template's body face (Satoshi,
+  Fontshare) is substituted with the system sans; the display face is loaded from Google Fonts.
+
+  RE-SKIN THROUGH THE TOKENS in :root below (--gl-*). Do not retune the timings.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     TOKENS — the entire skin surface. Swap these, keep everything else.
+     ========================================================================== */
+  :root {
+    --gl-bg:            #ffffff;
+    --gl-ink:           #191917;
+    --gl-ink-muted:     rgba(25,25,23,.6);
+    --gl-ink-subtle:    rgba(25,25,23,.3);
+    --gl-line:          rgba(25,25,23,.2);
+    --gl-font-display:  "Playfair Display", Georgia, "Times New Roman", serif;
+    --gl-font-body:     -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --gl-tracking-display: -0.01em;
+    --gl-weight-display: 400;
+    --gl-duration-slow: 900ms;   /* the wipe, and the longest reveal leg */
+    --gl-ease:          cubic-bezier(.16, 1, .3, 1);   /* ease-out-expo — the house curve */
+  }
+
+  /* the second reveal curve: ease-out-quart. Opacity rides this, transform rides --gl-ease. */
+  :root { --gl-ease-opacity: cubic-bezier(.25, 1, .5, 1); }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { background: var(--gl-bg); }
+  body {
+    background: var(--gl-bg); color: var(--gl-ink);
+    font-family: var(--gl-font-body); -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* scroll is LOCKED until the gate opens (see .js gate below) */
+  html.-gated, html.-gated body { overflow: hidden; height: 100%; }
+
+  /* ==========================================================================
+     THE LOADER PLATE
+     Bottom-anchored, space-between: label left, counter right. Nothing else.
+     ========================================================================== */
+  #loader {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--gl-bg);
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 3rem;
+    transition: transform var(--gl-duration-slow) var(--gl-ease);
+  }
+  #loader.-wipe { transform: translateY(-100%); }        /* off the top edge */
+
+  #loader .lab {
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .28em;
+    color: var(--gl-ink-subtle);
+  }
+  #loader .num {
+    font-family: var(--gl-font-display); font-weight: var(--gl-weight-display);
+    font-size: 8vw; line-height: 1; color: var(--gl-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  #loader .num::after {
+    content: "%"; font-size: .35em; vertical-align: super;
+    color: var(--gl-ink-subtle); margin-left: .15em;
+  }
+
+  /* ==========================================================================
+     REVEAL SYSTEM — the four primitives the template hands off to.
+     A `.revealed` ancestor releases every descendant. Nothing is per-element JS.
+     ========================================================================== */
+
+  /* 1. masked heading words — rise from behind a per-word clip, 70ms apart */
+  .mask {
+    display: inline-block; white-space: nowrap; overflow: hidden; vertical-align: top;
+    padding: 0 .06em .14em; margin: 0 -.06em -.14em;     /* room for descenders/italics */
+  }
+  .mask .word { transform: translateY(118%); transition: transform 950ms var(--gl-ease); }
+  .revealed .mask .word { transform: none; }
+
+  /* 2. body words — fade up out of a blur, 22ms apart */
+  .word {
+    display: inline-block; white-space: nowrap;
+    opacity: 0; transform: translateY(.5em); filter: blur(4px);
+    transition: opacity 600ms var(--gl-ease-opacity),
+                transform 800ms var(--gl-ease),
+                filter 800ms var(--gl-ease);
+  }
+  .revealed .word { opacity: 1; transform: none; filter: blur(0); }
+
+  /* 3. block rise */
+  .e-up {
+    opacity: 0; transform: translateY(1.75rem);
+    transition: opacity 800ms var(--gl-ease), transform var(--gl-duration-slow) var(--gl-ease);
+  }
+  .revealed .e-up { opacity: 1; transform: none; }
+
+  /* 4. quiet fade */
+  .e-fade { opacity: 0; transition: opacity 800ms var(--gl-ease); }
+  .revealed .e-fade { opacity: 1; }
+
+  .reveal .word, .reveal .e-up, .reveal .e-fade { will-change: transform, opacity; }
+
+  /* ==========================================================================
+     HANDOFF TARGET — a stand-in for the template's hero. Layout is illustrative;
+     the TIMING above is the asset.
+     ========================================================================== */
+  .stage { min-height: 100svh; padding: 10rem 3rem 4rem; }
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2rem; align-items: center;
+          max-width: 90rem; margin: 0 auto; }
+  .copy { grid-column: span 6; }
+  .plate-col { grid-column: 7 / span 6; }
+
+  .eyebrow { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem;
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .2em;
+    color: var(--gl-ink-muted); font-weight: 500; }
+  .eyebrow i { display: inline-block; width: 2rem; height: 1px; background: currentColor; }
+
+  h1, h2 { margin: 0; font-family: var(--gl-font-display); font-weight: var(--gl-weight-display);
+    letter-spacing: var(--gl-tracking-display); line-height: 1.12; }
+  h1 { font-size: clamp(2.5rem, 6vw, 6rem); line-height: 1.04; max-width: 14ch; }
+  h1 em { font-style: italic; }
+  .lead { margin: 2.5rem 0 0; max-width: 46ch; font-size: 1.125rem; line-height: 1.7;
+    color: var(--gl-ink-muted); }
+  .row { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 1rem; }
+  .btn { display: inline-flex; align-items: center; gap: .75rem; padding: 1rem 2rem;
+    font: 500 .875rem/1 var(--gl-font-body); text-transform: uppercase; letter-spacing: .14em;
+    text-decoration: none; cursor: pointer; border: 0; }
+  .btn-solid { background: var(--gl-ink); color: var(--gl-bg); }
+  .btn-ghost { border: 1px dashed var(--gl-line); color: var(--gl-ink); background: none; }
+  .btn .ar { transition: transform 400ms var(--gl-ease); }
+  .btn:hover .ar { transform: translateX(.4rem); }
+
+  .ledger { margin-top: 3rem; border-top: 1px solid var(--gl-line); padding-top: 2rem;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .ledger dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .18em;
+    color: var(--gl-ink-subtle); }
+  .ledger dd { margin: .25rem 0 0; font-size: .875rem; }
+
+  /* stand-in plate — hairline frame + a single diagonal. No media shipped. */
+  .plate { position: relative; width: 100%; aspect-ratio: 3 / 4; border: 1px dashed var(--gl-line);
+    background:
+      linear-gradient(to top right, transparent calc(50% - .5px), var(--gl-line) 50%,
+                      transparent calc(50% + .5px)); }
+  .plate span { position: absolute; left: 1rem; bottom: 1rem; font-size: .7rem;
+    text-transform: uppercase; letter-spacing: .22em; color: var(--gl-ink-subtle); }
+
+  /* second band — proves the scroll-driven latch reuses the same primitives */
+  .band { border-top: 1px dashed var(--gl-line); padding: 8rem 3rem; }
+  .band .in { max-width: 90rem; margin: 0 auto; }
+  .band h2 { font-size: clamp(2rem, 4.5vw, 4.5rem); max-width: 18ch; }
+  .cards { margin-top: 4rem; display: grid; grid-template-columns: repeat(3, 1fr);
+    column-gap: 3rem; row-gap: 2.5rem; }
+  .card { border-top: 1px dashed var(--gl-line); padding-top: 2rem; }
+  .card .idx { font-family: var(--gl-font-display); font-size: 1.5rem; }
+  .card h3 { margin: 1.5rem 0 0; font-size: 1.25rem; font-weight: 500; line-height: 1.2; }
+  .card p { margin: .75rem 0 0; font-size: 1rem; line-height: 1.6; color: var(--gl-ink-muted); }
+
+  /* replay affordance — demo only, not part of the section */
+  #replay { position: fixed; right: 12px; top: 12px; z-index: 200; padding: 7px 12px;
+    font: 500 10px/1 var(--gl-font-body); letter-spacing: .18em; text-transform: uppercase;
+    color: var(--gl-ink); background: var(--gl-bg); border: 1px solid var(--gl-line);
+    cursor: pointer; opacity: 0; transition: opacity 400ms var(--gl-ease); }
+  #replay.-on { opacity: 1; }
+
+  @media (max-width: 1024px) {
+    .grid, .cards { grid-template-columns: 1fr; }
+    .copy, .plate-col { grid-column: auto; }
+    .stage { padding: 8rem 1.5rem 3rem; }
+    .band { padding: 5rem 1.5rem; }
+    #loader { padding: 1.5rem; }
+    #loader .num { font-size: 22vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #loader { display: none !important; }
+    .word, .e-up, .e-fade, .mask .word {
+      transition: none !important; opacity: 1 !important;
+      transform: none !important; filter: none !important;
+    }
+  }
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- ── The loader plate ─────────────────────────────────────────────────────── -->
+<div id="loader">
+  <span class="lab">Studio · Loading</span>
+  <span class="num" id="loader-num">0</span>
+</div>
+
+<button id="replay" type="button">Replay</button>
+
+<!-- ── Handoff target ───────────────────────────────────────────────────────── -->
+<main>
+  <section class="stage reveal" id="stage">
+    <div class="grid">
+      <div class="copy">
+        <p class="eyebrow e-fade"><i></i>Section · loader handoff</p>
+        <h1 data-head>Light, <em>written</em> in code.</h1>
+        <p class="lead" data-words>The gate lifts and the page is already moving — heading words
+          rise out of their clips while the body settles out of a blur, one beat behind.</p>
+        <div class="row e-up">
+          <button class="btn btn-solid" type="button"><span>Primary</span><span class="ar" aria-hidden="true">→</span></button>
+          <button class="btn btn-ghost" type="button"><span>Secondary</span><span class="ar" aria-hidden="true">→</span></button>
+        </div>
+        <dl class="ledger e-fade">
+          <div><dt>Count</dt><dd>1500ms · ease-out-cubic</dd></div>
+          <div><dt>Rest</dt><dd>160ms at 100</dd></div>
+          <div><dt>Wipe</dt><dd>900ms · ease-out-expo</dd></div>
+        </dl>
+      </div>
+      <div class="plate-col e-up">
+        <div class="plate"><span>plate stand-in</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band reveal">
+    <div class="in">
+      <p class="eyebrow e-fade"><i></i>Scroll-driven</p>
+      <h2 data-head>Every band below latches once, on entry.</h2>
+      <div class="cards">
+        <article class="card e-up" style="transition-delay:0ms">
+          <span class="idx">01</span>
+          <h3>Latch, never scrub</h3>
+          <p>A band reveals when its top passes 85% of the viewport height. It is latched — it never
+            plays backwards, never replays.</p>
+        </article>
+        <article class="card e-up" style="transition-delay:90ms">
+          <span class="idx">02</span>
+          <h3>One shared clock</h3>
+          <p>A single requestAnimationFrame loop drives the counter and then the in-view sweep, so
+            the handoff has no seam.</p>
+        </article>
+        <article class="card e-up" style="transition-delay:180ms">
+          <span class="idx">03</span>
+          <h3>Stagger by index</h3>
+          <p>Siblings step 90ms apart. Heading words step 70ms, body words 22ms. Those three numbers
+            carry the whole page.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ============================================================================
+   WORD SPLITTING — every word becomes an inline-block, nowrap span so letters
+   animate but words NEVER split across a line. Heading words additionally get a
+   per-word clip mask whose transition-delay is the stagger.
+============================================================================ */
+function splitEl(el, { mask, stagger }) {
+  const nodes = Array.from(el.childNodes);
+  el.textContent = '';
+  let idx = 0;
+  const add = (text, isAccent) => {
+    const w = document.createElement('span');
+    w.className = 'word';
+    w.textContent = text;
+    if (isAccent) w.style.fontStyle = 'italic';
+    /* The delay goes on the WORD — it is the word that transitions. (The template's
+       vanilla port puts it on the clip mask, where transition-delay is not inherited
+       and the 70ms stagger silently collapses to zero; the React original staggers
+       for real, at 90ms per line / 140ms in the hero.) */
+    w.style.transitionDelay = (idx * stagger) + 'ms';
+    if (mask) {
+      const m = document.createElement('span');
+      m.className = 'mask';
+      m.appendChild(w);
+      el.appendChild(m);
+    } else {
+      el.appendChild(w);
+    }
+    el.appendChild(document.createTextNode(' '));
+    idx++;
+  };
+  nodes.forEach(node => {
+    if (node.nodeType === 3) {
+      node.textContent.split(/\s+/).filter(Boolean).forEach(t => add(t, false));
+    } else {
+      add(node.textContent, node.tagName === 'EM');
+    }
+  });
+}
+/* THE TWO STAGGERS — 70ms between heading words, 22ms between body words. */
+document.querySelectorAll('[data-head]').forEach(el => splitEl(el, { mask: true,  stagger: 70 }));
+document.querySelectorAll('[data-words]').forEach(el => splitEl(el, { mask: false, stagger: 22 }));
+
+/* ============================================================================
+   THE GATE — scroll is locked from first paint and released by the loader.
+   In the template this is Lenis: `lenis.stop()` at init, `lenis.start()` at the
+   end of the wipe. With no smooth-scroll library the equivalent is an overflow
+   lock on <html>; the release moment is identical.
+============================================================================ */
+const html = document.documentElement;
+html.classList.add('-gated');
+window.scrollTo(0, 0);
+
+const revealed = new Set();
+function latch(el) {
+  if (revealed.has(el)) return;
+  revealed.add(el);
+  el.classList.add('revealed');
+}
+
+/* `loaded` is the gate flag: the in-view sweep does nothing until the loader
+   says so, so no band below the fold can reveal behind the plate. */
+let loaded = false;
+
+/* ── ONE SHARED CLOCK ─────────────────────────────────────────────────────── */
+function frame() {
+  if (loaded) {
+    const vh = innerHeight;
+    document.querySelectorAll('.reveal').forEach(sec => {
+      if (revealed.has(sec)) return;
+      const r = sec.getBoundingClientRect();
+      /* the latch condition, verbatim: top above 85% of the viewport, still on screen */
+      if (r.top < vh * 0.85 && r.bottom > 0) latch(sec);
+    });
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ============================================================================
+   THE LOADER — 0 → 100 over 1500ms on ease-out-cubic, rest 160ms, wipe up over
+   900ms, hand the first band its reveal on the SAME frame as the wipe starts,
+   release scroll 900ms after the count ends (i.e. as the wipe lands).
+============================================================================ */
+const loader   = document.getElementById('loader');
+const numEl    = document.getElementById('loader-num');
+const firstBand = document.getElementById('stage');
+const replay   = document.getElementById('replay');
+
+const COUNT_MS = 1500;   /* the count */
+const REST_MS  = 160;    /* the pause at 100 before the wipe */
+const WIPE_MS  = 900;    /* the wipe, and the scroll-release moment */
+
+let timers = [];
+function runLoader() {
+  timers.forEach(clearTimeout);
+  timers = [];
+  loaded = false;
+  html.classList.add('-gated');
+  window.scrollTo(0, 0);
+  loader.classList.remove('-wipe');
+  loader.style.pointerEvents = '';
+  replay.classList.remove('-on');
+  revealed.forEach(el => el.classList.remove('revealed'));
+  revealed.clear();
+
+  const t0 = performance.now();
+  function countUp(now) {
+    const p = Math.min(1, (now - t0) / COUNT_MS);
+    const e = 1 - Math.pow(1 - p, 3);          /* ease-out-cubic on the NUMBER itself */
+    numEl.textContent = Math.round(e * 100);
+    if (p < 1) {
+      requestAnimationFrame(countUp);
+      return;
+    }
+    /* completion → rest, then wipe + hand off on the same tick */
+    timers.push(setTimeout(() => {
+      loader.classList.add('-wipe');
+      latch(firstBand);
+    }, REST_MS));
+    /* the gate opens as the wipe lands */
+    timers.push(setTimeout(() => {
+      loaded = true;
+      html.classList.remove('-gated');
+      loader.style.pointerEvents = 'none';
+      replay.classList.add('-on');
+    }, WIPE_MS));
+  }
+  requestAnimationFrame(countUp);
+}
+
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  /* no plate, no count, no gate — everything is simply present */
+  loaded = true;
+  html.classList.remove('-gated');
+  document.querySelectorAll('.reveal').forEach(latch);
+  replay.classList.add('-on');
+} else {
+  runLoader();
+}
+
+replay.addEventListener('click', runLoader);
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>

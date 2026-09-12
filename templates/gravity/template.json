@@ -1,0 +1,25 @@
+{
+  "name": "gravity",
+  "title": "Gravity",
+  "order": 3,
+  "kind": "site",
+  "description": "Quatre-vingt-seize spheres tombent sous une gravite reelle, se reassemblent en sigle, puis depassent l objectif. Quatre sections en fondu sur une seule horloge.",
+  "stack": [
+    "Vite",
+    "React",
+    "WebGL",
+    "Motion",
+    "Tailwind v4"
+  ],
+  "tags": [
+    "landing",
+    "webgl",
+    "physique",
+    "defilement"
+  ],
+  "source": "Template Gravity de GetLayers, traduite et re-habillee.",
+  "licence": "Unlicense",
+  "install": "npm install",
+  "dev": "npm run dev",
+  "preview": "preview.jpg"
+}

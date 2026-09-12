@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Section · Forma Percentage Curtain</title>
+<!--
+  GetLayers · Section — Forma Percentage Curtain  (role: loader)
+
+  A full-screen curtain on the same inset as the page beneath it: a small centred wordmark on the
+  top edge, one big percentage alone in the middle, and a base-anchored progress slab whose height
+  and radius match the card row it is standing in front of. Progress tracks REAL signals
+  (document.fonts.ready, window.load, each image) with a creep floor under it, so the number means
+  something but the bar never sits still. At 100% the slab collapses into its right edge, the
+  curtain fades a beat later, and a single boolean releases one 40→820ms spring cascade across the
+  page underneath.
+
+  This file is the loader PLUS the handoff it exists for. Everything below the curtain is a
+  placeholder page whose only job is to demonstrate the release: masthead, letter-wipe headline,
+  inline form, media band and a three-card row, each reading the same intro flag and applying its
+  own delay from one choreography table (CUE).
+
+  PORTED VERBATIM from the Forma template
+  (src/components/common/preloader/preloader.tsx, src/hooks/intro/use-intro.ts,
+   src/views/home/hero/{hero,intro-reveal,intro-meter,animated-text,hero-media}.tsx,
+   src/components/ui/meter.tsx, src/lib/animation/ticker.ts):
+    - the shared rAF ticker and a port of react-spring v9's integrator (1ms sub-steps)
+    - every spring literal: counter 46/22 → 180/26 precision 0.1 at 100%, curtain 95/26,
+      slab 150/28, IntroReveal 150/26/1, media 90/28/1.2, meter 90/26
+    - the progress model: fonts + load + images, creep = (elapsed/7000)^0.65 * 0.9 clamped to 0.97,
+      MIN_DURATION 900, MAX_DURATION 7000, POLL_INTERVAL 120, HOLD_AT_FULL 150, FADE_DELAY 110
+    - the text engine knobs: LettersIn x:-34 / blur 11px / stagger 20 / 115-24-1.1,
+      WordsIn y:26 / blur 8px / stagger 52 / 140-25-1
+    - the CUE table: heading 40, media 110, form 200, cards 280, cardStagger 75, cardCopy 90
+    - the adaptive-grid font-size ladder, so every rem is a design pixel against a 1440 base
+
+  STAND-INS (deliberate, so this file stays small and self-contained)
+    - The media band is a CSS gradient, not the template's looping video under a WebGL ripple
+      shader. The ripple is a separate mechanic that has nothing to do with the loader; only the
+      band's REVEAL (opacity + scale 1.12→1 at 90/28/1.2, delay 110ms) is part of this section.
+    - The wide card's artwork is a CSS gradient rather than an image file.
+    - The template's custom cursor and Lenis smooth scroll are not part of the loader and are omitted.
+    - The control panel (top right) is DEV ONLY — it injects one synthetic "asset" promise so the
+      loader is actually watchable on a warm cache. Delete the #ui block and its script to ship.
+
+  RE-SKIN through the --gl-* tokens in the :root block below. Nothing else carries colour.
+-->
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400&display=swap" rel="stylesheet">
+<style>
+/* ===========================================================================
+   SKIN SURFACE — the only place colour, type or radius is declared.
+   =========================================================================== */
+:root {
+  --gl-bg:            #f3f3f5;                 /* page + curtain ground        */
+  --gl-surface:       #ffffff;                 /* cards, the slab's track      */
+  --gl-ink:           #00012f;                 /* wordmark, counter, headline  */
+  --gl-ink-muted:     rgba(0, 0, 0, 0.4);      /* field rules                  */
+  --gl-line:          rgba(0, 0, 0, 0.1);      /* hairline borders             */
+  --gl-accent:        #8b60ff;                 /* gradient start (fill, art)   */
+  --gl-glow:          #15004f;                 /* gradient end                 */
+  --gl-accent-ink:    #ffffff;                 /* text sitting on the gradient */
+
+  --gl-font-display:  'General Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --gl-font-body:     'General Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --gl-weight-display: 300;
+  --gl-weight-body:    400;
+
+  --gl-radius-lg:     1rem;                    /* cards, media band, the slab  */
+  --gl-radius:        3.125rem;                /* the thin meter track         */
+}
+
+/* ---------------------------------------------------------------------------
+   Adaptive grid — root font-size scales with the viewport so a rem-based
+   layout stays proportional. Each step divides 16px by the design base width
+   its range was laid out at, so 1rem is always one design pixel.
+   --------------------------------------------------------------------------- */
+html { font-size: 16px; }
+@media (max-width: 1920px) { html { font-size: 0.833333vw; } }
+@media (max-width: 1440px) { html { font-size: 1.111111vw; } }
+@media (max-width: 1024px) { html { font-size: 1.5625vw; } }
+@media (max-width: 640px)  { html { font-size: 4.444444vw; } }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--gl-bg);
+  color: var(--gl-ink);
+  font-family: var(--gl-font-body);
+  font-weight: var(--gl-weight-body);
+  min-height: 100lvh;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+/* Set by the loader while its curtain is up — the page behind it must not scroll. */
+.is-loading { overflow: hidden; }
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ===========================================================================
+   THE LOADER — a full-screen curtain on the page's own inset.
+   Three bands: wordmark / counter / slab. The slab is right-anchored
+   (margin-left:auto) so that when it collapses, the LEFT edge is the one that
+   travels — it carries on in the direction it was just filling.
+   =========================================================================== */
+#loader {
+  pointer-events: none;
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; flex-direction: column;
+  background: var(--gl-bg);
+  padding: 1.875rem;
+}
+#loader .pre-brand {
+  flex-shrink: 0; margin: 0; text-align: center;
+  font-size: 1.5rem; line-height: 1; color: var(--gl-ink);
+}
+#loader .pre-gauge {
+  display: flex; min-height: 0; flex: 1 1 0%;
+  align-items: center; justify-content: center;
+}
+#loader .pre-count {
+  font-family: var(--gl-font-display);
+  font-size: 3.5rem; line-height: 1;
+  font-weight: var(--gl-weight-display);
+  color: var(--gl-ink);
+  font-variant-numeric: tabular-nums;
+}
+/* Same height, radius, border and surface as the card row it will uncover —
+   the curtain is a STATE of the page, not a separate splash screen. */
+#loader .pre-bar {
+  margin-left: auto; width: 100%;
+  height: 8.8125rem; flex-shrink: 0; overflow: hidden;
+  border-radius: var(--gl-radius-lg);
+  border: 1px solid var(--gl-line);
+  background: var(--gl-surface);
+}
+#loader .pre-bar > i {
+  display: block; height: 100%; width: 0;
+  border-radius: var(--gl-radius-lg);
+  background: linear-gradient(to right, var(--gl-accent), var(--gl-glow));
+}
+
+/* ===========================================================================
+   THE PAGE UNDERNEATH — placeholder content, present only to demonstrate the
+   handoff. Vertically everything keeps its designed height except the media
+   band, which is the single flex row and absorbs the remainder.
+   =========================================================================== */
+.page {
+  display: flex; min-height: 100lvh; width: 100%;
+  flex-direction: column; padding: 1.25rem;
+}
+@media (min-width: 64rem) { .page { height: 100lvh; padding: 1rem 1.875rem 1.875rem; } }
+
+/* Reveal wrappers render a <div> in the source: transforms need a block box. */
+[data-reveal] { display: block; }
+/* Text-reveal atoms. NOTHING that blurs may get an overflow clip — a clip box
+   shears the blur at the line box and costs the headline its 1.0 leading. */
+.tx    { display: block; text-align: left; }
+.tx-w  { display: inline-block; white-space: nowrap; will-change: transform, opacity, filter; }
+.tx-l  { display: inline-block; will-change: transform, opacity, filter; }
+
+/* --- masthead: three positioned groups, not a distributed row -------------
+   The nav starts on a rail at 700/1340 of the content width — the same rail
+   the form and the wide card start on. That shared rail is what holds the
+   whole composition together, so it is a PROPORTION, never a fixed offset. */
+.masthead { position: relative; height: 1.5rem; flex-shrink: 0; }
+.masthead .slot-left  { position: absolute; top: 0; left: 0; }
+.masthead .slot-right { position: absolute; top: 0; right: 0; }
+.mark { font-size: 1.5rem; line-height: 1; color: var(--gl-ink); }
+.site-nav {
+  position: absolute; top: 0;
+  left: calc((100% - 2.5rem) * 700 / 1340 + 2.5rem);
+  display: none;
+}
+@media (min-width: 64rem) { .site-nav { display: block; } }
+.site-nav ul { display: flex; align-items: flex-start; gap: 2.5rem; margin: 0; padding: 0; list-style: none; font-size: 1rem; line-height: 1.2; }
+.site-nav a, .contact-link { transition: opacity 150ms cubic-bezier(0.2, 0, 0, 1); }
+.site-nav a:hover, .contact-link:hover { opacity: 0.6; }
+.contact-link { font-size: 1rem; line-height: 1.2; text-decoration: underline; text-underline-position: from-font; }
+
+/* --- headline beside the form -------------------------------------------- */
+.head-row { margin-top: 2.5rem; display: flex; flex-shrink: 0; flex-direction: column; gap: 2rem; }
+@media (min-width: 64rem) {
+  .head-row { margin-top: 4.375rem; flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 0; }
+}
+.headline {
+  display: flex; flex-direction: column; margin: 0; width: 100%;
+  font-family: var(--gl-font-display);
+  font-size: 2.25rem; line-height: 1; font-weight: var(--gl-weight-body);
+}
+@media (min-width: 40rem) { .headline { font-size: 3rem; } }
+@media (min-width: 64rem) { .headline { font-size: 3.5rem; width: calc((100% - 2.5rem) * 664 / 1340); } }
+/* Two lines at the same size — weight is the only contrast. */
+.headline .lead   { font-weight: var(--gl-weight-display); }
+.headline .follow { font-weight: var(--gl-weight-body); }
+
+.form { display: flex; flex-direction: column; align-items: stretch; gap: 1rem; width: 100%; }
+@media (min-width: 40rem) { .form { flex-direction: row; align-items: flex-end; gap: 0.75rem; } }
+@media (min-width: 64rem) { .form { width: calc((100% - 2.5rem) * 640 / 1340); } }
+.field-slot { min-width: 0; }
+@media (min-width: 40rem) { .field-slot { flex: 1 1 0%; } }
+.field { display: flex; width: 100%; align-items: center; border-bottom: 1px solid var(--gl-ink-muted); padding-bottom: 1.25rem; }
+.field input {
+  width: 100%; background: transparent; border: 0; outline: none;
+  font: inherit; font-size: 1rem; line-height: 1.2; color: var(--gl-ink);
+}
+.field input::placeholder { color: var(--gl-ink); opacity: 1; }
+/* `display:block`, not inline-block — an inline-block sits on a text baseline
+   and the line box adds ~6px of descender space under the control. */
+.submit { display: block; width: 3.5625rem; height: 3.5625rem; flex-shrink: 0; border: 0; padding: 0; background: none; border-radius: 9999px; cursor: pointer; }
+.submit svg { width: 100%; height: 100%; display: block; }
+.submit .disc  { transition: opacity 250ms cubic-bezier(0.2, 0, 0, 1); }
+.submit:hover .disc { opacity: 0; }
+.submit .glyph { fill: var(--gl-ink); transition: fill 250ms cubic-bezier(0.2, 0, 0, 1); }
+.submit:hover .glyph { fill: var(--gl-accent-ink); }
+
+/* --- media band: the layout's only flexible row --------------------------- */
+.media {
+  position: relative; width: 100%; flex: 1 1 0%; overflow: hidden;
+  border-radius: var(--gl-radius-lg); border: 1px solid var(--gl-line);
+  margin-top: 1.5rem; min-height: 42vh;
+}
+@media (min-width: 64rem) { .media { margin-top: 2rem; min-height: 0; } }
+/* inset:0, not width/height:100% — below the wide breakpoint the panel's
+   height comes from min-height, and a percentage height does not resolve
+   against a parent whose height is auto. */
+.media .media-spring { position: absolute; inset: 0; }
+/* STAND-IN for the template's looping video under a ripple shader. */
+.media .media-art {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 90% at 22% 12%, color-mix(in oklab, var(--gl-accent) 55%, white) 0%, transparent 58%),
+    radial-gradient(100% 110% at 84% 88%, color-mix(in oklab, var(--gl-glow) 80%, black) 0%, transparent 62%),
+    linear-gradient(148deg, var(--gl-accent) 0%, var(--gl-glow) 100%);
+}
+
+/* --- card row: 350 : 350 : 640 -------------------------------------------- */
+.card-row { margin-top: 1.25rem; display: flex; flex-shrink: 0; flex-direction: column; gap: 1.25rem; }
+@media (min-width: 64rem) { .card-row { height: 8.8125rem; flex-direction: row; } }
+.card-slot { width: 100%; }
+@media (min-width: 64rem) {
+  .card-slot { width: auto; }
+  .card-slot.w-350 { flex: 350 1 0%; }
+  .card-slot.w-640 { flex: 640 1 0%; }
+}
+/* The 1px border sits inside the box, so 19px of padding — not 20px —
+   reproduces the design's 20px inset from the card edge. */
+.card {
+  position: relative; overflow: hidden; width: 100%; min-height: 8.8125rem;
+  display: flex; flex-direction: column; padding: 1.1875rem;
+  border-radius: var(--gl-radius-lg); border: 1px solid var(--gl-line);
+  background: var(--gl-surface);
+}
+@media (min-width: 64rem) { .card { height: 100%; } }
+.card-head { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; }
+.card-title { margin: 0; font-size: 1.25rem; line-height: 1.1; font-weight: var(--gl-weight-body); }
+.card-rule { margin: 0.875rem 0 0; flex-shrink: 0; border: 0; border-top: 1px solid var(--gl-line); }
+.ring-dot { width: 0.625rem; height: 0.625rem; flex-shrink: 0; color: var(--gl-accent); }
+.metric-row { margin-top: 1.6875rem; display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; font-size: 1rem; line-height: 1.2; }
+.meter { margin-top: 0.75rem; height: 0.375rem; width: 100%; overflow: hidden; border-radius: var(--gl-radius); background: color-mix(in oklab, var(--gl-line) 40%, var(--gl-bg)); }
+.meter > i { display: block; height: 100%; width: 0; border-radius: var(--gl-radius); background: linear-gradient(to right, var(--gl-accent), var(--gl-glow)); }
+.copy-body { margin: 1.875rem 0 0; width: 15.875rem; max-width: 100%; font-size: 0.875rem; line-height: 1.2; }
+
+/* wide card — STAND-IN artwork for the template's image asset */
+.card--wide { color: var(--gl-accent-ink); }
+.card--wide .art {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(90% 140% at 78% 50%, color-mix(in oklab, var(--gl-accent) 70%, white) 0%, transparent 62%),
+    linear-gradient(105deg, var(--gl-glow) 0%, var(--gl-accent) 100%);
+}
+.card--wide .card-title, .card--wide .foot { position: relative; }
+.card--wide .card-title { width: 17.5rem; max-width: 100%; }
+.foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; }
+.arrow-link { display: block; width: 2.25rem; height: 2.25rem; flex-shrink: 0; border-radius: 9999px; }
+.arrow-link svg { width: 100%; height: 100%; display: block; }
+.arrow-link .flood { opacity: 0; transition: opacity 250ms cubic-bezier(0.2, 0, 0, 1); }
+.arrow-link:hover .flood { opacity: 1; }
+.arrow-link .glyph { fill: var(--gl-accent-ink); transition: fill 250ms cubic-bezier(0.2, 0, 0, 1); }
+.arrow-link:hover .glyph { fill: var(--gl-ink); }
+.chip {
+  display: flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 0.5rem;
+  border-radius: var(--gl-radius); background: var(--gl-surface);
+  padding: 0.625rem 1rem; font-size: 0.875rem; line-height: 1.2; color: var(--gl-ink);
+  transition: background-color 250ms cubic-bezier(0.2, 0, 0, 1), color 250ms cubic-bezier(0.2, 0, 0, 1);
+}
+.chip:hover { background: var(--gl-accent); color: var(--gl-accent-ink); }
+.chip:hover .ring-dot { color: var(--gl-accent-ink); }
+
+/* CONTROLS — dev only. Remove this block and the #ui script to ship. */
+#ui {
+  position: fixed; top: 12px; right: 12px; z-index: 60; width: 214px;
+  background: rgba(255,255,255,.86); border: 1px solid rgba(0,0,0,.14); border-radius: 8px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: #14131a; font: 11px/1.4 -apple-system, system-ui, sans-serif;
+  padding: 9px 11px 11px; user-select: none;
+}
+#ui b { display: block; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(20,19,26,.5); margin-bottom: 7px; }
+#ui label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+#ui input[type=range] { width: 96px; }
+#ui button { width: 100%; margin-top: 4px; padding: 6px; font: inherit; cursor: pointer; border: 1px solid rgba(0,0,0,.18); border-radius: 5px; background: #fff; }
+#ui button:hover { background: #f2f0f6; }
+</style>
+<!-- ODORO-BADGE:START -->
+<style>
+  /* Badge de marque ODORO. Bloc autonome, retirable d'un bloc sans rien casser. */
+  .odoro-badge {
+    position: fixed;
+    top: var(--odoro-top, clamp(14px, 2.2vw, 26px));
+    left: clamp(14px, 2.2vw, 26px);
+    z-index: 2147483000;
+    display: flex; align-items: center; gap: .24em;
+    color: #F57423;
+    font: 600 clamp(15px, 1.45vw, 19px)/1 Poppins, "Nunito Sans", "Avenir Next",
+          -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: -.012em;
+    /* Ne jamais intercepter le pointeur : plusieurs Sections se pilotent au drag. */
+    pointer-events: none;
+    user-select: none; -webkit-user-select: none;
+  }
+  .odoro-badge svg { width: 1.45em; height: 1.45em; display: block; flex: none; }
+  .odoro-badge span { padding-bottom: .05em; }
+  @media (prefers-reduced-motion: reduce) { .odoro-badge { transition: none; } }
+</style>
+<!-- ODORO-BADGE:END -->
+</head>
+<body>
+
+<!-- ===================== THE LOADER ===================== -->
+<div id="loader">
+  <p class="pre-brand">Atelier&reg;</p>
+  <div class="pre-gauge" role="progressbar" aria-label="Loading" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+    <span class="pre-count">0%</span>
+  </div>
+  <div class="pre-bar"><i></i></div>
+</div>
+
+<!-- ============ THE PAGE IT HANDS OFF TO (placeholder) ============ -->
+<main class="page">
+
+  <header class="masthead">
+    <div class="slot-left" data-reveal data-delay="0" data-distance="14">
+      <a class="mark" href="#">Atelier&reg;</a>
+    </div>
+    <!-- the rail only exists in the wide composition; below it the nav is
+         dropped rather than crushed -->
+    <nav class="site-nav" aria-label="Primary">
+      <ul>
+        <li><span data-reveal data-delay="120" data-distance="14"><a href="#">Index</a></span></li>
+        <li><span data-reveal data-delay="190" data-distance="14"><a href="#">Practice</a></span></li>
+        <li><span data-reveal data-delay="260" data-distance="14"><a href="#">Work</a></span></li>
+        <li><span data-reveal data-delay="330" data-distance="14"><a href="#">Studio</a></span></li>
+      </ul>
+    </nav>
+    <div class="slot-right" data-reveal data-delay="400" data-distance="14">
+      <a class="contact-link" href="#">Contact</a>
+    </div>
+  </header>
+
+  <div class="head-row">
+    <!-- CUE.heading = 40; the second line trails the first by 260 -->
+    <h1 class="headline">
+      <span class="tx lead"   data-letters data-delay="40">Tell us what you are making</span>
+      <span class="tx follow" data-letters data-delay="300">We answer within a day</span>
+    </h1>
+
+    <!-- CUE.form = 200, then +90 / +180 across the row -->
+    <form class="form" onsubmit="return false">
+      <div class="field-slot" data-reveal data-delay="200" data-distance="20">
+        <div class="field">
+          <label class="sr-only" for="f-name">Name</label>
+          <input id="f-name" type="text" placeholder="Name" autocomplete="name">
+        </div>
+      </div>
+      <div class="field-slot" data-reveal data-delay="290" data-distance="20">
+        <div class="field">
+          <label class="sr-only" for="f-mail">Email</label>
+          <input id="f-mail" type="email" placeholder="Email" autocomplete="email">
+        </div>
+      </div>
+      <div data-reveal data-delay="380" data-distance="20">
+        <button class="submit" type="submit" aria-label="Send">
+          <svg viewBox="0 0 57 57" fill="none" aria-hidden="true">
+            <circle cx="28.5" cy="28.5" r="28.5" fill="url(#gl-ring)"/>
+            <circle class="disc" cx="28.5" cy="28.5" r="26.5" fill="var(--gl-bg)"/>
+            <path class="glyph" d="M37.249 20V37H35.749V21.8711L20.0566 37.5645L18.9961 36.5039L33.999 21.5H19.2725V20H37.249Z"/>
+            <defs>
+              <linearGradient id="gl-ring" x1="0" y1="28.5" x2="57" y2="28.5" gradientUnits="userSpaceOnUse">
+                <stop stop-color="var(--gl-accent)"/><stop offset="1" stop-color="var(--gl-glow)"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- CUE.media = 110 — opacity + scale 1.12→1 at 90/28/1.2 -->
+  <div class="media">
+    <div class="media-spring" id="media-spring"><div class="media-art"></div></div>
+  </div>
+
+  <!-- CUE.cards = 280, stagger 75; each card's own copy reads in +90 later -->
+  <div class="card-row">
+    <div class="card-slot w-350" data-reveal data-delay="280">
+      <article class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-words data-delay="370">Recall that sticks</h2>
+          <svg class="ring-dot" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4.5" stroke="currentColor"/></svg>
+        </div>
+        <hr class="card-rule">
+        <div class="metric-row">
+          <span data-words data-delay="490">Brand recall</span>
+          <span data-words data-delay="550">+3.2%</span>
+        </div>
+        <!-- the meter is held empty under the curtain and fills the moment the
+             flag flips — no delay, 90/26 -->
+        <div class="meter" id="meter" role="progressbar" aria-label="Brand recall" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+      </article>
+    </div>
+
+    <div class="card-slot w-350" data-reveal data-delay="355">
+      <article class="card">
+        <div class="card-head">
+          <h2 class="card-title" data-words data-delay="445">What you are</h2>
+          <svg class="ring-dot" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4.5" stroke="currentColor"/></svg>
+        </div>
+        <hr class="card-rule">
+        <p class="copy-body" data-words data-delay="565">Identity, art direction and web — built to be looked at, not scrolled past.</p>
+      </article>
+    </div>
+
+    <div class="card-slot w-640" data-reveal data-delay="430">
+      <article class="card card--wide">
+        <div class="art"></div>
+        <h2 class="card-title" data-words data-delay="520">See what we have built for studios like yours</h2>
+        <div class="foot">
+          <span data-reveal data-delay="740" data-distance="14">
+            <a class="arrow-link" href="#" aria-label="Browse the work">
+              <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <circle cx="18" cy="18" r="17.5" stroke="var(--gl-accent-ink)" stroke-opacity=".2"/>
+                <circle class="flood" cx="18" cy="18" r="17.5" fill="var(--gl-accent-ink)"/>
+                <path class="glyph" d="M23.3536 18.3536C23.5488 18.1583 23.5488 17.8417 23.3536 17.6464L20.1716 14.4645C19.9763 14.2692 19.6597 14.2692 19.4645 14.4645C19.2692 14.6597 19.2692 14.9763 19.4645 15.1716L22.2929 18L19.4645 20.8284C19.2692 21.0237 19.2692 21.3403 19.4645 21.5355C19.6597 21.7308 19.9763 21.7308 20.1716 21.5355L23.3536 18.3536ZM13 18V18.5H23V18V17.5H13V18Z"/>
+              </svg>
+            </a>
+          </span>
+          <span data-reveal data-delay="820" data-distance="14">
+            <a class="chip" href="#">
+              <svg class="ring-dot" viewBox="0 0 10 10" fill="none" aria-hidden="true"><circle cx="5" cy="5" r="4.5" stroke="currentColor"/></svg>
+              All services
+            </a>
+          </span>
+        </div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<!-- CONTROLS — dev only -->
+<div id="ui">
+  <b>Loader · dev</b>
+  <label>Simulated asset <span id="ui-val">2200ms</span></label>
+  <input id="ui-delay" type="range" min="0" max="6000" step="100" value="2200">
+  <button id="ui-replay" type="button">Replay from the top</button>
+</div>
+
+<script>
+/* ============================================================
+   1. SHARED TICKER — one app-wide rAF loop. Every animation subscribes here
+      instead of starting its own; the loop is reference-counted.
+============================================================ */
+const Ticker = (() => {
+  const subscribers = new Set();
+  let rafId = null;
+  const frame = (time) => {
+    for (const sub of [...subscribers]) {
+      if (!subscribers.has(sub)) continue;
+      const dt = time - sub.last;
+      sub.last = time;
+      try { sub.callback(time, dt); } catch (e) { console.error('[ticker]', e); }
+    }
+    rafId = requestAnimationFrame(frame);
+  };
+  return {
+    subscribe(callback) {
+      const sub = { callback, last: performance.now() };
+      subscribers.add(sub);
+      if (rafId === null) rafId = requestAnimationFrame(frame);
+      return () => subscribers.delete(sub);
+    },
+  };
+})();
+
+/* ============================================================
+   2. SPRING — a port of react-spring v9's own integrator, in 1ms sub-steps:
+        springForce  = -tension  * 1e-6 * (position - to)
+        dampingForce = -friction * 1e-3 * velocity
+        acceleration = (springForce + dampingForce) / mass
+      Every tension / friction / mass / precision literal in this file is handed
+      to it unchanged. A linear spring is scale-invariant, so a group of
+      properties sharing one config is driven by ONE normalised 0→1 spring and
+      interpolated — the same curve, not an approximation.
+============================================================ */
+let SKIP_ANIMATION = false;
+
+class Spring {
+  constructor(from, config) {
+    this.value = from; this.from = from; this.target = from;
+    this.velocity = 0; this.done = true; this.onRest = null;
+    this.setConfig(config || {});
+  }
+  setConfig(config) { this.config = Object.assign({ tension: 170, friction: 26, mass: 1 }, config); }
+  /** react-spring's default: precision scales with the distance travelled. */
+  precision() {
+    if (this.config.precision != null) return this.config.precision;
+    const d = Math.abs(this.target - this.from);
+    return d === 0 ? 0.005 : Math.min(1, d * 0.001);
+  }
+  to(target) {
+    if (target === this.target) return;
+    this.from = this.value; this.target = target; this.done = false;
+    if (SKIP_ANIMATION) this.settle();
+  }
+  settle() { this.value = this.target; this.velocity = 0; this.done = true; if (this.onRest) this.onRest(); }
+  advance(dt) {
+    if (this.done) return false;
+    if (SKIP_ANIMATION) { this.settle(); return true; }
+    const c = this.config;
+    // Clamp a long frame (tab wake-up) the way react-spring's frameloop does.
+    const steps = Math.max(1, Math.ceil(Math.min(dt, 64)));
+    for (let i = 0; i < steps; i++) {
+      const springForce = -c.tension * 0.000001 * (this.value - this.target);
+      const dampingForce = -c.friction * 0.001 * this.velocity;
+      this.velocity += (springForce + dampingForce) / c.mass;
+      this.value += this.velocity;
+    }
+    const precision = this.precision();
+    const restVelocity = c.restVelocity != null ? c.restVelocity : precision / 10;
+    if (Math.abs(this.velocity) <= restVelocity && Math.abs(this.value - this.target) <= precision) this.settle();
+    return true;
+  }
+}
+
+const springLoop = [];
+Ticker.subscribe((time, dt) => { for (let i = 0; i < springLoop.length; i++) springLoop[i](dt); });
+const lerp = (a, b, u) => a + (b - a) * u;
+
+/* ============================================================
+   3. THE GATE — one boolean, not per-component guesswork.
+
+   True once the loader has finished and uncovered the page. EVERY reveal below
+   subscribes to this and applies its own delay from the CUE table, so the whole
+   entrance can be retimed from one place.
+============================================================ */
+const Intro = (() => {
+  let hasEntered = false;
+  const listeners = new Set();
+  return {
+    get hasEntered() { return hasEntered; },
+    enter() {
+      if (hasEntered) return;
+      hasEntered = true;
+      listeners.forEach((fn) => fn());
+      listeners.clear();
+    },
+    onEnter(fn) { if (hasEntered) fn(); else listeners.add(fn); },
+  };
+})();
+
+/* ============================================================
+   4. INTRO REVEAL — the generic gated wrapper.
+      from { opacity: 0, y: distance, blur: blur px } → to { 1, 0, 0 }
+      config 150 / 26 / 1.  distance defaults to 26px, blur to 6px.
+      (14px for masthead items and card chrome, 20px for form fields.)
+============================================================ */
+function mountReveal(el) {
+  const delay = Number(el.dataset.delay || 0);
+  const distance = el.dataset.distance != null ? Number(el.dataset.distance) : 26;
+  const blur = el.dataset.blur != null ? Number(el.dataset.blur) : 6;
+  const spring = new Spring(0, { tension: 150, friction: 26, mass: 1 });
+  const apply = () => {
+    const u = spring.value;
+    el.style.opacity = u;
+    el.style.transform = 'translate3d(0,' + lerp(distance, 0, u).toFixed(3) + 'px,0)';
+    el.style.filter = spring.done && u === 1 ? 'none' : 'blur(' + lerp(blur, 0, u).toFixed(3) + 'px)';
+  };
+  apply();
+  springLoop.push((dt) => { if (spring.advance(dt)) apply(); });
+  Intro.onEnter(() => setTimeout(() => spring.to(1), delay));
+}
+
+/* ============================================================
+   5. TEXT REVEALS
+      LettersIn — letters slide in from the LEFT, so the stagger reads as a wipe
+        across the line. out { x: -34, opacity: 0, blur 11px }, stagger 20,
+        config 115 / 24 / 1.1.  For headings.
+      WordsIn — words rise from below. out { y: 26, opacity: 0, blur 8px },
+        stagger 52, config 140 / 25 / 1.  For copy, where a per-letter cascade
+        would be noisy at small sizes.
+      Neither sets overflow: these reveals blur, and a clip box cuts the blur
+      off at the line-height edge.
+============================================================ */
+const TEXT_MODES = {
+  letters: { axis: 'x', from: -34, blur: 11, stagger: 20, config: { tension: 115, friction: 24, mass: 1.1 } },
+  words:   { axis: 'y', from: 26,  blur: 8,  stagger: 52, config: { tension: 140, friction: 25, mass: 1 } },
+};
+
+function mountText(el, mode) {
+  const spec = TEXT_MODES[mode];
+  const delay = Number(el.dataset.delay || 0);
+  const source = el.textContent.replace(/\s+/g, ' ').trim();
+  el.textContent = '';
+  const units = [];
+  const words = source.split(' ');
+
+  words.forEach((word, wi) => {
+    const wordEl = document.createElement('span');
+    wordEl.className = 'tx-w';
+    if (mode === 'letters') {
+      // Split to letters but keep them inside a word box, so a word never
+      // breaks across two lines mid-reveal.
+      for (const ch of word) {
+        const l = document.createElement('span');
+        l.className = 'tx-l'; l.textContent = ch;
+        wordEl.appendChild(l); units.push(l);
+      }
+    } else {
+      wordEl.textContent = word; units.push(wordEl);
+    }
+    el.appendChild(wordEl);
+    if (wi < words.length - 1) el.appendChild(document.createTextNode(' '));
+  });
+
+  units.forEach((unit, index) => {
+    const spring = new Spring(0, spec.config);
+    const apply = () => {
+      const u = spring.value;
+      unit.style.opacity = u;
+      const offset = lerp(spec.from, 0, u).toFixed(3);
+      unit.style.transform = spec.axis === 'x'
+        ? 'translate3d(' + offset + 'px,0,0)'
+        : 'translate3d(0,' + offset + 'px,0)';
+      unit.style.filter = spring.done && u === 1 ? 'none' : 'blur(' + lerp(spec.blur, 0, u).toFixed(3) + 'px)';
+    };
+    apply();
+    springLoop.push((dt) => { if (spring.advance(dt)) apply(); });
+    Intro.onEnter(() => setTimeout(() => spring.to(1), delay + index * spec.stagger));
+  });
+}
+
+/* ============================================================
+   6. METER — held at zero under the curtain, then grows into place at 90 / 26
+      the moment the flag flips. It starts empty on purpose: that is why the
+      loader's slab collapses rightward rather than fading in place.
+============================================================ */
+function mountMeter(el, value) {
+  const percent = Math.min(Math.max(value, 0), 1) * 100;
+  const fill = el.querySelector('i');
+  el.setAttribute('aria-valuenow', String(Math.round(percent)));
+  const spring = new Spring(0, { tension: 90, friction: 26 });
+  const apply = () => { fill.style.width = spring.value + '%'; };
+  apply();
+  springLoop.push((dt) => { if (spring.advance(dt)) apply(); });
+  Intro.onEnter(() => spring.to(percent));
+}
+
+/* ============================================================
+   7. MEDIA REVEAL — opacity 0→1 with scale 1.12→1 at 90 / 28 / 1.2. The one
+      element that scales; everything else only rises.
+============================================================ */
+function mountMediaReveal(el, delay) {
+  const spring = new Spring(0, { tension: 90, friction: 28, mass: 1.2 });
+  const apply = () => {
+    const u = spring.value;
+    el.style.opacity = u;
+    el.style.transform = 'scale(' + lerp(1.12, 1, u).toFixed(5) + ')';
+  };
+  apply();
+  springLoop.push((dt) => { if (spring.advance(dt)) apply(); });
+  Intro.onEnter(() => setTimeout(() => spring.to(1), delay));
+}
+
+/* ============================================================
+   8. THE LOADER
+
+   Progress tracks real signals (fonts, window.load, each image) so the number
+   means something, but it is floored by a slow creep — a bar that sits still
+   reads as broken even when it is honestly waiting. At 100% the slab collapses
+   into its right edge, the curtain fades a beat behind it, and the gate opens.
+============================================================ */
+/** Held at 100% this long before the curtain starts to lift. */
+const HOLD_AT_FULL = 150;
+/** Head start (ms) the slab's collapse gets over the curtain's fade. */
+const FADE_DELAY = 110;
+/** Never uncover sooner than this — a flashed loader reads as a glitch. */
+const MIN_DURATION = 900;
+/** Never hold the page hostage longer than this, whatever is still loading. */
+const MAX_DURATION = 7000;
+/** How often progress is re-evaluated (ms). */
+const POLL_INTERVAL = 120;
+
+function mountLoader(root, signalsIn) {
+  const gauge = root.querySelector('.pre-gauge');
+  const count = root.querySelector('.pre-count');
+  const barEl = root.querySelector('.pre-bar');
+  const fillEl = barEl.querySelector('i');
+
+  let progress = 0, isLifted = false, lifted = false, target = 0;
+
+  // A page you cannot see should not scroll.
+  document.documentElement.classList.add('is-loading');
+
+  // ONE spring feeds both the counter and the fill, so they cannot disagree.
+  const value = new Spring(0, { tension: 46, friction: 22 });
+  // The curtain only fades — no transform, so nothing inside it gets squashed.
+  const curtain = new Spring(1, { tension: 95, friction: 26 });
+  // Only the slab moves. It animates WIDTH, not scaleX: a horizontal scale also
+  // scales the radius and the border, so the rounded ends stretch into ellipses
+  // and the bar looks like it is closing from both sides. The element is
+  // right-anchored, so the left edge is the one that travels.
+  const bar = new Spring(100, { tension: 150, friction: 28 });
+
+  value.onRest = () => {
+    if (progress < 100 || lifted) return;
+    lifted = true;
+    window.setTimeout(() => {
+      // Release the page as the curtain STARTS leaving, not once it has gone —
+      // waiting for the fade to rest left the entrance visibly late.
+      isLifted = true;
+      root.setAttribute('aria-hidden', 'true');
+      bar.to(0);
+      window.setTimeout(() => curtain.to(0), FADE_DELAY);
+      Intro.enter();
+    }, HOLD_AT_FULL);
+  };
+
+  curtain.onRest = () => {
+    if (!isLifted) return;
+    root.style.display = 'none';
+    document.documentElement.classList.remove('is-loading');
+  };
+
+  springLoop.push((dt) => {
+    value.advance(dt); bar.advance(dt); curtain.advance(dt);
+    count.textContent = Math.round(value.value) + '%';
+    fillEl.style.width = value.value + '%';
+    barEl.style.width = bar.value + '%';
+    root.style.opacity = curtain.value;
+  });
+
+  const setProgress = (next) => {
+    if (next === progress) return;
+    progress = next;
+    gauge.setAttribute('aria-valuenow', String(Math.round(progress)));
+    if (progress >= 100) {
+      // Stiff, with a LOOSE precision, because the lift waits on this spring's
+      // onRest — the default precision chases the last hundredth of a percent
+      // for ~800ms after the counter already reads 100%, and that dead time
+      // reads as the page hanging.
+      value.setConfig({ tension: 180, friction: 26, precision: 0.1 });
+    }
+    value.to(progress);
+  };
+
+  const startedAt = performance.now();
+  let done = false;
+  const signals = signalsIn;
+  const total = signals.length;
+  let settled = 0;
+  const bump = () => { settled += 1; target = Math.max(target, settled / total); };
+  signals.forEach((signal) => void Promise.resolve(signal).then(bump, bump));
+
+  const finish = () => { if (done) return; done = true; setProgress(100); };
+
+  // Creep floor: eases toward 90% over MAX_DURATION so the bar always moves.
+  const poll = window.setInterval(() => {
+    const elapsed = performance.now() - startedAt;
+    const creep = Math.pow(Math.min(elapsed / MAX_DURATION, 1), 0.65) * 0.9;
+    const reached = Math.max(target, creep);
+    if ((settled === total && elapsed >= MIN_DURATION) || elapsed >= MAX_DURATION) {
+      window.clearInterval(poll);
+      finish();
+      return;
+    }
+    setProgress(Math.min(reached, 0.97) * 100);
+  }, POLL_INTERVAL);
+}
+
+/* ============================================================
+   9. BOOT
+============================================================ */
+(function boot() {
+  // Honour "reduce motion" the way the template's <ReducedMotion> does: every
+  // spring jumps straight to its end state instead of animating.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  SKIP_ANIMATION = reduced.matches;
+  reduced.addEventListener('change', (e) => { SKIP_ANIMATION = e.matches; });
+
+  document.querySelectorAll('[data-reveal]').forEach(mountReveal);
+  document.querySelectorAll('[data-letters]').forEach((el) => mountText(el, 'letters'));
+  document.querySelectorAll('[data-words]').forEach((el) => mountText(el, 'words'));
+
+  mountMeter(document.getElementById('meter'), 192 / 310);
+  mountMediaReveal(document.getElementById('media-spring'), 110);
+
+  /* --- dev panel (delete with the #ui markup + CSS) ---------------------- */
+  const ui = { delay: document.getElementById('ui-delay'), val: document.getElementById('ui-val'), replay: document.getElementById('ui-replay') };
+  const stored = sessionStorage.getItem('gl-loader-forma-delay');
+  if (stored !== null) ui.delay.value = stored;
+  ui.val.textContent = ui.delay.value + 'ms';
+  ui.delay.addEventListener('input', () => {
+    ui.val.textContent = ui.delay.value + 'ms';
+    sessionStorage.setItem('gl-loader-forma-delay', ui.delay.value);
+  });
+  ui.replay.addEventListener('click', () => location.reload());
+  const simulated = Number(ui.delay.value);
+  /* ---------------------------------------------------------------------- */
+
+  // The real signals. In the template this list is fonts + window.load + every
+  // hero image; here the third entry is the dev panel's synthetic asset, so the
+  // loader is watchable on a warm cache.
+  const signals = [
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    new Promise((resolve) => {
+      if (document.readyState === 'complete') return resolve();
+      window.addEventListener('load', () => resolve(), { once: true });
+    }),
+    new Promise((resolve) => setTimeout(resolve, simulated)),
+  ];
+
+  mountLoader(document.getElementById('loader'), signals);
+})();
+</script>
+<!-- ODORO-BADGE:START -->
+<div class="odoro-badge" role="img" aria-label="Odoro">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <path d="M10 10 H50 A40 40 0 1 1 10 50 Z"
+          fill="none" stroke="currentColor" stroke-width="14" stroke-linejoin="miter"/>
+  </svg>
+  <span>odoro</span>
+</div>
+<!-- ODORO-BADGE:END -->
+</body>
+</html>
