@@ -223,7 +223,22 @@ function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly r
  */
 function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
   return (
-    <article className="o-flex o-flex-col o-gap-3 o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-p-6">
+    <article className="o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900">
+      {/* L apercu vit sous `apercus-templates/` et non `templates/` : ce
+          dernier est l espace de routage des vitrines, et un dossier reel a
+          cette adresse masquait la page d index derriere un 403 de nginx. */}
+      <img
+        src={`/apercus-templates/${projet.name}.jpg`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="o-h-44 o-w-full o-object-cover"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none'
+        }}
+      />
+
+      <div className="o-flex o-flex-col o-gap-3 o-p-6">
       <div className="o-flex o-items-baseline o-justify-between o-gap-3">
         <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{projet.title}</h3>
         <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
@@ -248,6 +263,7 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
       )}
 
       <p className="o-m-0 o-text-xs o-text-zinc-400">Licence {projet.licence}</p>
+      </div>
     </article>
   )
 }
