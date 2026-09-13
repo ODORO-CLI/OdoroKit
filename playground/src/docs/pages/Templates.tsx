@@ -33,9 +33,10 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, LayoutGrid, Search, Server, X } from '@odoro-cli/icons/filaire'
+import { ArrowRight, ArrowUpRight, ChevronLeft, LayoutGrid, Search, Server, SlidersHorizontal, X } from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
+import { SelectMenu } from '@odoro-cli/libs/ui'
 import {
   useEffect,
   useMemo,
@@ -46,7 +47,6 @@ import {
 } from 'react'
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
-import { PageHeader } from '../components/DocBlocks.jsx'
 import { TEMPLATES, scaffoldCommand, type Template } from '../templates.js'
 import {
   TEMPLATES as PROJETS,
@@ -57,7 +57,32 @@ import { SECTEURS, VITRINES, type Vitrine, type VitrineSecteur } from '../vitrin
 /* ============================ L apercu ================================= */
 
 /** Identifiant de la feuille de l apercu. */
-const STYLE_APERCU = 'o-apercu-vitrine'
+const STYLE_APERCU = 'o-vitrine-apercu'
+
+/**
+ * Les surfaces de la galerie.
+ *
+ * Le systeme ne decline pas ses echelles de noir et de blanc en `dark:` : les
+ * surfaces viennent des jetons `--o-chrome-*`, qui basculent avec le theme du
+ * site. Le filet, la tige et le verre reprennent le vocabulaire de la colonne
+ * de la documentation.
+ */
+const FEUILLE_GALERIE = [
+  '.tp-filet{background-color:var(--o-chrome-filet)}',
+  '.tp-tige{background-image:linear-gradient(180deg,',
+  'color-mix(in oklab,var(--o-palette-brand-500) 15%,transparent),',
+  'var(--o-palette-brand-500) 48%,',
+  'color-mix(in oklab,var(--o-palette-brand-500) 15%,transparent))}',
+  '.tp-ligne:hover .tp-filet{background-color:var(--o-chrome-filet-survol)}',
+  '.tp-verre{background-color:var(--o-chrome-verre);',
+  'border-color:var(--o-chrome-filet)}',
+  '.tp-touche{border-color:var(--o-chrome-filet-net)}',
+  '.tp-carte{background-color:var(--o-chrome-carte);',
+  'border-color:var(--o-chrome-filet-doux);',
+  'transition:border-color 220ms,background-color 220ms}',
+  '.tp-carte:hover{border-color:color-mix(in oklab,var(--o-palette-brand-500) 55%,transparent);',
+  'background-color:var(--o-chrome-carte-survol)}',
+].join('')
 
 /**
  * La feuille de l apercu.
@@ -95,7 +120,7 @@ function useFeuilleApercu(): void {
     if (document.getElementById(STYLE_APERCU) !== null) return
     const style = document.createElement('style')
     style.id = STYLE_APERCU
-    style.textContent = CSS_APERCU
+    style.textContent = CSS_APERCU + FEUILLE_GALERIE
     document.head.append(style)
   }, [])
 }
@@ -153,7 +178,7 @@ function Apercu({ vitrine }: { readonly vitrine: Vitrine }): ReactElement {
         </span>
         {aUneScene(vitrine) && (
           <span className="o-rounded-full o-border-w-1 o-border-white-20 o-bg-black-60 o-px-2 o-py-0.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white o-backdrop-blur-md">
-            Scene
+            Scène
           </span>
         )}
       </span>
@@ -187,7 +212,7 @@ function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly r
       to={`/templates/${vitrine.slug}`}
       data-o-carte=""
       aria-label={`${vitrine.titre} — ${vitrine.metier}`}
-      className="o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors hover:o-border-zinc-400 dark:hover:o-border-zinc-600 focus:o-ring"
+      className="tp-carte o-flex o-flex-col o-overflow-hidden o-rounded-2xl o-border-w-1 o-no-underline o-text-zinc-900 dark:o-text-zinc-50 o-transition-colors focus:o-ring"
     >
       <Apercu vitrine={vitrine} />
       <div className="o-flex o-flex-1 o-flex-col o-gap-2 o-p-5">
@@ -195,14 +220,16 @@ function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly r
           <span>{vitrine.metier}</span>
           <span className="o-tabular-nums">{String(rang + 1).padStart(2, '0')}</span>
         </p>
-        <h3 className="o-m-0 o-text-xl o-font-semibold o-tracking-tight">{vitrine.titre}</h3>
+        <h3 className="o-m-0 o-text-2xl o-font-light o-tracking-tight" style={{ fontFamily: 'var(--o-font-sans)' }}>
+          {vitrine.titre}
+        </h3>
         <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{vitrine.resume}</p>
         <div className="o-mt-auto o-flex o-flex-wrap o-items-center o-gap-1.5 o-pt-3">
-          <span className="o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-px-2 o-py-0.5 o-text-xs o-text-zinc-600 dark:o-text-zinc-300">
+          <span className="tp-touche o-rounded-full o-border-w-1 o-px-2.5 o-py-0.5 o-text-xs o-text-zinc-600 dark:o-text-zinc-300">
             {secteur}
           </span>
           {pieces.map((piece) => (
-            <span key={piece} className="o-rounded-full o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+            <span key={piece} className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
               {piece.split('/')[1]}
             </span>
           ))}
@@ -213,20 +240,22 @@ function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly r
   )
 }
 
+
+/** Une carte de socle echafaudable. */
 /**
- * Une carte de projet livre.
+ * Une carte de projet livré.
  *
- * Ces projets-la ne sont ni des vitrines ni des socles : ce sont des sites
- * entiers, avec leur pile propre — Next, three.js — livres dans `templates/`.
- * Ils portent donc leur pile et leur licence, que ni l une ni l autre des deux
- * autres familles n a besoin d annoncer.
+ * Ni vitrine ni socle : un site entier, avec sa pile propre, livré dans
+ * `templates/`. Il porte donc sa pile et sa licence, que les deux autres
+ * familles n'ont pas besoin d'annoncer.
+ *
+ * L'aperçu vit sous `apercus-templates/` et non `templates/` : ce dernier est
+ * l'espace de routage des vitrines, et un dossier réel à cette adresse masquait
+ * la page d'index derrière un 403 de nginx.
  */
 function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactElement {
   return (
     <article className="o-flex o-flex-col o-overflow-hidden o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900">
-      {/* L apercu vit sous `apercus-templates/` et non `templates/` : ce
-          dernier est l espace de routage des vitrines, et un dossier reel a
-          cette adresse masquait la page d index derriere un 403 de nginx. */}
       <img
         src={`/apercus-templates/${projet.name}.jpg`}
         alt=""
@@ -237,38 +266,32 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
           e.currentTarget.style.display = 'none'
         }}
       />
-
       <div className="o-flex o-flex-col o-gap-3 o-p-6">
-      <div className="o-flex o-items-baseline o-justify-between o-gap-3">
-        <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{projet.title}</h3>
-        <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-          {projet.kind === 'site' ? 'Site' : projet.kind === 'starter' ? 'Socle' : 'Bibliotheque'}
-        </span>
-      </div>
-
-      <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{projet.description}</p>
-
-      <ul className="o-m-0 o-flex o-flex-wrap o-gap-1.5 o-list-none o-p-0">
-        {projet.stack.map((x) => (
-          <li key={x} className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs">
-            {x}
-          </li>
-        ))}
-      </ul>
-
-      {projet.install !== undefined && (
-        <div className="o-mt-auto o-pt-1">
-          <CodeBlock lang="sh" code={projet.install} />
+        <div className="o-flex o-items-baseline o-justify-between o-gap-3">
+          <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{projet.title}</h3>
+          <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            {projet.kind === 'site' ? 'Site' : projet.kind === 'starter' ? 'Socle' : 'Bibliothèque'}
+          </span>
         </div>
-      )}
-
-      <p className="o-m-0 o-text-xs o-text-zinc-400">Licence {projet.licence}</p>
+        <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{projet.description}</p>
+        <ul className="o-m-0 o-flex o-flex-wrap o-gap-1.5 o-list-none o-p-0">
+          {projet.stack.map((x) => (
+            <li key={x} className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs">
+              {x}
+            </li>
+          ))}
+        </ul>
+        {projet.install !== undefined && (
+          <div className="o-mt-auto o-pt-1">
+            <CodeBlock lang="sh" code={projet.install} />
+          </div>
+        )}
+        <p className="o-m-0 o-text-xs o-text-zinc-400">Licence {projet.licence}</p>
       </div>
     </article>
   )
 }
 
-/** Une carte de socle echafaudable. */
 function CarteSocle({ template }: { readonly template: Template }): ReactElement {
   const livre = template.status === 'disponible'
   return (
@@ -281,7 +304,7 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
       <div className="o-flex o-items-center o-gap-2">
         <Icon icon={template.slug.includes('server') ? Server : LayoutGrid} size={20} className="o-text-brand-600 dark:o-text-brand-400" />
         <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{template.title}</h3>
-        {!livre && <span className="o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-text-xs o-opacity-70">a venir</span>}
+        {!livre && <span className="o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-text-xs o-opacity-70">à venir</span>}
       </div>
       <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{template.description}</p>
       <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-gap-1.5 o-p-0">
@@ -290,7 +313,7 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
         ))}
       </ul>
       <div className="o-mt-auto o-min-w-0 o-pt-2">
-        {livre ? <CodeBlock lang="sh" code={scaffoldCommand(template)} /> : <p className="o-m-0 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">Ce socle n est pas encore livre — la commande ne fonctionnerait pas.</p>}
+        {livre ? <CodeBlock lang="sh" code={scaffoldCommand(template)} /> : <p className="o-m-0 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">Ce socle n’est pas encore livre — la commande ne fonctionnerait pas.</p>}
       </div>
     </article>
   )
@@ -298,35 +321,93 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
 
 /* ============================ Le volet de filtres ====================== */
 
-/** Une case a cocher de filtre, avec son compte. */
+/**
+ * Une gelule de filtre, avec son compte.
+ *
+ * C est la meme forme que les liens de la barre : une gelule qui s allume.
+ * Le controle reste une vraie case a cocher, rendue invisible — le clavier,
+ * le lecteur d ecran et le groupe de champs continuent de fonctionner, ce
+ * qu un bouton n aurait pas donne gratuitement.
+ */
 function Case({
   coche,
   onChange,
   children,
   compte,
+  rond = false,
+  nom,
 }: {
   readonly coche: boolean
   readonly onChange: () => void
   readonly children: string
   readonly compte: number
+  /** Vrai pour un choix unique : le controle est alors un bouton radio. */
+  readonly rond?: boolean
+  readonly nom?: string
 }): ReactElement {
   return (
-    <label className="o-flex o-cursor-pointer o-items-center o-gap-2.5 o-py-1.5 o-text-sm">
-      <input type="checkbox" checked={coche} onChange={onChange} className="o-size-4 o-accent-brand-500 focus:o-ring" />
-      <span className={`o-grow ${coche ? 'o-text-zinc-950 dark:o-text-zinc-50' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}>{children}</span>
+    <label
+      className={`tp-ligne o-relative o-flex o-cursor-pointer o-items-center o-gap-2.5 o-py-1.5 o-pl-5 o-text-sm o-transition-colors ${
+        coche
+          ? 'o-font-medium o-text-brand-600 dark:o-text-brand-300'
+          : 'o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-zinc-50'
+      }`}
+    >
+      {/* La tige : le filet au repos, le degrade d accent quand le filtre est
+          retenu — le meme vocabulaire que la colonne de la documentation. */}
+      <span
+        aria-hidden="true"
+        className={`o-absolute o-inset-y-0 o-left-0 o-w-px ${coche ? 'tp-tige' : 'tp-filet'}`}
+      />
+      <input
+        type={rond ? 'radio' : 'checkbox'}
+        {...(nom === undefined ? {} : { name: nom })}
+        checked={coche}
+        onChange={onChange}
+        className="o-sr-only"
+      />
+      {/* Le temoin : un rond plein pour un choix unique, un carre pour un
+          choix multiple. Il remplace la case du navigateur, qui ne se laisse
+          pas mettre a la forme du reste. */}
+      <span
+        aria-hidden="true"
+        className={`o-inline-flex o-size-3.5 o-shrink-0 o-items-center o-justify-center o-border-w-1 ${rond ? 'o-rounded-full' : 'o-rounded-sm'} ${
+          coche ? 'o-border-brand-500 o-bg-brand-500' : 'o-border-zinc-300 dark:o-border-zinc-700'
+        }`}
+      >
+        {coche && (
+          <span className={`o-block o-bg-white ${rond ? 'o-size-1.5 o-rounded-full' : 'o-size-1.5 o-rounded-sm'}`} />
+        )}
+      </span>
+      <span className="o-grow">{children}</span>
       <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">{compte}</span>
     </label>
   )
 }
 
-/** Un groupe du volet. */
+/** Un groupe du volet : un intitule en mono, et ses gelules. */
 function Groupe({ titre, children }: { readonly titre: string; readonly children: ReactElement | ReactElement[] }): ReactElement {
   return (
-    <fieldset className="o-m-0 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-p-0 o-pt-4">
-      <legend className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{titre}</legend>
-      <div className="o-mt-1 o-flex o-flex-col">{children}</div>
+    <fieldset className="o-m-0 o-w-full o-p-0 o-pt-6" style={{ border: 0 }}>
+      <legend className="o-flex o-w-full o-items-center o-gap-3 o-pb-2 o-pl-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+        {titre}
+        <span aria-hidden="true" className="tp-filet o-h-px o-flex-1" />
+      </legend>
+      <div className="o-flex o-flex-col">{children}</div>
     </fieldset>
   )
+}
+
+/** Cle de persistance du volet replie. */
+const CLE_VOLET = 'odoro-templates-volet'
+
+/** Le volet etait-il replie a la derniere visite ? */
+function voletReplie(): boolean {
+  try {
+    return localStorage.getItem(CLE_VOLET) === '1'
+  } catch {
+    return false
+  }
 }
 
 /** L etat des filtres. */
@@ -352,6 +433,16 @@ export function Templates(): ReactElement {
   useFeuilleApercu()
   const [filtres, setFiltres] = useState<Filtres>(VIDE)
   const [ouvert, setOuvert] = useState(false)
+  const [replie, setReplie] = useState(() => voletReplie())
+
+  // Le choix survit a la visite : on ne replie pas un volet deux fois.
+  useEffect(() => {
+    try {
+      localStorage.setItem(CLE_VOLET, replie ? '1' : '0')
+    } catch {
+      // Stockage indisponible : le choix vivra le temps de la session.
+    }
+  }, [replie])
   const champ = useRef<HTMLInputElement>(null)
 
   // « / » va a la recherche, comme sur la plupart des places de marche.
@@ -397,7 +488,7 @@ export function Templates(): ReactElement {
     <div className="o-flex o-flex-col o-gap-4">
       <label className="o-relative o-block">
         <span className="o-sr-only">Rechercher une vitrine</span>
-        <Icon icon={Search} size={16} className="o-pointer-events-none o-absolute o-left-3 o-top-1/2 o-text-zinc-400" style={{ transform: 'translateY(-50%)' }} />
+        <Icon icon={Search} size={16} className="o-pointer-events-none o-absolute o-left-4 o-top-1/2 o-text-zinc-400" style={{ transform: 'translateY(-50%)' }} />
         <input
           ref={champ}
           type="search"
@@ -406,9 +497,9 @@ export function Templates(): ReactElement {
             setFiltres((f) => ({ ...f, recherche: e.target.value }))
           }}
           placeholder="Rechercher — un metier, une piece, un nom"
-          className="o-w-full o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-bg-white dark:o-bg-zinc-900 o-py-2.5 o-pl-9 o-pr-10 o-text-sm o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring"
+          className="tp-verre o-w-full o-rounded-full o-border-w-1 o-py-3 o-pl-10 o-pr-10 o-text-sm o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring"
         />
-        <kbd className="o-pointer-events-none o-absolute o-right-3 o-top-1/2 o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-px-1.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400" style={{ transform: 'translateY(-50%)' }}>/</kbd>
+        <kbd className="tp-touche o-pointer-events-none o-absolute o-right-3 o-top-1/2 o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400" style={{ transform: 'translateY(-50%)' }}>/</kbd>
       </label>
 
       <Groupe titre="Secteur">
@@ -435,11 +526,18 @@ export function Templates(): ReactElement {
             ['sans', 'Sans scene', compteScene(false)],
           ] as const
         ).map(([valeur, libelle, compte]) => (
-          <label key={valeur} className="o-flex o-cursor-pointer o-items-center o-gap-2.5 o-py-1.5 o-text-sm">
-            <input type="radio" name="scene" value={valeur} checked={filtres.scene === valeur} onChange={() => { setFiltres((f) => ({ ...f, scene: valeur })) }} className="o-size-4 o-accent-brand-500 focus:o-ring" />
-            <span className={`o-grow ${filtres.scene === valeur ? 'o-text-zinc-950 dark:o-text-zinc-50' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}>{libelle}</span>
-            <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">{compte}</span>
-          </label>
+          <Case
+            key={valeur}
+            rond
+            nom="scene"
+            coche={filtres.scene === valeur}
+            compte={compte}
+            onChange={() => {
+              setFiltres((f) => ({ ...f, scene: valeur }))
+            }}
+          >
+            {libelle}
+          </Case>
         ))}
       </Groupe>
 
@@ -449,7 +547,7 @@ export function Templates(): ReactElement {
           onClick={() => {
             setFiltres(VIDE)
           }}
-          className="o-inline-flex o-items-center o-gap-2 o-self-start o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-px-3 o-py-1.5 o-text-sm o-text-zinc-700 dark:o-text-zinc-300 o-transition-colors hover:o-bg-zinc-100 dark:hover:o-bg-zinc-800 focus:o-ring"
+          className="tp-verre o-mt-6 o-inline-flex o-items-center o-gap-2 o-self-start o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-text-zinc-700 dark:o-text-zinc-300 o-transition-opacity hover:o-opacity-70 focus:o-ring"
         >
           <Icon icon={X} size={14} />
           Effacer les filtres ({actifs})
@@ -460,15 +558,32 @@ export function Templates(): ReactElement {
 
   return (
     <>
-      <PageHeader
-        module="templates"
-        title="Templates"
-        lead={`${String(VITRINES.length)} pages d atterrissage completes, chacune d un metier different, batie avec les pieces du registre. Ouvrez-en une : c est le site, pas une capture.`}
-      />
+      {/* L en-tete reprend la composition de la page d accueil : une rubrique
+          en mono prolongee d un filet, puis le titre d affichage en graisse
+          legere — et non le titre gras des pages de documentation. */}
+      <header className="o-mb-14 o-flex o-flex-col o-gap-5 o-pb-10">
+        <p className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+          <span className="o-text-brand-600 dark:o-text-brand-300">(00)</span>
+          Templates
+          <span aria-hidden="true" className="tp-filet o-h-px o-flex-1" />
+        </p>
+        <h1
+          className="o-m-0 o-max-w-3xl o-text-balance o-font-light o-tracking-tight"
+          style={{ fontSize: 'clamp(2.25rem, 5vw, 4rem)', lineHeight: 1.02 }}
+        >
+          Cent sites entiers, ouverts.
+        </h1>
+        <p className="o-m-0 o-max-w-prose o-text-pretty o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+          {VITRINES.length} pages d’atterrissage complètes, chacune d’un metier different,
+          batie avec les pieces du registre. Ouvrez-en une : c’est le site, pas une capture.
+        </p>
+      </header>
 
       <div className="o-grid o-gap-8 lg:o-grid-cols-12 lg:o-gap-10">
-        {/* Le volet : colle sur grand ecran, replie sous 1024 px. */}
-        <aside className="lg:o-col-span-3">
+        {/* Le volet : colle sur grand ecran, et repliable — sous 1024 px
+            derriere son bouton, au-dessus par la chevronne de son en-tete.
+            Replie, il rend ses trois colonnes a la grille. */}
+        <aside className={replie ? 'lg:o-hidden' : 'lg:o-col-span-3'}>
           <button
             type="button"
             aria-expanded={ouvert}
@@ -476,42 +591,95 @@ export function Templates(): ReactElement {
             onClick={() => {
               setOuvert((o) => !o)
             }}
-            className="o-flex o-w-full o-items-center o-justify-between o-rounded-2xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-px-4 o-py-3 o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring lg:o-hidden"
+            className="tp-verre o-flex o-w-full o-items-center o-justify-between o-rounded-full o-border-w-1 o-px-5 o-py-3 o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring lg:o-hidden"
           >
             <span>Filtres{actifs > 0 ? ` (${String(actifs)})` : ''}</span>
             <Icon icon={ouvert ? X : Search} size={16} aria-hidden="true" />
           </button>
-          <div id="volet-filtres" className={`${ouvert ? 'o-mt-4 o-block' : 'o-hidden'} lg:o-sticky lg:o-mt-0 lg:o-block`} style={{ top: 117 }}>
+          <div
+            id="volet-filtres"
+            className={`${ouvert ? 'o-mt-4 o-block' : 'o-hidden'} ${replie ? '' : 'lg:o-sticky lg:o-mt-0 lg:o-block'}`}
+            style={{ top: 96 }}
+          >
+            {/* L en-tete du volet, sur grand ecran seulement : le petit ecran
+                a deja son bouton au-dessus. */}
+            <div className="max-lg:o-hidden o-flex o-items-center o-gap-3 o-pb-1">
+              <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                Filtres
+              </span>
+              <span aria-hidden="true" className="tp-filet o-h-px o-flex-1" />
+              <button
+                type="button"
+                onClick={() => {
+                  setReplie(true)
+                }}
+                aria-expanded
+                aria-controls="volet-filtres"
+                title="Replier les filtres"
+                className="o-inline-flex o-size-7 o-cursor-pointer o-items-center o-justify-center o-rounded-full o-text-zinc-500 dark:o-text-zinc-400 o-transition-colors hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring"
+              >
+                <span className="o-sr-only">Replier les filtres</span>
+                <Icon icon={ChevronLeft} size={16} aria-hidden="true" />
+              </button>
+            </div>
             {volet}
           </div>
         </aside>
 
-        <section className="o-min-w-0 lg:o-col-span-9" aria-live="polite">
+        <section className={`o-min-w-0 ${replie ? 'lg:o-col-span-12' : 'lg:o-col-span-9'}`} aria-live="polite">
           <div className="o-mb-5 o-flex o-flex-wrap o-items-center o-justify-between o-gap-3">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-              {visibles.length === VITRINES.length ? `${String(VITRINES.length)} vitrines` : `${String(visibles.length)} sur ${String(VITRINES.length)}`}
-            </p>
-            <label className="o-flex o-items-center o-gap-2 o-text-sm">
-              <span className="o-text-zinc-500 dark:o-text-zinc-400">Trier</span>
-              <select
-                value={filtres.tri}
-                onChange={(e) => {
-                  setFiltres((f) => ({ ...f, tri: e.target.value as Tri }))
-                }}
-                className="o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-700 o-bg-white dark:o-bg-zinc-900 o-px-2.5 o-py-1.5 o-text-sm o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring"
+            <div className="o-flex o-items-center o-gap-4">
+              {/* Il ne parait que le volet replie : sinon, le volet porte sa
+                  propre chevronne. */}
+              {replie && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReplie(false)
+                  }}
+                  aria-expanded={false}
+                  aria-controls="volet-filtres"
+                  className="tp-verre max-lg:o-hidden o-inline-flex o-cursor-pointer o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-text-zinc-700 dark:o-text-zinc-300 o-transition-opacity hover:o-opacity-70 focus:o-ring"
+                >
+                  <Icon icon={SlidersHorizontal} size={15} aria-hidden="true" />
+                  Filtres
+                  {actifs > 0 && (
+                    <span className="o-font-mono o-text-xs o-tabular-nums o-text-brand-600 dark:o-text-brand-300">
+                      {actifs}
+                    </span>
+                  )}
+                </button>
+              )}
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                {visibles.length === VITRINES.length ? `${String(VITRINES.length)} vitrines` : `${String(visibles.length)} sur ${String(VITRINES.length)}`}
+              </p>
+            </div>
+            {/* La liste deroulante est celle de la librairie, pas celle du
+                navigateur : un menu natif se peint par le systeme, garde ses
+                coins carres et son surlignage bleu, et jurait avec le reste. */}
+            <div className="o-flex o-items-center o-gap-3 o-text-sm">
+              <span
+                id="tri-des-vitrines"
+                className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
               >
-                {TRIS.map(([valeur, libelle]) => (
-                  <option key={valeur} value={valeur}>{libelle}</option>
-                ))}
-              </select>
-            </label>
+                Trier
+              </span>
+              <SelectMenu
+                className="o-w-56"
+                options={TRIS.map(([valeur, libelle]) => ({ value: valeur, label: libelle }))}
+                value={filtres.tri}
+                onValueChange={(valeur) => {
+                  setFiltres((f) => ({ ...f, tri: valeur as Tri }))
+                }}
+              />
+            </div>
           </div>
 
           {visibles.length === 0 ? (
-            <div className="o-rounded-2xl o-border-w-1 o-border-dashed o-border-zinc-300 dark:o-border-zinc-700 o-px-6 o-py-16 o-text-center">
-              <p className="o-m-0 o-text-lg o-font-medium">Aucune vitrine ne repond a ces filtres.</p>
+            <div className="tp-verre o-rounded-2xl o-border-w-1 o-px-6 o-py-20 o-text-center">
+              <p className="o-m-0 o-text-lg o-font-medium">Aucune vitrine ne répond a ces filtres.</p>
               <p className="o-m-0 o-mt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">Essayez un mot plus court, ou retirez un filtre.</p>
-              <button type="button" onClick={() => { setFiltres(VIDE) }} className="o-mt-5 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-px-4 o-py-2 o-text-sm focus:o-ring">
+              <button type="button" onClick={() => { setFiltres(VIDE) }} className="o-mt-5 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-5 o-py-2.5 o-text-sm focus:o-ring">
                 <Icon icon={X} size={14} /> Effacer les filtres
               </button>
             </div>
@@ -525,13 +693,14 @@ export function Templates(): ReactElement {
         </section>
       </div>
 
+
       <Reveal>
         <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
-          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Projets livres</h2>
+          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Projets livrés</h2>
           <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
-            Des sites entiers, avec leur pile propre, livres dans{' '}
-            <code className="o-font-mono o-text-xs">templates/</code>. On les clone
-            et on les fait tourner — ce ne sont ni des apercus ni des projets vides.
+            Des sites entiers, avec leur pile propre, livrés dans{' '}
+            <code className="o-font-mono o-text-xs">templates/</code>. On les clone et
+            on les fait tourner — ce ne sont ni des aperçus ni des projets vides.
           </p>
           <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2 xl:o-grid-cols-3">
             {PROJETS.map((projet) => (
@@ -543,10 +712,10 @@ export function Templates(): ReactElement {
 
       <Reveal>
         <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
-          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Socles echafaudables</h2>
+          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Socles échafaudables</h2>
           <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
             Une vitrine se lit ; un socle s installe. Ces deux-la sortent un projet vide mais cable, ou reposer les pieces du{' '}
-            <Link to="/docs/registre" className="lien">registre</Link>.
+            <Link to="/docs/registry" className="lien">registre</Link>.
           </p>
           <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2">
             {TEMPLATES.map((t) => (
