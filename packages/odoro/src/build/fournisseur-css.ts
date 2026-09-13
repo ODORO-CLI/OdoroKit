@@ -53,6 +53,18 @@ export interface FournisseurCss {
    * par l'import de l'application. La rajouter la dupliquerait.
    */
   renderUtilitairesPour(classes: ReadonlySet<string>): string
+
+  /**
+   * Toutes les classes que le systeme sait produire, s'il sait les enumerer.
+   *
+   * Sert au **developpement** : la compilation n'emet que les classes
+   * employees, mais le serveur de developpement ne scrute pas les sources — il
+   * sert donc tout, et laisse l'elagage a la compilation.
+   *
+   * Facultatif : un fournisseur plus ancien ne l'expose pas, et le serveur s'en
+   * passe.
+   */
+  readonly classesConnues?: () => ReadonlySet<string>
 }
 
 /** Le paquet consulte, et le sous-chemin attendu. */
@@ -105,16 +117,27 @@ export async function fournisseurDe(root: string): Promise<FournisseurCss | unde
     const relatif = fichierDe(contenu.exports?.[SOUS_CHEMIN])
     if (relatif === undefined) return undefined
 
-    const module_ = (await import(
-      pathToFileURL(resolve(dossier, relatif)).href
-    )) as Partial<FournisseurCss>
+    const module_ = (await import(pathToFileURL(resolve(dossier, relatif)).href)) as Partial<
+      FournisseurCss & {
+        generate: (tier?: string) => { readonly classNames: readonly string[] }
+      }
+    >
 
     // Present mais sans la fonction attendue : c'est une version trop
     // ancienne. On le traite comme une absence, et l'elagage prend le relais —
     // plutot que de lever et de casser une compilation qui marchait hier.
     if (typeof module_.renderUtilitairesPour !== 'function') return undefined
 
-    return { renderUtilitairesPour: module_.renderUtilitairesPour }
+    const generate = module_.generate
+    return {
+      renderUtilitairesPour: module_.renderUtilitairesPour,
+      // `generate` enumere les classes du palier courant. Absent d'un paquet
+      // plus ancien : le champ reste alors indefini, et le developpement
+      // retombe sur la feuille telle qu'elle est livree.
+      ...(typeof generate === 'function'
+        ? { classesConnues: (): ReadonlySet<string> => new Set(generate('core').classNames) }
+        : {}),
+    }
   } catch {
     // Absent, non resoluble, ou illisible. Aucune de ces situations n'est une
     // erreur de compilation : le projet n'emploie simplement pas ce systeme de

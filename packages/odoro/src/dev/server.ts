@@ -19,6 +19,7 @@ import {
 } from 'node:http'
 import { extname, join, resolve } from 'node:path'
 
+import { fournisseurDe } from '../build/fournisseur-css.js'
 import type { ResolvedConfig } from '../config.js'
 import * as log from '../shared/logger.js'
 import {
@@ -55,6 +56,25 @@ import {
   wrapStyle,
 } from './transform.js'
 
+/**
+ * La feuille d utilitaires du developpement.
+ *
+ * ## Pourquoi le serveur la produit
+ *
+ * Le paquet de style ne livre que le socle — variables, remise a zero,
+ * images-cles. Les utilitaires sont produits a la compilation, pour les seules
+ * classes employees : c est ce qui fait passer la feuille de 1,7 Mo a moins de
+ * 180 Ko dans le site publie.
+ *
+ * En developpement il n y a pas de compilation, donc il n y avait aucun
+ * utilitaire : l application s ouvrait avec ses seules variables, sans mise en
+ * page ni couleurs. Le serveur produit donc la feuille entiere, une fois au
+ * demarrage. Rien n y est elague, et c est voulu : une classe ajoutee pendant
+ * la session doit peindre sans redemarrage, et le poids ne compte pas sur une
+ * machine locale.
+ */
+const UTILITAIRES_PATH = `${INTERNAL_PREFIX}utilitaires.css`
+
 /** Types MIME servis. */
 const MIME: Readonly<Record<string, string>> = {
   '.html': 'text/html; charset=utf-8',
@@ -75,6 +95,8 @@ const MIME: Readonly<Record<string, string>> = {
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
   '.txt': 'text/plain; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
+  '.markdown': 'text/markdown; charset=utf-8',
 }
 
 /** Extensions compilees comme des modules JavaScript. */
@@ -131,10 +153,13 @@ export function extractEntries(html: string, root: string): string[] {
  * @example
  * injectClient('<html><head></head></html>')
  */
-export function injectClient(html: string): string {
+export function injectClient(html: string, utilitaires = false): string {
   // L'ordre compte : le crochet de rechargement doit etre installe avant que
   // React ne soit charge, donc avant tout module de l'application.
   const tags = [
+    // La feuille vient avant tout le reste : le socle et les styles de
+    // l'application, importes ensuite, doivent pouvoir la surcharger.
+    ...(utilitaires ? [`<link rel="stylesheet" href="${UTILITAIRES_PATH}">`] : []),
     REFRESH_HTML_TAG,
     `<script type="module" src="${HMR_CLIENT_PATH}"></script>`,
   ].join('\n    ')
@@ -164,6 +189,19 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
   }
 
   const refreshRuntime = await bundleRefreshRuntime()
+
+  // Les utilitaires du developpement (voir UTILITAIRES_PATH). Produits une
+  // fois : la generation coute une seconde, et rien dans la session ne la
+  // change. Un projet qui n'emploie pas ce systeme de style n'a pas de
+  // fournisseur : on ne sert alors rien, et on n'injecte aucune balise.
+  const fournisseur = await fournisseurDe(config.root)
+  const utilitaires =
+    fournisseur?.classesConnues === undefined
+      ? undefined
+      : fournisseur.renderUtilitairesPour(fournisseur.classesConnues())
+  if (utilitaires !== undefined) {
+    log.info(`utilitaires de developpement : ${String(Math.round(utilitaires.length / 1024))} Ko`)
+  }
 
   const entries = extractEntries(await readFile(indexFile, 'utf8'), config.root)
   const specifiers = await scanDependencies(config, entries)
@@ -247,6 +285,21 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
   }
 
   /** Sert un fichier statique. */
+  /**
+   * Le fichier d index d un dossier, s il en a un.
+   *
+   * @param dossier Chemin candidat, qui peut n etre ni un dossier ni exister.
+   * @returns Le chemin de l index, ou `undefined`.
+   */
+  const indexDeDossier = (dossier: string): string | undefined => {
+    if (!existsSync(dossier) || !statSync(dossier).isDirectory()) return undefined
+    for (const nom of ['index.html', 'index.md']) {
+      const candidat = join(dossier, nom)
+      if (existsSync(candidat) && statSync(candidat).isFile()) return candidat
+    }
+    return undefined
+  }
+
   const serveFile = (response: ServerResponse, file: string): void => {
     const type = MIME[extname(file).toLowerCase()] ?? 'application/octet-stream'
     response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' })
@@ -256,7 +309,7 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
   /** Sert le document HTML, client de rechargement injecte. */
   const serveHtml = async (response: ServerResponse): Promise<void> => {
     const html = await readFile(indexFile, 'utf8')
-    send(response, injectClient(html), MIME['.html'] ?? 'text/html')
+    send(response, injectClient(html, utilitaires !== undefined), MIME['.html'] ?? 'text/html')
   }
 
   /** Transmet une requete a une origine distante. */
@@ -304,6 +357,15 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
 
         if (path === REFRESH_RUNTIME_PATH) {
           send(response, refreshRuntime, MIME['.js'] ?? 'text/javascript')
+          return
+        }
+
+        if (path === UTILITAIRES_PATH) {
+          if (utilitaires === undefined) {
+            send(response, 'Introuvable', 'text/plain', 404)
+            return
+          }
+          send(response, utilitaires, MIME['.css'] ?? 'text/css')
           return
         }
 
@@ -382,6 +444,19 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
         const publicFile = join(config.publicDir, path.replace(/^\//, ''))
         if (existsSync(publicFile) && statSync(publicFile).isFile()) {
           serveFile(response, publicFile)
+          return
+        }
+
+        // Un dossier public rend son index.
+        //
+        // Sans cela, `/dossier` tombait sur le repli monopage : un arbre de
+        // documents deposes dans `public/` n etait joignable que fichier par
+        // fichier, et l adresse du dossier rendait le document HTML de
+        // l application. `index.md` est accepte au meme titre qu `index.html`,
+        // parce qu un arbre de documentation n a aucune raison d etre du HTML.
+        const index = indexDeDossier(publicFile)
+        if (index !== undefined) {
+          serveFile(response, index)
           return
         }
 
