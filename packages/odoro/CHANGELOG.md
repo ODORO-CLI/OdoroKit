@@ -1,5 +1,21 @@
 # odoro
 
+## 0.3.1
+
+### Patch Changes
+
+- Le serveur de developpement produit et sert la feuille d utilitaires. Elle
+  n etait produite qu a la compilation : en developpement l application s ouvrait
+  avec ses seules variables, sans mise en page ni couleurs.
+
+  Rien n y est elague, pour qu une classe ajoutee pendant la session peigne sans
+  redemarrage. Le fournisseur de style expose pour cela un `classesConnues`
+  facultatif ; un paquet plus ancien ne l a pas, et le developpement retombe alors
+  sur la feuille telle qu elle est livree.
+
+  Les fichiers `.md` recoivent au passage leur type, au lieu d etre servis en
+  binaire.
+
 ## 0.2.0
 
 ### Minor Changes

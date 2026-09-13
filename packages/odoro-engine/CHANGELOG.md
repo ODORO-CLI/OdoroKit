@@ -1,5 +1,25 @@
 # @odoro-cli/engine
 
+## 0.3.1
+
+### Patch Changes
+
+- La lecture d une couleur accepte la notation hexadecimale — `#abc`, `#aabbcc`,
+  `#aabbccdd` — et traite `none` comme zero, ainsi que la syntaxe moderne le
+  prevoit. Elle ne rendait jusqu ici que `null` sur un `#` et retombait sur une
+  couleur par defaut.
+
+  Les nuanceurs suivent desormais le theme : leur effet depend de `theme`, donc
+  une bascule clair / sombre les repeint au lieu de garder les couleurs lues au
+  montage.
+
+  Le fond `mesh` ne rabat plus sa couleur de base a un quart de sa valeur. Ce
+  facteur assombrissait le fond quelle que soit la palette, et un theme clair
+  rendait un voile sombre la ou on demandait sa propre teinte.
+
+- Updated dependencies
+  - @odoro-cli/libs@0.3.1
+
 ## 1.0.0
 
 ### Minor Changes

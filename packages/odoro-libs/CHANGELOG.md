@@ -1,5 +1,19 @@
 # @odoro-cli/libs
 
+## 0.3.1
+
+### Patch Changes
+
+- Le theme clair declare `color-scheme: light` au lieu de laisser le systeme
+  trancher. Sans cela `light-dark()`, les controles natifs et les barres de
+  defilement suivaient un systeme en nuit alors que le visiteur avait choisi le
+  clair, et la page rendait des surfaces sombres sur un fond blanc.
+
+  Les jetons de theme — `theme`, `themeDark`, `ThemeToken` — sont exportes.
+
+- Updated dependencies
+  - odoro@0.3.1
+
 ## 1.0.0
 
 ### Major Changes
