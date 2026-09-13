@@ -1,0 +1,177 @@
+{
+  "siteType": "landing",
+  "language": "fr",
+  "brief": {
+    "summary": "ODORO est un cabinet d'architecture qui conçoit des maisons contemporaines ultra-luxueuses d'inspiration brutaliste. Le site s'adresse à des clients privés exigeants et doit donner une impression de calme, de matière et de lumière.",
+    "dimensionality": "depth",
+    "mood": ["luxe", "brutal"],
+    "tone": "dark",
+    "motionEnergy": "subtle",
+    "density": "sparse"
+  },
+  "assumptions": [
+    "Ton sombre : le béton et la lumière dorée ressortent mieux sur un fond presque noir.",
+    "Aucune adresse, référence client ni chiffre n'a été fourni : des marqueurs visibles les remplacent."
+  ],
+  "questions": [
+    "Quelle est l'adresse du studio et la zone géographique d'intervention ?"
+  ],
+  "style": {
+    "name": "Béton & or",
+    "directionId": "obsidian-luxe",
+    "paletteId": "obsidian-luxe-palette",
+    "voice": "Luxe par soustraction : fond presque noir, encre crème, un seul or réservé à un geste par écran. Titres en serif très contrasté, grands et serrés, avec beaucoup d'air ; texte courant dans une grotesque neutre. Le mouvement est lent et rare : les mots se dessinent hors du flou, rien ne rebondit.",
+    "fonts": {
+      "display": { "id": "cormorant", "weights": [300, 400] },
+      "body": { "id": "general-sans", "weights": [300, 400, 500] },
+      "mono": ""
+    },
+    "tokens": {
+      "od-bg": "#0a0a0c",
+      "od-bg-alt": "#101014",
+      "od-surface": "#141419",
+      "od-surface-raised": "#1c1c22",
+      "od-ink": "#f4f1ea",
+      "od-ink-muted": "#a8a49b",
+      "od-ink-subtle": "#6b6862",
+      "od-accent": "#c9a227",
+      "od-accent-ink": "#0a0a0c",
+      "od-line": "#26262c",
+      "od-glow": "#e8c766",
+      "od-font-display": "'Cormorant', ui-serif, Georgia, 'Times New Roman', serif",
+      "od-font-body": "'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "od-font-mono": "ui-monospace, 'SF Mono', Menlo, monospace",
+      "od-tracking-display": "-0.02em",
+      "od-weight-display": "300",
+      "od-weight-body": "400",
+      "od-radius": "0.25rem",
+      "od-radius-lg": "0.75rem",
+      "od-border": "1px",
+      "od-duration-fast": "150ms",
+      "od-duration": "320ms",
+      "od-duration-slow": "900ms",
+      "od-ease": "cubic-bezier(0.22, 1, 0.36, 1)"
+    }
+  },
+  "header": {
+    "brand": "ODORO",
+    "links": [
+      { "label": "Studio", "href": "#studio" },
+      { "label": "Services", "href": "#services" },
+      { "label": "Approche", "href": "#approche" }
+    ],
+    "cta": { "label": "Prendre rendez-vous", "href": "#contact" }
+  },
+  "loader": { "enabled": true, "label": "ODORO", "tagline": "Architecture" },
+  "sections": [
+    {
+      "id": "hero",
+      "role": "hero",
+      "compositionId": "cortex-hero",
+      "purpose": "Installer la marque et la promesse en un seul geste : la maison photographiée, le nom monumental.",
+      "ground": "bg",
+      "density": "sparse",
+      "motion": "subtle",
+      "gate": true,
+      "content": {
+        "eyebrow": "",
+        "headline": "ODORO",
+        "lead": "Cabinet d'architecture. Nous dessinons des maisons qui se ressentent avant de se voir.",
+        "body": "Conception, lumière, architecture intérieure, sur-mesure, chantier et paysage : un seul studio, du premier trait à la remise des clés.",
+        "items": [],
+        "primaryCta": { "label": "Découvrir le studio", "href": "#studio" },
+        "secondaryCta": { "label": "", "href": "" },
+        "extra": "media: façade en béton au coucher du soleil, plein cadre derrière le contenu"
+      }
+    },
+    {
+      "id": "studio",
+      "role": "editorial",
+      "compositionId": "artist-statement",
+      "purpose": "Une pause : dire en un paragraphe ce que défend le studio.",
+      "ground": "bg",
+      "density": "sparse",
+      "motion": "subtle",
+      "gate": false,
+      "content": {
+        "eyebrow": "Le studio",
+        "headline": "",
+        "lead": "",
+        "body": "ODORO est un studio d'architecture et d'architecture intérieure. Nous menons peu de projets à la fois, avec une seule obsession : que la lumière, la matière et le silence fassent le travail. Des maisons pensées pour traverser un siècle, et pour être habitées chaque jour.",
+        "items": [],
+        "primaryCta": { "label": "", "href": "" },
+        "secondaryCta": { "label": "", "href": "" },
+        "extra": "signature: — Studio ODORO"
+      }
+    },
+    {
+      "id": "services",
+      "role": "features",
+      "compositionId": "artist-process",
+      "purpose": "Montrer l'étendue du savoir-faire, service par service.",
+      "ground": "bg-alt",
+      "density": "balanced",
+      "motion": "subtle",
+      "gate": false,
+      "content": {
+        "eyebrow": "Services",
+        "headline": "Un seul studio, du trait à la clé.",
+        "lead": "",
+        "body": "",
+        "items": [
+          { "title": "Conception architecturale", "text": "Étude du site, esquisses, avant-projet et permis de construire. Chaque maison part d'un lieu, d'une orientation et d'une manière de vivre.", "meta": "01" },
+          { "title": "Architecture intérieure", "text": "Plans, matières, mobilier et éclairage conçus dans le même geste que l'enveloppe du bâtiment.", "meta": "02" },
+          { "title": "Design sur mesure", "text": "Cuisines, bibliothèques, pièces uniques : dessinées au millimètre et réalisées avec des artisans d'exception.", "meta": "03" },
+          { "title": "Maîtrise d'œuvre", "text": "Consultation des entreprises, pilotage du chantier, suivi du budget et des délais jusqu'à la réception.", "meta": "04" }
+        ],
+        "primaryCta": { "label": "", "href": "" },
+        "secondaryCta": { "label": "", "href": "" },
+        "extra": ""
+      }
+    },
+    {
+      "id": "approche",
+      "role": "editorial",
+      "compositionId": "negantropy-choice",
+      "purpose": "Faire ressentir la lumière comme matériau, sur une image plein cadre.",
+      "ground": "bg",
+      "density": "sparse",
+      "motion": "subtle",
+      "gate": false,
+      "content": {
+        "eyebrow": "Lumière & volumes",
+        "headline": "La lumière est notre premier matériau.",
+        "lead": "",
+        "body": "Puits de jour, failles, doubles hauteurs : nous sculptons le soleil pour qu'il habite l'espace à chaque heure, et dessinons l'éclairage dans le béton plutôt que de l'y accrocher.",
+        "items": [],
+        "primaryCta": { "label": "", "href": "" },
+        "secondaryCta": { "label": "", "href": "" },
+        "extra": "index: ( II ) — media: atrium en béton traversé d'une lame de soleil, plein cadre"
+      }
+    },
+    {
+      "id": "contact",
+      "role": "footer",
+      "compositionId": "marcus-vane-contact-footer",
+      "purpose": "Inviter au premier rendez-vous et clore la page.",
+      "ground": "bg",
+      "density": "sparse",
+      "motion": "subtle",
+      "gate": false,
+      "content": {
+        "eyebrow": "Contact",
+        "headline": "Et si l'on dessinait la vôtre ?",
+        "lead": "Un terrain, une maison à transformer, une simple envie : parlez-nous de votre projet. Premier rendez-vous au studio ou sur site.",
+        "body": "",
+        "items": [
+          { "title": "Studio", "text": "#studio", "meta": "" },
+          { "title": "Services", "text": "#services", "meta": "" },
+          { "title": "Instagram", "text": "[Lien Instagram]", "meta": "" }
+        ],
+        "primaryCta": { "label": "contact@odoro.fr", "href": "mailto:contact@odoro.fr" },
+        "secondaryCta": { "label": "", "href": "" },
+        "extra": "signature: ODORO — Architecture & intérieurs ; meta: © 2026 ODORO"
+      }
+    }
+  ]
+}

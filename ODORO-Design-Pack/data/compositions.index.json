@@ -1,0 +1,2104 @@
+{
+  "note": "Compact index for the planner. Full skeletons (slots, type, space, balance, wireframe) live in compositions.json - inject the chosen one into the section-builder call.",
+  "compositions": [
+    {
+      "id": "ai-studio-carousel",
+      "role": "showcase",
+      "archetype": "rotating-3d-card-carousel-over-marquee",
+      "summary": "A single centred stack of equal cards rotates in 3D perspective (depth-sorted so one face reads front while the others fall back), a giant running marquee shows through the gaps behind it, and a lone pill CTA is pinned centre-bottom.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "showcase",
+        "gallery",
+        "about"
+      ],
+      "vibes": [
+        "kinetic",
+        "playful-premium",
+        "showreel",
+        "immersive"
+      ]
+    },
+    {
+      "id": "ai-studio-cta",
+      "role": "cta",
+      "archetype": "left-aligned-cta-stack-beside-focal-object",
+      "summary": "A left-aligned, vertically-centred stack — oversized two-line heading (second line dimmed), a short sub line, and a pill button — sits against generous empty space to its right where a focal chrome object lives.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "footer"
+      ],
+      "vibes": [
+        "confident",
+        "closing",
+        "premium",
+        "editorial"
+      ]
+    },
+    {
+      "id": "ai-studio-hero",
+      "role": "hero",
+      "archetype": "fullbleed-shader-with-floating-focal-card-and-corner-copy",
+      "summary": "A full-bleed shader card frames an oversized top-left headline and a floating, cursor-tilted image card centred over it; the bottom edge carries a supporting paragraph with a button pair, a divider, and a social-proof pill balanced against a right-aligned line.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "gallery",
+        "cta"
+      ],
+      "vibes": [
+        "immersive",
+        "cinematic",
+        "modern-agency",
+        "bold"
+      ]
+    },
+    {
+      "id": "ai-studio-portfolio",
+      "role": "gallery",
+      "archetype": "horizontal-scroll-media-card-track",
+      "summary": "A row of wide, full-height media cards runs off the right edge and pans horizontally as one track; each card carries a small meta tag-row at the top and an oversized case title anchored at the bottom.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "showcase",
+        "footer"
+      ],
+      "vibes": [
+        "portfolio",
+        "editorial",
+        "kinetic",
+        "confident"
+      ]
+    },
+    {
+      "id": "ai-studio-product-card",
+      "role": "showcase",
+      "archetype": "full-bleed-image-card-with-chrome-header-and-bottom-lead",
+      "summary": "A single rounded card sits on a full-bleed image; a thin header row (brand mark left, url right) tops it, a glass pill or search bar floats in the upper-middle, and a lead headline anchors the bottom edge.",
+      "density": "balanced",
+      "typeScale": "moderate",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "card-grid",
+        "cta"
+      ],
+      "vibes": [
+        "product",
+        "sleek",
+        "saas",
+        "polished"
+      ]
+    },
+    {
+      "id": "ai-studio-sphere",
+      "role": "showcase",
+      "archetype": "central-focal-object-with-diagonal-corner-headings",
+      "summary": "A full-screen dark panel holds a particle sphere and a small mark at dead centre; a headline splits across opposite corners (top-left and bottom-right) and a supporting paragraph rises in from the bottom-left, orbiting the focal object diagonally.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "diagonal",
+      "pairsWith": [
+        "gallery",
+        "cta",
+        "about"
+      ],
+      "vibes": [
+        "cosmic",
+        "immersive",
+        "dramatic",
+        "premium"
+      ]
+    },
+    {
+      "id": "altitude-cta",
+      "role": "cta",
+      "archetype": "inline-enquiry-capsule",
+      "summary": "One rounded translucent capsule holds the whole enquiry: two unlabelled fields sitting side by side on the left, and a filled action pill inset flush against the capsule's own right edge. Below the small breakpoint the capsule opens into a stacked card with a full-width action.",
+      "density": "dense",
+      "typeScale": "flat",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "hero",
+        "footer",
+        "editorial"
+      ],
+      "vibes": [
+        "compact",
+        "polite",
+        "concierge desk"
+      ]
+    },
+    {
+      "id": "altitude-hero",
+      "role": "hero",
+      "archetype": "single-screen-media-frame-ruled-into-thirds-with-centred-band",
+      "summary": "One full-bleed media frame is the whole page: a hairline masthead caps the top, a translucent stat bar closes the base, two full-height hairline rules divide the field into thirds, and a two-line display heading over a single inline enquiry capsule floats centred in the band between the bars.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "stat-band",
+        "editorial",
+        "gallery",
+        "footer"
+      ],
+      "vibes": [
+        "cinematic",
+        "quiet",
+        "expensive",
+        "one screen and nothing else"
+      ]
+    },
+    {
+      "id": "altitude-nav",
+      "role": "nav",
+      "archetype": "centred-mark-hairline-bar-with-split-link-groups",
+      "summary": "A single short row across the top edge, closed by a hairline: two small link groups pushed to the outer margins with the mark absolutely centred between them, so the mark sits on the page's centre line whatever the groups measure. Stacks to mark-over-groups when the row runs out of room.",
+      "density": "sparse",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero"
+      ],
+      "vibes": [
+        "editorial",
+        "restrained",
+        "hotel masthead"
+      ]
+    },
+    {
+      "id": "altitude-stats",
+      "role": "stat-band",
+      "archetype": "translucent-base-rail-with-flanking-figures-around-a-centred-pitch",
+      "summary": "A shallow translucent rail pinned to the base of the frame and opened by a hairline: a figure-over-label pair on each flank, and a centred column between them holding a short title, a dot, and a two-line pitch. The flanks are content-sized and the centre is measured, so the pitch stays on the page's axis whatever the figures read.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero",
+        "footer",
+        "feature-split"
+      ],
+      "vibes": [
+        "quiet authority",
+        "hotel plaque",
+        "measured"
+      ]
+    },
+    {
+      "id": "artist-about",
+      "role": "about",
+      "archetype": "heading-left-paragraphs-right-over-triptych-and-fact-ledger",
+      "summary": "Three stacked registers: a 7|5 top row where a display heading faces a stack of three short paragraphs, then an equal three-up image triptych, then a four-cell label/value ledger under a hairline — each register wider and quieter than the one above.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "features",
+        "gallery",
+        "cta",
+        "testimonials"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "biographical",
+        "composed"
+      ]
+    },
+    {
+      "id": "artist-acquire",
+      "role": "pricing",
+      "archetype": "baseline-split-head-over-two-up-priced-plate-grid",
+      "summary": "A head row that hangs a display heading and a lead paragraph from a shared bottom edge, then a two-up grid of plates each closed by a hairline-topped caption row with a three-line description at the left and the price pushed hard right, and a single centred button underneath.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "cta",
+        "faq",
+        "testimonials",
+        "showcase"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "expensive restraint",
+        "catalogue"
+      ]
+    },
+    {
+      "id": "artist-cta",
+      "role": "cta",
+      "archetype": "viewport-tall-inverted-band-split-copy-and-portrait",
+      "summary": "A full-viewport tonal inversion: the ground flips to the dark surface and a narrow copy column (eyebrow, heading, body, one button) sits vertically centred against a portrait plate five columns wide on the right, with a wide empty column between them.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "features",
+        "about",
+        "gallery",
+        "pricing"
+      ],
+      "vibes": [
+        "editorial",
+        "expensive restraint",
+        "declarative",
+        "stately"
+      ]
+    },
+    {
+      "id": "artist-exhibitions",
+      "role": "showcase",
+      "archetype": "three-column-ruled-index-lattice",
+      "summary": "A tonal band where a heading sits over a three-column list with no column gap — every cell opens with its own hairline and carries a two-digit index beside a display-face name, so the cells knit into a continuous ruled lattice rather than three separate lists.",
+      "density": "dense",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "faq",
+        "footer",
+        "testimonials",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "institutional",
+        "gallery-quiet",
+        "catalogue"
+      ]
+    },
+    {
+      "id": "artist-faq",
+      "role": "faq",
+      "archetype": "narrow-heading-column-beside-ruled-accordion",
+      "summary": "A 4|8 split: a short heading column on the left leaves the accordion two thirds of the grid, where each row is a hairline-topped full-width button with the question in the display face at the left and a plus glyph pushed hard right that rotates as the answer opens.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "footer",
+        "cta",
+        "pricing",
+        "showcase"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "orderly",
+        "unfussy"
+      ]
+    },
+    {
+      "id": "artist-footer",
+      "role": "footer",
+      "archetype": "inverted-column-row-over-bleed-wordmark-and-hairline-bar",
+      "summary": "An inverted footer in three registers: a 5|2|2|3 column row where a brand block with an italic tagline faces three small-caps link columns, then a viewport-wide wordmark set at extreme size in a near-transparent ink, then a hairline-topped bar splitting copyright left from legal links right.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "faq",
+        "cta",
+        "showcase"
+      ],
+      "vibes": [
+        "editorial",
+        "expensive restraint",
+        "gallery-quiet",
+        "closing"
+      ]
+    },
+    {
+      "id": "artist-hero",
+      "role": "hero",
+      "archetype": "half-split-copy-column-beside-tall-portrait-with-fact-ledger",
+      "summary": "A viewport-tall 12-column split: a left copy column runs eyebrow → display headline → lead → paired buttons → a three-cell fact ledger under a hairline, while a tall portrait plate fills the right half and the two are vertically centred against each other.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "gallery",
+        "about",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "expensive restraint",
+        "stately"
+      ]
+    },
+    {
+      "id": "artist-nav",
+      "role": "nav",
+      "archetype": "fixed-tri-column-bar-with-centred-wordmark",
+      "summary": "A fixed hairline-free bar in three columns: a two-line positioning statement at the left, the wordmark dead-centre, and a small-caps link row plus a two-rule menu toggle pushed right — inverted against whatever scrolls beneath it.",
+      "density": "sparse",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero",
+        "editorial",
+        "gallery"
+      ],
+      "vibes": [
+        "editorial",
+        "restrained",
+        "gallery-quiet",
+        "confident"
+      ]
+    },
+    {
+      "id": "artist-process",
+      "role": "features",
+      "archetype": "sticky-heading-beside-ruled-oversized-index-rows",
+      "summary": "A 5|7 split where the heading block pins in place while the right column scrolls a ruled list past it — each row a hairline-topped band with an oversized faint index numeral at the left and a title-plus-paragraph hung to its right.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "pricing",
+        "faq",
+        "cta",
+        "showcase"
+      ],
+      "vibes": [
+        "editorial",
+        "methodical",
+        "gallery-quiet",
+        "catalogue"
+      ]
+    },
+    {
+      "id": "artist-statement",
+      "role": "editorial",
+      "archetype": "single-measure-manifesto-with-signature",
+      "summary": "One held-back band: a small-caps eyebrow, then a single passage set at display size in the display face across a wide measure, closed by a short italic signature — the whole section is three left-aligned things and a great deal of air.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "about",
+        "features",
+        "hero"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "literary",
+        "unhurried"
+      ]
+    },
+    {
+      "id": "artist-works",
+      "role": "gallery",
+      "archetype": "alternating-seven-of-twelve-offset-plate-column",
+      "summary": "A heading block sits above a 12-column field where each work occupies seven columns and alternates side — odd items start at column 1, even items start at column 6 and are pushed down a further section-height — so the plates interleave down the page instead of forming rows.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "editorial",
+        "about",
+        "pricing"
+      ],
+      "vibes": [
+        "editorial",
+        "gallery-quiet",
+        "curated",
+        "unhurried"
+      ]
+    },
+    {
+      "id": "baseline-facilities",
+      "role": "gallery",
+      "archetype": "intro-column-beside-baseline-aligned-card-trio",
+      "summary": "A rounded panel that overlaps the section above it, split into a narrow intro column — small square tile, three-line heading, short body — and a row of equal portrait cards whose bottoms align except for the middle one, which is lifted clear of the baseline.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stat-band",
+        "testimonials",
+        "features",
+        "cta"
+      ],
+      "vibes": [
+        "clean",
+        "premium",
+        "airy",
+        "editorial"
+      ]
+    },
+    {
+      "id": "baseline-footer",
+      "role": "footer",
+      "archetype": "cta-band-over-weighted-link-columns-over-meta-bar",
+      "summary": "A rounded closing panel in three ruled tiers: a closing CTA band with an oversized two-line line on the left and a pill button on the right, then a link grid whose first column is wider and carries the mark, blurb and contact details, then a thin meta bar splitting copyright from two small link groups.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "testimonials",
+        "stat-band"
+      ],
+      "vibes": [
+        "orderly",
+        "confident",
+        "clean"
+      ]
+    },
+    {
+      "id": "baseline-hero",
+      "role": "hero",
+      "archetype": "inset-viewport-panel-with-top-headline-and-baseline-card-row",
+      "summary": "A viewport-tall rounded panel over a parallax image plate: a three-part header rides the top edge, a single-line oversized headline sits just under it, and the base carries a stacked tagline on the left against a pair of small translucent cards on the right.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "features",
+        "gallery",
+        "stat-band"
+      ],
+      "vibes": [
+        "confident",
+        "bright",
+        "sporting",
+        "editorial"
+      ]
+    },
+    {
+      "id": "baseline-programs",
+      "role": "features",
+      "archetype": "left-heading-over-rule-separated-index-rows",
+      "summary": "A small eyebrow and a two-line heading sit at the top left, then the full width is given to a stack of hairline-separated rows, each a fixed-width index numeral, a name over a one-line description, and a circular arrow button held at the far right.",
+      "density": "balanced",
+      "typeScale": "moderate",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "stat-band",
+        "testimonials",
+        "cta"
+      ],
+      "vibes": [
+        "clean",
+        "orderly",
+        "editorial",
+        "matter-of-fact"
+      ]
+    },
+    {
+      "id": "baseline-trust",
+      "role": "showcase",
+      "archetype": "edge-split-ghost-heading-with-centred-tilted-card",
+      "summary": "Two rows of oversized pale heading words are pushed to opposite edges and drift apart on scroll, while a small tilted portrait card sits dead centre on top of them and two badges and a carousel control row bracket the block above and below.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [
+        "features",
+        "gallery",
+        "stat-band",
+        "testimonials"
+      ],
+      "vibes": [
+        "editorial",
+        "confident",
+        "graphic",
+        "playful"
+      ]
+    },
+    {
+      "id": "clair-hero",
+      "role": "hero",
+      "archetype": "corner-pinned-hud-around-central-focal",
+      "summary": "Full-bleed scene fills the frame with a central focal model behind the copy; every text and control element is pinned to an edge or corner of a uniformly-inset content box, orbiting the centre with cross-hair guides marking the axes.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [
+        "feature-split",
+        "gallery",
+        "stat-band"
+      ],
+      "vibes": [
+        "editorial",
+        "precise",
+        "gallery-grade",
+        "confident"
+      ]
+    },
+    {
+      "id": "clarix-clients",
+      "role": "marquee",
+      "archetype": "labeled-divider-then-logo-marquee",
+      "summary": "A small uppercase label above a thin full-width rule, followed by an edge-to-edge horizontally scrolling row of evenly spaced logos.",
+      "density": "balanced",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "feature-split",
+        "stat-band",
+        "editorial"
+      ],
+      "vibes": [
+        "understated",
+        "trustworthy",
+        "kinetic"
+      ]
+    },
+    {
+      "id": "clarix-feature",
+      "role": "feature-split",
+      "archetype": "left-column-editorial-stack-full-height",
+      "summary": "A single left-aligned column pinned full-height: an index label at the top, a display sub-headline with a divider rule mid-stack, and a body paragraph plus button anchored below, leaving the right half open for the focal object.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stat-band",
+        "showcase",
+        "editorial"
+      ],
+      "vibes": [
+        "editorial",
+        "structured",
+        "confident"
+      ]
+    },
+    {
+      "id": "clarix-footer",
+      "role": "footer",
+      "archetype": "inset-glass-panel-signup-left-link-columns-right",
+      "summary": "An inset rounded panel: wordmark and email signup block on the left, a bank of stacked link columns on the right, closed by a full-width rule and centered copyright.",
+      "density": "dense",
+      "typeScale": "flat",
+      "balance": "asymmetric",
+      "pairsWith": [],
+      "vibes": [
+        "polished",
+        "utilitarian",
+        "rounded"
+      ]
+    },
+    {
+      "id": "clarix-hero",
+      "role": "hero",
+      "archetype": "corner-anchored-frame-over-focal-model",
+      "summary": "An oversized display headline sits mid-left over a centered 3D focal object, with the mark, a vertical link stack, and an index+intro+button cluster pinned to the frame's corners.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "marquee",
+        "feature-split"
+      ],
+      "vibes": [
+        "cinematic",
+        "editorial",
+        "confident",
+        "clean"
+      ]
+    },
+    {
+      "id": "clarix-outro",
+      "role": "editorial",
+      "archetype": "centered-display-statement",
+      "summary": "A single oversized two-line display statement centered in the frame over the focal object, with everything else stripped away.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "centered",
+      "pairsWith": [
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic",
+        "final",
+        "grand"
+      ]
+    },
+    {
+      "id": "clarix-showcase",
+      "role": "showcase",
+      "archetype": "four-corner-scatter-over-focal",
+      "summary": "Text scattered to all four corners of the frame — display titles top-left and bottom-right, a small label top-right, a short description bottom-left — framing the focal object dead center.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "diagonal",
+      "pairsWith": [
+        "editorial",
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic",
+        "editorial",
+        "expansive"
+      ]
+    },
+    {
+      "id": "clarix-statement",
+      "role": "editorial",
+      "archetype": "full-bleed-display-line-alternating-side",
+      "summary": "A single oversized multi-line display statement set against the passing focal object, alternating its edge alignment (left, then right) as the scroll advances.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "marquee",
+        "feature-split",
+        "stat-band"
+      ],
+      "vibes": [
+        "cinematic",
+        "bold",
+        "editorial",
+        "spacious"
+      ]
+    },
+    {
+      "id": "clarix-stats",
+      "role": "stat-band",
+      "archetype": "inset-glass-panel-statement-plus-stat-row",
+      "summary": "A large inset panel holds a display statement in its top-left corner and a row of ruled stat columns anchored bottom-right, with a small caption label bottom-left.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "diagonal",
+      "pairsWith": [
+        "showcase",
+        "editorial",
+        "footer"
+      ],
+      "vibes": [
+        "premium",
+        "data-backed",
+        "polished"
+      ]
+    },
+    {
+      "id": "cortex-hero",
+      "role": "hero",
+      "archetype": "giant-wordmark-bleed-with-split-hud",
+      "summary": "A full-bleed generative scene backs a hero whose lower half is eaten by one colossal wordmark bleeding off the bottom edge; nav spans the top corners while two small text blocks sit mid-frame in a left/right split divided by a full-width rule.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "showcase",
+        "stat-band"
+      ],
+      "vibes": [
+        "monumental",
+        "editorial-tech",
+        "confident restraint"
+      ]
+    },
+    {
+      "id": "creative-director-carousel",
+      "role": "gallery",
+      "archetype": "three-part-header-grid-over-arrow-driven-carousel",
+      "summary": "A three-column header grid (small label, centred uppercase heading, right description) tops a horizontally scrolling carousel of large square project cards driven by a pair of arrow buttons at the left.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "footer",
+        "editorial"
+      ],
+      "vibes": [
+        "gallery-like",
+        "editorial",
+        "dynamic"
+      ]
+    },
+    {
+      "id": "creative-director-contact",
+      "role": "footer",
+      "archetype": "oversized-panel-title-over-split-contact-row",
+      "summary": "A wide solid panel holds one oversized uppercase title that scrambles in, and below it a footer row splits contact links on the left from a labelled social-link cluster on the right.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [],
+      "vibes": [
+        "bold",
+        "conclusive",
+        "artistic"
+      ]
+    },
+    {
+      "id": "creative-director-features",
+      "role": "feature-split",
+      "archetype": "heading-then-lead-spec-split-over-asymmetric-card-row",
+      "summary": "A full-width uppercase heading over a divider, then a two-column block pairing a large lead with labelled spec lists, resolving into a card row where a wide main card with a circular CTA sits beside a stack of two spec cards.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "showcase",
+        "cta"
+      ],
+      "vibes": [
+        "technical",
+        "crafted",
+        "structured"
+      ]
+    },
+    {
+      "id": "creative-director-hero",
+      "role": "hero",
+      "archetype": "fullbleed-video-with-centered-title-and-service-row",
+      "summary": "A full-screen video hero with a centred three-part service label row across the middle, a large uppercase title that scrambles in at the base, a description beneath it, and a decorative outlined circle behind.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [
+        "showcase",
+        "feature-split",
+        "editorial"
+      ],
+      "vibes": [
+        "cinematic",
+        "artistic",
+        "bold"
+      ]
+    },
+    {
+      "id": "creative-director-nav",
+      "role": "nav",
+      "archetype": "floating-bottom-center-island",
+      "summary": "A compact glass navigation island floated at the bottom-centre of the viewport: a wordmark, a row of equal anchor buttons, and a solid contact CTA, all in one rounded bar.",
+      "density": "dense",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero"
+      ],
+      "vibes": [
+        "sleek",
+        "modern",
+        "unobtrusive"
+      ]
+    },
+    {
+      "id": "creative-director-portfolio",
+      "role": "showcase",
+      "archetype": "heading-copy-header-row-over-two-square-cards",
+      "summary": "A header row splits a large uppercase heading on the left from a short description and CTA on the right above a divider, a filter-tag strip follows, and two large square glass cards sit below revealing their imagery through a growing mask.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "gallery",
+        "editorial"
+      ],
+      "vibes": [
+        "editorial",
+        "crafted",
+        "gallery-like"
+      ]
+    },
+    {
+      "id": "creative-studio-hero",
+      "role": "hero",
+      "archetype": "fullbleed-scene-behind-frosted-glass-band",
+      "summary": "A full-bleed WebGL scene sits behind a frosted glass band with a sharp cut-out window; a masthead runs across the top, a two-column band (big headline + dual CTA on the left, description + index/label meta on the right) holds the middle, and stats plus a location line float in the corners over the clear window.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "showcase",
+        "about"
+      ],
+      "vibes": [
+        "studio-polished",
+        "airy",
+        "premium calm"
+      ]
+    },
+    {
+      "id": "dringle-hero",
+      "role": "hero",
+      "archetype": "centered-text-left-media-panel-right-with-floating-chrome",
+      "summary": "Full-viewport split: a centred badge-headline-subhead stack holds the left half while a full-height rounded media panel (video + focal model + stat cards) fills the right; a floating nav pill caps the top and a CTA pill plus a social-proof pill anchor the bottom.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "card-grid",
+        "stat-band"
+      ],
+      "vibes": [
+        "studio",
+        "polished",
+        "product",
+        "friendly-premium"
+      ]
+    },
+    {
+      "id": "flowstate-hero",
+      "role": "hero",
+      "archetype": "centered-stack-over-fullbleed-generative-field",
+      "summary": "A single-viewport hero: a full-bleed generative field fills the frame under a centre-weighted scrim, and one narrow centred column — eyebrow pill, display heading, one-line sub, inline capture bar — floats dead centre, with the nav pinned to the top edge and a legal line pinned to the bottom.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "nav",
+        "feature-split",
+        "stat-band"
+      ],
+      "vibes": [
+        "immersive",
+        "calm but alive",
+        "one bright thing over a void",
+        "waitlist-ready"
+      ]
+    },
+    {
+      "id": "flowstate-nav",
+      "role": "nav",
+      "archetype": "detached-center-pill-between-edge-anchors",
+      "summary": "An overlay top bar with three independently placed parts: a mark lockup flush left, a solid action pill flush right, and — absolutely centred on the viewport rather than between them — a detached glass link pill that drops away entirely on narrow screens.",
+      "density": "sparse",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero"
+      ],
+      "vibes": [
+        "quiet",
+        "modern",
+        "gets out of the way"
+      ]
+    },
+    {
+      "id": "forma-hero",
+      "role": "hero",
+      "archetype": "gutter-inset-viewport-frame-with-flexible-media-band",
+      "summary": "One screen inside a hairline gutter: a masthead rail, a two-line display headline sitting beside an inline single-row form, a media band that absorbs all remaining height, and a base row of three cards in a 350:350:640 ratio — every horizontal group starting on the same shared rail.",
+      "density": "balanced",
+      "typeScale": "moderate",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "editorial",
+        "footer"
+      ],
+      "vibes": [
+        "quiet",
+        "expensive",
+        "design-system-first",
+        "no-scroll"
+      ]
+    },
+    {
+      "id": "forma-loader",
+      "role": "loader",
+      "archetype": "three-band-curtain-with-base-anchored-progress-slab",
+      "summary": "A full-screen curtain on the same inset as the page beneath it: a small centred wordmark pinned to the top edge, a large numeric readout alone in the middle, and a base-anchored progress slab whose height matches the card row it will uncover.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "hero"
+      ],
+      "vibes": [
+        "quiet",
+        "precise",
+        "expensive"
+      ]
+    },
+    {
+      "id": "gring-x-hero",
+      "role": "hero",
+      "archetype": "top-headline-with-bottom-info-band-over-scene",
+      "summary": "A full-viewport overlay on a live 3D scene: a segmented pill navbar floats at the very top, a left-set headline sits high, and a bottom band splits into description-plus-CTAs on the left and an eyebrow-over-metrics grid on the right.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "showcase",
+        "process"
+      ],
+      "vibes": [
+        "premium product",
+        "spacious",
+        "instrument clarity"
+      ]
+    },
+    {
+      "id": "halcyon-hero",
+      "role": "hero",
+      "archetype": "pinned-center-beat-over-fullbleed-scene",
+      "summary": "A full-bleed scene owns the entire frame while a viewport-pinned copy column — wide-tracked kicker over a two-line display statement — sits dead-centre, lifted just above the optical middle so a centred focal object reads clean beneath it; an optional pill CTA anchors near the base.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "centered",
+      "pairsWith": [
+        "nav",
+        "loader",
+        "statement",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic stillness",
+        "expensive restraint",
+        "ceremonial",
+        "quiet awe"
+      ]
+    },
+    {
+      "id": "halcyon-nav",
+      "role": "nav",
+      "archetype": "floating-top-center-glass-pill",
+      "summary": "A single compact translucent pill floated at the top-centre of the viewport: an oversized wordmark, a hairline divider, then one row of tiny wide-tracked caps links — no CTA, no edge-anchoring, nothing pushed to the corners.",
+      "density": "dense",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero",
+        "loader",
+        "statement"
+      ],
+      "vibes": [
+        "unobtrusive",
+        "jewel-like",
+        "quietly expensive"
+      ]
+    },
+    {
+      "id": "helion-hero",
+      "role": "hero",
+      "archetype": "centered-focal-stack",
+      "summary": "A vertically centered single-column stack over a full-bleed live scene: two-line masthead, a central ringed mark, a short subtitle, and a frosted lead-capture pill, all axis-aligned to center.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "feature-split",
+        "process",
+        "cta"
+      ],
+      "vibes": [
+        "serene",
+        "ceremonial",
+        "product reveal"
+      ]
+    },
+    {
+      "id": "helion-logo",
+      "role": "cta",
+      "archetype": "centered-focal-stack-payoff",
+      "summary": "The closing payoff that reuses the hero's centered stack around an assembling central mark: two-line heading at the top, an open focal center, a subtitle and lead-capture pill at the foot.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "footer"
+      ],
+      "vibes": [
+        "resolving",
+        "ceremonial",
+        "bookend"
+      ]
+    },
+    {
+      "id": "helion-services",
+      "role": "feature-split",
+      "archetype": "centered-heading-edge-split-features",
+      "summary": "A centered two-line heading over four features pushed to the far left and right edges in two rows, each footed by a fading hairline, with a centered closing line at the foot; the middle stays open on the live scene.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "process",
+        "gallery",
+        "cta"
+      ],
+      "vibes": [
+        "structured",
+        "spacious",
+        "technical elegance"
+      ]
+    },
+    {
+      "id": "helion-timeline",
+      "role": "process",
+      "archetype": "horizontal-scroll-rail",
+      "summary": "A centered heading pinned at the top while a horizontal rail of evenly-pitched stations travels sideways with scroll along a shared baseline; each station is a tick with a marker rising to an index, title, and body.",
+      "density": "balanced",
+      "typeScale": "moderate",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "gallery",
+        "stat-band"
+      ],
+      "vibes": [
+        "kinetic",
+        "sequential",
+        "journey"
+      ]
+    },
+    {
+      "id": "laocoon-editorial",
+      "role": "editorial",
+      "archetype": "bottom-anchored-serif-title-with-single-body",
+      "summary": "A two-line oversized serif title with a single body paragraph stacked beneath it, anchored to the bottom at a left-of-center grid column over the full-bleed scene, closing the sequence.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic",
+        "contemplative",
+        "artful"
+      ]
+    },
+    {
+      "id": "laocoon-gallery",
+      "role": "gallery",
+      "archetype": "framed-image-plus-offset-title-and-body-across-grid",
+      "summary": "A square image reveals in the top-left column while an oversized serif title sits in a middle column and its body paragraph sits further right, each snapped to a different grid column over the scene.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "showcase"
+      ],
+      "vibes": [
+        "cinematic",
+        "editorial",
+        "curated"
+      ]
+    },
+    {
+      "id": "laocoon-hero",
+      "role": "hero",
+      "archetype": "bottom-anchored-serif-title-with-two-column-body",
+      "summary": "A cinematic frame with a fixed top nav bar and a vertical grid-line overlay; an oversized serif title sits bottom-left with a two-column body row beside it, over a full-bleed generative scene.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "editorial",
+        "showcase"
+      ],
+      "vibes": [
+        "cinematic",
+        "editorial",
+        "reverent",
+        "artful"
+      ]
+    },
+    {
+      "id": "laocoon-statement",
+      "role": "editorial",
+      "archetype": "compact-title-plus-body-cluster-right-column",
+      "summary": "A tight cluster of an oversized single-line serif title and a short body paragraph, anchored bottom in a right-of-center grid column over the full-bleed scene.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "editorial",
+        "showcase"
+      ],
+      "vibes": [
+        "cinematic",
+        "quiet",
+        "refined"
+      ]
+    },
+    {
+      "id": "loopstack-footer",
+      "role": "footer",
+      "archetype": "mid-viewport-floating-hairline-bar",
+      "summary": "A groundless utility bar floated at the exact vertical centre of the frame: a two-part title row splitting to the far left and far right, a full-width hairline beneath it, and a three-part row of an icon cluster, a centred link set and a right-aligned credit line.",
+      "density": "sparse",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "hero",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "quiet",
+        "precise",
+        "expensive"
+      ]
+    },
+    {
+      "id": "loopstack-hero",
+      "role": "hero",
+      "archetype": "top-pinned-invite-over-fullbleed-film-with-bleed-wordmark-base",
+      "summary": "One fixed non-scrolling frame: a short centred display headline and a single pill CTA pressed hard against the top edge under a soft scrim, a full-bleed film anchored to the base and owning the lower nine-tenths behind them, and an oversized wordmark bleeding out past both gutters along the bottom edge.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "centered",
+      "pairsWith": [
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic",
+        "restrained",
+        "expensive",
+        "single-breath"
+      ]
+    },
+    {
+      "id": "lumen-hero",
+      "role": "hero",
+      "archetype": "poster-frame-with-centered-focal",
+      "summary": "A single full-height art-directed poster: a centered focal card floats over a full-bleed generative scene while text is pinned to all four corners around it.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "diagonal",
+      "pairsWith": [
+        "feature-split",
+        "showcase",
+        "stat-band"
+      ],
+      "vibes": [
+        "cinematic",
+        "art-directed",
+        "premium",
+        "serene"
+      ]
+    },
+    {
+      "id": "lumora-about",
+      "role": "statement",
+      "archetype": "ghost-glyph-panel-beside-two-tone-statement",
+      "summary": "A 50/50 split where the left half is almost empty — a single enormous ghosted glyph bleeding off the left edge, an eyebrow pinned to its top and a small icon+caption note pinned to its base — and the right half carries a two-tone statement paragraph above a rule-topped footer row with a small icon-button cluster left and an outline pill right.",
+      "density": "sparse",
+      "typeScale": "moderate",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "gallery",
+        "features",
+        "editorial"
+      ],
+      "vibes": [
+        "calm",
+        "editorial",
+        "grown-up",
+        "quiet confidence"
+      ]
+    },
+    {
+      "id": "lumora-create-band",
+      "role": "showcase",
+      "archetype": "four-up-word-band-of-equal-pills",
+      "summary": "A single full-width band of four equal pill-shaped tiles, each holding one enormous centred word — the tiles differ only in fill (quiet, accent, solid, ghosted) and one of them carries a directional glyph instead of a word, so the row reads as a four-beat sentence.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "gallery",
+        "features",
+        "stat-band",
+        "cta"
+      ],
+      "vibes": [
+        "graphic",
+        "playful restraint",
+        "poster-like",
+        "confident"
+      ]
+    },
+    {
+      "id": "lumora-footer",
+      "role": "footer",
+      "archetype": "inverted-slab-cta-row-over-four-column-bank-with-bleeding-wordmark",
+      "summary": "A tonally inverted slab with rounded top corners stacks three rule-separated tiers — a baseline-aligned CTA row of oversized heading left and a single pill right, then a four-column bank whose first column is brand plus tagline and whose other three are stacked link lists, then a legal bar — all sitting over an enormous brand wordmark that bleeds off the bottom edge.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stat-band",
+        "cta",
+        "gallery"
+      ],
+      "vibes": [
+        "editorial",
+        "premium",
+        "resolved",
+        "studio"
+      ]
+    },
+    {
+      "id": "lumora-hero",
+      "role": "hero",
+      "archetype": "fullbleed-photo-7-5-split-with-watermark-and-base-rail",
+      "summary": "A full-bleed photographic ground carries a 12-column split: a left 7-column stack of eyebrow, oversized headline, rating row and CTA pair, and a right 5-column column of a small floating info card over a four-up partner grid, both right-aligned; an enormous brand wordmark sits low and centred behind everything, and a hairline base rail runs the full width under the grid.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "statement",
+        "marquee",
+        "showcase"
+      ],
+      "vibes": [
+        "editorial",
+        "studio",
+        "confident",
+        "warm",
+        "expensive restraint"
+      ]
+    },
+    {
+      "id": "lumora-portfolio",
+      "role": "gallery",
+      "archetype": "centered-masthead-over-two-up-inverted-cards",
+      "summary": "A centred outlined eyebrow chip and a centred display heading sit above a two-up grid of tall inverted cards; each card is a frame in its own right — a meta row pinned to its top edge, a ghosted mark floating dead centre, and a title / description / tag-chip cluster anchored to its base.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "features",
+        "stat-band",
+        "cta",
+        "footer"
+      ],
+      "vibes": [
+        "editorial",
+        "portfolio",
+        "premium",
+        "calm"
+      ]
+    },
+    {
+      "id": "lumora-services",
+      "role": "features",
+      "archetype": "left-masthead-over-hairline-indexed-rail",
+      "summary": "A left-aligned eyebrow and display heading capped at a short measure sit above a rail of hairline-divided full-width rows; each row is one horizontal line of index numeral, large title, a right-hand description that only appears at wide widths, and a filled round glyph button at the far edge.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stat-band",
+        "gallery",
+        "cta",
+        "footer"
+      ],
+      "vibes": [
+        "editorial",
+        "orderly",
+        "studio",
+        "confident"
+      ]
+    },
+    {
+      "id": "lumora-stats",
+      "role": "stat-band",
+      "archetype": "inset-inverted-panel-with-corner-statement-over-four-up-numerals",
+      "summary": "One deeply inset, heavily rounded panel tonally inverted against the page: an eyebrow and a short statement heading occupy its top-left corner, and a four-up grid of very large numerals with small labels beneath runs across its base.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "footer",
+        "gallery",
+        "features"
+      ],
+      "vibes": [
+        "confident",
+        "proof",
+        "premium",
+        "calm"
+      ]
+    },
+    {
+      "id": "marcus-vane-contact-footer",
+      "role": "footer",
+      "archetype": "oversized-invitation-over-ruled-base-band",
+      "summary": "A left-aligned stack — eyebrow, oversized invitation heading, short lead, then an outsized address link with a trailing arrow — drops onto a hairline-ruled base band split three ways into a signature wordmark, a vertical link list, and a right-set copyright.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "hero",
+        "marquee"
+      ],
+      "vibes": [
+        "cinematic",
+        "direct",
+        "editorial",
+        "closing statement"
+      ]
+    },
+    {
+      "id": "marcus-vane-hero",
+      "role": "hero",
+      "archetype": "colossal-wordmark-behind-centered-figure",
+      "summary": "A colossal two-line wordmark, clipped by both side edges and bleeding off the base, runs behind a centered full-height figure cutout; a stacked list of role words sits top-left against a short intro set right, with a ruled scroll cue in the bottom corner.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [
+        "marquee",
+        "editorial",
+        "about",
+        "gallery"
+      ],
+      "vibes": [
+        "cinematic",
+        "brash",
+        "poster",
+        "star billing"
+      ]
+    },
+    {
+      "id": "marcus-vane-impact",
+      "role": "stats",
+      "archetype": "inverted-header-over-ruled-numeral-row",
+      "summary": "The header is inverted — a small eyebrow far left, the display heading pushed to the right edge and baseline-aligned with it — over a four-cell divider grid where an oversized numeral sits above its label in each cell.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "symmetric",
+      "pairsWith": [
+        "testimonials",
+        "gallery",
+        "cta",
+        "footer"
+      ],
+      "vibes": [
+        "evidential",
+        "confident",
+        "editorial",
+        "cool"
+      ]
+    },
+    {
+      "id": "marcus-vane-story",
+      "role": "about",
+      "archetype": "statement-left-ruled-list-right",
+      "summary": "A twelve-column split: an eyebrow, a very short display statement and a lead paragraph hold the left half, while the right half runs a stack of numbered principle rows separated only by hairline rules.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "stats",
+        "editorial",
+        "feature-split"
+      ],
+      "vibes": [
+        "editorial",
+        "manifesto",
+        "measured",
+        "confident"
+      ]
+    },
+    {
+      "id": "marcus-vane-ventures",
+      "role": "gallery",
+      "archetype": "dropped-column-two-up-card-grid",
+      "summary": "A baseline-aligned header pairs an eyebrow and display heading against a counter at the far right, over a two-up card grid whose second column is dropped by roughly half a card so the eye zig-zags down the page.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stats",
+        "testimonials",
+        "editorial",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "portfolio",
+        "premium",
+        "unhurried"
+      ]
+    },
+    {
+      "id": "marcus-vane-voices",
+      "role": "testimonials",
+      "archetype": "ruled-selector-list-drives-featured-quote",
+      "summary": "Under an inverted header, a narrow ruled list of indexed names on the left acts as the control; selecting one swaps the wide right panel, where a short-measure quote sits beside a portrait frame with the attribution beneath it.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "footer",
+        "gallery",
+        "stats"
+      ],
+      "vibes": [
+        "editorial",
+        "credible",
+        "considered",
+        "index"
+      ]
+    },
+    {
+      "id": "negantropy-choice",
+      "role": "editorial",
+      "archetype": "corner-loaded-editorial-split-flipped",
+      "summary": "The mirrored chapter without a stat list: oversized heading anchored bottom-right, with the bracketed eyebrow and short left-aligned body sitting high on the left column.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "cta"
+      ],
+      "vibes": [
+        "editorial gravity",
+        "decisive",
+        "measured"
+      ]
+    },
+    {
+      "id": "negantropy-entropy",
+      "role": "editorial",
+      "archetype": "corner-loaded-editorial-split",
+      "summary": "A full-height scroll chapter over the persistent scene: an oversized heading anchors to the bottom-left of a wide 12-column band while a bracketed eyebrow and a short right-aligned body start at the heading's top line in a narrow right column.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "cta"
+      ],
+      "vibes": [
+        "editorial gravity",
+        "measured",
+        "cinematic restraint"
+      ]
+    },
+    {
+      "id": "negantropy-persist",
+      "role": "cta",
+      "archetype": "centered-manifesto-stack",
+      "summary": "The closing chapter breaks the corner-loaded rhythm: a bracketed eyebrow, heading, short body, and an outlined pill CTA all stack centered and vertically middled, resolving the scroll into a single focal column.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "footer"
+      ],
+      "vibes": [
+        "resolute",
+        "arrival",
+        "quiet confidence"
+      ]
+    },
+    {
+      "id": "negantropy-refusal",
+      "role": "editorial",
+      "archetype": "corner-loaded-editorial-split-flipped-with-metrics",
+      "summary": "The mirrored variant of the editorial chapter: heading and its stat receipt anchor bottom-right while the bracketed eyebrow and short body sit high on the left, with an inline list of bracketed values pinned under the heading.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "stat-band",
+        "cta"
+      ],
+      "vibes": [
+        "clinical",
+        "evidentiary",
+        "editorial gravity"
+      ]
+    },
+    {
+      "id": "negantropy-universe",
+      "role": "editorial",
+      "archetype": "corner-loaded-editorial-split",
+      "summary": "A repeat of the un-flipped chapter rhythm: oversized heading anchored bottom-left across a wide column, with a bracketed eyebrow and short right-aligned body starting at the heading's top line in the narrow right column.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "cta"
+      ],
+      "vibes": [
+        "editorial gravity",
+        "measured",
+        "cosmic"
+      ]
+    },
+    {
+      "id": "negantropy-void",
+      "role": "hero",
+      "archetype": "corner-loaded-hero-over-fullbleed-scene",
+      "summary": "A full-bleed generative scene fills the frame while all content sinks into the bottom corners of a 12-column grid: an oversized headline anchors bottom-left, a meta+body+CTA cluster anchors bottom-right, and a thin scroll cue drops between them.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "feature-split",
+        "cta"
+      ],
+      "vibes": [
+        "cinematic restraint",
+        "editorial gravity",
+        "quiet dread"
+      ]
+    },
+    {
+      "id": "new-era-dna-cards",
+      "role": "stat-band",
+      "archetype": "orbiting-stat-card-cluster",
+      "summary": "Three frosted stat cards distributed evenly around an unseen central axis, orbiting through a shared focal point in perspective rather than sitting in a static grid.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "diagonal",
+      "pairsWith": [
+        "feature-split",
+        "showcase",
+        "cta"
+      ],
+      "vibes": [
+        "dynamic",
+        "futuristic",
+        "weightless"
+      ]
+    },
+    {
+      "id": "new-era-galaxy",
+      "role": "cta",
+      "archetype": "centered-split-top-heading-bottom-actions",
+      "summary": "A full-viewport centred section that pushes an eyebrow-plus-headline group to the top and a supporting line with buttons to the bottom, leaving a wide open middle for the scene.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "centered",
+      "pairsWith": [
+        "footer"
+      ],
+      "vibes": [
+        "climactic",
+        "expansive",
+        "futuristic"
+      ]
+    },
+    {
+      "id": "new-era-hero",
+      "role": "hero",
+      "archetype": "centered-focal-stack-over-scene",
+      "summary": "A dead-centre vertical stack — eyebrow, oversized centred headline, a narrow subhead, and a pair of buttons — floating over a full-viewport animated particle backdrop.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "centered",
+      "pairsWith": [
+        "stat-band",
+        "feature-split",
+        "showcase"
+      ],
+      "vibes": [
+        "expansive",
+        "futuristic",
+        "clean"
+      ]
+    },
+    {
+      "id": "new-era-wave",
+      "role": "feature-split",
+      "archetype": "two-column-title-left-copy-right",
+      "summary": "A centred two-column split over a full-viewport scene: the left column holds an eyebrow and left-aligned headline, the right column a supporting paragraph and a pair of buttons.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "stat-band",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "confident",
+        "spacious"
+      ]
+    },
+    {
+      "id": "noema-hero",
+      "role": "hero",
+      "archetype": "edge-pinned-viewport-frame-around-a-centred-scene",
+      "summary": "One non-scrolling screen built entirely around a central full-bleed scene: a hairline-ruled masthead pinned to the top, the display headline split into two words flanking the left and right edges at the vertical centre, and a base row holding a subtitle with two CTAs opposite a single wide card — the whole middle of the frame left empty so the scene reads through it.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "editorial",
+        "showcase",
+        "footer"
+      ],
+      "vibes": [
+        "quiet",
+        "expensive",
+        "scene-first",
+        "one screen, nothing scrolls"
+      ]
+    },
+    {
+      "id": "soda-hero",
+      "role": "hero",
+      "archetype": "centered-product-triptych",
+      "summary": "A single-screen product hero built as a triptych: a copy column on the left, a large centered 3D product as the hard focal, and a picker + secondary title on the right, with ambient floating 3D elements and rising particles layered behind everything.",
+      "density": "dense",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "feature-split",
+        "stat-band",
+        "gallery"
+      ],
+      "vibes": [
+        "playful",
+        "fizzy",
+        "product-forward"
+      ]
+    },
+    {
+      "id": "stackside-hero",
+      "role": "hero",
+      "archetype": "corner-anchored-frame-over-field",
+      "summary": "A single viewport-tall frame with content pinned to all four corners over a full-bleed textured field: oversized headline top-left, stat quad top-right, request form bottom-left, social-proof pill bottom-right.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "feature-split",
+        "card-grid",
+        "stat-band"
+      ],
+      "vibes": [
+        "poised",
+        "editorial",
+        "confident single viewport"
+      ]
+    },
+    {
+      "id": "stride-about",
+      "role": "editorial",
+      "archetype": "centered-statement-with-inline-chips",
+      "summary": "A small centered eyebrow over one large centered statement headline that runs full paragraph-width, with tiny round icon chips set inline among the words and a muted second phrase.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "stat-band",
+        "card-grid",
+        "showcase"
+      ],
+      "vibes": [
+        "confident",
+        "editorial",
+        "calm"
+      ]
+    },
+    {
+      "id": "stride-chain",
+      "role": "showcase",
+      "archetype": "pinned-model-stage-with-corner-copy",
+      "summary": "A pinned full-viewport 3D model stage over a gradient backdrop, a large heading anchored top-left, a supporting line at the bottom-left, and an oversized muted phrase at the bottom-right.",
+      "density": "sparse",
+      "typeScale": "extreme",
+      "balance": "diagonal",
+      "pairsWith": [
+        "card-grid",
+        "feature-split",
+        "cta"
+      ],
+      "vibes": [
+        "luxurious",
+        "sculptural",
+        "quiet-drama"
+      ]
+    },
+    {
+      "id": "stride-contact",
+      "role": "cta",
+      "archetype": "centered-prompt-over-underline-field-form",
+      "summary": "A full-height centred section: a short bold prompt at the top, a minimal form of underlined fields (two on a row, one full-width below), and a single centred pill submit.",
+      "density": "sparse",
+      "typeScale": "moderate",
+      "balance": "centered",
+      "pairsWith": [
+        "footer"
+      ],
+      "vibes": [
+        "minimal",
+        "direct",
+        "calm"
+      ]
+    },
+    {
+      "id": "stride-footer",
+      "role": "footer",
+      "archetype": "full-height-panel-centered-cta-with-base-link-columns",
+      "summary": "A full-height panel over an animated backdrop: a centred closing heading and outline CTA at the top, an open middle for the visual, and four link columns split left/right along a divider at the base.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [],
+      "vibes": [
+        "grand",
+        "conclusive",
+        "premium"
+      ]
+    },
+    {
+      "id": "stride-hero",
+      "role": "hero",
+      "archetype": "fullbleed-scene-with-heading-top-and-bottom-band",
+      "summary": "A full-bleed animated scene fills the viewport; a large display heading sits below the header, and a bottom band splits into a left stats row and a right insight paragraph with CTAs.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "marquee",
+        "editorial",
+        "stat-band"
+      ],
+      "vibes": [
+        "bold",
+        "energetic",
+        "premium"
+      ]
+    },
+    {
+      "id": "stride-logo-marquee",
+      "role": "marquee",
+      "archetype": "dual-opposing-logo-rows",
+      "summary": "Two full-width rows of mark-plus-wordmark pairs scrolling in opposite directions, edge-to-edge with no container, forming a quiet trust band.",
+      "density": "balanced",
+      "typeScale": "flat",
+      "balance": "symmetric",
+      "pairsWith": [
+        "editorial",
+        "feature-split",
+        "stat-band"
+      ],
+      "vibes": [
+        "steady",
+        "credible",
+        "kinetic"
+      ]
+    },
+    {
+      "id": "stride-nav",
+      "role": "nav",
+      "archetype": "split-pill-bar",
+      "summary": "Fixed floating header: a brand pill grouped with a separate links pill on the left, a solid action button pushed to the right, all one row-height and inset symmetrically from the top and sides.",
+      "density": "sparse",
+      "typeScale": "flat",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "hero"
+      ],
+      "vibes": [
+        "crisp",
+        "modern",
+        "unobtrusive"
+      ]
+    },
+    {
+      "id": "stride-product",
+      "role": "feature-split",
+      "archetype": "centered-heading-over-four-column-bento",
+      "summary": "A centred display heading and CTA introduce a four-column bento: one wide media card spanning two columns beside two single-column text cards, each anchoring its title top and body bottom.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "cta",
+        "footer",
+        "stat-band"
+      ],
+      "vibes": [
+        "clear",
+        "product-forward",
+        "polished"
+      ]
+    },
+    {
+      "id": "stride-showcase",
+      "role": "showcase",
+      "archetype": "full-height-lined-columns-hover-reveal",
+      "summary": "A row of full-height columns divided by thin vertical rules, each captioned at its base and revealing its image on hover, with a display heading and outline CTA overlaid on the right half.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "gallery",
+        "showcase",
+        "cta"
+      ],
+      "vibes": [
+        "gallery-like",
+        "interactive",
+        "refined"
+      ]
+    },
+    {
+      "id": "stride-stats",
+      "role": "stat-band",
+      "archetype": "three-column-bento-with-split-right-column",
+      "summary": "An inset three-column bento: a tall media card with a nested stat plaque, a tall quote card with a stat and avatar stack, and a right column split into a stat card over a short label-plus-figure bar.",
+      "density": "dense",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "showcase",
+        "gallery",
+        "feature-split"
+      ],
+      "vibes": [
+        "structured",
+        "data-rich",
+        "polished"
+      ]
+    },
+    {
+      "id": "stride-works",
+      "role": "gallery",
+      "archetype": "pinned-3d-card-stack-scroller",
+      "summary": "A pinned dark stage where portfolio cards travel on a 3D arc from bottom to top through a focused centre, a display heading floats at the top, and an index / title / view-button row spans the middle.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "feature-split",
+        "cta",
+        "footer"
+      ],
+      "vibes": [
+        "cinematic",
+        "immersive",
+        "premium"
+      ]
+    },
+    {
+      "id": "vesper-faq",
+      "role": "faq",
+      "archetype": "centered-card-accordion",
+      "summary": "A centered inset panel floating over the scene: a small mark, a centered display title, then a single centered column of full-width accordion rows each with a plus/close marker.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "centered",
+      "pairsWith": [
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "orderly",
+        "quiet",
+        "reassuring"
+      ]
+    },
+    {
+      "id": "vesper-financial",
+      "role": "feature-split",
+      "archetype": "inset-card-headline-media-split",
+      "summary": "A wide inset panel floating over the live scene: a large headline holds the top-left, a tall portrait image occupies the right column, and two numbered body columns sit along the lower-left.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "faq",
+        "footer",
+        "cta"
+      ],
+      "vibes": [
+        "editorial",
+        "premium print",
+        "grounded"
+      ]
+    },
+    {
+      "id": "vesper-footer",
+      "role": "footer",
+      "archetype": "centered-cta-heading-over-link-row",
+      "summary": "A transparent closing band over the live scene: a large centered display heading, a centered contact pill under it, a full-width divider, then a wordmark-and-tagline block on the left with link columns pushed to the right.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [],
+      "vibes": [
+        "closing statement",
+        "invitational",
+        "clean sign-off"
+      ]
+    },
+    {
+      "id": "vesper-hero",
+      "role": "hero",
+      "archetype": "bottom-anchored-hud-over-fullbleed-scene",
+      "summary": "Full-bleed 3D scene fills the frame; all content sinks to the bottom-left as a quiet HUD, leaving the top two-thirds as pure negative space for the visual to breathe.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "stat-band",
+        "feature-split",
+        "showcase"
+      ],
+      "vibes": [
+        "quiet confidence",
+        "instrument panel",
+        "cinematic restraint"
+      ]
+    },
+    {
+      "id": "vesper-showcase-brain",
+      "role": "showcase",
+      "archetype": "four-corner-diagonal-split",
+      "summary": "A fixed overlay that pushes two large display headings to opposite diagonal corners (top-left and bottom-right) with a short tagline on each flank and a CTA in the bottom-left, the scene filling the open center.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "diagonal",
+      "pairsWith": [
+        "feature-split",
+        "faq",
+        "footer"
+      ],
+      "vibes": [
+        "tension",
+        "editorial drama",
+        "spacious"
+      ]
+    },
+    {
+      "id": "vesper-showcase-galaxy",
+      "role": "showcase",
+      "archetype": "centered-heading-scene-with-stat-foot",
+      "summary": "A fixed overlay on a full-bleed scene: a centered display heading up top, a centered support line above the foot, and a four-column stat band across the bottom edge separated by faint dividers.",
+      "density": "sparse",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "showcase",
+        "feature-split",
+        "faq"
+      ],
+      "vibes": [
+        "cinematic",
+        "instrument readout",
+        "calm authority"
+      ]
+    },
+    {
+      "id": "vexon-about",
+      "role": "editorial",
+      "archetype": "bordered-modular-ledger-grid",
+      "summary": "A ruled modular grid of unequal cells: a narrow brand cell sits beside a wide cell holding an oversized catchphrase on the top row, and a lower row pairs an empty spacer, a small metadata chip cell, and a wide paragraph-with-link cell — everything divided by thin borders like a spec sheet.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "marquee",
+        "cta",
+        "footer"
+      ],
+      "vibes": [
+        "technical ledger",
+        "brutalist-grid",
+        "engineered"
+      ]
+    },
+    {
+      "id": "vexon-hero",
+      "role": "hero",
+      "archetype": "asymmetric-8-4-headline-with-sidecar-panel",
+      "summary": "A 12-column hero over a particle scene: an oversized uppercase headline occupies the left eight columns while a narrow right rail carries an index row, a short paragraph, and a CTA pair anchored to the bottom; nav floats in the two top corners.",
+      "density": "balanced",
+      "typeScale": "extreme",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "card-grid",
+        "editorial",
+        "marquee"
+      ],
+      "vibes": [
+        "technical",
+        "editorial",
+        "bold uppercase energy"
+      ]
+    },
+    {
+      "id": "vexon-marquee",
+      "role": "marquee",
+      "archetype": "single-row-logo-ticker-band",
+      "summary": "A full-bleed horizontal band, top-ruled off the section above, in which a single row of large word tokens scrolls continuously edge-to-edge, each token dim by default and brightening on hover.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "symmetric",
+      "pairsWith": [
+        "footer",
+        "cta",
+        "card-grid"
+      ],
+      "vibes": [
+        "kinetic",
+        "trust-strip",
+        "understated motion"
+      ]
+    },
+    {
+      "id": "vexon-showcase",
+      "role": "card-grid",
+      "archetype": "label-left-statement-right-over-triptych",
+      "summary": "A section heading splits 4|8 with a small mono label on the left and a large statement plus supporting paragraph on the right, sitting above an evenly-spaced row of three tall image cards, each with corner brackets, a numeric tag, and a title-over-caption footer.",
+      "density": "balanced",
+      "typeScale": "high",
+      "balance": "asymmetric",
+      "pairsWith": [
+        "editorial",
+        "marquee",
+        "cta"
+      ],
+      "vibes": [
+        "gallery",
+        "editorial-tech",
+        "structured"
+      ]
+    }
+  ]
+}

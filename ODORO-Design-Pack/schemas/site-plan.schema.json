@@ -1,0 +1,532 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "site-plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "siteType",
+    "language",
+    "brief",
+    "assumptions",
+    "questions",
+    "style",
+    "header",
+    "loader",
+    "sections"
+  ],
+  "properties": {
+    "siteType": {
+      "type": "string",
+      "enum": [
+        "landing",
+        "site",
+        "app"
+      ]
+    },
+    "language": {
+      "type": "string",
+      "description": "BCP 47 code of the copy language, e.g. fr, en"
+    },
+    "brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "dimensionality",
+        "mood",
+        "tone",
+        "motionEnergy",
+        "density"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "One or two sentences: what the business is, for whom, and the feeling the site must give"
+        },
+        "dimensionality": {
+          "type": "string",
+          "enum": [
+            "flat",
+            "depth"
+          ]
+        },
+        "mood": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "luxe",
+              "technical",
+              "organic",
+              "playful",
+              "brutal",
+              "calm"
+            ]
+          },
+          "description": "One or two values"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "dark",
+            "light"
+          ]
+        },
+        "motionEnergy": {
+          "type": "string",
+          "enum": [
+            "still",
+            "subtle",
+            "lively",
+            "intense"
+          ]
+        },
+        "density": {
+          "type": "string",
+          "enum": [
+            "sparse",
+            "balanced",
+            "dense"
+          ]
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Decisions taken where the brief was silent"
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Essential questions for the client; empty when none"
+    },
+    "style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "directionId",
+        "paletteId",
+        "voice",
+        "fonts",
+        "tokens"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "A short name for this Style"
+        },
+        "directionId": {
+          "type": "string",
+          "description": "id of the style direction from data/styles.json that inspired it"
+        },
+        "paletteId": {
+          "type": "string",
+          "description": "id from data/palettes.json"
+        },
+        "voice": {
+          "type": "string",
+          "description": "Two or three sentences: how this Style treats ground, type, colour, accent and motion"
+        },
+        "fonts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "display",
+            "body",
+            "mono"
+          ],
+          "properties": {
+            "display": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "weights"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "id from data/fonts.json"
+                },
+                "weights": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "body": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "weights"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "id from data/fonts.json"
+                },
+                "weights": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "mono": {
+              "type": "string",
+              "description": "id from data/fonts.json, or empty string to use the system mono stack"
+            }
+          }
+        },
+        "tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "od-bg",
+            "od-bg-alt",
+            "od-surface",
+            "od-surface-raised",
+            "od-ink",
+            "od-ink-muted",
+            "od-ink-subtle",
+            "od-accent",
+            "od-accent-ink",
+            "od-line",
+            "od-glow",
+            "od-font-display",
+            "od-font-body",
+            "od-font-mono",
+            "od-tracking-display",
+            "od-weight-display",
+            "od-weight-body",
+            "od-radius",
+            "od-radius-lg",
+            "od-border",
+            "od-duration-fast",
+            "od-duration",
+            "od-duration-slow",
+            "od-ease"
+          ],
+          "properties": {
+            "od-bg": {
+              "type": "string"
+            },
+            "od-bg-alt": {
+              "type": "string"
+            },
+            "od-surface": {
+              "type": "string"
+            },
+            "od-surface-raised": {
+              "type": "string"
+            },
+            "od-ink": {
+              "type": "string"
+            },
+            "od-ink-muted": {
+              "type": "string"
+            },
+            "od-ink-subtle": {
+              "type": "string"
+            },
+            "od-accent": {
+              "type": "string"
+            },
+            "od-accent-ink": {
+              "type": "string"
+            },
+            "od-line": {
+              "type": "string"
+            },
+            "od-glow": {
+              "type": "string"
+            },
+            "od-font-display": {
+              "type": "string"
+            },
+            "od-font-body": {
+              "type": "string"
+            },
+            "od-font-mono": {
+              "type": "string"
+            },
+            "od-tracking-display": {
+              "type": "string"
+            },
+            "od-weight-display": {
+              "type": "string"
+            },
+            "od-weight-body": {
+              "type": "string"
+            },
+            "od-radius": {
+              "type": "string"
+            },
+            "od-radius-lg": {
+              "type": "string"
+            },
+            "od-border": {
+              "type": "string"
+            },
+            "od-duration-fast": {
+              "type": "string"
+            },
+            "od-duration": {
+              "type": "string"
+            },
+            "od-duration-slow": {
+              "type": "string"
+            },
+            "od-ease": {
+              "type": "string"
+            }
+          },
+          "description": "Resolved values: colours as #rrggbb, font tokens as full CSS stacks"
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brand",
+        "links",
+        "cta"
+      ],
+      "properties": {
+        "brand": {
+          "type": "string"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "href"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Empty string when unused"
+              },
+              "href": {
+                "type": "string",
+                "description": "Anchor (#contact) or URL; empty when unused"
+              }
+            }
+          }
+        },
+        "cta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "label",
+            "href"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Empty string when unused"
+            },
+            "href": {
+              "type": "string",
+              "description": "Anchor (#contact) or URL; empty when unused"
+            }
+          }
+        }
+      }
+    },
+    "loader": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "label",
+        "tagline"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string",
+          "description": "Brand shown bottom-left of the loader"
+        },
+        "tagline": {
+          "type": "string",
+          "description": "Short muted text after the label; may be empty"
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "role",
+          "compositionId",
+          "purpose",
+          "ground",
+          "density",
+          "motion",
+          "gate",
+          "content"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "kebab-case, unique; becomes the section's id attribute"
+          },
+          "role": {
+            "type": "string",
+            "description": "Composition role, e.g. hero, editorial, features, cta, footer"
+          },
+          "compositionId": {
+            "type": "string",
+            "description": "id from data/compositions.index.json whose role matches"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "What this section must achieve for the visitor"
+          },
+          "ground": {
+            "type": "string",
+            "enum": [
+              "bg",
+              "bg-alt",
+              "inverted"
+            ]
+          },
+          "density": {
+            "type": "string",
+            "enum": [
+              "sparse",
+              "balanced",
+              "dense"
+            ]
+          },
+          "motion": {
+            "type": "string",
+            "enum": [
+              "still",
+              "subtle",
+              "lively",
+              "intense"
+            ]
+          },
+          "gate": {
+            "type": "boolean",
+            "description": "true on the hero only"
+          },
+          "content": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "eyebrow",
+              "headline",
+              "lead",
+              "body",
+              "items",
+              "primaryCta",
+              "secondaryCta",
+              "extra"
+            ],
+            "properties": {
+              "eyebrow": {
+                "type": "string"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "lead": {
+                "type": "string"
+              },
+              "body": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "title",
+                    "text",
+                    "meta"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "meta": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "primaryCta": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "label",
+                  "href"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "Empty string when unused"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "Anchor (#contact) or URL; empty when unused"
+                  }
+                }
+              },
+              "secondaryCta": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "label",
+                  "href"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "Empty string when unused"
+                  },
+                  "href": {
+                    "type": "string",
+                    "description": "Anchor (#contact) or URL; empty when unused"
+                  }
+                }
+              },
+              "extra": {
+                "type": "string",
+                "description": "Any other copy the composition's slots need, as short labelled lines"
+              }
+            }
+          }
+        }
+      },
+      "description": "Ordered; the hero first"
+    }
+  },
+  "description": "ODORO site plan"
+}

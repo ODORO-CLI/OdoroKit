@@ -1,0 +1,562 @@
+{
+  "count": 15,
+  "showing": 15,
+  "instruction": "Pick a font, then APPLY it: add its `importUrl` to the document <head> (or @import), and write its `stack` into the matching type token — od-font-display for headings, od-font-body for copy. A display serif (Cormorant, Libre Caslon, Baskervville) is HEADLINE-ONLY; always give it a sturdy sans for body (see pairsWith). Single-weight faces build hierarchy with SIZE, not weight. Load only the `weights` you use — every extra weight is bytes.",
+  "pairingNote": "A classic strong pairing is a high-contrast serif display over a neutral sans body (e.g. cormorant + work-sans, libre-caslon-display + inter). For a single-family build, mulish / inter / general-sans all set display AND body cleanly.",
+  "fonts": [
+    {
+      "id": "baskervville",
+      "name": "Baskervville",
+      "category": "serif",
+      "description": "A refined revival of Baskerville — high contrast, elegant, distinctly literary. Sets a tone of quiet, old-money authority.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "luxe",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Baskervville', ui-serif, Georgia, 'Times New Roman', serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Baskervville",
+      "weights": [
+        400
+      ],
+      "variable": false,
+      "vibes": [
+        "literary",
+        "refined",
+        "old-money",
+        "classic"
+      ],
+      "pairsWith": [
+        "work-sans",
+        "inter",
+        "manrope"
+      ],
+      "notes": "Single weight (400) plus a beautiful italic — build hierarchy with SIZE, not weight, and pair with a sans for body. Superb luxe display face."
+    },
+    {
+      "id": "cormorant",
+      "name": "Cormorant",
+      "category": "display",
+      "description": "A very high-contrast display serif with extravagant, calligraphic detail — dramatic, fashionable, and unmistakably luxury. Built for large sizes.",
+      "roles": [
+        "display"
+      ],
+      "mood": [
+        "luxe",
+        "calm",
+        "organic"
+      ],
+      "source": "google",
+      "stack": "'Cormorant', ui-serif, Georgia, 'Times New Roman', serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Cormorant",
+      "weights": [
+        300,
+        400,
+        500,
+        600,
+        700
+      ],
+      "variable": true,
+      "vibes": [
+        "high fashion",
+        "dramatic",
+        "editorial luxe",
+        "couture"
+      ],
+      "pairsWith": [
+        "work-sans",
+        "inter",
+        "manrope"
+      ],
+      "notes": "DISPLAY ONLY — the fine strokes fall apart below ~28px. Set it big and airy for a headline; always pair with a sturdy sans for body."
+    },
+    {
+      "id": "general-sans",
+      "name": "General Sans",
+      "category": "sans",
+      "description": "A do-everything geometric grotesque with subtly humanist terminals — modern, neutral, and slightly premium. The default \"just works\" sans for product UI.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "technical",
+        "luxe",
+        "calm"
+      ],
+      "source": "fontshare",
+      "stack": "'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap",
+      "specimenUrl": "https://www.fontshare.com/fonts/general-sans",
+      "weights": [
+        200,
+        300,
+        400,
+        500,
+        600,
+        700
+      ],
+      "variable": true,
+      "vibes": [
+        "neutral premium",
+        "product UI",
+        "swiss-adjacent",
+        "crisp"
+      ],
+      "pairsWith": [
+        "mulish",
+        "inter"
+      ],
+      "notes": "NOT on Google Fonts — hosted on Fontshare (free). Load via the Fontshare API href in importUrl, or self-host from fontshare.com. Used by Vesper, Obsidian Luxe, Neural Monitor, Stackside, Dringle."
+    },
+    {
+      "id": "inter",
+      "name": "Inter",
+      "category": "sans",
+      "description": "The definitive UI grotesque — engineered for screens, huge weight range, tall x-height, superb legibility. The safe, professional default.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "technical",
+        "calm",
+        "luxe"
+      ],
+      "source": "google",
+      "stack": "'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Inter",
+      "weights": [
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "variable": true,
+      "vibes": [
+        "UI standard",
+        "neutral-precise",
+        "dashboard",
+        "legible"
+      ],
+      "pairsWith": [
+        "lora",
+        "cormorant",
+        "libre-caslon-display"
+      ],
+      "notes": "The most versatile body face here and a strong neutral display. Used by Creative Director and New Era. When in doubt for product UI, this."
+    },
+    {
+      "id": "lato",
+      "name": "Lato",
+      "category": "sans",
+      "description": "A humanist sans with warm, semi-rounded details and a serious feel — approachable but grown-up. Excellent long-form body face.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "calm",
+        "organic",
+        "luxe"
+      ],
+      "source": "google",
+      "stack": "'Lato', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Lato",
+      "weights": [
+        300,
+        400,
+        700,
+        900
+      ],
+      "variable": false,
+      "vibes": [
+        "warm",
+        "humanist",
+        "corporate-friendly",
+        "settled"
+      ],
+      "pairsWith": [],
+      "notes": "Reads beautifully at body sizes. Slightly softer and warmer than Roboto; good when you want friendly without childish."
+    },
+    {
+      "id": "libre-caslon-display",
+      "name": "Libre Caslon Display",
+      "category": "display",
+      "description": "A high-contrast Caslon cut for large display — sharp serifs, dramatic thick-thins, a fashion-masthead presence. Confident and editorial.",
+      "roles": [
+        "display"
+      ],
+      "mood": [
+        "luxe",
+        "brutal"
+      ],
+      "source": "google",
+      "stack": "'Libre Caslon Display', ui-serif, Georgia, 'Times New Roman', serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Libre+Caslon+Display:ital@0;1&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Libre+Caslon+Display",
+      "weights": [
+        400
+      ],
+      "variable": false,
+      "vibes": [
+        "masthead",
+        "fashion",
+        "high-contrast",
+        "headline"
+      ],
+      "pairsWith": [
+        "inter",
+        "manrope",
+        "work-sans"
+      ],
+      "notes": "DISPLAY ONLY, single weight + italic. Reads as a magazine masthead — set large. Never for body. Pair with a neutral sans (Inter/Manrope)."
+    },
+    {
+      "id": "lora",
+      "name": "Lora",
+      "category": "serif",
+      "description": "A contemporary transitional serif with brushed calligraphic roots — well-balanced, warm, and highly readable in running text. Editorial without being stuffy.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "calm",
+        "luxe",
+        "organic"
+      ],
+      "source": "google",
+      "stack": "'Lora', ui-serif, Georgia, 'Times New Roman', serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Lora",
+      "weights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "variable": true,
+      "vibes": [
+        "editorial",
+        "warm serif",
+        "long-read",
+        "magazine"
+      ],
+      "pairsWith": [
+        "work-sans",
+        "inter",
+        "manrope"
+      ],
+      "notes": "A rare serif that is genuinely comfortable for BODY copy, not just headlines. Its italics are lovely for pull quotes."
+    },
+    {
+      "id": "manrope",
+      "name": "Manrope",
+      "category": "sans",
+      "description": "A modern geometric-humanist sans with tight, semi-condensed proportions — feels engineered and premium. A favourite for SaaS and fintech.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "technical",
+        "luxe",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Manrope",
+      "weights": [
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "variable": true,
+      "vibes": [
+        "engineered",
+        "premium",
+        "fintech",
+        "tight"
+      ],
+      "pairsWith": [
+        "inter",
+        "lora",
+        "cormorant"
+      ],
+      "notes": "Excellent tight display headings; also a clean body. Pairs well as the sans in a serif-display / sans-body split."
+    },
+    {
+      "id": "montserrat",
+      "name": "Montserrat",
+      "category": "sans",
+      "description": "A geometric sans inspired by old Buenos Aires signage — wide, confident, with a fashionable urban air. Shines set large and tight as a headline.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "technical",
+        "playful",
+        "luxe"
+      ],
+      "source": "google",
+      "stack": "'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Montserrat:wght@300..900&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Montserrat",
+      "weights": [
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "variable": true,
+      "vibes": [
+        "geometric",
+        "urban",
+        "poster",
+        "fashion-lite"
+      ],
+      "pairsWith": [
+        "lato",
+        "work-sans"
+      ],
+      "notes": "Strong at display, competent at body. Track headings tight for a modern look; its wide caps love letter-spacing when set small."
+    },
+    {
+      "id": "mulish",
+      "name": "Mulish",
+      "category": "sans",
+      "description": "A minimalist sans with a warm, rounded skeleton — friendly but disciplined. Reads clean at every size, from oversized display to fine print.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "calm",
+        "technical",
+        "luxe"
+      ],
+      "source": "google",
+      "stack": "'Mulish', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Mulish",
+      "weights": [
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "variable": true,
+      "vibes": [
+        "clean",
+        "friendly-neutral",
+        "quiet confidence",
+        "startup"
+      ],
+      "pairsWith": [],
+      "notes": "The ODORO workhorse (Clair, GringX, Lumen, Stride use it). Happy setting both display and body — a safe single-family choice."
+    },
+    {
+      "id": "nunito",
+      "name": "Nunito",
+      "category": "sans",
+      "description": "A rounded-terminal sans — soft, bouncy, and warm without tipping into cute. The friendliest face on this list.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "playful",
+        "organic",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Nunito', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Nunito:wght@300..900&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Nunito",
+      "weights": [
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ],
+      "variable": true,
+      "vibes": [
+        "rounded",
+        "soft",
+        "approachable",
+        "consumer"
+      ],
+      "pairsWith": [],
+      "notes": "Reach for it on playful/organic briefs. The rounded terminals carry the whole mood; do not pair with another rounded face."
+    },
+    {
+      "id": "oxygen",
+      "name": "Oxygen",
+      "category": "sans",
+      "description": "A clean, slightly humanist sans designed for the KDE desktop — crisp, efficient, and a touch technical. Light weight is elegant at large sizes.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "technical",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Oxygen', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Oxygen",
+      "weights": [
+        300,
+        400,
+        700
+      ],
+      "variable": false,
+      "vibes": [
+        "crisp",
+        "desktop",
+        "efficient",
+        "linux"
+      ],
+      "pairsWith": [],
+      "notes": "Only three weights — plan the hierarchy around 300/400/700. Good technical body face; less range for display than the variable sans."
+    },
+    {
+      "id": "quattrocento",
+      "name": "Quattrocento",
+      "category": "serif",
+      "description": "A classic wide old-style serif with generous counters and low contrast — traditional, calm, and very legible. Feels like a well-set book.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "calm",
+        "luxe"
+      ],
+      "source": "google",
+      "stack": "'Quattrocento', ui-serif, Georgia, 'Times New Roman', serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Quattrocento:wght@400;700&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Quattrocento",
+      "weights": [
+        400,
+        700
+      ],
+      "variable": false,
+      "vibes": [
+        "classic",
+        "book",
+        "traditional",
+        "calm serif"
+      ],
+      "pairsWith": [
+        "work-sans",
+        "inter"
+      ],
+      "notes": "Wide and sturdy — comfortable for body and dignified for headings. Two weights only; pairs with Quattrocento Sans if you want a matched sans."
+    },
+    {
+      "id": "roboto",
+      "name": "Roboto",
+      "category": "sans",
+      "description": "The ubiquitous neutral grotesque — mechanical skeleton, open curves, dead reliable. Invisible in the best way; gets out of the content's path.",
+      "roles": [
+        "body",
+        "display"
+      ],
+      "mood": [
+        "technical",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Roboto', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Roboto",
+      "weights": [
+        300,
+        400,
+        500,
+        700,
+        900
+      ],
+      "variable": true,
+      "vibes": [
+        "neutral",
+        "system-native",
+        "dependable",
+        "android"
+      ],
+      "pairsWith": [],
+      "notes": "Maximum familiarity and legibility, minimum personality. Reach for it when the design carries the character and the type should just disappear."
+    },
+    {
+      "id": "work-sans",
+      "name": "Work Sans",
+      "category": "sans",
+      "description": "A grotesque optimised for on-screen text at mid sizes — slightly quirky at display, calm and even in body. A flexible, contemporary neutral.",
+      "roles": [
+        "display",
+        "body"
+      ],
+      "mood": [
+        "technical",
+        "calm"
+      ],
+      "source": "google",
+      "stack": "'Work Sans', ui-sans-serif, system-ui, -apple-system, sans-serif",
+      "importUrl": "https://fonts.googleapis.com/css2?family=Work+Sans:wght@300..800&display=swap",
+      "specimenUrl": "https://fonts.google.com/specimen/Work+Sans",
+      "weights": [
+        300,
+        400,
+        500,
+        600,
+        700,
+        800
+      ],
+      "variable": true,
+      "vibes": [
+        "contemporary",
+        "even colour",
+        "screen-first",
+        "editorial-sans"
+      ],
+      "pairsWith": [
+        "lora",
+        "cormorant",
+        "baskervville"
+      ],
+      "notes": "A superb sans body partner for a serif display (Cormorant, Baskervville, Libre Caslon). Even texture in paragraphs; unobtrusive."
+    }
+  ]
+}

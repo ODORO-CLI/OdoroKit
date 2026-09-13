@@ -1,0 +1,356 @@
+{
+  "note": "Descriptions of the source interactive sections (loaders, cards, carousels). Inspiration for motion patterns; no code.",
+  "sections": [
+    {
+      "id": "cards-almanac",
+      "title": "Cards Almanac",
+      "description": "A quiet column of dispatch cards that pin and pile as you scroll, each one settling flat over the last.",
+      "vibes": [],
+      "tags": [
+        "cards",
+        "sticky-stack",
+        "scroll",
+        "editorial"
+      ]
+    },
+    {
+      "id": "cards-cascade",
+      "title": "Cards Cascade",
+      "description": "A deck of art cards that fans flat at the back, rises to a single upright crest, then folds forward and cascades into a pit.",
+      "vibes": [],
+      "tags": [
+        "cards",
+        "css-3d",
+        "scroll",
+        "deck"
+      ]
+    },
+    {
+      "id": "carousel-spotlight",
+      "title": "Carousel Spotlight",
+      "description": "A concave ring of gallery cards curving through a bright editorial stage, snapping to whichever work faces you.",
+      "vibes": [],
+      "tags": [
+        "carousel",
+        "css-3d",
+        "gallery",
+        "editorial"
+      ]
+    },
+    {
+      "id": "carousel-under-the-radar",
+      "title": "Carousel Under The Radar",
+      "description": "A wide crown of ink-in-water cards fanning across the top of the frame, spun by hand between oversized editorial type.",
+      "vibes": [],
+      "tags": [
+        "carousel",
+        "wheel",
+        "fan",
+        "editorial"
+      ]
+    },
+    {
+      "id": "colonnade",
+      "title": "Colonnade",
+      "description": "A row of chapter columns on warm paper, each sliding its panel upward as you move between them in one continuous conveyor.",
+      "vibes": [],
+      "tags": [
+        "accordion",
+        "columns",
+        "features",
+        "editorial"
+      ]
+    },
+    {
+      "id": "hero-mirror-hall",
+      "title": "Mirror Hall Hero",
+      "description": "A full-bleed hero where the headline stands on a reflective floor, the world below it rippling as you move.",
+      "vibes": [],
+      "tags": [
+        "hero",
+        "reflection",
+        "scroll"
+      ]
+    },
+    {
+      "id": "loader-altitude",
+      "title": "Altitude Loader — Aperture Count",
+      "description": "A full-screen ground with comets drifting down-left behind a thin progress ring and a counting figure. The count springs to 90 on trust, waits for the page, then snaps to 100 — and at 100 the ground opens like an aperture: a soft-edged hole grows from the centre past the corners while the page underneath is already animating in through it.",
+      "vibes": [
+        "counting up to something worth waiting for",
+        "the sky opening",
+        "a shutter easing wide rather than a curtain snapping",
+        "quiet, expensive patience"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "intro",
+        "counter",
+        "percentage",
+        "progress-ring",
+        "aperture",
+        "mask-reveal",
+        "comet",
+        "canvas",
+        "gate",
+        "spring"
+      ]
+    },
+    {
+      "id": "loader-artist",
+      "title": "Artist Loader — Corner Counter, Wipe Up",
+      "description": "A gallery-quiet gate in the page's own ground: a small-caps studio label pinned bottom-left, an oversized percentage bottom-right counting itself up, then the whole plate slides off the top edge while the page beneath is already moving.",
+      "vibes": [
+        "gallery-quiet",
+        "expensive restraint",
+        "a page turning, not a spinner",
+        "the lights coming up in a white room"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "intro",
+        "counter",
+        "percentage",
+        "wipe",
+        "corner-anchored",
+        "scroll-lock",
+        "editorial"
+      ]
+    },
+    {
+      "id": "loader-baseline",
+      "title": "Baseline Loader",
+      "description": "A flat accent curtain that holds the page, draws a hairline progress bar left to right, then slides straight up off the top edge while the content underneath plays its words in behind it.",
+      "vibes": [
+        "quiet confidence",
+        "unhurried",
+        "clean handoff",
+        "sporting brand intro"
+      ],
+      "tags": [
+        "loader",
+        "intro",
+        "curtain",
+        "progress-bar",
+        "gate",
+        "reveal",
+        "scroll-lock"
+      ]
+    },
+    {
+      "id": "loader-flowstate",
+      "title": "Flowstate Loader",
+      "description": "No curtain and no counter — the generative field detonates on the first frame and the page assembles itself out of the afterglow on one 2.4-second stagger.",
+      "vibes": [
+        "ink detonating in water",
+        "the page arrives out of the glow",
+        "calm but never at rest",
+        "no waiting, just arriving"
+      ],
+      "tags": [
+        "loader",
+        "intro",
+        "entrance",
+        "stagger",
+        "burst",
+        "generative",
+        "no-curtain",
+        "waitlist"
+      ]
+    },
+    {
+      "id": "loader-forma",
+      "title": "Forma Percentage Curtain",
+      "description": "A quiet full-screen curtain that counts honestly to 100, collapses its card-height progress slab to the right, and hands the page one spring cascade on the way out.",
+      "vibes": [],
+      "tags": [
+        "loader",
+        "preloader",
+        "curtain",
+        "percentage",
+        "counter",
+        "progress",
+        "spring",
+        "intro",
+        "handoff"
+      ]
+    },
+    {
+      "id": "loader-gravity-webgl",
+      "title": "Gravity Loader",
+      "description": "A wordmark masks up glyph-by-glyph over a hairline bar that refuses to finish until the 3D scene has actually rendered — then the gate lifts and the page rises in one measured stagger.",
+      "vibes": [
+        "instrument warming up",
+        "expensive restraint",
+        "a studio calibrating before it speaks",
+        "the last 0.6% snapping shut"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "intro",
+        "wordmark",
+        "counter",
+        "progress",
+        "handshake",
+        "webgl-gate",
+        "reveal"
+      ]
+    },
+    {
+      "id": "loader-halcyon",
+      "title": "Halcyon Loader — Wordmark Out Of Blur",
+      "description": "A dark entry veil holding a single display wordmark that surfaces letter by letter out of deep blur, then dissolves — blurring out and swelling past the viewer — to hand the frame to the scene waiting behind it.",
+      "vibes": [
+        "ceremonial hush",
+        "expensive patience",
+        "a curtain, not a spinner",
+        "the title card of a film"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "intro",
+        "veil",
+        "wordmark",
+        "letter-by-letter",
+        "blur",
+        "dissolve",
+        "scroll-lock",
+        "webgl-gate"
+      ]
+    },
+    {
+      "id": "loader-loopstack",
+      "title": "Loopstack Loader",
+      "description": "A wordmark sweeps in glyph by glyph from the left along the bottom edge, each letter climbing out of its own mask from behind a 20px blur; the last one lands at 1.92s and the page above it rises word by word out of the same kind of mask.",
+      "vibes": [
+        "expensive restraint",
+        "a name being signed",
+        "slow confident arrival",
+        "cinematic title card"
+      ],
+      "tags": [
+        "loader",
+        "intro",
+        "wordmark",
+        "letter-reveal",
+        "word-reveal",
+        "mask",
+        "blur",
+        "stagger",
+        "css-only",
+        "no-library",
+        "dark",
+        "fixed-viewport",
+        "bottom-edge"
+      ]
+    },
+    {
+      "id": "loader-lumora",
+      "title": "Lumora Intro Counter",
+      "description": "An inverted full-screen slab that holds the page shut while a hairline meter fills and a three-digit counter climbs, then springs up off the top edge and hands the first screen its entrance.",
+      "vibes": [
+        "expensive restraint",
+        "quiet machinery",
+        "studio intro",
+        "unhurried"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "intro",
+        "counter",
+        "progress",
+        "gate",
+        "spring"
+      ]
+    },
+    {
+      "id": "loader-marcus-vane",
+      "title": "Percent Curtain Loader",
+      "description": "A near-empty dark field with a wordmark in one corner and a huge percent counter in the other; at 100 the labels blink out and the whole plate slides up like a curtain, releasing the page underneath.",
+      "vibes": [
+        "cinematic",
+        "cold open",
+        "house lights up",
+        "expensive restraint",
+        "title card"
+      ],
+      "tags": [
+        "loader",
+        "preloader",
+        "counter",
+        "percent",
+        "curtain",
+        "wipe",
+        "intro",
+        "scroll-gate",
+        "hand-off"
+      ]
+    },
+    {
+      "id": "mirror-hall",
+      "title": "Mirror Hall",
+      "description": "A rotunda of glowing cards standing on a near-black reflective pool, their light spilling and rippling across the water as you spin the ring.",
+      "vibes": [],
+      "tags": [
+        "carousel",
+        "threejs",
+        "reflection",
+        "water",
+        "webgl"
+      ]
+    },
+    {
+      "id": "roadmap-ascent",
+      "title": "Roadmap Ascent",
+      "description": "A dark scroll-pinned growth story where a fixed node holds the centre and the timeline climbs through it toward a rising count.",
+      "vibes": [],
+      "tags": [
+        "roadmap",
+        "scroll",
+        "timeline",
+        "dataviz"
+      ]
+    },
+    {
+      "id": "showcase-equator",
+      "title": "Showcase Equator",
+      "description": "A split purple-and-beige stage where a shuffling deck of reel-cards and a gliding category list move as one.",
+      "vibes": [],
+      "tags": [
+        "showcase",
+        "scroll",
+        "deck",
+        "split"
+      ]
+    },
+    {
+      "id": "slider-slipstream",
+      "title": "Slider Slipstream",
+      "description": "A river of portrait cards riding one tilted belt that recedes into black, looming near on the right and dissolving far on the left.",
+      "vibes": [],
+      "tags": [
+        "carousel",
+        "css-3d",
+        "belt",
+        "editorial"
+      ]
+    },
+    {
+      "id": "slider-spectra",
+      "title": "Slider Spectra",
+      "description": "A coverflow fan of eyewear cards on a near-black stage, the centre card standing bright and casting a halo keyed to its own hue.",
+      "vibes": [],
+      "tags": [
+        "carousel",
+        "coverflow",
+        "slider",
+        "eyewear"
+      ]
+    }
+  ]
+}

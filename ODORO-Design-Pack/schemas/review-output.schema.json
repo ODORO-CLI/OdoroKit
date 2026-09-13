@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "review-output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pass",
+    "issues",
+    "patchedSections"
+  ],
+  "properties": {
+    "pass": {
+      "type": "boolean",
+      "description": "true only when no blocker or major issue remains"
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sectionId",
+          "category",
+          "severity",
+          "problem",
+          "fix"
+        ],
+        "properties": {
+          "sectionId": {
+            "type": "string",
+            "description": "Section id, or 'page' for page-wide issues"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "composition",
+              "coherence",
+              "rhythm",
+              "choreography",
+              "copy",
+              "accessibility",
+              "responsive",
+              "lint"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "blocker",
+              "major",
+              "minor"
+            ]
+          },
+          "problem": {
+            "type": "string"
+          },
+          "fix": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "patchedSections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sectionId",
+          "html"
+        ],
+        "properties": {
+          "sectionId": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string",
+            "description": "Complete corrected section HTML"
+          }
+        }
+      }
+    }
+  }
+}

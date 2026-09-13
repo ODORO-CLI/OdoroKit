@@ -1,0 +1,1244 @@
+{
+  "count": 39,
+  "showing": 39,
+  "instruction": "Pick a palette by feel (read description, vibes, notes), then APPLY it. On a scene: pass its id as `paletteId` to getlayers_materialize — the tint map is built from its roles and you drop it into the scene CONFIG, never the shader. On a section/DOM: map roles → the --gl-* colour tokens (background→od-bg, primary→od-ink, secondary→od-bg-alt/surface, accent→od-accent), use `ink` for legible text, and `swatch` for any gradient. A palette is one hue set for the WHOLE thing — do not mix two on one surface.",
+  "palettes": [
+    {
+      "id": "ai-studio-palette",
+      "name": "AI Studio palette",
+      "description": "The colour ramp lifted from the AI Studio style — dark ground with a #9a73f0 accent. Portable: apply it to any scene or section without adopting AI Studio's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#000000",
+        "primary": "#f5f1ec",
+        "secondary": "#14110e",
+        "accent": "#9a73f0"
+      },
+      "swatch": [
+        "#000000",
+        "#14110e",
+        "#f5f1ec",
+        "#9a73f0"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "showreel",
+        "webgl",
+        "cinematic",
+        "monochrome-plus-one"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from ai-studio-style. The accent (#9a73f0) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "amethyst-dawn",
+      "name": "Amethyst Dawn",
+      "description": "Amethyst Dawn: a dark cool ramp — #27005d → #9300ff → #add2ff → #e4f2ff. Violet night lifting to pale sky — a soft, expensive gradient.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "calm"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#27005d",
+        "primary": "#e4f2ff",
+        "secondary": "#add2ff",
+        "accent": "#9300ff"
+      },
+      "swatch": [
+        "#27005d",
+        "#9300ff",
+        "#add2ff",
+        "#e4f2ff"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "amethyst",
+        "dawn sky",
+        "violet to pale blue",
+        "soft ascent"
+      ],
+      "pairsWith": [],
+      "notes": "Violet night lifting to pale sky — a soft, expensive gradient. The pale blues are ink/light; the violet carries the mood."
+    },
+    {
+      "id": "artist-palette",
+      "name": "Artist palette",
+      "description": "The colour ramp lifted from the Artist style — light ground with a #191917 accent. Portable: apply it to any scene or section without adopting Artist's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "luxe"
+      ],
+      "temperature": "neutral",
+      "roles": {
+        "background": "#ffffff",
+        "primary": "#191917",
+        "secondary": "#f3f3f3",
+        "accent": "#191917"
+      },
+      "swatch": [
+        "#ffffff",
+        "#f3f3f3",
+        "#191917"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "light",
+        "monochrome",
+        "editorial",
+        "serif"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from artist-style. The accent (#191917) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "baseline-palette",
+      "name": "Baseline palette",
+      "description": "The colour ramp lifted from the Baseline style — light ground with a #0b6e97 accent. Portable: apply it to any scene or section without adopting Baseline's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "playful",
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#ffffff",
+        "primary": "#2563c9",
+        "secondary": "#0f2f63",
+        "accent": "#0b6e97"
+      },
+      "swatch": [
+        "#ffffff",
+        "#0f2f63",
+        "#2563c9",
+        "#0b6e97"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "sports",
+        "light",
+        "flat",
+        "brand"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from baseline-style. The accent (#0b6e97) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "bone-clay",
+      "name": "Bone Clay",
+      "description": "Bone Clay: a light neutral ramp — #eae4d4 → #b6b19e → #000000. Bone paper, taupe mid, pure black.",
+      "tone": "light",
+      "mood": [
+        "brutal",
+        "luxe"
+      ],
+      "temperature": "neutral",
+      "roles": {
+        "background": "#eae4d4",
+        "primary": "#000000",
+        "secondary": "#000000",
+        "accent": "#b6b19e"
+      },
+      "swatch": [
+        "#eae4d4",
+        "#b6b19e",
+        "#000000"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "bone",
+        "clay",
+        "stark editorial",
+        "paper and ink"
+      ],
+      "pairsWith": [],
+      "notes": "Bone paper, taupe mid, pure black. A stark, brutalist-editorial light palette — the contrast is the design."
+    },
+    {
+      "id": "clair-palette",
+      "name": "Clair palette",
+      "description": "The colour ramp lifted from the Clair style — dark ground with a #8b5cf6 accent. Portable: apply it to any scene or section without adopting Clair's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "brutal",
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#000000",
+        "primary": "#ffffff",
+        "secondary": "#2e1065",
+        "accent": "#8b5cf6"
+      },
+      "swatch": [
+        "#000000",
+        "#2e1065",
+        "#ffffff",
+        "#8b5cf6"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "electric",
+        "violet",
+        "glass"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from clair-style. The accent (#8b5cf6) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "cobalt-strata",
+      "name": "Cobalt Strata",
+      "description": "Cobalt Strata: a dark cool ramp — #2f30e3 → #162d93 → #1a1953 → #080516. A single-hue cobalt ramp fading to near-black — quiet, technical depth.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#080516",
+        "primary": "#162d93",
+        "secondary": "#1a1953",
+        "accent": "#2f30e3"
+      },
+      "swatch": [
+        "#2f30e3",
+        "#162d93",
+        "#1a1953",
+        "#080516"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "cobalt",
+        "strata",
+        "monochrome blue",
+        "deep field"
+      ],
+      "pairsWith": [],
+      "notes": "A single-hue cobalt ramp fading to near-black — quiet, technical depth. Bright cobalt is the accent against its own darkness."
+    },
+    {
+      "id": "cortex-palette",
+      "name": "Cortex palette",
+      "description": "The colour ramp lifted from the Cortex style — dark ground with a #0039ff accent. Portable: apply it to any scene or section without adopting Cortex's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#000000",
+        "primary": "#ffffff",
+        "secondary": "#000830",
+        "accent": "#0039ff"
+      },
+      "swatch": [
+        "#000000",
+        "#000830",
+        "#ffffff",
+        "#0039ff"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "electric-blue",
+        "minimal",
+        "tech"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from cortex-style. The accent (#0039ff) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "creative-director-palette",
+      "name": "Creative Director palette",
+      "description": "The colour ramp lifted from the Creative Director style — dark ground with a #ff4600 accent. Portable: apply it to any scene or section without adopting Creative Director's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "playful",
+        "luxe"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#000000",
+        "primary": "#ffffff",
+        "secondary": "#e62800",
+        "accent": "#ff4600"
+      },
+      "swatch": [
+        "#000000",
+        "#e62800",
+        "#ffffff",
+        "#ff4600"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "orange",
+        "cinematic",
+        "portfolio"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from creative-director-style. The accent (#ff4600) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "creative-studio-palette",
+      "name": "Creative Studio palette",
+      "description": "The colour ramp lifted from the Creative Studio style — dark ground with a #ff4c33 accent. Portable: apply it to any scene or section without adopting Creative Studio's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "playful"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#000000",
+        "primary": "#ffffff",
+        "secondary": "#040408",
+        "accent": "#ff4c33"
+      },
+      "swatch": [
+        "#000000",
+        "#040408",
+        "#ffffff",
+        "#ff4c33"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "orange",
+        "solar",
+        "glass"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from creative-studio-style. The accent (#ff4c33) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "crimson-ember",
+      "name": "Crimson Ember",
+      "description": "Crimson Ember: a dark warm ramp — #5f0006 → #9c0f06 → #d53e0f → #eedab9. Oxblood depths climbing to warm cream — cinematic and hot.",
+      "tone": "dark",
+      "mood": [
+        "brutal",
+        "luxe"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#5f0006",
+        "primary": "#eedab9",
+        "secondary": "#9c0f06",
+        "accent": "#d53e0f"
+      },
+      "swatch": [
+        "#5f0006",
+        "#9c0f06",
+        "#d53e0f",
+        "#eedab9"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "oxblood",
+        "crimson",
+        "ember to cream",
+        "dramatic"
+      ],
+      "pairsWith": [],
+      "notes": "Oxblood depths climbing to warm cream — cinematic and hot. Cream is the ink; the bright ember-orange is the spark."
+    },
+    {
+      "id": "deep-teal-signal",
+      "name": "Deep Teal Signal",
+      "description": "Deep Teal Signal: a dark cool ramp — #061953 → #0b6669 → #35a29f → #97feed. Navy void into teal and mint — instrumented but organic.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "organic"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#061953",
+        "primary": "#97feed",
+        "secondary": "#0b6669",
+        "accent": "#35a29f"
+      },
+      "swatch": [
+        "#061953",
+        "#0b6669",
+        "#35a29f",
+        "#97feed"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "deep sea",
+        "teal signal",
+        "bioluminescent",
+        "navy to mint"
+      ],
+      "pairsWith": [],
+      "notes": "Navy void into teal and mint — instrumented but organic. The mint (#97feed) is the readout/spark."
+    },
+    {
+      "id": "desert-sediment",
+      "name": "Desert Sediment",
+      "description": "Desert Sediment: a light warm ramp — #f8f1de → #b0ba98 → #9c6638 → #4f220f. Cream sand to umber — geological layers.",
+      "tone": "light",
+      "mood": [
+        "organic",
+        "calm"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#f8f1de",
+        "primary": "#4f220f",
+        "secondary": "#b0ba98",
+        "accent": "#9c6638"
+      },
+      "swatch": [
+        "#f8f1de",
+        "#b0ba98",
+        "#9c6638",
+        "#4f220f"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "desert",
+        "sediment",
+        "sandstone",
+        "layered earth"
+      ],
+      "pairsWith": [],
+      "notes": "Cream sand to umber — geological layers. Calm and natural; the umber grounds it, ochre is the mid accent."
+    },
+    {
+      "id": "dringle-palette",
+      "name": "Dringle palette",
+      "description": "The colour ramp lifted from the Dringle style — light ground with a #1b0095 accent. Portable: apply it to any scene or section without adopting Dringle's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#f0f2fa",
+        "primary": "#00012f",
+        "secondary": "#05010f",
+        "accent": "#1b0095"
+      },
+      "swatch": [
+        "#f0f2fa",
+        "#05010f",
+        "#00012f",
+        "#1b0095"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "light",
+        "lavender",
+        "navy",
+        "violet"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from dringle-style. The accent (#1b0095) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "ember-rust",
+      "name": "Ember Rust",
+      "description": "Ember Rust: a dark warm ramp — #0c0c0c → #481d14 → #9c3922 → #f1613f. Black to burnt-orange — heat rising out of char.",
+      "tone": "dark",
+      "mood": [
+        "brutal",
+        "technical"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#0c0c0c",
+        "primary": "#9c3922",
+        "secondary": "#481d14",
+        "accent": "#f1613f"
+      },
+      "swatch": [
+        "#0c0c0c",
+        "#481d14",
+        "#9c3922",
+        "#f1613f"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "ember",
+        "rust",
+        "forge",
+        "burnt orange"
+      ],
+      "pairsWith": [],
+      "notes": "Black to burnt-orange — heat rising out of char. Industrial and hot; the bright ember (#f1613f) is the spark, ration it."
+    },
+    {
+      "id": "gring-x-palette",
+      "name": "GringX palette",
+      "description": "The colour ramp lifted from the GringX style — dark ground with a #7c9cfe accent. Portable: apply it to any scene or section without adopting GringX's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#000000",
+        "primary": "#ffffff",
+        "secondary": "#8b90a0",
+        "accent": "#7c9cfe"
+      },
+      "swatch": [
+        "#000000",
+        "#8b90a0",
+        "#ffffff",
+        "#7c9cfe"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "technical",
+        "blue",
+        "ai"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from gring-x-style. The accent (#7c9cfe) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "halcyon-palette",
+      "name": "Halcyon palette",
+      "description": "The colour ramp lifted from the Halcyon style — dark ground with a #ffe49a accent. Portable: apply it to any scene or section without adopting Halcyon's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "calm"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#03060f",
+        "primary": "#f4ecda",
+        "secondary": "#98958d",
+        "accent": "#ffe49a"
+      },
+      "swatch": [
+        "#03060f",
+        "#98958d",
+        "#f4ecda",
+        "#ffe49a"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "cinematic",
+        "gold",
+        "warm"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from halcyon-style. The accent (#ffe49a) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "helion-palette",
+      "name": "Helion palette",
+      "description": "The colour ramp lifted from the Helion style — dark ground with a #3a5cff accent. Portable: apply it to any scene or section without adopting Helion's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#02040d",
+        "primary": "#ffffff",
+        "secondary": "#9fb8ff",
+        "accent": "#3a5cff"
+      },
+      "swatch": [
+        "#02040d",
+        "#9fb8ff",
+        "#ffffff",
+        "#3a5cff"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "space",
+        "blue",
+        "pink"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from helion-style. The accent (#3a5cff) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "iris-voltage",
+      "name": "Iris Voltage",
+      "description": "Iris Voltage: a dark cool ramp — #362f50 → #5b23ff → #008cff → #e3ff30. A dark navy stage for three saturated jolts — violet, azure, acid lime.",
+      "tone": "dark",
+      "mood": [
+        "playful",
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#362f50",
+        "primary": "#e3ff30",
+        "secondary": "#5b23ff",
+        "accent": "#008cff"
+      },
+      "swatch": [
+        "#362f50",
+        "#5b23ff",
+        "#008cff",
+        "#e3ff30"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "electric",
+        "wet neon",
+        "arcade night",
+        "high-voltage"
+      ],
+      "pairsWith": [],
+      "notes": "A dark navy stage for three saturated jolts — violet, azure, acid lime. Let ONE lead per section; all three at once reads as a test card."
+    },
+    {
+      "id": "jade-depths",
+      "name": "Jade Depths",
+      "description": "Jade Depths: a dark cool ramp — #0a1413 → #275a47 → #408a71 → #b0e4cd. Near-black green rising to a pale jade — lush and quiet.",
+      "tone": "dark",
+      "mood": [
+        "organic",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#0a1413",
+        "primary": "#b0e4cd",
+        "secondary": "#275a47",
+        "accent": "#408a71"
+      },
+      "swatch": [
+        "#0a1413",
+        "#275a47",
+        "#408a71",
+        "#b0e4cd"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "jade",
+        "deep green",
+        "submerged garden",
+        "mint highlight"
+      ],
+      "pairsWith": [],
+      "notes": "Near-black green rising to a pale jade — lush and quiet. The pale mint is light/ink; mid-jade is the accent."
+    },
+    {
+      "id": "lagoon-steel",
+      "name": "Lagoon Steel",
+      "description": "Lagoon Steel: a light cool ramp — #afd3e3 → #19a7cd → #146c94. Pale sky to steel-teal — a clean, coastal light palette.",
+      "tone": "light",
+      "mood": [
+        "calm",
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#afd3e3",
+        "primary": "#146c94",
+        "secondary": "#146c94",
+        "accent": "#19a7cd"
+      },
+      "swatch": [
+        "#afd3e3",
+        "#19a7cd",
+        "#146c94"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "lagoon",
+        "steel blue",
+        "coastal",
+        "clear water"
+      ],
+      "pairsWith": [],
+      "notes": "Pale sky to steel-teal — a clean, coastal light palette. The deep teal is the anchor; cyan is the accent."
+    },
+    {
+      "id": "lumen-palette",
+      "name": "Lumen palette",
+      "description": "The colour ramp lifted from the Lumen style — dark ground with a #3700bd accent. Portable: apply it to any scene or section without adopting Lumen's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#140038",
+        "primary": "#ffffff",
+        "secondary": "#d8c2eb",
+        "accent": "#3700bd"
+      },
+      "swatch": [
+        "#140038",
+        "#d8c2eb",
+        "#ffffff",
+        "#3700bd"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "glass",
+        "violet",
+        "gradient"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from lumen-style. The accent (#3700bd) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "lumora-palette",
+      "name": "Lumora palette",
+      "description": "The colour ramp lifted from the Lumora style — light ground with a #b15f2c accent. Portable: apply it to any scene or section without adopting Lumora's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "luxe"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#ffffff",
+        "primary": "#0a0a0a",
+        "secondary": "#8d8d8d",
+        "accent": "#b15f2c"
+      },
+      "swatch": [
+        "#ffffff",
+        "#8d8d8d",
+        "#0a0a0a",
+        "#b15f2c"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "editorial",
+        "portfolio",
+        "creative-studio",
+        "light"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from lumora-style. The accent (#b15f2c) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "marcus-vane-palette",
+      "name": "Marcus Vane palette",
+      "description": "The colour ramp lifted from the Marcus Vane style — dark ground with a #ff3b1d accent. Portable: apply it to any scene or section without adopting Marcus Vane's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "brutal"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#08080a",
+        "primary": "#f3f1ea",
+        "secondary": "#807f78",
+        "accent": "#ff3b1d"
+      },
+      "swatch": [
+        "#08080a",
+        "#807f78",
+        "#f3f1ea",
+        "#ff3b1d"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "editorial",
+        "founder",
+        "cinematic",
+        "display-type"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from marcus-vane-style. The accent (#ff3b1d) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "marigold-heat",
+      "name": "Marigold Heat",
+      "description": "Marigold Heat: a light warm ramp — #f5f5db → #fac02e → #ff8e01 → #c62827. Cream to marigold to orange to red — a hot poster ramp.",
+      "tone": "light",
+      "mood": [
+        "playful",
+        "brutal"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#f5f5db",
+        "primary": "#c62827",
+        "secondary": "#fac02e",
+        "accent": "#ff8e01"
+      },
+      "swatch": [
+        "#f5f5db",
+        "#fac02e",
+        "#ff8e01",
+        "#c62827"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "marigold",
+        "heat",
+        "citrus",
+        "poster"
+      ],
+      "pairsWith": [],
+      "notes": "Cream to marigold to orange to red — a hot poster ramp. Loud and playful; pick two adjacent stops, not all four."
+    },
+    {
+      "id": "negantropy-palette",
+      "name": "Negantropy palette",
+      "description": "The colour ramp lifted from the Negantropy style — dark ground with a #ff6030 accent. Portable: apply it to any scene or section without adopting Negantropy's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "organic",
+        "technical",
+        "luxe"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#050608",
+        "primary": "#f5ede0",
+        "secondary": "#b6ada0",
+        "accent": "#ff6030"
+      },
+      "swatch": [
+        "#050608",
+        "#b6ada0",
+        "#f5ede0",
+        "#ff6030"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "cosmic",
+        "dark",
+        "amber",
+        "webgl"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from negantropy-style. The accent (#ff6030) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "neural-monitor-palette",
+      "name": "Neural Monitor palette",
+      "description": "The colour ramp lifted from the Neural Monitor style — dark ground with a #1f6ae0 accent. Portable: apply it to any scene or section without adopting Neural Monitor's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#01040e",
+        "primary": "#ffffff",
+        "secondary": "#8ecbff",
+        "accent": "#1f6ae0"
+      },
+      "swatch": [
+        "#01040e",
+        "#8ecbff",
+        "#ffffff",
+        "#1f6ae0"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "webgl",
+        "particles",
+        "hud",
+        "science"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from neural-monitor-style. The accent (#1f6ae0) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "new-era-palette",
+      "name": "New Era palette",
+      "description": "The colour ramp lifted from the New Era style — dark ground with a #ffa091 accent. Portable: apply it to any scene or section without adopting New Era's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "organic"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#030305",
+        "primary": "#ffffff",
+        "secondary": "#a0a0a0",
+        "accent": "#ffa091"
+      },
+      "swatch": [
+        "#030305",
+        "#a0a0a0",
+        "#ffffff",
+        "#ffa091"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "webgl",
+        "glassmorphism",
+        "particles",
+        "biotech"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from new-era-style. The accent (#ffa091) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "noir-vermillion",
+      "name": "Noir Vermillion",
+      "description": "Noir Vermillion: a dark warm ramp — #000000 → #8e1617 → #e8c99a → #f7eedf. True black, deep vermillion, warm sand and cream — an old-master, candlelit palette.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "brutal"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#000000",
+        "primary": "#f7eedf",
+        "secondary": "#e8c99a",
+        "accent": "#8e1617"
+      },
+      "swatch": [
+        "#000000",
+        "#8e1617",
+        "#e8c99a",
+        "#f7eedf"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "noir",
+        "vermillion",
+        "candlelit",
+        "old master"
+      ],
+      "pairsWith": [],
+      "notes": "True black, deep vermillion, warm sand and cream — an old-master, candlelit palette. The red is rationed; cream is the ink."
+    },
+    {
+      "id": "obsidian-luxe-palette",
+      "name": "Obsidian Luxe palette",
+      "description": "The colour ramp lifted from the Obsidian Luxe style — dark ground with a #c9a227 accent. Portable: apply it to any scene or section without adopting Obsidian Luxe's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "calm"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#0a0a0c",
+        "primary": "#f4f1ea",
+        "secondary": "#a8a49b",
+        "accent": "#c9a227"
+      },
+      "swatch": [
+        "#0a0a0c",
+        "#a8a49b",
+        "#f4f1ea",
+        "#c9a227"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "editorial",
+        "agency",
+        "premium",
+        "monochrome-plus-one"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from obsidian-luxe. The accent (#c9a227) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "olive-terracotta",
+      "name": "Olive Terracotta",
+      "description": "Olive Terracotta: a light warm ramp — #607556 → #efe0cd → #b96a4c → #7b2524. Olive, cream, terracotta, oxblood — a warm earthen editorial palette.",
+      "tone": "light",
+      "mood": [
+        "organic",
+        "luxe"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#efe0cd",
+        "primary": "#7b2524",
+        "secondary": "#607556",
+        "accent": "#b96a4c"
+      },
+      "swatch": [
+        "#607556",
+        "#efe0cd",
+        "#b96a4c",
+        "#7b2524"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "olive",
+        "terracotta",
+        "mediterranean",
+        "sun-baked"
+      ],
+      "pairsWith": [],
+      "notes": "Olive, cream, terracotta, oxblood — a warm earthen editorial palette. Cream is the ground; oxblood is the deep accent."
+    },
+    {
+      "id": "periwinkle-orchid",
+      "name": "Periwinkle Orchid",
+      "description": "Periwinkle Orchid: a dark cool ramp — #122fad → #6c48c4 → #c58fe5. Royal blue drifting to lilac — a soft dusk gradient.",
+      "tone": "dark",
+      "mood": [
+        "playful",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#122fad",
+        "primary": "#c58fe5",
+        "secondary": "#c58fe5",
+        "accent": "#6c48c4"
+      },
+      "swatch": [
+        "#122fad",
+        "#6c48c4",
+        "#c58fe5"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "periwinkle",
+        "orchid",
+        "blue to lilac",
+        "dusk"
+      ],
+      "pairsWith": [],
+      "notes": "Royal blue drifting to lilac — a soft dusk gradient. The lilac is the light end; use as a scene gradient."
+    },
+    {
+      "id": "porcelain-cobalt",
+      "name": "Porcelain Cobalt",
+      "description": "Porcelain Cobalt: a light cool ramp — #efece3 → #8fabd3 → #4970a9 → #000000. Warm porcelain paper, cobalt mids, true-black ink.",
+      "tone": "light",
+      "mood": [
+        "luxe",
+        "calm"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#efece3",
+        "primary": "#000000",
+        "secondary": "#8fabd3",
+        "accent": "#4970a9"
+      },
+      "swatch": [
+        "#efece3",
+        "#8fabd3",
+        "#4970a9",
+        "#000000"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "porcelain",
+        "editorial",
+        "cream and cobalt",
+        "gallery"
+      ],
+      "pairsWith": [],
+      "notes": "Warm porcelain paper, cobalt mids, true-black ink. A clean editorial light palette; the deep blue is the one colour."
+    },
+    {
+      "id": "sage-forest",
+      "name": "Sage Forest",
+      "description": "Sage Forest: a dark warm ramp — #9db180 → #628765 → #2b5748 → #283339. Muted greens over a slate-charcoal base — grounded and natural.",
+      "tone": "dark",
+      "mood": [
+        "organic",
+        "calm"
+      ],
+      "temperature": "warm",
+      "roles": {
+        "background": "#283339",
+        "primary": "#628765",
+        "secondary": "#2b5748",
+        "accent": "#9db180"
+      },
+      "swatch": [
+        "#9db180",
+        "#628765",
+        "#2b5748",
+        "#283339"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "mossy",
+        "forest floor",
+        "muted greens",
+        "earthen"
+      ],
+      "pairsWith": [],
+      "notes": "Muted greens over a slate-charcoal base — grounded and natural. Low chroma; use the pale sage as the highlight."
+    },
+    {
+      "id": "spectrum-dive",
+      "name": "Spectrum Dive",
+      "description": "Spectrum Dive: a dark cool ramp — #4300ff → #0165f9 → #01cafe → #00ffdf. A pure blue→cyan descent.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "playful"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#4300ff",
+        "primary": "#01cafe",
+        "secondary": "#0165f9",
+        "accent": "#00ffdf"
+      },
+      "swatch": [
+        "#4300ff",
+        "#0165f9",
+        "#01cafe",
+        "#00ffdf"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "deep dive",
+        "blue to cyan",
+        "submerged",
+        "signal"
+      ],
+      "pairsWith": [],
+      "notes": "A pure blue→cyan descent. Reads as depth/water. Use as a directional gradient; the mint-cyan end is the spark."
+    },
+    {
+      "id": "stackside-palette",
+      "name": "Stackside palette",
+      "description": "The colour ramp lifted from the Stackside style — light ground with a #00ff99 accent. Portable: apply it to any scene or section without adopting Stackside's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "brutal",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#f0f3f4",
+        "primary": "#000000",
+        "secondary": "#007548",
+        "accent": "#00ff99"
+      },
+      "swatch": [
+        "#f0f3f4",
+        "#007548",
+        "#000000",
+        "#00ff99"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "halftone",
+        "light",
+        "editorial",
+        "green-accent"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from stackside-style. The accent (#00ff99) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "stride-palette",
+      "name": "Stride palette",
+      "description": "The colour ramp lifted from the Stride style — light ground with a #1246e2 accent. Portable: apply it to any scene or section without adopting Stride's type or tokens.",
+      "tone": "light",
+      "mood": [
+        "brutal",
+        "playful"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#ffffff",
+        "primary": "#171717",
+        "secondary": "#9aa1ad",
+        "accent": "#1246e2"
+      },
+      "swatch": [
+        "#ffffff",
+        "#9aa1ad",
+        "#171717",
+        "#1246e2"
+      ],
+      "ink": "#0b0b0e",
+      "vibes": [
+        "product",
+        "marketing",
+        "light",
+        "blue-accent"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from stride-style. The accent (#1246e2) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    },
+    {
+      "id": "ultraviolet-bloom",
+      "name": "Ultraviolet Bloom",
+      "description": "Ultraviolet Bloom: a dark cool ramp — #3c0270 → #6f00ff → #e8b3fb. Deep violet dark ground rising to a pale orchid.",
+      "tone": "dark",
+      "mood": [
+        "luxe",
+        "playful"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#3c0270",
+        "primary": "#e8b3fb",
+        "secondary": "#e8b3fb",
+        "accent": "#6f00ff"
+      },
+      "swatch": [
+        "#3c0270",
+        "#6f00ff",
+        "#e8b3fb"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "ultraviolet",
+        "orchid glow",
+        "nocturnal",
+        "gradient bloom"
+      ],
+      "pairsWith": [],
+      "notes": "Deep violet dark ground rising to a pale orchid. Ideal as a scene gradient; the orchid is the light, not a second accent."
+    },
+    {
+      "id": "vesper-palette",
+      "name": "Vesper palette",
+      "description": "The colour ramp lifted from the Vesper style — dark ground with a #6cf3a3 accent. Portable: apply it to any scene or section without adopting Vesper's type or tokens.",
+      "tone": "dark",
+      "mood": [
+        "technical",
+        "luxe"
+      ],
+      "temperature": "cool",
+      "roles": {
+        "background": "#170a2b",
+        "primary": "#fdfdfd",
+        "secondary": "#100823",
+        "accent": "#6cf3a3"
+      },
+      "swatch": [
+        "#170a2b",
+        "#100823",
+        "#fdfdfd",
+        "#6cf3a3"
+      ],
+      "ink": "#f4f5fb",
+      "vibes": [
+        "dark",
+        "glass",
+        "violet",
+        "hud"
+      ],
+      "pairsWith": [],
+      "notes": "Extracted from vesper-style. The accent (#6cf3a3) is the one hue that carries the brand — ration it. Roles map 1:1 onto a scene's paletteRoles for tinting."
+    }
+  ]
+}

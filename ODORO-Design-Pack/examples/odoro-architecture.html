@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>ODORO — Architecture & intérieurs</title>
+  <!-- 1. before anything paints: lets the runtime hide what it will reveal -->
+  <script>document.documentElement.classList.add('od-js')</script>
+
+  <!-- 2. fonts from plan.style.fonts (fonts.json → importUrl, narrowed to the listed weights) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&display=swap" />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@300,400,500&display=swap" />
+
+  <!-- 3. ODORO Motion runtime -->
+  <link rel="stylesheet" href="../runtime/odoro-motion.css" />
+
+  <!-- 4. Tailwind v4 + the site's tokens (runtime/tokens.template.css filled from plan.style.tokens).
+          The browser build is for this example only; production compiles with the engine's Tailwind. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    :root {
+      --od-bg: #0a0a0c; --od-bg-alt: #101014; --od-surface: #141419; --od-surface-raised: #1c1c22;
+      --od-ink: #f4f1ea; --od-ink-muted: #a8a49b; --od-ink-subtle: #6b6862;
+      --od-accent: #c9a227; --od-accent-ink: #0a0a0c; --od-line: #26262c; --od-glow: #e8c766;
+      --od-font-display: 'Cormorant', ui-serif, Georgia, 'Times New Roman', serif;
+      --od-font-body: 'General Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --od-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+      --od-tracking-display: -0.02em; --od-weight-display: 300; --od-weight-body: 400;
+      --od-radius: 0.25rem; --od-radius-lg: 0.75rem; --od-border: 1px;
+      --od-duration-fast: 150ms; --od-duration: 320ms; --od-duration-slow: 900ms;
+      --od-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @theme inline {
+      --color-bg: var(--od-bg); --color-bg-alt: var(--od-bg-alt); --color-surface: var(--od-surface);
+      --color-surface-raised: var(--od-surface-raised); --color-ink: var(--od-ink); --color-ink-muted: var(--od-ink-muted);
+      --color-ink-subtle: var(--od-ink-subtle); --color-accent: var(--od-accent); --color-accent-ink: var(--od-accent-ink);
+      --color-line: var(--od-line); --color-glow: var(--od-glow);
+      --font-display: var(--od-font-display); --font-body: var(--od-font-body); --font-mono: var(--od-font-mono);
+      --font-weight-heading: var(--od-weight-display); --tracking-display: var(--od-tracking-display);
+      --radius-od: var(--od-radius); --radius-od-lg: var(--od-radius-lg); --ease-od: var(--od-ease);
+    }
+    @layer base {
+      html { background: var(--od-bg); color: var(--od-ink); }
+      body { font-family: var(--od-font-body); font-weight: var(--od-weight-body); -webkit-font-smoothing: antialiased; }
+      ::selection { background: var(--od-accent); color: var(--od-accent-ink); }
+    }
+  </style>
+</head>
+<body class="bg-bg text-ink font-body">
+
+  <!-- ============================== HEADER (gated) ============================== -->
+  <header data-od-gate data-od-section="header" class="fixed inset-x-0 top-0 z-50">
+    <div data-reveal="fade" data-reveal-delay="200" class="grid h-[76px] grid-cols-[1fr_auto] items-center px-4 md:grid-cols-[1fr_auto_1fr] md:px-10">
+      <a href="#hero" class="justify-self-start text-[13px] font-medium tracking-[0.36em]">ODORO</a>
+      <nav aria-label="Navigation principale" class="hidden gap-10 md:flex">
+        <a href="#studio" class="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors duration-150 hover:text-ink">Studio</a>
+        <a href="#services" class="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors duration-150 hover:text-ink">Services</a>
+        <a href="#approche" class="text-[11px] font-medium uppercase tracking-[0.22em] text-ink/70 transition-colors duration-150 hover:text-ink">Approche</a>
+      </nav>
+      <a href="#contact" class="justify-self-end rounded-full border border-ink/35 px-[18px] py-[11px] text-[10.5px] font-medium uppercase tracking-[0.2em] transition-colors duration-300 ease-od hover:bg-ink hover:text-bg">Prendre rendez-vous</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ======================= HERO · composition cortex-hero ======================= -->
+    <section id="hero" data-od-section="hero" data-composition="cortex-hero" data-od-gate
+      class="relative flex min-h-svh flex-col justify-end overflow-hidden bg-bg">
+      <img src="assets/facade.jpg" alt="Façade en béton banché d'une villa ODORO au coucher du soleil, reflétée dans un bassin noir"
+        class="absolute inset-0 h-full w-full object-cover" />
+      <div class="absolute inset-0 bg-linear-to-t from-bg/90 via-bg/40 to-bg/10" aria-hidden="true"></div>
+
+      <div class="relative px-4 pt-32 md:px-10">
+        <div class="grid grid-cols-1 gap-y-6 md:grid-cols-12 md:items-end md:gap-x-10">
+          <p data-reveal="words" data-reveal-delay="200" data-reveal-step="32"
+            class="font-display text-[clamp(1.6rem,2.6vw,2.9rem)] font-heading leading-[1.12] indent-[3.4em] md:col-span-6">
+            Cabinet d'architecture. Nous dessinons des maisons qui se ressentent <em>avant de se voir.</em>
+          </p>
+          <div class="flex flex-col gap-5 md:col-span-4 md:col-start-9">
+            <p data-reveal="fade" data-reveal-delay="400" class="max-w-[38ch] text-[15px] leading-relaxed text-ink/80">
+              Conception, lumière, architecture intérieure, sur-mesure, chantier et paysage&nbsp;: un seul studio, du premier trait à la remise des clés.
+            </p>
+            <a href="#studio" data-reveal="fade" data-reveal-delay="900"
+              class="flex items-center justify-between border-t border-ink/35 pt-4 text-[11px] font-medium uppercase tracking-[0.22em]">
+              <span>Découvrir le studio</span><span aria-hidden="true">↓</span>
+            </a>
+          </div>
+        </div>
+        <hr data-reveal="rule" data-reveal-delay="600" class="mt-8 border-0 border-t border-ink/25" />
+        <h1 data-reveal="letters"
+          class="-mb-[0.27em] mt-3 flex justify-between text-[24vw] font-light leading-none tracking-normal text-ink/95">ODORO</h1>
+      </div>
+    </section>
+
+    <!-- ===================== STUDIO · composition artist-statement ===================== -->
+    <section id="studio" data-od-section="studio" data-composition="artist-statement"
+      class="border-t border-line bg-bg px-4 py-28 md:px-10 md:py-48">
+      <div class="mx-auto max-w-[1500px] md:pl-[16.66%]">
+        <p data-reveal="fade" class="flex items-center gap-3.5 text-[11px] font-medium uppercase tracking-[0.24em] text-ink-muted">
+          <span class="h-px w-10 bg-ink-muted" aria-hidden="true"></span>Le studio
+        </p>
+        <h2 class="sr-only">Le studio</h2>
+        <p data-reveal="words" data-reveal-step="14"
+          class="my-12 max-w-[24em] font-display text-[clamp(1.9rem,3.3vw,3.75rem)] font-heading leading-[1.22] tracking-[-0.012em]">
+          ODORO est un studio d'architecture et d'architecture intérieure. Nous menons peu de projets à la fois, avec une seule obsession&nbsp;: que la lumière, la matière et le silence fassent le travail. Des maisons pensées pour traverser un siècle, et pour être habitées <em>chaque jour.</em>
+        </p>
+        <p data-reveal="fade" data-reveal-delay="600" class="font-display text-[clamp(1.25rem,1.5vw,1.6rem)] italic text-ink-muted">— Studio ODORO</p>
+      </div>
+    </section>
+
+    <!-- ===================== SERVICES · composition artist-process ===================== -->
+    <section id="services" data-od-section="services" data-composition="artist-process"
+      class="bg-bg-alt px-4 py-24 md:px-10 md:py-40">
+      <div class="mx-auto grid max-w-[1600px] grid-cols-1 gap-y-14 md:grid-cols-12 md:gap-x-10">
+        <div class="md:sticky md:top-32 md:col-span-5 md:self-start">
+          <p data-reveal="fade" class="flex items-center gap-3.5 text-[11px] font-medium uppercase tracking-[0.24em] text-ink-muted">
+            <span class="h-px w-10 bg-ink-muted" aria-hidden="true"></span>Services
+          </p>
+          <h2 data-reveal="words" data-reveal-delay="120"
+            class="mt-7 max-w-[10ch] font-display text-[clamp(2.9rem,4.6vw,5.5rem)] font-heading leading-[0.98] tracking-display">
+            Un seul studio, <em>du trait à la clé.</em>
+          </h2>
+        </div>
+        <ol class="md:col-span-6 md:col-start-7">
+          <li data-reveal="fade" class="grid grid-cols-[clamp(4.5rem,8.5vw,9rem)_1fr] gap-x-6 border-t border-line py-12 md:gap-x-12">
+            <span aria-hidden="true" class="font-display text-[clamp(4rem,6vw,7rem)] font-heading leading-[0.8] text-ink/10">01</span>
+            <div>
+              <h3 class="mt-2 font-display text-[clamp(1.6rem,2vw,2.1rem)] font-normal leading-tight">Conception architecturale</h3>
+              <p class="mt-3.5 max-w-[48ch] text-ink-muted">Étude du site, esquisses, avant-projet et permis de construire. Chaque maison part d'un lieu, d'une orientation et d'une manière de vivre.</p>
+            </div>
+          </li>
+          <li data-reveal="fade" class="grid grid-cols-[clamp(4.5rem,8.5vw,9rem)_1fr] gap-x-6 border-t border-line py-12 md:gap-x-12">
+            <span aria-hidden="true" class="font-display text-[clamp(4rem,6vw,7rem)] font-heading leading-[0.8] text-ink/10">02</span>
+            <div>
+              <h3 class="mt-2 font-display text-[clamp(1.6rem,2vw,2.1rem)] font-normal leading-tight">Architecture intérieure</h3>
+              <p class="mt-3.5 max-w-[48ch] text-ink-muted">Plans, matières, mobilier et éclairage conçus dans le même geste que l'enveloppe du bâtiment.</p>
+            </div>
+          </li>
+          <li data-reveal="fade" class="grid grid-cols-[clamp(4.5rem,8.5vw,9rem)_1fr] gap-x-6 border-t border-line py-12 md:gap-x-12">
+            <span aria-hidden="true" class="font-display text-[clamp(4rem,6vw,7rem)] font-heading leading-[0.8] text-ink/10">03</span>
+            <div>
+              <h3 class="mt-2 font-display text-[clamp(1.6rem,2vw,2.1rem)] font-normal leading-tight">Design sur mesure</h3>
+              <p class="mt-3.5 max-w-[48ch] text-ink-muted">Cuisines, bibliothèques, pièces uniques&nbsp;: dessinées au millimètre et réalisées avec des artisans d'exception.</p>
+            </div>
+          </li>
+          <li data-reveal="fade" class="grid grid-cols-[clamp(4.5rem,8.5vw,9rem)_1fr] gap-x-6 border-y border-line py-12 md:gap-x-12">
+            <span aria-hidden="true" class="font-display text-[clamp(4rem,6vw,7rem)] font-heading leading-[0.8] text-ink/10">04</span>
+            <div>
+              <h3 class="mt-2 font-display text-[clamp(1.6rem,2vw,2.1rem)] font-normal leading-tight">Maîtrise d'œuvre</h3>
+              <p class="mt-3.5 max-w-[48ch] text-ink-muted">Consultation des entreprises, pilotage du chantier, suivi du budget et des délais jusqu'à la réception.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================== APPROCHE · composition negantropy-choice ================== -->
+    <section id="approche" data-od-section="approche" data-composition="negantropy-choice"
+      class="relative flex min-h-svh items-end overflow-hidden bg-bg px-4 pb-10 pt-40 md:px-10 md:pb-14">
+      <img src="assets/atrium.jpg" alt="Atrium en béton traversé par une lame de soleil, un olivier au centre"
+        class="absolute inset-0 h-full w-full object-cover" />
+      <div class="absolute inset-0 bg-linear-to-t from-bg/90 via-bg/35 to-bg/20" aria-hidden="true"></div>
+
+      <div class="relative grid w-full grid-cols-1 gap-y-6 md:grid-cols-12 md:gap-x-10">
+        <div class="flex flex-col gap-5 md:col-span-4 md:row-start-1 md:pt-3">
+          <p data-reveal="fade" class="flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.24em]">
+            <span class="font-mono">( II )</span><span class="h-px w-9 bg-ink/60" aria-hidden="true"></span>Lumière &amp; volumes
+          </p>
+          <p data-reveal="fade" data-reveal-delay="200" class="max-w-[36ch] text-[15px] leading-relaxed text-ink/85">
+            Puits de jour, failles, doubles hauteurs&nbsp;: nous sculptons le soleil pour qu'il habite l'espace à chaque heure, et dessinons l'éclairage dans le béton plutôt que de l'y accrocher.
+          </p>
+        </div>
+        <h2 data-reveal="words"
+          class="max-w-[13ch] justify-self-start font-display text-[clamp(2.9rem,5.8vw,7rem)] font-heading leading-[0.96] tracking-[-0.025em] md:col-span-7 md:col-start-6 md:row-start-1 md:self-end">
+          La lumière est notre <em>premier matériau.</em>
+        </h2>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ CONTACT · composition marcus-vane-contact-footer ============ -->
+  <footer id="contact" data-od-section="contact" data-composition="marcus-vane-contact-footer"
+    class="border-t border-line bg-bg px-4 pb-10 pt-28 md:px-10 md:pt-48">
+    <p data-reveal="fade" class="flex items-center gap-3.5 text-[11px] font-medium uppercase tracking-[0.24em] text-ink-muted">
+      <span class="h-px w-10 bg-ink-muted" aria-hidden="true"></span>Contact
+    </p>
+    <h2 data-reveal="words" data-reveal-delay="120"
+      class="mb-10 mt-8 max-w-[12ch] font-display text-[clamp(3.25rem,7.4vw,9.5rem)] font-heading leading-[0.92] tracking-[-0.03em]">
+      Et si l'on dessinait <em>la vôtre&nbsp;?</em>
+    </h2>
+    <p data-reveal="fade" data-reveal-delay="450" class="max-w-[44ch] text-[clamp(1rem,1.15vw,1.2rem)] text-ink-muted">
+      Un terrain, une maison à transformer, une simple envie&nbsp;: parlez-nous de votre projet. Premier rendez-vous au studio ou sur site.
+    </p>
+    <a data-reveal="fade" data-reveal-delay="650" href="mailto:contact@odoro.fr"
+      class="group mt-14 inline-flex items-baseline gap-[0.35em] font-display text-[clamp(2.1rem,3.8vw,4.75rem)] font-heading tracking-[-0.02em]">
+      contact@odoro.fr <span aria-hidden="true" class="inline-block text-accent transition-transform duration-300 ease-od group-hover:translate-x-1.5 group-hover:-translate-y-1.5">↗</span>
+    </a>
+
+    <div class="mt-32 grid grid-cols-1 gap-y-8 border-t border-line pt-7 md:mt-56 md:grid-cols-12 md:gap-x-10">
+      <div class="md:col-span-6">
+        <p class="text-[clamp(1.75rem,2.6vw,2.75rem)] font-light leading-none tracking-[0.34em]">ODORO</p>
+        <p class="mt-1.5 text-[11px] font-medium uppercase tracking-[0.22em] text-ink-subtle">Architecture &amp; intérieurs</p>
+      </div>
+      <ul class="flex flex-col gap-2 md:col-span-3">
+        <li><a href="#studio" class="text-ink-muted transition-colors duration-150 hover:text-ink">Studio</a></li>
+        <li><a href="#services" class="text-ink-muted transition-colors duration-150 hover:text-ink">Services</a></li>
+        <li><a href="#contact" class="text-ink-muted transition-colors duration-150 hover:text-ink">[Lien Instagram]</a></li>
+      </ul>
+      <p class="text-[11px] font-medium uppercase leading-[1.9] tracking-[0.22em] text-ink-subtle md:col-span-3 md:text-right">© 2026 ODORO<br />Tous droits réservés</p>
+    </div>
+  </footer>
+
+  <!-- ============================== LOADER ============================== -->
+  <div data-od-loader aria-hidden="true">
+    <p data-od-loader-label>ODORO <span>Architecture</span></p>
+    <p data-od-loader-count><span>0</span><i>%</i></p>
+  </div>
+
+  <script src="../runtime/odoro-motion.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+/* ODORO tokens — one file per generated site.
+ *
+ * 1. :root holds the resolved values from site-plan.json → style.tokens (the pipeline writes them).
+ * 2. @theme inline bridges them into Tailwind v4 utilities, so generated markup uses
+ *    bg-bg, text-ink, border-line, font-display… and a re-skin is a variable swap.
+ *    Tailwind v3 equivalent: see README.md § Tailwind.
+ */
+
+:root {
+  --od-bg: {{od-bg}};
+  --od-bg-alt: {{od-bg-alt}};
+  --od-surface: {{od-surface}};
+  --od-surface-raised: {{od-surface-raised}};
+  --od-ink: {{od-ink}};
+  --od-ink-muted: {{od-ink-muted}};
+  --od-ink-subtle: {{od-ink-subtle}};
+  --od-accent: {{od-accent}};
+  --od-accent-ink: {{od-accent-ink}};
+  --od-line: {{od-line}};
+  --od-glow: {{od-glow}};
+
+  --od-font-display: {{od-font-display}};
+  --od-font-body: {{od-font-body}};
+  --od-font-mono: {{od-font-mono}};
+  --od-tracking-display: {{od-tracking-display}};
+  --od-weight-display: {{od-weight-display}};
+  --od-weight-body: {{od-weight-body}};
+
+  --od-radius: {{od-radius}};
+  --od-radius-lg: {{od-radius-lg}};
+  --od-border: {{od-border}};
+
+  --od-duration-fast: {{od-duration-fast}};
+  --od-duration: {{od-duration}};
+  --od-duration-slow: {{od-duration-slow}};
+  --od-ease: {{od-ease}};
+}
+
+@theme inline {
+  --color-bg: var(--od-bg);
+  --color-bg-alt: var(--od-bg-alt);
+  --color-surface: var(--od-surface);
+  --color-surface-raised: var(--od-surface-raised);
+  --color-ink: var(--od-ink);
+  --color-ink-muted: var(--od-ink-muted);
+  --color-ink-subtle: var(--od-ink-subtle);
+  --color-accent: var(--od-accent);
+  --color-accent-ink: var(--od-accent-ink);
+  --color-line: var(--od-line);
+  --color-glow: var(--od-glow);
+
+  --font-display: var(--od-font-display);
+  --font-body: var(--od-font-body);
+  --font-mono: var(--od-font-mono);
+  --font-weight-heading: var(--od-weight-display);
+  --tracking-display: var(--od-tracking-display);
+
+  --radius-od: var(--od-radius);
+  --radius-od-lg: var(--od-radius-lg);
+  --ease-od: var(--od-ease);
+}
+
+@layer base {
+  html { background: var(--od-bg); color: var(--od-ink); }
+  body { font-family: var(--od-font-body); font-weight: var(--od-weight-body); -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--od-accent); color: var(--od-accent-ink); }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "section-output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sectionId",
+    "html",
+    "placeholders",
+    "notes"
+  ],
+  "properties": {
+    "sectionId": {
+      "type": "string"
+    },
+    "html": {
+      "type": "string",
+      "description": "The complete section element, starting with <section data-od-section=… data-composition=…> (or <footer> for the site footer)"
+    },
+    "placeholders": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Every placeholder left in the markup, e.g. [Adresse], or an image described by data-od-placeholder"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Slots that could not be filled from the plan, or deliberate deviations and why"
+    }
+  }
+}

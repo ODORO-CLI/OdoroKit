@@ -1,0 +1,1032 @@
+{
+  "note": "Style directions: the voice and treatment of each look. Tokens are resolved at plan time from a palette + a font pairing.",
+  "styles": [
+    {
+      "id": "aerra-style",
+      "title": "Aerra",
+      "description": "A white editorial ground with photography doing all the colour. Google Sans Flex at four weights and nothing else: 80px Light for the two display moments, 36px Light for section headings, 20px for leads and 16px Light for body — a scale of five sizes with only two weights moving through it. Type over a photograph is white at full strength with the first clause at 50%, so a headline dims its own opening and lets the second half land. Surfaces are glass rather than panels: the nav bar and the audience cards are the same #f3f3f3 at 80% over a 10px blur, and the contact panel is white at 85% over 37.5px. Corners are 6 / 8 / 10px and shadows do not exist — depth is the blur and the photograph behind it. One black pill with a white arrow tile is the only call to action in the system, and the only pure black surface on the page.",
+      "vibes": [
+        "a white page where every dark thing on it is a photograph",
+        "a headline that dims its own first half so the second one lands",
+        "eight hundred pixels of type standing behind a building",
+        "glass cards you can see the page moving through",
+        "one black pill, and nothing else on the page is black",
+        "numbers that sharpen exactly as they stop counting",
+        "a blur that is part of the arrival rather than an effect",
+        "type measured to the ink rather than to the line box"
+      ],
+      "tags": [
+        "light",
+        "white",
+        "photographic",
+        "editorial",
+        "calm",
+        "quiet",
+        "minimal",
+        "premium",
+        "architecture",
+        "property",
+        "real-estate",
+        "interior",
+        "landscape",
+        "glass",
+        "frosted",
+        "blur",
+        "backdrop-blur",
+        "hairline",
+        "rounded",
+        "pill",
+        "black-button",
+        "sans",
+        "google-sans",
+        "variable-font",
+        "light-weight",
+        "display",
+        "oversized-type",
+        "wordmark",
+        "gradient-text",
+        "spring",
+        "parallax",
+        "scroll",
+        "3d",
+        "webgl",
+        "no-shadow"
+      ]
+    },
+    {
+      "id": "ai-creator-style",
+      "title": "AI Creator",
+      "description": "Porcelain rather than white, one electric blue doing every job from the loading curtain to the closing plane, and three faces with three jobs — a light display serif set at a fifth of the viewport for the names, a text serif for the two lines that speak, a sans for the small print — on screens drawn once at 1440x800 and held in proportion by the viewport's width.",
+      "vibes": [
+        "porcelain instead of white, so white reads as light",
+        "one electric blue doing every job on the page",
+        "a name set at a fifth of the viewport in a light serif",
+        "type that resolves in a scrambled order but the same order every time",
+        "pills that open out of a disc instead of fading in",
+        "a label that leans toward your hand inside a plate that stays put",
+        "screens drawn once at 1440x800 and held in proportion by the viewport"
+      ],
+      "tags": [
+        "light",
+        "porcelain",
+        "off-white",
+        "electric-blue",
+        "blue",
+        "one-accent",
+        "serif",
+        "display-serif",
+        "light-weight",
+        "editorial",
+        "luxe",
+        "minimal",
+        "clean",
+        "studio",
+        "portrait",
+        "creator",
+        "personal-brand",
+        "pill",
+        "round",
+        "vw-frame",
+        "figma-frame",
+        "spring",
+        "reveal",
+        "letter-reveal",
+        "magnetic",
+        "3d",
+        "webgl"
+      ]
+    },
+    {
+      "id": "ai-studio-style",
+      "title": "AI Studio",
+      "description": "Full-bleed black with warm off-white ink and a single violet bloom — a cinematic scroll-driven showreel.",
+      "vibes": [],
+      "tags": [
+        "showreel",
+        "webgl",
+        "cinematic",
+        "monochrome-plus-one"
+      ]
+    },
+    {
+      "id": "altitude-style",
+      "title": "Altitude",
+      "description": "A night-sky ground with white type on glass, a serif display face, and two pale inks — lantern yellow and sky blue — that only ever appear as moving light. Warmth is rationed to a single sand-to-steel gradient on the one button that matters.",
+      "vibes": [
+        "a lantern in the dark",
+        "cold air, warm room",
+        "white ink on a night sky",
+        "one gradient, one button",
+        "expensive quiet"
+      ],
+      "tags": [
+        "dark",
+        "night",
+        "hospitality",
+        "retreat",
+        "serif",
+        "glass",
+        "gradient",
+        "gold",
+        "sky-blue",
+        "luxe",
+        "calm"
+      ]
+    },
+    {
+      "id": "artefakt-style",
+      "title": "Artefakt",
+      "description": "A near-black ground drawn as a 10px lattice of cells and hairlines, one monospaced face doing every job from the loading count to the 70px headline, white expressed at four alphas instead of four greys, and no fill anywhere — every surface is the grid and every edge is a hairline.",
+      "vibes": [
+        "a grid that brightens in squares under the cursor",
+        "one monospaced face doing every job on the page",
+        "white at four alphas instead of four greys",
+        "nothing filled — every surface is the grid, every edge a hairline",
+        "corner brackets closing on whatever you point at",
+        "labels that resolve out of static as they arrive",
+        "an oil-slick black shell lit blue against a black page",
+        "type set to a 1440 artboard rather than to a breakpoint"
+      ],
+      "tags": [
+        "dark",
+        "near-black",
+        "black",
+        "monochrome",
+        "single-ink",
+        "monospace",
+        "mono",
+        "grid",
+        "lattice",
+        "hairline",
+        "technical",
+        "engineered",
+        "instrument",
+        "spec-sheet",
+        "brutalist",
+        "editorial",
+        "apparel",
+        "outerwear",
+        "streetwear",
+        "hardware",
+        "iridescent",
+        "azure",
+        "luxe",
+        "no-radius",
+        "terminal"
+      ]
+    },
+    {
+      "id": "artist-style",
+      "title": "Artist",
+      "description": "A gallery-white monochrome: near-black ink and Playfair Display serif over paper, with grey and near-black section planes divided by dashed hairlines and no colour accent.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "monochrome",
+        "editorial",
+        "serif"
+      ]
+    },
+    {
+      "id": "ascend-style",
+      "title": "Ascend",
+      "description": "Deep-space blue-black lifted by a photoreal earthlight, with mint-green as the single brand signal and pale periwinkle type — an immersive, premium SaaS dark theme.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "space",
+        "planet",
+        "mint",
+        "green",
+        "glass",
+        "saas",
+        "immersive"
+      ]
+    },
+    {
+      "id": "auralis-style",
+      "title": "Auralis",
+      "description": "A silver-grey studio ground that is fog rather than a swatch, pure white ink at four fixed alphas on frosted glass, one black solid, a violet that exists only as emitted light, and a single extra-light geometric sans doing everything — with square corners and no shadows anywhere.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "silver",
+        "monochrome",
+        "glass",
+        "frosted",
+        "studio",
+        "agency",
+        "webgl",
+        "extra-light",
+        "uppercase",
+        "square",
+        "no-shadow",
+        "hairline",
+        "violet",
+        "calm",
+        "luxe"
+      ]
+    },
+    {
+      "id": "baseline-style",
+      "title": "Baseline",
+      "description": "A bright white canvas, a royal-blue brand range, oversized ghost lettering, and generously rounded cards.",
+      "vibes": [],
+      "tags": [
+        "sports",
+        "light",
+        "flat",
+        "brand"
+      ]
+    },
+    {
+      "id": "brewns-style",
+      "title": "Brewns",
+      "description": "Two surfaces that trade places down the page — near-black espresso and warm bone — with one fixed header recolouring itself as it crosses them; bold uppercase Geist for every headline, Space Mono for every label, price, address and the receipt, a single joined-up script word laid over the hero, coffee browns as light rather than paint, and one amber dot the only thing that pulses.",
+      "vibes": [
+        "a page that turns the lights on and off as you scroll, and a header that always knows which room it is in",
+        "coffee browns as light on a black ground, never as paint",
+        "one word in script, written under a single sweep",
+        "labels and prices rolling into place like a printed counter",
+        "an amber dot that is the only thing allowed to blink",
+        "hairlines that draw themselves and redraw on hover",
+        "everything below the fold arriving with something a beat behind it",
+        "a menu card set in mono, on a swirl that fills in as you arrive"
+      ],
+      "tags": [
+        "dark",
+        "near-black",
+        "bone",
+        "off-white",
+        "two-tone",
+        "alternating",
+        "warm",
+        "coffee",
+        "brown",
+        "espresso",
+        "amber",
+        "monospace",
+        "mono",
+        "grotesk",
+        "script",
+        "handwritten",
+        "uppercase",
+        "editorial",
+        "luxe",
+        "organic",
+        "hospitality",
+        "cafe",
+        "menu",
+        "receipt",
+        "hairline",
+        "no-radius",
+        "iridescent",
+        "gradient",
+        "thin-film",
+        "studio-lit",
+        "product"
+      ]
+    },
+    {
+      "id": "clair-style",
+      "title": "Clair",
+      "description": "A pure-black stage lit by electric violet — white type over void, translucent glass surfaces, and a deep-indigo curtain, charged by a single violet-to-amber accent.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "electric",
+        "violet",
+        "glass"
+      ]
+    },
+    {
+      "id": "clarix-style",
+      "title": "Clarix",
+      "description": "An almost-white studio page — near-white blue ground, pure black ink, ultra-light Sarabun set enormous — lit by a single iridescent five-stop ramp that runs blue → cyan → violet → hot-pink → red and only ever appears as light: a hairline gradient rule, a halftone field, a holographic rim.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "white",
+        "iridescent",
+        "holographic",
+        "gradient",
+        "glass",
+        "editorial",
+        "sarabun",
+        "ultra-light",
+        "studio"
+      ]
+    },
+    {
+      "id": "codescan-style",
+      "title": "Codescan",
+      "description": "Instrument chrome over a dark room: everything the visitor reads is drawn on top of a WebGL scene, never on a surface. One accent — mint #dbfffe — carries every heading, every button fill and every chip; white at three strengths carries the frame. The display face is BIG SHOULDERS INLINE, a condensed face whose strokes are drawn hollow, at 72/1.0 uppercase for headings; body is Chakra Petch Regular 16 with SemiBold 14 for controls, and every readout is tabular. Structure is hairline: 1px rules at 50% white that stop short of the corners, where 2px solid brackets take over — that contrast between rule and bracket is the design. Surfaces barely exist: the nav pill is white at 20% over a 3px blur, the two full-window panels are flat black, and the only radii are 6px on controls and 16px on a card. Nothing carries a shadow, because nothing sits on a page — it sits on a photograph of a room.",
+      "vibes": [
+        "a page with no surface — every word is drawn on a render",
+        "hollow condensed capitals over a dark room",
+        "hairlines that stop short so brackets can take over",
+        "one mint that means *there is somewhere to go here*",
+        "readouts counting something nobody asked them to count",
+        "a nav pill you can see the room through",
+        "an interface that behaves like the overlay on a camera",
+        "black panels with nothing on them but the studio's own words"
+      ],
+      "tags": [
+        "dark",
+        "cinematic",
+        "3d",
+        "webgl",
+        "threejs",
+        "scene",
+        "scroll-driven",
+        "hud",
+        "instrument",
+        "technical",
+        "brutal",
+        "mint",
+        "cyan",
+        "black",
+        "monochrome",
+        "hairline",
+        "rule",
+        "bracket",
+        "frame",
+        "readout",
+        "tabular",
+        "condensed",
+        "inline-font",
+        "hollow",
+        "big-shoulders",
+        "chakra-petch",
+        "uppercase",
+        "crt",
+        "scanline",
+        "vignette",
+        "grain",
+        "bloom",
+        "depth-of-field",
+        "studio",
+        "agency",
+        "portfolio",
+        "no-shadow"
+      ]
+    },
+    {
+      "id": "cortex-style",
+      "title": "Cortex",
+      "description": "A single electric-blue signal cutting through pure black — stark, high-voltage minimalism.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "electric-blue",
+        "minimal",
+        "tech"
+      ]
+    },
+    {
+      "id": "creative-director-style",
+      "title": "Creative Director",
+      "description": "A cinematic black portfolio lit by a single molten-orange glow, grained like film and set in a monospaced display face.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "orange",
+        "cinematic",
+        "portfolio",
+        "grain"
+      ]
+    },
+    {
+      "id": "creative-studio-style",
+      "title": "Creative Studio",
+      "description": "A solar hero of white type over a black void, warmed by a single burning orange sun behind frosted near-black glass.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "orange",
+        "solar",
+        "glass",
+        "studio"
+      ]
+    },
+    {
+      "id": "dantora-style",
+      "title": "Dantora",
+      "description": "Clinical calm in mint and lime. The page ground is white and the mint is a PANEL colour each full-bleed section paints for itself, so the bands between them read white — that alternation is the structure. One deep green (#246f65) carries every eyebrow, every mark and the primary action; one acid lime (#f8ffb4) is the only other accent, used for the secondary pill and for the disc inside the primary one, so the two always appear together. Type is Google Sans Flex at Light everywhere and Medium for labels — a 60px display down to a 14px uppercase eyebrow, all cap-height trimmed, because the design measures ink and half-leading would compound an error down the whole page. Panels are frosted white at three strengths over a 10px blur; corners run 4 / 8 / 24 / 48px with a 46px pill for actions; shadows do not exist. Nothing is hairline-thin except one 1px rule at 10% black.",
+      "vibes": [
+        "a white page where the mint is something the sections bring with them",
+        "one green and one lime, and they never appear apart",
+        "copy that resolves out of a blur instead of sliding in",
+        "a paragraph that greys half of itself to find its own rhythm",
+        "frosted panels you can see a helix moving behind",
+        "type measured to the ink, so the artboard's numbers actually land",
+        "sixty-point headings at Light weight, and nothing heavier anywhere",
+        "corners at forty-eight where a panel meets the page"
+      ],
+      "tags": [
+        "light",
+        "white",
+        "mint",
+        "green",
+        "lime",
+        "teal",
+        "clinical",
+        "medical",
+        "healthcare",
+        "clinic",
+        "calm",
+        "quiet",
+        "airy",
+        "trustworthy",
+        "editorial",
+        "minimal",
+        "premium",
+        "frosted",
+        "glass",
+        "backdrop-blur",
+        "rounded",
+        "pill",
+        "chip",
+        "sans",
+        "google-sans",
+        "variable-font",
+        "light-weight",
+        "uppercase-eyebrow",
+        "cap-trim",
+        "no-shadow",
+        "spring",
+        "blur-reveal",
+        "3d",
+        "webgl",
+        "multiply"
+      ]
+    },
+    {
+      "id": "dringle-style",
+      "title": "Dringle",
+      "description": "A bright lavender studio skin with deep-navy ink and a single indigo-violet gradient, offset by one dark glossy media panel.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "lavender",
+        "navy",
+        "violet",
+        "agency"
+      ]
+    },
+    {
+      "id": "evolve-style",
+      "title": "Evolve",
+      "description": "Jet black as the ground, white ink at two strengths, hairline blueprint structure at 15–20% white, one sky-blue gradient ramp (#8dd8ff → #69beff → #4c97ff) that exists only on instruments — the CTA frame, its label, its chevrons, the loader fill — and a two-light scene palette of electric blue and signal red that belongs to the WebGL subject alone. Inter Tight for display, Space Mono uppercase for every label, 1px rules that never scale, zero radius beyond a 4px mobile chip, zero shadows: a lab instrument panel wrapped around one glowing specimen.",
+      "vibes": [],
+      "tags": [
+        "black",
+        "dark",
+        "ai",
+        "tech",
+        "blueprint",
+        "instrument",
+        "hairline",
+        "grid",
+        "mono",
+        "monospace",
+        "uppercase",
+        "gradient",
+        "sky-blue",
+        "blue",
+        "red",
+        "neon",
+        "glow",
+        "minimal",
+        "premium",
+        "precise",
+        "no-shadow",
+        "square"
+      ]
+    },
+    {
+      "id": "flowstate-style",
+      "title": "Flowstate",
+      "description": "A near-black abyss lit from within by living ink — cyan through blue and violet to magenta — with fog-white type and one glass-white CTA. Colour belongs to the moving fluid, never the chrome.",
+      "vibes": [
+        "ink in water",
+        "wet neon in the dark",
+        "calm but never at rest",
+        "deep focus",
+        "living abyss"
+      ],
+      "tags": [
+        "dark",
+        "fluid",
+        "webgl",
+        "immersive",
+        "violet",
+        "magenta",
+        "ink",
+        "focus"
+      ]
+    },
+    {
+      "id": "forma-style",
+      "title": "Forma®",
+      "description": "A near-white studio ground with midnight-navy ink and one confident violet — white cards on a warm grey page, hairline black-at-10% rules, a lavender accent surface that flips its copy to white, and every emphasis carried by a violet-400 → violet-950 gradient.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "studio",
+        "agency",
+        "violet",
+        "lavender",
+        "near-white",
+        "cards",
+        "hairline",
+        "gradient",
+        "luxe",
+        "calm"
+      ]
+    },
+    {
+      "id": "fromzero-style",
+      "title": "Fromzero",
+      "description": "A near-black night-valley ground rendered by WebGL rather than painted, one warm brand yellow carrying the logo, headline and CTA, white at three fixed alphas for everything else, a slate frosted header, and two engineered faces — a techy display mono-adjacent Chakra Petch against a neutral General Sans — with square corners and light as the only decoration.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "night",
+        "black",
+        "yellow",
+        "amber",
+        "sand",
+        "warm",
+        "glass",
+        "frosted",
+        "studio",
+        "agency",
+        "webgl",
+        "uppercase",
+        "square",
+        "no-shadow",
+        "hairline",
+        "technical",
+        "calm",
+        "cinematic"
+      ]
+    },
+    {
+      "id": "gravity-webgl-style",
+      "title": "Gravity",
+      "description": "A luminous white-slate studio lit by cobalt blue — pastel-glass spheres against a periwinkle radial wash, with a live accent that morphs blue → volt-lime → rose-pink across the scroll.",
+      "vibes": [],
+      "tags": [
+        "light",
+        "studio",
+        "blue",
+        "pastel",
+        "glass",
+        "playful",
+        "spheres"
+      ]
+    },
+    {
+      "id": "gring-x-style",
+      "title": "GringX",
+      "description": "Jet black lit by a single electric periwinkle-blue accent — a cool, technical dark theme for AI and data products.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "technical",
+        "blue",
+        "ai"
+      ]
+    },
+    {
+      "id": "halcyon-style",
+      "title": "Halcyon",
+      "description": "A warm cinematic seascape — pale foam and candle-gold light adrift on near-black midnight water.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "cinematic",
+        "gold",
+        "warm"
+      ]
+    },
+    {
+      "id": "helion-style",
+      "title": "Helion",
+      "description": "Deep-space blue-black ramped through pale periwinkle, punctuated by one rare hot-pink signal — a technical, luxe dark theme.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "space",
+        "blue",
+        "pink",
+        "technical"
+      ]
+    },
+    {
+      "id": "kimi-style",
+      "title": "Kimi",
+      "description": "A light art-directed sheet for motorsport: one near-white ground, pure-black uppercase copy in a condensed display and a grotesk, a single electric-cyan accent that reads as instrumentation, near-black panels that come and go per section, corner brackets and chamfers instead of borders and radii, and a chequered flag as the seam between surfaces.",
+      "vibes": [
+        "a pit-wall instrument panel with a photograph on it",
+        "one cyan, spent only where something is live",
+        "everything uppercase, everything tight",
+        "corners marked by brackets, never boxed by borders",
+        "a chamfer where another site would round",
+        "light and dark blocks trading places down the page",
+        "a chequered flag where two surfaces meet",
+        "numbers that type themselves in"
+      ],
+      "tags": [
+        "light",
+        "off-white",
+        "near-white",
+        "near-black",
+        "cyan",
+        "electric-cyan",
+        "single-accent",
+        "uppercase",
+        "all-caps",
+        "condensed",
+        "oswald",
+        "grotesk",
+        "instrument",
+        "instrument-panel",
+        "pit-wall",
+        "hud",
+        "technical",
+        "motorsport",
+        "racing",
+        "f1",
+        "sport",
+        "athlete",
+        "team",
+        "brackets",
+        "corner-brackets",
+        "chamfer",
+        "no-radius",
+        "sharp",
+        "chequered",
+        "checkerboard",
+        "halftone",
+        "editorial",
+        "luxe"
+      ]
+    },
+    {
+      "id": "laocoon-style",
+      "title": "Laocoön",
+      "description": "Pure black cut by molten-bronze light — a rearing statue lit chiaroscuro, forge-sparks drifting, liquid-metal waves that cool from copper into deep sapphire. A cinematic, editorial dark theme.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "cinematic",
+        "bronze",
+        "sapphire",
+        "liquid-metal",
+        "sculpture",
+        "editorial",
+        "luxe"
+      ]
+    },
+    {
+      "id": "loopstack-style",
+      "title": "Loopstack",
+      "description": "Pure-black ground under white type — a Playfair serif headline over an Outfit / General Sans chrome — with one neon-lime signal reserved for the live dot and the cursor greeting.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "black",
+        "minimal",
+        "neon",
+        "lime",
+        "editorial",
+        "serif"
+      ]
+    },
+    {
+      "id": "lumea-style",
+      "title": "Lumea",
+      "description": "A near-black cinematic void lit by one warm shaft, white ink at full strength over frosted charcoal glass, a single amber accent that exists only as emitted light (the orbit rings), and a serif/sans pairing — Instrument Serif for the brand voice, General Sans for everything spoken — with square glass panels, hairline dividers, and a light-mist preloader as the only bright surface.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "black",
+        "void",
+        "night",
+        "amber",
+        "warm",
+        "glass",
+        "frosted",
+        "serif",
+        "cinematic",
+        "calm",
+        "luxe",
+        "studio",
+        "agency",
+        "webgl",
+        "hairline",
+        "square",
+        "no-shadow",
+        "mist"
+      ]
+    },
+    {
+      "id": "lumen-style",
+      "title": "Lumen",
+      "description": "Frosted white glass over deep violet, lit by an electric indigo-to-lilac gradient.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "glass",
+        "violet",
+        "gradient"
+      ]
+    },
+    {
+      "id": "lumora-style",
+      "title": "Lumora",
+      "description": "Warm-white editorial neutrals with a single burnt-orange accent under a clean humanist sans.",
+      "vibes": [],
+      "tags": [
+        "editorial",
+        "portfolio",
+        "creative-studio",
+        "light",
+        "warm-neutral"
+      ]
+    },
+    {
+      "id": "marcus-vane-style",
+      "title": "Marcus Vane",
+      "description": "Near-black cinematic canvas, warm off-white ink, and one electric-ember accent under oversized display type.",
+      "vibes": [],
+      "tags": [
+        "editorial",
+        "founder",
+        "cinematic",
+        "display-type"
+      ]
+    },
+    {
+      "id": "negantropy-style",
+      "title": "Negantropy",
+      "description": "A black cosmos with warm bone ink, an amber accent, and a violet counter-glow under Unbounded display type.",
+      "vibes": [],
+      "tags": [
+        "cosmic",
+        "dark",
+        "amber",
+        "webgl",
+        "longevity"
+      ]
+    },
+    {
+      "id": "neural-monitor-style",
+      "title": "Neural Monitor",
+      "description": "Deep-space near-black behind a bloomed blue particle field, read through a terminal-style HUD in a single sans typeface — azure accents, pale-sky highlights, no warmth.",
+      "vibes": [],
+      "tags": [
+        "webgl",
+        "particles",
+        "hud",
+        "science",
+        "monochrome-blue"
+      ]
+    },
+    {
+      "id": "new-era-style",
+      "title": "New Era",
+      "description": "Deep-space black behind a glowing particle field, with frosted-glass cards and warm-to-cool gradient light.",
+      "vibes": [],
+      "tags": [
+        "webgl",
+        "glassmorphism",
+        "particles",
+        "biotech"
+      ]
+    },
+    {
+      "id": "noema-style",
+      "title": "Noema",
+      "description": "A near-black navy ground lit from one corner, white ink at three fixed opacities, a single cool blue that exists only as light, and a high-contrast Didone display face against a neutral sans — with every corner square and no shadow anywhere.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "navy",
+        "studio",
+        "agency",
+        "didone",
+        "serif-display",
+        "high-contrast",
+        "square",
+        "no-shadow",
+        "webgl",
+        "luxe",
+        "technical",
+        "calm"
+      ]
+    },
+    {
+      "id": "obsidian-luxe",
+      "title": "Obsidian Luxe",
+      "description": "Near-black ground, warm platinum ink, and a single restrained gold. Space used as a luxury good.",
+      "vibes": [],
+      "tags": [
+        "editorial",
+        "agency",
+        "premium",
+        "monochrome-plus-one"
+      ]
+    },
+    {
+      "id": "soda-style",
+      "title": "Soda",
+      "description": "A juicy emerald-green radial glow fading to near-black, white cursive display type floating over it, and one candy-pink signal reserved for the active pill and CTA — a fresh, product-forward beverage look.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "green",
+        "emerald",
+        "pink",
+        "product",
+        "beverage",
+        "glass",
+        "organic"
+      ]
+    },
+    {
+      "id": "stackside-style",
+      "title": "Stackside",
+      "description": "Ink-on-paper: an off-white ground carrying a halftone dot field in a lime-to-deep-green ramp, black type, off-white cards, and one electric-green accent.",
+      "vibes": [],
+      "tags": [
+        "halftone",
+        "light",
+        "editorial",
+        "green-accent"
+      ]
+    },
+    {
+      "id": "stride-nine-style",
+      "title": "Stride Nine",
+      "description": "Photography is the ground and the UI is achromatic on top of it: white ink at three strengths over full-bleed footage, held legible by a dark gradient scrim rather than a surface. Geist Bold at 90px in uppercase with −0.04em tracking is the whole hierarchy; everything else is 11–16px at weight 500. Rules are literal 1px hairlines at 25% white, panels are stone-tinted glass at 3% with a 1px outline and a blur, corners are square and shadows do not exist. One warm accent (#ff9500) is named but sits at zero intensity — the only colour on screen belongs to the picture. Every gesture in the system travels on the same −18° diagonal.",
+      "vibes": [
+        "white type standing on a photograph, with nothing between them",
+        "one diagonal that every single thing in the page moves along",
+        "an accent colour that is named and then deliberately never used",
+        "frosted glass at three percent, barely there, holding numbers",
+        "hairlines that take up no space at all",
+        "ninety-point capitals with the tracking pulled tight",
+        "a dark gradient doing the job a card would have done",
+        "brand chrome measured in one pixel"
+      ],
+      "tags": [
+        "dark",
+        "photographic",
+        "video",
+        "footage",
+        "full-bleed",
+        "white",
+        "monochrome",
+        "achromatic",
+        "orange",
+        "blue",
+        "uppercase",
+        "caps",
+        "display",
+        "geist",
+        "sans",
+        "hairline",
+        "rule",
+        "glass",
+        "frosted",
+        "blur",
+        "scrim",
+        "gradient",
+        "square",
+        "no-shadow",
+        "no-radius",
+        "brutal",
+        "editorial",
+        "sport",
+        "athletic",
+        "performance",
+        "diagonal",
+        "difference-blend",
+        "cursor",
+        "minimal",
+        "premium",
+        "instrument"
+      ]
+    },
+    {
+      "id": "stride-style",
+      "title": "Stride",
+      "description": "Bright white product-marketing paper with a deep royal-blue brand accent and cyan glow, set against full-bleed dark WebGL stages — Mulish throughout.",
+      "vibes": [],
+      "tags": [
+        "product",
+        "marketing",
+        "light",
+        "blue-accent",
+        "webgl"
+      ]
+    },
+    {
+      "id": "vesper-style",
+      "title": "Vesper",
+      "description": "A deep-violet cockpit of frosted glass panels floating over a midnight void, lit by a single mint status light.",
+      "vibes": [],
+      "tags": [
+        "dark",
+        "glass",
+        "violet",
+        "hud"
+      ]
+    },
+    {
+      "id": "vexon-style",
+      "title": "Vexon",
+      "description": "Pure-black AI-intelligence dark theme lit by a single cool-blue particle glow — deep-blue ramping through mid-blue to hot-white — with white display type, grey readouts, and no second hue.",
+      "vibes": [
+        "premium AI intelligence on absolute black",
+        "cool-blue particle glow as the only hue",
+        "near-monochrome with a single blue signal",
+        "instrument-panel mono readouts",
+        "cinematic void with a hot top-light plume"
+      ],
+      "tags": [
+        "dark",
+        "black",
+        "blue",
+        "particles",
+        "3d",
+        "technical",
+        "ai",
+        "monochrome"
+      ]
+    },
+    {
+      "id": "voxelia-style",
+      "title": "Voxelia",
+      "description": "Cobalt blue on cobalt blue: a saturated brand-blue ground textured by pixel waves in two neighbouring blues, near-white ink, white as the only raised surface (with deep navy ink on it), hairline white rules drawing the layout grid, and a pixel display face — Jersey 25 — over General Sans Medium. Square everything, zero radius, zero shadows; the arcade-cabinet energy of pixel art wearing a design studio's restraint.",
+      "vibes": [],
+      "tags": [
+        "blue",
+        "cobalt",
+        "royal",
+        "electric",
+        "pixel",
+        "pixel-art",
+        "pixelated",
+        "retro",
+        "arcade",
+        "game",
+        "playful",
+        "technical",
+        "waves",
+        "white",
+        "navy",
+        "hairline",
+        "square",
+        "no-shadow",
+        "mono-hue"
+      ]
+    },
+    {
+      "id": "wanderlust-style",
+      "title": "Wanderlust",
+      "description": "A near-black ground with everything written in one warm cream, a high-contrast serif whose leading capitals take the italic cut, and a single saturated red that is a signal rather than a colour — it belongs to a recording lamp and to nothing else.",
+      "vibes": [
+        "one warm ink on a near-black ground",
+        "the leading capital of every word leaning into italic",
+        "a tally lamp that never quite goes out",
+        "film grain that jumps rather than slides",
+        "handwriting used exactly twice",
+        "photographs doing the talking, type staying out of the way",
+        "cream at four alphas instead of four greys"
+      ],
+      "tags": [
+        "dark",
+        "near-black",
+        "cream",
+        "monochrome",
+        "single-ink",
+        "travel",
+        "adventure",
+        "hospitality",
+        "editorial",
+        "cinematic",
+        "serif",
+        "italic",
+        "handwritten",
+        "grain",
+        "photographic",
+        "organic",
+        "luxe"
+      ]
+    }
+  ]
+}

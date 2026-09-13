@@ -1,0 +1,116 @@
+/*! ODORO Motion runtime v1.0 — styles
+ *
+ * The reveal choreography, declared in HTML with data attributes and played by odoro-motion.js.
+ * Everything is mounted at first paint and held at its "from" state; the runtime adds `.od-in`.
+ * Content is only hidden when `html.od-js` is set, so a page without JS still reads.
+ *
+ * Put this line in <head>, before any stylesheet, so nothing flashes before the runtime loads:
+ *   <script>document.documentElement.classList.add('od-js')</script>
+ */
+
+/* ---------------------------------------------------------------- the gate --- */
+html.od-gated { overflow: hidden; }
+
+/* ------------------------------------------------------------------ words --- */
+/* per word: opacity lands early while the blur is still resolving; never clipped */
+.od-w { display: inline-block; text-indent: 0; }
+html.od-js [data-reveal="words"] .od-w {
+  opacity: 0;
+  filter: blur(14px);
+  transition:
+    opacity 900ms cubic-bezier(0.2, 0.9, 0.25, 1) var(--od-d, 0ms),
+    filter 1150ms var(--od-ease, cubic-bezier(0.22, 1, 0.36, 1)) var(--od-d, 0ms);
+}
+html.od-js [data-reveal="words"].od-in .od-w { opacity: 1; filter: blur(0); }
+
+/* ---------------------------------------------------------------- letters --- */
+/* per letter, out of its own mask; the padding/negative margin protects descenders */
+.od-lm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.od-lt { display: inline-block; }
+html.od-js [data-reveal="letters"] .od-lt {
+  transform: translateY(105%);
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1) var(--od-d, 0ms);
+}
+html.od-js [data-reveal="letters"].od-in .od-lt { transform: none; }
+
+/* ------------------------------------------------------------ fade/stagger --- */
+html.od-js [data-reveal="fade"],
+html.od-js [data-reveal="stagger"] > * {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition:
+    opacity 1000ms var(--od-ease, cubic-bezier(0.22, 1, 0.36, 1)) var(--od-d, 0ms),
+    transform 1000ms var(--od-ease, cubic-bezier(0.22, 1, 0.36, 1)) var(--od-d, 0ms);
+}
+html.od-js [data-reveal="fade"].od-in,
+html.od-js [data-reveal="stagger"].od-in > * { opacity: 1; transform: none; }
+
+/* ------------------------------------------------------------------- rule --- */
+html.od-js [data-reveal="rule"] {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 1400ms var(--od-ease, cubic-bezier(0.22, 1, 0.36, 1)) var(--od-d, 0ms);
+}
+html.od-js [data-reveal="rule"].od-in { transform: scaleX(1); }
+
+/* ----------------------------------------------------------------- loader ---
+   Two corners of an empty field: label and counter. At 100 the labels blink out
+   and the whole plate lifts like a curtain while the gated content rises behind it. */
+[data-od-loader] {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: clamp(16px, 2.6vw, 44px);
+  background: var(--od-bg, #0a0a0c);
+  color: var(--od-ink, #f4f1ea);
+  will-change: transform;
+}
+@media (min-width: 641px) {
+  [data-od-loader] { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+}
+html:not(.od-js) [data-od-loader] { display: none; }
+
+[data-od-loader-label] {
+  margin: 0 0 0.6em;
+  font-family: var(--od-font-body, system-ui, sans-serif);
+  font-size: clamp(12px, 0.9vw, 15px);
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+[data-od-loader-label] span { margin-left: 0.8em; color: var(--od-ink-subtle, #6b6862); font-weight: 400; }
+
+[data-od-loader-count] {
+  margin: 0;
+  font-family: var(--od-font-display, Georgia, serif);
+  font-weight: var(--od-weight-display, 300);
+  font-size: clamp(96px, 12vw, 230px);
+  line-height: 0.78;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+[data-od-loader-count] i { font-style: italic; color: var(--od-accent, #c9a227); margin-left: 0.04em; }
+
+[data-od-loader-label],
+[data-od-loader-count] { opacity: 1; transition: opacity 300ms linear; }
+[data-od-loader].od-done [data-od-loader-label],
+[data-od-loader].od-done [data-od-loader-count] { opacity: 0; }
+
+/* --------------------------------------------------------- reduced motion ---
+   Reduce, don't delete: keep the opacity so the page still resolves. */
+@media (prefers-reduced-motion: reduce) {
+  html.od-js [data-reveal="words"] .od-w,
+  html.od-js [data-reveal="fade"],
+  html.od-js [data-reveal="stagger"] > * {
+    filter: none !important;
+    transform: none !important;
+    transition: opacity 400ms linear !important;
+  }
+  html.od-js [data-reveal="letters"] .od-lt,
+  html.od-js [data-reveal="rule"] { transform: none !important; transition: none !important; }
+}

@@ -46,3 +46,16 @@ templates/*/node_modules/
 templates/*/.next/
 templates/*/dist/
 templates/*/.turbo/
+
+# Le pack de design, republie pour etre servi.
+#
+# `playground/public/instructive/` est une copie de `ODORO-Design-Pack/`
+# produite par `playground/scripts/instructive.mjs`. Versionner les deux
+# ferait entrer trois megaoctets en double dans le depot, et ouvrirait la
+# porte a ce qu ils divergent sans que rien ne le signale.
+playground/public/instructive/
+
+# Les versions des paquets, relevees dans leurs `package.json` par
+# `playground/scripts/versions.mjs` avant chaque `dev` et chaque `build`.
+# Les versionner ferait exister deux verites pour un meme numero.
+playground/src/docs/versions.generated.ts
