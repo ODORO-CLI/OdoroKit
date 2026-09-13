@@ -21,7 +21,7 @@ import { VariantGrid } from '../../components/PlaygroundBlock.jsx'
 const DEMO_ITEMS: readonly TabItem[] = [
   {
     id: 'apercu',
-    label: 'Apercu',
+    label: 'Aperçu',
     content: (
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
         Vue d'ensemble du projet : etat d'avancement, derniers changements et indicateurs
@@ -31,7 +31,7 @@ const DEMO_ITEMS: readonly TabItem[] = [
   },
   {
     id: 'reglages',
-    label: 'Reglages',
+    label: 'Réglages',
     content: (
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
         Nom du projet, visibilite, membres et permissions. Chaque changement est
@@ -44,7 +44,7 @@ const DEMO_ITEMS: readonly TabItem[] = [
     label: 'Facturation',
     content: (
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-        Section reservee au proprietaire du projet.
+        Section réservée au proprietaire du projet.
       </p>
     ),
     disabled: true,
@@ -58,19 +58,19 @@ function PanelText({ children }: { children: string }): ReactElement {
 
 /** Trois onglets textuels simples. */
 const SIMPLE_TABS: readonly TabItem[] = [
-  { id: 'apercu', label: 'Apercu', content: <PanelText>Vue d'ensemble.</PanelText> },
+  { id: 'apercu', label: 'Aperçu', content: <PanelText>Vue d'ensemble.</PanelText> },
   { id: 'code', label: 'Code', content: <PanelText>Extrait de code.</PanelText> },
   { id: 'export', label: 'Export', content: <PanelText>Formats proposes.</PanelText> },
 ]
 
 /** Trois onglets dont un desactive. */
 const DISABLED_TABS: readonly TabItem[] = [
-  { id: 'apercu', label: 'Apercu', content: <PanelText>Vue d'ensemble.</PanelText> },
+  { id: 'apercu', label: 'Aperçu', content: <PanelText>Vue d'ensemble.</PanelText> },
   { id: 'code', label: 'Code', content: <PanelText>Extrait de code.</PanelText> },
   {
     id: 'facturation',
     label: 'Facturation',
-    content: <PanelText>Section reservee.</PanelText>,
+    content: <PanelText>Section réservée.</PanelText>,
     disabled: true,
   },
 ]
@@ -78,7 +78,7 @@ const DISABLED_TABS: readonly TabItem[] = [
 /** Compteur affiche dans un libelle d'onglet. */
 function TabCount({ value }: { value: number }): ReactElement {
   return (
-    <span className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500 o-tabular-nums">
+    <span className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">
       {' '}
       {value}
     </span>
@@ -115,7 +115,7 @@ function ControlledDemo(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-gap-4 o-w-full o-max-w-md">
       <Tabs
-        label="Sections du projet (controle)"
+        label="Sections du projet (contrôle)"
         items={DEMO_ITEMS}
         value={active}
         onValueChange={setActive}
@@ -125,7 +125,7 @@ function ControlledDemo(): ReactElement {
           Onglet actif : <code className="o-font-mono o-text-xs">{active}</code>
         </span>
         <Button size="sm" tone="secondary" onClick={() => setActive('reglages')}>
-          Aller aux reglages
+          Aller aux réglages
         </Button>
       </div>
     </div>
@@ -143,7 +143,7 @@ export function TabsDoc(): ReactElement {
       />
 
       <Section
-        title="Apercu"
+        title="Aperçu"
         lead="Trois onglets dont un desactive. Cliquez, ou naviguez aux fleches une fois le focus pose sur un onglet."
       >
         <DemoBlock
@@ -152,8 +152,8 @@ export function TabsDoc(): ReactElement {
 <Tabs
   label="Sections du projet"
   items={[
-    { id: 'apercu', label: 'Apercu', content: <Overview /> },
-    { id: 'reglages', label: 'Reglages', content: <Settings /> },
+    { id: 'apercu', label: 'Aperçu', content: <Overview /> },
+    { id: 'reglages', label: 'Réglages', content: <Settings /> },
     { id: 'facturation', label: 'Facturation', content: <Billing />, disabled: true },
   ]}
 />`}
@@ -167,7 +167,7 @@ export function TabsDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Mode controle"
+        title="Mode contrôle"
         lead="Passez value et onValueChange pour piloter l'onglet actif depuis l'application — ici un bouton externe change d'onglet."
       >
         <DemoBlock
@@ -179,7 +179,7 @@ export function TabsDoc(): ReactElement {
   value={active}
   onValueChange={setActive}
 />
-<Button onClick={() => setActive('reglages')}>Aller aux reglages</Button>`}
+<Button onClick={() => setActive('reglages')}>Aller aux réglages</Button>`}
         >
           <ControlledDemo />
         </DemoBlock>
@@ -241,13 +241,13 @@ export function TabsDoc(): ReactElement {
             {
               name: 'value',
               type: 'string',
-              description: 'Onglet actif en mode controle.',
+              description: 'Onglet actif en mode contrôle.',
             },
             {
               name: 'defaultValue',
               type: 'string',
               defaultValue: 'le premier',
-              description: 'Onglet actif initial en mode non controle.',
+              description: 'Onglet actif initial en mode non contrôle.',
             },
             {
               name: 'onValueChange',
@@ -267,7 +267,7 @@ export function TabsDoc(): ReactElement {
           ]}
         />
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
+          Chaque entrée de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">TabItem</code> :
         </p>
         <PropsTable

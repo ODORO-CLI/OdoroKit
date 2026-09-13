@@ -148,8 +148,8 @@ export function PosterDemo({ fade }: { fade: number }): ReactElement {
     <div className="o-absolute o-inset-0 o-flex o-flex-col">
       <div className="o-relative o-flex-1 o-overflow-hidden">
         {/* Ce que le repli couvre : ici un degrade, ailleurs une scene. */}
-        <div className="o-absolute o-inset-0 o-bg-gradient-to-br o-from-brand-600 o-to-fuchsia-600 o-flex o-items-center o-justify-center o-text-white o-font-medium">
-          La scene
+        <div className="o-absolute o-inset-0 o-bg-gradient-to-br o-from-brand-700 o-to-brand-400 o-flex o-items-center o-justify-center o-text-white o-font-medium">
+          La scène
         </div>
 
         {poster.visible ? (
@@ -167,12 +167,12 @@ export function PosterDemo({ fade }: { fade: number }): ReactElement {
           Remettre en attente
         </button>
         <button type="button" className={bouton} onClick={() => setEtat('prete')}>
-          La scene est prete
+          La scène est prête
         </button>
         <button type="button" className={bouton} onClick={() => setEtat('refusee')}>
-          La scene est refusee
+          La scène est refusee
         </button>
-        <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+        <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
           visible : {String(poster.visible)}
         </span>
       </div>
@@ -379,7 +379,7 @@ export function MediaQueryDemo({ query }: { readonly query: string }): ReactElem
       </ul>
 
       <p className="o-text-xs o-opacity-70">
-        Redimensionnez la fenetre : la reponse ne bascule qu une fois, pas a
+        Redimensionnez la fenêtre : la réponse ne bascule qu’une fois, pas a
         chaque pixel.
       </p>
     </div>
@@ -486,8 +486,8 @@ export function IntervalClockDemo({
       </div>
 
       <p className="o-max-w-md o-text-center o-text-xs o-opacity-70">
-        Changez d onglet dix secondes, puis revenez : seul le minuteur a compte
-        pendant l absence. Le crochet, lui, a repris ou il en etait.
+        Changez d’onglet dix secondes, puis revenez : seul le minuteur a compte
+        pendant l’absence. Le crochet, lui, a repris ou il en etait.
       </p>
     </div>
   )
@@ -582,7 +582,7 @@ export function KeyboardListDemo({
 
       <p className="o-max-w-md o-text-center o-text-xs o-opacity-70">
         Une tabulation pour entrer, les fleches pour parcourir, Home et End pour
-        les bouts, Entree pour choisir — et une seule tabulation pour ressortir.
+        les bouts, Entrée pour choisir — et une seule tabulation pour ressortir.
       </p>
     </div>
   )

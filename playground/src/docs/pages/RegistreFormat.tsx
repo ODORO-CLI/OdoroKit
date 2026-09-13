@@ -40,25 +40,25 @@ export function RegistreFormat(): ReactElement {
       <PageHeader
         module="odoro/registry"
         title="Le registre"
-        lead="Les composants animes ne s'installent pas depuis npm : ils sont copies dans le projet, et deviennent du code que l'equipe possede."
+        lead="Les composants animes ne s'installent pas depuis npm : ils sont copies dans le projet, et deviennent du code que l'équipe possede."
       />
 
       <Section
-        title="Pourquoi copier plutot que dependre"
-        lead="Le choix a un cout — pas de mise a jour automatique — et une contrepartie qui le justifie."
+        title="Pourquoi copier plutôt que dependre"
+        lead="Le choix a un coût — pas de mise a jour automatique — et une contrepartie qui le justifie."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Un composant d animation est presque toujours retouche. Un degrade change, une
-          duree ne convient pas, un easing doit suivre la charte. Livre en dependance,
-          chacune de ces retouches passerait par une propriete de plus, jusqu a ce que le
+          Un composant d’animation est presque toujours retouche. Un dégradé change, une
+          durée ne convient pas, un easing doit suivre la charte. Livre en dependance,
+          chacune de ces retouches passerait par une propriété de plus, jusqu’à ce que le
           composant en ait trente et que personne ne sache plus laquelle fait quoi. Livre
           en source, la retouche est une ligne modifiee.
         </p>
       </Section>
 
       <Section
-        title="L arborescence"
-        lead="Le dossier est l'identifiant. Le meta.json repete le nom et la categorie, et la validation refuse tout ecart : un composant declare sous un autre nom serait introuvable a l'adresse ou tout le monde le cherche."
+        title="L’arborescence"
+        lead="Le dossier est l'identifiant. Le meta.json répète le nom et la categorie, et la validation refuse tout écart : un composant déclare sous un autre nom serait introuvable a l'adresse ou tout le monde le cherche."
       >
         <CodeBlock
           code={`registry/
@@ -117,55 +117,55 @@ export function RegistreFormat(): ReactElement {
               name: 'files[].target',
               type: 'string',
               description:
-                'Destination dans le projet, relative a l alias. Les chemins absolus et les remontees sont refuses.',
+                'Destination dans le projet, relative a l’alias. Les chemins absolus et les remontees sont refuses.',
             },
             {
               name: 'registryDependencies',
               type: 'string[]',
               defaultValue: '[]',
-              description: 'Autres entrees, sous la forme categorie/nom.',
+              description: 'Autres entrées, sous la forme categorie/nom.',
             },
             {
               name: 'perf.tier',
               type: "'light' | 'medium' | 'heavy'",
-              description: 'Niveau de cout.',
+              description: 'Niveau de coût.',
             },
             {
               name: 'perf.fallback',
               type: "'poster' | 'gradient' | 'static' | 'none'",
               defaultValue: '—',
-              description: 'Obligatoire des que le niveau est heavy.',
+              description: 'Obligatoire dès que le niveau est heavy.',
             },
           ]}
         />
 
         <Callout>
-          Les durees exposees en propriete sont <strong>toujours en millisecondes</strong>
-          . C est une regle du registre, pas une convention locale : une entree en
-          secondes et sa voisine en millisecondes produisent une erreur qu on ne voit qu a
-          l execution.
+          Les durées exposees en propriété sont <strong>toujours en millisecondes</strong>
+          . C’est une règle du registre, pas une convention locale : une entrée en
+          secondes et sa voisine en millisecondes produisent une erreur qu’on ne voit qu’a
+          l’execution.
         </Callout>
       </Section>
 
       <Section
         title="Ce que la validation refuse"
-        lead="Six cas, tous verifies avant publication. Les problemes sont rassembles avant d'echouer : sur quarante entrees, apres un changement de format, s'arreter au premier imposerait quarante allers-retours."
+        lead="Six cas, tous verifies avant publication. Les problèmes sont rassembles avant d'echouer : sur quarante entrées, après un changement de format, s'arrêter au premier imposerait quarante allers-retours."
       >
         <div className="o-flex o-flex-col o-gap-3">
           <Regle
             titre="Un meta.json mal forme"
             pourquoi="Le message cite le chemin du champ fautif, plutot que de dire « invalide » et laisser chercher."
-            message="hero/molten → perf.tier : Un composant employant une scene 3D est necessairement de cout eleve."
+            message="hero/molten → perf.tier : Un composant employant une scène 3D est necessairement de coût élève."
           />
           <Regle
-            titre="Un fichier declare qui n existe pas"
+            titre="Un fichier déclare qui n’existe pas"
             pourquoi="Le schema ne connait pas le disque. Cette verification est faite a la lecture."
-            message='text/casse : le fichier declare "absent.tsx" est introuvable.'
+            message='text/casse : le fichier déclare "absent.tsx" est introuvable.'
           />
           <Regle
             titre="Une dependance qui pointe dans le vide"
             pourquoi="Elle serait sinon decouverte par le premier utilisateur qui installe le composant, sur sa machine, au moment le moins opportun."
-            message="Entree introuvable : hooks/nulle-part, reclamee par text/casse"
+            message="Entrée introuvable : hooks/nulle-part, reclamee par text/casse"
           />
           <Regle
             titre="Un cycle"
@@ -177,30 +177,30 @@ export function RegistreFormat(): ReactElement {
             pourquoi="La CLI ecrit chez l utilisateur : un chemin non borne y serait une porte ouverte. Deux fichiers vers la meme destination, et le second effacerait le premier sans que rien ne le signale."
           />
           <Regle
-            titre="Une incoherence de cout"
+            titre="Une incoherence de coût"
             pourquoi="Un composant couteux sans repli ; un backend declare de deux facons differentes ; une scene 3D classee autrement que couteuse. La CLI et l arbitre de surfaces se fient a ces champs pour decider."
           />
         </div>
       </Section>
 
       <Section
-        title="Le meme schema aux deux bouts"
-        lead="Le schema vit du cote client, et non dans le paquet du registre."
+        title="Le même schema aux deux bouts"
+        lead="Le schema vit du côté client, et non dans le paquet du registre."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Ce n est pas arbitraire : le registre valide ce qu il produit avant de le
-          publier, mais le client valide ce qu il <strong>recoit</strong> — d un serveur
-          qu il ne controle pas, juste avant d ecrire des fichiers dans le projet de
-          quelqu un. C est la que la validation compte le plus.
+          Ce n’est pas arbitraire : le registre valide ce qu’il produit avant de le
+          publier, mais le client valide ce qu’il <strong>reçoit</strong> — d’un serveur
+          qu’il ne contrôle pas, juste avant d’écrire des fichiers dans le projet de
+          quelqu un. C’est la que la validation compte le plus.
         </p>
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
-            to="/docs/registre/cli"
+            to="/docs/registry/cli"
             className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             Les commandes
           </Link>{' '}
-          montrent le cote consommateur : installation, comparaison, diagnostic.
+          montrent le côté consommateur : installation, comparaison, diagnostic.
         </p>
       </Section>
     </>

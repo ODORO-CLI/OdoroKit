@@ -14,7 +14,7 @@ export function Routage() {
       <h1 className="o-text-2xl o-font-bold">Routage</h1>
 
       <section className="o-flex o-flex-col o-gap-2">
-        <h2 className="o-text-lg o-font-semibold">Parametre de route</h2>
+        <h2 className="o-text-lg o-font-semibold">Paramètre de route</h2>
         <p className="o-text-zinc-500 dark:o-text-zinc-400">
           Segment <code className="o-font-mono">:id</code> capture :{' '}
           <strong className="o-tabular-nums">{id}</strong>
@@ -29,7 +29,7 @@ export function Routage() {
       </section>
 
       <section className="o-flex o-flex-col o-gap-2">
-        <h2 className="o-text-lg o-font-semibold">Chaine de requete</h2>
+        <h2 className="o-text-lg o-font-semibold">Chaîne de requête</h2>
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">Page {page}</p>
         <div className="o-flex o-gap-2">
           <Button
@@ -37,7 +37,7 @@ export function Routage() {
             tone="secondary"
             onClick={() => setParams({ page: String(Math.max(1, page - 1)) })}
           >
-            Precedente
+            Précédente
           </Button>
           <Button size="sm" onClick={() => setParams({ page: String(page + 1) })}>
             Suivante

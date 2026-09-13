@@ -29,10 +29,10 @@ export function SeparatorDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Separator"
-        lead="Filet de separation horizontal ou vertical, avec libelle centre optionnel."
+        lead="Filet de séparation horizontal ou vertical, avec libelle centre optionnel."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -53,7 +53,7 @@ export function SeparatorDoc(): ReactElement {
                   </span>
                   <Separator orientation="vertical" />
                   <span className="o-self-center o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-                    Apres
+                    Après
                   </span>
                 </div>
               )
@@ -96,7 +96,7 @@ export function SeparatorDoc(): ReactElement {
                   <Button size="sm">Se connecter</Button>
                   <Separator label="ou" />
                   <Button tone="secondary" size="sm">
-                    Creer un compte
+                    Créer un compte
                   </Button>
                 </div>
               ),
@@ -110,7 +110,7 @@ export function SeparatorDoc(): ReactElement {
                   <Separator />
                   <span>Notifications</span>
                   <Separator />
-                  <span>Securite</span>
+                  <span>Sécurité</span>
                 </div>
               ),
             },
@@ -128,7 +128,7 @@ export function SeparatorDoc(): ReactElement {
       >
         <DemoBlock
           code={`<div className="o-flex o-items-stretch o-gap-4 o-h-10">
-  <Button tone="ghost" size="sm">Editer</Button>
+  <Button tone="ghost" size="sm">Éditer</Button>
   <Separator orientation="vertical" />
   <Button tone="ghost" size="sm">Dupliquer</Button>
   <Separator orientation="vertical" />
@@ -137,7 +137,7 @@ export function SeparatorDoc(): ReactElement {
         >
           <div className="o-flex o-items-stretch o-gap-4 o-h-10">
             <Button tone="ghost" size="sm">
-              Editer
+              Éditer
             </Button>
             <Separator orientation="vertical" />
             <Button tone="ghost" size="sm">
@@ -159,13 +159,13 @@ export function SeparatorDoc(): ReactElement {
           code={`<div className="o-flex o-flex-col o-items-stretch o-gap-3 o-w-64">
   <Button>Se connecter</Button>
   <Separator label="ou" />
-  <Button tone="secondary">Creer un compte</Button>
+  <Button tone="secondary">Créer un compte</Button>
 </div>`}
         >
           <div className="o-flex o-flex-col o-items-stretch o-gap-3 o-w-64">
             <Button>Se connecter</Button>
             <Separator label="ou" />
-            <Button tone="secondary">Creer un compte</Button>
+            <Button tone="secondary">Créer un compte</Button>
           </div>
         </DemoBlock>
       </Section>

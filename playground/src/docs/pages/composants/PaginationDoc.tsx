@@ -54,12 +54,12 @@ export function PaginationDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Pagination"
-        lead="Pagination a fenetre glissante : la premiere et la derniere page sont toujours presentes, une fenetre entoure la page courante, une ellipse marque chaque saut."
+        lead="Pagination a fenêtre glissante : la première et la dernière page sont toujours présentes, une fenêtre entoure la page courante, une ellipse marque chaque saut."
       />
 
       <Section
-        title="Apercu"
-        lead="Douze pages ; la page courante vit dans l'etat de l'application. siblingCount regle le nombre de pages affichees de chaque cote."
+        title="Aperçu"
+        lead="Douze pages ; la page courante vit dans l'état de l'application. siblingCount règle le nombre de pages affichees de chaque côté."
       >
         <PlaygroundBlock
           controls={[
@@ -86,23 +86,23 @@ const [page, setPage] = useState(6)
 />`}
           variants={[
             {
-              title: 'Fenetre minimale',
+              title: 'Fenêtre minimale',
               description: 'siblingCount 0, la page courante seule.',
               values: { siblingCount: 0 },
             },
             {
-              title: 'Fenetre large',
-              description: 'siblingCount 2, deux voisins de chaque cote.',
+              title: 'Fenêtre large',
+              description: 'siblingCount 2, deux voisins de chaque côté.',
               values: { siblingCount: 2 },
             },
             {
               title: 'Cinq pages',
-              description: 'Tout tient dans la fenetre, aucune ellipse.',
+              description: 'Tout tient dans la fenêtre, aucune ellipse.',
               node: <FewPagesDemo />,
             },
             {
               title: 'Cent vingt pages',
-              description: 'Une ellipse de chaque cote de la fenetre.',
+              description: 'Une ellipse de chaque côté de la fenêtre.',
               node: <ManyPagesDemo />,
             },
           ]}
@@ -117,7 +117,7 @@ const [page, setPage] = useState(6)
 
       <Section
         title="Peu de pages"
-        lead="Quand toutes les pages tiennent dans la fenetre, aucune ellipse n'apparait."
+        lead="Quand toutes les pages tiennent dans la fenêtre, aucune ellipse n'apparaît."
       >
         <DemoBlock
           code={`const [page, setPage] = useState(2)
@@ -130,7 +130,7 @@ const [page, setPage] = useState(6)
 
       <Section
         title="Grand nombre de pages"
-        lead="Au milieu d'une longue liste, une ellipse marque le saut de chaque cote de la fenetre."
+        lead="Au milieu d'une longue liste, une ellipse marque le saut de chaque côté de la fenêtre."
       >
         <DemoBlock
           code={`const [page, setPage] = useState(42)
@@ -164,7 +164,7 @@ const [page, setPage] = useState(6)
               type: 'number',
               defaultValue: '1',
               description:
-                'Nombre de pages affichees de chaque cote de la page courante.',
+                'Nombre de pages affichees de chaque côté de la page courante.',
             },
             {
               name: 'label',

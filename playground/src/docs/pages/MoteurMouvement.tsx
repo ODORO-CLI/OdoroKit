@@ -33,7 +33,7 @@ function Chip({
 
   return (
     <div className="o-flex o-flex-col o-gap-1">
-      <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+      <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
         {label}
       </span>
       <span
@@ -67,7 +67,7 @@ function PolitiqueDemo(): ReactElement {
           value={state.reduced ? 'reduit' : 'complet'}
           tone={state.reduced ? 'warn' : 'good'}
         />
-        <Chip label="qualite" value={state.quality} tone="neutral" />
+        <Chip label="qualité" value={state.quality} tone="neutral" />
         <Chip
           label="onglet"
           value={state.visible ? 'visible' : 'masque'}
@@ -96,19 +96,19 @@ function PolitiqueDemo(): ReactElement {
           onClick={() => motionPolicy.configure({ reducedMotion: 'force' })}
           className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-amber-200 dark:o-border-amber-800 o-bg-amber-50 dark:o-bg-amber-950 o-text-amber-600 dark:o-text-amber-400 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
-          Forcer le mouvement reduit
+          Forcer le mouvement réduit
         </button>
         <button
           type="button"
           onClick={() => motionPolicy.configure({ reducedMotion: 'respect' })}
           className="o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
-          Respecter le systeme
+          Respecter le système
         </button>
       </div>
 
-      <p className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
-        Ces reglages sont remis a leur valeur de depart quand vous quittez la page.
+      <p className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+        Ces réglages sont remis a leur valeur de départ quand vous quittez la page.
       </p>
     </div>
   )
@@ -125,8 +125,8 @@ export function MoteurMouvement(): ReactElement {
       />
 
       <Section
-        title="L etat courant"
-        lead="Un composant lit cet etat plutot que d'interroger la preference systeme lui-meme. Un seul lecteur de media query pour toute la page, et un seul endroit a corriger le jour ou la regle change."
+        title="L’état courant"
+        lead="Un composant lit cet état plutôt que d'interroger la préférence système lui-même. Un seul lecteur de media query pour toute la page, et un seul endroit a corriger le jour ou la règle change."
       >
         <PolitiqueDemo />
         <CodeBlock
@@ -141,23 +141,23 @@ function Fond(): ReactElement {
         />
       </Section>
 
-      <Section title="La regle qui ne se negocie pas">
+      <Section title="La règle qui ne se negocie pas">
         <Callout tone="warning">
-          Le mouvement reduit neutralise l <strong>animation</strong>, jamais l{' '}
-          <strong>etat final</strong>. Une revelation qui se contenterait de ne pas jouer
-          laisserait son texte invisible — ce n est pas un respect de la preference, c est
-          un bogue d accessibilite.
+          Le mouvement réduit neutralise l <strong>animation</strong>, jamais l{' '}
+          <strong>état final</strong>. Une révélation qui se contenterait de ne pas jouer
+          laisserait son texte invisible — ce n’est pas un respect de la préférence, c’est
+          un bogue d’accessibilite.
         </Callout>
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Un fond anime est le cas particulier : il n a pas d etat final a preserver,
-          puisqu il n apporte rien d autre que son mouvement. Il n est donc pas rendu du
+          Un fond anime est le cas particulier : il n’a pas d’état final a préserver,
+          puisqu il n’apporte rien d’autre que son mouvement. Il n’est donc pas rendu du
           tout, et le composant affiche son repli.
         </p>
       </Section>
 
       <Section
         title="La degradation automatique"
-        lead="En qualite auto, la politique surveille la cadence et change de palier d'elle-meme."
+        lead="En qualité auto, la politique surveille la cadence et change de palier d'elle-même."
       >
         <PropsTable
           rows={[
@@ -166,14 +166,14 @@ function Fond(): ReactElement {
               type: 'sous 45 im/s',
               defaultValue: 'apres 1 s',
               description:
-                'Assez court pour que l utilisateur ne subisse pas longtemps une page qui rame.',
+                'Assez court pour que l’utilisateur ne subisse pas longtemps une page qui rame.',
             },
             {
               name: 'remontee',
               type: 'au-dessus de 55 im/s',
               defaultValue: 'apres 4 s',
               description:
-                'Quatre fois plus long : une remontee trop prompte ferait osciller le rendu entre deux paliers, ce qui est plus penible qu un palier bas stable.',
+                'Quatre fois plus long : une remontee trop prompte ferait osciller le rendu entre deux paliers, ce qui est plus penible qu’un palier bas stable.',
             },
           ]}
         />
@@ -185,15 +185,15 @@ function Fond(): ReactElement {
           Un projet demande <code className="o-font-mono o-text-xs">auto</code>,{' '}
           <code className="o-font-mono o-text-xs">high</code> ou{' '}
           <code className="o-font-mono o-text-xs">low</code>. Le palier{' '}
-          <code className="o-font-mono o-text-xs">medium</code> n est pas demandable : il
-          n existe que comme resultat d une degradation. Le rendre exigible reviendrait a
+          <code className="o-font-mono o-text-xs">medium</code> n’est pas demandable : il
+          n’existe que comme résultat d’une degradation. Le rendre exigible reviendrait a
           laisser un projet se figer sur un palier intermediaire que la mesure aurait
           justement pu quitter.
         </Callout>
       </Section>
 
       <Section
-        title="Les reglages"
+        title="Les réglages"
         lead="Poses une fois, a la racine. Un composant les lit, il ne les impose pas."
       >
         <CodeBlock
@@ -206,8 +206,8 @@ function Fond(): ReactElement {
 </OdoroEngine>`}
         />
         <Callout tone="warning">
-          <code className="o-font-mono o-text-xs">ignore</code> passe outre la preference
-          systeme de l utilisateur. Cela n a de place que dans une demonstration — cette
+          <code className="o-font-mono o-text-xs">ignore</code> passe outre la préférence
+          système de l’utilisateur. Cela n’a de place que dans une démonstration — cette
           page, par exemple. Jamais en production.
         </Callout>
       </Section>

@@ -79,7 +79,7 @@ import { TableDoc } from './docs/pages/composants/TableDoc.jsx'
 function Introuvable(): ReactElement {
   return (
     <div className="o-flex o-flex-col o-items-center o-gap-4 o-py-24 o-text-center">
-      <p className="o-text-6xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400">
+      <p className="o-text-6xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-brand-700 dark:o-from-brand-500 o-to-brand-300 dark:o-to-brand-200">
         404
       </p>
       <p className="o-text-zinc-500 dark:o-text-zinc-400">Cette page n'existe pas.</p>
@@ -117,44 +117,44 @@ export function App(): ReactElement {
               <Route path="docs/installation" element={<Installation />} />
               <Route path="docs/templates" element={<Templates />} />
               <Route path="docs/styles" element={<StylesOverview />} />
-              <Route path="docs/styles/couleurs" element={<Couleurs />} />
-              <Route path="docs/styles/typographie" element={<Typographie />} />
+              <Route path="docs/styles/colors" element={<Couleurs />} />
+              <Route path="docs/styles/typography" element={<Typographie />} />
               <Route path="docs/styles/responsive" element={<Responsive />} />
               <Route path="docs/styles/fonts" element={<Fonts />} />
-              <Route path="docs/styles/utilitaires" element={<Utilitaires />} />
+              <Route path="docs/styles/utilities" element={<Utilitaires />} />
               <Route path="docs/motion" element={<MotionOverview />} />
               <Route path="docs/motion/presets" element={<MotionPresets />} />
-              <Route path="docs/motion/composants" element={<MotionComposants />} />
+              <Route path="docs/motion/components" element={<MotionComposants />} />
               <Route path="docs/motion/hooks" element={<MotionHooks />} />
               <Route path="docs/router" element={<RouterGuide />} />
-              <Route path="docs/moteur" element={<MoteurOverview />} />
-              <Route path="docs/moteur/boucle" element={<MoteurBoucle />} />
-              <Route path="docs/moteur/mouvement" element={<MoteurMouvement />} />
-              <Route path="docs/moteur/webgl" element={<MoteurWebgl />} />
-              <Route path="docs/moteur/diagnostic" element={<MoteurDiagnostic />} />
-              <Route path="docs/registre" element={<RegistreFormat />} />
-              <Route path="docs/registre/cli" element={<RegistreCli />} />
-              <Route path="docs/registre/contrat" element={<RegistreContrat />} />
-              <Route path="docs/registre/galerie" element={<RegistreGalerie />} />
-              <Route path="docs/icones" element={<IconesOverview />} />
+              <Route path="docs/engine" element={<MoteurOverview />} />
+              <Route path="docs/engine/loop" element={<MoteurBoucle />} />
+              <Route path="docs/engine/motion-policy" element={<MoteurMouvement />} />
+              <Route path="docs/engine/webgl" element={<MoteurWebgl />} />
+              <Route path="docs/engine/diagnostics" element={<MoteurDiagnostic />} />
+              <Route path="docs/registry" element={<RegistreFormat />} />
+              <Route path="docs/registry/cli" element={<RegistreCli />} />
+              <Route path="docs/registry/contract" element={<RegistreContrat />} />
+              <Route path="docs/registry/gallery" element={<RegistreGalerie />} />
+              <Route path="docs/icons" element={<IconesOverview />} />
               <Route
-                path="docs/icones/filaire"
+                path="docs/icons/outline"
                 lazy={() => import('./docs/pages/icones/filaire.jsx')}
               />
               <Route
-                path="docs/icones/compact"
+                path="docs/icons/compact"
                 lazy={() => import('./docs/pages/icones/compact.jsx')}
               />
               <Route
-                path="docs/icones/classique"
+                path="docs/icons/classic"
                 lazy={() => import('./docs/pages/icones/classique.jsx')}
               />
               <Route
-                path="docs/icones/etendu"
+                path="docs/icons/extended"
                 lazy={() => import('./docs/pages/icones/etendu.jsx')}
               />
               <Route
-                path="docs/icones/marques"
+                path="docs/icons/brands"
                 lazy={() => import('./docs/pages/icones/marques.jsx')}
               />
               <Route path="docs/backgrounds" element={<Backgrounds />} />
@@ -163,7 +163,7 @@ export function App(): ReactElement {
                 element={<RegistryEntryRoute category="background" />}
               />
               <Route
-                path="docs/heros/:name"
+                path="docs/heroes/:name"
                 element={<RegistryEntryRoute category="hero" />}
               />
               <Route
@@ -195,39 +195,39 @@ export function App(): ReactElement {
                 element={<RegistryEntryRoute category="hooks" />}
               />
               <Route path="docs/text" element={<TextAnimations />} />
-              <Route path="docs/motion/librairie" element={<MotionsLibrairie />} />
+              <Route path="docs/motion/library" element={<MotionsLibrairie />} />
               <Route path="docs/images" element={<Images />} />
               <Route path="docs/sections" element={<Sections />} />
-              <Route path="docs/registre/catalogue" element={<Catalogue />} />
-              <Route path="docs/composants/select-menu" element={<SelectMenuDoc />} />
-              <Route path="docs/composants/button" element={<ButtonDoc />} />
-              <Route path="docs/composants/input" element={<InputDoc />} />
-              <Route path="docs/composants/textarea" element={<TextareaDoc />} />
-              <Route path="docs/composants/select" element={<SelectDoc />} />
-              <Route path="docs/composants/checkbox" element={<CheckboxDoc />} />
-              <Route path="docs/composants/radio" element={<RadioDoc />} />
-              <Route path="docs/composants/switch" element={<SwitchDoc />} />
-              <Route path="docs/composants/slider" element={<SliderDoc />} />
-              <Route path="docs/composants/card" element={<CardDoc />} />
-              <Route path="docs/composants/badge" element={<BadgeDoc />} />
-              <Route path="docs/composants/avatar" element={<AvatarDoc />} />
-              <Route path="docs/composants/alert" element={<AlertDoc />} />
-              <Route path="docs/composants/separator" element={<SeparatorDoc />} />
-              <Route path="docs/composants/skeleton" element={<SkeletonDoc />} />
-              <Route path="docs/composants/spinner" element={<SpinnerDoc />} />
-              <Route path="docs/composants/progress" element={<ProgressDoc />} />
-              <Route path="docs/composants/kbd" element={<KbdDoc />} />
-              <Route path="docs/composants/tabs" element={<TabsDoc />} />
-              <Route path="docs/composants/accordion" element={<AccordionDoc />} />
-              <Route path="docs/composants/tooltip" element={<TooltipDoc />} />
-              <Route path="docs/composants/popover" element={<PopoverDoc />} />
-              <Route path="docs/composants/dropdown-menu" element={<DropdownMenuDoc />} />
-              <Route path="docs/composants/dialog" element={<DialogDoc />} />
-              <Route path="docs/composants/drawer" element={<DrawerDoc />} />
-              <Route path="docs/composants/toast" element={<ToastDoc />} />
-              <Route path="docs/composants/breadcrumb" element={<BreadcrumbDoc />} />
-              <Route path="docs/composants/pagination" element={<PaginationDoc />} />
-              <Route path="docs/composants/table" element={<TableDoc />} />
+              <Route path="docs/registry/catalog" element={<Catalogue />} />
+              <Route path="docs/components/select-menu" element={<SelectMenuDoc />} />
+              <Route path="docs/components/button" element={<ButtonDoc />} />
+              <Route path="docs/components/input" element={<InputDoc />} />
+              <Route path="docs/components/textarea" element={<TextareaDoc />} />
+              <Route path="docs/components/select" element={<SelectDoc />} />
+              <Route path="docs/components/checkbox" element={<CheckboxDoc />} />
+              <Route path="docs/components/radio" element={<RadioDoc />} />
+              <Route path="docs/components/switch" element={<SwitchDoc />} />
+              <Route path="docs/components/slider" element={<SliderDoc />} />
+              <Route path="docs/components/card" element={<CardDoc />} />
+              <Route path="docs/components/badge" element={<BadgeDoc />} />
+              <Route path="docs/components/avatar" element={<AvatarDoc />} />
+              <Route path="docs/components/alert" element={<AlertDoc />} />
+              <Route path="docs/components/separator" element={<SeparatorDoc />} />
+              <Route path="docs/components/skeleton" element={<SkeletonDoc />} />
+              <Route path="docs/components/spinner" element={<SpinnerDoc />} />
+              <Route path="docs/components/progress" element={<ProgressDoc />} />
+              <Route path="docs/components/kbd" element={<KbdDoc />} />
+              <Route path="docs/components/tabs" element={<TabsDoc />} />
+              <Route path="docs/components/accordion" element={<AccordionDoc />} />
+              <Route path="docs/components/tooltip" element={<TooltipDoc />} />
+              <Route path="docs/components/popover" element={<PopoverDoc />} />
+              <Route path="docs/components/dropdown-menu" element={<DropdownMenuDoc />} />
+              <Route path="docs/components/dialog" element={<DialogDoc />} />
+              <Route path="docs/components/drawer" element={<DrawerDoc />} />
+              <Route path="docs/components/toast" element={<ToastDoc />} />
+              <Route path="docs/components/breadcrumb" element={<BreadcrumbDoc />} />
+              <Route path="docs/components/pagination" element={<PaginationDoc />} />
+              <Route path="docs/components/table" element={<TableDoc />} />
               <Route path="*" element={<Introuvable />} />
             </Routes>
           </Shell>

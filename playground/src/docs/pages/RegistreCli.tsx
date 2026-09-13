@@ -54,7 +54,7 @@ odoro doctor                   # ce qui ne va pas`}</Terminal>
               type: 'url | dossier',
               defaultValue: 'celui du projet',
               description:
-                'Un dossier local n est pas un mode degrade : c est ainsi qu on developpe le registre, et qu un studio garde ses composants pour lui.',
+                'Un dossier local n’est pas un mode dégradé : c’est ainsi qu’on développe le registre, et qu’un studio garde ses composants pour lui.',
             },
             {
               name: '--yes',
@@ -74,7 +74,7 @@ odoro doctor                   # ce qui ne va pas`}</Terminal>
 
       <Section
         title="init"
-        lead="La commande lit le tsconfig.json pour en deduire le prefixe d'import. Les commentaires et les virgules finales que TypeScript autorise y sont geres — JSON.parse seul les refuse."
+        lead="La commande lit le tsconfig.json pour en deduire le préfixe d'import. Les commentaires et les virgules finales que TypeScript autorise y sont geres — JSON.parse seul les refuse."
       >
         <Terminal>{`$ odoro init
 odoro Alias trouve dans tsconfig.json : @/* vers src/.
@@ -84,16 +84,16 @@ odoro odoro.json ecrit.
   registre     https://registre.odoro.dev`}</Terminal>
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Quand aucun alias n est declare, la commande le dit et retombe sur un chemin nu.
-          La reponse est notee dans{' '}
-          <code className="o-font-mono o-text-sm">odoro.json</code> et n est plus jamais
+          Quand aucun alias n’est déclare, la commande le dit et retombe sur un chemin nu.
+          La réponse est notee dans{' '}
+          <code className="o-font-mono o-text-sm">odoro.json</code> et n’est plus jamais
           redemandee.
         </p>
       </Section>
 
       <Section
         title="add"
-        lead="Ce qui arrive sans avoir ete demande est annonce avant, pas decouvert apres coup dans le suivi de version."
+        lead="Ce qui arrive sans avoir ete demande est annonce avant, pas decouvert après coup dans le suivi de version."
       >
         <Terminal>{`$ odoro add molten
 odoro Dependances ajoutees : hooks/use-poster
@@ -107,38 +107,38 @@ odoro A installer ensuite : gsap three
 odoro 2 fichier(s) ecrit(s).`}</Terminal>
 
         <Callout>
-          Les chiffres de poids sont <strong>mesures</strong>, pas estimes : une scene
-          minimale compilee et compressee. Un backend n est compte qu une fois, meme
-          reclame par cinq composants — il n est charge qu une fois, et un avertissement
-          qu on apprend a ignorer ne sert plus a rien.
+          Les chiffres de poids sont <strong>mesures</strong>, pas estimes : une scène
+          minimale compilee et compressee. Un backend n’est compte qu’une fois, même
+          reclame par cinq composants — il n’est charge qu’une fois, et un avertissement
+          qu’on apprend a ignorer ne sert plus a rien.
         </Callout>
       </Section>
 
       <Section
-        title="L ecriture est transactionnelle"
-        lead="Une installation ecrit plusieurs fichiers. Si la troisieme echoue, une approche naive laisse un projet a moitie servi — et personne ne sait ce qui a ete touche."
+        title="L’écriture est transactionnelle"
+        lead="Une installation écrit plusieurs fichiers. Si la troisieme echoue, une approche naive laisse un projet a moitie servi — et personne ne sait ce qui a ete touche."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Les fichiers sont donc d abord ecrits <strong>a cote</strong> de leur
+          Les fichiers sont donc d’abord écrits <strong>a côté</strong> de leur
           destination, sous un nom temporaire ; rien d observable n a change a ce stade.
           Ils ne sont mis en place qu ensuite. Un echec avant la mise en place laisse le
           projet exactement dans l etat ou on l a trouve.
         </p>
         <Callout tone="warning">
-          La mise en place elle-meme n est pas atomique entre plusieurs fichiers — le
-          systeme n offre rien de tel. Les contenus precedents sont gardes et remis en
-          place, ce qui reste une reparation. Le compromis est nomme plutot que
+          La mise en place elle-même n’est pas atomique entre plusieurs fichiers — le
+          système n’offre rien de tel. Les contenus precedents sont gardes et remis en
+          place, ce qui reste une reparation. Le compromis est nomme plutôt que
           sous-entendu : la phase risquee, celle qui remplit le disque et rencontre les
-          permissions, est integralement couverte.
+          permissions, est intégralement couverte.
         </Callout>
       </Section>
 
       <Section
         title="diff, et les trois versions"
-        lead="Comparer le fichier local a celui du registre ne dit presque rien : s'ils different, on ne sait pas si c'est une retouche locale ou une evolution amont. Ce sont pourtant deux situations opposees."
+        lead="Comparer le fichier local a celui du registre ne dit presque rien : s'ils different, on ne sait pas si c'est une retouche locale ou une évolution amont. Ce sont pourtant deux situations opposees."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          L empreinte notee a l installation fournit le troisieme point de reference. Avec
+          L’empreinte notee a l’installation fournit le troisieme point de référence. Avec
           elle, les quatre cas se distinguent sans ambiguite.
         </p>
 
@@ -203,14 +203,14 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
         </div>
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Le dernier cas est le seul qui demande une decision humaine, et c est exactement
-          celui qu une comparaison a deux termes aurait noye dans les autres.
+          Le dernier cas est le seul qui demande une decision humaine, et c’est exactement
+          celui qu’une comparaison a deux termes aurait noye dans les autres.
         </p>
       </Section>
 
       <Section
         title="doctor"
-        lead="Ce qui empeche le projet de fonctionner, separe de ce qui merite seulement d'etre su."
+        lead="Ce qui empeche le projet de fonctionner, sépare de ce qui merite seulement d'être su."
       >
         <Terminal>{`$ odoro doctor
 
@@ -222,14 +222,14 @@ odoro 2 fichier(s) ecrit(s).`}</Terminal>
 odoro 1 probleme(s).`}</Terminal>
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Une retouche locale n est pas un probleme — c est la raison d etre de la copie.
-          Elle est signalee parce qu une reinstallation l effacerait.
+          Une retouche locale n’est pas un problème — c’est la raison d’être de la copie.
+          Elle est signalee parce qu’une reinstallation l’effacerait.
         </p>
       </Section>
 
       <Section
         title="Le jeton @registre"
-        lead="Un composant qui importe son voisin ne peut pas ecrire le chemin en dur : la destination depend du projet d'accueil."
+        lead="Un composant qui importe son voisin ne peut pas écrire le chemin en dur : la destination depend du projet d'accueil."
       >
         <CodeBlock
           code={`// Dans les sources du registre :
@@ -239,22 +239,22 @@ import { usePoster } from '@registre/hooks/usePoster'
 import { usePoster } from '@/odoro/hooks/usePoster'`}
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Le jeton ne resout nulle part, ce qui est voulu : un composant qui l aurait
-          garde par accident echoue a la compilation au lieu d aller chercher sur npm.
+          Le jeton ne résout nulle part, ce qui est voulu : un composant qui l’aurait
+          garde par accident echoue a la compilation au lieu d’aller chercher sur npm.
           Tout le reste est laisse intact —{' '}
           <code className="o-font-mono o-text-sm">odoro-engine</code>,{' '}
           <code className="o-font-mono o-text-sm">react</code>,{' '}
           <code className="o-font-mono o-text-sm">gsap</code> sont de vrais paquets : ils
-          s installent, ils ne se copient pas.
+          s’installent, ils ne se copient pas.
         </p>
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
-            to="/docs/registre"
+            to="/docs/registry"
             className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             Le format
           </Link>{' '}
-          decrit le cote producteur : arborescence, meta.json, validation.
+          décrit le côté producteur : arborescence, meta.json, validation.
         </p>
       </Section>
     </>

@@ -96,7 +96,7 @@ function Hero({
         </h3>
         {density === 'complet' ? (
           <p className="o-text-sm o-opacity-80 o-text-pretty">
-            Un fond se juge a ce qu il laisse passer, pas a ce qu il montre seul.
+            Un fond se juge a ce qu’il laisse passer, pas a ce qu’il montre seul.
           </p>
         ) : null}
         <div className="o-flex o-gap-2 o-pt-1">
@@ -243,16 +243,16 @@ function Article(): ReactElement {
         Journal — 12 mars
       </span>
       <h3 className="o-max-w-md o-text-xl o-font-bold o-tracking-tight o-text-balance">
-        Le fond n est pas une illustration, c est une surface de travail
+        Le fond n’est pas une illustration, c’est une surface de travail
       </h3>
       <p className="o-max-w-md o-text-sm o-leading-relaxed o-opacity-80 o-text-pretty">
-        Un paragraphe entier est le juge le plus severe : la moindre zone de
-        contraste insuffisant s y voit immediatement, la ou un titre isole
+        Un paragraphe entier est le juge le plus sévère : la moindre zone de
+        contraste insuffisant s’y voit immediatement, là où un titre isole
         pardonne tout.
       </p>
       <p className="o-max-w-md o-text-sm o-leading-relaxed o-opacity-60 o-text-pretty max-sm:o-hidden">
-        Si ces lignes se lisent sans effort d un bout a l autre du cadre, le
-        fond tient son role.
+        Si ces lignes se lisent sans effort d’un bout a l’autre du cadre, le
+        fond tient son rôle.
       </p>
     </div>
   )

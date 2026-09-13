@@ -328,6 +328,7 @@ export function Porte({
   marque,
   sombre = true,
   pret: pretExterne = true,
+  rideau: rideauPropre,
   children,
 }: {
   readonly forme: 'compteur' | 'iris' | 'trou' | 'lettres' | 'zoom'
@@ -336,6 +337,15 @@ export function Porte({
   readonly sombre?: boolean
   /** Ce qu on attend vraiment — la premiere image d une scene, par exemple. */
   readonly pret?: boolean
+  /**
+   * Un rideau ecrit par la page, a la place des cinq formes.
+   *
+   * Les cinq formes couvrent les vitrines ; la page d accueil a le sien, dessine
+   * pour elle. Elle le passe ici plutot que d ouvrir une sixieme forme dans la
+   * trousse, qui ne servirait qu a elle. Ce qu elle recoit est la fonction a
+   * appeler quand le rideau part : c est elle qui libere la revelation gardee.
+   */
+  readonly rideau?: (surFin: () => void) => ReactNode
   readonly children: ReactNode
 }): ReactElement {
   const [ouvert, setOuvert] = useState(false)
@@ -353,6 +363,15 @@ export function Porte({
       {marque}
     </span>
   )
+
+  if (rideauPropre !== undefined) {
+    return (
+      <PretContexte.Provider value={ouvert}>
+        {rideauPropre(finir)}
+        {children}
+      </PretContexte.Provider>
+    )
+  }
 
   let rideau: ReactElement
   switch (forme) {
@@ -472,8 +491,14 @@ export function TitreVague({
 
 /* ============================ Les barres =============================== */
 
-/** Hauteur des barres de la documentation au-dessus d une vitrine, en pixels. */
-export const CHROME = 101
+/**
+ * Hauteur des barres de la documentation au-dessus d une vitrine, en pixels.
+ *
+ * Quatre-vingts pour la barre du site (`HEADER_OFFSET`, cinq rem) et
+ * trente-sept pour le bandeau de retour. Tout ce qui colle sous ces deux-la
+ * part d ici : une barre collee a zero passerait dessous et disparaitrait.
+ */
+export const CHROME = 117
 
 /** Un lien de barre. */
 export type Lien = readonly [href: string, mot: string]

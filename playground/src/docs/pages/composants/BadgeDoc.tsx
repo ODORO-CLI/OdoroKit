@@ -46,7 +46,7 @@ export function BadgeDoc(): ReactElement {
         lead="Pastille de statut ou d'etiquetage, en sept registres de couleur et trois rendus."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -88,7 +88,7 @@ export function BadgeDoc(): ReactElement {
           }
           variants={[
             {
-              title: 'Succes solide',
+              title: 'Succès solide',
               description: 'Couleur pleine du ton success.',
               values: { tone: 'success', variant: 'solid', text: 'Publie' },
             },
@@ -136,7 +136,7 @@ export function BadgeDoc(): ReactElement {
 
       <Section
         title="Registres de couleur"
-        lead="Le ton neutral s'appuie sur les gris de surface ; les six autres reprennent les couleurs semantiques du theme."
+        lead="Le ton neutral s'appuie sur les gris de surface ; les six autres reprennent les couleurs semantiques du thème."
       >
         <DemoBlock
           code={`<Badge tone="neutral">neutral</Badge>

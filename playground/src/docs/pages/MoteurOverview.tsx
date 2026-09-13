@@ -36,7 +36,7 @@ function Side({
       <ul className="o-flex o-flex-col o-gap-1.5 o-text-sm">
         {items.map((item) => (
           <li key={item} className="o-flex o-gap-2">
-            <span className="o-text-zinc-400 dark:o-text-zinc-500">—</span>
+            <span className="o-text-zinc-500 dark:o-text-zinc-400">—</span>
             <span className="o-text-zinc-500 dark:o-text-zinc-400">{item}</span>
           </li>
         ))}
@@ -52,18 +52,18 @@ export function MoteurOverview(): ReactElement {
       <PageHeader
         module="@odoro-cli/engine"
         title="Le moteur"
-        lead="Une couche separee pour ce qui travaille a chaque image : defilement, pointeur, WebGL. Le reste appartient a la librairie."
+        lead="Une couche séparée pour ce qui travaille a chaque image : défilement, pointeur, WebGL. Le reste appartient a la librairie."
       />
 
       <Section
         title="Qui possede la frame"
-        lead="Le critere n'est pas « leger contre lourd », qui laisse hesiter a chaque composant. Il tient en une question : ce composant doit-il faire quelque chose a chaque image ?"
+        lead="Le critère n'est pas « léger contre lourd », qui laisse hesiter a chaque composant. Il tient en une question : ce composant doit-il faire quelque chose a chaque image ?"
       >
         <div className="o-grid o-grid-cols-1 md:o-grid-cols-2 o-gap-4">
           <Side
             tone="libs"
             title="@odoro-cli/libs/motion"
-            lead="Non. L'animation est decrite une fois, puis confiee au compositeur du navigateur. Aucun JavaScript ne s'execute par image."
+            lead="Non. L'animation est décrite une fois, puis confiee au compositeur du navigateur. Aucun JavaScript ne s'execute par image."
             items={[
               'une revelation au defilement',
               'une transition de presence',
@@ -85,15 +85,15 @@ export function MoteurOverview(): ReactElement {
         </div>
 
         <Callout>
-          Un defilement horizontal pilote par le scroll <strong>ne peut pas</strong> etre
-          fait dans la librairie. Une revelation au scroll <strong>ne doit pas</strong>{' '}
-          etre faite dans le moteur. Entre les deux, la question tranche seule.
+          Un défilement horizontal pilote par le scroll <strong>ne peut pas</strong> être
+          fait dans la librairie. Une révélation au scroll <strong>ne doit pas</strong>{' '}
+          être faite dans le moteur. Entre les deux, la question tranche seule.
         </Callout>
       </Section>
 
       <Section
         title="Une seule boucle"
-        lead="Chaque bibliotheque d'animation apporte sa propre boucle, et trois boucles concurrentes rendent le profilage illisible : on ne sait plus laquelle depasse son budget. Le moteur n'en expose qu'une, et tout s'y abonne."
+        lead="Chaque bibliothèque d'animation apporte sa propre boucle, et trois boucles concurrentes rendent le profilage illisible : on ne sait plus laquelle depasse son budget. Le moteur n'en expose qu'une, et tout s'y abonne."
       >
         <CodeBlock
           code={`import { OdoroEngine } from '@odoro-cli/engine'
@@ -106,38 +106,38 @@ createRoot(document.getElementById('root')!).render(
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           <Link
-            to="/docs/moteur/boucle"
+            to="/docs/engine/loop"
             className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline"
           >
             La boucle
           </Link>{' '}
-          detaille les priorites et la difference entre le delta lisse et le delta mesure.
+          détaillé les priorites et la difference entre le delta lisse et le delta mesure.
         </p>
       </Section>
 
       <Section
         title="Ce que le moteur refuse de faire"
-        lead="Trois garde-fous, tous pour la meme raison : un composant d'animation qui degrade la page est pire que pas de composant du tout."
+        lead="Trois garde-fous, tous pour la même raison : un composant d'animation qui dégradé la page est pire que pas de composant du tout."
       >
         <div className="o-flex o-flex-col o-gap-3">
           {[
             {
-              titre: 'Il neutralise le mouvement, jamais l etat final',
+              titre: 'Il neutralise le mouvement, jamais l’état final',
               texte:
-                'Sous mouvement reduit, une animation ne joue pas — mais ce qu elle devait reveler est visible. Une revelation neutralisee qui laisse le texte invisible est un bogue d accessibilite, pas un respect de la preference.',
-              vers: '/docs/moteur/mouvement',
+                'Sous mouvement réduit, une animation ne joue pas — mais ce qu’elle devait reveler est visible. Une révélation neutralisee qui laisse le texte invisible est un bogue d’accessibilite, pas un respect de la préférence.',
+              vers: '/docs/engine/motion-policy',
             },
             {
               titre: 'Il compte les contextes graphiques',
               texte:
-                'Passe une limite, le navigateur perd silencieusement le plus ancien contexte WebGL. Un arbitre les distribue et refuse explicitement plutot que de laisser un canevas devenir noir sans raison apparente.',
-              vers: '/docs/moteur/webgl',
+                'Passe une limite, le navigateur perd silencieusement le plus ancien contexte WebGL. Un arbitre les distribue et refuse explicitement plutôt que de laisser un canevas devenir noir sans raison apparente.',
+              vers: '/docs/engine/webgl',
             },
             {
-              titre: 'Il rend compte de ce qu il tient',
+              titre: 'Il rend compte de ce qu’il tient',
               texte:
-                'Chaque abonne a la boucle et chaque ressource graphique est enregistre. Ce qui n est pas libere se voit, au lieu de se deviner dans un profil memoire.',
-              vers: '/docs/moteur/diagnostic',
+                'Chaque abonne a la boucle et chaque ressource graphique est enregistre. Ce qui n’est pas libère se voit, au lieu de se deviner dans un profil mémoire.',
+              vers: '/docs/engine/diagnostics',
             },
           ].map((item) => (
             <Link
@@ -156,7 +156,7 @@ createRoot(document.getElementById('root')!).render(
 
       <Section
         title="Les tokens ne sont pas redefinis"
-        lead="Le moteur reprend les durees et les courbes d'odoro-libs. Une seule source de verite : un projet qui change sa courbe d'entree la change partout, y compris dans ce qui tourne a soixante images par seconde."
+        lead="Le moteur reprend les durées et les courbes d'odoro-libs. Une seule source de verite : un projet qui change sa courbe d'entrée la change partout, y compris dans ce qui tourne a soixante images par seconde."
       />
     </>
   )

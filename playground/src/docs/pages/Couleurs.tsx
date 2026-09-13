@@ -81,39 +81,39 @@ export function Couleurs(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/styles"
         title="Couleurs"
-        lead="Une seule couche : 290 nuances OKLCH, designees par leur place dans l'echelle. Aucun nom de role."
+        lead="Une seule couche : 290 nuances OKLCH, designees par leur place dans l'échelle. Aucun nom de rôle."
       />
 
       <Section
-        title="Il n y a pas de couche semantique"
-        lead="Ni primary, ni surface, ni danger. Une couleur se designe par sa place dans l'echelle — zinc-900, brand-600 — et le theme se dit explicitement sur chaque classe."
+        title="Il n’y a pas de couche semantique"
+        lead="Ni primary, ni surface, ni danger. Une couleur se designe par sa place dans l'échelle — zinc-900, brand-600 — et le thème se dit explicitement sur chaque classe."
       >
         <CodeBlock
           lang="tsx"
           code={`// Le theme est ecrit, pas devine.
 <div className="o-bg-white dark:o-bg-zinc-900 o-text-zinc-900 dark:o-text-zinc-50" />
 
-// Les etats se croisent avec le theme.
+// Les états se croisent avec le thème.
 <button className="o-bg-zinc-100 hover:o-bg-zinc-200 dark:o-bg-zinc-800 dark:hover:o-bg-zinc-700" />`}
         />
 
         <Callout>
-          C est plus verbeux, et c est la contrepartie assumee : on voit la couleur qu on
-          ecrit. Un nom de role cache la teinte derriere une intention, et il faut ouvrir
-          la table des tokens pour savoir ce qui s affichera.
+          C’est plus verbeux, et c’est la contrepartie assumee : on voit la couleur qu’on
+          écrit. Un nom de rôle cache la teinte derrière une intention, et il faut ouvrir
+          la table des tokens pour savoir ce qui s’affichera.
         </Callout>
 
         <Callout tone="warning">
           La consequence est reelle et se mesure : la feuille de base est passee de{' '}
           <strong>41,8 a 52,5 Ko</strong> compresses, parce que chaque couleur a desormais
-          besoin de ses variantes croisees avec le theme. Le prix du choix est la.
+          besoin de ses variantes croisees avec le thème. Le prix du choix est la.
         </Callout>
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Le fond de page, la couleur du texte courant et celle des liens n ont pas d
-          element a habiller : elles restent posees une fois pour toutes dans le
-          preflight, en clair et en sombre. C est le seul endroit du systeme ou une
-          couleur est ecrite sans qu une classe la demande.
+          Le fond de page, la couleur du texte courant et celle des liens n’ont pas d
+          élément a habiller : elles restent posees une fois pour toutes dans le
+          preflight, en clair et en sombre. C’est le seul endroit du système ou une
+          couleur est écrite sans qu’une classe la demande.
         </p>
       </Section>
 
@@ -128,7 +128,7 @@ export function Couleurs(): ReactElement {
               {SHADES.map((shade) => (
                 <span
                   key={shade}
-                  className="o-flex-1 o-text-center o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500"
+                  className="o-flex-1 o-text-center o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
                 >
                   {shade}
                 </span>
@@ -152,7 +152,7 @@ export function Couleurs(): ReactElement {
 
       <Section
         title="Utiliser la palette"
-        lead="La feuille de base porte sept teintes : une echelle neutre, la marque, et les quatre intentions qu'une interface exprime sans y penser. Les 290 nuances vivent dans la feuille complete ; les variables CSS, elles, sont toujours la."
+        lead="La feuille de base porte sept teintes : une échelle neutre, la marque, et les quatre intentions qu'une interface exprime sans y penser. Les 290 nuances vivent dans la feuille complète ; les variables CSS, elles, sont toujours la."
       >
         <CodeBlock
           lang="tsx"
@@ -162,7 +162,7 @@ export function Couleurs(): ReactElement {
 // Feuille complete (styles.full.css) : les 290 nuances
 <div className="o-bg-teal-500 o-text-white o-rounded-lg o-p-4" />
 
-// Toujours disponible, meme avec la feuille de base : la variable CSS
+// Toujours disponible, même avec la feuille de base : la variable CSS
 <div style={{ backgroundColor: 'var(--o-palette-sky-500)' }} />
 
 // Et en JavaScript, la valeur brute

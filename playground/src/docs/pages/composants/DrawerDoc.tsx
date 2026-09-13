@@ -66,7 +66,7 @@ function MainDemo(): ReactElement {
         onClose={() => setOpen(false)}
         side={side}
         size={size}
-        title="Details du projet"
+        title="Détails du projet"
         description="Le panneau glisse depuis le bord choisi."
       >
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
@@ -132,7 +132,7 @@ function SideDemo({ side, label }: { side: DrawerSide; label: string }): ReactEl
         onClose={() => setOpen(false)}
         side={side}
         size="sm"
-        title="Details du projet"
+        title="Détails du projet"
         description={`Le panneau glisse depuis le bord ${side}.`}
       >
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
@@ -150,11 +150,11 @@ export function DrawerDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Drawer"
-        lead="Panneau lateral modal, meme fondation que Dialog : le <dialog> natif fournit piegeage du focus, Echap, inertie et couche superieure. Seule change la geometrie — le panneau est cale a un bord et glisse depuis celui-ci."
+        lead="Panneau lateral modal, même fondation que Dialog : le <dialog> natif fournit piegeage du focus, Echap, inertie et couche supérieure. Seule change la géométrie — le panneau est cale a un bord et glisse depuis celui-ci."
       />
 
       <Section
-        title="Apercu"
+        title="Aperçu"
         lead="Choisissez le bord et la taille, puis ouvrez le panneau."
       >
         <DemoBlock
@@ -168,7 +168,7 @@ const [open, setOpen] = useState(false)
   onClose={() => setOpen(false)}
   side="right"
   size="md"
-  title="Details du projet"
+  title="Détails du projet"
   description="Le panneau glisse depuis le bord choisi."
 >
   ...
@@ -219,12 +219,12 @@ const [open, setOpen] = useState(false)
           variants={[
             {
               title: 'Depuis la droite',
-              description: 'Le bord par defaut.',
-              node: <SideDemo side="right" label="Ouvrir a droite" />,
+              description: 'Le bord par défaut.',
+              node: <SideDemo side="right" label="Ouvrir à droite" />,
             },
             {
               title: 'Depuis la gauche',
-              node: <SideDemo side="left" label="Ouvrir a gauche" />,
+              node: <SideDemo side="left" label="Ouvrir à gauche" />,
             },
             {
               title: 'Depuis le bas',
@@ -246,7 +246,7 @@ const [open, setOpen] = useState(false)
             {
               name: 'open',
               type: 'boolean',
-              description: "Etat d'ouverture, pilote par l'application.",
+              description: "État d'ouverture, pilote par l'application.",
             },
             {
               name: 'onClose',
@@ -262,7 +262,7 @@ const [open, setOpen] = useState(false)
             {
               name: 'description',
               type: 'ReactNode',
-              description: 'Description facultative, annoncee apres le titre.',
+              description: 'Description facultative, annoncee après le titre.',
             },
             {
               name: 'children',
@@ -285,7 +285,7 @@ const [open, setOpen] = useState(false)
               type: "'sm' | 'md' | 'lg'",
               defaultValue: "'md'",
               description:
-                'Largeur maximale pour les cotes lateraux. Sans effet pour bottom, dont la hauteur suit le contenu.',
+                'Largeur maximale pour les côtés lateraux. Sans effet pour bottom, dont la hauteur suit le contenu.',
             },
             {
               name: 'closeOnBackdrop',
@@ -296,12 +296,12 @@ const [open, setOpen] = useState(false)
             {
               name: 'className',
               type: 'string',
-              description: "Classes additionnelles appliquees a l'element <dialog>.",
+              description: "Classes additionnelles appliquees a l'élément <dialog>.",
             },
             {
               name: '...rest',
               type: 'HTMLAttributes<HTMLDialogElement>',
-              description: "Attributs natifs transmis a l'element <dialog>.",
+              description: "Attributs natifs transmis a l'élément <dialog>.",
             },
           ]}
         />

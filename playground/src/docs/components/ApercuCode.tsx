@@ -134,7 +134,7 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
       .catch((cause: unknown) => {
         setEtat({
           phase: 'echec',
-          raison: cause instanceof Error ? cause.message : 'telechargement impossible',
+          raison: cause instanceof Error ? cause.message : 'téléchargement impossible',
         })
       })
   }
@@ -143,7 +143,7 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
     <div>
       <div
         role="tablist"
-        aria-label="Apercu ou code"
+        aria-label="Aperçu ou code"
         className="o-mb-4 o-inline-flex o-gap-1 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-1"
       >
         <Onglet
@@ -152,7 +152,7 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
             setVue('apercu')
           }}
         >
-          Apercu
+          Aperçu
         </Onglet>
         <Onglet actif={vue === 'code'} onClick={montrerCode}>
           Code
@@ -165,15 +165,15 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
       <div hidden={vue !== 'code'}>
         {etat.phase === 'chargement' && (
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Telechargement du source…
+            Téléchargement du source…
           </p>
         )}
 
         {etat.phase === 'echec' && (
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             Le source n a pas pu etre lu ({etat.raison}). La commande{' '}
-            <code className="o-font-mono">odoro add</code> l ecrira quand meme : elle
-            lit le meme registre.
+            <code className="o-font-mono">odoro add</code> l’ecrira quand même : elle
+            lit le même registre.
           </p>
         )}
 

@@ -26,12 +26,12 @@ export function Responsive(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/styles"
         title="Responsive"
-        lead="Cinq points de rupture, exprimes en rem pour suivre la taille de police de l'utilisateur. Chaque utilitaire existe en variant d'ecran : sm: a 2xl: vers le haut, max-sm: a max-lg: vers le bas."
+        lead="Cinq points de rupture, exprimes en rem pour suivre la taille de police de l'utilisateur. Chaque utilitaire existe en variant d'écran : sm: a 2xl: vers le haut, max-sm: a max-lg: vers le bas."
       />
 
       <Section
         title="Points de rupture"
-        lead="Un variant sm: s'applique a partir de 40rem de large, et ainsi de suite : les seuils sont des bornes basses."
+        lead="Un variant sm: s'applique à partir de 40rem de large, et ainsi de suite : les seuils sont des bornes basses."
       >
         <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
@@ -53,7 +53,7 @@ export function Responsive(): ReactElement {
                   scope="col"
                   className="o-px-4 o-py-2 o-font-medium o-text-zinc-500 dark:o-text-zinc-400"
                 >
-                  Equivalent
+                  Équivalent
                 </th>
                 <th
                   scope="col"
@@ -90,7 +90,7 @@ export function Responsive(): ReactElement {
 
       <Section
         title="Mobile-first"
-        lead="Une classe sans prefixe s'applique partout ; un variant d'ecran ne fait qu'ajuster a partir de son seuil. On decrit d'abord le mobile, puis on elargit."
+        lead="Une classe sans préfixe s'applique partout ; un variant d'écran ne fait qu'ajuster à partir de son seuil. On décrit d'abord le mobile, puis on élargit."
       >
         <CodeBlock
           lang="tsx"
@@ -101,7 +101,7 @@ export function Responsive(): ReactElement {
           Les variants <code className="o-font-mono o-text-sm">max-sm:</code>,{' '}
           <code className="o-font-mono o-text-sm">max-md:</code> et{' '}
           <code className="o-font-mono o-text-sm">max-lg:</code> visent la direction
-          inverse : cibler les petits ecrans sans avoir a annuler la regle ensuite.{' '}
+          inverse : cibler les petits écrans sans avoir a annuler la règle ensuite.{' '}
           <code className="o-font-mono o-text-sm">max-md:o-hidden</code> cache sous 48rem
           — plus direct que poser <code className="o-font-mono o-text-sm">o-hidden</code>{' '}
           puis le contredire avec{' '}
@@ -111,7 +111,7 @@ export function Responsive(): ReactElement {
 
       <Section
         title="En pratique"
-        lead="Redimensionnez la fenetre : la grille passe de une a deux puis quatre colonnes."
+        lead="Redimensionnez la fenêtre : la grille passe de une a deux puis quatre colonnes."
       >
         <DemoBlock
           center={false}
@@ -135,7 +135,7 @@ export function Responsive(): ReactElement {
 
       <Section
         title="Montrer, cacher"
-        lead="Les deux messages ci-dessous sont complementaires : un seul est visible a la fois, selon la largeur."
+        lead="Les deux messages ci-dessous sont complementaires : un seul est visible à la fois, selon la largeur."
       >
         <DemoBlock
           center={false}
@@ -147,7 +147,7 @@ export function Responsive(): ReactElement {
               Visible a partir de md (48rem) — vous etes sur un ecran large.
             </p>
             <p className="md:o-hidden o-rounded-md o-bg-sky-50 dark:o-bg-sky-950 o-border-w-1 o-border-sky-200 dark:o-border-sky-800 o-px-3 o-py-2">
-              Visible sous md seulement — vous etes sur un ecran etroit.
+              Visible sous md seulement — vous êtes sur un écran étroit.
             </p>
           </div>
         </DemoBlock>
@@ -155,7 +155,7 @@ export function Responsive(): ReactElement {
 
       <Section
         title="Combiner les variants"
-        lead="Les variants d'etat, de theme et d'ecran s'empilent sur la meme classe."
+        lead="Les variants d'état, de thème et d'écran s'empilent sur la même classe."
       >
         <CodeBlock
           lang="tsx"

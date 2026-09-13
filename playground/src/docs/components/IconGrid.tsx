@@ -1,17 +1,17 @@
 /**
  * La grille de recherche d'un jeu d'icones.
  *
- * ## Pourquoi la liste est bornee
+ * ## Pourquoi la liste se charge par paliers
  *
  * Le jeu le plus vaste compte pres de quatre mille icones. Les poser toutes
  * dans le document, c'est quatre mille SVG et une page qui met plusieurs
- * secondes a repondre au premier caractere tape — alors que personne ne
- * parcourt quatre mille icones a l'oeil.
+ * secondes a repondre au premier caractere tape.
  *
- * On en affiche donc un nombre fixe, et on annonce combien il y en a en tout.
- * C'est plus honnete qu'un defilement virtuel : celui-ci donne l'illusion
- * qu'on peut tout voir, alors que la recherche est le seul moyen praticable
- * d'arriver a une icone precise.
+ * On en pose donc deux cents, puis deux cents de plus chaque fois que le bas
+ * de la liste entre dans le champ — jusqu'au bout si l'on continue. Le premier
+ * rendu reste immediat, et rien n'est hors d'atteinte : c'etait le defaut de
+ * la borne fixe, qui annoncait quatre mille icones et n'en montrait jamais que
+ * les premieres.
  *
  * ## Le nom est ce qu'on vient chercher
  *
@@ -25,7 +25,15 @@
 
 import { cx } from '@odoro-cli/libs'
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { useDeferredValue, useMemo, useState, type ReactElement } from 'react'
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react'
 
 /** Ce qu'un jeu fournit a la grille. */
 export interface IconGridProps {
@@ -37,8 +45,8 @@ export interface IconGridProps {
   readonly names: Readonly<Record<string, string>>
 }
 
-/** Nombre d'icones affichees a la fois. */
-const AFFICHEES = 240
+/** Nombre d'icones ajoutees a chaque palier. */
+const PALIER = 200
 
 /** Grille de recherche. */
 export function IconGrid({ module, icons, names }: IconGridProps): ReactElement {
@@ -60,7 +68,36 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
     )
   }, [entries, names, differe])
 
-  const affichees = trouvees.slice(0, AFFICHEES)
+  const [combien, setCombien] = useState(PALIER)
+
+  // Une recherche repart du premier palier : garder le compte d'avant
+  // afficherait d'un coup tout le resultat d'un filtre etroit.
+  useEffect(() => {
+    setCombien(PALIER)
+  }, [differe])
+
+  const affichees = trouvees.slice(0, combien)
+  const reste = trouvees.length - affichees.length
+
+  // La sentinelle : posee sous la grille, elle demande le palier suivant des
+  // qu'elle entre dans le champ. L'observateur est cree a l'accrochage du
+  // noeud plutot que dans un effet, faute de quoi il faudrait le reconstruire
+  // a chaque changement de compte.
+  const observateur = useRef<IntersectionObserver | null>(null)
+  const sentinelle = useCallback((noeud: HTMLDivElement | null) => {
+    observateur.current?.disconnect()
+    if (noeud === null) return
+    observateur.current = new IntersectionObserver(
+      (entrees) => {
+        if (entrees.some((e) => e.isIntersecting)) setCombien((n) => n + PALIER)
+      },
+      // On charge un peu avant l'arrivee, pour que le defilement ne marque pas.
+      { rootMargin: '600px 0px' },
+    )
+    observateur.current.observe(noeud)
+  }, [])
+
+  useEffect(() => () => observateur.current?.disconnect(), [])
 
   const copier = (id: string): void => {
     void navigator.clipboard
@@ -79,7 +116,7 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Chercher une icone…"
+          placeholder="Chercher une icône…"
           aria-label={`Chercher dans le jeu ${module}`}
           className="o-min-w-64 o-flex-1 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-px-3 o-py-2 o-text-sm o-text-zinc-900 dark:o-text-zinc-100 focus:o-ring"
         />
@@ -101,17 +138,15 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
 
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
         {trouvees.length === entries.length
-          ? `${String(entries.length)} icones`
+          ? `${String(entries.length)} icônes`
           : `${String(trouvees.length)} sur ${String(entries.length)}`}
-        {trouvees.length > AFFICHEES
-          ? ` — les ${String(AFFICHEES)} premieres sont affichees, affinez la recherche`
-          : ''}
+        {reste > 0 ? ` — ${String(affichees.length)} posées, ${String(reste)} suivent au défilement` : ''}
       </p>
 
       {affichees.length === 0 ? (
         <p className="o-py-12 o-text-center o-text-zinc-500 dark:o-text-zinc-400">
-          Aucune icone ne porte ce nom dans ce jeu. Les autres jeux emploient souvent d
-          autres mots pour la meme idee.
+          Aucune icône ne porte ce nom dans ce jeu. Les autres jeux emploient souvent d
+          autres mots pour la même idée.
         </p>
       ) : (
         <ul className="o-grid o-grid-cols-3 sm:o-grid-cols-4 md:o-grid-cols-6 lg:o-grid-cols-8 o-gap-2 o-list-none o-p-0">
@@ -140,6 +175,23 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
             </li>
           ))}
         </ul>
+      )}
+
+      {/* La sentinelle, et ce qu'elle annonce a qui n'a pas la vue. */}
+      {reste > 0 && (
+        <div ref={sentinelle} className="o-py-8 o-text-center">
+          <p role="status" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+            Chargement des suivantes…
+          </p>
+          {/* Sans souris ni molette, le bouton fait le meme travail. */}
+          <button
+            type="button"
+            onClick={() => setCombien((n) => n + PALIER)}
+            className="o-mt-3 o-inline-flex o-cursor-pointer o-items-center o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-4 o-py-2 o-text-sm focus:o-ring"
+          >
+            Afficher {Math.min(PALIER, reste)} icônes de plus
+          </button>
+        </div>
       )}
     </div>
   )

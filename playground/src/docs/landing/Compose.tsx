@@ -36,24 +36,24 @@ const EXAMPLES: readonly Example[] = [
     code: `<section className="o-relative o-rounded-2xl o-overflow-hidden">
   <RadialGlow className="o-absolute o-inset-0" y={0.3} />
   <SplitReveal as="h2" by="words" className="o-relative">
-    Un titre revele mot a mot
+    Un titre révèle mot a mot
   </SplitReveal>
 </section>`,
     render: (
       <div className="o-relative o-flex o-min-h-80 o-flex-col o-justify-center o-overflow-hidden o-rounded-2xl o-bg-white dark:o-bg-zinc-950 o-p-8 o-text-zinc-900 dark:o-text-zinc-50">
         <RadialGlow className="o-absolute o-inset-0" y={0.3} strength={0.5} />
         <SplitReveal as="h2" by="words" className="o-relative o-text-3xl o-font-bold o-tracking-tight">
-          Un titre revele mot a mot
+          Un titre révèle mot a mot
         </SplitReveal>
         <p className="o-relative o-mt-3 o-max-w-sm o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
-          Deux entrees, aucune configuration : le fond lit la palette, le titre lit le texte.
+          Deux entrées, aucune configuration : le fond lit la palette, le titre lit le texte.
         </p>
       </div>
     ),
   },
   {
     id: 'cartes',
-    label: 'Une grille qui se revele',
+    label: 'Une grille qui se révèle',
     code: `<RevealGrid columns={3} stagger={90}>
   {items.map((item) => (
     <TiltCard key={item} tilt={10}>
@@ -111,7 +111,7 @@ export function Compose(): ReactElement {
           Composez
         </p>
         <h2 className="o-mt-3 o-text-3xl o-font-bold o-tracking-tight o-text-balance md:o-text-5xl">
-          Le code a gauche, la page a droite. Rien entre les deux.
+          Le code à gauche, la page à droite. Rien entre les deux.
         </h2>
       </Reveal>
 

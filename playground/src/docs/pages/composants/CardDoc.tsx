@@ -33,7 +33,7 @@ export function CardDoc(): ReactElement {
         lead="Carte de contenu composable : media, titre, description, contenu et pied optionnels, en trois registres visuels."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -86,7 +86,7 @@ export function CardDoc(): ReactElement {
           variants={[
             {
               title: 'Elevee',
-              description: 'Ombre portee au lieu du lisere.',
+              description: 'Ombre portée au lieu du lisere.',
               values: { variant: 'elevated' },
             },
             {
@@ -105,22 +105,22 @@ export function CardDoc(): ReactElement {
             },
             {
               title: 'Media et pied',
-              description: 'Degrade en media, bouton en pied.',
+              description: 'Dégradé en media, bouton en pied.',
               node: (
                 <Card
                   media={
                     <div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-16" />
                   }
                   title="Nouvelle identite"
-                  description="Le degrade tient lieu d'illustration."
-                  footer={<Button size="sm">Decouvrir</Button>}
+                  description="Le dégradé tient lieu d'illustration."
+                  footer={<Button size="sm">Découvrir</Button>}
                   className="o-w-56"
                 />
               ),
             },
             {
               title: 'Grille de cartes',
-              description: 'Deux cartes interactives cote a cote.',
+              description: 'Deux cartes interactives côté a côté.',
               node: (
                 <div className="o-grid o-grid-cols-2 o-gap-3">
                   <Card interactive title="Composants" description="31 composants." />
@@ -140,7 +140,7 @@ export function CardDoc(): ReactElement {
           code={`<Card
   media={<div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-32" />}
   title="Nouvelle identite"
-  description="Le degrade tient lieu d'illustration."
+  description="Le dégradé tient lieu d'illustration."
 />`}
         >
           <Card
@@ -148,7 +148,7 @@ export function CardDoc(): ReactElement {
               <div className="o-bg-gradient-to-br o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400 o-h-32" />
             }
             title="Nouvelle identite"
-            description="Le degrade tient lieu d'illustration."
+            description="Le dégradé tient lieu d'illustration."
             className="o-w-72"
           />
         </DemoBlock>
@@ -156,7 +156,7 @@ export function CardDoc(): ReactElement {
 
       <Section
         title="Pied de carte"
-        lead="Le pied est separe du corps par un filet et reprend le meme padding."
+        lead="Le pied est sépare du corps par un filet et reprend le même padding."
       >
         <DemoBlock
           code={`<Card
@@ -182,7 +182,7 @@ export function CardDoc(): ReactElement {
 
       <Section
         title="Cartes interactives"
-        lead="interactive ajoute une legere elevation au survol et le curseur pointeur : utile quand toute la carte est cliquable."
+        lead="interactive ajoute une légère elevation au survol et le curseur pointeur : utile quand toute la carte est cliquable."
       >
         <DemoBlock
           center={false}
@@ -214,7 +214,7 @@ export function CardDoc(): ReactElement {
             {
               name: 'title',
               type: 'ReactNode',
-              description: 'Titre affiche en tete du corps.',
+              description: 'Titre affiche en tête du corps.',
             },
             {
               name: 'description',
@@ -253,7 +253,7 @@ export function CardDoc(): ReactElement {
               name: 'padding',
               type: "'none' | 'sm' | 'md' | 'lg'",
               defaultValue: "'md'",
-              description: 'Ecart interne du corps et du pied.',
+              description: 'Écart interne du corps et du pied.',
             },
             {
               name: 'className',
@@ -263,7 +263,7 @@ export function CardDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLDivElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

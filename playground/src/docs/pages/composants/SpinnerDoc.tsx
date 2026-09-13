@@ -30,10 +30,10 @@ export function SpinnerDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Spinner"
-        lead="Indicateur d'activite circulaire, teinte par la couleur de texte courante et annonce aux lecteurs d'ecran."
+        lead="Indicateur d'activite circulaire, teinte par la couleur de texte courante et annonce aux lecteurs d'écran."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -64,7 +64,7 @@ export function SpinnerDoc(): ReactElement {
             },
             {
               title: 'Dans un bouton',
-              description: 'La prop loading de Button integre le spinner.',
+              description: 'La prop loading de Button intègre le spinner.',
               node: <Button loading>Enregistrement</Button>,
             },
             {
@@ -97,7 +97,7 @@ export function SpinnerDoc(): ReactElement {
 
       <Section
         title="Dans un bouton"
-        lead="Button integre deja un Spinner : la prop loading remplace l'icone de depart et pose aria-busy."
+        lead="Button intègre déjà un Spinner : la prop loading remplace l'icône de départ et pose aria-busy."
       >
         <DemoBlock
           code={`<Button loading>Enregistrement</Button>
@@ -148,7 +148,7 @@ export function SpinnerDoc(): ReactElement {
               name: 'label',
               type: 'string',
               defaultValue: "'Chargement'",
-              description: "Libelle annonce aux lecteurs d'ecran, masque visuellement.",
+              description: "Libelle annonce aux lecteurs d'écran, masque visuellement.",
             },
             {
               name: 'className',

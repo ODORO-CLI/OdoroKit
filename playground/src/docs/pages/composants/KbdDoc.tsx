@@ -28,10 +28,10 @@ export function KbdDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Kbd"
-        lead="Touche de clavier, seule ou en combinaison : chaque touche est rendue dans son propre kbd, separee par un +."
+        lead="Touche de clavier, seule ou en combinaison : chaque touche est rendue dans son propre kbd, séparée par un +."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -84,16 +84,16 @@ export function KbdDoc(): ReactElement {
 
       <Section
         title="Dans une phrase"
-        lead="La touche se glisse dans un texte courant, a la maniere d'une documentation de raccourcis."
+        lead="La touche se glisse dans un texte courant, a la manière d'une documentation de raccourcis."
       >
         <DemoBlock
           code={`<p>
-  Appuyez sur <Kbd>Echap</Kbd> pour fermer la fenetre, ou sur{' '}
+  Appuyez sur <Kbd>Echap</Kbd> pour fermer la fenêtre, ou sur{' '}
   <Kbd keys={['Ctrl', 'Entree']} /> pour envoyer directement.
 </p>`}
         >
           <p className="o-text-sm o-text-zinc-900 dark:o-text-zinc-50 o-max-w-prose">
-            Appuyez sur <Kbd>Echap</Kbd> pour fermer la fenetre, ou sur{' '}
+            Appuyez sur <Kbd>Echap</Kbd> pour fermer la fenêtre, ou sur{' '}
             <Kbd keys={['Ctrl', 'Entree']} /> pour envoyer directement.
           </p>
         </DemoBlock>
@@ -121,7 +121,7 @@ export function KbdDoc(): ReactElement {
               name: 'keys',
               type: 'readonly string[]',
               description:
-                'Combinaison : chaque touche est rendue dans son propre kbd, separee par un "+". Sans elle, children remplit un kbd unique.',
+                'Combinaison : chaque touche est rendue dans son propre kbd, séparée par un "+". Sans elle, children remplit un kbd unique.',
             },
             {
               name: 'children',

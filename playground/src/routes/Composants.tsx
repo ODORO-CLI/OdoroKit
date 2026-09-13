@@ -71,10 +71,10 @@ export function Composants() {
         <section className="o-flex o-flex-col o-gap-3">
           <h2 className="o-text-xl o-font-semibold">Onglets</h2>
           <Tabs
-            label="Exemple d onglets"
+            label="Exemple d’onglets"
             items={[
-              { id: 'a', label: 'Apercu', content: <p>Contenu du premier onglet.</p> },
-              { id: 'b', label: 'Reglages', content: <p>Contenu du second onglet.</p> },
+              { id: 'a', label: 'Aperçu', content: <p>Contenu du premier onglet.</p> },
+              { id: 'b', label: 'Réglages', content: <p>Contenu du second onglet.</p> },
               {
                 id: 'c',
                 label: 'Archive',
@@ -91,7 +91,7 @@ export function Composants() {
         </section>
 
         <section className="o-flex o-flex-col o-gap-3">
-          <h2 className="o-text-xl o-font-semibold">Boite de dialogue</h2>
+          <h2 className="o-text-xl o-font-semibold">Boîte de dialogue</h2>
           <div>
             <Button onClick={() => setOpen(true)}>Ouvrir</Button>
           </div>
@@ -112,8 +112,8 @@ export function Composants() {
             }
           >
             <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-              Le piegeage du focus, la touche Echap et l inertie de la page sont fournis
-              par l element natif.
+              Le piegeage du focus, la touche Echap et l’inertie de la page sont fournis
+              par l’élément natif.
             </p>
           </Dialog>
         </section>

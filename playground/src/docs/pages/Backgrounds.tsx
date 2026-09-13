@@ -64,7 +64,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
         octaves={v['octaves'] as number}
       />
     ),
-    note: 'Bruit fractal a deplacement de domaine. Le plus dense des cinq.',
+    note: 'Bruit fractal a déplacement de domaine. Le plus dense des cinq.',
   },
   ondes: {
     title: 'Ondes',
@@ -81,7 +81,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
         amplitude={v['amplitude'] as number}
       />
     ),
-    note: 'Trois sinus de frequences non multiples : le motif ne se repete jamais a l oeil.',
+    note: 'Trois sinus de frequences non multiples : le motif ne se répète jamais a l œil.',
   },
   points: {
     title: 'Champ de points',
@@ -98,7 +98,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
         radius={v['radius'] as number}
       />
     ),
-    note: 'L espace est replie sur lui-meme : le cout ne depend pas du nombre de points.',
+    note: 'L’espace est replie sur lui-même : le coût ne depend pas du nombre de points.',
   },
   faisceaux: {
     title: 'Faisceaux',
@@ -115,7 +115,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
         angle={v['angle'] as number}
       />
     ),
-    note: 'C est l espace qui tourne, pas les rais : deux multiplications au lieu d une geometrie.',
+    note: 'C’est l’espace qui tourne, pas les rais : deux multiplications au lieu d’une géométrie.',
   },
   nappe: {
     title: 'Nappe',
@@ -130,7 +130,7 @@ const SHADERS: Readonly<Record<string, ShaderEntry>> = {
         spread={v['spread'] as number}
       />
     ),
-    note: 'Trois taches suffisent : au-dela, elles se recouvrent et le motif se perd.',
+    note: 'Trois taches suffisent : au-delà, elles se recouvrent et le motif se perd.',
   },
 }
 
@@ -141,7 +141,7 @@ const SHADER_NAMES = Object.keys(SHADERS)
 function ShaderAtelier(): ReactElement {
   const [choice, setChoice] = useState(SHADER_NAMES[0] ?? 'aurore')
   const shader = SHADERS[choice] ?? SHADERS['aurore']
-  if (shader === undefined) return <p>Aucun fond declare.</p>
+  if (shader === undefined) return <p>Aucun fond déclare.</p>
 
   return (
     <div className="o-flex o-flex-col o-gap-3">
@@ -189,11 +189,11 @@ export function Backgrounds(): ReactElement {
       <PageHeader
         module="@odoro-cli/bits"
         title="Backgrounds"
-        lead="Des fonds animes sur notre moteur. Reglables ici meme, et poses sous un contenu de demonstration — un fond se juge a ce qu'il laisse lire."
+        lead="Des fonds animes sur notre moteur. Reglables ici même, et poses sous un contenu de démonstration — un fond se juge a ce qu'il laisse lire."
       />
 
       <Callout>
-        L interrupteur <strong>Demo</strong> coupe le contenu pour voir l effet nu. Les
+        L’interrupteur <strong>Demo</strong> coupe le contenu pour voir l effet nu. Les
         deux questions sont legitimes ; un catalogue qui ne montre que la seconde laisse
         decouvrir la premiere en production.
       </Callout>
@@ -205,9 +205,9 @@ export function Backgrounds(): ReactElement {
         <ShaderAtelier />
 
         <Callout tone="warning">
-          Il n y a <strong>qu un</strong> cadre pour les cinq, et ce n est pas une
-          economie de place : l arbitre n accorde qu un contexte graphique par backend.
-          Cinq fonds cote a cote donneraient un fond et quatre replis.
+          Il n y a <strong>qu un</strong> cadre pour les cinq, et ce n’est pas une
+          economie de place : l’arbitre n’accorde qu’un contexte graphique par backend.
+          Cinq fonds côté a côté donneraient un fond et quatre replis.
         </Callout>
 
         <CodeBlock
@@ -218,7 +218,7 @@ export function Backgrounds(): ReactElement {
 
       <Section
         title="Un fond sans contexte graphique"
-        lead="Un quadrillage est une repetition reguliere : deux degrades le decrivent exactement, et le compositeur le dessine seul."
+        lead="Un quadrillage est une répétition régulière : deux dégradés le decrivent exactement, et le compositeur le dessine seul."
       >
         <Atelier
           height="o-h-80"
@@ -241,22 +241,22 @@ export function Backgrounds(): ReactElement {
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
           La consequence pratique compte autant que le principe : celui-ci se pose autant
-          de fois qu on veut sur une page, et il ne coute aucun kilo-octet de backend.
+          de fois qu’on veut sur une page, et il ne coûte aucun kilo-octet de backend.
           Prendre une surface graphique pour un quadrillage reviendrait a depenser un
-          contexte — dont le navigateur ne distribue qu un nombre limite — pour un
-          resultat identique.
+          contexte — dont le navigateur ne distribue qu’un nombre limite — pour un
+          résultat identique.
         </p>
       </Section>
 
       <Section
         title="Molten"
-        lead="Une masse en fusion, deformee par un bruit tridimensionnel. C'est le composant le plus cher du registre, et la CLI l'annonce avant d'ecrire."
+        lead="Une masse en fusion, deformee par un bruit tridimensionnel. C'est le composant le plus cher du registre, et la CLI l'annonce avant d'écrire."
       >
         <Atelier
           height="o-h-96"
           deferred={{
             label: 'Scene',
-            hint: 'Cette scene telecharge environ 130 Ko compresses. L interrupteur « Scene » du panneau la monte quand vous le decidez.',
+            hint: 'Cette scène télécharge environ 130 Ko compresses. L’interrupteur « Scène » du panneau la monte quand vous le decidez.',
           }}
           controls={[
             range('amplitude', 'Deformation', 0, 0.7, 0.01, 0.28),
@@ -275,9 +275,9 @@ export function Backgrounds(): ReactElement {
         </Atelier>
 
         <Callout tone="warning">
-          Environ 130 Ko compresses au premier affichage, contre 13 pour le backend leger.
-          Si l effet recherche n a besoin ni de camera, ni de profondeur, ni de
-          silhouette, l un des cinq fonds ci-dessus fait le meme travail pour un dixieme
+          Environ 130 Ko compresses au premier affichage, contre 13 pour le backend léger.
+          Si l’effet recherche n’a besoin ni de camera, ni de profondeur, ni de
+          silhouette, l’un des cinq fonds ci-dessus fait le même travail pour un dixieme
           du poids.
         </Callout>
       </Section>

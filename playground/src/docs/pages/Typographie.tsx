@@ -31,12 +31,12 @@ export function Typographie(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/styles"
         title="Typographie"
-        lead="Une echelle de tailles avec hauteur de ligne associee, neuf graisses, et tout l'attirail : decorations, surlignage, troncature, ombres et texte en degrade."
+        lead="Une échelle de tailles avec hauteur de ligne associee, neuf graisses, et tout l'attirail : décorations, surlignage, troncature, ombres et texte en dégradé."
       />
 
       <Section
-        title="Echelle des tailles"
-        lead="Chaque classe o-text-* regle la taille et la hauteur de ligne qui lui correspond."
+        title="Échelle des tailles"
+        lead="Chaque classe o-text-* règle la taille et la hauteur de ligne qui lui correspond."
       >
         <DemoBlock
           center={false}
@@ -45,7 +45,7 @@ export function Typographie(): ReactElement {
           <div className="o-flex o-flex-col o-gap-2">
             {SIZES.map((size) => (
               <div key={size} className="o-flex o-items-baseline o-gap-4">
-                <span className="o-w-12 o-shrink-0 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-w-12 o-shrink-0 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                   {size}
                 </span>
                 <span className={`o-text-${size}`}>Odoro</span>
@@ -68,7 +68,7 @@ export function Typographie(): ReactElement {
           <div className="o-flex o-flex-col o-gap-2">
             {WEIGHTS.map((weight) => (
               <div key={weight} className="o-flex o-items-baseline o-gap-4">
-                <span className="o-w-24 o-shrink-0 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-w-24 o-shrink-0 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                   {weight}
                 </span>
                 <span className={`o-text-lg o-font-${weight}`}>
@@ -81,8 +81,8 @@ export function Typographie(): ReactElement {
       </Section>
 
       <Section
-        title="Decorations"
-        lead="Soulignement, style de trait, epaisseur et decalage se combinent librement."
+        title="Décorations"
+        lead="Soulignement, style de trait, épaisseur et décalage se combinent librement."
       >
         <DemoBlock
           center={false}
@@ -90,9 +90,9 @@ export function Typographie(): ReactElement {
 <p className="o-underline o-decoration-wavy">ondule</p>
 <p className="o-underline o-decoration-dotted">pointille</p>
 <p className="o-underline o-decoration-dashed">tirets</p>
-<p className="o-underline o-decoration-2">epaisseur 2</p>
-<p className="o-underline o-decoration-4 o-decoration-brand-600 dark:o-decoration-brand-400">epaisseur 4, colore</p>
-<p className="o-underline o-underline-offset-4">decale de 4</p>
+<p className="o-underline o-decoration-2">épaisseur 2</p>
+<p className="o-underline o-decoration-4 o-decoration-brand-600 dark:o-decoration-brand-400">épaisseur 4, colore</p>
+<p className="o-underline o-underline-offset-4">décale de 4</p>
 <p className="o-line-through">barre</p>
 <p className="o-overline">ligne au-dessus</p>`}
         >
@@ -101,11 +101,11 @@ export function Typographie(): ReactElement {
             <span className="o-underline o-decoration-wavy">ondule</span>
             <span className="o-underline o-decoration-dotted">pointille</span>
             <span className="o-underline o-decoration-dashed">tirets</span>
-            <span className="o-underline o-decoration-2">epaisseur 2</span>
+            <span className="o-underline o-decoration-2">épaisseur 2</span>
             <span className="o-underline o-decoration-4 o-decoration-brand-600 dark:o-decoration-brand-400">
-              epaisseur 4, colore
+              épaisseur 4, colore
             </span>
-            <span className="o-underline o-underline-offset-4">decale de 4</span>
+            <span className="o-underline o-underline-offset-4">décale de 4</span>
             <span className="o-line-through">barre</span>
             <span className="o-overline">ligne au-dessus</span>
           </div>
@@ -118,7 +118,7 @@ export function Typographie(): ReactElement {
       >
         <DemoBlock
           center={false}
-          code={`<p>Un passage <span className="o-highlight">surligne</span> au ton par defaut.</p>
+          code={`<p>Un passage <span className="o-highlight">surligne</span> au ton par défaut.</p>
 <p>Ou aux teintes <span className="o-highlight-brand">brand</span>,{' '}
 <span className="o-highlight-emerald">emerald</span>,{' '}
 <span className="o-highlight-amber">amber</span>,{' '}
@@ -128,7 +128,7 @@ export function Typographie(): ReactElement {
         >
           <div className="o-flex o-flex-col o-gap-2 o-text-lg">
             <p>
-              Un passage <span className="o-highlight">surligne</span> au ton par defaut.
+              Un passage <span className="o-highlight">surligne</span> au ton par défaut.
             </p>
             <p>
               Ou aux teintes <span className="o-highlight-brand">brand</span>,{' '}
@@ -157,7 +157,7 @@ export function Typographie(): ReactElement {
           <p className="o-line-clamp-2 o-max-w-md o-text-zinc-500 dark:o-text-zinc-400">
             Un long paragraphe qui deborde largement de deux lignes : la troncature coupe
             le texte a la deuxieme ligne et ajoute des points de suspension, sans
-            JavaScript ni mesure manuelle. Redimensionnez la fenetre : la coupe suit
+            JavaScript ni mesure manuelle. Redimensionnez la fenêtre : la coupe suit
             toujours la largeur disponible.
           </p>
         </DemoBlock>
@@ -165,16 +165,16 @@ export function Typographie(): ReactElement {
 
       <Section
         title="Ombres de texte"
-        lead="Trois intensites, calees sur l'echelle des ombres portees."
+        lead="Trois intensites, calees sur l'échelle des ombres portées."
       >
         <DemoBlock
           center={false}
-          code={`<p className="o-text-shadow-sm">ombre legere</p>
+          code={`<p className="o-text-shadow-sm">ombre légère</p>
 <p className="o-text-shadow-md">ombre moyenne</p>
 <p className="o-text-shadow-lg">ombre marquee</p>`}
         >
           <div className="o-flex o-flex-wrap o-gap-8 o-text-2xl o-font-semibold">
-            <span className="o-text-shadow-sm">ombre legere</span>
+            <span className="o-text-shadow-sm">ombre légère</span>
             <span className="o-text-shadow-md">ombre moyenne</span>
             <span className="o-text-shadow-lg">ombre marquee</span>
           </div>
@@ -200,8 +200,8 @@ export function Typographie(): ReactElement {
       </Section>
 
       <Section
-        title="Texte en degrade"
-        lead="o-text-gradient decoupe un fond en degrade a la forme des lettres — a combiner avec les utilitaires from/via/to."
+        title="Texte en dégradé"
+        lead="o-text-gradient découpe un fond en dégradé a la forme des lettres — a combiner avec les utilitaires from/via/to."
       >
         <DemoBlock
           code={`<h2 className="o-text-4xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-brand-600 dark:o-from-brand-400 o-to-fuchsia-600 dark:o-to-fuchsia-400">

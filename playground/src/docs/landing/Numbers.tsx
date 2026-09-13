@@ -31,7 +31,7 @@ export function Numbers({ entries }: NumbersProps): ReactElement {
         <StatBand
           locale="fr-FR"
           stats={[
-            { value: entries.length, label: 'entrees au registre' },
+            { value: entries.length, label: 'entrées au registre' },
             { value: families, label: 'familles' },
             { value: light, label: 'sans contexte graphique' },
             { value: pure, label: 'sans aucune dependance' },

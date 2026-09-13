@@ -55,7 +55,7 @@ function NoBackdropDemo(): ReactElement {
         open={open}
         onClose={() => setOpen(false)}
         title="Choix requis"
-        description="Un clic a cote ne ferme pas cette boite : seule la touche Echap ou un bouton le fait."
+        description="Un clic a côté ne ferme pas cette boîte : seule la touche Echap ou un bouton le fait."
         closeOnBackdrop={false}
         footer={<Button onClick={() => setOpen(false)}>J'ai compris</Button>}
       />
@@ -75,13 +75,13 @@ function FormDemo(): ReactElement {
         open={open}
         onClose={() => setOpen(false)}
         title="Nouveau projet"
-        description="Le nom pourra etre change plus tard."
+        description="Le nom pourra être change plus tard."
         footer={
           <>
             <Button tone="ghost" onClick={() => setOpen(false)}>
               Annuler
             </Button>
-            <Button onClick={() => setOpen(false)}>Creer</Button>
+            <Button onClick={() => setOpen(false)}>Créer</Button>
           </>
         }
       >
@@ -106,7 +106,7 @@ function MessageDemo(): ReactElement {
         open={open}
         onClose={() => setOpen(false)}
         title="Export termine"
-        description="Le fichier est disponible dans vos telechargements. Echap ou un clic a cote referme."
+        description="Le fichier est disponible dans vos telechargements. Echap ou un clic a côté referme."
       />
     </>
   )
@@ -119,12 +119,12 @@ export function DialogDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Dialog"
-        lead="Boite de dialogue modale batie sur l'element <dialog> natif ouvert en mode modal : piegeage du focus, fermeture par Echap, inertie du reste de la page et couche superieure sont fournis par le navigateur."
+        lead="Boîte de dialogue modale batie sur l'élément <dialog> natif ouvert en mode modal : piegeage du focus, fermeture par Echap, inertie du reste de la page et couche supérieure sont fournis par le navigateur."
       />
 
       <Section
-        title="Apercu"
-        lead="Un bouton ouvre une boite de confirmation : titre, description et pied d'actions Annuler / Confirmer."
+        title="Aperçu"
+        lead="Un bouton ouvre une boîte de confirmation : titre, description et pied d'actions Annuler / Confirmer."
       >
         <DemoBlock
           code={`import { Button, Dialog } from '@odoro-cli/libs/ui'
@@ -148,7 +148,7 @@ const [open, setOpen] = useState(false)
           <ConfirmDemo />
         </DemoBlock>
         <Callout>
-          La boite repose sur le{' '}
+          La boîte repose sur le{' '}
           <code className="o-font-mono o-text-sm">&lt;dialog&gt;</code> natif : le focus
           est piege par le navigateur, Echap ferme, et le reste de la page devient inerte
           — aucune reimplementation JavaScript. Seule l'animation de sortie est ajoutee
@@ -174,7 +174,7 @@ const [open, setOpen] = useState(false)
       </Section>
 
       <Section
-        title="Formulaire dans la boite"
+        title="Formulaire dans la boîte"
         lead="Le contenu passe en children ; le pied regroupe les actions."
       >
         <DemoBlock
@@ -182,11 +182,11 @@ const [open, setOpen] = useState(false)
   open={open}
   onClose={() => setOpen(false)}
   title="Nouveau projet"
-  description="Le nom pourra etre change plus tard."
+  description="Le nom pourra être change plus tard."
   footer={
     <>
       <Button tone="ghost" onClick={() => setOpen(false)}>Annuler</Button>
-      <Button onClick={() => setOpen(false)}>Creer</Button>
+      <Button onClick={() => setOpen(false)}>Créer</Button>
     </>
   }
 >
@@ -200,7 +200,7 @@ const [open, setOpen] = useState(false)
 
       <Section
         title="Variantes"
-        lead="Chaque carte ouvre une vraie boite : cliquez pour la voir."
+        lead="Chaque carte ouvre une vraie boîte : cliquez pour la voir."
       >
         <VariantGrid
           variants={[
@@ -234,7 +234,7 @@ const [open, setOpen] = useState(false)
             {
               name: 'open',
               type: 'boolean',
-              description: "Etat d'ouverture, pilote par l'application.",
+              description: "État d'ouverture, pilote par l'application.",
             },
             {
               name: 'onClose',
@@ -246,12 +246,12 @@ const [open, setOpen] = useState(false)
               name: 'title',
               type: 'ReactNode',
               description:
-                "Titre de la boite. Relie par aria-labelledby : c'est ce que les lecteurs d'ecran annoncent a l'ouverture.",
+                "Titre de la boîte. Relie par aria-labelledby : c'est ce que les lecteurs d'écran annoncent a l'ouverture.",
             },
             {
               name: 'description',
               type: 'ReactNode',
-              description: 'Description facultative, annoncee apres le titre.',
+              description: 'Description facultative, annoncee après le titre.',
             },
             {
               name: 'children',
@@ -261,23 +261,23 @@ const [open, setOpen] = useState(false)
             {
               name: 'footer',
               type: 'ReactNode',
-              description: "Pied de la boite, typiquement des boutons d'action.",
+              description: "Pied de la boîte, typiquement des boutons d'action.",
             },
             {
               name: 'closeOnBackdrop',
               type: 'boolean',
               defaultValue: 'true',
-              description: "Ferme la boite au clic sur l'arriere-plan.",
+              description: "Ferme la boîte au clic sur l'arriere-plan.",
             },
             {
               name: 'className',
               type: 'string',
-              description: "Classes additionnelles appliquees a l'element <dialog>.",
+              description: "Classes additionnelles appliquees a l'élément <dialog>.",
             },
             {
               name: '...rest',
               type: 'HTMLAttributes<HTMLDialogElement>',
-              description: "Attributs natifs transmis a l'element <dialog>.",
+              description: "Attributs natifs transmis a l'élément <dialog>.",
             },
           ]}
         />

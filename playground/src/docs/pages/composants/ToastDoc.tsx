@@ -134,15 +134,15 @@ toast({ title: 'Projet enregistre', tone: 'success' })`}
 
       <Section
         title="Les quatre registres"
-        lead="Chaque bouton empile une notification du ton correspondant — elle disparait apres 5 secondes."
+        lead="Chaque bouton empile une notification du ton correspondant — elle disparaît après 5 secondes."
       >
         <DemoBlock
           code={`const { toast } = useToast()
 
 toast({ title: 'Nouvelle version disponible', tone: 'info' })
 toast({ title: 'Projet enregistre', tone: 'success' })
-toast({ title: 'Quota bientot atteint', tone: 'warning' })
-toast({ title: 'Echec de la sauvegarde', tone: 'danger' })`}
+toast({ title: 'Quota bientôt atteint', tone: 'warning' })
+toast({ title: 'Échec de la sauvegarde', tone: 'danger' })`}
         >
           <TonesDemo />
         </DemoBlock>
@@ -177,12 +177,12 @@ clear()     // ferme toutes les notifications`}
           variants={[
             {
               title: 'Information',
-              description: 'Le ton par defaut.',
+              description: 'Le ton par défaut.',
               node: <ToneCard tone="info" />,
             },
             {
-              title: 'Succes',
-              description: 'Une operation aboutie.',
+              title: 'Succès',
+              description: 'Une opération aboutie.',
               node: <ToneCard tone="success" />,
             },
             {
@@ -192,7 +192,7 @@ clear()     // ferme toutes les notifications`}
             },
             {
               title: 'Danger',
-              description: 'Annoncee en role alert.',
+              description: 'Annoncee en rôle alert.',
               node: <ToneCard tone="danger" />,
             },
           ]}
@@ -244,13 +244,13 @@ clear()     // ferme toutes les notifications`}
               type: 'number',
               defaultValue: '4',
               description:
-                'Nombre maximum de notifications simultanees. Au-dela, la plus ancienne est retiree.',
+                'Nombre maximum de notifications simultanees. Au-delà, la plus ancienne est retiree.',
             },
             {
               name: 'duration',
               type: 'number',
               defaultValue: '5000',
-              description: "Duree d'affichage par defaut, en millisecondes.",
+              description: "Durée d'affichage par défaut, en millisecondes.",
             },
             {
               name: 'className',
@@ -273,7 +273,7 @@ clear()     // ferme toutes les notifications`}
             {
               name: 'description',
               type: 'ReactNode',
-              description: 'Detail facultatif.',
+              description: 'Détail facultatif.',
             },
             {
               name: 'tone',
@@ -286,7 +286,7 @@ clear()     // ferme toutes les notifications`}
               type: 'number',
               defaultValue: '5000',
               description:
-                "Duree d'affichage en millisecondes. 0 maintient la notification jusqu'a fermeture explicite.",
+                "Durée d'affichage en millisecondes. 0 maintient la notification jusqu'a fermeture explicite.",
             },
           ]}
         />

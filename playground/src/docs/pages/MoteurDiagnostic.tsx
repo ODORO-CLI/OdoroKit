@@ -39,13 +39,13 @@ function InventaireDemo(): ReactElement {
     <div className="o-flex o-flex-col o-gap-5 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
       <div className="o-flex o-gap-8">
         <div className="o-flex o-flex-col o-gap-1">
-          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
             images / s
           </span>
           <span className="o-font-mono o-text-2xl o-tabular-nums">{snapshot.fps}</span>
         </div>
         <div className="o-flex o-flex-col o-gap-1">
-          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+          <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
             image
           </span>
           <span className="o-font-mono o-text-2xl o-tabular-nums">{snapshot.frame}</span>
@@ -55,7 +55,7 @@ function InventaireDemo(): ReactElement {
       <div className="o-flex o-flex-col o-gap-2">
         <h4 className="o-text-sm o-font-medium">
           Abonnes a la boucle{' '}
-          <span className="o-text-zinc-400 dark:o-text-zinc-500 o-font-normal">
+          <span className="o-text-zinc-500 dark:o-text-zinc-400 o-font-normal">
             ({snapshot.subscribers.length})
           </span>
         </h4>
@@ -68,14 +68,14 @@ function InventaireDemo(): ReactElement {
                 key={`${entry.name}-${String(entry.priority)}`}
                 className="o-flex o-items-center o-gap-3"
               >
-                <span className="o-w-12 o-text-right o-text-zinc-400 dark:o-text-zinc-500 o-tabular-nums">
+                <span className="o-w-12 o-text-right o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">
                   {entry.priority}
                 </span>
                 <span
                   className={
                     entry.active
                       ? 'o-text-zinc-900 dark:o-text-zinc-50'
-                      : 'o-text-zinc-400 dark:o-text-zinc-500'
+                      : 'o-text-zinc-500 dark:o-text-zinc-400'
                   }
                 >
                   {entry.name}
@@ -89,7 +89,7 @@ function InventaireDemo(): ReactElement {
       <div className="o-flex o-flex-col o-gap-2">
         <h4 className="o-text-sm o-font-medium">
           Ressources vivantes{' '}
-          <span className="o-text-zinc-400 dark:o-text-zinc-500 o-font-normal">
+          <span className="o-text-zinc-500 dark:o-text-zinc-400 o-font-normal">
             ({snapshot.resources.length})
           </span>
         </h4>
@@ -101,7 +101,7 @@ function InventaireDemo(): ReactElement {
           <ul className="o-flex o-flex-col o-gap-1 o-font-mono o-text-xs">
             {snapshot.resources.map((resource) => (
               <li key={resource.id} className="o-flex o-items-center o-gap-3">
-                <span className="o-w-20 o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-w-20 o-text-zinc-500 dark:o-text-zinc-400">
                   {resource.kind}
                 </span>
                 <span className="o-text-zinc-900 dark:o-text-zinc-50">
@@ -173,14 +173,14 @@ export function MoteurDiagnostic(): ReactElement {
 
       <Section
         title="Le releve"
-        lead="Le moteur ne se contente pas de fonctionner : il rend compte. Une fuite de ressource se lit ici, au lieu de se deviner dans un profil memoire une semaine plus tard."
+        lead="Le moteur ne se contente pas de fonctionner : il rend compte. Une fuite de ressource se lit ici, au lieu de se deviner dans un profil mémoire une semaine plus tard."
       >
         <InventaireDemo />
       </Section>
 
       <Section
         title="Enregistrer une ressource"
-        lead="Tout ce qui doit etre libere a la main s'enregistre. La contrepartie est une poignee, dont l'appel de liberation retire l'entree."
+        lead="Tout ce qui doit être libère a la main s'enregistre. La contrepartie est une poignee, dont l'appel de liberation retire l'entrée."
       >
         <CodeBlock
           code={`import { registry } from '@odoro-cli/engine'
@@ -200,7 +200,7 @@ handle.release()`}
 
       <Section
         title="Le panneau"
-        lead="Le meme releve, en surcouche, active par un parametre d'URL plutot que par une variable de compilation : on l'ouvre sur la page qui pose probleme, sans recompiler."
+        lead="Le même releve, en surcouche, active par un paramètre d'URL plutôt que par une variable de compilation : on l'ouvre sur la page qui pose problème, sans recompiler."
       >
         <CodeBlock
           code={`import { OdoroDebugPanel, isDebugRequested } from '@odoro-cli/engine'
@@ -219,7 +219,7 @@ handle.release()`}
 
       <Section
         title="Ce que porte un enregistrement"
-        lead="Le nom n'est pas decoratif : c'est la seule chose qui permette de relier une ressource orpheline au composant qui l'a creee."
+        lead="Le nom n'est pas decoratif : c'est la seule chose qui permette de relier une ressource orpheline au composant qui l'a créée."
       >
         <PropsTable
           rows={[
@@ -232,13 +232,13 @@ handle.release()`}
               name: 'name',
               type: 'string',
               description:
-                'Nom lisible. Ce qui s affiche quand quelque chose ne se libere pas.',
+                'Nom lisible. Ce qui s’affiche quand quelque chose ne se libère pas.',
             },
             {
               name: 'dispose',
               type: '() => void',
               description:
-                'Liberation de la ressource. Appelee par disposeAll, jamais par release : retirer une entree de l inventaire et liberer ce qu elle designe sont deux gestes differents.',
+                'Liberation de la ressource. Appelee par disposeAll, jamais par release : retirer une entrée de l’inventaire et libérer ce qu’elle designe sont deux gestes differents.',
             },
             {
               name: 'detail',

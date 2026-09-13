@@ -53,7 +53,7 @@ export function IconesJeu({ jeu }: { jeu: JeuModule }): ReactElement {
 
       <div className="o-mb-8 o-flex o-flex-wrap o-items-center o-gap-3">
         <span className="o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-          {INFO.count} icones
+          {INFO.count} icônes
         </span>
         <span className="o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
           {INFO.mode}
@@ -74,7 +74,7 @@ export function IconesJeu({ jeu }: { jeu: JeuModule }): ReactElement {
         </Callout>
       )}
 
-      <Section title="Chercher" lead="Un clic copie la ligne d import complete.">
+      <Section title="Chercher" lead="Un clic copie la ligne d’import complète.">
         <IconGrid module={INFO.module} icons={icons} names={NAMES} />
       </Section>
 

@@ -32,7 +32,7 @@ function InterrupteurControle(): ReactElement {
     <div className="o-flex o-flex-col o-gap-3">
       <Switch label="Sauvegarde automatique" checked={actif} onCheckedChange={setActif} />
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-        Etat :{' '}
+        État :{' '}
         <code className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400">
           {actif ? 'active' : 'desactive'}
         </code>
@@ -48,10 +48,10 @@ export function SwitchDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Switch"
-        lead="Interrupteur a deux etats. Un <button role='switch'> plutot qu'une case a cocher : l'effet est immediat, sans notion de formulaire a soumettre. L'etat est porte par aria-checked, la bascule repond au clic comme a Espace ou Entree."
+        lead="Interrupteur a deux états. Un <button rôle='switch'> plutôt qu'une case a cocher : l'effet est immediat, sans notion de formulaire a soumettre. L'état est porte par aria-checked, la bascule répond au clic comme a Espace ou Entrée."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Notifications' },
@@ -88,8 +88,8 @@ export function SwitchDoc(): ReactElement {
             },
             { title: 'Desactive', values: { disabled: true } },
             {
-              title: 'Rangee de reglages',
-              description: 'Deux preferences empilees, separees par un filet.',
+              title: 'Rangee de réglages',
+              description: 'Deux préférences empilees, separees par un filet.',
               node: (
                 <div className="o-flex o-flex-col o-w-full o-max-w-sm">
                   <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
@@ -106,8 +106,8 @@ export function SwitchDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Mode controle"
-        lead="Fournissez checked et onCheckedChange pour piloter l'etat depuis le parent ; sans checked, l'interrupteur gere son propre etat (defaultChecked)."
+        title="Mode contrôle"
+        lead="Fournissez checked et onCheckedChange pour piloter l'état depuis le parent ; sans checked, l'interrupteur gère son propre état (defaultChecked)."
       >
         <DemoBlock
           code={`function InterrupteurControle() {
@@ -120,7 +120,7 @@ export function SwitchDoc(): ReactElement {
         checked={actif}
         onCheckedChange={setActif}
       />
-      <p>Etat : {actif ? 'active' : 'desactive'}</p>
+      <p>État : {actif ? 'active' : 'desactive'}</p>
     </>
   )
 }`}
@@ -130,8 +130,8 @@ export function SwitchDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Liste de reglages"
-        lead="L'usage type : une liste de preferences a effet immediat, chaque ligne separee de la suivante."
+        title="Liste de réglages"
+        lead="L'usage type : une liste de préférences a effet immediat, chaque ligne séparée de la suivante."
       >
         <DemoBlock
           code={`<div className="o-flex o-flex-col o-w-full o-max-w-sm">
@@ -143,7 +143,7 @@ export function SwitchDoc(): ReactElement {
     />
   </div>
   <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
-    <Switch label="Resume hebdomadaire" defaultChecked />
+    <Switch label="Résumé hebdomadaire" defaultChecked />
   </div>
   <div className="o-py-3">
     <Switch label="Sons de l'interface" />
@@ -159,7 +159,7 @@ export function SwitchDoc(): ReactElement {
               />
             </div>
             <div className="o-py-3 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
-              <Switch label="Resume hebdomadaire" defaultChecked />
+              <Switch label="Résumé hebdomadaire" defaultChecked />
             </div>
             <div className="o-py-3">
               <Switch label="Sons de l'interface" />
@@ -175,7 +175,7 @@ export function SwitchDoc(): ReactElement {
               name: 'label',
               type: 'ReactNode',
               description:
-                "Libelle de l'interrupteur, rendu a cote et clicable. Obligatoire.",
+                "Libelle de l'interrupteur, rendu a côté et clicable. Obligatoire.",
             },
             {
               name: 'description',
@@ -185,18 +185,18 @@ export function SwitchDoc(): ReactElement {
             {
               name: 'checked',
               type: 'boolean',
-              description: 'Etat en mode controle.',
+              description: 'État en mode contrôle.',
             },
             {
               name: 'defaultChecked',
               type: 'boolean',
               defaultValue: 'false',
-              description: 'Etat initial en mode non controle.',
+              description: 'État initial en mode non contrôle.',
             },
             {
               name: 'onCheckedChange',
               type: '(checked: boolean) => void',
-              description: 'Appele avec le nouvel etat a chaque bascule.',
+              description: 'Appele avec le nouvel état a chaque bascule.',
             },
             {
               name: 'size',
@@ -217,7 +217,7 @@ export function SwitchDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLButtonElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

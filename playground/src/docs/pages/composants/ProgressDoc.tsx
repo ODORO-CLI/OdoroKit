@@ -51,10 +51,10 @@ export function ProgressDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Progress"
-        lead="Barre de progression determinee ou indeterminee, en quatre registres de couleur et trois hauteurs."
+        lead="Barre de progression déterminée ou indeterminee, en quatre registres de couleur et trois hauteurs."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -96,11 +96,11 @@ export function ProgressDoc(): ReactElement {
           variants={[
             {
               title: 'Indeterminee',
-              description: 'Une barre partielle defile quand la duree est inconnue.',
+              description: 'Une barre partielle défile quand la durée est inconnue.',
               values: { indeterminate: true },
             },
             {
-              title: 'Succes a 100',
+              title: 'Succès a 100',
               values: { tone: 'success', value: 100 },
             },
             {
@@ -109,7 +109,7 @@ export function ProgressDoc(): ReactElement {
             },
             {
               title: 'Avec valeur',
-              description: 'Le pourcentage affiche a droite de la piste.',
+              description: 'Le pourcentage affiche à droite de la piste.',
               values: { showValue: true },
             },
             {
@@ -133,7 +133,7 @@ export function ProgressDoc(): ReactElement {
 
       <Section
         title="Progression animee"
-        lead="La valeur vit chez l'appelant : un simple etat local incremente par un interval suffit a animer la barre."
+        lead="La valeur vit chez l'appelant : un simple état local incremente par un interval suffit a animer la barre."
       >
         <DemoBlock
           code={`function ProgressionAnimee() {
@@ -155,7 +155,7 @@ export function ProgressDoc(): ReactElement {
 
       <Section
         title="Indeterminee"
-        lead="Quand la duree est inconnue, une barre partielle defile en boucle et aria-valuenow est omis, comme le veut ARIA. showValue est sans effet : il n'y a rien a chiffrer."
+        lead="Quand la durée est inconnue, une barre partielle défile en boucle et aria-valuenow est omis, comme le veut ARIA. showValue est sans effet : il n'y a rien a chiffrer."
       >
         <DemoBlock code={`<Progress indeterminate label="Import en cours" />`}>
           <div className="o-w-64">
@@ -184,7 +184,7 @@ export function ProgressDoc(): ReactElement {
               type: 'boolean',
               defaultValue: 'false',
               description:
-                'Progression inconnue : une barre partielle defile en boucle et aria-valuenow est omis.',
+                'Progression inconnue : une barre partielle défile en boucle et aria-valuenow est omis.',
             },
             {
               name: 'tone',
@@ -208,7 +208,7 @@ export function ProgressDoc(): ReactElement {
               type: 'boolean',
               defaultValue: 'false',
               description:
-                'Affiche le pourcentage a droite de la piste. Sans effet en mode indetermine.',
+                'Affiche le pourcentage à droite de la piste. Sans effet en mode indetermine.',
             },
             {
               name: 'className',

@@ -42,7 +42,7 @@ function TransitionChargement(): ReactElement {
           </div>
         </Card>
       ) : etat === 'charge' ? (
-        <Card title="Ana Ruiz" description="Design systeme, composants et tokens." />
+        <Card title="Ana Ruiz" description="Design système, composants et tokens." />
       ) : null}
     </div>
   )
@@ -58,7 +58,7 @@ export function SkeletonDoc(): ReactElement {
         lead="Silhouette animee affichee pendant un chargement : lignes de texte, cercle ou rectangle."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -116,7 +116,7 @@ export function SkeletonDoc(): ReactElement {
               values: { lines: 5 },
             },
             {
-              title: 'Carte complete',
+              title: 'Carte complète',
               description: 'Les trois formes composees en squelette de carte.',
               node: (
                 <Card aria-busy="true" className="o-w-56">
@@ -172,7 +172,7 @@ export function SkeletonDoc(): ReactElement {
 
       <Section
         title="Transition vers le contenu"
-        lead="Le squelette occupe la place du contenu pendant le chargement, puis lui cede exactement la meme structure."
+        lead="Le squelette occupe la place du contenu pendant le chargement, puis lui cede exactement la même structure."
       >
         <DemoBlock
           code={`function TransitionChargement() {
@@ -197,7 +197,7 @@ export function SkeletonDoc(): ReactElement {
           </div>
         </Card>
       ) : etat === 'charge' ? (
-        <Card title="Ana Ruiz" description="Design systeme, composants et tokens." />
+        <Card title="Ana Ruiz" description="Design système, composants et tokens." />
       ) : null}
     </>
   )
@@ -219,19 +219,19 @@ export function SkeletonDoc(): ReactElement {
             {
               name: 'width',
               type: 'string | number',
-              description: 'Largeur, en toute unite CSS (nombre : pixels).',
+              description: 'Largeur, en toute unité CSS (nombre : pixels).',
             },
             {
               name: 'height',
               type: 'string | number',
-              description: 'Hauteur, en toute unite CSS (nombre : pixels).',
+              description: 'Hauteur, en toute unité CSS (nombre : pixels).',
             },
             {
               name: 'lines',
               type: 'number',
               defaultValue: '1',
               description:
-                'Nombre de lignes pour la variante text ; la derniere est raccourcie a 60 % pour evoquer une fin de paragraphe.',
+                'Nombre de lignes pour la variante text ; la dernière est raccourcie a 60 % pour evoquer une fin de paragraphe.',
             },
             {
               name: 'className',

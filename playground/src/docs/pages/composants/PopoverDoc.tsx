@@ -60,7 +60,7 @@ function ControlledDemo(): ReactElement {
         </div>
       </Popover>
       <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-        Etat : <code className="o-font-mono o-text-xs">{open ? 'ouvert' : 'ferme'}</code>
+        État : <code className="o-font-mono o-text-xs">{open ? 'ouvert' : 'ferme'}</code>
       </span>
     </div>
   )
@@ -73,12 +73,12 @@ export function PopoverDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Popover"
-        lead="Panneau riche ancre a un declencheur. Contrairement a l'infobulle, il est interactif : il recoit le focus, se ferme au clic exterieur et sur Echap, puis rend le focus au declencheur."
+        lead="Panneau riche ancre a un déclencheur. Contrairement a l'infobulle, il est interactif : il reçoit le focus, se ferme au clic exterieur et sur Echap, puis rend le focus au déclencheur."
       />
 
       <Section
-        title="Apercu"
-        lead="Un declencheur et un panneau contenant un petit formulaire. Le positionnement est purement CSS."
+        title="Aperçu"
+        lead="Un déclencheur et un panneau contenant un petit formulaire. Le positionnement est purement CSS."
       >
         <PlaygroundBlock
           previewClassName="o-py-16"
@@ -117,12 +117,12 @@ export function PopoverDoc(): ReactElement {
           variants={[
             {
               title: 'Vers le haut',
-              description: 'Le panneau apparait au-dessus.',
+              description: 'Le panneau apparaît au-dessus.',
               values: { placement: 'top' },
             },
             {
               title: 'Alignement fin',
-              description: 'align end cale le panneau a droite.',
+              description: 'align end cale le panneau à droite.',
               values: { align: 'end' },
             },
             {
@@ -134,7 +134,7 @@ export function PopoverDoc(): ReactElement {
                   triggerClassName={buttonClasses({ tone: 'ghost', size: 'sm' })}
                 >
                   <p className="o-text-sm o-w-56">
-                    Le panneau recoit le focus et se ferme sur Echap.
+                    Le panneau reçoit le focus et se ferme sur Echap.
                   </p>
                 </Popover>
               ),
@@ -154,7 +154,7 @@ export function PopoverDoc(): ReactElement {
           ]}
         />
         <Callout>
-          Le declencheur est un{' '}
+          Le déclencheur est un{' '}
           <code className="o-font-mono o-text-sm">&lt;button&gt;</code> rendu par le
           composant : passez son contenu via{' '}
           <code className="o-font-mono o-text-sm">trigger</code> et son style via{' '}
@@ -166,8 +166,8 @@ export function PopoverDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Mode controle"
-        lead="Passez open et onOpenChange pour piloter l'ouverture depuis l'application — utile pour fermer apres validation d'un formulaire."
+        title="Mode contrôle"
+        lead="Passez open et onOpenChange pour piloter l'ouverture depuis l'application — utile pour fermer après validation d'un formulaire."
       >
         <DemoBlock
           code={`const [open, setOpen] = useState(false)
@@ -191,7 +191,7 @@ export function PopoverDoc(): ReactElement {
             {
               name: 'trigger',
               type: 'ReactNode',
-              description: 'Contenu du bouton declencheur.',
+              description: 'Contenu du bouton déclencheur.',
             },
             {
               name: 'children',
@@ -202,24 +202,24 @@ export function PopoverDoc(): ReactElement {
               name: 'placement',
               type: "'top' | 'bottom'",
               defaultValue: "'bottom'",
-              description: "Cote d'apparition.",
+              description: "Côté d'apparition.",
             },
             {
               name: 'align',
               type: "'start' | 'center' | 'end'",
               defaultValue: "'start'",
-              description: 'Alignement du panneau sur le declencheur.',
+              description: 'Alignement du panneau sur le déclencheur.',
             },
             {
               name: 'open',
               type: 'boolean',
-              description: "Etat d'ouverture en mode controle.",
+              description: "État d'ouverture en mode contrôle.",
             },
             {
               name: 'defaultOpen',
               type: 'boolean',
               defaultValue: 'false',
-              description: "Etat d'ouverture initial en mode non controle.",
+              description: "État d'ouverture initial en mode non contrôle.",
             },
             {
               name: 'onOpenChange',
@@ -234,7 +234,7 @@ export function PopoverDoc(): ReactElement {
             {
               name: 'triggerClassName',
               type: 'string',
-              description: 'Classes additionnelles pour le bouton declencheur.',
+              description: 'Classes additionnelles pour le bouton déclencheur.',
             },
           ]}
         />

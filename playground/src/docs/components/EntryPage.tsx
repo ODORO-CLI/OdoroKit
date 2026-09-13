@@ -131,7 +131,7 @@ export function EntryPage({ id }: { id: string }): ReactElement {
   if (entry === undefined) {
     return (
       <Callout tone="warning">
-        Aucune entree ne porte l identifiant{' '}
+        Aucune entrée ne porte l’identifiant{' '}
         <code className="o-font-mono o-text-xs">{id}</code>. Le catalogue est produit par{' '}
         <code className="o-font-mono o-text-xs">
           pnpm --filter @odoro-cli/bits registry:build
@@ -152,19 +152,19 @@ export function EntryPage({ id }: { id: string }): ReactElement {
         </code>
         {entry.registryDependencies.length === 0 ? null : (
           <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-            entraine : {entry.registryDependencies.join(', ')}
+            entraîne : {entry.registryDependencies.join(', ')}
           </span>
         )}
       </div>
 
       {/* La bascule vaut aussi sans demonstration : c'est meme la qu'elle
           sert le plus, puisque le code est alors la seule chose a montrer. */}
-      <Section title="Apercu" {...(demo?.lead === undefined ? {} : { lead: demo.lead })}>
+      <Section title="Aperçu" {...(demo?.lead === undefined ? {} : { lead: demo.lead })}>
         <ApercuCode id={entry.id}>
           {demo === undefined ? (
             <Callout tone="warning">
-              Ce composant n a pas encore de demonstration vivante. Sa fiche reste
-              exacte : elle vient du registre, et l onglet « Code » montre ce que la
+              Ce composant n’a pas encore de démonstration vivante. Sa fiche reste
+              exacte : elle vient du registre, et l’onglet « Code » montre ce que la
               commande ecrira.
             </Callout>
           ) : (
@@ -186,7 +186,7 @@ export function EntryPage({ id }: { id: string }): ReactElement {
       {entry.perf.notes === undefined ? null : <Callout>{entry.perf.notes}</Callout>}
 
       {entry.props.length === 0 ? null : (
-        <Section title="Proprietes">
+        <Section title="Propriétés">
           <PropsTable
             rows={entry.props.map((prop) => ({
               name: prop.name + (prop.required ? '' : '?'),

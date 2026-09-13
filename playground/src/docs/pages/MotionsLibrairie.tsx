@@ -34,12 +34,12 @@ export function MotionsLibrairie(): ReactElement {
     <>
       <PageHeader
         module="@odoro-cli/bits"
-        title="Bibliotheque d animations"
-        lead="Les effets transverses — pointeur, bordures, defilement, glissement, carrousel. Ceux qui servent dans tous les projets."
+        title="Bibliothèque d’animations"
+        lead="Les effets transverses — pointeur, bordures, défilement, glissement, carrousel. Ceux qui servent dans tous les projets."
       />
 
       <Callout>
-        Trois d entre eux n executent <strong>aucun</strong> JavaScript par image : le
+        Trois d’entre eux n’executent <strong>aucun</strong> JavaScript par image : le
         trait de bordure, le bandeau et le halo. Le compositeur du navigateur les anime
         seul. Les trois autres prennent la boucle du moteur, et la page dit pourquoi a
         chaque fois.
@@ -47,7 +47,7 @@ export function MotionsLibrairie(): ReactElement {
 
       <Section
         title="Attraction"
-        lead="Un element attire par le pointeur, qui revient a sa place des qu'il s'eloigne. L'evenement deplace une cible ; c'est la boucle qui rejoint la cible."
+        lead="Un élément attire par le pointeur, qui revient a sa place des qu'il s'eloigne. L'événement déplace une cible ; c'est la boucle qui rejoint la cible."
       >
         <Atelier
           demoByDefault={false}
@@ -100,15 +100,15 @@ export function MotionsLibrairie(): ReactElement {
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
           Le rattrapage est exponentiel et exprime en fonction du temps ecoule. Une
-          fraction constante ferait varier la vitesse avec la cadence de l ecran — deux
-          fois plus rapide a cent vingt images par seconde — et le meme reglage ne
-          donnerait pas le meme resultat chez deux personnes.
+          fraction constante ferait varier la vitesse avec la cadence de l’écran — deux
+          fois plus rapide a cent vingt images par seconde — et le même réglage ne
+          donnerait pas le même résultat chez deux personnes.
         </p>
       </Section>
 
       <Section
         title="Halo de pointeur"
-        lead="Un halo suit le curseur sur une carte. Deux variables CSS ecrites au deplacement, aucun rendu React : le degrade se deplace tout seul."
+        lead="Un halo suit le curseur sur une carte. Deux variables CSS écrites au déplacement, aucun rendu React : le dégradé se déplace tout seul."
       >
         <Atelier
           demoByDefault={false}
@@ -137,7 +137,7 @@ export function MotionsLibrairie(): ReactElement {
                 <h4 className="o-text-lg o-font-semibold">Une carte</h4>
                 <p className="o-mt-2 o-text-sm o-opacity-70">
                   Promenez le pointeur : le halo suit sans amortissement. Il est sous le
-                  curseur, et tout retard se verrait comme un decalage.
+                  curseur, et tout retard se verrait comme un décalage.
                 </p>
               </Spotlight>
             </Stage>
@@ -147,7 +147,7 @@ export function MotionsLibrairie(): ReactElement {
 
       <Section
         title="Trait de bordure"
-        lead="Un trait lumineux parcourt le contour. Un degrade conique tourne autour du centre : la bande balaie tout le contour, quelle que soit la forme."
+        lead="Un trait lumineux parcourt le contour. Un dégradé conique tourne autour du centre : la bande balaie tout le contour, quelle que soit la forme."
       >
         <Atelier
           demoByDefault={false}
@@ -166,7 +166,7 @@ export function MotionsLibrairie(): ReactElement {
             {
               kind: 'range',
               name: 'width',
-              label: 'Epaisseur',
+              label: 'Épaisseur',
               min: 1,
               max: 8,
               step: 1,
@@ -176,7 +176,7 @@ export function MotionsLibrairie(): ReactElement {
             {
               kind: 'range',
               name: 'trail',
-              label: 'Trainee',
+              label: 'Traînée',
               min: 5,
               max: 50,
               step: 1,
@@ -196,7 +196,7 @@ export function MotionsLibrairie(): ReactElement {
               >
                 <h4 className="o-text-lg o-font-semibold">Mise en avant</h4>
                 <p className="o-mt-2 o-text-sm o-opacity-70">
-                  La couleur du trait suit celle du texte, reglee dans le panneau.
+                  La couleur du trait suit celle du texte, réglée dans le panneau.
                 </p>
               </BorderBeam>
             </Stage>
@@ -212,7 +212,7 @@ export function MotionsLibrairie(): ReactElement {
 
       <Section
         title="Bandeau defilant"
-        lead="Le contenu est rendu deux fois et l'ensemble translate d'exactement la moitie : au moment ou la premiere copie disparait, la seconde occupe sa place au pixel pres."
+        lead="Le contenu est rendu deux fois et l'ensemble translate d'exactement la moitie : au moment ou la première copie disparaît, la seconde occupe sa place au pixel près."
       >
         <Atelier
           demoByDefault={false}
@@ -255,15 +255,15 @@ export function MotionsLibrairie(): ReactElement {
         </Atelier>
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
-          La copie est retiree de l arbre d accessibilite : un lecteur d ecran annoncerait
-          sinon deux fois la meme chose. Et la duree se deduit de la largeur reelle — une
-          duree fixe ferait defiler un bandeau court aussi lentement qu un long.
+          La copie est retiree de l’arbre d’accessibilite : un lecteur d’écran annoncerait
+          sinon deux fois la même chose. Et la durée se deduit de la largeur reelle — une
+          durée fixe ferait defiler un bandeau court aussi lentement qu’un long.
         </p>
       </Section>
 
       <Section
         title="Parallaxe"
-        lead="Un element qui se deplace moins vite que la page. La lecture passe par la boucle unique : un ecouteur de defilement produirait le tremblement caracteristique."
+        lead="Un élément qui se déplace moins vite que la page. La lecture passe par la boucle unique : un écouteur de défilement produirait le tremblement caracteristique."
       >
         <div className="o-h-64 o-overflow-y-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <div className="o-h-40" />
@@ -279,15 +279,15 @@ export function MotionsLibrairie(): ReactElement {
         </div>
 
         <Callout tone="warning">
-          Cet effet lit le defilement de la <strong>fenetre</strong>, pas celui d une
-          boite. Dans ce cadre, il ne bouge donc qu au defilement de la page — c est une
+          Cet effet lit le défilement de la <strong>fenêtre</strong>, pas celui d’une
+          boîte. Dans ce cadre, il ne bouge donc qu’au défilement de la page — c’est une
           limite du hook, pas du composant, et la dire vaut mieux que la maquiller.
         </Callout>
       </Section>
 
       <Section
         title="Carrousel"
-        lead="Un rail de diapositives. Le defilement natif apporte le geste, l'inertie, la molette et le clavier ; il ne reste a notre charge que ce qu'il ne donne pas — l'accessibilite."
+        lead="Un rail de diapositives. Le défilement natif apporte le geste, l'inertie, la molette et le clavier ; il ne reste a notre charge que ce qu'il ne donne pas — l'accessibilite."
       >
         <Atelier
           demoByDefault={false}
@@ -339,7 +339,7 @@ export function MotionsLibrairie(): ReactElement {
         </Atelier>
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
-          L index suit le defilement reel plutot que l inverse : c est le navigateur qui
+          L’index suit le défilement reel plutôt que l’inverse : c’est le navigateur qui
           fait autorite, y compris quand on fait glisser le rail a la main. Les
           diapositives sont numerotees et les commandes disent ou elles menent — ce que la
           plupart des carrousels oublient.

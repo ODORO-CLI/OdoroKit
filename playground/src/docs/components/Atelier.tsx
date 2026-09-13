@@ -210,7 +210,7 @@ function tokenLabel(token: string): string {
 /** Etiquette d'un groupe du panneau. */
 function GroupLabel({ children }: { children: ReactNode }): ReactElement {
   return (
-    <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
+    <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
       {children}
     </p>
   )
@@ -393,7 +393,7 @@ function ColourSlots({
               suivre la bascule clair / sombre. */}
           <div className="o-flex o-items-center o-gap-1 o-pb-1 o-mb-1 o-border-b o-border-zinc-100 dark:o-border-zinc-900">
             <span className="o-w-14 o-shrink-0 o-text-right o-pr-1 o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-600">
-              theme
+              thème
             </span>
             {THEME_KEYS.map((key) => {
               const token = `--o-theme-${key}`

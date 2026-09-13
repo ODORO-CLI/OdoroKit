@@ -41,14 +41,14 @@ function SplitDemo(): ReactElement {
           {
             kind: 'choice',
             name: 'by',
-            label: 'Decoupage',
+            label: 'Découpage',
             options: ['chars', 'words', 'lines'],
             value: 'chars',
           },
           {
             kind: 'range',
             name: 'stagger',
-            label: 'Decalage',
+            label: 'Décalage',
             min: 0,
             max: 120,
             step: 2,
@@ -58,7 +58,7 @@ function SplitDemo(): ReactElement {
           {
             kind: 'range',
             name: 'distance',
-            label: 'Montee',
+            label: 'Montée',
             min: 0,
             max: 80,
             step: 2,
@@ -116,7 +116,7 @@ function DecodeDemo(): ReactElement {
           {
             kind: 'choice',
             name: 'trigger',
-            label: 'Declencheur',
+            label: 'Déclencheur',
             options: ['view', 'mount', 'hover'],
             value: 'view',
           },
@@ -144,7 +144,7 @@ function DecodeDemo(): ReactElement {
         onClick={() => replay.current?.()}
         className="o-self-start o-h-8 o-px-3 o-text-sm o-rounded-md o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-white dark:o-bg-zinc-900 hover:o-border-zinc-400 dark:hover:o-border-zinc-600 o-transition-colors o-cursor-pointer"
       >
-        Rejouer par l echappatoire
+        Rejouer par l’echappatoire
       </button>
     </>
   )
@@ -157,18 +157,18 @@ export function TextAnimations(): ReactElement {
       <PageHeader
         module="@odoro-cli/bits"
         title="Text Animations"
-        lead="Des effets de texte installes dans ce projet par la CLI. Chacun est reglable ici meme : fond, couleur, et ses propres parametres."
+        lead="Des effets de texte installes dans ce projet par la CLI. Chacun est reglable ici même : fond, couleur, et ses propres paramètres."
       />
 
       <Callout>
-        Tous respectent la meme regle : sous mouvement reduit, l animation est neutralisee
-        et le texte reste <strong>lisible</strong>. Un titre invisible n est pas un
-        respect de la preference, c est un defaut d accessibilite.
+        Tous respectent la même règle : sous mouvement réduit, l’animation est neutralisee
+        et le texte reste <strong>lisible</strong>. Un titre invisible n’est pas un
+        respect de la préférence, c’est un défaut d’accessibilite.
       </Callout>
 
       <Section
-        title="Revelation par fragments"
-        lead="Le titre se compose caractere par caractere, mot par mot ou ligne par ligne. Le decoupage est defait au demontage : un texte laisse decoupe casserait le copier-coller."
+        title="Révélation par fragments"
+        lead="Le titre se compose caractère par caractère, mot par mot ou ligne par ligne. Le découpage est defait au démontage : un texte laisse découpe casserait le copier-coller."
       >
         <SplitDemo />
         <CodeBlock
@@ -180,7 +180,7 @@ export function TextAnimations(): ReactElement {
 
       <Section
         title="Decodage"
-        lead="Le texte se stabilise depuis un brouillage, lettre par lettre. Le brouillage n'existe que pour l'oeil : le texte veritable reste annonce, cherchable et copiable."
+        lead="Le texte se stabilisé depuis un brouillage, lettre par lettre. Le brouillage n'existe que pour l'œil : le texte véritable reste annonce, cherchable et copiable."
       >
         <DecodeDemo />
         <CodeBlock
@@ -190,14 +190,14 @@ export function TextAnimations(): ReactElement {
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           Celui-ci passe par la boucle du moteur : le brouillage doit changer a la cadence
-          de l ecran, faute de quoi un minuteur a intervalle fixe produirait un battement
+          de l’écran, faute de quoi un minuteur a intervalle fixe produirait un battement
           visible contre le rafraichissement.
         </p>
       </Section>
 
       <Section
-        title="Machine a ecrire"
-        lead="Une suite de phrases frappees puis effacees. La phrase la plus longue est rendue en reserve, invisible : sans elle, toute la ligne se decalerait a chaque caractere."
+        title="Machine a écrire"
+        lead="Une suite de phrases frappees puis effacees. La phrase la plus longue est rendue en réserve, invisible : sans elle, toute la ligne se decalerait a chaque caractère."
       >
         <Atelier
           demoByDefault={false}
@@ -228,7 +228,7 @@ export function TextAnimations(): ReactElement {
           {(values) => (
             <Stage>
               <p className="o-text-2xl o-font-semibold o-tracking-tight">
-                Odoro, c est{' '}
+                Odoro, c’est{' '}
                 <Typewriter
                   typeSpeed={values['typeSpeed'] as number}
                   hold={values['hold'] as number}
@@ -245,16 +245,16 @@ export function TextAnimations(): ReactElement {
         </Atelier>
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Celui-ci n emploie <strong>pas</strong> la boucle, et c est deliberé : la frappe
-          avance toutes les cinquante millisecondes, soit une image sur trois. S abonner a
+          Celui-ci n’emploie <strong>pas</strong> la boucle, et c’est deliberé : la frappe
+          avance toutes les cinquante millisecondes, soit une image sur trois. S’abonner a
           la boucle reviendrait a la reveiller cinquante-neuf fois sur soixante pour ne
-          rien faire. C est la contre-epreuve du critere du moteur.
+          rien faire. C’est la contre-epreuve du critère du moteur.
         </p>
       </Section>
 
       <Section
         title="Reflet"
-        lead="Un reflet traverse le texte en boucle. Aucun JavaScript ne s'execute apres le premier rendu : le compositeur du navigateur s'en charge seul."
+        lead="Un reflet traverse le texte en boucle. Aucun JavaScript ne s'execute après le premier rendu : le compositeur du navigateur s'en charge seul."
       >
         <Atelier
           demoByDefault={false}
@@ -287,9 +287,9 @@ export function TextAnimations(): ReactElement {
         </Atelier>
 
         <Callout tone="warning">
-          Le decoupage du degrade sur la forme des lettres suppose de rendre la couleur du
-          texte transparente. La ou il n est pas compris, un texte transparent serait{' '}
-          <strong>invisible</strong> — la regle est donc enfermee dans une requete de
+          Le découpage du dégradé sur la forme des lettres suppose de rendre la couleur du
+          texte transparente. La ou il n’est pas compris, un texte transparent serait{' '}
+          <strong>invisible</strong> — la règle est donc enfermee dans une requête de
           support, et le texte y garde sa couleur en perdant seulement son reflet.
         </Callout>
       </Section>

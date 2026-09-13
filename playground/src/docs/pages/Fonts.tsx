@@ -26,12 +26,12 @@ export function Fonts(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/styles"
         title="Google Fonts"
-        lead="Aucun fichier de police dans le bundle : le module construit l'URL css2 officielle et injecte les balises link — preconnexions comprises. Le navigateur telecharge du WOFF2 decoupe par plages Unicode, depuis le cache partage du CDN."
+        lead="Aucun fichier de police dans le bundle : le module construit l'URL css2 officielle et injecte les balises link — preconnexions comprises. Le navigateur télécharge du WOFF2 découpe par plages Unicode, depuis le cache partage du CDN."
       />
 
       <Section
         title="Principe"
-        lead="Un appel injecte trois balises dans le head : deux preconnexions (fonts.googleapis.com et fonts.gstatic.com), puis la feuille css2. Seules les graisses demandees sont telechargees, et uniquement pour les plages de caracteres reellement affichees."
+        lead="Un appel injecte trois balises dans le head : deux preconnexions (fonts.googleapis.com et fonts.gstatic.com), puis la feuille css2. Seules les graisses demandees sont telechargees, et uniquement pour les plages de caractères reellement affichees."
       >
         <CodeBlock
           lang="ts"
@@ -50,7 +50,7 @@ applyFontFamily('sans', 'Inter')`}
 
       <Section
         title="Essayer une famille"
-        lead="Le registre recense environ 90 familles avec leur categorie — sans-serif, serif, monospace, display, manuscrite. Choisissez : la police se charge, l'apercu bascule."
+        lead="Le registre recense environ 90 familles avec leur categorie — sans-serif, serif, monospace, display, manuscrite. Choisissez : la police se charge, l'aperçu bascule."
       >
         <div className="o-flex o-flex-col o-gap-0 o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-overflow-hidden">
           <div className="o-flex o-items-center o-gap-3 o-p-4 o-bg-white dark:o-bg-zinc-900 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
@@ -72,7 +72,7 @@ applyFontFamily('sans', 'Inter')`}
                 </option>
               ))}
             </select>
-            <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+            <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
               {GOOGLE_FONTS[family as keyof typeof GOOGLE_FONTS]}
             </span>
           </div>
@@ -97,8 +97,8 @@ applyFontFamily('sans', 'Inter')`}
       </Section>
 
       <Section
-        title="Construire l'URL soi-meme"
-        lead="googleFontsUrl retourne l'URL css2 sans rien injecter — utile pour un rendu serveur ou une balise link ecrite a la main."
+        title="Construire l'URL soi-même"
+        lead="googleFontsUrl retourne l'URL css2 sans rien injecter — utile pour un rendu serveur ou une balise link écrite a la main."
       >
         <CodeBlock
           lang="ts"

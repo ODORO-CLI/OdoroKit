@@ -129,7 +129,7 @@ function UseScrollProgressDemo(): ReactElement {
     <Preview>
       <div className="o-flex o-flex-col o-gap-2 o-w-full o-max-w-sm">
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Defilement de la page :{' '}
+          Défilement de la page :{' '}
           <span className="o-font-mono o-tabular-nums o-text-zinc-900 dark:o-text-zinc-50">
             {Math.round(progress * 100)} %
           </span>
@@ -152,12 +152,12 @@ export function MotionHooks(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/motion"
         title="Hooks"
-        lead="Quatre hooks pour piloter le mouvement a la main : jouer une animation, retarder un demontage, observer le viewport, suivre le defilement."
+        lead="Quatre hooks pour piloter le mouvement a la main : jouer une animation, retarder un démontage, observer le viewport, suivre le défilement."
       />
 
       <Section
         title="useAnimate"
-        lead="Une ref a poser sur l'element, des controles pour l'animer : play retourne une promesse resolue a la fin, cancel, finish, pause et resume completent le pilotage."
+        lead="Une ref a poser sur l'élément, des contrôles pour l'animer : play retourne une promesse resolue a la fin, cancel, finish, pause et résumé completent le pilotage."
       >
         <UseAnimateDemo />
         <CodeBlock
@@ -177,7 +177,7 @@ return <span ref={ref} className="o-badge">3 erreurs</span>`}
 
       <Section
         title="usePresence"
-        lead="React demonte un element des que sa condition devient fausse ; ce hook garde isMounted a true le temps de l'animation de sortie. Sous prefers-reduced-motion, le demontage redevient immediat."
+        lead="React démonté un élément dès que sa condition devient fausse ; ce hook garde isMounted a true le temps de l'animation de sortie. Sous prefers-reduced-motion, le démontage redevient immediat."
       >
         <UsePresenceDemo />
         <CodeBlock
@@ -196,7 +196,7 @@ return <div ref={ref}>...</div>`}
 
       <Section
         title="useInView"
-        lead="Un booleen qui suit la presence de l'element dans le viewport. once fige la valeur a true apres la premiere entree — le cas courant des revelations."
+        lead="Un booleen qui suit la présence de l'élément dans le viewport. once fige la valeur a true après la première entrée — le cas courant des révélations."
       >
         <UseInViewDemo />
         <CodeBlock
@@ -211,7 +211,7 @@ return <div ref={ref} className={inView ? 'o-animate-fade-in-up' : 'o-invisible'
 
       <Section
         title="useScrollProgress"
-        lead="La progression du defilement de la page, entre 0 et 1, mesuree dans un requestAnimationFrame coalescant. useElementScrollProgress fait de meme pour la traversee d'un element."
+        lead="La progression du défilement de la page, entre 0 et 1, mesuree dans un requestAnimationFrame coalescant. useElementScrollProgress fait de même pour la traversee d'un élément."
       >
         <UseScrollProgressDemo />
         <CodeBlock

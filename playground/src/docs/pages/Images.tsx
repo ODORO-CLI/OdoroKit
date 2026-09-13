@@ -115,7 +115,7 @@ export function Images(): ReactElement {
 
       <Section
         title="Cadre"
-        lead="Le rapport est pose des le premier rendu, a partir du seul nombre. L'image qui arrive ne pousse donc rien."
+        lead="Le rapport est pose dès le premier rendu, a partir du seul nombre. L'image qui arrive ne pousse donc rien."
       >
         <Atelier
           demoByDefault={false}
@@ -129,7 +129,7 @@ export function Images(): ReactElement {
             <div className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-p-6">
               <Frame
                 src={AFTER}
-                alt="Image de demonstration"
+                alt="Image de démonstration"
                 ratio={values['ratio'] as number}
                 zoom={values['zoom'] as number}
                 className="o-w-full o-max-w-md o-rounded-lg"
@@ -139,8 +139,8 @@ export function Images(): ReactElement {
         </Atelier>
 
         <Callout>
-          Une image sans dimensions declarees occupe zero pixel jusqu a son chargement,
-          puis pousse brutalement tout ce qui la suit. C est le decalage de mise en page
+          Une image sans dimensions declarees occupe zéro pixel jusqu’à son chargement,
+          puis pousse brutalement tout ce qui la suit. C’est le décalage de mise en page
           le plus courant du web, et il est entierement evitable.
         </Callout>
 
@@ -148,7 +148,7 @@ export function Images(): ReactElement {
           code={`// Ce que le composant ne decide pas passe par le passe-plat.
 <Frame
   src="/photo.jpg"
-  alt="Vue de l atelier"
+  alt="Vue de l’atelier"
   srcSet="/photo-800.jpg 800w, /photo-1600.jpg 1600w"
   sizes="(min-width: 60rem) 50vw, 100vw"
   loading="lazy"
@@ -157,8 +157,8 @@ export function Images(): ReactElement {
       </Section>
 
       <Section
-        title="Avant / apres"
-        lead="Un curseur, pas une image cliquable. Les fleches le deplacent, Origine et Fin le poussent aux extremites, et sa position est annoncee."
+        title="Avant / après"
+        lead="Un curseur, pas une image cliquable. Les fleches le déplacent, Origine et Fin le poussent aux extremites, et sa position est annoncee."
       >
         <Atelier
           demoByDefault={false}
@@ -168,7 +168,7 @@ export function Images(): ReactElement {
           {(values) => (
             <div className="o-absolute o-inset-0 o-flex o-items-center o-justify-center o-p-6">
               <Compare
-                label="Comparaison de demonstration"
+                label="Comparaison de démonstration"
                 before={{ src: BEFORE, alt: 'Version initiale' }}
                 after={{ src: AFTER, alt: 'Version retouchee' }}
                 start={values['start'] as number}
@@ -187,12 +187,12 @@ export function Images(): ReactElement {
 
       <Section
         title="Deformation"
-        lead="Un filtre de deplacement natif, applicable a un fond, a du texte ou a une image — indifferemment."
+        lead="Un filtre de déplacement natif, applicable a un fond, a du texte ou a une image — indifferemment."
       >
         <Callout>
           La grille et le cercle ne sont pas decoratifs : une deformation ne se voit que
-          sur du detail. Deplacer un degrade lisse rend un degrade lisse — c est pour cela
-          que la premiere version de cette page semblait ne rien faire.
+          sur du détail. Deplacer un dégradé lisse rend un dégradé lisse — c’est pour cela
+          que la première version de cette page semblait ne rien faire.
         </Callout>
 
         <Callout>
@@ -257,20 +257,20 @@ export function Images(): ReactElement {
         </Atelier>
 
         <Callout tone="warning">
-          Le reglage <strong>Bords</strong> merite un mot, parce que c est lui qui decide
+          Le réglage <strong>Bords</strong> merite un mot, parce que c est lui qui decide
           si l effet se lit ou pas. Un deplacement va chercher chaque pixel ailleurs ; au
           bord de l element, cet ailleurs est en dehors, et la silhouette part en
           lambeaux.
-          <code className="o-font-mono o-text-xs"> clean</code> redecoupe donc le resultat
-          sur la forme d origine — elle reste intacte, seul l interieur ondule.
+          <code className="o-font-mono o-text-xs"> clean</code> redecoupe donc le résultat
+          sur la forme d’origine — elle reste intacte, seul l’intérieur ondule.
           <code className="o-font-mono o-text-xs"> organic</code> laisse la silhouette se
-          deformer : c est ce qu on veut pour une tache de couleur, et rarement pour une
-          carte, dont les angles sont precisement ce qu on remarque.
+          deformer : c’est ce qu’on veut pour une tache de couleur, et rarement pour une
+          carte, dont les angles sont precisement ce qu’on remarque.
         </Callout>
 
         <Section
           title="Sur une image, au survol"
-          lead="Amplitude nulle au repos, montee en douceur quand le pointeur entre. C'est l'emploi le plus courant."
+          lead="Amplitude nulle au repos, montée en douceur quand le pointeur entre. C'est l'emploi le plus courant."
         >
           <div className="o-flex o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
             <Deform amount={14} onHover speed={0.2} className="o-w-64">
@@ -281,17 +281,17 @@ export function Images(): ReactElement {
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
           La voie evidente aurait ete de rendre le contenu dans une texture puis de la
-          tordre dans un shader. C est une impasse des que le contenu est du DOM :
-          capturer du HTML en image demande une bibliotheque tierce, echoue sur les
-          polices distantes, ignore une partie des pseudo-elements, et casse des qu une
-          image vient d une autre origine. Le filtre, lui, est natif.
+          tordre dans un shader. C’est une impasse dès que le contenu est du DOM :
+          capturer du HTML en image demande une bibliothèque tierce, echoue sur les
+          polices distantes, ignore une partie des pseudo-éléments, et casse des qu’une
+          image vient d’une autre origine. Le filtre, lui, est natif.
         </p>
 
         <Callout tone="warning">
-          Deux autres limites. Le texte est <strong>rasterise</strong> : au-dela d une
-          dizaine de pixels d amplitude, les lettres perdent leur nettete. Et la
+          Deux autres limites. Le texte est <strong>rasterise</strong> : au-delà d’une
+          dizaine de pixels d’amplitude, les lettres perdent leur nettete. Et la
           turbulence est calculee <strong>une fois</strong> — le mouvement translate le
-          champ plutot que de le regenerer, ce qui est moins riche et cent fois moins
+          champ plutôt que de le regenerer, ce qui est moins riche et cent fois moins
           cher.
         </Callout>
 
@@ -323,43 +323,43 @@ export function Images(): ReactElement {
         </div>
 
         <Callout tone="warning">
-          Sous <strong>mouvement reduit</strong>, elle ne demarre pas du tout et l affiche
-          reste. C est le seul cas ou une image fixe est le rendu final plutot qu une
-          attente : une video d ambiance n apporte rien d autre que son mouvement.
+          Sous <strong>mouvement réduit</strong>, elle ne démarre pas du tout et l’affiche
+          reste. C’est le seul cas ou une image fixe est le rendu final plutôt qu’une
+          attente : une video d’ambiance n’apporte rien d’autre que son mouvement.
         </Callout>
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
-          La lecture attend l entree dans le champ et s arrete a la sortie. Une video qui
-          se decode hors de l ecran consomme processeur et batterie sans que personne ne
+          La lecture attend l’entrée dans le champ et s’arrête a la sortie. Une video qui
+          se decode hors de l’écran consomme processeur et batterie sans que personne ne
           la voie.
         </p>
       </Section>
 
       <Section
         title="Lecteur video"
-        lead="Un lecteur habillable. Ce qui reste au natif reste au natif : decodage, mise en tampon, sous-titres, plein ecran."
+        lead="Un lecteur habillable. Ce qui reste au natif reste au natif : decodage, mise en tampon, sous-titres, plein écran."
       >
         <div className="o-flex o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
           <Player
             src={VIDEO}
             poster={DETAILLEE}
-            label="Video de demonstration"
+            label="Video de démonstration"
             ratio={16 / 9}
             className="o-w-96 o-rounded-lg"
           />
         </div>
 
         <Callout>
-          Les commandes natives fonctionnent parfaitement, et n ont aucune raison d etre
+          Les commandes natives fonctionnent parfaitement, et n’ont aucune raison d’être
           remplacees si leur apparence convient. Ce lecteur existe pour une seule raison :
           elles ne sont pas habillables — ni couleur, ni forme, ni rayon, ni position.
         </Callout>
 
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
-          L etat vient du media, jamais l inverse. Un lecteur qui tiendrait son propre
-          etat de lecture se desynchroniserait au premier evenement exterieur — une touche
-          media du clavier, une mise en pause par le systeme. Et la barre de progression
-          est un <strong>curseur</strong> : role, bornes, valeur en secondes, fleches de
+          L’état vient du media, jamais l’inverse. Un lecteur qui tiendrait son propre
+          état de lecture se desynchroniserait au premier événement exterieur — une touche
+          media du clavier, une mise en pause par le système. Et la barre de progression
+          est un <strong>curseur</strong> : rôle, bornes, valeur en secondes, fleches de
           cinq secondes.
         </p>
 
@@ -367,8 +367,8 @@ export function Images(): ReactElement {
           code={`<Player
   src="/presentation.mp4"
   poster="/presentation.jpg"
-  label="Presentation du produit"
-  tracks={[{ src: '/fr.vtt', srcLang: 'fr', label: 'Francais' }]}
+  label="Présentation du produit"
+  tracks={[{ src: '/fr.vtt', srcLang: 'fr', label: 'Français' }]}
 />`}
         />
       </Section>

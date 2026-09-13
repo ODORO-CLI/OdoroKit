@@ -60,7 +60,7 @@ export function Gallery({ entries }: GalleryProps): ReactElement {
               Aucun contexte graphique
             </p>
             <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-              Dix fonds qui ne coutent qu un degrade.
+              Dix fonds qui ne coûtent qu’un dégradé.
             </h2>
           </div>
           <Link

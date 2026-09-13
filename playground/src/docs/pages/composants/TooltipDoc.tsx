@@ -53,12 +53,12 @@ export function TooltipDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Tooltip"
-        lead="Infobulle accessible : apparait au survol comme au focus clavier, disparait a la sortie, au blur et sur Echap. Le declencheur est decrit par aria-describedby tant qu'elle est visible."
+        lead="Infobulle accessible : apparaît au survol comme au focus clavier, disparaît a la sortie, au blur et sur Echap. Le déclencheur est décrit par aria-describedby tant qu'elle est visible."
       />
 
       <Section
-        title="Apercu"
-        lead="Survolez le bouton, ou donnez-lui le focus au clavier. Le delai evite le clignotement quand le pointeur ne fait que traverser."
+        title="Aperçu"
+        lead="Survolez le bouton, ou donnez-lui le focus au clavier. Le delai évite le clignotement quand le pointeur ne fait que traverser."
       >
         <PlaygroundBlock
           previewClassName="o-py-16"
@@ -123,8 +123,8 @@ export function TooltipDoc(): ReactElement {
               values: { delay: 1000 },
             },
             {
-              title: 'Sur une icone',
-              description: "L'infobulle complete l'aria-label.",
+              title: 'Sur une icône',
+              description: "L'infobulle complète l'aria-label.",
               node: (
                 <Tooltip content="Copier dans le presse-papiers">
                   <Button tone="ghost" aria-label="Copier">
@@ -138,8 +138,8 @@ export function TooltipDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Sur une icone"
-        lead="Cas d'usage typique : un bouton icone dont le sens n'est pas evident. L'infobulle complete le libelle accessible, elle ne le remplace pas."
+        title="Sur une icône"
+        lead="Cas d'usage typique : un bouton icône dont le sens n'est pas evident. L'infobulle complète le libelle accessible, elle ne le remplace pas."
       >
         <DemoBlock
           code={`<Tooltip content="Copier dans le presse-papiers">
@@ -163,7 +163,7 @@ export function TooltipDoc(): ReactElement {
 
       <Section
         title="Les quatre placements"
-        lead="Le panneau est positionne en pur CSS par rapport au declencheur : aucune mesure, aucun calcul."
+        lead="Le panneau est positionne en pur CSS par rapport au déclencheur : aucune mesure, aucun calcul."
       >
         <DemoBlock
           code={`<Tooltip content="En haut" placement="top">...</Tooltip>
@@ -213,20 +213,20 @@ export function TooltipDoc(): ReactElement {
             {
               name: 'children',
               type: 'ReactNode',
-              description: 'Element declencheur, survole ou focalise.',
+              description: 'Élément déclencheur, survole ou focalise.',
             },
             {
               name: 'placement',
               type: "'top' | 'bottom' | 'left' | 'right'",
               defaultValue: "'top'",
-              description: "Cote d'apparition.",
+              description: "Côté d'apparition.",
             },
             {
               name: 'delay',
               type: 'number',
               defaultValue: '300',
               description:
-                'Delai avant apparition, en millisecondes. Evite le clignotement quand le pointeur ne fait que traverser.',
+                'Delai avant apparition, en millisecondes. Évite le clignotement quand le pointeur ne fait que traverser.',
             },
             {
               name: 'className',

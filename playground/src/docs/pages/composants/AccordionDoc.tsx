@@ -36,7 +36,7 @@ const FAQ_ITEMS: readonly AccordionItem[] = [
   },
   {
     id: 'theme',
-    title: 'Le theme sombre est-il gere ?',
+    title: 'Le thème sombre est-il gère ?',
     content:
       'Oui, il suit la preference systeme. Posez data-theme sur la racine pour forcer un theme.',
   },
@@ -47,7 +47,7 @@ const DISABLED_ITEMS: readonly AccordionItem[] = [
   FAQ_ITEMS[0] as AccordionItem,
   {
     id: 'entreprise',
-    title: 'Offre entreprise (bientot disponible)',
+    title: 'Offre entreprise (bientôt disponible)',
     content: 'Cette section ouvrira prochainement.',
     disabled: true,
   },
@@ -89,12 +89,12 @@ export function AccordionDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Accordion"
-        lead="Accordeon a sections repliables, suivant le motif APG : en-tetes boutons relies a leur region, ouverture animee en hauteur."
+        lead="Accordeon a sections repliables, suivant le motif APG : en-têtes boutons relies a leur region, ouverture animee en hauteur."
       />
 
       <Section
-        title="Apercu"
-        lead="Une FAQ de trois sections. En mode single, ouvrir une section referme la precedente ; collapsible autorise a tout refermer."
+        title="Aperçu"
+        lead="Une FAQ de trois sections. En mode single, ouvrir une section referme la précédente ; collapsible autorise a tout refermer."
       >
         <PlaygroundBlock
           controls={[
@@ -123,7 +123,7 @@ export function AccordionDoc(): ReactElement {
   items={[
     { id: 'installation', title: 'Comment installer OdoroKit ?', content: '...' },
     { id: 'bundler', title: 'Faut-il un bundler particulier ?', content: '...' },
-    { id: 'theme', title: 'Le theme sombre est-il gere ?', content: '...' },
+    { id: 'theme', title: 'Le thème sombre est-il gère ?', content: '...' },
   ]}
 />`}
           variants={[
@@ -138,8 +138,8 @@ export function AccordionDoc(): ReactElement {
               values: { collapsible: false },
             },
             {
-              title: 'Ouvert sur la premiere',
-              description: 'defaultValue pointe la premiere section.',
+              title: 'Ouvert sur la première',
+              description: 'defaultValue pointe la première section.',
               node: (
                 <Accordion
                   items={FAQ_ITEMS}
@@ -159,14 +159,14 @@ export function AccordionDoc(): ReactElement {
 
       <Section
         title="Section desactivee"
-        lead="Une section disabled reste visible mais ne s'ouvre pas : son en-tete porte aria-disabled."
+        lead="Une section disabled reste visible mais ne s'ouvre pas : son en-tête porte aria-disabled."
       >
         <DemoBlock
           code={`<Accordion
   items={[
     { id: 'installation', title: 'Comment installer OdoroKit ?', content: '...' },
     { id: 'entreprise', title: 'Offre entreprise', content: '...', disabled: true },
-    { id: 'theme', title: 'Le theme sombre est-il gere ?', content: '...' },
+    { id: 'theme', title: 'Le thème sombre est-il gère ?', content: '...' },
   ]}
 />`}
         >
@@ -175,8 +175,8 @@ export function AccordionDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Mode controle"
-        lead="Passez value et onValueChange pour piloter les sections ouvertes — toujours en tableau d'identifiants, meme en mode single."
+        title="Mode contrôle"
+        lead="Passez value et onValueChange pour piloter les sections ouvertes — toujours en tableau d'identifiants, même en mode single."
       >
         <DemoBlock
           code={`const [open, setOpen] = useState<readonly string[]>(['installation'])
@@ -202,18 +202,18 @@ export function AccordionDoc(): ReactElement {
               type: "'single' | 'multiple'",
               defaultValue: "'single'",
               description:
-                "single n'autorise qu'une section ouverte a la fois ; multiple laisse chaque section independante.",
+                "single n'autorise qu'une section ouverte à la fois ; multiple laisse chaque section independante.",
             },
             {
               name: 'defaultValue',
               type: 'string | readonly string[]',
-              description: 'Sections ouvertes initialement, en mode non controle.',
+              description: 'Sections ouvertes initialement, en mode non contrôle.',
             },
             {
               name: 'value',
               type: 'string | readonly string[]',
               description:
-                'Sections ouvertes en mode controle. Toujours exprimees en tableau, meme en mode single.',
+                'Sections ouvertes en mode contrôle. Toujours exprimees en tableau, même en mode single.',
             },
             {
               name: 'onValueChange',
@@ -236,7 +236,7 @@ export function AccordionDoc(): ReactElement {
           ]}
         />
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
+          Chaque entrée de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">AccordionItem</code> :
         </p>
         <PropsTable
@@ -249,7 +249,7 @@ export function AccordionDoc(): ReactElement {
             {
               name: 'title',
               type: 'ReactNode',
-              description: "Titre affiche dans l'en-tete cliquable.",
+              description: "Titre affiche dans l'en-tête cliquable.",
             },
             {
               name: 'content',

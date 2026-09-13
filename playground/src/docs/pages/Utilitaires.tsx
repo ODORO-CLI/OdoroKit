@@ -16,26 +16,26 @@ export function Utilitaires(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/styles"
         title="Utilitaires"
-        lead="Le tour des familles visuelles : chaque demo est rendue avec les classes exactes de son extrait. Les utilitaires de couleur sur la palette brute demandent la feuille complete."
+        lead="Le tour des familles visuelles : chaque demo est rendue avec les classes exactes de son extrait. Les utilitaires de couleur sur la palette brute demandent la feuille complète."
       />
 
       <Section
-        title="Degrades"
-        lead="Une direction (o-bg-gradient-to-*), une forme radiale ou conique, et des jalons from / via / to. Les memes classes decoupees a la forme des lettres avec o-text-gradient."
+        title="Dégradés"
+        lead="Une direction (o-bg-gradient-to-*), une forme radiale ou conique, et des jalons from / via / to. Les mêmes classes decoupees a la forme des lettres avec o-text-gradient."
       >
         <DemoBlock
           center={false}
           code={`<div className="o-bg-gradient-to-r o-from-sky-500 o-via-fuchsia-500 o-to-amber-400" />
 <div className="o-bg-gradient-radial o-from-sky-500 o-to-fuchsia-500" />
 <div className="o-bg-gradient-conic o-from-indigo-500 o-via-purple-500 o-to-pink-500" />
-<h3 className="o-text-gradient o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500">Texte en degrade</h3>`}
+<h3 className="o-text-gradient o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500">Texte en dégradé</h3>`}
         >
           <div className="o-grid o-grid-cols-1 sm:o-grid-cols-3 o-gap-4 o-w-full">
             <div className="o-h-24 o-rounded-lg o-bg-gradient-to-r o-from-sky-500 o-via-fuchsia-500 o-to-amber-400" />
             <div className="o-h-24 o-rounded-lg o-bg-gradient-radial o-from-sky-500 o-to-fuchsia-500" />
             <div className="o-h-24 o-rounded-lg o-bg-gradient-conic o-from-indigo-500 o-via-purple-500 o-to-pink-500" />
             <h3 className="sm:o-col-span-3 o-text-3xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-sky-500 o-to-fuchsia-500">
-              Texte en degrade
+              Texte en dégradé
             </h3>
           </div>
         </DemoBlock>
@@ -43,20 +43,20 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Verre depoli"
-        lead="o-glass combine fond translucide, flou d'arriere-plan et bordure discrete — a poser sur un fond charge pour que l'effet se voie."
+        lead="o-glass combine fond translucide, flou d'arriere-plan et bordure discrète — a poser sur un fond charge pour que l'effet se voie."
       >
         <DemoBlock
           code={`<div className="o-bg-gradient-to-r o-from-indigo-500 o-via-purple-500 o-to-pink-500 o-p-8">
   <div className="o-glass dark:o-glass-dark o-rounded-lg o-p-6">
     <p className="o-font-semibold">Verre depoli</p>
-    <p className="o-text-sm">Le degrade se devine a travers.</p>
+    <p className="o-text-sm">Le dégradé se devine à travers.</p>
   </div>
 </div>`}
         >
           <div className="o-bg-gradient-to-r o-from-indigo-500 o-via-purple-500 o-to-pink-500 o-p-8 o-rounded-lg o-w-full o-max-w-md">
             <div className="o-glass dark:o-glass-dark o-rounded-lg o-p-6">
               <p className="o-font-semibold">Verre depoli</p>
-              <p className="o-text-sm">Le degrade se devine a travers.</p>
+              <p className="o-text-sm">Le dégradé se devine à travers.</p>
             </div>
           </div>
         </DemoBlock>
@@ -64,7 +64,7 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Transforms"
-        lead="Echelle, rotation, translation — et o-lift-*, un raccourci translation + ombre pour faire decoller une carte au survol. Toujours accompagner d'une transition."
+        lead="Échelle, rotation, translation — et o-lift-*, un raccourci translation + ombre pour faire decoller une carte au survol. Toujours accompagner d'une transition."
       >
         <DemoBlock
           code={`<div className="hover:o-scale-105 o-transition-transform">Survolez-moi</div>
@@ -87,7 +87,7 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Filtres"
-        lead="Niveaux de gris, flou, luminosite... Les filtres se pretent bien aux etats : ici, les pastilles retrouvent leurs couleurs au survol."
+        lead="Niveaux de gris, flou, luminosite... Les filtres se pretent bien aux états : ici, les pastilles retrouvent leurs couleurs au survol."
       >
         <DemoBlock
           code={`<div className="o-grayscale hover:o-grayscale-0 o-transition-all">
@@ -119,7 +119,7 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Ombres"
-        lead="Sept intensites d'ombre portee, de la plus discrete a la plus profonde."
+        lead="Sept intensites d'ombre portée, de la plus discrète a la plus profonde."
       >
         <DemoBlock
           code={`<div className="o-shadow-2xs" /> ... <div className="o-shadow-2xl" />`}
@@ -172,7 +172,7 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Scroll-snap"
-        lead="Une bande qui defile horizontalement et s'aimante carte par carte : faites glisser."
+        lead="Une bande qui défile horizontalement et s'aimante carte par carte : faites glisser."
       >
         <DemoBlock
           center={false}
@@ -196,7 +196,7 @@ export function Utilitaires(): ReactElement {
 
       <Section
         title="Animations CSS"
-        lead="Les mouvements du moteur existent aussi en classes o-animate-*, pour les cas sans JavaScript : indicateurs, squelettes de chargement, accents decoratifs. Duree, retard et repetition se reglent avec o-animate-duration-*, o-animate-delay-* et o-animate-infinite."
+        lead="Les mouvements du moteur existent aussi en classes o-animate-*, pour les cas sans JavaScript : indicateurs, squelettes de chargement, accents decoratifs. Durée, retard et répétition se reglent avec o-animate-duration-*, o-animate-delay-* et o-animate-infinite."
       >
         <DemoBlock
           center={false}
@@ -260,13 +260,13 @@ export function Utilitaires(): ReactElement {
                 className="o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-h-24 o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-4"
               >
                 {demo}
-                <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                   o-animate-{name}
                 </span>
               </div>
             ))}
             <h3 className="o-col-span-2 sm:o-col-span-3 o-text-center o-text-2xl o-font-extrabold o-text-gradient o-bg-gradient-to-r o-from-sky-500 o-via-fuchsia-500 o-to-amber-400 o-animate-gradient">
-              Un titre au degrade anime
+              Un titre au dégradé anime
             </h3>
           </div>
         </DemoBlock>

@@ -26,17 +26,17 @@ interface Principle {
 const PRINCIPLES: readonly Principle[] = [
   {
     icon: Package,
-    title: 'Zero dependance',
+    title: 'Zéro dependance',
     text: 'Ni framework d animation, ni utilitaire CSS tiers. Ce que vous installez, vous pouvez le lire en entier.',
   },
   {
     icon: Code,
-    title: 'Copie, jamais lie',
+    title: 'Copie, jamais lié',
     text: 'Une entree du registre est un fichier dans votre projet. Modifiez-la : rien ne se casse a la prochaine version.',
   },
   {
     icon: Shield,
-    title: 'Accessible d abord',
+    title: 'Accessible d’abord',
     text: 'Motifs ARIA, textes en sr-only sous les animations, mouvement reduit respecte partout. Sans option a cocher.',
   },
   {
@@ -55,9 +55,9 @@ const PROMISES = [
 
 const FOOTER_LINKS: readonly (readonly [string, string])[] = [
   ['/docs', 'Documentation'],
-  ['/docs/registre', 'Registre'],
+  ['/docs/registry', 'Registre'],
   ['/docs/backgrounds', 'Fonds'],
-  ['/docs/composants/button', 'Composants'],
+  ['/docs/components/button', 'Composants'],
   ['/templates', 'Templates'],
 ]
 
@@ -77,7 +77,7 @@ export function Closing({ total }: ClosingProps): ReactElement {
             Principes
           </p>
           <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-            Ce a quoi le kit s engage.
+            Ce a quoi le kit s’engage.
           </h2>
         </Reveal>
         <Stagger
@@ -117,12 +117,12 @@ export function Closing({ total }: ClosingProps): ReactElement {
               Templates
             </p>
             <h2 className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight o-text-balance">
-              Ou partez d un projet entier.
+              Ou partez d’un projet entier.
             </h2>
             <p className="o-mt-4 o-max-w-prose o-text-zinc-600 dark:o-text-zinc-400 o-text-pretty">
-              Un template n est pas une piece a ajouter : c est un projet complet, routes et
-              configuration comprises, bati avec la meme stack — et livre avec ses entrees de
-              registre deja installees.
+              Un template n’est pas une piece a ajouter : c’est un projet complet, routes et
+              configuration comprises, bati avec la même stack — et livre avec ses entrées de
+              registre déjà installees.
             </p>
             <Link
               to="/templates"
@@ -152,7 +152,7 @@ export function Closing({ total }: ClosingProps): ReactElement {
       <section className="o-mx-auto o-max-w-3xl o-px-6 o-py-24">
         <Reveal preset="fade-up" className="o-mb-10 o-text-center">
           <h2 className="o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight o-text-balance">
-            Les questions qu on nous pose.
+            Les questions qu’on nous pose.
           </h2>
         </Reveal>
         <Faq
@@ -173,9 +173,9 @@ export function Closing({ total }: ClosingProps): ReactElement {
               question: 'Que se passe-t-il sans WebGL, ou sous mouvement reduit ?',
               answer: (
                 <p>
-                  Chaque fond declare un repli statique — un degrade dans les memes tons — qui
-                  s affiche pendant le chargement, quand WebGL manque, quand l arbitre refuse
-                  une surface de plus, et sous prefers-reduced-motion. Rien ne disparait, rien
+                  Chaque fond déclare un repli statique — un dégradé dans les mêmes tons — qui
+                  s’affiche pendant le chargement, quand WebGL manque, quand l’arbitre refuse
+                  une surface de plus, et sous prefers-reduced-motion. Rien ne disparaît, rien
                   ne clignote.
                 </p>
               ),
@@ -184,7 +184,7 @@ export function Closing({ total }: ClosingProps): ReactElement {
               question: 'Combien de fonds animes peut-on poser sur une page ?',
               answer: (
                 <p>
-                  Un contexte par backend : un shader ogl et une scene three au maximum,
+                  Un contexte par backend : un shader ogl et une scène three au maximum,
                   simultanement. Cette page en emploie exactement deux — la constellation du
                   hero et le ciel de la section moteur. Les autres fonds sont en CSS pur.
                 </p>
@@ -195,7 +195,7 @@ export function Closing({ total }: ClosingProps): ReactElement {
               answer: (
                 <p>
                   La librairie fonctionne dans tout projet React 18+, quel que soit le bundler.
-                  L engine apporte le serveur de developpement, le build qui elague la feuille
+                  L’engine apporte le serveur de développement, le build qui élague la feuille
                   de style et la CLI du registre — il est recommande, pas obligatoire.
                 </p>
               ),
@@ -204,8 +204,8 @@ export function Closing({ total }: ClosingProps): ReactElement {
               question: 'Comment retheme-t-on tout cela ?',
               answer: (
                 <p>
-                  En surchargeant les variables --o-theme-* et --o-palette-* : composants,
-                  utilitaires et shaders lisent les memes tokens. La teinte de marque change en
+                  En surchargeant les variables --o-thème-* et --o-palette-* : composants,
+                  utilitaires et shaders lisent les mêmes tokens. La teinte de marque change en
                   une ligne, et les fonds la suivent au prochain rendu.
                 </p>
               ),
@@ -220,7 +220,7 @@ export function Closing({ total }: ClosingProps): ReactElement {
         topLabel="Retour en haut"
         banner={
           <span className="o-px-8">
-            {total} entrees — registre, moteur, librairie — copiees, jamais liees
+            {total} entrées — registre, moteur, librairie — copiees, jamais liées
           </span>
         }
         actions={

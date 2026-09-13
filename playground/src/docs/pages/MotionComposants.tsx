@@ -67,7 +67,7 @@ function RevealDemo(): ReactElement {
           preset={preset}
           className="o-rounded-lg o-bg-white dark:o-bg-zinc-900 o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-6 o-max-w-sm"
         >
-          <p className="o-font-semibold">Bloc revele</p>
+          <p className="o-font-semibold">Bloc révèle</p>
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             L'animation part quand le bloc entre a l'ecran, depuis l'etat{' '}
             <span className="o-font-mono o-text-xs">{preset}</span>.
@@ -175,12 +175,12 @@ export function MotionComposants(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/motion"
         title="Composants"
-        lead="Quatre composants declaratifs : Reveal et Stagger pour les entrees a l'ecran, TextReveal pour le texte, Animate pour tout le reste."
+        lead="Quatre composants declaratifs : Reveal et Stagger pour les entrées a l'écran, TextReveal pour le texte, Animate pour tout le reste."
       />
 
       <Section
         title="Reveal"
-        lead="Revele son contenu quand il entre dans le viewport, depuis un etat de depart nomme. Par defaut, une seule fois."
+        lead="Révèle son contenu quand il entre dans le viewport, depuis un état de départ nomme. Par défaut, une seule fois."
       >
         <RevealDemo />
         <CodeBlock
@@ -195,7 +195,7 @@ export function MotionComposants(): ReactElement {
 
       <Section
         title="Stagger"
-        lead="Revele ses enfants les uns apres les autres, avec un ecart constant et un plafond de retard cumule : une longue liste ne traine jamais."
+        lead="Révèle ses enfants les uns après les autres, avec un écart constant et un plafond de retard cumule : une longue liste ne traine jamais."
       >
         <StaggerDemo />
         <CodeBlock
@@ -212,7 +212,7 @@ export function MotionComposants(): ReactElement {
 
       <Section
         title="TextReveal"
-        lead="Revele une chaine mot a mot ou lettre a lettre. Les lecteurs d'ecran recoivent le texte entier d'un bloc ; sous prefers-reduced-motion, le texte est rendu tel quel."
+        lead="Révèle une chaîne mot a mot ou lettre a lettre. Les lecteurs d'écran reçoivent le texte entier d'un bloc ; sous prefers-reduced-motion, le texte est rendu tel quel."
       >
         <TextRevealDemo />
         <CodeBlock
@@ -229,7 +229,7 @@ export function MotionComposants(): ReactElement {
 
       <Section
         title="Animate"
-        lead="Joue un preset — ou des images-cles libres — au montage, puis a chaque changement de trigger. C'est l'equivalent declaratif de useAnimate."
+        lead="Joue un preset — ou des images-cles libres — au montage, puis a chaque changement de trigger. C'est l'équivalent declaratif de useAnimate."
       >
         <AnimateDemo />
         <CodeBlock

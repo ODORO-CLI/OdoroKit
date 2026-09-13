@@ -39,7 +39,7 @@ function GroupeControle(): ReactElement {
         ]}
       />
       <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-        Valeur selectionnee :{' '}
+        Valeur sélectionnée :{' '}
         <code className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-400">
           {valeur}
         </code>
@@ -55,10 +55,10 @@ export function RadioDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="RadioGroup"
-        lead="Groupe de boutons radio dessines au-dessus des inputs natifs. Le fieldset et sa legend donnent le nom de groupe aux lecteurs d'ecran ; les inputs natifs portent la navigation clavier (fleches, un seul arret de tabulation). Le name commun est genere : deux groupes sur la meme page ne se volent jamais la selection."
+        lead="Groupe de boutons radio dessines au-dessus des inputs natifs. Le fieldset et sa legend donnent le nom de groupe aux lecteurs d'écran ; les inputs natifs portent la navigation clavier (fleches, un seul arrêt de tabulation). Le name commun est génère : deux groupes sur la même page ne se volent jamais la sélection."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Visibilite' },
@@ -82,7 +82,7 @@ export function RadioDoc(): ReactElement {
               defaultValue="prive"
               items={[
                 { value: 'prive', label: 'Prive', description: 'Vous seul y accedez.' },
-                { value: 'equipe', label: 'Equipe' },
+                { value: 'equipe', label: 'Équipe' },
                 { value: 'public', label: 'Public', disabled: v.itemDisabled as boolean },
               ]}
             />
@@ -93,7 +93,7 @@ export function RadioDoc(): ReactElement {
   defaultValue="prive"
   items={[
     { value: 'prive', label: 'Prive', description: 'Vous seul y accedez.' },
-    { value: 'equipe', label: 'Equipe' },
+    { value: 'equipe', label: 'Équipe' },
     { value: 'public', label: 'Public'${
       v.itemDisabled === true ? ', disabled: true' : ''
     } },
@@ -134,7 +134,7 @@ export function RadioDoc(): ReactElement {
               ),
             },
             {
-              title: 'Mode controle',
+              title: 'Mode contrôle',
               description: 'La valeur vit chez le parent.',
               node: <GroupeControle />,
             },
@@ -143,8 +143,8 @@ export function RadioDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Mode controle"
-        lead="Fournissez value et onValueChange pour piloter la selection depuis le parent ; sans value, le groupe gere son propre etat (defaultValue)."
+        title="Mode contrôle"
+        lead="Fournissez value et onValueChange pour piloter la sélection depuis le parent ; sans value, le groupe gère son propre état (defaultValue)."
       >
         <DemoBlock
           code={`function GroupeControle() {
@@ -161,7 +161,7 @@ export function RadioDoc(): ReactElement {
           { value: 'annuelle', label: 'Annuelle', description: 'Deux mois offerts.' },
         ]}
       />
-      <p>Valeur selectionnee : {valeur}</p>
+      <p>Valeur sélectionnée : {valeur}</p>
     </>
   )
 }`}
@@ -186,17 +186,17 @@ export function RadioDoc(): ReactElement {
             {
               name: 'value',
               type: 'string',
-              description: 'Valeur selectionnee en mode controle.',
+              description: 'Valeur sélectionnée en mode contrôle.',
             },
             {
               name: 'defaultValue',
               type: 'string',
-              description: 'Valeur initiale en mode non controle.',
+              description: 'Valeur initiale en mode non contrôle.',
             },
             {
               name: 'onValueChange',
               type: '(value: string) => void',
-              description: 'Appele avec la nouvelle valeur a chaque selection.',
+              description: 'Appele avec la nouvelle valeur a chaque sélection.',
             },
             {
               name: 'orientation',
@@ -212,7 +212,7 @@ export function RadioDoc(): ReactElement {
           ]}
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Chaque entree de <code className="o-font-mono o-text-sm">items</code> est un{' '}
+          Chaque entrée de <code className="o-font-mono o-text-sm">items</code> est un{' '}
           <code className="o-font-mono o-text-sm">RadioItem</code> :
         </p>
         <PropsTable
@@ -233,7 +233,7 @@ export function RadioDoc(): ReactElement {
         />
         <Callout>
           Le <code className="o-font-mono o-text-sm">name</code> commun des inputs est
-          genere automatiquement : inutile de le fournir, meme avec plusieurs groupes sur
+          génère automatiquement : inutile de le fournir, même avec plusieurs groupes sur
           la page.
         </Callout>
       </Section>

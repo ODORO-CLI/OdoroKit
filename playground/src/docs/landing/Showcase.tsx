@@ -93,7 +93,7 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
           Le registre
         </p>
         <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-          Des familles entieres, pretes a etre copiees.
+          Des familles entières, prêtes a être copiees.
         </h2>
       </Reveal>
 
@@ -149,7 +149,7 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
         />
         <Card
           eyebrow={`${n('effect') + n('ui')} effets et pieces d interface`}
-          title="Ce qui repond au pointeur, sans re-rendre l arbre"
+          title="Ce qui répond au pointeur, sans re-rendre l’arbre"
           text="Cartes inclinees, lueurs, aimants, etincelles au clic, faisceaux entre elements : des variables CSS ecrites depuis la boucle, jamais un setState par image."
           to="/docs/effects/magnetic"
           background={
@@ -161,7 +161,7 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
                 <p className="o-text-xs o-uppercase o-tracking-wider o-text-zinc-500">tilt-card</p>
                 <p className="o-mt-2 o-text-lg o-font-semibold">Inclinez-moi</p>
                 <p className="o-mt-1 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-                  Le reflet suit le pointeur, la carte s incline.
+                  Le reflet suit le pointeur, la carte s’incline.
                 </p>
               </div>
             </TiltCard>

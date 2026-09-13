@@ -34,7 +34,7 @@ export function TextareaDoc(): ReactElement {
         lead="Zone de saisie multiligne. Reprend l'habillage d'Input, mais remplace la hauteur fixe des tailles par une hauteur minimale : un texte long doit pouvoir grandir, a la poignee de redimensionnement ou via autoResize."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Message' },
@@ -53,7 +53,7 @@ export function TextareaDoc(): ReactElement {
               size={v.size as 'sm' | 'md' | 'lg'}
               autoResize={v.autoResize as boolean}
               disabled={v.disabled as boolean}
-              placeholder="Ecrivez votre message..."
+              placeholder="Écrivez votre message..."
               wrapperClassName="o-w-72"
             />
           )}
@@ -74,7 +74,7 @@ export function TextareaDoc(): ReactElement {
             { title: 'Desactive', values: { disabled: true } },
             {
               title: 'Avec erreur',
-              description: 'error met le champ en etat invalide.',
+              description: 'error met le champ en état invalide.',
               node: (
                 <Textarea
                   label="Commentaire"
@@ -121,8 +121,8 @@ export function TextareaDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Etat d'erreur"
-        lead="La presence d'error met le champ en etat invalide et remplace l'aide dans la description annoncee."
+        title="État d'erreur"
+        lead="La présence d'error met le champ en état invalide et remplace l'aide dans la description annoncee."
       >
         <DemoBlock
           code={`<Textarea
@@ -165,7 +165,7 @@ export function TextareaDoc(): ReactElement {
               name: 'error',
               type: 'ReactNode',
               description:
-                "Message d'erreur. Sa presence met le champ en etat invalide et remplace l'aide dans la description annoncee.",
+                "Message d'erreur. Sa présence met le champ en état invalide et remplace l'aide dans la description annoncee.",
             },
             {
               name: 'size',
@@ -183,7 +183,7 @@ export function TextareaDoc(): ReactElement {
             {
               name: 'className',
               type: 'string',
-              description: "Classes additionnelles appliquees a l'element <textarea>.",
+              description: "Classes additionnelles appliquees a l'élément <textarea>.",
             },
             {
               name: 'wrapperClassName',
@@ -193,7 +193,7 @@ export function TextareaDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLTextAreaElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

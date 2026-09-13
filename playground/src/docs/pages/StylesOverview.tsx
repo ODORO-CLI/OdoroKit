@@ -16,13 +16,13 @@ export function StylesOverview(): ReactElement {
     <article>
       <PageHeader
         module="@odoro-cli/libs/styles"
-        title="Le systeme de style"
-        lead="Une seule source de verite — les design tokens — dont tout derive : variables CSS, utilitaires atomiques et composants. Pas de moteur JIT, pas de scan du code : la feuille est statique, importable telle quelle."
+        title="Le système de style"
+        lead="Une seule source de verite — les design tokens — dont tout dérive : variables CSS, utilitaires atomiques et composants. Pas de moteur JIT, pas de scan du code : la feuille est statique, importable telle quelle."
       />
 
       <Section
         title="Convention"
-        lead="Toutes les classes portent le prefixe o- et se lisent comme du Tailwind. Les variants se prefixent par deux-points : etat (hover:, focus:, active:), theme (dark:) et ecran (sm: a 2xl:, max-sm: a max-lg:)."
+        lead="Toutes les classes portent le préfixe o- et se lisent comme du Tailwind. Les variants se prefixent par deux-points : état (hover:, focus:, active:), thème (dark:) et écran (sm: a 2xl:, max-sm: a max-lg:)."
       >
         <DemoBlock
           code={`<button className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-bg-brand-600 dark:o-bg-brand-400 o-text-white dark:o-text-zinc-950 o-px-4 o-h-10 hover:o-bg-brand-700 dark:hover:o-bg-brand-300 o-transition">
@@ -40,7 +40,7 @@ export function StylesOverview(): ReactElement {
 
       <Section
         title="Deux paliers de feuille"
-        lead="La feuille de base couvre la structure et les couleurs semantiques. La feuille complete y ajoute les utilitaires de couleur sur les 290 nuances de la palette brute."
+        lead="La feuille de base couvre la structure et les couleurs semantiques. La feuille complète y ajoute les utilitaires de couleur sur les 290 nuances de la palette brute."
       >
         <CodeBlock
           lang="ts"
@@ -81,7 +81,7 @@ card({ tone: 'brand' }) // 'o-rounded-lg ... o-bg-brand-50 dark:o-bg-brand-950 o
 
       <Section
         title="Tokens en JavaScript"
-        lead="Chaque echelle est aussi exportee en tant qu'objet, pour les rares cas ou une valeur doit etre lue dans le code."
+        lead="Chaque échelle est aussi exportee en tant qu'objet, pour les rares cas ou une valeur doit être lue dans le code."
       >
         <CodeBlock
           lang="ts"
@@ -97,15 +97,15 @@ tokens.duration.base        // '200ms'`}
       <Section title="Aller plus loin">
         <ul className="o-flex o-flex-col o-gap-2 o-text-zinc-500 dark:o-text-zinc-400">
           {[
-            ['/docs/styles/couleurs', 'Couleurs — la palette brute, et rien d autre'],
+            ['/docs/styles/colors', 'Couleurs — la palette brute, et rien d autre'],
             [
-              '/docs/styles/typographie',
+              '/docs/styles/typography',
               'Typographie — echelles, decorations, surlignage',
             ],
             ['/docs/styles/responsive', 'Responsive — variants d’ecran'],
             ['/docs/styles/fonts', 'Google Fonts — polices par CDN'],
             [
-              '/docs/styles/utilitaires',
+              '/docs/styles/utilities',
               'Utilitaires — degrades, transforms, filtres, animations',
             ],
           ].map(([to = '', label]) => (

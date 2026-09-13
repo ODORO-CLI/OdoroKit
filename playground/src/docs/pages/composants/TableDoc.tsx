@@ -72,10 +72,10 @@ export function TableDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Table"
-        lead="Tableau de donnees generique et accessible : colonnes declaratives, rendu de cellule personnalise, alignements, en-tete collant."
+        lead="Tableau de données generique et accessible : colonnes declaratives, rendu de cellule personnalise, alignements, en-tête collant."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'striped', type: 'boolean', defaultValue: false },
@@ -90,7 +90,7 @@ export function TableDoc(): ReactElement {
               hoverable={v.hoverable as boolean}
               dense={v.dense as boolean}
               stickyHeader={v.stickyHeader as boolean}
-              caption="Equipe produit"
+              caption="Équipe produit"
               columns={COLONNES}
               rows={MEMBRES}
               rowKey={(membre) => membre.nom}
@@ -102,7 +102,7 @@ export function TableDoc(): ReactElement {
             />
           )}
           code={(v) => `<Table${jsxProps(v, DEFAUTS)}
-  caption="Equipe produit"
+  caption="Équipe produit"
   columns={COLONNES}
   rows={MEMBRES}
   rowKey={(membre) => membre.nom}
@@ -124,8 +124,8 @@ export function TableDoc(): ReactElement {
               values: { hoverable: true, striped: true },
             },
             {
-              title: 'En-tete collant',
-              description: "L'en-tete reste visible pendant le defilement.",
+              title: 'En-tête collant',
+              description: "L'en-tête reste visible pendant le défilement.",
               values: { stickyHeader: true },
             },
             {
@@ -150,7 +150,7 @@ export function TableDoc(): ReactElement {
                   columns={COLONNES}
                   rows={MEMBRES.slice(0, 3)}
                   rowKey={(membre) => membre.nom}
-                  caption="Extrait de l'equipe produit"
+                  caption="Extrait de l'équipe produit"
                   className="o-w-full o-bg-white dark:o-bg-zinc-900"
                 />
               ),
@@ -168,7 +168,7 @@ export function TableDoc(): ReactElement {
 
       <Section
         title="Colonnes declaratives"
-        lead="Chaque colonne declare sa cle, son en-tete, son alignement et, au besoin, un rendu de cellule a partir de la ligne entiere — ici une pastille de statut."
+        lead="Chaque colonne déclare sa cle, son en-tête, son alignement et, au besoin, un rendu de cellule à partir de la ligne entière — ici une pastille de statut."
       >
         <DemoBlock
           center={false}
@@ -192,7 +192,7 @@ export function TableDoc(): ReactElement {
             columns={COLONNES}
             rows={MEMBRES.slice(0, 3)}
             rowKey={(membre) => membre.nom}
-            caption="Extrait de l'equipe produit"
+            caption="Extrait de l'équipe produit"
           />
         </DemoBlock>
       </Section>
@@ -221,12 +221,12 @@ export function TableDoc(): ReactElement {
 
       <Section
         title="Legende visible"
-        lead="La legende est masquee visuellement par defaut mais reste le titre annonce par les lecteurs d'ecran ; showCaption la rend visible."
+        lead="La legende est masquee visuellement par défaut mais reste le titre annonce par les lecteurs d'écran ; showCaption la rend visible."
       >
         <DemoBlock
           center={false}
           code={`<Table
-  caption="Equipe produit — troisieme trimestre"
+  caption="Équipe produit — troisieme trimestre"
   showCaption
   columns={COLONNES}
   rows={MEMBRES}
@@ -234,7 +234,7 @@ export function TableDoc(): ReactElement {
 />`}
         >
           <Table
-            caption="Equipe produit — troisieme trimestre"
+            caption="Équipe produit — troisieme trimestre"
             showCaption
             columns={COLONNES}
             rows={MEMBRES.slice(0, 3)}
@@ -250,12 +250,12 @@ export function TableDoc(): ReactElement {
               name: 'columns',
               type: 'readonly TableColumn<T>[]',
               description:
-                "Colonnes, dans l'ordre d'affichage. Chaque colonne porte key, header, align ('left' par defaut) et un render optionnel.",
+                "Colonnes, dans l'ordre d'affichage. Chaque colonne porte key, header, align ('left' par défaut) et un render optionnel.",
             },
             {
               name: 'rows',
               type: 'readonly T[]',
-              description: 'Lignes de donnees.',
+              description: 'Lignes de données.',
             },
             {
               name: 'rowKey',
@@ -266,7 +266,7 @@ export function TableDoc(): ReactElement {
               name: 'caption',
               type: 'ReactNode',
               description:
-                "Legende du tableau. Masquee visuellement par defaut, elle reste le titre que les lecteurs d'ecran annoncent.",
+                "Legende du tableau. Masquee visuellement par défaut, elle reste le titre que les lecteurs d'écran annoncent.",
             },
             {
               name: 'showCaption',
@@ -297,7 +297,7 @@ export function TableDoc(): ReactElement {
               type: 'boolean',
               defaultValue: 'false',
               description:
-                "Garde l'en-tete visible pendant le defilement vertical du conteneur.",
+                "Garde l'en-tête visible pendant le défilement vertical du conteneur.",
             },
             {
               name: 'empty',

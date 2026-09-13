@@ -43,7 +43,7 @@ const EFFETS = {
       uOctaves: 4,
     },
     fallback: 'o-bg-gradient-to-br o-from-indigo-900 o-via-purple-800 o-to-cyan-700',
-    note: 'Bruit fractal et deplacement de domaine : le motif se replie sur lui-meme.',
+    note: 'Bruit fractal et déplacement de domaine : le motif se replie sur lui-même.',
   },
   grille: {
     label: 'Grille',
@@ -55,7 +55,7 @@ const EFFETS = {
       uDensity: 14,
     },
     fallback: 'o-bg-slate-950',
-    note: 'L epaisseur des lignes vient de la derivee d ecran : elle reste constante quelle que soit la densite de pixels.',
+    note: 'L’épaisseur des lignes vient de la dérivée d’écran : elle reste constante quelle que soit la densité de pixels.',
   },
 } as const
 
@@ -83,7 +83,7 @@ function SurfaceDemo(): ReactElement {
             {refused === undefined ? null : (
               <div className="o-absolute o-inset-x-0 o-bottom-0 o-bg-white dark:o-bg-zinc-950/80 o-backdrop-blur-sm o-p-3 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                 {REFUSAL_TEXT[refused] ?? refused}{' '}
-                <span className="o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-text-zinc-500 dark:o-text-zinc-400">
                   Le repli est ce que vous voyez.
                 </span>
               </div>
@@ -181,8 +181,8 @@ function ArbitreDemo(): ReactElement {
         </p>
       )}
 
-      <p className="o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
-        Le backend leger est deja pris par l effet ci-dessus. C est ce qui rend le premier
+      <p className="o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+        Le backend léger est déjà pris par l’effet ci-dessus. C’est ce qui rend le premier
         bouton instructif.
       </p>
     </div>
@@ -196,20 +196,20 @@ export function MoteurWebgl(): ReactElement {
       <PageHeader
         module="@odoro-cli/engine"
         title="Surfaces WebGL"
-        lead="Deux backends, un arbitre qui compte les contextes, et un repli obligatoire pour tout ce qui coute cher."
+        lead="Deux backends, un arbitre qui compte les contextes, et un repli obligatoire pour tout ce qui coûte cher."
       />
 
       <Section
-        title="Un effet plein ecran"
-        lead="Le backend leger rend un triangle qui couvre l'ecran et laisse le shader de fragment faire le travail. Treize kilo-octets compresses, contre cent trente pour une scene 3D."
+        title="Un effet plein écran"
+        lead="Le backend léger rend un triangle qui couvre l'écran et laisse le shader de fragment faire le travail. Treize kilo-octets compresses, contre cent trente pour une scène 3D."
       >
         <SurfaceDemo />
 
         <Callout>
-          Il n y a <strong>qu une</strong> surface sur cette page, et le selecteur change
-          son shader plutot que d en ouvrir une seconde. Ce n est pas une economie : l
-          arbitre n accorde qu un contexte par backend. Deux aurores cote a cote seraient
-          une demonstration qui contredit ce qu elle explique.
+          Il n y a <strong>qu’une</strong> surface sur cette page, et le selecteur change
+          son shader plutôt que d’en ouvrir une seconde. Ce n’est pas une economie : l
+          arbitre n’accorde qu’un contexte par backend. Deux aurores côté a côté seraient
+          une démonstration qui contredit ce qu’elle explique.
         </Callout>
 
         <CodeBlock
@@ -234,10 +234,10 @@ function Aurore(): ReactElement {
         />
 
         <Callout>
-          Le repli n est pas une precaution : c est la moitie du composant. Il est affiche
-          pendant le chargement, quand WebGL manque, quand l arbitre refuse, et sous
-          mouvement reduit. Le registre refuse de publier un composant couteux qui n en
-          declare pas.
+          Le repli n’est pas une precaution : c’est la moitie du composant. Il est affiche
+          pendant le chargement, quand WebGL manque, quand l’arbitre refuse, et sous
+          mouvement réduit. Le registre refuse de publier un composant couteux qui n’en
+          déclare pas.
         </Callout>
       </Section>
 
@@ -258,32 +258,32 @@ function Aurore(): ReactElement {
               name: 'plafond-backend',
               type: 'refus',
               description:
-                'Ce backend a deja la sienne. Deux backends ne partagent jamais un contexte : leurs etats se marcheraient dessus.',
+                'Ce backend a déjà la sienne. Deux backends ne partagent jamais un contexte : leurs états se marcheraient dessus.',
             },
             {
               name: 'webgl-indisponible',
               type: 'refus',
-              description: 'Materiel ou reglage : le contexte n a pas pu etre cree.',
+              description: 'Materiel ou réglage : le contexte n’a pas pu être crée.',
             },
             {
               name: 'hors-navigateur',
               type: 'refus',
-              description: 'Rendu cote serveur : il n y a pas de document.',
+              description: 'Rendu côté serveur : il n’y a pas de document.',
             },
           ]}
         />
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Un refus n est pas une erreur. C est une reponse, que l appelant sait traiter :
+          Un refus n’est pas une erreur. C’est une réponse, que l’appelant sait traiter :
           il affiche son repli. Le contraire — accorder toujours, et laisser le navigateur
-          trancher — produit une page ou un fond disparait sans que personne ne puisse
+          trancher — produit une page ou un fond disparaît sans que personne ne puisse
           dire lequel ni quand.
         </p>
       </Section>
 
       <Section
-        title="Ce qui est libere"
-        lead="Rien ne l'est tout seul. Les bibliotheques 3D ne collectent ni les geometries, ni les materiaux, ni les textures : elles exposent une methode qu'il faut appeler."
+        title="Ce qui est libère"
+        lead="Rien ne l'est tout seul. Les bibliothèques 3D ne collectent ni les géométries, ni les materiaux, ni les textures : elles exposent une méthode qu'il faut appeler."
       >
         <CodeBlock
           code={`// A la sortie : geometries, materiaux, textures, puis le contexte.
@@ -293,8 +293,8 @@ disposeScene(scene, renderer)
 surface.release()`}
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Le moteur enregistre chaque surface. Ce qui n est pas libere apparait au
-          diagnostic, au lieu de se deviner dans un profil memoire.
+          Le moteur enregistre chaque surface. Ce qui n’est pas libère apparaît au
+          diagnostic, au lieu de se deviner dans un profil mémoire.
         </p>
       </Section>
     </>

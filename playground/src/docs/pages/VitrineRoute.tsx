@@ -200,7 +200,7 @@ export function VitrineRoute(): ReactElement {
       <div className="o-mx-auto o-max-w-2xl o-px-6 o-py-24 o-text-center">
         <h1 className="o-text-2xl o-font-bold o-tracking-tight">Vitrine introuvable</h1>
         <p className="o-mt-3 o-text-zinc-600 dark:o-text-zinc-400">
-          Ce modele n existe pas — la bibliotheque en compte {VITRINES.length}.
+          Ce modèle n’existe pas — la bibliothèque en compte {VITRINES.length}.
         </p>
         <Link to="/templates" className="lien o-mt-6 o-inline-block">
           Revenir aux templates

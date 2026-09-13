@@ -35,7 +35,7 @@ interface Pillar {
 
 const PILLARS: readonly Pillar[] = [
   {
-    title: 'Un systeme de style genere',
+    title: 'Un système de style génère',
     module: '@odoro-cli/libs/styles',
     text: 'Des tokens OKLCH, une feuille produite a la construction pour les seules classes que vous employez. Responsive, theme sombre, surlignage, degrades, transforms — tout derive d une source.',
     to: '/docs/styles',
@@ -43,7 +43,7 @@ const PILLARS: readonly Pillar[] = [
     visual: <GraphPaper className="o-absolute o-inset-0" size={10} strength={0.35} />,
   },
   {
-    title: 'Un moteur d animation',
+    title: 'Un moteur d’animation',
     module: '@odoro-cli/libs/motion',
     text: 'Presets, revelations au defilement, sorties animees — sur le fil de composition du navigateur, jamais dans une boucle JavaScript.',
     to: '/docs/motion',
@@ -54,7 +54,7 @@ const PILLARS: readonly Pillar[] = [
     title: 'Des composants accessibles',
     module: '@odoro-cli/libs/ui',
     text: 'Vingt-neuf composants qui suivent les motifs ARIA, retheme par variables CSS, avec un apercu reglable pour chacun.',
-    to: '/docs/composants/button',
+    to: '/docs/components/button',
     icon: Shapes,
     visual: <SpotGrid className="o-absolute o-inset-0" gap={18} dot={2} vignette={0.5} />,
   },
@@ -70,7 +70,7 @@ const PILLARS: readonly Pillar[] = [
     title: 'Un moteur qui arbitre',
     module: '@odoro-cli/engine',
     text: 'Une boucle unique pour toute la page, des surfaces WebGL comptees, la qualite qui se degrade toute seule.',
-    to: '/docs/moteur',
+    to: '/docs/engine',
     icon: Cpu,
     visual: <Crosshatch className="o-absolute o-inset-0" spacing={14} strength={0.14} />,
   },
@@ -78,7 +78,7 @@ const PILLARS: readonly Pillar[] = [
     title: 'Un registre qui copie',
     module: 'odoro add',
     text: 'Chaque entree declare son cout, ses tokens, ses dependances. La CLI copie les fichiers dans votre projet : ils sont a vous.',
-    to: '/docs/registre',
+    to: '/docs/registry',
     icon: Package,
     visual: <MeshStatic className="o-absolute o-inset-0" strength={0.6} blur={28} />,
   },
@@ -93,11 +93,11 @@ export function Pillars(): ReactElement {
           Quatre modules, un moteur, un registre
         </p>
         <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-          Tout ce qu il faut pour un site vivant, sans une seule dependance.
+          Tout ce qu’il faut pour un site vivant, sans une seule dependance.
         </h2>
         <p className="o-mt-4 o-text-lg o-text-zinc-600 dark:o-text-zinc-400 o-text-pretty">
-          Chaque module tient seul. Ensemble, ils partagent les memes tokens, la meme boucle
-          et la meme politique de mouvement.
+          Chaque module tient seul. Ensemble, ils partagent les mêmes tokens, la même boucle
+          et la même politique de mouvement.
         </p>
       </Reveal>
 

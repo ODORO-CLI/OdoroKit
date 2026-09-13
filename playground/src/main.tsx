@@ -15,6 +15,10 @@ import { App } from './App.jsx'
 // declarees dans la `safelist` d'`odoro.config.ts`.
 import '@odoro-cli/libs/styles.css'
 
+// La couleur mere du site : le bleu du sigle. Elle vient apres la feuille de
+// la librairie, dont elle repointe l echelle de marque.
+import './docs/marque.css'
+
 // Polices du site, chargees par CDN — rien dans le bundle.
 loadGoogleFonts([
   { family: 'Inter', weights: [400, 500, 600, 700, 800] },

@@ -48,10 +48,10 @@ export function AlertDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Alert"
-        lead="Encart de message contextuel en quatre registres, avec icone assortie, titre optionnel et fermeture animee."
+        lead="Encart de message contextuel en quatre registres, avec icône assortie, titre optionnel et fermeture animee."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -79,7 +79,7 @@ export function AlertDoc(): ReactElement {
 </Alert>`}
           variants={[
             {
-              title: 'Succes',
+              title: 'Succès',
               values: { tone: 'success', title: 'Enregistre' },
             },
             {
@@ -88,12 +88,12 @@ export function AlertDoc(): ReactElement {
             },
             {
               title: 'Danger',
-              description: 'Porte role="alert" et interrompt la lecture.',
-              values: { tone: 'danger', title: 'Echec de la publication' },
+              description: 'Porte rôle="alert" et interrompt la lecture.',
+              values: { tone: 'danger', title: 'Échec de la publication' },
             },
             {
               title: 'Fermable',
-              description: 'onClose fait apparaitre le bouton de fermeture.',
+              description: 'onClose fait apparaître le bouton de fermeture.',
               node: (
                 <Alert
                   tone="success"
@@ -106,10 +106,10 @@ export function AlertDoc(): ReactElement {
               ),
             },
             {
-              title: 'Sans icone',
-              description: 'La prop icon a null retire toute icone.',
+              title: 'Sans icône',
+              description: 'La prop icon a null retire toute icône.',
               node: (
-                <Alert tone="info" icon={null} title="Sans icone" className="o-max-w-md">
+                <Alert tone="info" icon={null} title="Sans icône" className="o-max-w-md">
                   Le texte occupe toute la largeur.
                 </Alert>
               ),
@@ -117,7 +117,7 @@ export function AlertDoc(): ReactElement {
             {
               title: 'Titre seul',
               node: (
-                <Alert tone="warning" title="Quota bientot atteint" className="o-max-w-md" />
+                <Alert tone="warning" title="Quota bientôt atteint" className="o-max-w-md" />
               ),
             },
           ]}
@@ -132,7 +132,7 @@ export function AlertDoc(): ReactElement {
 
       <Section
         title="Encart fermable"
-        lead="Avec onClose, un bouton de fermeture apparait ; l'encart joue son animation de sortie puis invoque le rappel — c'est a l'appelant de le retirer de son arbre."
+        lead="Avec onClose, un bouton de fermeture apparaît ; l'encart joue son animation de sortie puis invoque le rappel — c'est a l'appelant de le retirer de son arbre."
       >
         <DemoBlock
           code={`function AlerteFermable() {
@@ -154,8 +154,8 @@ export function AlertDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Icone personnalisee ou retiree"
-        lead="Sans icon, une icone par defaut assortie au registre est affichee. Fournissez un element pour la remplacer, ou null pour n'en afficher aucune."
+        title="Icône personnalisee ou retiree"
+        lead="Sans icon, une icône par défaut assortie au registre est affichee. Fournissez un élément pour la remplacer, ou null pour n'en afficher aucune."
       >
         <DemoBlock
           code={`<Alert
@@ -170,11 +170,11 @@ export function AlertDoc(): ReactElement {
     </svg>
   }
 >
-  Une icone sur mesure remplace celle du registre.
+  Une icône sur mesure remplace celle du registre.
 </Alert>
 
-<Alert tone="info" icon={null} title="Sans icone">
-  La prop icon a null retire toute icone.
+<Alert tone="info" icon={null} title="Sans icône">
+  La prop icon a null retire toute icône.
 </Alert>`}
         >
           <div className="o-flex o-flex-col o-gap-4 o-w-full o-max-w-md">
@@ -198,10 +198,10 @@ export function AlertDoc(): ReactElement {
                 </svg>
               }
             >
-              Une icone sur mesure remplace celle du registre.
+              Une icône sur mesure remplace celle du registre.
             </Alert>
-            <Alert tone="info" icon={null} title="Sans icone">
-              La prop icon a null retire toute icone.
+            <Alert tone="info" icon={null} title="Sans icône">
+              La prop icon a null retire toute icône.
             </Alert>
           </div>
         </DemoBlock>
@@ -230,13 +230,13 @@ export function AlertDoc(): ReactElement {
               name: 'icon',
               type: 'ReactNode',
               description:
-                "Icone en tete d'encart. Non fournie : une icone par defaut assortie au registre. null : aucune icone.",
+                "Icône en tête d'encart. Non fournie : une icône par défaut assortie au registre. null : aucune icône.",
             },
             {
               name: 'onClose',
               type: '() => void',
               description:
-                "Rend l'encart fermable : un bouton de fermeture apparait et l'encart disparait avec une animation de sortie avant que ce rappel ne soit invoque.",
+                "Rend l'encart fermable : un bouton de fermeture apparaît et l'encart disparaît avec une animation de sortie avant que ce rappel ne soit invoque.",
             },
             {
               name: 'className',

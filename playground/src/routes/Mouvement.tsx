@@ -49,9 +49,9 @@ export function Mouvement() {
       <header className="o-flex o-flex-col o-gap-2">
         <h1 className="o-text-2xl o-font-bold">Mouvement</h1>
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Preference systeme detectee :{' '}
+          Préférence système detectee :{' '}
           <strong>{reduced ? 'animations reduites' : 'animations completes'}</strong>.
-          Toutes les demonstrations ci-dessous en tiennent compte sans code
+          Toutes les démonstrations ci-dessous en tiennent compte sans code
           supplementaire.
         </p>
       </header>
@@ -97,7 +97,7 @@ export function Mouvement() {
             duration="slow"
             className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-950 o-px-4 o-py-2"
           >
-            Rejoue a chaque changement de declencheur.
+            Rejoue a chaque changement de déclencheur.
           </Animate>
         </div>
       </section>
@@ -110,7 +110,7 @@ export function Mouvement() {
       <section className="o-flex o-flex-col o-gap-3">
         <h2 className="o-text-xl o-font-semibold">Reveal et Stagger</h2>
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Faites defiler : chaque carte apparait a son entree dans le viewport.
+          Faites defiler : chaque carte apparaît a son entrée dans le viewport.
         </p>
         <Stagger step={70} className="o-grid o-grid-cols-1 md:o-grid-cols-3 o-gap-4">
           {Array.from({ length: 9 }, (_, index) => (
@@ -124,7 +124,7 @@ export function Mouvement() {
         </Stagger>
         <Reveal from={{ opacity: 0, transform: 'scale(0.9)' }} duration="slower">
           <p className="o-mt-6 o-text-zinc-500 dark:o-text-zinc-400">
-            Dernier bloc, revele avec sa propre courbe.
+            Dernier bloc, révèle avec sa propre courbe.
           </p>
         </Reveal>
       </section>

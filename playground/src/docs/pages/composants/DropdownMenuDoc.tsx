@@ -141,7 +141,7 @@ function MainDemo(): ReactElement {
           'Aucune action selectionnee'
         ) : (
           <>
-            Derniere action : <code className="o-font-mono o-text-xs">{lastAction}</code>
+            Dernière action : <code className="o-font-mono o-text-xs">{lastAction}</code>
           </>
         )}
       </span>
@@ -152,7 +152,7 @@ function MainDemo(): ReactElement {
 /** Actions minimales pour l'exemple de tons. */
 const SIMPLE_ITEMS: readonly DropdownMenuItem[] = [
   { id: 'profil', label: 'Profil' },
-  { id: 'preferences', label: 'Preferences' },
+  { id: 'preferences', label: 'Préférences' },
   { type: 'separator' },
   { id: 'deconnexion', label: 'Se deconnecter', danger: true },
 ]
@@ -185,12 +185,12 @@ export function DropdownMenuDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="DropdownMenu"
-        lead="Menu d'actions deroulant suivant le motif APG menu button : declencheur aria-haspopup, panneau role=menu navigable aux fleches avec focus rovant."
+        lead="Menu d'actions deroulant suivant le motif APG menu button : déclencheur aria-haspopup, panneau rôle=menu navigable aux fleches avec focus rovant."
       />
 
       <Section
-        title="Apercu"
-        lead="Un menu complet : icones, raccourcis indicatifs, separateur, action desactivee et action destructrice. L'action choisie s'affiche sous le menu."
+        title="Aperçu"
+        lead="Un menu complet : icônes, raccourcis indicatifs, séparateur, action desactivee et action destructrice. L'action choisie s'affiche sous le menu."
       >
         <DemoBlock
           code={`import { DropdownMenu } from '@odoro-cli/libs/ui'
@@ -214,19 +214,19 @@ const [lastAction, setLastAction] = useState<string | null>(null)
           <MainDemo />
         </DemoBlock>
         <Callout>
-          Navigation clavier complete : <strong>Fleche bas</strong> ou{' '}
+          Navigation clavier complète : <strong>Fleche bas</strong> ou{' '}
           <strong>Fleche haut</strong> sur le declencheur ouvre le menu sur la premiere ou
           la derniere action ; dans le menu, les fleches deplacent le focus en bouclant et
           en sautant separateurs et actions desactivees, <strong>Home</strong> et{' '}
-          <strong>End</strong> vont aux extremites, <strong>Entree</strong> selectionne,{' '}
-          <strong>Echap</strong> referme en rendant le focus au declencheur,{' '}
+          <strong>End</strong> vont aux extremites, <strong>Entrée</strong> sélectionné,{' '}
+          <strong>Echap</strong> referme en rendant le focus au déclencheur,{' '}
           <strong>Tab</strong> quitte le menu.
         </Callout>
       </Section>
 
       <Section
-        title="Ton du declencheur"
-        lead="Le declencheur reprend les registres visuels de Button via la prop tone."
+        title="Ton du déclencheur"
+        lead="Le déclencheur reprend les registres visuels de Button via la prop tone."
       >
         <DemoBlock
           code={`<DropdownMenu label="Compte" tone="primary" items={items} />
@@ -255,14 +255,14 @@ const [lastAction, setLastAction] = useState<string | null>(null)
               node: <DropdownMenu label="Fichier" items={PLAIN_ITEMS} />,
             },
             {
-              title: 'Separateur et danger',
+              title: 'Séparateur et danger',
               description: "L'action destructrice est isolee.",
               node: <DropdownMenu label="Compte" items={SIMPLE_ITEMS} />,
             },
             {
               title: 'Raccourcis',
-              description: 'Affiches a droite, purement indicatifs.',
-              node: <DropdownMenu label="Edition" items={SHORTCUT_ITEMS} />,
+              description: 'Affiches à droite, purement indicatifs.',
+              node: <DropdownMenu label="Édition" items={SHORTCUT_ITEMS} />,
             },
             {
               title: 'Action desactivee',
@@ -279,18 +279,18 @@ const [lastAction, setLastAction] = useState<string | null>(null)
             {
               name: 'label',
               type: 'ReactNode',
-              description: 'Contenu du bouton declencheur.',
+              description: 'Contenu du bouton déclencheur.',
             },
             {
               name: 'items',
               type: 'readonly DropdownMenuItem[]',
-              description: "Entrees du menu, dans l'ordre d'affichage.",
+              description: "Entrées du menu, dans l'ordre d'affichage.",
             },
             {
               name: 'tone',
               type: "'primary' | 'secondary' | 'ghost' | 'danger'",
               defaultValue: "'secondary'",
-              description: 'Registre visuel du declencheur.',
+              description: 'Registre visuel du déclencheur.',
             },
             {
               name: 'className',
@@ -300,7 +300,7 @@ const [lastAction, setLastAction] = useState<string | null>(null)
           ]}
         />
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Une entree est soit un separateur{' '}
+          Une entrée est soit un séparateur{' '}
           <code className="o-font-mono o-text-xs">{`{ type: 'separator' }`}</code>, soit
           une action <code className="o-font-mono o-text-xs">DropdownMenuAction</code> :
         </p>
@@ -319,12 +319,12 @@ const [lastAction, setLastAction] = useState<string | null>(null)
             {
               name: 'icon',
               type: 'ReactNode',
-              description: 'Icone decorative placee avant le libelle.',
+              description: 'Icône decorative placee avant le libelle.',
             },
             {
               name: 'shortcut',
               type: 'string',
-              description: 'Raccourci clavier affiche a droite. Purement indicatif.',
+              description: 'Raccourci clavier affiche à droite. Purement indicatif.',
             },
             {
               name: 'disabled',
@@ -339,7 +339,7 @@ const [lastAction, setLastAction] = useState<string | null>(null)
             {
               name: 'onSelect',
               type: '() => void',
-              description: 'Appele a la selection.',
+              description: 'Appele a la sélection.',
             },
           ]}
         />

@@ -141,10 +141,10 @@ export function CodeBlock({
 
   return (
     <div
-      className={`o-rounded-lg o-overflow-hidden o-border-w-1 o-bg-zinc-50 dark:o-bg-zinc-950 o-border-zinc-200 dark:o-border-zinc-800 ${className ?? ''}`}
+      className={`dc-bord dc-surface o-overflow-hidden o-rounded-2xl o-border-w-1 ${className ?? ''}`}
     >
-      <div className="o-flex o-items-center o-justify-between o-px-3 o-py-1 o-border-b o-border-zinc-200 dark:o-border-zinc-800">
-        <span className="o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400">
+      <div className="dc-bord o-flex o-items-center o-justify-between o-border-b o-px-4 o-py-2">
+        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
           {lang ?? 'tsx'}
         </span>
         <span className="o-inline-flex o-items-center o-gap-1">
@@ -152,7 +152,7 @@ export function CodeBlock({
           <CopyButton code={trimmed} />
         </span>
       </div>
-      <pre className="o-overflow-x-auto o-scrollbar dark:o-scrollbar-dark o-p-4 o-text-sm o-leading-relaxed">
+      <pre className="o-overflow-x-auto o-scrollbar dark:o-scrollbar-dark o-p-5 o-text-sm o-leading-relaxed">
         <code className="o-text-zinc-800 dark:o-text-zinc-100">
           {tokenize(trimmed).map((token, index) =>
             token.kind === 'plain' ? (

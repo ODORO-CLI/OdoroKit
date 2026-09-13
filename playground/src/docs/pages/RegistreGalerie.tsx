@@ -37,10 +37,10 @@ function Piece({
         <span className="o-font-mono o-text-sm o-text-brand-600 dark:o-text-brand-400">
           {categorie}/{titre}
         </span>
-        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+        <span className="o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400">
           {cout}
         </span>
-        <span className="o-text-xs o-font-mono o-text-zinc-400 dark:o-text-zinc-500">
+        <span className="o-text-xs o-font-mono o-text-zinc-500 dark:o-text-zinc-400">
           {backend}
         </span>
       </div>
@@ -57,16 +57,16 @@ function MoltenDemo(): ReactElement {
     return (
       <div className="o-flex o-h-72 o-flex-col o-items-center o-justify-center o-gap-3 o-bg-zinc-50 dark:o-bg-zinc-900">
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-center o-max-w-sm">
-          Cette scene telecharge environ 130 Ko compresses. Elle n est pas montee tant que
-          vous ne le demandez pas — c est exactement ce que la CLI vous fait decider avant
-          d installer.
+          Cette scène télécharge environ 130 Ko compresses. Elle n’est pas montée tant que
+          vous ne le demandez pas — c’est exactement ce que la CLI vous fait decider avant
+          d’installer.
         </p>
         <button
           type="button"
           onClick={() => setMonte(true)}
           className="o-h-9 o-px-4 o-text-sm o-rounded-md o-border-w-1 o-border-brand-200 dark:o-border-brand-800 o-bg-brand-50 dark:o-bg-brand-950 o-text-brand-600 dark:o-text-brand-400 hover:o-border-zinc-300 dark:hover:o-border-zinc-700 o-transition-colors o-cursor-pointer"
         >
-          Monter la scene
+          Monter la scène
         </button>
       </div>
     )
@@ -117,22 +117,22 @@ export function RegistreGalerie(): ReactElement {
       <PageHeader
         module="@odoro-cli/bits"
         title="La tranche verticale"
-        lead="Un composant par categorie, du plus leger au plus cher. Tous installes par la CLI dans ce projet, aucun importe du registre."
+        lead="Un composant par categorie, du plus léger au plus cher. Tous installes par la CLI dans ce projet, aucun importe du registre."
       />
 
       <Callout>
         Ces composants vivent dans{' '}
         <code className="o-font-mono o-text-xs">playground/src/odoro/</code>. Ils y ont
-        ete ecrits par{' '}
+        ete écrits par{' '}
         <code className="o-font-mono o-text-xs">
           odoro add molten split-reveal aurora
         </code>
-        , qui a resolu le graphe et ajoute les deux hooks dont Molten depend.
+        , qui a résolu le graphe et ajoute les deux hooks dont Molten depend.
       </Callout>
 
       <Section
-        title="text — Revelation par fragments"
-        lead="Le titre se compose caractere par caractere. Le decoupage est defait au demontage : un texte laisse decoupe casserait le copier-coller bien apres la disparition de l'animation."
+        title="text — Révélation par fragments"
+        lead="Le titre se compose caractère par caractère. Le découpage est defait au démontage : un texte laisse découpe casserait le copier-coller bien après la disparition de l'animation."
       >
         <Piece titre="split-reveal" categorie="text" cout="leger" backend="sans backend">
           <div className="o-flex o-min-h-40 o-items-center o-justify-center o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
@@ -156,18 +156,18 @@ export function RegistreGalerie(): ReactElement {
         </button>
 
         <Callout tone="warning">
-          Le decoupage peut ne jamais avoir lieu : le plugin peut ne pas se charger, sur
-          un reseau qui coupe ou derriere un bloqueur. L attente est donc levee{' '}
-          <strong>quoi qu il arrive</strong> — au decoupage s il vient, sinon au bout d
+          Le découpage peut ne jamais avoir lieu : le plugin peut ne pas se charger, sur
+          un reseau qui coupe ou derrière un bloqueur. L’attente est donc levee{' '}
+          <strong>quoi qu’il arrive</strong> — au découpage s’il vient, sinon au bout d
           une seconde. Le pire cas devient « le titre arrive en retard » au lieu de « le
-          titre n arrive jamais ». Ce defaut-la ne se voit pas en developpement, ou tout
+          titre n’arrive jamais ». Ce défaut-la ne se voit pas en développement, ou tout
           se charge.
         </Callout>
       </Section>
 
       <Section
         title="background — Aurore"
-        lead="Bruit fractal a deplacement de domaine, dans un triangle plein cadre. Les couleurs sont lues dans la palette, pas ecrites dans le shader."
+        lead="Bruit fractal a déplacement de domaine, dans un triangle plein cadre. Les couleurs sont lues dans la palette, pas écrites dans le shader."
       >
         <Piece
           titre="aurora"
@@ -185,7 +185,7 @@ export function RegistreGalerie(): ReactElement {
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
           La palette est en OKLCH, un shader veut trois flottants, et aucune API du
-          navigateur ne fait le pont : le detour par un canevas donne un resultat qui
+          navigateur ne fait le pont : le detour par un canevas donne un résultat qui
           depend de la version du navigateur. La conversion est donc faite dans le moteur,
           ou la mathematique, elle, ne change pas.
         </p>
@@ -204,7 +204,7 @@ export function RegistreGalerie(): ReactElement {
             {
               name: 'qualite basse',
               type: '24 subdivisions, 2 octaves',
-              description: 'La silhouette reste, le detail s efface.',
+              description: 'La silhouette reste, le détail s’efface.',
             },
             {
               name: 'qualite moyenne',
@@ -214,29 +214,29 @@ export function RegistreGalerie(): ReactElement {
             {
               name: 'qualite haute',
               type: '96 subdivisions, 4 octaves',
-              description: 'Le defaut sur une machine qui suit.',
+              description: 'Le défaut sur une machine qui suit.',
             },
           ]}
         />
 
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Ce sont les deux reglages qui pesent, et les deux qui se degradent le mieux.
-          Baisser la definition du rendu a la place aurait donne une image floue, ce qui
-          se remarque bien davantage qu un relief un peu moins fin.
+          Ce sont les deux réglages qui pesent, et les deux qui se degradent le mieux.
+          Baisser la définition du rendu a la place aurait donne une image floue, ce qui
+          se remarque bien davantage qu’un relief un peu moins fin.
         </p>
 
         <Callout>
           Deplacer les sommets change la forme, mais pas les normales fournies avec la
-          geometrie : l eclairage resterait celui d une sphere lisse, ce qui annule
+          géométrie : l’eclairage resterait celui d’une sphere lisse, ce qui annule
           visuellement toute la deformation. Elles sont donc recalculees par differences
-          finies — trois evaluations de bruit de plus par sommet. C est la depense qui
+          finies — trois evaluations de bruit de plus par sommet. C’est la depense qui
           fait la difference entre une sphere bosselee et une masse qui a du relief.
         </Callout>
       </Section>
 
       <Section
         title="effect — Progression de lecture"
-        lead="Deja a l'oeuvre sur la page du contrat, ou elle sert d'implementation de reference des cinq niveaux."
+        lead="Déjà a l'œuvre sur la page du contrat, ou elle sert d'implementation de référence des cinq niveaux."
       >
         <Piece
           titre="scroll-progress"
@@ -246,8 +246,8 @@ export function RegistreGalerie(): ReactElement {
         >
           <div className="o-flex o-min-h-32 o-items-center o-justify-center o-bg-zinc-50 dark:o-bg-zinc-900 o-p-8">
             <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-center o-max-w-sm">
-              Une barre qui suit l avancee dans un article, lue dans la boucle du moteur.
-              Aucun rendu React pendant le defilement.
+              Une barre qui suit l’avancee dans un article, lue dans la boucle du moteur.
+              Aucun rendu React pendant le défilement.
             </p>
           </div>
         </Piece>
@@ -258,10 +258,10 @@ export function RegistreGalerie(): ReactElement {
         lead="Cette tranche est une preuve de bout en bout, pas un catalogue."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Quatre composants suffisent a montrer que la chaine tient : le format valide, la
-          CLI installe, le graphe se resout, le contrat s applique, et le poids est
-          annonce avant d etre subi. Produire du volume par-dessus est mecanique — et c
-          est precisement pour cela qu il valait mieux verifier la mecanique d abord.
+          Quatre composants suffisent a montrer que la chaîne tient : le format valide, la
+          CLI installe, le graphe se résout, le contrat s’applique, et le poids est
+          annonce avant d’être subi. Produire du volume par-dessus est mecanique — et c
+          est precisement pour cela qu’il valait mieux vérifier la mecanique d’abord.
         </p>
       </Section>
     </>

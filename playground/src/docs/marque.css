@@ -1,0 +1,106 @@
+/*
+ * La couleur mere du site : le bleu du sigle.
+ *
+ * La librairie livre son echelle de marque en orange. Ce site-la est bleu —
+ * c est la couleur du sigle, et celle dont la page d accueil se teinte. Plutot
+ * que de reecrire `o-text-brand-*` en `o-text-blue-*` sur soixante pages, on
+ * repointe l echelle : chaque utilitaire de marque lit `--o-palette-brand-N`,
+ * donc redefinir les onze variables repeint la barre, la colonne, les cartes,
+ * les tableaux de proprietes et les liens d un seul geste.
+ *
+ * L echelle brute de la librairie n est pas touchee : `o-text-orange-500` rend
+ * toujours de l orange. Seul le role « marque » change de couleur.
+ *
+ * Les vitrines, elles, posent leur propre `--o-palette-brand-*` sur leur
+ * racine (voir `vitrines/palettes.ts`) : elles gardent la teinte de leur
+ * modele, et cette regle ne les atteint pas.
+ */
+:root {
+  --o-palette-brand-50: var(--o-palette-blue-50);
+  --o-palette-brand-100: var(--o-palette-blue-100);
+  --o-palette-brand-200: var(--o-palette-blue-200);
+  --o-palette-brand-300: var(--o-palette-blue-300);
+  --o-palette-brand-400: var(--o-palette-blue-400);
+  --o-palette-brand-500: var(--o-palette-blue-500);
+  --o-palette-brand-600: var(--o-palette-blue-600);
+  --o-palette-brand-700: var(--o-palette-blue-700);
+  --o-palette-brand-800: var(--o-palette-blue-800);
+  --o-palette-brand-900: var(--o-palette-blue-900);
+  --o-palette-brand-950: var(--o-palette-blue-950);
+}
+
+/*
+ * Les surfaces du chrome, qui suivent le theme du SITE.
+ *
+ * ## Le defaut que ces variables corrigent
+ *
+ * Ces treize surfaces etaient ecrites en `light-dark()`. Cette fonction resout
+ * contre le `color-scheme` calcule de l element — or la racine de ce site vaut
+ * « light dark » tant que le visiteur n a rien choisi, et la fonction suit
+ * alors la preference du systeme. Un visiteur au systeme en nuit qui mettait
+ * le site en clair gardait donc des gelules noires sur une page blanche, et
+ * des blocs de code sans fond.
+ *
+ * La regle est la meme que pour les apercus de la galerie : la valeur claire
+ * sur `:root` nu, la sombre deux fois — sous l attribut, qui porte le choix
+ * explicite, et sous la preference du systeme quand aucun choix n a ete fait.
+ *
+ * Elles sont ici, et non dans les feuilles injectees, parce que la barre, la
+ * colonne, la recherche, les blocs de documentation et la galerie peignent les
+ * memes surfaces : une seule definition les tient accordees.
+ */
+:root {
+  --o-chrome-filet: var(--o-palette-zinc-200);
+  --o-chrome-filet-doux: var(--o-palette-zinc-200);
+  --o-chrome-filet-net: var(--o-palette-zinc-200);
+  --o-chrome-filet-colonne: var(--o-palette-zinc-200);
+  --o-chrome-filet-survol: var(--o-palette-zinc-400);
+  --o-chrome-verre: rgb(255 255 255 / 0.6);
+  --o-chrome-fond: var(--o-palette-zinc-50);
+  --o-chrome-modale: rgb(255 255 255 / 0.86);
+  --o-chrome-tenu: rgb(0 0 0 / 0.04);
+  --o-chrome-gelule: rgb(255 255 255 / 0.7);
+  --o-chrome-actif: rgb(0 0 0 / 0.06);
+  --o-chrome-carte: var(--o-palette-white);
+  --o-chrome-carte-survol: var(--o-palette-white);
+  --o-chrome-cta-fond: var(--o-palette-zinc-950);
+  --o-chrome-cta-encre: var(--o-palette-zinc-50);
+}
+
+:root[data-theme='dark'] {
+  --o-chrome-filet: rgb(255 255 255 / 0.1);
+  --o-chrome-filet-doux: rgb(255 255 255 / 0.08);
+  --o-chrome-filet-net: rgb(255 255 255 / 0.12);
+  --o-chrome-filet-colonne: var(--o-palette-zinc-800);
+  --o-chrome-filet-survol: var(--o-palette-zinc-600);
+  --o-chrome-verre: rgb(255 255 255 / 0.03);
+  --o-chrome-fond: rgb(255 255 255 / 0.02);
+  --o-chrome-modale: rgb(9 9 11 / 0.82);
+  --o-chrome-tenu: rgb(255 255 255 / 0.06);
+  --o-chrome-gelule: rgb(0 0 0 / 0.7);
+  --o-chrome-actif: rgb(255 255 255 / 0.1);
+  --o-chrome-carte: rgb(255 255 255 / 0.02);
+  --o-chrome-carte-survol: rgb(255 255 255 / 0.05);
+  --o-chrome-cta-fond: var(--o-palette-white);
+  --o-chrome-cta-encre: var(--o-palette-zinc-950);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --o-chrome-filet: rgb(255 255 255 / 0.1);
+    --o-chrome-filet-doux: rgb(255 255 255 / 0.08);
+    --o-chrome-filet-net: rgb(255 255 255 / 0.12);
+    --o-chrome-filet-colonne: var(--o-palette-zinc-800);
+    --o-chrome-filet-survol: var(--o-palette-zinc-600);
+    --o-chrome-verre: rgb(255 255 255 / 0.03);
+    --o-chrome-fond: rgb(255 255 255 / 0.02);
+    --o-chrome-modale: rgb(9 9 11 / 0.82);
+    --o-chrome-tenu: rgb(255 255 255 / 0.06);
+    --o-chrome-gelule: rgb(0 0 0 / 0.7);
+    --o-chrome-actif: rgb(255 255 255 / 0.1);
+    --o-chrome-carte: rgb(255 255 255 / 0.02);
+    --o-chrome-carte-survol: rgb(255 255 255 / 0.05);
+    --o-chrome-cta-fond: var(--o-palette-white);
+    --o-chrome-cta-encre: var(--o-palette-zinc-950);
+  }
+}

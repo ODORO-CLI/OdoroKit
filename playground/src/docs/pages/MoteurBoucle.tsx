@@ -57,7 +57,7 @@ function BoucleDemo(): ReactElement {
       <div className="o-flex o-flex-col o-gap-5">
         <div className="o-grid o-grid-cols-3 o-gap-4">
           <div className="o-flex o-flex-col o-gap-1">
-            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
               images / s
             </span>
             <span className="o-font-mono o-text-2xl o-tabular-nums" ref={fps}>
@@ -65,7 +65,7 @@ function BoucleDemo(): ReactElement {
             </span>
           </div>
           <div className="o-flex o-flex-col o-gap-1">
-            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
               image
             </span>
             <span className="o-font-mono o-text-2xl o-tabular-nums" ref={frame}>
@@ -73,7 +73,7 @@ function BoucleDemo(): ReactElement {
             </span>
           </div>
           <div className="o-flex o-flex-col o-gap-1">
-            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-400 dark:o-text-zinc-500">
+            <span className="o-text-xs o-uppercase o-tracking-wide o-text-zinc-500 dark:o-text-zinc-400">
               delta
             </span>
             <span className="o-font-mono o-text-2xl o-tabular-nums">
@@ -97,8 +97,8 @@ function BoucleDemo(): ReactElement {
 
         {paused ? (
           <p className="o-text-sm o-text-amber-600 dark:o-text-amber-400">
-            La boucle est suspendue : la distribution s arrete, mais le temps continue de
-            courir. A la reprise, le premier delta est celui d une image ordinaire, pas de
+            La boucle est suspendue : la distribution s’arrête, mais le temps continue de
+            courir. A la reprise, le premier delta est celui d’une image ordinaire, pas de
             toute la pause.
           </p>
         ) : null}
@@ -124,7 +124,7 @@ function AbonnesDemo(): ReactElement {
 
         {subscribers.length === 0 ? (
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Personne n est abonne a la boucle.
+            Personne n’est abonne a la boucle.
           </p>
         ) : (
           <ul className="o-flex o-flex-col o-gap-1 o-font-mono o-text-xs">
@@ -133,20 +133,20 @@ function AbonnesDemo(): ReactElement {
                 key={`${entry.name}-${String(entry.priority)}`}
                 className="o-flex o-items-center o-gap-3"
               >
-                <span className="o-w-12 o-text-right o-text-zinc-400 dark:o-text-zinc-500 o-tabular-nums">
+                <span className="o-w-12 o-text-right o-text-zinc-500 dark:o-text-zinc-400 o-tabular-nums">
                   {entry.priority}
                 </span>
                 <span
                   className={
                     entry.active
                       ? 'o-text-zinc-900 dark:o-text-zinc-50'
-                      : 'o-text-zinc-400 dark:o-text-zinc-500'
+                      : 'o-text-zinc-500 dark:o-text-zinc-400'
                   }
                 >
                   {entry.name}
                 </span>
                 {entry.active ? null : (
-                  <span className="o-text-zinc-400 dark:o-text-zinc-500">(suspendu)</span>
+                  <span className="o-text-zinc-500 dark:o-text-zinc-400">(suspendu)</span>
                 )}
               </li>
             ))}
@@ -164,12 +164,12 @@ export function MoteurBoucle(): ReactElement {
       <PageHeader
         module="@odoro-cli/engine"
         title="La boucle"
-        lead="Une seule boucle pour toute la page, ordonnee par priorites, avec deux deltas qui ne disent pas la meme chose."
+        lead="Une seule boucle pour toute la page, ordonnee par priorites, avec deux deltas qui ne disent pas la même chose."
       />
 
       <Section
-        title="S abonner"
-        lead="Un abonnement rend une souscription qu'il faut liberer. Le nom n'est pas decoratif : c'est lui qui apparait au diagnostic quand quelque chose ne se libere pas."
+        title="S’abonner"
+        lead="Un abonnement rend une souscription qu'il faut libérer. Le nom n'est pas decoratif : c'est lui qui apparaît au diagnostic quand quelque chose ne se libère pas."
       >
         <CodeBlock
           code={`import { CLOCK_PRIORITY, clock } from '@odoro-cli/engine'
@@ -198,13 +198,13 @@ useEffect(() => {
               name: 'CLOCK_PRIORITY.input',
               type: '200',
               description:
-                'Lecture des entrees : pointeur, defilement. Ce que le reste de l image va lire.',
+                'Lecture des entrées : pointeur, défilement. Ce que le reste de l’image va lire.',
             },
             {
               name: 'CLOCK_PRIORITY.layout',
               type: '100',
               description:
-                'Mesures de mise en page, avant que quoi que ce soit ne s en serve.',
+                'Mesures de mise en page, avant que quoi que ce soit ne s’en serve.',
             },
             {
               name: 'CLOCK_PRIORITY.default',
@@ -215,7 +215,7 @@ useEffect(() => {
             {
               name: 'CLOCK_PRIORITY.render',
               type: '-100',
-              description: 'Rendu graphique, en dernier : il consomme ce qui precede.',
+              description: 'Rendu graphique, en dernier : il consomme ce qui précède.',
             },
           ]}
         />
@@ -224,12 +224,12 @@ useEffect(() => {
 
       <Section
         title="delta et deltaRaw"
-        lead="Apres un a-coup — un onglet en arriere-plan, une compilation qui monopolise le processeur — le temps ecoule depuis la derniere image peut atteindre plusieurs secondes."
+        lead="Après un a-coup — un onglet en arriere-plan, une compilation qui monopolise le processeur — le temps ecoule depuis la dernière image peut atteindre plusieurs secondes."
       >
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Une animation qui integrerait ce delta brut ferait bondir son objet a l autre
-          bout de l ecran. Le lissage existe pour cela : au-dela d un seuil, la valeur
-          transmise est celle d une image ordinaire, comme si l a-coup n avait pas eu
+          Une animation qui integrerait ce delta brut ferait bondir son objet a l’autre
+          bout de l’écran. Le lissage existe pour cela : au-delà d’un seuil, la valeur
+          transmise est celle d’une image ordinaire, comme si l’a-coup n’avait pas eu
           lieu.
         </p>
 
@@ -237,7 +237,7 @@ useEffect(() => {
           Le lissage rend <code className="o-font-mono o-text-xs">delta</code> confortable
           et faux. Ce qui mesure le temps reel — un compteur, une synchronisation, une
           video — doit lire <code className="o-font-mono o-text-xs">deltaRaw</code>. Les
-          deux sont exposes parce qu aucun des deux ne convient partout.
+          deux sont exposes parce qu’aucun des deux ne convient partout.
         </Callout>
 
         <CodeBlock
@@ -253,7 +253,7 @@ useEffect(() => {
 
       <Section
         title="Suspendre"
-        lead="pause() arrete la distribution, pas le temps. Un abonne peut aussi se suspendre seul — c'est ce que fait une surface WebGL sortie de l'ecran, plutot que de se desabonner et de tout reconstruire au retour."
+        lead="pause() arrête la distribution, pas le temps. Un abonne peut aussi se suspendre seul — c'est ce que fait une surface WebGL sortie de l'écran, plutôt que de se desabonner et de tout reconstruire au retour."
       >
         <CodeBlock
           code={`const subscription = clock.subscribe(dessiner, { name: 'aurore' })

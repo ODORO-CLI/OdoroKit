@@ -81,11 +81,11 @@ function ProductWindow(): ReactElement {
                 Un site qui respire
               </p>
               <p className="o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
-                Fond, titre anime, sections : trois entrees copiees, zero dependance.
+                Fond, titre anime, sections : trois entrées copiees, zéro dependance.
               </p>
               <span className="o-flex o-gap-2 o-pt-1">
                 <span className="o-rounded-md o-bg-zinc-50 o-px-3 o-py-1.5 o-text-xs o-font-medium o-text-zinc-950">
-                  Decouvrir
+                  Découvrir
                 </span>
                 <span className="o-rounded-md o-border-w-1 o-border-zinc-400 dark:o-border-zinc-600 o-px-3 o-py-1.5 o-text-xs o-font-medium o-text-zinc-800 dark:o-text-zinc-100">
                   Tarifs
@@ -128,7 +128,7 @@ export function Hero({ total, families }: HeroProps): ReactElement {
         <Reveal preset="fade-up" duration="slow">
           <span className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-brand-500 dark:o-border-brand-400 o-bg-brand-50 dark:o-bg-brand-950 o-px-3 o-py-1 o-text-xs o-font-medium o-text-brand-700 dark:o-text-brand-200">
             <Icon icon={Sparkles} size={14} />
-            {total} entrees au registre, {families} familles
+            {total} entrées au registre, {families} familles
           </span>
         </Reveal>
 
@@ -174,7 +174,7 @@ export function Hero({ total, families }: HeroProps): ReactElement {
             </Link>
           </Magnetic>
           <Link
-            to="/docs/registre/galerie"
+            to="/docs/registry/gallery"
             className="o-inline-flex o-h-12 o-items-center o-rounded-md o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-5 o-text-lg o-font-medium o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-400 dark:hover:o-border-zinc-500 hover:o-bg-zinc-100 dark:hover:o-bg-zinc-800 o-transition-colors o-no-underline"
           >
             Voir la galerie

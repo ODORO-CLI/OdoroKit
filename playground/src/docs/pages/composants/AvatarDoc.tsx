@@ -33,7 +33,7 @@ export function AvatarDoc(): ReactElement {
         lead="Avatar avec repli automatique en initiales quand l'image manque ou echoue, et groupe superpose pour les equipes."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -66,7 +66,7 @@ export function AvatarDoc(): ReactElement {
           }
           variants={[
             {
-              title: 'Tres grand',
+              title: 'Très grand',
               values: { size: 'xl' },
             },
             {
@@ -81,7 +81,7 @@ export function AvatarDoc(): ReactElement {
             },
             {
               title: 'Groupe borne',
-              description: 'Au-dela de max, une pastille +N resume le reste.',
+              description: 'Au-delà de max, une pastille +N résumé le reste.',
               node: (
                 <AvatarGroup max={3}>
                   <Avatar alt="Ana" name="Ana Ruiz" />
@@ -108,7 +108,7 @@ export function AvatarDoc(): ReactElement {
 
       <Section
         title="Repli en initiales"
-        lead="Si l'image echoue au chargement, l'avatar bascule sur les initiales du nom sans laisser l'icone d'image cassee du navigateur. Sans src, les initiales sont affichees d'emblee."
+        lead="Si l'image echoue au chargement, l'avatar bascule sur les initiales du nom sans laisser l'icône d'image cassee du navigateur. Sans src, les initiales sont affichees d'emblee."
       >
         <DemoBlock
           code={`<Avatar src="/photo-inexistante.jpg" alt="Photo de Jean Dupont" name="Jean Dupont" />
@@ -132,7 +132,7 @@ export function AvatarDoc(): ReactElement {
 
       <Section
         title="Groupe d'avatars"
-        lead="AvatarGroup superpose ses enfants ; au-dela de max, une pastille +N du meme gabarit resume le reste."
+        lead="AvatarGroup superpose ses enfants ; au-delà de max, une pastille +N du même gabarit résumé le reste."
       >
         <DemoBlock
           code={`<AvatarGroup max={3}>
@@ -194,7 +194,7 @@ export function AvatarDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLSpanElement>',
-              description: "Ref vers l'element conteneur.",
+              description: "Ref vers l'élément conteneur.",
             },
           ]}
         />

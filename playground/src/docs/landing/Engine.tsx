@@ -60,7 +60,7 @@ export function Engine(): ReactElement {
               @odoro-cli/engine
             </p>
             <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-              Un moteur qui arbitre, pas une librairie qui espere.
+              Un moteur qui arbitre, pas une librairie qui espère.
             </h2>
           </Reveal>
           <Stagger preset="fade-up" step={100} className="o-mt-8 o-flex o-flex-col o-gap-6">
@@ -78,7 +78,7 @@ export function Engine(): ReactElement {
           </Stagger>
           <Reveal preset="fade-up" delay={400} className="o-mt-8">
             <Link
-              to="/docs/moteur"
+              to="/docs/engine"
               className="o-inline-flex o-h-11 o-items-center o-rounded-md o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-5 o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50 hover:o-border-zinc-400 dark:hover:o-border-zinc-500 o-transition-colors o-no-underline"
             >
               Comprendre le moteur
@@ -99,7 +99,7 @@ export function Engine(): ReactElement {
             >
               <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">clock.subscribe</p>
               <p className="o-mt-1 o-text-sm o-font-semibold">Horloge du moteur</p>
-              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">entrees, mises a jour, rendu</p>
+              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">entrées, mises a jour, rendu</p>
             </div>
             <div
               data-beam="to"

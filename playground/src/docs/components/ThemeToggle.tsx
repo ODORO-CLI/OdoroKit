@@ -69,9 +69,9 @@ export function ThemeToggle(): ReactElement {
       onClick={() => setTheme(next)}
       aria-label={`${LABELS[theme]} — basculer`}
       title={LABELS[theme]}
-      className="o-inline-flex o-items-center o-justify-center o-size-9 o-rounded-md o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-50 hover:o-bg-zinc-50 dark:hover:o-bg-zinc-800 o-transition-colors o-cursor-pointer"
+      className="o-inline-flex o-size-14 o-shrink-0 o-cursor-pointer o-items-center o-justify-center o-rounded-full o-border-w-1 o-backdrop-blur-xl o-transition-colors db-gelule o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white"
     >
-      <Icon icon={ICONS[theme]} size={16} />
+      <Icon icon={ICONS[theme]} size={18} />
     </button>
   )
 }

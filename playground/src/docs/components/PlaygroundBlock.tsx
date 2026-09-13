@@ -141,7 +141,7 @@ const TEXTES: readonly (readonly [string, string])[] = [
 /** Etiquette d'un groupe du panneau. */
 function GroupLabel({ children }: { children: ReactNode }): ReactElement {
   return (
-    <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
+    <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
       {children}
     </p>
   )
@@ -401,7 +401,7 @@ export function VariantGrid({
 }: VariantGridProps): ReactElement {
   return (
     <div className="o-flex o-flex-col o-gap-2 o-pt-2">
-      <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-zinc-400 dark:o-text-zinc-500">
+      <p className="o-text-xs o-font-medium o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
         {variants.length} variante{variants.length > 1 ? 's' : ''}
       </p>
       <div className="o-grid o-grid-cols-1 sm:o-grid-cols-2 lg:o-grid-cols-3 o-gap-3">

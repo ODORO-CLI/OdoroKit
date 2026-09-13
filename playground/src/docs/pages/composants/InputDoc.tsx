@@ -32,10 +32,10 @@ export function InputDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Input"
-        lead="Champ de saisie avec libelle, aide et message d'erreur. Le libelle, l'aide et l'erreur sont relies au champ par id / aria-describedby : rien a cabler cote appelant."
+        lead="Champ de saisie avec libelle, aide et message d'erreur. Le libelle, l'aide et l'erreur sont relies au champ par id / aria-describedby : rien a cabler côté appelant."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Adresse e-mail' },
@@ -82,7 +82,7 @@ export function InputDoc(): ReactElement {
             { title: 'Desactive', values: { disabled: true } },
             {
               title: 'Avec erreur',
-              description: 'error met le champ en etat invalide.',
+              description: 'error met le champ en état invalide.',
               node: (
                 <Input
                   label="Adresse e-mail"
@@ -121,8 +121,8 @@ export function InputDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Etat d'erreur"
-        lead="La presence d'error met le champ en etat invalide (aria-invalid) et remplace l'aide dans la description annoncee. Le message est annonce des son apparition grace a role=alert."
+        title="État d'erreur"
+        lead="La présence d'error met le champ en état invalide (aria-invalid) et remplace l'aide dans la description annoncee. Le message est annonce des son apparition grâce à rôle=alert."
       >
         <DemoBlock
           code={`<Input
@@ -172,8 +172,8 @@ export function InputDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Habiller un element natif"
-        lead="inputClasses expose l'habillage du champ pour styler un element non couvert par les composants, sans dupliquer la table de variantes."
+        title="Habiller un élément natif"
+        lead="inputClasses expose l'habillage du champ pour styler un élément non couvert par les composants, sans dupliquer la table de variantes."
       >
         <DemoBlock
           code={`import { inputClasses } from '@odoro-cli/libs/ui'
@@ -219,7 +219,7 @@ export function InputDoc(): ReactElement {
               name: 'error',
               type: 'ReactNode',
               description:
-                "Message d'erreur. Sa presence met le champ en etat invalide et remplace l'aide dans la description annoncee.",
+                "Message d'erreur. Sa présence met le champ en état invalide et remplace l'aide dans la description annoncee.",
             },
             {
               name: 'size',
@@ -230,7 +230,7 @@ export function InputDoc(): ReactElement {
             {
               name: 'className',
               type: 'string',
-              description: "Classes additionnelles appliquees a l'element <input>.",
+              description: "Classes additionnelles appliquees a l'élément <input>.",
             },
             {
               name: 'wrapperClassName',
@@ -240,7 +240,7 @@ export function InputDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLInputElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

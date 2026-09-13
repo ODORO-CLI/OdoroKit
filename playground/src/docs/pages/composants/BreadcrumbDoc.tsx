@@ -24,12 +24,12 @@ export function BreadcrumbDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Breadcrumb"
-        lead="Fil d'Ariane semantique : la derniere etape represente la page courante, porte aria-current et n'est jamais un lien. Les separateurs sont hors du flux accessible."
+        lead="Fil d'Ariane semantique : la dernière étape represente la page courante, porte aria-current et n'est jamais un lien. Les separateurs sont hors du flux accessible."
       />
 
       <Section
-        title="Apercu"
-        lead="Quatre niveaux, de la racine a la page courante. Les etapes intermediaires sont des liens."
+        title="Aperçu"
+        lead="Quatre niveaux, de la racine a la page courante. Les étapes intermediaires sont des liens."
       >
         <DemoBlock
           code={`import { Breadcrumb } from '@odoro-cli/libs/ui'
@@ -39,7 +39,7 @@ export function BreadcrumbDoc(): ReactElement {
     { label: 'Accueil', href: '/' },
     { label: 'Projets', href: '/projets' },
     { label: 'OdoroKit', href: '/projets/odorokit' },
-    { label: 'Parametres' },
+    { label: 'Paramètrès' },
   ]}
 />`}
         >
@@ -48,19 +48,19 @@ export function BreadcrumbDoc(): ReactElement {
               { label: 'Accueil', href: '#' },
               { label: 'Projets', href: '#' },
               { label: 'OdoroKit', href: '#' },
-              { label: 'Parametres' },
+              { label: 'Paramètrès' },
             ]}
           />
         </DemoBlock>
       </Section>
 
       <Section
-        title="Separateur personnalise"
-        lead="Le separateur par defaut est un chevron ; passez n'importe quel ReactNode — ici un slash."
+        title="Séparateur personnalise"
+        lead="Le séparateur par défaut est un chevron ; passez n'importe quel ReactNode — ici un slash."
       >
         <DemoBlock
           code={`<Breadcrumb
-  separator={<span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>}
+  separator={<span className="o-text-zinc-500 dark:o-text-zinc-400">/</span>}
   items={[
     { label: 'Accueil', href: '/' },
     { label: 'Documentation', href: '/docs' },
@@ -69,7 +69,7 @@ export function BreadcrumbDoc(): ReactElement {
 />`}
         >
           <Breadcrumb
-            separator={<span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>}
+            separator={<span className="o-text-zinc-500 dark:o-text-zinc-400">/</span>}
             items={[
               { label: 'Accueil', href: '#' },
               { label: 'Documentation', href: '#' },
@@ -80,8 +80,8 @@ export function BreadcrumbDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Etapes sans lien"
-        lead="Une etape sans href est rendue en texte simple : utile pour un niveau de regroupement qui n'a pas de page propre."
+        title="Étapes sans lien"
+        lead="Une étape sans href est rendue en texte simple : utile pour un niveau de regroupement qui n'a pas de page propre."
       >
         <DemoBlock
           code={`<Breadcrumb
@@ -131,18 +131,18 @@ export function BreadcrumbDoc(): ReactElement {
                     { label: 'Accueil', href: '#' },
                     { label: 'Projets', href: '#' },
                     { label: 'OdoroKit', href: '#' },
-                    { label: 'Parametres' },
+                    { label: 'Paramètrès' },
                   ]}
                 />
               ),
             },
             {
-              title: 'Separateur slash',
-              description: 'Un ReactNode libre entre les etapes.',
+              title: 'Séparateur slash',
+              description: 'Un ReactNode libre entre les étapes.',
               node: (
                 <Breadcrumb
                   separator={
-                    <span className="o-text-zinc-400 dark:o-text-zinc-500">/</span>
+                    <span className="o-text-zinc-500 dark:o-text-zinc-400">/</span>
                   }
                   items={[
                     { label: 'Accueil', href: '#' },
@@ -153,7 +153,7 @@ export function BreadcrumbDoc(): ReactElement {
               ),
             },
             {
-              title: 'Etapes sans lien',
+              title: 'Étapes sans lien',
               description: 'Les niveaux sans page propre restent en texte.',
               node: (
                 <Breadcrumb
@@ -175,7 +175,7 @@ export function BreadcrumbDoc(): ReactElement {
             {
               name: 'items',
               type: 'readonly BreadcrumbItem[]',
-              description: 'Etapes, de la racine a la page courante.',
+              description: 'Étapes, de la racine a la page courante.',
             },
             {
               name: 'label',
@@ -187,7 +187,7 @@ export function BreadcrumbDoc(): ReactElement {
               name: 'separator',
               type: 'ReactNode',
               defaultValue: 'un chevron',
-              description: 'Separateur entre les etapes.',
+              description: 'Séparateur entre les étapes.',
             },
             {
               name: 'className',
@@ -197,7 +197,7 @@ export function BreadcrumbDoc(): ReactElement {
           ]}
         />
         <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-          Chaque entree de <code className="o-font-mono o-text-xs">items</code> est un{' '}
+          Chaque entrée de <code className="o-font-mono o-text-xs">items</code> est un{' '}
           <code className="o-font-mono o-text-xs">BreadcrumbItem</code> :
         </p>
         <PropsTable
@@ -210,7 +210,7 @@ export function BreadcrumbDoc(): ReactElement {
             {
               name: 'href',
               type: 'string',
-              description: "Destination. Sans lien, l'etape est rendue en texte simple.",
+              description: "Destination. Sans lien, l'étape est rendue en texte simple.",
             },
           ]}
         />

@@ -87,10 +87,10 @@ export function CheckboxDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Checkbox"
-        lead="Case a cocher dessinee au-dessus de l'input natif. L'input reste dans la page (masque par o-sr-only) : clavier, formulaires et lecteurs d'ecran passent par lui ; la boite visible n'est qu'un dessin aria-hidden."
+        lead="Case a cocher dessinee au-dessus de l'input natif. L'input reste dans la page (masque par o-sr-only) : clavier, formulaires et lecteurs d'écran passent par lui ; la boîte visible n'est qu'un dessin aria-hidden."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Se souvenir de moi' },
@@ -129,12 +129,12 @@ export function CheckboxDoc(): ReactElement {
             },
             {
               title: 'Cochee',
-              description: 'Etat initial pose par defaultChecked.',
+              description: 'État initial pose par defaultChecked.',
               node: <Checkbox label="Conditions acceptees" defaultChecked />,
             },
             {
               title: 'Liste de taches',
-              description: 'Un groupe controle, une case par element.',
+              description: 'Un groupe contrôle, une case par élément.',
               node: <ListeTaches />,
             },
           ]}
@@ -143,7 +143,7 @@ export function CheckboxDoc(): ReactElement {
 
       <Section
         title="Groupe de cases"
-        lead="Chaque case est un champ independant : un groupe se construit en mode controle, avec un etat local qui porte la liste."
+        lead="Chaque case est un champ independant : un groupe se construit en mode contrôle, avec un état local qui porte la liste."
       >
         <DemoBlock
           code={`function ListeTaches() {
@@ -175,8 +175,8 @@ export function CheckboxDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Etat indetermine"
-        lead="indeterminate est purement visuel et ARIA : il ne change pas la valeur soumise, et un clic repasse par le cycle natif coche / decoche. L'usage type : une case parente « tout selectionner » pilotee par l'etat de ses enfants."
+        title="État indetermine"
+        lead="indeterminate est purement visuel et ARIA : il ne change pas la valeur soumise, et un clic repasse par le cycle natif coche / decoche. L'usage type : une case parente « tout selectionner » pilotee par l'état de ses enfants."
       >
         <DemoBlock
           code={`function ToutSelectionner() {
@@ -229,12 +229,12 @@ export function CheckboxDoc(): ReactElement {
               type: 'boolean',
               defaultValue: 'false',
               description:
-                'Etat intermediaire (« certains elements coches »). Purement visuel et ARIA : il ne change pas la valeur soumise, et un clic repasse par le cycle natif coche / decoche.',
+                'État intermediaire (« certains éléments coches »). Purement visuel et ARIA : il ne change pas la valeur soumise, et un clic repasse par le cycle natif coche / decoche.',
             },
             {
               name: 'className',
               type: 'string',
-              description: 'Classes additionnelles appliquees a la boite dessinee.',
+              description: 'Classes additionnelles appliquees a la boîte dessinee.',
             },
             {
               name: 'wrapperClassName',
@@ -244,7 +244,7 @@ export function CheckboxDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLInputElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

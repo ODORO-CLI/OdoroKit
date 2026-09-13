@@ -72,10 +72,10 @@ export function ButtonDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Button"
-        lead="Bouton d'action. Le libelle reste visible pendant le chargement ; l'etat est annonce par aria-busy et l'activation est bloquee par aria-disabled, ce qui garde le bouton focusable et donc annoncable."
+        lead="Bouton d'action. Le libelle reste visible pendant le chargement ; l'état est annonce par aria-busy et l'activation est bloquee par aria-disabled, ce qui garde le bouton focusable et donc annoncable."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             {
@@ -141,13 +141,13 @@ export function ButtonDoc(): ReactElement {
               values: { block: true },
             },
             {
-              title: 'Icone en tete',
-              description: 'Un element decoratif via startSlot.',
+              title: 'Icône en tête',
+              description: 'Un élément decoratif via startSlot.',
               node: <Button startSlot={<PlusIcon />}>Nouveau projet</Button>,
             },
             {
               title: 'Groupe de deux',
-              description: 'Action principale et action discrete.',
+              description: 'Action principale et action discrète.',
               node: (
                 <div className="o-flex o-items-center o-gap-3">
                   <Button>Enregistrer</Button>
@@ -170,7 +170,7 @@ export function ButtonDoc(): ReactElement {
 
       <Section
         title="Slots decoratifs"
-        lead="startSlot et endSlot placent un element avant ou apres le libelle, sans toucher a l'espacement du bouton."
+        lead="startSlot et endSlot placent un élément avant ou après le libelle, sans toucher a l'espacement du bouton."
       >
         <DemoBlock
           code={`<Button startSlot={<PlusIcon />}>Nouveau projet</Button>
@@ -204,7 +204,7 @@ export function ButtonDoc(): ReactElement {
 
       <Section
         title="Animation de pression"
-        lead="Par defaut, l'activation joue une breve pression (press). Elle se coupe avec press={false}, et se neutralise d'elle-meme sous prefers-reduced-motion."
+        lead="Par défaut, l'activation joue une breve pression (press). Elle se coupe avec press={false}, et se neutralise d'elle-même sous prefers-reduced-motion."
       >
         <DemoBlock
           code={`<Button>Avec pression</Button>
@@ -243,17 +243,17 @@ export function ButtonDoc(): ReactElement {
               type: 'boolean',
               defaultValue: 'false',
               description:
-                "Affiche un indicateur de chargement et neutralise le bouton. Le libelle reste en place : sa disparition ferait sauter la mise en page et priverait les lecteurs d'ecran du contexte.",
+                "Affiche un indicateur de chargement et neutralise le bouton. Le libelle reste en place : sa disparition ferait sauter la mise en page et priverait les lecteurs d'écran du contexte.",
             },
             {
               name: 'startSlot',
               type: 'ReactNode',
-              description: 'Element decoratif place avant le libelle.',
+              description: 'Élément decoratif place avant le libelle.',
             },
             {
               name: 'endSlot',
               type: 'ReactNode',
-              description: 'Element decoratif place apres le libelle.',
+              description: 'Élément decoratif place après le libelle.',
             },
             {
               name: 'press',
@@ -266,7 +266,7 @@ export function ButtonDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLButtonElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />

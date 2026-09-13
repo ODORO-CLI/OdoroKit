@@ -19,7 +19,7 @@ const JEUX = [
     nombre: 2048,
     grille: '24 · trait de 2',
     resume:
-      'Le plus regulier : meme epaisseur, memes terminaisons arrondies partout. Le choix par defaut pour une interface.',
+      'Le plus régulier : même épaisseur, mêmes terminaisons arrondies partout. Le choix par défaut pour une interface.',
   },
   {
     module: 'compact',
@@ -27,7 +27,7 @@ const JEUX = [
     nombre: 2078,
     grille: '16 · plein',
     resume:
-      'Dessine pour de petites tailles. A seize pixels, il reste lisible la ou un trace au trait se brouille.',
+      'Dessine pour de petites tailles. A seize pixels, il reste lisible là où un trace au trait se brouille.',
   },
   {
     module: 'classique',
@@ -39,11 +39,11 @@ const JEUX = [
   },
   {
     module: 'etendu',
-    titre: 'Etendu',
+    titre: 'Étendu',
     nombre: 3903,
     grille: '960 · contour',
     resume:
-      'De loin le plus vaste. Il couvre des domaines que les autres ignorent, au prix d une qualite inegale.',
+      'De loin le plus vaste. Il couvre des domaines que les autres ignorent, au prix d’une qualité inegale.',
   },
   {
     module: 'marques',
@@ -51,7 +51,7 @@ const JEUX = [
     nombre: 609,
     grille: '512 · plein',
     resume:
-      'Logos de services et de plateformes. Des marques deposees : leur emploi ne releve pas d une licence de code.',
+      'Logos de services et de plateformes. Des marques deposees : leur emploi ne releve pas d’une licence de code.',
   },
 ] as const
 
@@ -71,24 +71,24 @@ export function IconesOverview(): ReactElement {
     <>
       <PageHeader
         module="@odoro-cli/icons"
-        title="Icones"
-        lead="Cinq jeux, dix mille six cent trente-neuf icones, un seul composant pour les rendre."
+        title="Icônes"
+        lead="Cinq jeux, dix mille six cent trente-neuf icônes, un seul composant pour les rendre."
       />
 
       <Section
-        title="Une donnee, pas un composant par icone"
+        title="Une donnée, pas un composant par icône"
         lead="Le choix qui decide de tout le reste."
       >
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
-          La solution repandue est un composant par icone. A dix mille six cent
-          trente-neuf, cela fait autant de fermetures, autant d entrees dans le graphe du
-          bundler, et un temps de compilation qui se compte en dizaines de secondes meme
+          La solution repandue est un composant par icône. A dix mille six cent
+          trente-neuf, cela fait autant de fermetures, autant d’entrées dans le graphe du
+          bundler, et un temps de compilation qui se compte en dizaines de secondes même
           quand on en emploie trois.
         </p>
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
-          Une icone est ici une <strong>donnee</strong> : sa boite, son mode, ses noeuds.
-          Un composant unique les rend toutes. L elagage fonctionne aussi bien — une
-          constante non referencee disparait exactement comme un composant non reference —
+          Une icône est ici une <strong>donnée</strong> : sa boîte, son mode, ses nœuds.
+          Un composant unique les rend toutes. L’elagage fonctionne aussi bien — une
+          constante non referencee disparaît exactement comme un composant non référence —
           et la compilation redevient instantanee.
         </p>
 
@@ -110,13 +110,13 @@ import { Download, Search } from '@odoro-cli/icons/filaire'
 
       <Section
         title="La couleur vient du texte"
-        lead="Il n y a pas de propriete de couleur, et c est delibere."
+        lead="Il n’y a pas de propriété de couleur, et c’est delibere."
       >
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
           Le trace prend <code className="o-font-mono o-text-sm">currentColor</code>. Une
-          classe de texte colore donc l icone comme elle colore le reste, y compris au
-          changement de theme. Une propriete de couleur creerait un second chemin, qui
-          divergerait du premier des le premier basculement.
+          classe de texte colore donc l’icône comme elle colore le reste, y compris au
+          changement de thème. Une propriété de couleur creerait un second chemin, qui
+          divergerait du premier dès le premier basculement.
         </p>
 
         <div className="o-flex o-flex-wrap o-items-center o-gap-6 o-rounded-xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-6">
@@ -126,20 +126,20 @@ import { Download, Search } from '@odoro-cli/icons/filaire'
         </div>
 
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
-          La taille par defaut est <code className="o-font-mono o-text-sm">1em</code> :
-          une icone placee dans un titre est grande sans qu on ait rien a regler. Un
-          nombre force une taille en pixels, pour une icone seule qui ne suit aucun texte.
+          La taille par défaut est <code className="o-font-mono o-text-sm">1em</code> :
+          une icône placee dans un titre est grande sans qu’on ait rien a regler. Un
+          nombre force une taille en pixels, pour une icône seule qui ne suit aucun texte.
         </p>
       </Section>
 
       <Section
-        title="Choisir un jeu, et s y tenir"
-        lead="Les jeux ne partagent ni grille, ni epaisseur, ni style."
+        title="Choisir un jeu, et s’y tenir"
+        lead="Les jeux ne partagent ni grille, ni épaisseur, ni style."
       >
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
-          Aucun jeu n est ramene a une grille commune : redessiner un trace pour le faire
-          tenir ailleurs, c est le deformer. Chacun garde donc sa boite, et le composant s
-          y adapte. Ce qui reste different — l epaisseur apparente, le style du dessin —
+          Aucun jeu n’est ramene a une grille commune : redessiner un trace pour le faire
+          tenir ailleurs, c’est le deformer. Chacun garde donc sa boîte, et le composant s
+          y adapte. Ce qui reste different — l’épaisseur apparente, le style du dessin —
           est precisement la raison pour laquelle on en choisit un seul.
         </p>
 
@@ -149,8 +149,8 @@ import { Download, Search } from '@odoro-cli/icons/filaire'
               <tr className="o-border-b o-border-zinc-200 dark:o-border-zinc-800">
                 <th className="o-py-2 o-pr-4 o-font-medium">Module</th>
                 <th className="o-py-2 o-pr-4 o-font-medium">Grille</th>
-                <th className="o-py-2 o-pr-4 o-font-medium o-text-right">Icones</th>
-                <th className="o-py-2 o-font-medium">Caractere</th>
+                <th className="o-py-2 o-pr-4 o-font-medium o-text-right">Icônes</th>
+                <th className="o-py-2 o-font-medium">Caractère</th>
               </tr>
             </thead>
             <tbody>
@@ -179,8 +179,8 @@ import { Download, Search } from '@odoro-cli/icons/filaire'
 
         <p className="o-max-w-prose o-text-zinc-600 dark:o-text-zinc-300">
           Le seul melange qui se defende est un jeu principal plus{' '}
-          <code className="o-font-mono o-text-sm">marques</code> : les logos n ont de
-          toute facon aucun style commun avec le reste.
+          <code className="o-font-mono o-text-sm">marques</code> : les logos n’ont de
+          toute façon aucun style commun avec le reste.
         </p>
       </Section>
 
@@ -189,7 +189,7 @@ import { Download, Search } from '@odoro-cli/icons/filaire'
           Aucun de ces traces n est de nous. Le module importe cinq jeux tiers et les
           normalise ; les licences — ISC, MIT, CC BY 4.0, Apache 2.0 — sont reportees dans{' '}
           <code className="o-font-mono o-text-sm">CREDITS.md</code> a la racine, avec la
-          correspondance entre chaque module et son jeu d origine.
+          correspondance entre chaque module et son jeu d’origine.
         </Callout>
 
         <Callout tone="warning">

@@ -38,10 +38,10 @@ export function SelectDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="Select"
-        lead="Liste deroulante native habillee comme un champ de saisie. Le panneau d'options garde le comportement du systeme (clavier, tactile, lecteurs d'ecran) ; seule la boite fermee est habillee, avec le chevron redessine par-dessus."
+        lead="Liste deroulante native habillee comme un champ de saisie. Le panneau d'options garde le comportement du système (clavier, tactile, lecteurs d'écran) ; seule la boîte fermee est habillee, avec le chevron redessine par-dessus."
       />
 
-      <Section title="Apercu">
+      <Section title="Aperçu">
         <PlaygroundBlock
           controls={[
             { name: 'label', type: 'text', defaultValue: 'Pays' },
@@ -83,12 +83,12 @@ export function SelectDoc(): ReactElement {
             { title: 'Desactive', values: { disabled: true } },
             {
               title: 'Avec placeholder',
-              description: 'Une option vide et desactivee tant que rien n est choisi.',
+              description: 'Une option vide et desactivee tant que rien n’est choisi.',
               values: { placeholder: 'Selectionner un pays' },
             },
             {
               title: 'Avec erreur',
-              description: 'error met le champ en etat invalide.',
+              description: 'error met le champ en état invalide.',
               node: (
                 <Select
                   label="Pays"
@@ -109,7 +109,7 @@ export function SelectDoc(): ReactElement {
                   options={[
                     { value: 'gratuit', label: 'Gratuite' },
                     { value: 'pro', label: 'Pro' },
-                    { value: 'entreprise', label: 'Entreprise (bientot)', disabled: true },
+                    { value: 'entreprise', label: 'Entreprise (bientôt)', disabled: true },
                   ]}
                   wrapperClassName="o-w-full"
                 />
@@ -120,8 +120,8 @@ export function SelectDoc(): ReactElement {
       </Section>
 
       <Section
-        title="Etat d'erreur"
-        lead="La presence d'error met le champ en etat invalide et remplace l'aide dans la description annoncee."
+        title="État d'erreur"
+        lead="La présence d'error met le champ en état invalide et remplace l'aide dans la description annoncee."
       >
         <DemoBlock
           code={`<Select
@@ -158,7 +158,7 @@ export function SelectDoc(): ReactElement {
   options={[
     { value: 'gratuit', label: 'Gratuite' },
     { value: 'pro', label: 'Pro' },
-    { value: 'entreprise', label: 'Entreprise (bientot)', disabled: true },
+    { value: 'entreprise', label: 'Entreprise (bientôt)', disabled: true },
   ]}
 />`}
         >
@@ -168,7 +168,7 @@ export function SelectDoc(): ReactElement {
             options={[
               { value: 'gratuit', label: 'Gratuite' },
               { value: 'pro', label: 'Pro' },
-              { value: 'entreprise', label: 'Entreprise (bientot)', disabled: true },
+              { value: 'entreprise', label: 'Entreprise (bientôt)', disabled: true },
             ]}
             wrapperClassName="o-w-72"
           />
@@ -200,7 +200,7 @@ export function SelectDoc(): ReactElement {
               name: 'error',
               type: 'ReactNode',
               description:
-                "Message d'erreur. Sa presence met le champ en etat invalide et remplace l'aide dans la description annoncee.",
+                "Message d'erreur. Sa présence met le champ en état invalide et remplace l'aide dans la description annoncee.",
             },
             {
               name: 'size',
@@ -218,12 +218,12 @@ export function SelectDoc(): ReactElement {
               name: 'placeholder',
               type: 'string',
               description:
-                "Texte affiche tant qu'aucune valeur n'est choisie, rendu comme une option vide et desactivee : elle ne peut pas etre re-selectionnee ensuite.",
+                "Texte affiche tant qu'aucune valeur n'est choisie, rendu comme une option vide et desactivee : elle ne peut pas être re-sélectionnée ensuite.",
             },
             {
               name: 'className',
               type: 'string',
-              description: "Classes additionnelles appliquees a l'element <select>.",
+              description: "Classes additionnelles appliquees a l'élément <select>.",
             },
             {
               name: 'wrapperClassName',
@@ -233,12 +233,12 @@ export function SelectDoc(): ReactElement {
             {
               name: 'ref',
               type: 'Ref<HTMLSelectElement>',
-              description: "Ref vers l'element natif.",
+              description: "Ref vers l'élément natif.",
             },
           ]}
         />
         <p className="o-text-zinc-500 dark:o-text-zinc-400 o-max-w-prose">
-          Chaque entree de <code className="o-font-mono o-text-sm">options</code> est un{' '}
+          Chaque entrée de <code className="o-font-mono o-text-sm">options</code> est un{' '}
           <code className="o-font-mono o-text-sm">SelectOption</code> :
         </p>
         <PropsTable

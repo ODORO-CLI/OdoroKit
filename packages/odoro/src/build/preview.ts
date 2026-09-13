@@ -28,6 +28,9 @@ const MIME: Readonly<Record<string, string>> = {
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
   '.map': 'application/json; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
+  '.markdown': 'text/markdown; charset=utf-8',
 }
 
 /** Serveur de previsualisation en cours d'execution. */
@@ -67,10 +70,16 @@ export async function startPreviewServer(
       .join('/')
     const candidate = join(config.outDir, relativePath)
 
+    // Un dossier rend son index — `index.html`, ou `index.md` pour un arbre de
+    // documents — avant le repli sur le document de l application.
+    const dansLeDossier = ['index.html', 'index.md']
+      .map((nom) => join(candidate, nom))
+      .find((chemin) => existsSync(chemin) && statSync(chemin).isFile())
+
     const file =
       existsSync(candidate) && statSync(candidate).isFile()
         ? candidate
-        : join(config.outDir, 'index.html')
+        : (dansLeDossier ?? join(config.outDir, 'index.html'))
 
     if (!file.startsWith(config.outDir)) {
       response.writeHead(403, { 'Content-Type': 'text/plain' })

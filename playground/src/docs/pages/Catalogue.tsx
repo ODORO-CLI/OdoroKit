@@ -37,10 +37,10 @@ const DEMOS: Readonly<Record<string, string>> = {
   text: '/docs/text',
   background: '/docs/backgrounds',
   hero: '/docs/backgrounds',
-  effect: '/docs/motion/librairie',
+  effect: '/docs/motion/library',
   image: '/docs/images',
   section: '/docs/sections',
-  hooks: '/docs/registre/galerie',
+  hooks: '/docs/registry/gallery',
 }
 
 /** Intitules des categories, dans l'ordre d'affichage. */
@@ -108,12 +108,12 @@ export function Catalogue(): ReactElement {
       <PageHeader
         module="@odoro-cli/bits"
         title="Catalogue"
-        lead="Tout ce que le registre publie. Cette page interroge l index — le meme fichier que la CLI telecharge — et ne peut donc ni en omettre ni en inventer."
+        lead="Tout ce que le registre publie. Cette page interroge l’index — le même fichier que la CLI télécharge — et ne peut donc ni en omettre ni en inventer."
       />
 
       {failed ? (
         <Callout tone="warning">
-          L index n a pas pu etre lu. Il est produit par{' '}
+          L’index n’a pas pu être lu. Il est produit par{' '}
           <code className="o-font-mono o-text-xs">
             pnpm --filter @odoro-cli/bits registry:build
           </code>{' '}
@@ -127,7 +127,7 @@ export function Catalogue(): ReactElement {
             ? 'Chargement…'
             : `${String(entries.length)} entrees, ${String(grouped.length)} categories`
         }
-        lead="Chaque entree s installe par son nom. La CLI resout les dependances, annonce le poids, et refuse d ecrire par-dessus sans confirmation."
+        lead="Chaque entrée s’installe par son nom. La CLI résout les dependances, annonce le poids, et refuse d’écrire par-dessus sans confirmation."
       >
         <label className="o-flex o-items-center o-gap-3">
           <span className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">Filtrer</span>
@@ -142,7 +142,7 @@ export function Catalogue(): ReactElement {
 
         {entries !== null && shown.length === 0 ? (
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Aucune entree ne correspond.
+            Aucune entrée ne correspond.
           </p>
         ) : null}
 
@@ -151,7 +151,7 @@ export function Catalogue(): ReactElement {
             <div key={category} className="o-flex o-flex-col o-gap-3">
               <div className="o-flex o-items-baseline o-gap-3">
                 <h3 className="o-text-lg o-font-semibold o-tracking-tight">{label}</h3>
-                <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
+                <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                   {category}
                 </span>
                 {DEMOS[category] === undefined ? null : (
@@ -159,7 +159,7 @@ export function Catalogue(): ReactElement {
                     to={DEMOS[category]}
                     className="o-ml-auto o-text-sm o-text-brand-600 dark:o-text-brand-400 hover:o-text-brand-700 dark:hover:o-text-brand-300 o-underline"
                   >
-                    Voir les demonstrations
+                    Voir les démonstrations
                   </Link>
                 )}
               </div>
@@ -184,8 +184,8 @@ export function Catalogue(): ReactElement {
                     </code>
 
                     {entry.registryDependencies.length === 0 ? null : (
-                      <p className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500">
-                        entraine : {entry.registryDependencies.join(', ')}
+                      <p className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                        entraîne : {entry.registryDependencies.join(', ')}
                       </p>
                     )}
                   </li>
@@ -198,7 +198,7 @@ export function Catalogue(): ReactElement {
 
       <Section
         title="Pourquoi cette page ne peut pas mentir"
-        lead="Une liste maintenue a cote du registre derive au premier ajout — et rien ne casse : une entree devient simplement introuvable."
+        lead="Une liste maintenue a côté du registre dérive au premier ajout — et rien ne casse : une entrée devient simplement introuvable."
       >
         <CodeBlock
           lang="sh"
@@ -208,10 +208,10 @@ pnpm --filter @odoro-cli/bits registry:build
 odoro list`}
         />
         <p className="o-max-w-prose o-text-zinc-500 dark:o-text-zinc-400">
-          Un controle en integration continue compare par ailleurs cet inventaire a ce que
+          Un contrôle en integration continue compare par ailleurs cet inventaire a ce que
           les pages rendent reellement :{' '}
           <code className="o-font-mono o-text-sm">pnpm check:catalogue</code> echoue si
-          une entree publiee n apparait nulle part dans la documentation.
+          une entrée publiee n’apparaît nulle part dans la documentation.
         </p>
       </Section>
     </>

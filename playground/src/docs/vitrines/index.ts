@@ -97,7 +97,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Brulerie Nord',
     metier: 'Torrefacteur',
     resume:
-      'Des grains traces jusqu a la parcelle, vendus au sachet, avec l abonnement qui evite d y penser.',
+      'Des grains traces jusqu’à la parcelle, vendus au sachet, avec l’abonnement qui évite d’y penser.',
     secteur: 'commerce',
     palette: ['--o-palette-orange-600', '--o-palette-stone-800', '--o-palette-amber-200'],
     apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-stone-200 dark:o-to-stone-900',
@@ -111,7 +111,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Atelier Rasoir',
     metier: 'Barbier',
     resume:
-      'Trois fauteuils, pas de file d attente : on choisit son creneau et on repart avec l heure exacte.',
+      'Trois fauteuils, pas de file d’attente : on choisit son creneau et on repart avec l’heure exacte.',
     secteur: 'commerce',
     palette: ['--o-palette-amber-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-200 dark:o-from-zinc-900 o-to-amber-100 dark:o-to-amber-950',
@@ -139,7 +139,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Levain',
     metier: 'Boulanger',
     resume:
-      'Sept fournees par jour : la page lit l horloge et dit ce qui est au four, ce qui est sur la planche et ce qui est deja parti.',
+      'Sept fournees par jour : la page lit l’horloge et dit ce qui est au four, ce qui est sur la planche et ce qui est déjà parti.',
     secteur: 'commerce',
     palette: ['--o-palette-amber-500', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
@@ -153,7 +153,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Criee',
     metier: 'Poissonnier',
     resume:
-      'L arrivage du matin : sept lots, le bateau et le port de chacun, un feu de saison calcule sur le mois, et le plan cote de l espece choisie.',
+      'L’arrivage du matin : sept lots, le bateau et le port de chacun, un feu de saison calcule sur le mois, et le plan côté de l’espece choisie.',
     secteur: 'commerce',
     palette: ['--o-palette-cyan-500', '--o-palette-slate-900', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-slate-200 dark:o-to-slate-900',
@@ -167,7 +167,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Hale',
     metier: 'Fromager affineur',
     resume:
-      'La cave en coupe, trois etages : chaque piece est posee la ou elle en est vraiment, et son compte de jours avance avec le calendrier.',
+      'La cave en coupe, trois etages : chaque piece est posee là où elle en est vraiment, et son compte de jours avance avec le calendrier.',
     secteur: 'commerce',
     palette: ['--o-palette-amber-600', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
@@ -181,7 +181,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Marge',
     metier: 'Libraire',
     resume:
-      'Une table qui se recompose selon l humeur qu on declare, un rayon en volume qui tire le livre choisi, et le mot du libraire signe a la main.',
+      'Une table qui se recompose selon l’humeur qu’on déclare, un rayon en volume qui tire le livre choisi, et le mot du libraire signe a la main.',
     secteur: 'commerce',
     palette: ['--o-palette-stone-700', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-100 dark:o-from-stone-900 o-to-stone-300 dark:o-to-stone-950',
@@ -195,7 +195,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Sillon Noir',
     metier: 'Disquaire',
     resume:
-      'Un microsillon en volume qui tourne a trente-trois tours et un tiers, et un bac qu on feuillette au doigt et a la molette.',
+      'Un microsillon en volume qui tourne a trente-trois tours et un tiers, et un bac qu’on feuillette au doigt et a la molette.',
     secteur: 'commerce',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-red-100 dark:o-from-red-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -223,7 +223,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Appui',
     metier: 'Osteopathe',
     resume:
-      'Deux silhouettes dessinees : on designe la douleur, et la page repond par le protocole, sa duree, et ce qui ne releve pas de l osteopathie.',
+      'Deux silhouettes dessinees : on designe la douleur, et la page répond par le protocole, sa durée, et ce qui ne releve pas de l’osteopathie.',
     secteur: 'bien-etre',
     palette: ['--o-palette-stone-600', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-100 dark:o-from-stone-900 o-to-stone-200 dark:o-to-stone-950',
@@ -237,7 +237,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Marelle',
     metier: 'Creche associative',
     resume:
-      'Douze moments dessines, epingles heure par heure : la journee entiere d une creche parentale, du portemanteau au trousseau de cles.',
+      'Douze moments dessines, épingles heure par heure : la journée entière d’une creche parentale, du portemanteau au trousseau de cles.',
     secteur: 'bien-etre',
     palette: ['--o-palette-rose-500', '--o-palette-zinc-950', '--o-palette-amber-300'],
     apercu: 'o-bg-gradient-to-br o-from-rose-100 dark:o-from-rose-950 o-to-amber-100 dark:o-to-amber-950',
@@ -249,9 +249,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'violet',
     ton: 'sombre',
     titre: 'Socle',
-    metier: 'Base de donnees',
+    metier: 'Base de données',
     resume:
-      'On compose une requete et le plan d execution se dessine, noeud par noeud, avec ses couts : la page montre pourquoi un index n est pas toujours employe.',
+      'On compose une requête et le plan d’execution se dessine, nœud par nœud, avec ses coûts : la page montre pourquoi un index n’est pas toujours employe.',
     secteur: 'logiciel',
     palette: ['--o-palette-violet-400', '--o-palette-zinc-950', '--o-palette-violet-200'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -277,9 +277,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'orange',
     ton: 'theme',
     titre: 'Devers',
-    metier: 'Salle d escalade',
+    metier: 'Salle d’escalade',
     resume:
-      'Un topo plutot qu une plaquette : la voie s allume prise par prise, au rythme releve sur la video d ouverture, et le corps de la page est une montee de dix-sept metres.',
+      'Un topo plutôt qu’une plaquette : la voie s’allume prise par prise, au rythme releve sur la video d’ouverture, et le corps de la page est une montée de dix-sept metres.',
     secteur: 'bien-etre',
     palette: ['--o-palette-orange-500', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-stone-200 dark:o-to-stone-900',
@@ -293,7 +293,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Bassin Nord',
     metier: 'Piscine municipale',
     resume:
-      'Un mois de comptages en carte de chaleur : six lignes, treize creneaux, et la page qui vous dit elle-meme a quelle heure votre ligne est vide.',
+      'Un mois de comptages en carte de chaleur : six lignes, treize creneaux, et la page qui vous dit elle-même a quelle heure votre ligne est vide.',
     secteur: 'bien-etre',
     palette: ['--o-palette-cyan-500', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-slate-200 dark:o-to-slate-900',
@@ -321,7 +321,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Combe',
     metier: 'Ecole de ski',
     resume:
-      'Le bulletin plutot que la brochure : on choisit son niveau et la page calcule les pistes ouvertes, le denivele skiable et l heure ou il faut monter.',
+      'Le bulletin plutôt que la brochure : on choisit son niveau et la page calcule les pistes ouvertes, le denivele skiable et l’heure ou il faut monter.',
     secteur: 'bien-etre',
     palette: ['--o-palette-sky-500', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-slate-200 dark:o-to-slate-900',
@@ -335,7 +335,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Corde a Sauter',
     metier: 'Salle de boxe',
     resume:
-      'Un minuteur de trois minutes qui mene l enchainement coup par coup, un compteur a rouleaux, et la zone visee qui s allume sur la silhouette.',
+      'Un minuteur de trois minutes qui mene l’enchainement coup par coup, un compteur a rouleaux, et la zone visee qui s’allume sur la silhouette.',
     secteur: 'bien-etre',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-900 dark:o-from-zinc-950 o-to-red-900 dark:o-to-red-950',
@@ -349,7 +349,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Ecrou',
     metier: 'Quincaillier',
     resume:
-      'Un meuble a six cent vingt tiroirs : on cherche par diametre, par pas et par matiere, et la vis se redessine a l echelle avec son foret, sa clef et son couple.',
+      'Un meuble a six cent vingt tiroirs : on cherche par diametre, par pas et par matière, et la vis se redessine a l’échelle avec son foret, sa clef et son couple.',
     secteur: 'commerce',
     palette: ['--o-palette-zinc-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-300 dark:o-to-zinc-950',
@@ -363,7 +363,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cageot',
     metier: 'Primeur',
     resume:
-      'Douze mois et dix-huit produits : la page ouvre le mois courant, barre ce qui n est pas de saison, et la nappe du fond prend les couleurs du mois.',
+      'Douze mois et dix-huit produits : la page ouvre le mois courant, barre ce qui n’est pas de saison, et la nappe du fond prend les couleurs du mois.',
     secteur: 'commerce',
     palette: ['--o-palette-lime-500', '--o-palette-stone-900', '--o-palette-lime-100'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-orange-100 dark:o-to-stone-900',
@@ -377,7 +377,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Verre et Monture',
     metier: 'Opticien',
     resume:
-      'Six formes de visage, six montures, et la monture qui se pose a l echelle : largeur frontale, centres optiques, decentrement — en millimetres.',
+      'Six formes de visage, six montures, et la monture qui se pose a l’échelle : largeur frontale, centres optiques, decentrement — en millimetres.',
     secteur: 'commerce',
     palette: ['--o-palette-slate-600', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-slate-100 dark:o-from-slate-900 o-to-zinc-200 dark:o-to-zinc-950',
@@ -391,7 +391,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Alene',
     metier: 'Cordonnier',
     resume:
-      'Une semelle en vraie cote ou l on designe l usure : le devis se compose selon les regles de l atelier, puis trois crans en font un montant.',
+      'Une semelle en vraie côté ou l’on designe l’usure : le devis se compose selon les règles de l’atelier, puis trois crans en font un montant.',
     secteur: 'commerce',
     palette: ['--o-palette-stone-600', '--o-palette-stone-950', '--o-palette-amber-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-200 dark:o-from-stone-900 o-to-amber-100 dark:o-to-stone-950',
@@ -405,7 +405,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Filigrane',
     metier: 'Papetier',
     resume:
-      'Un papier tient dans deux nombres : le grammage et la main. L epaisseur, le poids d une lettre et la pile de cinq centimetres en decoulent, et se calculent.',
+      'Un papier tient dans deux nombres : le grammage et la main. L’épaisseur, le poids d’une lettre et la pile de cinq centimetres en decoulent, et se calculent.',
     secteur: 'commerce',
     palette: ['--o-palette-sky-600', '--o-palette-slate-900', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-slate-100 dark:o-to-slate-900',
@@ -417,9 +417,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'emerald',
     ton: 'theme',
     titre: 'Carnet',
-    metier: 'CRM d artisan',
+    metier: 'CRM d’artisan',
     resume:
-      'Un client, un chantier, une facture — et le jour ou elle n est pas payee, le decompte exact de ce qu on peut reclamer.',
+      'Un client, un chantier, une facture — et le jour ou elle n’est pas payee, le decompte exact de ce qu’on peut reclamer.',
     secteur: 'logiciel',
     palette: ['--o-palette-emerald-600', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-emerald-100 dark:o-from-emerald-950 o-to-stone-200 dark:o-to-stone-900',
@@ -433,7 +433,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Index',
     metier: 'Moteur de recherche interne',
     resume:
-      'On tape, et les resultats se reordonnent avec leur score pose a cote : titre, corps, fraicheur, clics.',
+      'On tape, et les résultats se reordonnent avec leur score pose a côté : titre, corps, fraicheur, clics.',
     secteur: 'logiciel',
     palette: ['--o-palette-zinc-300', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-800 o-to-zinc-950',
@@ -447,7 +447,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Bobine',
     metier: 'Plateforme video',
     resume:
-      'Une frise de lecture, neuf chapitres, sept qualites — et le poids reel de chacune, calcule sous vos yeux.',
+      'Une frise de lecture, neuf chapitres, sept qualités — et le poids reel de chacune, calcule sous vos yeux.',
     secteur: 'logiciel',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-red-950 o-to-zinc-950',
@@ -461,7 +461,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Assemblee',
     metier: 'Outil sans code',
     resume:
-      'Trois briques a brancher — quand, si, alors — et le journal de votre semaine passee rejoue a cote.',
+      'Trois briques a brancher — quand, si, alors — et le journal de votre semaine passee rejoue a côté.',
     secteur: 'logiciel',
     palette: ['--o-palette-lime-500', '--o-palette-zinc-900', '--o-palette-lime-100'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-zinc-100 dark:o-to-zinc-900',
@@ -475,7 +475,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Vigie',
     metier: 'Observabilite',
     resume:
-      'Un incident de quarante-huit minutes, traverse minute par minute : les signaux montent, le journal s ecrit, la cause apparait.',
+      'Un incident de quarante-huit minutes, traverse minute par minute : les signaux montent, le journal s’écrit, la cause apparaît.',
     secteur: 'logiciel',
     palette: ['--o-palette-amber-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-950 o-to-zinc-950',
@@ -489,7 +489,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Pli Ferme',
     metier: 'Messagerie chiffree',
     resume:
-      'Le chiffrement de bout en bout demontre au lieu d etre promis : on ecrit une phrase, la page en montre les octets, le sceau, et les cinquante-trois octets que le serveur garde.',
+      'Le chiffrement de bout en bout demontre au lieu d’être promis : on écrit une phrase, la page en montre les octets, le sceau, et les cinquante-trois octets que le serveur garde.',
     secteur: 'logiciel',
     palette: ['--o-palette-slate-400', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-slate-200 dark:o-from-slate-900 o-to-zinc-100 dark:o-to-zinc-950',
@@ -501,9 +501,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'slate',
     ton: 'theme',
     titre: 'Barreau',
-    metier: 'Cabinet d avocats',
+    metier: 'Cabinet d’avocats',
     resume:
-      'La question qu on pose en premier a un avocat — combien de temps — recoit ici sa frise : chaque etape a sa date, et les couperets sont distingues des delais indicatifs.',
+      'La question qu’on pose en premier a un avocat — combien de temps — reçoit ici sa frise : chaque étape a sa date, et les couperets sont distingues des delais indicatifs.',
     secteur: 'entreprise',
     palette: ['--o-palette-slate-600', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-100 dark:o-from-stone-900 o-to-slate-200 dark:o-to-slate-950',
@@ -517,7 +517,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Grand Livre',
     metier: 'Expert-comptable',
     resume:
-      'Un bilan simplifie qu on remplit dans la page, les six ratios du banquier qui s allument, et l ecart d equilibre annonce avec son montant.',
+      'Un bilan simplifie qu’on remplit dans la page, les six ratios du banquier qui s’allument, et l’écart d’équilibre annonce avec son montant.',
     secteur: 'entreprise',
     palette: ['--o-palette-emerald-600', '--o-palette-zinc-900', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-emerald-100 dark:o-from-emerald-950 o-to-zinc-100 dark:o-to-zinc-900',
@@ -528,10 +528,10 @@ export const VITRINES: readonly Vitrine[] = [
     slug: 'recrutement',
     teinte: 'violet',
     ton: 'theme',
-    titre: 'Trait d Union',
+    titre: 'Trait d’Union',
     metier: 'Agence de recrutement',
     resume:
-      'On ecrit une fiche de poste, la page rend deux listes : ce qu elle attirera, ce qu elle fera fuir, et le detail des points, regle par regle.',
+      'On écrit une fiche de poste, la page rend deux listes : ce qu’elle attirera, ce qu’elle fera fuir, et le détail des points, règle par règle.',
     secteur: 'entreprise',
     palette: ['--o-palette-violet-500', '--o-palette-neutral-900', '--o-palette-neutral-100'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-neutral-100 dark:o-to-neutral-900',
@@ -559,7 +559,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Minute',
     metier: 'Etude notariale',
     resume:
-      'Le calcul entier des frais d acquisition, au bareme reglemente : sept postes, une reglette graduee, et les quatre-vingt-trois pour cent qui reviennent a l Etat.',
+      'Le calcul entier des frais d’acquisition, au bareme reglemente : sept postes, une reglette graduee, et les quatre-vingt-trois pour cent qui reviennent a l’État.',
     secteur: 'entreprise',
     palette: ['--o-palette-stone-500', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-100 dark:o-from-stone-900 o-to-stone-300 dark:o-to-stone-950',
@@ -587,7 +587,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Grand Foyer',
     metier: 'Opera',
     resume:
-      'Un lustre en volume, et mille huit cent quarante-deux places cliquables : chaque siege dit sa distance, son angle, sa hauteur, et redessine la vue qu il donne sur le plateau.',
+      'Un lustre en volume, et mille huit cent quarante-deux places cliquables : chaque siege dit sa distance, son angle, sa hauteur, et redessine la vue qu’il donne sur le plateau.',
     secteur: 'culture',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-amber-100'],
     apercu: 'o-bg-gradient-to-br o-from-red-200 dark:o-from-red-950 o-to-zinc-300 dark:o-to-zinc-950',
@@ -599,9 +599,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'amber',
     ton: 'sombre',
     titre: 'Salle 3',
-    metier: 'Cinema d art et d essai',
+    metier: 'Cinema d’art et d’essai',
     resume:
-      'La semaine en plan d occupation : chaque seance occupe sa duree reelle, annonces comprises, et la grille marque celles qui finissent apres le dernier bus.',
+      'La semaine en plan d’occupation : chaque seance occupe sa durée reelle, annonces comprises, et la grille marque celles qui finissent après le dernier bus.',
     secteur: 'culture',
     palette: ['--o-palette-amber-400', '--o-palette-zinc-950', '--o-palette-amber-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-200 dark:o-from-amber-950 o-to-zinc-300 dark:o-to-zinc-950',
@@ -613,9 +613,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'teal',
     ton: 'theme',
     titre: 'Rayon 800',
-    metier: 'Bibliotheque municipale',
+    metier: 'Bibliothèque municipale',
     resume:
-      'Les cent divisions de la decimale avec le fonds tenu dans chaque case, et une cote qui se descend chiffre a chiffre : a chaque cran, le rayon ne garde que ce qui commence par elle.',
+      'Les cent divisions de la decimale avec le fonds tenu dans chaque case, et une côté qui se descend chiffre a chiffre : a chaque cran, le rayon ne garde que ce qui commence par elle.',
     secteur: 'culture',
     palette: ['--o-palette-teal-600', '--o-palette-stone-900', '--o-palette-teal-100'],
     apercu: 'o-bg-gradient-to-br o-from-teal-100 dark:o-from-teal-950 o-to-stone-200 dark:o-to-stone-900',
@@ -627,9 +627,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'rose',
     ton: 'sombre',
     titre: 'Coulisse',
-    metier: 'Theatre de ville',
+    metier: 'Théâtre de ville',
     resume:
-      'Une coupe du plateau, epinglee : a chaque acte un metier prend la scene, ses zones s allument, et les heures de montage s additionnent.',
+      'Une coupe du plateau, épinglée : a chaque acte un metier prend la scène, ses zones s’allument, et les heures de montage s’additionnent.',
     secteur: 'culture',
     palette: ['--o-palette-rose-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-rose-100 dark:o-from-rose-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -643,7 +643,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Chapiteau',
     metier: 'Cirque contemporain',
     resume:
-      'Le chapiteau se monte en dix etapes pendant qu on descend : piquetage, mat de centre, levage, haubans, et un compteur a rouleaux pour la route.',
+      'Le chapiteau se monte en dix étapes pendant qu’on descend : piquetage, mat de centre, levage, haubans, et un compteur a rouleaux pour la route.',
     secteur: 'culture',
     palette: ['--o-palette-fuchsia-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-fuchsia-100 dark:o-from-fuchsia-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -655,7 +655,7 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'stone',
     ton: 'theme',
     titre: 'Corps 11',
-    metier: 'Maison d edition',
+    metier: 'Maison d’édition',
     resume:
       'Huit postes du manuscrit au livre, un curseur de tirage, et le prix public qui se partage sous vos yeux entre libraire, auteur, fabrication et maison.',
     secteur: 'culture',
@@ -671,7 +671,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Bande FM',
     metier: 'Radio associative',
     resume:
-      'La grille des vingt-quatre heures, lue sur votre horloge : l emission en cours, ce qu il en reste, et la bande FM en reglette graduee.',
+      'La grille des vingt-quatre heures, lue sur votre horloge : l’emission en cours, ce qu’il en reste, et la bande FM en reglette graduee.',
     secteur: 'culture',
     palette: ['--o-palette-orange-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -685,7 +685,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Fonds',
     metier: 'Archives departementales',
     resume:
-      'On descend d un fonds a une piece en quatre colonnes : la cote s allonge, la notice se remplit, et le document numerise apparait au bout.',
+      'On descend d’un fonds a une piece en quatre colonnes : la côté s’allonge, la notice se remplit, et le document numerise apparaît au bout.',
     secteur: 'culture',
     palette: ['--o-palette-zinc-500', '--o-palette-zinc-900', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-300 dark:o-to-zinc-950',
@@ -699,7 +699,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Balancier',
     metier: 'Horloger',
     resume:
-      'Un mouvement mecanique en volume, quatre calibres de 18 000 a 36 000 alternances a l heure : l echappement bat a sa vraie frequence, et on le ralentit jusqu au centieme pour voir la dent tomber.',
+      'Un mouvement mecanique en volume, quatre calibres de 18 000 a 36 000 alternances a l’heure : l’échappement bat a sa vraie frequence, et on le ralentit jusqu au centieme pour voir la dent tomber.',
     secteur: 'produit',
     palette: ['--o-palette-amber-400', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
@@ -711,9 +711,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'zinc',
     ton: 'sombre',
     titre: 'Membrane',
-    metier: 'Fabricant d enceintes',
+    metier: 'Fabricant d’enceintes',
     resume:
-      'La courbe se retrace pour la piece, le recul au mur et la position : le creux du mur de derriere tombe ou la physique le met, et la membrane suit le balayage de vingt hertz a vingt kilohertz.',
+      'La courbe se retrace pour la piece, le recul au mur et la position : le creux du mur de derrière tombe ou la physique le met, et la membrane suit le balayage de vingt hertz a vingt kilohertz.',
     secteur: 'produit',
     palette: ['--o-palette-zinc-400', '--o-palette-amber-800', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-200 dark:o-from-zinc-900 o-to-amber-100 dark:o-to-amber-950',
@@ -727,7 +727,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Emouture',
     metier: 'Coutelier',
     resume:
-      'Une coupe de lame cotee dont on change l emouture : l angle inclus, l epaisseur a un millimetre du fil et l effort de coupe sortent tous de la meme geometrie.',
+      'Une coupe de lame cotee dont on change l’emouture : l’angle inclus, l’épaisseur a un millimetre du fil et l’effort de coupe sortent tous de la même géométrie.',
     secteur: 'produit',
     palette: ['--o-palette-stone-400', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-200 dark:o-from-stone-900 o-to-zinc-100 dark:o-to-zinc-950',
@@ -741,7 +741,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Sangle',
     metier: 'Maroquinier',
     resume:
-      'Le patron a plat, cote au centimetre, qui se replie en sac au defilement : la contenance, la surface de cuir, les points sellier et les heures sortent des memes six cotes.',
+      'Le patron a plat, côté au centimetre, qui se replie en sac au défilement : la contenance, la surface de cuir, les points sellier et les heures sortent des mêmes six côtés.',
     secteur: 'produit',
     palette: ['--o-palette-amber-700', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
@@ -753,9 +753,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'amber',
     ton: 'sombre',
     titre: 'Abat-Jour',
-    metier: 'Editeur de luminaires',
+    metier: 'Éditeur de luminaires',
     resume:
-      'Une echelle de huit temperatures de couleur qui reteinte la page entiere, du halo au pied, avec la courbe de Planck, le mired et l eclairement au sol recalcules a chaque cran.',
+      'Une échelle de huit temperatures de couleur qui reteinte la page entière, du halo au pied, avec la courbe de Planck, le mired et l’eclairement au sol recalcules a chaque cran.',
     secteur: 'produit',
     palette: ['--o-palette-amber-400', '--o-palette-sky-300', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-sky-100 dark:o-to-sky-950',
@@ -769,7 +769,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Tour',
     metier: 'Atelier de ceramique',
     resume:
-      'Quatre programmes de cuisson publies avec leur courbe : on promene la molette sur les heures, et le four dit ce qui arrive a la terre et ce qu il coute.',
+      'Quatre programmes de cuisson publies avec leur courbe : on promene la molette sur les heures, et le four dit ce qui arrive a la terre et ce qu’il coûte.',
     secteur: 'produit',
     palette: ['--o-palette-orange-500', '--o-palette-stone-900', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-stone-200 dark:o-to-stone-900',
@@ -783,7 +783,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Chevalet',
     metier: 'Luthier',
     resume:
-      'Un violon en volume, et le diapason qu on regle de 415 a 445 hertz : les quatre tensions se recalculent, et la charge sur la table avec elles.',
+      'Un violon en volume, et le diapason qu’on règle de 415 a 445 hertz : les quatre tensions se recalculent, et la charge sur la table avec elles.',
     secteur: 'produit',
     palette: ['--o-palette-amber-400', '--o-palette-zinc-950', '--o-palette-amber-100'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -795,9 +795,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'zinc',
     ton: 'sombre',
     titre: 'Obturateur',
-    metier: 'Fabricant d appareils',
+    metier: 'Fabricant d’appareils',
     resume:
-      'Le triangle d exposition, calcule : on bouge une molette, la troisieme suit, et l image dessinee change de flou, de file et de grain.',
+      'Le triangle d’exposition, calcule : on bouge une molette, la troisieme suit, et l’image dessinee change de flou, de file et de grain.',
     secteur: 'produit',
     palette: ['--o-palette-zinc-300', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-200 dark:o-from-zinc-900 o-to-zinc-100 dark:o-to-zinc-950',
@@ -811,7 +811,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Coupole',
     metier: 'Observatoire',
     resume:
-      'Le ciel de ce soir, calcule : quinze objets, leur hauteur et leur direction a l heure et au site choisis, et ce qui est deja passe sous l horizon.',
+      'Le ciel de ce soir, calcule : quinze objets, leur hauteur et leur direction a l’heure et au site choisis, et ce qui est déjà passe sous l’horizon.',
     secteur: 'science',
     palette: ['--o-palette-violet-400', '--o-palette-zinc-950', '--o-palette-violet-100'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -825,12 +825,68 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Seconde Vie',
     metier: 'Centre de tri',
     resume:
-      'On jette un objet dans la page et il descend les sept postes : a chacun, la chaine dit s il est capte et pourquoi — aimant, forme, signature infrarouge.',
+      'On jette un objet dans la page et il descend les sept postes : a chacun, la chaîne dit s’il est capte et pourquoi — aimant, forme, signature infrarouge.',
     secteur: 'industrie',
     palette: ['--o-palette-lime-500', '--o-palette-zinc-900', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-zinc-200 dark:o-to-zinc-900',
     pieces: ['effect/beam-connect', 'text/highlight-sweep', 'ui/animated-list', 'ui/card-swap'],
     charger: () => import('./recyclage.jsx'),
+  },
+  {
+    slug: 'officine',
+    teinte: 'amber',
+    ton: 'theme',
+    titre: 'Odoro',
+    metier: 'Maison de parfum',
+    resume:
+      'Un flacon rendu en direct qui traverse la page au défilement, de l’affiche a la fiche puis aux questions, sur un papier millimetre que le curseur éclaire.',
+    secteur: 'commerce',
+    palette: ['--o-palette-amber-500', '--o-palette-stone-900', '--o-palette-stone-100'],
+    apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
+    pieces: ['text/decode-text', 'ui/tilt-card'],
+    charger: () => import('./officine.jsx'),
+  },
+  {
+    slug: 'helion',
+    teinte: 'orange',
+    ton: 'sombre',
+    titre: 'Helion',
+    metier: 'Constructeur d’applications',
+    resume:
+      'Un seul nuage de points qui est trois formes : une galaxie, un souffle, un disque d’accretion, puis le sigle qui s’assemble quand la camera plonge dans le trou.',
+    secteur: 'logiciel',
+    palette: ['--o-palette-orange-500', '--o-palette-zinc-950', '--o-palette-orange-100'],
+    apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-zinc-200 dark:o-to-zinc-950',
+    pieces: ['text/decode-text', 'text/split-lines'],
+    charger: () => import('./helion.jsx'),
+  },
+  {
+    slug: 'gravity',
+    teinte: 'orange',
+    ton: 'theme',
+    titre: 'Gravity',
+    metier: 'Studio numérique',
+    resume:
+      'Quatre-vingt-seize spheres sous une gravite reelle : elles tombent, se reassemblent en sigle, puis depassent l’objectif, sur un papier qui se sature en descendant.',
+    secteur: 'entreprise',
+    palette: ['--o-palette-orange-500', '--o-palette-stone-900', '--o-palette-orange-100'],
+    apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-stone-100 dark:o-to-zinc-900',
+    pieces: ['background/noise', 'effect/cursor-ring', 'effect/marquee'],
+    charger: () => import('./gravity.jsx'),
+  },
+  {
+    slug: 'belvedere',
+    teinte: 'sky',
+    ton: 'theme',
+    titre: 'Belvedere',
+    metier: 'Agence immobiliere',
+    resume:
+      'Une seule maison a vendre, dessinee et non photographiee : sa fiche, ses chiffres, sa situation, et six profils d’acquereurs écrits avant le premier rendez-vous.',
+    secteur: 'entreprise',
+    palette: ['--o-palette-sky-600', '--o-palette-slate-900', '--o-palette-slate-100'],
+    apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-slate-200 dark:o-to-slate-900',
+    pieces: ['text/count-up', 'text/split-reveal'],
+    charger: () => import('./belvedere.jsx'),
   },
   {
     slug: 'fleuriste',
@@ -839,7 +895,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Tige & Co',
     metier: 'Fleuriste',
     resume:
-      'Des bouquets de saison, livres le jour meme dans le quartier, photographies tels qu ils partent.',
+      'Des bouquets de saison, livres le jour même dans le quartier, photographies tels qu’ils partent.',
     secteur: 'commerce',
     palette: ['--o-palette-rose-500', '--o-palette-emerald-600', '--o-palette-stone-50'],
     apercu: 'o-bg-gradient-to-br o-from-rose-100 dark:o-from-rose-950 o-to-emerald-100 dark:o-to-emerald-950',
@@ -855,7 +911,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Souffle',
     metier: 'Studio de yoga',
     resume:
-      'Un studio qui compte ses places plutot que ses abonnes : le planning est la promesse.',
+      'Un studio qui compte ses places plutôt que ses abonnes : le planning est la promesse.',
     secteur: 'bien-etre',
     palette: ['--o-palette-teal-600', '--o-palette-stone-700', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-teal-100 dark:o-from-teal-950 o-to-stone-200 dark:o-to-stone-900',
@@ -883,7 +939,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cardan',
     metier: 'Ecurie de course',
     resume:
-      'Un tableau de bord plutot qu une plaquette : le circuit se trace en un tour cadence, les saisons s empilent en reculant, et un banc de reglages dit ce que chaque cran coute ailleurs.',
+      'Un tableau de bord plutôt qu’une plaquette : le circuit se trace en un tour cadence, les saisons s’empilent en reculant, et un banc de réglages dit ce que chaque cran coûte ailleurs.',
     secteur: 'bien-etre',
     palette: ['--o-palette-cyan-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -897,7 +953,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Clinique Vernet',
     metier: 'Cabinet medical',
     resume:
-      'Prendre rendez-vous sans appeler, savoir qui l on va voir, et lire ce qui va se passer.',
+      'Prendre rendez-vous sans appeler, savoir qui l’on va voir, et lire ce qui va se passer.',
     secteur: 'bien-etre',
     palette: ['--o-palette-sky-600', '--o-palette-slate-800', '--o-palette-sky-50'],
     apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-slate-100 dark:o-to-slate-900',
@@ -927,7 +983,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Coteau',
     metier: 'Analytique produit',
     resume:
-      'Le logiciel d entreprise dans sa forme la plus classique : preuve, comparatif, tarifs, et un essai.',
+      'Le logiciel d’entreprise dans sa forme la plus classique : preuve, comparatif, tarifs, et un essai.',
     secteur: 'logiciel',
     palette: ['--o-palette-indigo-500', '--o-palette-zinc-900', '--o-palette-zinc-50'],
     apercu: 'o-bg-gradient-to-br o-from-indigo-100 dark:o-from-indigo-950 o-to-zinc-100 dark:o-to-zinc-900',
@@ -939,9 +995,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'violet',
     ton: 'theme',
     titre: 'Halo',
-    metier: 'Plateforme de modeles',
+    metier: 'Plateforme de modèles',
     resume:
-      'Un modele qu on essaie depuis la page, avant de lire ce qu il coute. La demonstration est l argument.',
+      'Un modèle qu’on essaie depuis la page, avant de lire ce qu’il coûte. La démonstration est l’argument.',
     secteur: 'logiciel',
     palette: ['--o-palette-violet-500', '--o-palette-fuchsia-400', '--o-palette-zinc-950'],
     apercu: 'o-bg-gradient-to-br o-from-violet-200 dark:o-from-violet-950 o-to-fuchsia-100 dark:o-to-fuchsia-950',
@@ -955,7 +1011,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Portail',
     metier: 'Interface de programmation',
     resume:
-      'Ecrite pour ceux qui lisent le code avant la promesse : une requete, une reponse, un journal de versions.',
+      'Écrite pour ceux qui lisent le code avant la promesse : une requête, une réponse, un journal de versions.',
     secteur: 'logiciel',
     palette: ['--o-palette-emerald-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-emerald-100 dark:o-from-emerald-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -985,7 +1041,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Palier',
     metier: 'Banque en ligne',
     resume:
-      'Un compte, une carte, des virements instantanes. La page compte a voix haute ce qu elle fait gagner.',
+      'Un compte, une carte, des virements instantanes. La page compte a voix haute ce qu’elle fait gagner.',
     secteur: 'entreprise',
     palette: ['--o-palette-emerald-500', '--o-palette-zinc-900', '--o-palette-zinc-50'],
     apercu: 'o-bg-gradient-to-br o-from-emerald-100 dark:o-from-emerald-950 o-to-zinc-100 dark:o-to-zinc-900',
@@ -997,9 +1053,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'amber',
     ton: 'sombre',
     titre: 'Orbe',
-    metier: 'Place d echange',
+    metier: 'Place d’échange',
     resume:
-      'Marches ouverts en continu, frais annonces d avance. Le fond bouge autant que les cours.',
+      'Marches ouverts en continu, frais annonces d’avance. Le fond bouge autant que les cours.',
     secteur: 'entreprise',
     palette: ['--o-palette-amber-400', '--o-palette-violet-500', '--o-palette-zinc-950'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-violet-200 dark:o-to-violet-950',
@@ -1013,7 +1069,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cadre',
     metier: 'Architecture et biens',
     resume:
-      'Des lieux montres en grand, decrits en peu de mots : ici l image porte et le texte se retire.',
+      'Des lieux montres en grand, décrits en peu de mots : ici l’image porte et le texte se retire.',
     secteur: 'entreprise',
     palette: ['--o-palette-amber-500', '--o-palette-stone-800', '--o-palette-stone-200'],
     apercu: 'o-bg-gradient-to-br o-from-stone-100 dark:o-from-stone-900 o-to-zinc-200 dark:o-to-zinc-950',
@@ -1027,7 +1083,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Verne & Associes',
     metier: 'Cabinet de conseil',
     resume:
-      'La sobriete comme argument : des references, des chiffres, des visages, et rien qui clignote.',
+      'La sobriete comme argument : des références, des chiffres, des visages, et rien qui clignote.',
     secteur: 'entreprise',
     palette: ['--o-palette-blue-800', '--o-palette-slate-100', '--o-palette-amber-600'],
     apercu: 'o-bg-gradient-to-br o-from-blue-100 dark:o-from-blue-950 o-to-slate-200 dark:o-to-slate-900',
@@ -1043,7 +1099,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Rivage',
     metier: 'Festival de musique',
     resume:
-      'Trois jours, quarante noms, une affiche qui defile. Le seul endroit ou le bruit visuel est le sujet.',
+      'Trois jours, quarante noms, une affiche qui défile. Le seul endroit ou le bruit visuel est le sujet.',
     secteur: 'culture',
     palette: ['--o-palette-fuchsia-500', '--o-palette-lime-400', '--o-palette-zinc-950'],
     apercu: 'o-bg-gradient-to-br o-from-fuchsia-200 dark:o-from-fuchsia-950 o-to-lime-200 dark:o-to-lime-950',
@@ -1071,7 +1127,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Nord 26',
     metier: 'Conference technique',
     resume:
-      'Deux jours, un programme minute, des intervenants nommes. Une page qui doit surtout etre lisible.',
+      'Deux jours, un programme minute, des intervenants nommes. Une page qui doit surtout être lisible.',
     secteur: 'culture',
     palette: ['--o-palette-cyan-400', '--o-palette-indigo-600', '--o-palette-slate-950'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-indigo-200 dark:o-to-indigo-950',
@@ -1085,7 +1141,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Abysse',
     metier: 'Musee oceanographique',
     resume:
-      'Une exposition qu on descend au lieu de la lire : sept ecrans de colonne d eau, un sondeur qui egrene les metres, et la faune de chaque zone.',
+      'Une exposition qu’on descend au lieu de la lire : sept écrans de colonne d’eau, un sondeur qui egrene les metres, et la faune de chaque zone.',
     secteur: 'culture',
     palette: ['--o-palette-cyan-400', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-slate-200 dark:o-to-slate-900',
@@ -1097,9 +1153,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'red',
     ton: 'theme',
     titre: 'Salle Basse',
-    metier: 'Galerie d art',
+    metier: 'Galerie d’art',
     resume:
-      'Presque rien : du blanc, une serie d oeuvres, des dates. La retenue est le parti pris.',
+      'Presque rien : du blanc, une série d œuvres, des dates. La retenue est le parti pris.',
     secteur: 'culture',
     palette: ['--o-palette-red-600', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-900 o-to-zinc-200 dark:o-to-zinc-950',
@@ -1113,7 +1169,7 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'rose',
     ton: 'theme',
     titre: 'Lisiere',
-    metier: 'Pret-a-porter',
+    metier: 'Prêt-a-porter',
     resume:
       'Une collection par saison, photographiee en pied. La grille tient lieu de discours.',
     secteur: 'produit',
@@ -1129,7 +1185,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Meridien',
     metier: 'Fabricant de velos',
     resume:
-      'Un catalogue qu on ne feuillette pas : une sortie de 128 km parcourue lateralement, ou les roues tournent au defilement et chaque portion defend une piece du velo.',
+      'Un catalogue qu’on ne feuillette pas : une sortie de 128 km parcourue lateralement, ou les roues tournent au défilement et chaque portion defend une piece du velo.',
     secteur: 'produit',
     palette: ['--o-palette-lime-500', '--o-palette-zinc-900', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1171,7 +1227,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Axe',
     metier: 'Automobile electrique',
     resume:
-      'Une seule voiture, racontee au defilement : la route arrive, les chiffres suivent, la commande ferme.',
+      'Une seule voiture, racontee au défilement : la route arrive, les chiffres suivent, la commande ferme.',
     secteur: 'produit',
     palette: ['--o-palette-sky-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-zinc-200 dark:o-to-zinc-950',
@@ -1185,9 +1241,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'orange',
     ton: 'sombre',
     titre: 'Halle',
-    metier: 'Editeur de mobilier',
+    metier: 'Éditeur de mobilier',
     resume:
-      'Six pieces au catalogue, posees sur un anneau qui s aimante, et un nom qui se tient sur le reflet du sol.',
+      'Six pieces au catalogue, posees sur un anneau qui s’aimante, et un nom qui se tient sur le reflet du sol.',
     secteur: 'produit',
     palette: ['--o-palette-orange-400', '--o-palette-stone-950', '--o-palette-stone-100'],
     apercu: 'o-bg-gradient-to-br o-from-stone-200 dark:o-from-stone-900 o-to-orange-100 dark:o-to-orange-950',
@@ -1201,7 +1257,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cytea',
     metier: 'Biotechnologie',
     resume:
-      'Douze programmes d edition de base, leur stade reglementaire, et les publications qui vont avec — filtrables.',
+      'Douze programmes d’édition de base, leur stade reglementaire, et les publications qui vont avec — filtrables.',
     secteur: 'science',
     palette: ['--o-palette-emerald-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-emerald-100 dark:o-from-emerald-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1230,9 +1286,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'orange',
     ton: 'theme',
     titre: 'Sillon',
-    metier: 'Agence d architecture',
+    metier: 'Agence d’architecture',
     resume:
-      'Huit ouvrages livres avec leur surface, leur cout au metre carre et leur maitrise d ouvrage — filtrables par programme.',
+      'Huit ouvrages livres avec leur surface, leur coût au metre carre et leur maîtrise d’ouvrage — filtrables par programme.',
     secteur: 'industrie',
     palette: ['--o-palette-orange-500', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-orange-100 dark:o-from-orange-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1262,7 +1318,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cabestan',
     metier: 'Studio de jeu video',
     resume:
-      'Un carnet de bord filtrable, avec les jalons tenus, ceux repousses date barree, et celui qu on a abandonne.',
+      'Un carnet de bord filtrable, avec les jalons tenus, ceux repousses date barree, et celui qu’on a abandonne.',
     secteur: 'culture',
     palette: ['--o-palette-violet-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1275,9 +1331,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'lime',
     ton: 'sombre',
     titre: 'Tangente',
-    metier: 'Agence d automatisation IA',
+    metier: 'Agence d’automatisation IA',
     resume:
-      'Une nappe de particules sous un mot-marque en serif leger, puis une carte de rendement qui recalcule les heures rendues par an.',
+      'Une nappe de particules sous un mot-marque en serif léger, puis une carte de rendement qui recalcule les heures rendues par an.',
     secteur: 'entreprise',
     palette: ['--o-palette-lime-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1292,7 +1348,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Maud Ferrand',
     metier: 'Photographe',
     resume:
-      'Un nom en grotesque noire de 260 px, l heure locale en direct, une bande de tirages pleine hauteur, puis une table lumineuse qu on filtre par rubrique.',
+      'Un nom en grotesque noire de 260 px, l’heure locale en direct, une bande de tirages pleine hauteur, puis une table lumineuse qu’on filtre par rubrique.',
     secteur: 'culture',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-zinc-50'],
     apercu: 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-red-100 dark:o-to-red-950',
@@ -1304,9 +1360,9 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'red',
     ton: 'sombre',
     titre: 'Ardent',
-    metier: 'Studio de creation',
+    metier: 'Studio de création',
     resume:
-      'Une photographie sous une grille, une accroche condensee dont le premier mot est rouge, un repere de projets filtre par discipline, et une carte de recompense.',
+      'Une photographie sous une grille, une accroche condensee dont le premier mot est rouge, un repère de projets filtre par discipline, et une carte de recompense.',
     secteur: 'entreprise',
     palette: ['--o-palette-red-500', '--o-palette-zinc-950', '--o-palette-zinc-50'],
     apercu: 'o-bg-gradient-to-br o-from-red-100 dark:o-from-red-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1320,7 +1376,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Ines Roque',
     metier: 'Designer produit',
     resume:
-      'Un paysage plein cadre, des autocollants inclines sur l accroche, un dock de projets en verre qui ouvre chaque fiche a la place de la carte du coin.',
+      'Un paysage plein cadre, des autocollants inclines sur l’accroche, un dock de projets en verre qui ouvre chaque fiche a la place de la carte du coin.',
     secteur: 'entreprise',
     palette: ['--o-palette-lime-400', '--o-palette-stone-950', '--o-palette-stone-50'],
     apercu: 'o-bg-gradient-to-br o-from-lime-100 dark:o-from-lime-950 o-to-stone-200 dark:o-to-stone-900',
@@ -1334,7 +1390,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Etale',
     metier: 'Application de travail profond',
     resume:
-      'Un fluide plein cadre sur un noir abyssal, une barre de liste d attente en verre, et une session qu on regle minute par minute avant de la lancer.',
+      'Un fluide plein cadre sur un noir abyssal, une barre de liste d’attente en verre, et une session qu’on règle minute par minute avant de la lancer.',
     secteur: 'logiciel',
     palette: ['--o-palette-violet-400', '--o-palette-zinc-950', '--o-palette-fuchsia-400'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-fuchsia-100 dark:o-to-fuchsia-950',
@@ -1348,7 +1404,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Nubo',
     metier: 'Robot domestique',
     resume:
-      'Une cuisine chaude en plein cadre, une gelule de verre qui flotte, un mot en italique, puis une journee de vingt-quatre heures ou l on coche les pieces et lit le temps rendu.',
+      'Une cuisine chaude en plein cadre, une gelule de verre qui flotte, un mot en italique, puis une journée de vingt-quatre heures ou l’on coche les pieces et lit le temps rendu.',
     secteur: 'produit',
     palette: ['--o-palette-amber-400', '--o-palette-stone-950', '--o-palette-stone-50'],
     apercu: 'o-bg-gradient-to-br o-from-amber-100 dark:o-from-amber-950 o-to-stone-200 dark:o-to-stone-900',
@@ -1362,7 +1418,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Manifeste',
     metier: 'Studio de design augmente',
     resume:
-      'Une sphere de particules collee derriere toute la page, deux mots espaces de part et d autre, et trois actes en verre qui la traversent au defilement.',
+      'Une sphere de particules collee derrière toute la page, deux mots espaces de part et d’autre, et trois actes en verre qui la traversent au défilement.',
     secteur: 'entreprise',
     palette: ['--o-palette-violet-300', '--o-palette-zinc-950', '--o-palette-zinc-50'],
     apercu: 'o-bg-gradient-to-br o-from-violet-100 dark:o-from-violet-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1376,7 +1432,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Aphelie',
     metier: 'Operateur de satellites',
     resume:
-      'Une console de constellation : chaque satellite avec son orbite, sa resolution, son etat et sa prochaine fenetre.',
+      'Une console de constellation : chaque satellite avec son orbite, sa résolution, son état et sa prochaine fenêtre.',
     secteur: 'science',
     palette: ['--o-palette-cyan-400', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-cyan-100 dark:o-from-cyan-950 o-to-slate-200 dark:o-to-slate-900',
@@ -1389,7 +1445,7 @@ export const VITRINES: readonly Vitrine[] = [
     teinte: 'lime',
     ton: 'theme',
     titre: 'Courant',
-    metier: 'Energie renouvelable',
+    metier: 'Énergie renouvelable',
     resume:
       'Onze parcs avec leur facteur de charge reel releve au compteur, et des totaux qui se recalculent au filtre.',
     secteur: 'industrie',
@@ -1406,7 +1462,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cale Seche',
     metier: 'Label et salle de concert',
     resume:
-      'Huit dates avec leurs places restantes, et la grille de repartition des recettes — poste par poste.',
+      'Huit dates avec leurs places restantes, et la grille de répartition des recettes — poste par poste.',
     secteur: 'culture',
     palette: ['--o-palette-fuchsia-400', '--o-palette-zinc-950', '--o-palette-zinc-100'],
     apercu: 'o-bg-gradient-to-br o-from-fuchsia-100 dark:o-from-fuchsia-950 o-to-zinc-200 dark:o-to-zinc-900',
@@ -1421,7 +1477,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Maison Trace',
     metier: 'Parfumeur',
     resume:
-      'Une notice qui se deplie de cote : un volet par parfum, avec la part reelle de chaque matiere dans le concentre.',
+      'Une notice qui se deplie de côté : un volet par parfum, avec la part reelle de chaque matière dans le concentre.',
     secteur: 'produit',
     palette: ['--o-palette-rose-400', '--o-palette-neutral-950', '--o-palette-neutral-100'],
     apercu: 'o-bg-gradient-to-br o-from-rose-100 dark:o-from-rose-950 o-to-neutral-200 dark:o-to-neutral-900',
@@ -1436,7 +1492,7 @@ export const VITRINES: readonly Vitrine[] = [
     titre: 'Cobalt',
     metier: 'Robotique industrielle',
     resume:
-      'Une fiche technique : gamme en tableau de cotes, abaque de selection qui surligne la ligne retenue, indice de revision.',
+      'Une fiche technique : gamme en tableau de côtés, abaque de sélection qui surligne la ligne retenue, indice de revision.',
     secteur: 'industrie',
     palette: ['--o-palette-sky-500', '--o-palette-slate-950', '--o-palette-slate-100'],
     apercu: 'o-bg-gradient-to-br o-from-sky-100 dark:o-from-sky-950 o-to-slate-200 dark:o-to-slate-900',

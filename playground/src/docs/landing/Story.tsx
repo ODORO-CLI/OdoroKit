@@ -20,8 +20,8 @@ const STEPS = [
     title: 'Creez le projet',
     body: (
       <p>
-        Une commande, un projet React complet servi par l engine odoro : rechargement a
-        chaud, build, zero configuration.
+        Une commande, un projet React complet servi par l’engine odoro : rechargement a
+        chaud, build, zéro configuration.
       </p>
     ),
     lang: 'sh',
@@ -33,7 +33,7 @@ npm run dev`,
     title: 'Ajoutez ce qui vous plait',
     body: (
       <p>
-        Chaque entree du registre est copiee dans votre projet avec ses dependances — des
+        Chaque entrée du registre est copiee dans votre projet avec ses dependances — des
         fichiers, pas un paquet.
       </p>
     ),
@@ -49,7 +49,7 @@ npm run dev`,
     title: 'Composez',
     body: (
       <p>
-        Les pieces s emboitent : un fond, une revelation de titre, une section qui defile
+        Les pieces s’emboitent : un fond, une révélation de titre, une section qui défile
         — et vous lisez chaque ligne.
       </p>
     ),
@@ -65,7 +65,7 @@ npm run dev`,
     title: 'Livrez',
     body: (
       <p>
-        Le build elague la feuille de style aux seules classes employees, et chaque fond
+        Le build élague la feuille de style aux seules classes employees, et chaque fond
         garde son repli statique pour les navigateurs sans WebGL.
       </p>
     ),
@@ -87,7 +87,7 @@ export function Story(): ReactElement {
             De la commande au site
           </p>
           <h2 className="o-mt-3 o-text-3xl md:o-text-5xl o-font-bold o-tracking-tight o-text-balance">
-            Quatre etapes, et le defilement les raconte.
+            Quatre étapes, et le défilement les raconte.
           </h2>
         </Reveal>
 
@@ -100,7 +100,7 @@ export function Story(): ReactElement {
               return (
                 <div className="o-flex o-flex-col o-gap-3">
                   <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-                    Etape {index + 1} / {STEPS.length}
+                    Étape {index + 1} / {STEPS.length}
                   </span>
                   <CodeBlock key={index} lang={step.lang} code={step.code} />
                 </div>

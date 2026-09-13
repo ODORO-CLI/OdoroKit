@@ -60,26 +60,26 @@ export function MotionPresets(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/motion"
         title="Presets"
-        lead="Chaque preset embarque ses images-cles, sa duree et sa courbe par defaut. Cliquez sur une carte pour rejouer son animation."
+        lead="Chaque preset embarque ses images-cles, sa durée et sa courbe par défaut. Cliquez sur une carte pour rejouer son animation."
       />
 
       <Section
-        title="Entrees"
-        lead="Faire apparaitre un element. Les entrees decelerent : rapides au depart, posees a l'arrivee."
+        title="Entrées"
+        lead="Faire apparaître un élément. Les entrées decelerent : rapides au départ, posees a l'arrivee."
       >
         <PresetGrid names={ENTRANCES} />
       </Section>
 
       <Section
         title="Sorties"
-        lead="Faire disparaitre un element — a jouer avant le demontage, typiquement via usePresence. Les sorties accelerent."
+        lead="Faire disparaître un élément — à jouer avant le démontage, typiquement via usePresence. Les sorties accelerent."
       >
         <PresetGrid names={EXITS} />
       </Section>
 
       <Section
         title="Attention"
-        lead="Ponctuer un evenement sur un element deja visible : erreur de saisie, notification, confirmation."
+        lead="Ponctuer un événement sur un élément déjà visible : erreur de saisie, notification, confirmation."
       >
         <PresetGrid names={ATTENTION} />
       </Section>

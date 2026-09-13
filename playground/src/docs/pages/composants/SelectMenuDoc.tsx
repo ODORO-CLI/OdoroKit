@@ -84,7 +84,7 @@ export function SelectMenuDoc(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/ui"
         title="SelectMenu"
-        lead="Une liste deroulante riche : icones, descriptions, recherche. Pour ce que le select natif ne permet pas — et seulement pour cela."
+        lead="Une liste deroulante riche : icônes, descriptions, recherche. Pour ce que le select natif ne permet pas — et seulement pour cela."
       />
 
       <Callout tone="warning">
@@ -96,8 +96,8 @@ export function SelectMenuDoc(): ReactElement {
       </Callout>
 
       <Section
-        title="Apercu"
-        lead="Le champ de recherche prend le focus a l'ouverture. Les fleches deplacent l'option active, Entree la choisit, Echap ferme."
+        title="Aperçu"
+        lead="Le champ de recherche prend le focus a l'ouverture. Les fleches déplacent l'option active, Entrée la choisit, Echap ferme."
       >
         <PlaygroundBlock
           previewClassName="o-min-h-72 o-items-start"
@@ -154,8 +154,8 @@ export function SelectMenuDoc(): ReactElement {
               ),
             },
             {
-              title: 'Avec icones',
-              description: 'Chaque option peut porter un element decoratif.',
+              title: 'Avec icônes',
+              description: 'Chaque option peut porter un élément decoratif.',
               node: (
                 <div className="o-w-full">
                   <SelectMenu
@@ -184,31 +184,31 @@ export function SelectMenuDoc(): ReactElement {
               name: 'aria-activedescendant',
               type: 'sur le champ',
               description:
-                'Designe l option active sans deplacer le focus, qui doit rester dans le champ pour que la frappe continue d y arriver.',
+                'Designe l’option active sans deplacer le focus, qui doit rester dans le champ pour que la frappe continue d’y arriver.',
             },
             {
               name: 'Fleches, Origine, Fin',
               type: 'clavier',
               description:
-                'Deplacent l option active en sautant les options desactivees. La liste defile pour la garder visible.',
+                'Déplacent l’option active en sautant les options desactivees. La liste défile pour la garder visible.',
             },
             {
               name: 'input hidden',
               type: 'formulaire',
               description:
-                'Porte la valeur. Un formulaire ordinaire la soumet sans savoir que le champ n est pas un select.',
+                'Porte la valeur. Un formulaire ordinaire la soumet sans savoir que le champ n’est pas un select.',
             },
             {
               name: 'pointerdown',
               type: 'fermeture',
               description:
-                'La fermeture au clic exterieur ecoute l appui, pas le relachement : sinon le menu resterait ouvert pendant tout un glissement commence ailleurs.',
+                'La fermeture au clic exterieur écoute l’appui, pas le relachement : sinon le menu resterait ouvert pendant tout un glissement commence ailleurs.',
             },
           ]}
         />
       </Section>
 
-      <Section title="Proprietes">
+      <Section title="Propriétés">
         <PropsTable
           rows={[
             {
@@ -239,7 +239,7 @@ export function SelectMenuDoc(): ReactElement {
               name: 'error',
               type: 'string',
               defaultValue: '—',
-              description: 'Sa presence marque le champ comme invalide.',
+              description: 'Sa présence marque le champ comme invalide.',
             },
           ]}
         />

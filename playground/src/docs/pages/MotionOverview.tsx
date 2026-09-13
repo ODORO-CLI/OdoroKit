@@ -35,7 +35,7 @@ function EasingDemo({ name, value }: { name: string; value: string }): ReactElem
           className="o-absolute o-size-4 o-rounded-full o-bg-brand-600 dark:o-bg-brand-400"
         />
       </span>
-      <span className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-500 o-truncate max-md:o-hidden">
+      <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400 o-truncate max-md:o-hidden">
         {value}
       </span>
     </button>
@@ -49,7 +49,7 @@ export function MotionOverview(): ReactElement {
       <PageHeader
         module="@odoro-cli/libs/motion"
         title="Le moteur d'animation"
-        lead="Des presets, des composants de revelation et des hooks de pilotage, tous poses sur l'API d'animation du navigateur — pas sur une boucle JavaScript."
+        lead="Des presets, des composants de révélation et des hooks de pilotage, tous poses sur l'API d'animation du navigateur — pas sur une boucle JavaScript."
       />
 
       <Section
@@ -61,7 +61,7 @@ export function MotionOverview(): ReactElement {
             <strong className="o-text-zinc-900 dark:o-text-zinc-50">
               Le navigateur interpole.
             </strong>{' '}
-            Tout passe par <code className="o-font-mono o-text-sm">Element.animate</code>,
+            Tout passe par <code className="o-font-mono o-text-sm">Élément.animate</code>,
             qui s'execute sur le fil de composition. Aucune boucle{' '}
             <code className="o-font-mono o-text-sm">requestAnimationFrame</code> n'est
             ouverte en JavaScript : une animation en cours ne ralentit pas si le fil
@@ -88,8 +88,8 @@ export function MotionOverview(): ReactElement {
       </Section>
 
       <Section
-        title="Durees"
-        lead="L'echelle des design tokens, convertie en millisecondes pour l'API du navigateur. Les composants acceptent un nom de token ou un nombre brut."
+        title="Durées"
+        lead="L'échelle des design tokens, convertie en millisecondes pour l'API du navigateur. Les composants acceptent un nom de token ou un nombre brut."
       >
         <div className="o-overflow-x-auto o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800">
           <table className="o-w-full o-text-sm">
@@ -150,7 +150,7 @@ export function MotionOverview(): ReactElement {
 
       <Section
         title="Courbes"
-        lead="Cliquez sur une ligne : la pastille traverse la piste avec la courbe correspondante. Les entrees decelerent, les sorties accelerent, emphasized depasse legerement."
+        lead="Cliquez sur une ligne : la pastille traverse la piste avec la courbe correspondante. Les entrées decelerent, les sorties accelerent, emphasized depasse légèrement."
       >
         <div className="o-flex o-flex-col o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-2 o-bg-white dark:o-bg-zinc-900">
           {Object.entries(motionEasing).map(([name, value]) => (
@@ -178,7 +178,7 @@ void controls.play(
               "Presets — la galerie des entrees, sorties et animations d'attention",
             ],
             [
-              '/docs/motion/composants',
+              '/docs/motion/components',
               'Composants — Reveal, Stagger, TextReveal, Animate',
             ],
             [
@@ -197,11 +197,11 @@ void controls.play(
           ))}
         </ul>
         <Callout>
-          Les memes mouvements existent en classes CSS{' '}
+          Les mêmes mouvements existent en classes CSS{' '}
           <code className="o-font-mono o-text-sm">o-animate-*</code> pour les cas sans
           JavaScript — voir la page{' '}
           <Link
-            to="/docs/styles/utilitaires"
+            to="/docs/styles/utilities"
             className="o-text-brand-600 dark:o-text-brand-300 hover:o-text-brand-700 dark:hover:o-text-brand-200 o-underline o-underline-offset-2"
           >
             Utilitaires

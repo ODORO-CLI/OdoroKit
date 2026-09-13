@@ -15,12 +15,12 @@ export function Installation(): ReactElement {
     <article>
       <PageHeader
         title="Installation"
-        lead="Deux voies : creer un projet complet avec l'engine Odoro, ou ajouter la librairie a un projet React existant."
+        lead="Deux voies : créer un projet complet avec l'engine Odoro, ou ajouter la librairie à un projet React existant."
       />
 
       <Section
-        title="Creer un projet avec l'engine"
-        lead="La voie recommandee. create-odoro genere un projet React pret a l'emploi, sert par l'engine odoro : serveur de developpement avec rechargement a chaud, build de production, zero configuration."
+        title="Créer un projet avec l'engine"
+        lead="La voie recommandee. create-odoro génère un projet React prêt a l'emploi, sert par l'engine odoro : serveur de développement avec rechargement à chaud, build de production, zéro configuration."
       >
         <CodeBlock
           lang="sh"
@@ -32,7 +32,7 @@ pnpm preview   # apercu du build`}
         />
         <Callout>
           L'engine <code className="o-font-mono o-text-sm">odoro</code> remplace Vite ou
-          webpack : il sert les modules, transforme le TSX et gere le rechargement a
+          webpack : il sert les modules, transforme le TSX et gère le rechargement a
           chaud. Sa configuration vit dans{' '}
           <code className="o-font-mono o-text-sm">odoro.config.ts</code>.
         </Callout>
@@ -48,7 +48,7 @@ export default defineConfig({
       </Section>
 
       <Section
-        title="Ajouter la librairie a un projet existant"
+        title="Ajouter la librairie à un projet existant"
         lead="odoro-libs fonctionne dans n'importe quel projet React 18+, quel que soit le bundler."
       >
         <CodeBlock lang="sh" code={`pnpm add odoro-libs`} />
@@ -68,7 +68,7 @@ import '@odoro-cli/libs/styles.full.css' // + utilitaires sur les 290 nuances de
 
       <Section
         title="Les modules"
-        lead="La librairie est decoupee en quatre points d'entree independants : n'importez que ce que vous utilisez."
+        lead="La librairie est découpée en quatre points d'entrée independants : n'importez que ce que vous utilisez."
       >
         <CodeBlock
           lang="ts"
@@ -133,7 +133,7 @@ import { cx, variants, tokens, loadGoogleFonts } from '@odoro-cli/libs/styles' /
       </Section>
 
       <Section
-        title="Premier ecran"
+        title="Premier écran"
         lead="Un exemple complet : styles, composant, animation et routeur reunis."
       >
         <CodeBlock
@@ -170,8 +170,8 @@ createRoot(document.getElementById('root')!).render(
       </Section>
 
       <Section
-        title="Theme sombre"
-        lead="Le theme suit la preference systeme. Pour l'imposer, posez data-theme sur la racine — toutes les couleurs semantiques basculent."
+        title="Thème sombre"
+        lead="Le thème suit la préférence système. Pour l'imposer, posez data-thème sur la racine — toutes les couleurs semantiques basculent."
       >
         <CodeBlock
           lang="ts"
