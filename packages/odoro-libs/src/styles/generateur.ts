@@ -1647,6 +1647,13 @@ function darkPreflight(): string {
     rules.map((rule) => `${prefix} ${rule}`).join('\n')
 
   return [
+    // La racine declare `color-scheme: light dark`, ce qui laisse au systeme
+    // le soin de trancher. C est juste tant que le visiteur n a rien choisi —
+    // mais des qu il choisit le theme clair, il faut le dire : sinon
+    // `light-dark()`, les controles natifs et les barres de defilement
+    // continuent de suivre un systeme en nuit, et la page rend des surfaces
+    // sombres sur un fond blanc.
+    ':root[data-theme="light"]{color-scheme:light}',
     `:root[data-theme="dark"]{color-scheme:dark;${themeVars}}`,
     scope(':root[data-theme="dark"]'),
     '@media (prefers-color-scheme:dark){',

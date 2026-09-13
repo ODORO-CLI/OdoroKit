@@ -534,6 +534,7 @@ mark{background-color:oklch(90.5% 0.182 98.111 / 0.55);color:inherit;border-radi
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}}
 
 /* Preflight — theme sombre. */
+:root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{color-scheme:dark;--o-theme-bg:var(--o-palette-zinc-950);--o-theme-surface:var(--o-palette-zinc-900);--o-theme-fg:var(--o-palette-zinc-50);--o-theme-muted:var(--o-palette-zinc-400);--o-theme-line:var(--o-palette-zinc-800)}
 :root[data-theme="dark"] *,*::before,*::after{border-color:var(--o-palette-zinc-800)}
 :root[data-theme="dark"] body{color:var(--o-palette-zinc-50);background-color:var(--o-palette-zinc-950)}
