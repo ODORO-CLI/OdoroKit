@@ -32,9 +32,11 @@
  * @module
  */
 
-import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { bride } from './brider.mjs'
 
 const ICI = dirname(fileURLToPath(import.meta.url))
 const RACINE = resolve(ICI, '..', '..')
@@ -117,7 +119,34 @@ const fichiers = await parcourir(PACK)
 // pas survivre dans ce qui est servi.
 await rm(SORTIE, { recursive: true, force: true })
 await mkdir(ARBRE, { recursive: true })
-await cp(PACK, ARBRE, { recursive: true })
+
+// Les classes que la librairie produit vraiment. Le bridage s y mesure : une
+// classe traduite qui n existerait pas ne peindrait rien, et ne leverait rien.
+const CLASSES = new Set(
+  [
+    ...(await readFile(
+      join(RACINE, 'packages', 'odoro-libs', 'src', 'styles', 'generated', 'classNames.ts'),
+      'utf8',
+    )).matchAll(/'([^']+)'/g),
+  ].map((m) => m[1]),
+)
+
+const inconnues = new Set()
+let brides = 0
+
+for (const chemin of fichiers) {
+  const source = join(PACK, chemin)
+  const cible = join(ARBRE, chemin)
+  await mkdir(dirname(cible), { recursive: true })
+  if (BINAIRES.has(extension(chemin))) {
+    await writeFile(cible, await readFile(source))
+    continue
+  }
+  const avant = await readFile(source, 'utf8')
+  const apres = bride(chemin, avant, CLASSES, inconnues)
+  if (apres !== avant) brides += 1
+  await writeFile(cible, apres, 'utf8')
+}
 
 /** Les fichiers groupes par dossier de premier niveau. */
 const groupes = new Map()
@@ -219,4 +248,11 @@ const copies = await parcourir(ARBRE)
 console.log(
   `[instructive] ${String(copies.length)} fichiers publies sous ${relative(RACINE, ARBRE)}`,
 )
+console.log(`[instructive] ${String(brides)} fichiers brides sur la pile ODORO`)
+if (inconnues.size > 0) {
+  console.warn(
+    `[instructive] ${String(inconnues.size)} traductions sans cible, laissees telles quelles :`,
+  )
+  for (const t of [...inconnues].sort().slice(0, 25)) console.warn(`    ${t}`)
+}
 console.log(`[instructive] document d entree : ${relative(RACINE, join(SORTIE, 'llm.md'))}`)
