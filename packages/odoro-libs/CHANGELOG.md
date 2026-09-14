@@ -1,5 +1,12 @@
 # @odoro-cli/libs
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [606f8c0]
+  - odoro@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
