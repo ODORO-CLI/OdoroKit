@@ -182,7 +182,9 @@ for (const groupe of ordre) {
   }
 }
 
-const readme = await readFile(join(PACK, 'README.md'), 'utf8')
+// Le README repris ici doit etre celui qui a ete bride, sans quoi le
+// document d entree contredirait les fichiers qu il annonce.
+const readme = await readFile(join(ARBRE, 'README.md'), 'utf8')
 const lourds = []
 for (const chemin of fichiers) {
   const infos = await stat(join(PACK, chemin))
