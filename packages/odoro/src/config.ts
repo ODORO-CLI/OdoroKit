@@ -158,6 +158,17 @@ async function importConfigFile(file: string, root: string): Promise<OdoroConfig
       // Seul le code du projet est inline ; ses dependances restent externes,
       // sans quoi il faudrait resoudre tout node_modules pour lire trois lignes.
       packages: 'external',
+      // `packages: 'external'` ne suffit pas : un `baseUrl` dans le
+      // `tsconfig.json` fait chercher les imports nus depuis la racine du
+      // projet, ou `odoro.json` — le fichier du registre — est trouve avant le
+      // paquet. L'import cesse alors d'etre un import de paquet, la regle
+      // ci-dessus ne s'applique plus, et la compilation echoue sur un
+      // `defineConfig` introuvable dans un fichier de configuration.
+      //
+      // Le nommer explicitement le met hors d'atteinte de cette resolution. La
+      // liste vaut pour les projets deja crees : eux portent encore un
+      // `baseUrl`, et on ne peut pas reecrire leur tsconfig.
+      external: ['odoro'],
     })
 
     const code = result.outputFiles[0]?.text

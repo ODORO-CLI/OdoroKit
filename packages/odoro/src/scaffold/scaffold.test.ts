@@ -418,3 +418,29 @@ describe('les modules retenus changent le projet ecrit', () => {
     expect(existsSync(join(dossier, 'src/routes'))).toBe(true)
   })
 })
+
+describe('le tsconfig genere ne masque pas les paquets', () => {
+  /**
+   * `baseUrl` fait resoudre les imports nus depuis la racine du projet. Un
+   * fichier `odoro.json` — celui que `odoro init` ecrit pour le registre — y
+   * est alors trouve avant le paquet `odoro`, et `odoro.config.ts` echoue a la
+   * compilation sur un `defineConfig` introuvable.
+   *
+   * La compilation d'un vrai projet l'a montre, pas ce test : il est ici pour
+   * que le piege ne revienne pas.
+   */
+  it.each(['react-ts', 'react-ts-server'])(
+    'le gabarit %s ne declare pas baseUrl',
+    async (template) => {
+      const dossier = await mkdtemp(join(tmpdir(), 'odoro-tsconfig-'))
+      await scaffold({ target: dossier, template, packageName: 'essai', version: '9.9.9' })
+
+      const brut = await readFile(join(dossier, 'tsconfig.json'), 'utf8')
+      expect(brut).not.toContain('baseUrl')
+
+      // Les alias doivent survivre a son retrait : depuis TypeScript 4.1, les
+      // chemins de `paths` se resolvent contre le tsconfig lui-meme.
+      expect(brut).toContain('"@/*"')
+    },
+  )
+})
