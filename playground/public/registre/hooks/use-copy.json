@@ -13,7 +13,9 @@
       "target": "hooks/useCopy.ts"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

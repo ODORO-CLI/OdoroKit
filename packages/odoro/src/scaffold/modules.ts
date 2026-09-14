@@ -12,8 +12,9 @@
  *   il **cable** le routeur dans l'application generee, et le decocher rend
  *   une application d'une seule page ;
  * - **le registre** n'en est pas un non plus. Ses entrees sont copiees dans le
- *   projet par `odoro add`, une par une : il n'y a aucune dependance a ajouter,
- *   seulement une commande a rappeler.
+ *   projet par `odoro add`, une par une, et aucun paquet ne porte son nom.
+ *   Le cocher ecrit `odoro.json` — destination, prefixe d'import, adresse du
+ *   registre — et entraine le moteur, que 455 de ses 461 entrees importent.
  *
  * Chaque entree porte donc ce qu'elle fait vraiment, et le createur s'en sert
  * plutot que de deviner.
@@ -26,8 +27,10 @@
  * legitime pour qui apporte son propre systeme de style, et il valait mieux le
  * rendre vrai que d'afficher une case verrouillee.
  *
- * La seule contrainte est de bon sens : sans les bibliotheques il n'y a pas de
- * routeur, puisque c'est la qu'il vit. `resoudre` s'en charge, et le dit.
+ * Les deux contraintes sont de bon sens : sans les bibliotheques il n'y a pas
+ * de routeur, puisque c'est la qu'il vit ; et le registre entraine le moteur,
+ * faute de quoi presque aucune de ses entrees ne compilerait. `resoudre` s'en
+ * charge, et le dit plutot que de corriger en silence.
  *
  * @module
  */
@@ -89,7 +92,7 @@ export const MODULES: readonly Module[] = [
   {
     id: 'registre',
     label: 'Registre de composants',
-    hint: 'rien a installer — copies par `odoro add`',
+    hint: 'copies par `odoro add` — entraine le moteur',
     defaut: false,
   },
 ]
@@ -107,20 +110,20 @@ export interface Resolution {
   /** La selection effectivement retenue. */
   readonly modules: readonly ModuleId[]
   /**
-   * Ce qui a ete retire, et pourquoi.
+   * Ce qui a ete retire ou ajoute, et pourquoi.
    *
    * Vide quand la selection etait deja coherente. Le createur l'affiche plutot
-   * que de corriger en silence : une case cochee qui ne produit rien est plus
-   * deroutante qu'un refus explique.
+   * que de corriger en silence : une case cochee qui ne produit rien, ou un
+   * paquet apparu sans explication, sont plus deroutants qu'une phrase.
    */
   readonly avertissements: readonly string[]
 }
 
 /**
- * Rend la selection coherente, et dit ce qu'elle a du retirer.
+ * Rend la selection coherente, et dit ce qu'elle a change.
  *
- * La seule regle : le routeur vit dans les bibliotheques, donc il ne survit
- * pas a leur retrait.
+ * Deux regles : le routeur vit dans les bibliotheques, donc il ne survit pas a
+ * leur retrait ; le registre a besoin du moteur, donc il l'entraine.
  *
  * @example
  * resoudre(['router', 'icons'])
@@ -134,6 +137,17 @@ export function resoudre(selection: readonly ModuleId[]): Resolution {
     choisis.delete('router')
     avertissements.push(
       'Le routeur vient des bibliotheques (@odoro-cli/libs/router) : sans elles, il est retire.',
+    )
+  }
+
+  // 455 des 461 entrees du registre importent le moteur. Configurer le
+  // registre sans lui livrerait un catalogue dont presque rien ne compile :
+  // `odoro add` ecrirait les fichiers, et le projet echouerait sur un module
+  // introuvable. Mieux vaut l'ajouter et le dire.
+  if (choisis.has('registre') && !choisis.has('engine')) {
+    choisis.add('engine')
+    avertissements.push(
+      'Presque toutes les entrees du registre importent @odoro-cli/engine : le moteur est ajoute.',
     )
   }
 

@@ -13,7 +13,9 @@
       "target": "hooks/usePoster.ts"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [
     "--o-ease-entrance"

@@ -30,7 +30,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/AcidSquares.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -119,7 +122,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/AsciiField.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -205,7 +211,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       }
     ],
     "dependencies": [
-      "@designcodeio/threeui"
+      "@designcodeio/threeui",
+      "@odoro-cli/engine",
+      "react"
     ],
     "registryDependencies": [],
     "tokens": [],
@@ -257,7 +265,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/AudioBars.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -349,7 +360,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Aurora.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-600",
@@ -424,7 +438,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Ballpit.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -523,7 +540,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Beams.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -601,7 +621,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/BlobMorph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -686,7 +709,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Blueprint.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-sky-200",
@@ -753,7 +779,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Bokeh.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -828,7 +857,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Bubbles.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -901,7 +933,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Caustics.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -974,7 +1009,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Cells.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1048,7 +1086,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Checker.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-500"
@@ -1108,7 +1149,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Circuit.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1193,7 +1237,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/CityBlocks.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -1284,7 +1331,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ClickWaves.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1363,7 +1413,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/CloudLayer.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1442,7 +1495,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/CodeRain.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1531,7 +1587,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ColorBends.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1620,7 +1679,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Comet.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -1697,7 +1759,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Constellation.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -1785,7 +1850,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Contour.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -1859,7 +1927,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Crosshatch.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-500"
@@ -1919,7 +1990,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/CrtWarp.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2008,7 +2082,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Crystal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -2096,7 +2173,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Cubes.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -2197,7 +2277,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Currents.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2276,7 +2359,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/CursorGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -2357,7 +2443,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/DarkVeil.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2436,7 +2525,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/DataStream.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2525,7 +2617,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Dither.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2601,7 +2696,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/DnaHelix.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -2692,7 +2790,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/DotMatrix.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -2784,7 +2885,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Dots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2862,7 +2966,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Dunes.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -2941,7 +3048,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Dust.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3027,7 +3137,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ElasticMesh.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped",
       "hooks/use-poster"
@@ -3119,7 +3232,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ElectricField.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3208,7 +3324,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Embers.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3287,7 +3406,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/EyeFollow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -3368,7 +3490,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/FaultyTerminal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3457,7 +3582,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Ferrofluid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -3548,7 +3676,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Fire.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3627,7 +3758,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Fireflies.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3706,7 +3840,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Fireworks.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3796,7 +3933,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/FloatingLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -3881,7 +4021,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/FloatingShapes.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped",
       "hooks/use-poster"
@@ -3963,7 +4106,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/FlowField.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4052,7 +4198,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/FogDrift.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4131,7 +4280,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GalaxySpiral.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4220,7 +4372,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GhostFibers.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -4301,7 +4456,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GlitchBlocks.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4390,7 +4548,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GlobeMesh.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -4513,7 +4674,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GradientBlinds.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4602,7 +4766,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GradientWaves.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4691,7 +4858,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Grainient.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -4766,7 +4936,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GraphPaper.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-sky-500",
@@ -4833,7 +5006,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GridDistortion.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -4910,7 +5086,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GridLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -4987,7 +5166,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GridMotion.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5076,7 +5258,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/GridScan.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5158,7 +5343,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Halftone.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5235,7 +5423,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/HaloPulse.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5331,7 +5522,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Hex.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5408,7 +5602,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/HexWave.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -5499,7 +5696,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Hologram.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -5590,7 +5790,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Hyperspace.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5669,7 +5872,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Ink.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5738,7 +5944,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Interference.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5817,7 +6026,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Iridescence.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5906,7 +6118,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/IsometricGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -5985,7 +6200,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Jelly.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -6076,7 +6294,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Kaleidoscope.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6155,7 +6376,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Lava.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6234,7 +6458,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LavaLamp.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6323,7 +6550,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LedWall.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6412,7 +6642,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LensFlare.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -6493,7 +6726,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LightPillar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6582,7 +6818,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Lightfall.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6661,7 +6900,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Lightning.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6740,7 +6982,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LineWaves.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6829,7 +7074,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LiquidChrome.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -6918,7 +7166,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/LiquidEther.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7008,7 +7259,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/MagnetGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -7096,7 +7350,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/MagneticLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -7184,7 +7441,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Marble.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7273,7 +7533,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Maze.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7349,7 +7612,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Mesh.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7413,7 +7679,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/MeshStatic.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -7494,7 +7763,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Metaballs.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -7585,7 +7857,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/MetallicPaint.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -7666,7 +7941,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/MoltenMetal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7741,7 +8019,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Mosaic.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -7819,7 +8100,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Nebula.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7898,7 +8182,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/NeonGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -7987,7 +8274,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/NightDrive.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8072,7 +8362,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Noise.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -8130,7 +8423,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/OilSlick.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8215,7 +8511,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/OrbitRings.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -8302,7 +8601,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/OrbitalSphere.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -8393,7 +8695,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Oscilloscope.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8482,7 +8787,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ParticleField.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -8563,7 +8871,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ParticleSphere.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -8665,7 +8976,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/PixelBlast.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8755,7 +9069,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/PixelSort.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8845,7 +9162,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/PixelTrail.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -8923,7 +9243,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Plasma.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -8991,7 +9314,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/PlasmaBall.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -9082,7 +9408,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Pollen.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -9173,7 +9502,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Prism.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9272,7 +9604,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/PrismaticBurst.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9371,7 +9706,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Radar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9446,7 +9784,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/RadialGlow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9535,7 +9876,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Rain.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9612,7 +9956,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Rays.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9701,7 +10048,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Ribbons.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9776,7 +10126,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Rings.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-cyan-500"
@@ -9853,7 +10206,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/RippleGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -9930,7 +10286,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Ripples.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10009,7 +10368,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SandFlow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10098,7 +10460,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Scanlines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10177,7 +10542,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Seismograph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10266,7 +10634,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/ShapeGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10341,7 +10712,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Silk.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10419,7 +10793,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SineGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10508,7 +10885,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SlicedWaves.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10597,7 +10977,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Smoke.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10676,7 +11059,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Snow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10755,7 +11141,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SoapFilm.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10844,7 +11233,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Sonar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -10921,7 +11313,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Spectrum.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -10998,7 +11393,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SplashCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -11076,7 +11474,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/SpotGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-muted"
@@ -11143,7 +11544,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Stars.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -11220,7 +11624,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Strands.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -11305,7 +11712,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Stripes.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -11380,7 +11790,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Swarm.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -11457,7 +11870,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/TerrainWireframe.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -11544,7 +11960,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Threads.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -11621,7 +12040,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/TilesFlip.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -11702,7 +12124,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Torch.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -11779,7 +12204,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/TorusKnot.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -11880,7 +12308,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Triangles.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -11969,7 +12400,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Truchet.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12054,7 +12488,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Tunnel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12131,7 +12568,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/TvStatic.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12210,7 +12650,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Underwater.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12289,7 +12732,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/VeilParallax.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -12370,7 +12816,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/VhsTracking.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12459,7 +12908,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/VolumetricRays.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12548,7 +13000,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Voronoi.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12623,7 +13078,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Vortex.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12701,7 +13159,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Wake.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -12772,7 +13233,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Warp.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -12851,7 +13315,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/WaterSurface.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -12963,7 +13430,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Watercolor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -13048,7 +13518,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Waves.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -13122,7 +13595,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/WebThreads.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -13214,7 +13690,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/WindField.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -13303,7 +13782,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "background/Wormhole.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -13388,7 +13870,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/BeamConnect.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-400"
@@ -13456,7 +13941,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/BlobCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13526,7 +14014,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/BorderBeam.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13591,7 +14082,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Carousel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13658,7 +14152,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/ClickSparks.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13723,7 +14220,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Crosshair.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13801,7 +14301,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/CursorGridDom.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -13887,7 +14390,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/CursorHalo.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -13975,7 +14481,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/CursorRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -14041,7 +14550,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Deform.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -14127,7 +14639,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/FloatGroup.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -14176,7 +14691,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/GhostCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -14258,7 +14776,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/GlareHover.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -14333,7 +14854,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/GlitchHover.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-red-400",
@@ -14384,7 +14908,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/GlowCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -14467,7 +14994,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/GradualBlur.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg"
@@ -14554,7 +15084,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/HalftoneReveal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg"
@@ -14620,7 +15153,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/InertiaDrag.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -14667,7 +15203,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/LaserFlow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -14753,7 +15292,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/MagicRings.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -14842,7 +15384,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/MagnetLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -14951,7 +15496,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Magnetic.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15009,7 +15557,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Marquee.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15070,7 +15621,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Meteors.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15124,7 +15678,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/NeonBorder.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-amber-400"
@@ -15225,7 +15782,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/OrbitingDots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15292,7 +15852,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Parallax.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15351,7 +15914,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/PixelSwap.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15437,7 +16003,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/PixelTransition.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -15507,7 +16076,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/RevealMask.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -15576,7 +16148,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/RippleClick.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15634,7 +16209,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/RippleDistortion.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -15723,7 +16301,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/ScrollProgress.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-600",
@@ -15793,7 +16374,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/ScrollVelocity.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15840,7 +16424,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/ShapeBlur.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -15922,7 +16509,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/SplashPointer.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -15997,7 +16587,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/Spotlight.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16048,7 +16641,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/StickerPeel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -16127,7 +16723,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/StickyCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16224,7 +16823,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/SwarmCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16315,7 +16917,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "effect/TargetCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16417,7 +17022,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hero/Molten.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -16516,7 +17124,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hero/ScrollVideo.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-slow",
@@ -16607,8 +17218,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       }
     ],
     "dependencies": [
+      "@odoro-cli/engine",
       "@splinetool/react-spline",
-      "@splinetool/runtime"
+      "@splinetool/runtime",
+      "react"
     ],
     "registryDependencies": [],
     "tokens": [],
@@ -16666,7 +17279,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hero/Tide.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster",
       "hooks/use-pointer-damped"
@@ -16774,7 +17390,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useCopy.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16812,7 +17430,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useInView.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16871,7 +17491,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useIntervalClock.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -16930,7 +17553,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useKeyboardList.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17001,7 +17626,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useMeasure.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17035,7 +17662,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useMediaQuery.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17078,7 +17707,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/usePointerDamped.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17121,7 +17753,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/usePoster.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-ease-entrance"
@@ -17169,7 +17803,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "hooks/useScrollProgress.ts"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17237,7 +17874,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/AsciiImage.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -17325,7 +17965,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ColorShift.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-ease-standard"
@@ -17408,7 +18051,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/Compare.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -17474,7 +18120,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/Duotone.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-indigo-950",
@@ -17557,7 +18206,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/Frame.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-slow",
@@ -17630,7 +18282,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/HoverZoom.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -17703,7 +18358,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ImageGlitch.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-cyan-400",
@@ -17796,7 +18454,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ImageMaskText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -17889,7 +18550,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ImageParticles.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -18011,7 +18675,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ImageStackSwipe.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -18099,7 +18766,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ImageTrail.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -18171,7 +18841,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/KenBurns.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -18235,7 +18908,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/LensZoom.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -18310,7 +18986,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ParallaxImage.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -18370,7 +19049,9 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       }
     ],
     "dependencies": [
-      "@odoro-cli/icons"
+      "@odoro-cli/engine",
+      "@odoro-cli/icons",
+      "react"
     ],
     "registryDependencies": [],
     "tokens": [],
@@ -18432,7 +19113,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/RevealImage.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -18507,7 +19191,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/ScrollRevealImage.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -18588,7 +19275,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/TiltGlare.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-50"
@@ -18660,7 +19350,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "image/Video.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-slow",
@@ -18730,7 +19423,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ArcTrio.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -18803,7 +19499,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BarGate.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -18919,7 +19618,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BarsScale.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -18981,7 +19683,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BatteryFill.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -19064,7 +19769,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Blinds.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -19181,7 +19889,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BlobLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19244,7 +19955,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BlocksStack.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19306,7 +20020,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BouncingBall.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19368,7 +20085,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/BouncingDots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19430,7 +20150,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Bricks.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19492,7 +20215,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ChasingDots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19554,7 +20280,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CheckmarkSuccess.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19653,7 +20382,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ClockHands.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19715,7 +20447,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CometRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -19799,7 +20534,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ContentFade.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-ease-standard"
@@ -19885,7 +20623,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CounterGate.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -19985,7 +20726,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CounterRollLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-font-mono"
@@ -20066,7 +20810,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CubeFlip.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20128,7 +20875,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CubeFold.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20190,7 +20940,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/CurtainWipe.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -20273,7 +21026,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DashRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20356,7 +21112,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DnaLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20428,7 +21187,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Domino.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20490,7 +21252,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DotMatrixText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20559,7 +21324,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DotsLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20621,7 +21389,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DotsOrbit.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20683,7 +21454,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/DualRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20756,7 +21530,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Eclipse.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20818,7 +21595,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Envelope.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface"
@@ -20882,7 +21662,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Equalizer.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -20944,7 +21727,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/FadeGate.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -21051,7 +21837,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/FanBlades.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21123,7 +21912,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/FlowerPetals.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21185,7 +21977,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Gauge.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -21279,7 +22074,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/GearPair.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21341,7 +22139,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/GradientRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21414,7 +22215,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/GridFade.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21476,7 +22280,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/GridWave.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21538,7 +22345,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Heartbeat.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21600,7 +22410,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/HexSpinner.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21673,7 +22486,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Hourglass.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21735,7 +22551,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/InfinityLoop.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21808,7 +22627,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/IrisOpen.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -21925,7 +22747,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/JellyLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -21987,7 +22812,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Juggling.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22049,7 +22877,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LazyBlock.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -22155,7 +22986,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LettersBounce.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22224,7 +23058,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LettersGate.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -22332,7 +23169,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LiquidFill.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -22415,7 +23255,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LoadingDotsText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22484,7 +23327,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/LogoDraw.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22571,7 +23417,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/MatrixDigits.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-font-mono"
@@ -22652,7 +23501,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/MoonPhases.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22714,7 +23566,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/NewtonCradle.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22776,7 +23631,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/OrbitLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22838,7 +23696,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PaperPlane.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22900,7 +23761,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Pendulum.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -22962,7 +23826,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PercentCounter.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23037,7 +23904,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PercentRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -23131,7 +24001,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Pinwheel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23193,7 +24066,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PixelDissolve.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -23320,7 +24196,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PlaceholderImage.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -23411,7 +24290,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PolygonMorph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23484,7 +24366,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ProgressBar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-base",
@@ -23574,7 +24459,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ProgressSteps.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -23668,7 +24556,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PulseBlock.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -23748,7 +24639,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/PulseDot.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23810,7 +24704,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/RingDots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23893,7 +24790,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/RingSpinner.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -23966,7 +24866,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/RippleLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24028,7 +24931,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Rocket.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg"
@@ -24092,7 +24998,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/RoutePath.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24165,7 +25074,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ScannerLine.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24238,7 +25150,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ScrambleLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-font-mono"
@@ -24309,7 +25224,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SegmentRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24392,7 +25310,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ShapeMorph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24454,7 +25375,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ShimmerBlock.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -24546,7 +25470,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Shutter.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -24663,7 +25590,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SignalBars.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -24735,7 +25665,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SkeletonAvatar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -24832,7 +25765,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SkeletonCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -24922,7 +25858,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SkeletonGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -25039,7 +25978,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SkeletonLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -25126,7 +26068,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SkeletonTable.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -25230,7 +26175,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Snake.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25292,7 +26240,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SonarLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25354,7 +26305,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SpinnerToCheck.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25453,7 +26407,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SpiralDots.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25515,7 +26472,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SplitCurtain.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -25622,7 +26582,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SquareMorph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25684,7 +26647,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Stairs.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25746,7 +26712,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/SunRays.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25808,7 +26777,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Tetris.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25870,7 +26842,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/TextShimmerLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -25939,7 +26914,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/TopLoader.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -26026,7 +27004,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/TriangleSpinner.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26099,7 +27080,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/TypingCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-font-mono"
@@ -26170,7 +27154,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/WaterDrop.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26232,7 +27219,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/WaveBars.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26294,7 +27284,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/WifiPulse.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26367,7 +27360,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/Windmill.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26429,7 +27425,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/WipeDiagonal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -26547,7 +27546,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/WordFlip.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26623,7 +27625,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/YinYang.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -26685,7 +27690,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "loader/ZoomGate.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -26802,7 +27810,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/BentoGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -26883,7 +27894,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/BookShelf.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-poster"
     ],
@@ -26947,7 +27961,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/Changelog.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27013,7 +28030,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/CinematicFooter.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "effect/magnetic",
       "effect/marquee"
@@ -27101,7 +28121,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/ComingSoon.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27175,7 +28198,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/ComparisonTable.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27257,7 +28283,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/ContainerScroll.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -27334,7 +28363,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/CtaBand.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27416,7 +28448,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/Faq.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-fast",
@@ -27465,7 +28500,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/FeatureTabs.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27531,7 +28569,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/HeroScrollMorph.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -27613,7 +28654,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/LogoBand.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "effect/marquee"
     ],
@@ -27664,7 +28708,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/Newsletter.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -27754,7 +28801,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/OrbitalTimeline.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-ease-standard",
@@ -27818,7 +28868,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/PricingTiers.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "text/count-up"
     ],
@@ -27897,7 +28950,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/RevealGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-slow",
@@ -27972,7 +29028,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/ScrollSteps.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -28017,7 +29076,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/SignIn.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "background/dot-matrix"
     ],
@@ -28134,7 +29196,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/StatBand.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "text/count-up"
     ],
@@ -28204,7 +29269,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/StickyStack.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -28269,7 +29337,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/TeamGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -28347,7 +29418,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/TestimonialsColumns.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -28431,7 +29505,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "section/Timeline.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-fg",
@@ -28485,7 +29562,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/AsciiText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -28550,7 +29630,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/BlurReveal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -28617,7 +29700,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/BlurWords.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -28714,7 +29800,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/CircularText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -28777,7 +29866,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/CountUp.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -28883,7 +29975,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/CounterRoll.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -28953,7 +30048,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/CurvedLoop.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29035,7 +30133,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/DecodeText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29104,7 +30205,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/DepthText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -29200,7 +30304,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/EchoText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29266,7 +30373,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/FallingText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29329,7 +30439,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/FoldText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -29410,7 +30523,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/FuzzyText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29491,7 +30607,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/GlitchText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-red-500",
@@ -29562,7 +30681,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/GradientFlow.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -29633,7 +30755,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/HandWritten.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -29733,7 +30858,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/HighlightSweep.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -29816,7 +30944,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/LetterSwap.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29872,7 +31003,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/MaskedHeading.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -29934,7 +31068,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/MorphText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30011,7 +31148,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/ParticleText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -30092,7 +31232,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/RotatingWords.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -30163,7 +31306,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/ScrollFloat.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30229,7 +31375,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/ScrollReveal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30294,7 +31443,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/ShineText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30361,7 +31513,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/Shuffle.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -30442,7 +31597,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/SplitFlap.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -30529,7 +31687,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/SplitLines.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -30608,7 +31769,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/SplitReveal.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30693,7 +31857,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/SpotlightText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30748,7 +31915,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/StrokeText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-300",
@@ -30819,7 +31989,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/TextCursor.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -30897,7 +32070,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/TextLoop.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -30963,7 +32139,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/TextPressure.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -31048,7 +32227,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/TrueFocus.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -31133,7 +32315,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/Typewriter.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -31206,7 +32391,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/UnderlineDraw.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-400"
@@ -31281,7 +32469,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/VariableProximity.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -31356,7 +32547,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/WarpText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -31422,7 +32616,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "text/WaveText.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -31478,7 +32675,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/AnimatedList.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -31563,7 +32763,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/AvatarStack.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -31626,7 +32829,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/BounceCards.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-in-view"
     ],
@@ -31694,7 +32900,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/BubbleMenu.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -31791,7 +33000,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ButtonGroupInput.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -31912,7 +33124,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CardForm.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-fuchsia-500",
@@ -31991,7 +33206,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CardNav.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32074,7 +33292,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CardSwap.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -32140,7 +33361,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ChromaGrid.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -32221,7 +33445,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CircularGallery.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32320,7 +33547,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CodeInput.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -32379,7 +33609,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CommandPalette.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32462,7 +33695,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/CopyButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-emerald-500",
@@ -32517,7 +33753,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/DecayCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32601,7 +33840,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/DepthCarousel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32720,7 +33962,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/DomeGallery.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32807,7 +34052,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ElasticSlider.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -32916,7 +34164,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ElectricBorder.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-sky-400",
@@ -33002,7 +34253,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/FileDrop.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -33046,7 +34300,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/FlipCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -33107,7 +34364,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/FlowingMenu.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -33180,7 +34440,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/FlyingPosters.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -33278,7 +34541,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/Folder.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -33389,7 +34655,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/GlassIcons.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -33485,7 +34754,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/GlassSurface.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -33568,7 +34840,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/GlowCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -33631,7 +34906,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/GooeyNav.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -33724,7 +35002,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/HoverRevealButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-600",
@@ -33777,7 +35058,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/InfiniteMenu.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -33849,7 +35133,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/LineSidebar.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -33943,7 +35230,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/LiquidButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -34001,7 +35291,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/LiquidGlassButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -34083,7 +35376,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/MagnifyDock.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [],
     "props": [
@@ -34131,7 +35427,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/Masonry.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -34226,7 +35525,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/OptionWheel.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",
@@ -34308,7 +35610,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/PearlButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-950",
@@ -34369,7 +35674,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/PillNav.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -34432,7 +35740,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/PillTabs.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-600",
@@ -34498,7 +35809,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/PixelCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -34568,7 +35882,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ProfileCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -34657,7 +35974,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ProgressRing.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500",
@@ -34720,7 +36040,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/PromptInput.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-fast",
@@ -34794,7 +36117,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/RatingStars.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-amber-400",
@@ -34865,7 +36191,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ReflectiveCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -34927,7 +36256,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/SegmentedControl.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -35002,7 +36334,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ShinyButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-950",
@@ -35061,7 +36396,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/SortableList.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -35132,7 +36470,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/SpecularButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-600",
@@ -35214,7 +36555,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/SpotlightCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [
       "hooks/use-pointer-damped"
     ],
@@ -35284,7 +36628,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/StackedCards.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-duration-slow",
@@ -35342,7 +36689,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/StaggeredMenu.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-bg",
@@ -35430,7 +36780,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/StarBorder.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-400",
@@ -35506,7 +36859,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/Stepper.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -35603,7 +36959,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/TagInput.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -35691,7 +37050,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/TextFallButton.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-brand-500"
@@ -35761,7 +37123,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ThemeSwitch.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-sky-400",
@@ -35825,7 +37190,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/TiltCard.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-palette-zinc-50"
@@ -35902,7 +37270,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/ToastStack.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-surface",
@@ -35991,7 +37362,10 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
         "target": "ui/TreeView.tsx"
       }
     ],
-    "dependencies": [],
+    "dependencies": [
+      "@odoro-cli/engine",
+      "react"
+    ],
     "registryDependencies": [],
     "tokens": [
       "--o-theme-line",

@@ -13,7 +13,9 @@
       "target": "hooks/useMeasure.ts"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

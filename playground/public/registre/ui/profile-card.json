@@ -13,7 +13,10 @@
       "target": "ui/ProfileCard.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [
     "hooks/use-pointer-damped"
   ],

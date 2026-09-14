@@ -13,7 +13,9 @@
       "target": "hooks/useMediaQuery.ts"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

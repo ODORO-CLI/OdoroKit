@@ -13,7 +13,10 @@
       "target": "background/Checker.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [
     "--o-palette-zinc-500"

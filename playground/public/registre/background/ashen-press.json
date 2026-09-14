@@ -14,7 +14,9 @@
     }
   ],
   "dependencies": [
-    "@designcodeio/threeui"
+    "@designcodeio/threeui",
+    "@odoro-cli/engine",
+    "react"
   ],
   "registryDependencies": [],
   "tokens": [],

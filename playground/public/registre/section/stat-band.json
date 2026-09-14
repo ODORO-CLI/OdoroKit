@@ -13,7 +13,10 @@
       "target": "section/StatBand.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [
     "text/count-up"
   ],

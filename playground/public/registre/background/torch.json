@@ -17,7 +17,10 @@
       "target": "background/Torch.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [
     "hooks/use-pointer-damped"
   ],

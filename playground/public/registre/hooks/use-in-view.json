@@ -13,7 +13,9 @@
       "target": "hooks/useInView.ts"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

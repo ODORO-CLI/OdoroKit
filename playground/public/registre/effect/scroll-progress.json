@@ -15,7 +15,10 @@
       "target": "effect/ScrollProgress.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [
     "--o-palette-brand-600",

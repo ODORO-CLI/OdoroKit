@@ -13,7 +13,10 @@
       "target": "loader/PulseBlock.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [
     "--o-theme-line",

@@ -14,7 +14,9 @@
     }
   ],
   "dependencies": [
-    "@odoro-cli/icons"
+    "@odoro-cli/engine",
+    "@odoro-cli/icons",
+    "react"
   ],
   "registryDependencies": [],
   "tokens": [],

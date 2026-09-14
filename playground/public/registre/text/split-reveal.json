@@ -16,7 +16,10 @@
       "target": "text/SplitReveal.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

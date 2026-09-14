@@ -13,7 +13,10 @@
       "target": "section/TeamGrid.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [
     "hooks/use-in-view"
   ],

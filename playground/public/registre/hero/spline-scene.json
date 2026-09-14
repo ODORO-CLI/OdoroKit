@@ -14,8 +14,10 @@
     }
   ],
   "dependencies": [
+    "@odoro-cli/engine",
     "@splinetool/react-spline",
-    "@splinetool/runtime"
+    "@splinetool/runtime",
+    "react"
   ],
   "registryDependencies": [],
   "tokens": [],

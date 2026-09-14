@@ -66,6 +66,52 @@ async function subdirectories(directory: string): Promise<string[]> {
 }
 
 /**
+ * Les paquets npm que les sources d'une entree importent vraiment.
+ *
+ * ## Pourquoi on les deduit au lieu de les croire
+ *
+ * `meta.json` porte un champ `dependencies`, rempli a la main. Il l'etait
+ * mal : 455 entrees sur 461 le laissaient vide tout en important
+ * `@odoro-cli/engine`. Le registre annoncait donc des composants sans
+ * dependance, `odoro add` n'avait rien a signaler, et le projet ne compilait
+ * pas — avec une erreur de module introuvable que rien ne rattachait au
+ * registre.
+ *
+ * Une liste tenue a la main a cote du code qu'elle decrit derive toujours.
+ * Celle-ci se lit donc dans les imports, ou elle ne peut pas mentir.
+ *
+ * ## Ce qui n'en est pas
+ *
+ * Les chemins relatifs restent dans l'entree. `@registre/…` designe une
+ * autre entree, pas un paquet : ces liens-la sont deja declares par
+ * `registryDependencies`, et la CLI les reecrit a l'installation vers
+ * l'alias du projet.
+ */
+function paquetsImportes(sources: Record<string, string>): string[] {
+  const trouves = new Set<string>()
+
+  for (const code of Object.values(sources)) {
+    // `from '…'` couvre l'import et le reexport ; `import '…'` couvre la
+    // feuille de style importee pour son effet, qui est un vrai besoin.
+    for (const m of code.matchAll(/(?:from|import)\s+'([^']+)'/g)) {
+      const specificateur = m[1]
+      if (specificateur === undefined) continue
+      if (specificateur.startsWith('.')) continue
+      if (specificateur.startsWith('@registre/')) continue
+
+      // Le nom du paquet, sans le sous-chemin : `@odoro-cli/libs/router`
+      // s'installe en installant `@odoro-cli/libs`.
+      const parts = specificateur.split('/')
+      const nom = specificateur.startsWith('@')
+        ? parts.slice(0, 2).join('/')
+        : (parts[0] ?? '')
+      if (nom !== '') trouves.add(nom)
+    }
+  }
+
+  return [...trouves].sort()
+}
+/**
  * Lit une entree unique.
  *
  * @param root Racine du registre.
@@ -135,7 +181,14 @@ async function collectEntry(
 
   if (Object.keys(sources).length !== meta.files.length) return null
 
-  return { ...meta, id: entryId(meta), directory: origin, sources }
+  // Les deux sens sont reunis : ce que l'auteur a declare est conserve — il
+  // peut connaitre un besoin que les imports ne montrent pas — et ce que les
+  // imports revelent est ajoute, qu'il y ait pense ou non.
+  const dependencies = [
+    ...new Set([...(meta.dependencies ?? []), ...paquetsImportes(sources)]),
+  ].sort()
+
+  return { ...meta, dependencies, id: entryId(meta), directory: origin, sources }
 }
 
 /**

@@ -17,7 +17,10 @@
       "target": "background/Prism.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [
     "--o-theme-bg",

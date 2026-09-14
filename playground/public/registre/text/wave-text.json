@@ -13,7 +13,10 @@
       "target": "text/WaveText.tsx"
     }
   ],
-  "dependencies": [],
+  "dependencies": [
+    "@odoro-cli/engine",
+    "react"
+  ],
   "registryDependencies": [],
   "tokens": [],
   "props": [

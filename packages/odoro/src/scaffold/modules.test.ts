@@ -114,3 +114,23 @@ describe('la lecture de --modules', () => {
     expect(lu.erreur).toContain(MODULE_IDS.join(', '))
   })
 })
+
+describe('le registre entraine le moteur', () => {
+  it('ajoute le moteur, et le dit', () => {
+    // 455 des 461 entrees l importent : sans lui, `odoro add` ecrirait des
+    // fichiers que le projet ne saurait pas compiler.
+    const { modules, avertissements } = resoudre(['libs', 'router', 'registre'])
+    expect(modules).toContain('engine')
+    expect(avertissements.some((a) => a.includes('@odoro-cli/engine'))).toBe(true)
+  })
+
+  it('ne dit rien quand le moteur etait deja coche', () => {
+    const { modules, avertissements } = resoudre(['libs', 'engine', 'registre'])
+    expect(modules).toContain('engine')
+    expect(avertissements).toEqual([])
+  })
+
+  it('laisse le moteur seul quand le registre n est pas retenu', () => {
+    expect(resoudre(['libs', 'router']).modules).not.toContain('engine')
+  })
+})

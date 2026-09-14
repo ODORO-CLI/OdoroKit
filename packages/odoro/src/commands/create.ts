@@ -362,6 +362,26 @@ export async function createCommand(options: CreateOptions): Promise<number> {
 
   if (database !== undefined) prompts.log.info(database.note)
 
+  // Le registre ne s'installe pas : ses entrees sont copiees dans le projet.
+  // Ce qu'il faut donc preparer, c'est la destination. `odoro.json` porte le
+  // dossier d'arrivee, le prefixe d'import deduit du tsconfig, et l'adresse du
+  // registre ; sans lui, la premiere commande `odoro add` s'arreterait pour
+  // poser trois questions dont on connait deja les reponses.
+  //
+  // `yes` est passe : la creation vient de faire ses demandes, et en
+  // enchainer d'autres ferait payer deux fois le meme choix.
+  if (modules.includes('registre')) {
+    const { initCommand } = await import('../add/commands.js')
+    const code = await initCommand({ root: target, yes: true })
+    if (code !== 0) {
+      // Un registre non configure ne compromet pas le projet : tout le reste
+      // est ecrit, et la commande se relance a la main.
+      prompts.log.warn(
+        'Le registre n a pas pu etre configure. Relancez `odoro init` dans le projet.',
+      )
+    }
+  }
+
   if (withInstall) {
     const install = prompts.spinner()
     install.start(`Installation avec ${manager}`)
@@ -376,10 +396,9 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   const steps = [
     `cd ${basename(target)}`,
     ...(withInstall ? [] : [installCommand(manager)]),
-    // Le registre ne s'installe pas : ses entrees sont copiees dans le projet,
-    // une par une. La commande est donc rappelee ici plutot qu'ajoutee aux
-    // dependances, ou elle n'aurait rien a faire.
-    ...(modules.includes('registre') ? ['odoro init', 'odoro add text/count-up'] : []),
+    // `odoro.json` vient d'etre ecrit : ce qui reste a montrer, c'est la
+    // commande qui s'en sert.
+    ...(modules.includes('registre') ? ['odoro add text/count-up'] : []),
     runCommand(manager, 'dev'),
   ]
 
