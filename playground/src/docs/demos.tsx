@@ -2374,20 +2374,6 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       ),
   },
 
-  'background/ashen-press': {
-    height: 'o-h-96',
-    lead: 'Une porte vers un paquet tiers : rien n’est télécharge avant l’approche du champ, et rien du tout sous mouvement réduit.',
-    render: () => (
-      <Stage>
-        <p className="o-max-w-sm o-text-center o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
-          Cette entrée demande le paquet threeui, que le registre n’embarque pas. Elle
-          ouvre en outre sa propre surface WebGL, hors de l’arbitre du moteur : un seul
-          fond de ce genre par page.
-        </p>
-      </Stage>
-    ),
-  },
-
   // ----- Heros ---------------------------------------------------------------
   'hero/tide': {
     height: 'o-h-96',
@@ -2448,28 +2434,6 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           ease={num(v, 'ease', 6)}
         />
       </div>
-    ),
-  },
-
-  'hero/spline-scene': {
-    height: 'o-h-72',
-    lead: 'Seule entrée du registre sans aperçu vivant, et pour une raison qui lui appartient.',
-    render: () => (
-      <Stage>
-        <div className="o-max-w-md o-space-y-3">
-          <div className="o-h-24 o-rounded-lg o-bg-gradient-to-br o-from-zinc-200 o-to-zinc-300 dark:o-from-zinc-800 dark:o-to-zinc-900" />
-          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            Voilà ce que le cadre montre tant que la scène n’est pas la — et pour
-            toujours en mouvement réduit.
-          </p>
-          <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-            La scène elle-même n’est pas montree ici : son adresse appartient au
-            compte Spline du projet, et le runtime est un paquet tiers que cette
-            documentation n’installe pas. L’onglet « Code » montre l’integralite du
-            composant.
-          </p>
-        </div>
-      </Stage>
     ),
   },
 

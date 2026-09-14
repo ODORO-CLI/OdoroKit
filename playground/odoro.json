@@ -32,15 +32,6 @@
         }
       ]
     },
-    "background/ashen-press": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
-      "files": [
-        {
-          "path": "src/odoro/background/AshenPress.tsx",
-          "hash": "b777d286833f16e8"
-        }
-      ]
-    },
     "background/audio-bars": {
       "installedAt": "2026-09-09T01:39:44.953Z",
       "files": [
@@ -2307,15 +2298,6 @@
         {
           "path": "src/odoro/hero/ScrollVideo.tsx",
           "hash": "c7d53777f811b684"
-        }
-      ]
-    },
-    "hero/spline-scene": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
-      "files": [
-        {
-          "path": "src/odoro/hero/SplineScene.tsx",
-          "hash": "a5fa25f6e0f092a0"
         }
       ]
     },

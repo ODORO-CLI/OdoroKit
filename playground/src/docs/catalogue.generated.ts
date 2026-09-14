@@ -196,57 +196,6 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
     "id": "background/ascii-field"
   },
   {
-    "name": "ashen-press",
-    "category": "background",
-    "title": "Fond AshenPress",
-    "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
-    "engine": {
-      "gsap": [],
-      "gl": false
-    },
-    "files": [
-      {
-        "path": "component.tsx",
-        "target": "background/AshenPress.tsx"
-      }
-    ],
-    "dependencies": [
-      "@designcodeio/threeui",
-      "@odoro-cli/engine",
-      "react"
-    ],
-    "registryDependencies": [],
-    "tokens": [],
-    "props": [
-      {
-        "name": "rootMargin",
-        "type": "string",
-        "required": false,
-        "default": "200px",
-        "description": "Marge de declenchement du chargement. Le paquet arrive avant que le cadre n entre dans le champ."
-      },
-      {
-        "name": "fallback",
-        "type": "ReactNode",
-        "required": false,
-        "description": "Ce qui occupe le cadre tant que le fond n est pas la, et pour toujours sous mouvement reduit."
-      },
-      {
-        "name": "poster",
-        "type": "string",
-        "required": false,
-        "description": "Classes du repli par defaut, quand aucun n est fourni."
-      }
-    ],
-    "perf": {
-      "tier": "heavy",
-      "backend": false,
-      "notes": "Le rendu appartient au paquet tiers et ouvre sa propre surface WebGL, hors de l arbitre du moteur. Une page qui emploie ce fond et un fond du registre ouvre deux contextes, et le navigateur perd silencieusement le plus ancien : un seul des deux par page. Rien n est telecharge avant l approche du champ, et rien du tout sous mouvement reduit.",
-      "fallback": "poster"
-    },
-    "id": "background/ashen-press"
-  },
-  {
     "name": "audio-bars",
     "category": "background",
     "title": "Barres d egaliseur",
@@ -17201,64 +17150,6 @@ export const CATALOGUE: readonly CatalogueEntry[] = [
       "fallback": "poster"
     },
     "id": "hero/scroll-video"
-  },
-  {
-    "name": "spline-scene",
-    "category": "hero",
-    "title": "Scene Spline",
-    "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
-    "engine": {
-      "gsap": [],
-      "gl": false
-    },
-    "files": [
-      {
-        "path": "component.tsx",
-        "target": "hero/SplineScene.tsx"
-      }
-    ],
-    "dependencies": [
-      "@odoro-cli/engine",
-      "@splinetool/react-spline",
-      "@splinetool/runtime",
-      "react"
-    ],
-    "registryDependencies": [],
-    "tokens": [],
-    "props": [
-      {
-        "name": "scene",
-        "type": "string",
-        "required": true,
-        "description": "URL de la scene, sur le compte Spline du projet. Sans valeur par defaut : une adresse d exemple ferait dependre la page d un fichier qui ne lui appartient pas."
-      },
-      {
-        "name": "rootMargin",
-        "type": "string",
-        "required": false,
-        "default": "200px",
-        "description": "Marge de declenchement du chargement. Le runtime arrive avant que la scene n entre dans le champ."
-      },
-      {
-        "name": "fallback",
-        "type": "ReactNode",
-        "required": false,
-        "description": "Ce qui occupe le cadre tant que la scene n est pas la, et pour toujours sous mouvement reduit."
-      },
-      {
-        "name": "poster",
-        "type": "string",
-        "required": false,
-        "description": "Classes du repli par defaut, quand aucun n est fourni."
-      }
-    ],
-    "perf": {
-      "tier": "heavy",
-      "backend": false,
-      "notes": "Le runtime Spline pese plus de six cents kilo-octets compresses, et la scene elle-meme se compte en megaoctets. Rien n est telecharge avant que le cadre n approche du champ, et rien du tout sous mouvement reduit. C est la seule entree du registre a dependre d un paquet tiers a l execution : elle est copiee, donc un projet qui ne l appelle pas ne l installe pas.",
-      "fallback": "poster"
-    },
-    "id": "hero/spline-scene"
   },
   {
     "name": "tide",

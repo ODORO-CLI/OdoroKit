@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-14T13:01:07.142Z",
+  "generatedAt": "2026-09-14T13:17:45.047Z",
   "entries": [
     {
       "id": "background/acid-squares",
@@ -20,16 +20,6 @@
       "description": "Un champ de bruit en derive lente, echantillonne par cellule et rendu en caracteres de la rampe classique — de l espace au arobase — par densite d encre ; glyphes de cinq par sept dessines par le shader, sans police ni texture.",
       "tier": "light",
       "backend": "ogl",
-      "registryDependencies": []
-    },
-    {
-      "id": "background/ashen-press",
-      "name": "ashen-press",
-      "category": "background",
-      "title": "Fond AshenPress",
-      "description": "Une porte vers le fond du paquet threeui : charge a l approche du champ, jamais sous mouvement reduit, avec un repli.",
-      "tier": "heavy",
-      "backend": false,
       "registryDependencies": []
     },
     {
@@ -2146,16 +2136,6 @@
       "category": "hero",
       "title": "Video defilee",
       "description": "Une video parcourue image par image par le defilement, dans une scene collante — sans verrouiller la page.",
-      "tier": "heavy",
-      "backend": false,
-      "registryDependencies": []
-    },
-    {
-      "id": "hero/spline-scene",
-      "name": "spline-scene",
-      "category": "hero",
-      "title": "Scene Spline",
-      "description": "Une scene Spline chargee a l approche du champ, jamais sous mouvement reduit, et dont l adresse appartient au projet.",
       "tier": "heavy",
       "backend": false,
       "registryDependencies": []
