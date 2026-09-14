@@ -8,7 +8,7 @@
     "dev": "node scripts/instructive.mjs && node scripts/versions.mjs && odoro dev",
     "build": "node scripts/instructive.mjs && node scripts/versions.mjs && odoro build",
     "preview": "odoro preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node scripts/versions.mjs && tsc --noEmit",
     "instructive": "node scripts/instructive.mjs",
     "versions": "node scripts/versions.mjs"
   },
