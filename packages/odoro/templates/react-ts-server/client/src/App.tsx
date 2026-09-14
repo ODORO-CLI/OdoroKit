@@ -23,7 +23,17 @@
 
 import { Reveal, Stagger } from '@odoro-cli/libs/motion'
 import { buttonClasses } from '@odoro-cli/libs/ui'
-import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
+
+// Nommes plutot qu'importes en bloc : le reste du manifeste — les scripts,
+// les metadonnees — n'a rien a faire dans le code livre au navigateur.
+import { dependencies, devDependencies } from '../package.json'
 
 import { Fond } from '@/fond'
 import { Link, Routeur, useLocation } from '@/router'
@@ -133,17 +143,134 @@ function Barre(): ReactElement {
           ))}
         </nav>
 
-        <a
-          href="https://odoro.dev"
-          target="_blank"
-          rel="noreferrer"
-          className="o-ml-auto o-inline-flex o-h-14 o-shrink-0 o-items-center o-rounded-full o-border-w-1 o-px-5 o-text-sm o-no-underline o-backdrop-blur-xl o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white"
-          style={GELULE}
-        >
-          odoro.dev
-        </a>
+        <div className="o-ml-auto o-flex o-items-center o-gap-3">
+          <a
+            href="https://odoro.dev"
+            target="_blank"
+            rel="noreferrer"
+            className="o-inline-flex o-h-14 o-shrink-0 o-items-center o-rounded-full o-border-w-1 o-px-5 o-text-sm o-no-underline o-backdrop-blur-xl o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white"
+            style={GELULE}
+          >
+            odoro.dev
+          </a>
+          <BasculeTheme />
+        </div>
       </div>
     </header>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Theme                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/** Les trois etats de la bascule. */
+type Theme = 'systeme' | 'clair' | 'sombre'
+
+/** Ou le choix est memorise. Le script de `index.html` lit la meme cle. */
+const CLE_THEME = 'odoro-theme'
+
+/** L'ordre du cycle, au clic. */
+const CYCLE: readonly Theme[] = ['systeme', 'clair', 'sombre']
+
+/**
+ * Pose le theme sur la racine du document.
+ *
+ * `systeme` retire l'attribut plutot que d'en poser un troisieme : la feuille
+ * de style ecoute `data-theme`, et son absence rend la main a la preference du
+ * navigateur. C'est ce qui permet a une page laissee en « systeme » de suivre
+ * le passage en nuit sans etre rouverte.
+ */
+function poserTheme(theme: Theme): void {
+  if (theme === 'systeme') delete document.documentElement.dataset.theme
+  else document.documentElement.dataset.theme = theme === 'clair' ? 'light' : 'dark'
+}
+
+/** Le theme memorise, ou `systeme`. */
+function themeMemorise(): Theme {
+  try {
+    const valeur = localStorage.getItem(CLE_THEME)
+    if (valeur === 'light') return 'clair'
+    if (valeur === 'dark') return 'sombre'
+    return 'systeme'
+  } catch {
+    // Stockage refuse — fenetre privee, cookies bloques. Le theme du systeme
+    // reste une reponse valable ; echouer ici priverait la page de son rendu.
+    return 'systeme'
+  }
+}
+
+/** Les trois pictogrammes, dessines plutot qu'importes : les icones sont optionnelles. */
+function Pictogramme({ theme }: { readonly theme: Theme }): ReactElement {
+  const commun = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+    style: { width: '1.15rem', height: '1.15rem' },
+  }
+
+  if (theme === 'clair') {
+    return (
+      <svg {...commun}>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+    )
+  }
+
+  if (theme === 'sombre') {
+    return (
+      <svg {...commun}>
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg {...commun}>
+      <rect x="2" y="4" width="20" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  )
+}
+
+/**
+ * La bascule de theme.
+ *
+ * Trois etats et non deux : « systeme » est un choix a part entiere, et le
+ * retirer obligerait un visiteur a re-choisir a chaque changement de sa
+ * preference.
+ */
+function BasculeTheme(): ReactElement {
+  const [theme, setTheme] = useState<Theme>(() => themeMemorise())
+
+  useEffect(() => {
+    poserTheme(theme)
+    try {
+      if (theme === 'systeme') localStorage.removeItem(CLE_THEME)
+      else localStorage.setItem(CLE_THEME, theme === 'clair' ? 'light' : 'dark')
+    } catch {
+      // Le theme reste applique pour la session, meme sans stockage.
+    }
+  }, [theme])
+
+  return (
+    <button
+      type="button"
+      aria-label={`Theme : ${theme}`}
+      title={`Theme : ${theme}`}
+      onClick={() => {
+        setTheme((actuel) => CYCLE[(CYCLE.indexOf(actuel) + 1) % CYCLE.length] ?? 'systeme')
+      }}
+      className="o-inline-flex o-size-14 o-shrink-0 o-cursor-pointer o-items-center o-justify-center o-rounded-full o-border-w-1 o-backdrop-blur-xl o-text-zinc-600 dark:o-text-zinc-300 hover:o-text-zinc-950 dark:hover:o-text-white"
+      style={GELULE}
+    >
+      <Pictogramme theme={theme} />
+    </button>
   )
 }
 
@@ -366,7 +493,6 @@ function Cloture(): ReactElement {
 function Accueil(): ReactElement {
   return (
     <>
-      <Fond />
       <Hero />
       <Piliers />
       <Cloture />
@@ -374,12 +500,32 @@ function Accueil(): ReactElement {
   )
 }
 
-/** Ce que le projet embarque, tel qu'il a ete cree. */
-const REPERES = [
-  { cle: 'Moteur', valeur: 'odoro — serveur de developpement et compilation' },
-  { cle: 'Styles', valeur: '@odoro-cli/libs — jetons, utilitaires, composants' },
-  { cle: 'Registre', valeur: 'register.odoro.dev — copie dans votre projet' },
-]
+/**
+ * Ce que chaque paquet de la famille apporte.
+ *
+ * La table decrit ; elle ne decide pas. Ce qui s'affiche vient du manifeste du
+ * projet, donc de ce qui a reellement ete installe — et cela reste vrai si vous
+ * ajoutez ou retirez un paquet plus tard.
+ */
+const ROLES: Readonly<Record<string, string>> = {
+  odoro: 'Serveur de developpement, compilation et registre',
+  '@odoro-cli/libs': 'Jetons, utilitaires, composants et routeur',
+  '@odoro-cli/icons': 'Cinq familles d icones, importables une a une',
+  '@odoro-cli/engine': 'WebGL, surfaces et politique de mouvement',
+  '@odoro-cli/server': 'Socle back-end modulaire',
+}
+
+/**
+ * Les paquets de la famille presents dans ce projet.
+ *
+ * Les deux champs sont lus, car `odoro` est une dependance de developpement
+ * quand les autres sont des dependances de production. Une liste ecrite a la
+ * main mentirait des la premiere case decochee a la creation.
+ */
+const REPERES = Object.entries({ ...dependencies, ...devDependencies })
+  .filter(([nom]) => nom in ROLES)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([nom, version]) => ({ nom, version, role: ROLES[nom] ?? '' }))
 
 /** Une seconde page, pour montrer le routeur a l'oeuvre. */
 function APropos(): ReactElement {
@@ -396,12 +542,17 @@ function APropos(): ReactElement {
           <dl className="o-mt-10 o-border-t o-border-zinc-200 dark:o-border-zinc-800">
             {REPERES.map((repere) => (
               <div
-                key={repere.cle}
+                key={repere.nom}
                 className="o-flex o-flex-col md:o-flex-row o-gap-1 md:o-gap-6 o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-py-4"
               >
-                <dt className="o-w-32 o-shrink-0 o-text-sm o-font-medium">{repere.cle}</dt>
+                <dt className="o-w-56 o-shrink-0 o-font-mono o-text-sm o-font-medium">
+                  {repere.nom}
+                  <span className="o-ml-2 o-text-xs o-font-normal o-text-zinc-400">
+                    {repere.version}
+                  </span>
+                </dt>
                 <dd className="o-m-0 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
-                  {repere.valeur}
+                  {repere.role}
                 </dd>
               </div>
             ))}
@@ -434,9 +585,13 @@ function Introuvable(): ReactElement {
 /** L'enveloppe commune : barre, contenu, pied de page. */
 function Coquille(contenu: ReactNode): ReactElement {
   return (
-    <div className="app-shell">
+    // `relative` porte le fond decoratif, qui se place en absolu dedans. Il est
+    // pose ici et non dans la page : ancre au haut de `main`, il commencait
+    // sous la barre, et la bande restee derriere elle se voyait en haut de
+    // page comme un rectangle plus sombre.
+    <div className="app-shell o-relative">
+      <Fond />
       <Barre />
-      {/* `relative` porte le fond decoratif, qui se place en absolu dedans. */}
       <main className="o-relative o-view-transition-page">{contenu}</main>
       <footer className="o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-px-6 o-py-8">
         <div className="o-mx-auto o-flex o-w-full o-max-w-5xl o-items-center o-justify-between o-gap-4 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">

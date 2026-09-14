@@ -21,17 +21,39 @@
   color-scheme: light dark;
 }
 
-/* La preference du systeme, faute d'un selecteur de theme : c'est ce que les
-   jetons apporteraient, et l'absence de bibliotheque ne doit pas se payer d'un
-   fond blanc au milieu de la nuit. */
+/* Les valeurs du theme sombre, ecrites une fois et reprises deux fois.
+
+   La bascule pose `data-theme` sur la racine ; sans attribut, la preference du
+   navigateur decide. Les deux regles sont donc necessaires : la seconde sans la
+   premiere ignorerait le choix du visiteur, la premiere sans la seconde
+   rendrait un fond blanc au milieu de la nuit. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --fond: #09090b;
     --encre: #fafafa;
     --doux: #a1a1aa;
     --filet: #27272a;
     --surface: #18181b;
   }
+}
+
+:root[data-theme='dark'] {
+  --fond: #09090b;
+  --encre: #fafafa;
+  --doux: #a1a1aa;
+  --filet: #27272a;
+  --surface: #18181b;
+}
+
+/* Le choix explicite est dit au navigateur : sans cela, `light-dark()`, les
+   controles natifs et les barres de defilement continuent de suivre un systeme
+   en nuit alors que le visiteur a demande le clair. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 * {
@@ -93,10 +115,28 @@ pre {
   text-decoration: none;
 }
 
-.gelule-lien {
+.barre-fin {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gelule-lien {
   color: var(--doux);
   font-size: 0.875rem;
+}
+
+.bascule {
+  width: 3.5rem;
+  justify-content: center;
+  padding: 0;
+  color: var(--doux);
+  cursor: pointer;
+}
+
+.bascule:hover {
+  color: var(--encre);
 }
 
 .gelule-lien:hover {
@@ -124,6 +164,10 @@ pre {
 }
 
 /* ----- Coquille ----------------------------------------------------------- */
+
+.app-shell-fond {
+  position: relative;
+}
 
 .principal {
   position: relative;

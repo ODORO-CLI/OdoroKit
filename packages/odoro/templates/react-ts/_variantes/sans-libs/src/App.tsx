@@ -14,7 +14,7 @@
  * @module
  */
 
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 
 import { Fond } from '@/fond'
 
@@ -57,16 +57,125 @@ function Barre(): ReactElement {
           <span className="marque-mot">ODORO</span>
         </span>
 
-        <a
-          href="https://odoro.dev"
-          target="_blank"
-          rel="noreferrer"
-          className="gelule gelule-lien"
-        >
-          odoro.dev
-        </a>
+        <div className="barre-fin">
+          <a
+            href="https://odoro.dev"
+            target="_blank"
+            rel="noreferrer"
+            className="gelule gelule-lien"
+          >
+            odoro.dev
+          </a>
+          <BasculeTheme />
+        </div>
       </div>
     </header>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Theme                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/** Les trois etats de la bascule. */
+type Theme = 'systeme' | 'clair' | 'sombre'
+
+/** Ou le choix est memorise. Le script de `index.html` lit la meme cle. */
+const CLE_THEME = 'odoro-theme'
+
+/** L'ordre du cycle, au clic. */
+const CYCLE: readonly Theme[] = ['systeme', 'clair', 'sombre']
+
+/**
+ * Pose le theme sur la racine du document.
+ *
+ * `systeme` retire l'attribut plutot que d'en poser un troisieme : la feuille
+ * de style ecoute `data-theme`, et son absence rend la main a la preference du
+ * navigateur.
+ */
+function poserTheme(theme: Theme): void {
+  if (theme === 'systeme') delete document.documentElement.dataset.theme
+  else document.documentElement.dataset.theme = theme === 'clair' ? 'light' : 'dark'
+}
+
+/** Le theme memorise, ou `systeme`. */
+function themeMemorise(): Theme {
+  try {
+    const valeur = localStorage.getItem(CLE_THEME)
+    if (valeur === 'light') return 'clair'
+    if (valeur === 'dark') return 'sombre'
+    return 'systeme'
+  } catch {
+    // Stockage refuse — fenetre privee, cookies bloques. Le theme du systeme
+    // reste une reponse valable.
+    return 'systeme'
+  }
+}
+
+/** Les trois pictogrammes, dessines dans le flux. */
+function Pictogramme({ theme }: { readonly theme: Theme }): ReactElement {
+  const commun = {
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    'aria-hidden': true,
+    style: { width: '1.15rem', height: '1.15rem' },
+  }
+
+  if (theme === 'clair') {
+    return (
+      <svg {...commun}>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+    )
+  }
+
+  if (theme === 'sombre') {
+    return (
+      <svg {...commun}>
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg {...commun}>
+      <rect x="2" y="4" width="20" height="13" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  )
+}
+
+/** La bascule de theme : systeme, clair, sombre. */
+function BasculeTheme(): ReactElement {
+  const [theme, setTheme] = useState<Theme>(() => themeMemorise())
+
+  useEffect(() => {
+    poserTheme(theme)
+    try {
+      if (theme === 'systeme') localStorage.removeItem(CLE_THEME)
+      else localStorage.setItem(CLE_THEME, theme === 'clair' ? 'light' : 'dark')
+    } catch {
+      // Le theme reste applique pour la session, meme sans stockage.
+    }
+  }, [theme])
+
+  return (
+    <button
+      type="button"
+      aria-label={`Theme : ${theme}`}
+      title={`Theme : ${theme}`}
+      className="gelule bascule"
+      onClick={() => {
+        setTheme((actuel) => CYCLE[(CYCLE.indexOf(actuel) + 1) % CYCLE.length] ?? 'systeme')
+      }}
+    >
+      <Pictogramme theme={theme} />
+    </button>
   )
 }
 
@@ -249,10 +358,12 @@ function Cloture(): ReactElement {
 /** Racine de l'application. */
 export function App(): ReactElement {
   return (
-    <div className="app-shell">
+    // Le fond est pose ici et non dans le contenu : ancre plus bas, il
+    // commencait sous la barre et laissait une bande plus sombre derriere elle.
+    <div className="app-shell app-shell-fond">
+      <Fond />
       <Barre />
       <main className="principal">
-        <Fond />
         <Hero />
         <Piliers />
         <Cloture />
