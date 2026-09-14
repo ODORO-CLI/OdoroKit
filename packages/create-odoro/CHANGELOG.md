@@ -1,5 +1,12 @@
 # create-odoro
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies [0f46726]
+  - odoro@1.0.5
+
 ## 1.0.4
 
 ### Patch Changes
