@@ -1,5 +1,30 @@
 # odoro
 
+## 1.0.3
+
+### Patch Changes
+
+- c5803ed: `odoro` promettait Node >= 20 tout en dependant de Babel 8, qui exige
+  `^22.18.0 || >=24.11.0`. Chaque installation d un projet echafaude affichait
+  quatorze avertissements `EBADENGINE`, sur des paquets que l utilisateur n a pas
+  choisis.
+
+  Babel redescend en 7.x, qui accepte Node >= 6.9 et fait exactement le meme
+  travail — il ne sert qu au greffon de rechargement a chaud. Verifie : la carte
+  de source inline est toujours reprise, et le rechargement preserve l etat.
+
+- 7f66d0f: Le projet echafaude porte une bascule de theme : systeme, clair, sombre. Le
+  choix est memorise et applique avant la premiere peinture par un script de
+  `index.html` — sans lui, un visiteur en theme force verrait un eclair de
+  l autre theme.
+
+  La page « A propos » lit le manifeste du projet au lieu d une liste ecrite a la
+  main. Ce qui s affiche est donc ce qui a reellement ete installe, et cela reste
+  vrai si un paquet est ajoute ou retire plus tard.
+
+  Le fond decoratif remonte derriere la barre. Ancre au haut du contenu, il
+  commencait sous elle et laissait en haut de page une bande plus sombre.
+
 ## 1.0.2
 
 ### Patch Changes
