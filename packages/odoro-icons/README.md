@@ -15,13 +15,13 @@ import { ArrowRight, Sparkles } from '@odoro-cli/icons/filaire'
 
 ## The families
 
-| Entry point                   | Style             | Count |
-| ----------------------------- | ----------------- | ----: |
-| `@odoro-cli/icons/filaire`    | Outline           |  2050 |
-| `@odoro-cli/icons/compact`    | Compact outline   |  2039 |
-| `@odoro-cli/icons/classique`  | Classic           |  1993 |
-| `@odoro-cli/icons/etendu`     | Extended          |  3838 |
-| `@odoro-cli/icons/marques`    | Brand marks       |   608 |
+| Entry point                  | Style           | Count |
+| ---------------------------- | --------------- | ----: |
+| `@odoro-cli/icons/filaire`   | Outline         |  2050 |
+| `@odoro-cli/icons/compact`   | Compact outline |  2039 |
+| `@odoro-cli/icons/classique` | Classic         |  1993 |
+| `@odoro-cli/icons/etendu`    | Extended        |  3838 |
+| `@odoro-cli/icons/marques`   | Brand marks     |   608 |
 
 `@odoro-cli/icons/catalogue.json` lists every name, if you need to build a
 picker.

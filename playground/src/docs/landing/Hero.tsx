@@ -74,9 +74,15 @@ function ProductWindow(): ReactElement {
         </div>
         <div className="o-grid md:o-grid-cols-2">
           <div className="o-relative o-min-h-64 o-overflow-hidden o-bg-white dark:o-bg-zinc-950">
-            <MeshStatic className="o-absolute o-inset-0 o-opacity-80" strength={0.6} blur={26} />
+            <MeshStatic
+              className="o-absolute o-inset-0 o-opacity-80"
+              strength={0.6}
+              blur={26}
+            />
             <div className="o-relative o-flex o-h-full o-flex-col o-justify-center o-gap-3 o-p-8 o-text-left">
-              <span className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">mon-site/src/App.tsx</span>
+              <span className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">
+                mon-site/src/App.tsx
+              </span>
               <p className="o-text-2xl o-font-bold o-tracking-tight o-text-zinc-900 dark:o-text-zinc-50 o-text-balance">
                 Un site qui respire
               </p>
@@ -94,7 +100,11 @@ function ProductWindow(): ReactElement {
             </div>
           </div>
           <div className="o-border-t md:o-border-t md:o-border-l o-border-zinc-200 dark:o-border-zinc-800 o-text-left">
-            <CodeBlock lang="tsx" code={WINDOW_CODE} className="o-rounded-none o-border-none" />
+            <CodeBlock
+              lang="tsx"
+              code={WINDOW_CODE}
+              className="o-rounded-none o-border-none"
+            />
           </div>
         </div>
       </div>
@@ -114,7 +124,11 @@ export function Hero({ total, families }: HeroProps): ReactElement {
       />
       {/* Un grain leger par-dessus la scene : il casse le lisse des degrades,
           qui trahit un rendu synthetique. Statique, il ne coute rien. */}
-      <Noise className="o-absolute o-inset-0 o-pointer-events-none" opacity={0.07} scale={0.9} />
+      <Noise
+        className="o-absolute o-inset-0 o-pointer-events-none"
+        opacity={0.07}
+        scale={0.9}
+      />
       <div
         aria-hidden="true"
         className="o-absolute o-inset-x-0 o-top-0 o-h-40 o-bg-gradient-to-b o-from-white dark:o-from-zinc-950 o-to-transparent o-pointer-events-none"
@@ -168,7 +182,10 @@ export function Hero({ total, families }: HeroProps): ReactElement {
           className="o-mt-8 o-flex o-flex-wrap o-items-center o-justify-center o-gap-3"
         >
           <Magnetic strength={0.3} radius={120}>
-            <Link to="/docs/installation" className={`${buttonClasses({ size: 'lg' })} o-gap-2`}>
+            <Link
+              to="/docs/installation"
+              className={`${buttonClasses({ size: 'lg' })} o-gap-2`}
+            >
               Commencer
               <Icon icon={ArrowRight} size={16} />
             </Link>
@@ -181,7 +198,11 @@ export function Hero({ total, families }: HeroProps): ReactElement {
           </Link>
         </Reveal>
 
-        <Reveal preset="fade-up" delay={1100} className="o-mt-6 o-w-full o-max-w-md o-text-left">
+        <Reveal
+          preset="fade-up"
+          delay={1100}
+          className="o-mt-6 o-w-full o-max-w-md o-text-left"
+        >
           <CodeBlock lang="sh" code="npm create odoro@latest mon-site" />
         </Reveal>
 

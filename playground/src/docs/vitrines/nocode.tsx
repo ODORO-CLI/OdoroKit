@@ -38,8 +38,20 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, Blocks, CircleCheck, Plug, TriangleAlert } from '@odoro-cli/icons/filaire'
-import { useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  ArrowRight,
+  Blocks,
+  CircleCheck,
+  Plug,
+  TriangleAlert,
+} from '@odoro-cli/icons/filaire'
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { BentoGrid } from '@/odoro/section/BentoGrid.jsx'
 import { ContainerScroll } from '@/odoro/section/ContainerScroll.jsx'
@@ -119,45 +131,172 @@ interface Evenement {
  * rien de visible, et le mecanisme mentirait.
  */
 const SEMAINE: readonly Evenement[] = [
-  { id: 'e1', jour: 'Lun 06', espece: 'lundi', qui: 'Recapitulatif de la semaine', nouveau: false },
-  { id: 'e2', jour: 'Lun 06', espece: 'formulaire', qui: 'Atelier Kerzu — demande de devis', region: 'Bretagne', nouveau: true },
-  { id: 'e3', jour: 'Mar 07', espece: 'paiement', qui: 'Le Comptoir Vannetais — facture 118', montant: 1240, region: 'Bretagne', nouveau: false },
-  { id: 'e4', jour: 'Mar 07', espece: 'ligne', qui: 'Import du tableur fournisseurs', nouveau: false },
-  { id: 'e5', jour: 'Mer 08', espece: 'paiement', qui: 'Studio Plagne — facture 119', montant: 180, region: 'Auvergne', nouveau: true },
-  { id: 'e6', jour: 'Jeu 09', espece: 'formulaire', qui: 'Madame Toussaint — demande de rappel', region: 'Normandie', nouveau: true },
-  { id: 'e7', jour: 'Jeu 09', espece: 'paiement', qui: 'Brasserie du Blosne — facture 120', montant: 620, region: 'Bretagne', nouveau: false },
-  { id: 'e8', jour: 'Ven 10', espece: 'paiement', qui: 'Menuiserie Quere — acompte 121', montant: 3400, region: 'Bretagne', nouveau: true },
-  { id: 'e9', jour: 'Ven 10', espece: 'ligne', qui: 'Commande 8842 ajoutee au tableur', montant: 96.5, region: 'Pays de la Loire', nouveau: false },
+  {
+    id: 'e1',
+    jour: 'Lun 06',
+    espece: 'lundi',
+    qui: 'Recapitulatif de la semaine',
+    nouveau: false,
+  },
+  {
+    id: 'e2',
+    jour: 'Lun 06',
+    espece: 'formulaire',
+    qui: 'Atelier Kerzu — demande de devis',
+    region: 'Bretagne',
+    nouveau: true,
+  },
+  {
+    id: 'e3',
+    jour: 'Mar 07',
+    espece: 'paiement',
+    qui: 'Le Comptoir Vannetais — facture 118',
+    montant: 1240,
+    region: 'Bretagne',
+    nouveau: false,
+  },
+  {
+    id: 'e4',
+    jour: 'Mar 07',
+    espece: 'ligne',
+    qui: 'Import du tableur fournisseurs',
+    nouveau: false,
+  },
+  {
+    id: 'e5',
+    jour: 'Mer 08',
+    espece: 'paiement',
+    qui: 'Studio Plagne — facture 119',
+    montant: 180,
+    region: 'Auvergne',
+    nouveau: true,
+  },
+  {
+    id: 'e6',
+    jour: 'Jeu 09',
+    espece: 'formulaire',
+    qui: 'Madame Toussaint — demande de rappel',
+    region: 'Normandie',
+    nouveau: true,
+  },
+  {
+    id: 'e7',
+    jour: 'Jeu 09',
+    espece: 'paiement',
+    qui: 'Brasserie du Blosne — facture 120',
+    montant: 620,
+    region: 'Bretagne',
+    nouveau: false,
+  },
+  {
+    id: 'e8',
+    jour: 'Ven 10',
+    espece: 'paiement',
+    qui: 'Menuiserie Quere — acompte 121',
+    montant: 3400,
+    region: 'Bretagne',
+    nouveau: true,
+  },
+  {
+    id: 'e9',
+    jour: 'Ven 10',
+    espece: 'ligne',
+    qui: 'Commande 8842 ajoutee au tableur',
+    montant: 96.5,
+    region: 'Pays de la Loire',
+    nouveau: false,
+  },
 ]
 
 /** Une brique de declenchement. */
-const QUAND: readonly { readonly value: Espece; readonly label: string; readonly phrase: string }[] = [
-  { value: 'paiement', label: 'un paiement est encaisse', phrase: 'un paiement est encaisse' },
-  { value: 'formulaire', label: 'le formulaire est envoye', phrase: 'le formulaire du site est envoye' },
-  { value: 'ligne', label: 'une ligne arrive au tableur', phrase: 'une ligne arrive dans le tableur' },
-  { value: 'lundi', label: 'il est huit heures, lundi', phrase: 'il est huit heures, le lundi' },
+const QUAND: readonly {
+  readonly value: Espece
+  readonly label: string
+  readonly phrase: string
+}[] = [
+  {
+    value: 'paiement',
+    label: 'un paiement est encaisse',
+    phrase: 'un paiement est encaisse',
+  },
+  {
+    value: 'formulaire',
+    label: 'le formulaire est envoye',
+    phrase: 'le formulaire du site est envoye',
+  },
+  {
+    value: 'ligne',
+    label: 'une ligne arrive au tableur',
+    phrase: 'une ligne arrive dans le tableur',
+  },
+  {
+    value: 'lundi',
+    label: 'il est huit heures, lundi',
+    phrase: 'il est huit heures, le lundi',
+  },
 ]
 
 /** Une brique de filtre. */
 type Filtre = 'aucun' | 'montant' | 'region' | 'nouveau'
 
 /** Les filtres proposes, et ce qu ils disent. */
-const SI: readonly { readonly value: Filtre; readonly label: string; readonly phrase: string }[] = [
+const SI: readonly {
+  readonly value: Filtre
+  readonly label: string
+  readonly phrase: string
+}[] = [
   { value: 'aucun', label: 'sans condition', phrase: 'sans condition' },
-  { value: 'montant', label: 'si le montant passe 300 EUR', phrase: 'si le montant depasse 300 EUR' },
-  { value: 'region', label: 'si le client est en Bretagne', phrase: 'si le client est en Bretagne' },
-  { value: 'nouveau', label: 'si le client est nouveau', phrase: 'si le client est nouveau' },
+  {
+    value: 'montant',
+    label: 'si le montant passe 300 EUR',
+    phrase: 'si le montant depasse 300 EUR',
+  },
+  {
+    value: 'region',
+    label: 'si le client est en Bretagne',
+    phrase: 'si le client est en Bretagne',
+  },
+  {
+    value: 'nouveau',
+    label: 'si le client est nouveau',
+    phrase: 'si le client est nouveau',
+  },
 ]
 
 /** Une brique d action. */
 type Action = 'fiche' | 'courriel' | 'tableau' | 'salon'
 
 /** Les actions proposees. */
-const ALORS: readonly { readonly value: Action; readonly label: string; readonly phrase: string; readonly minutes: number }[] = [
-  { value: 'fiche', label: 'creer une fiche client', phrase: 'creer une fiche client', minutes: 4 },
-  { value: 'courriel', label: 'envoyer un courriel', phrase: 'envoyer un courriel de remerciement', minutes: 3 },
-  { value: 'tableau', label: 'ajouter au tableau de suivi', phrase: 'ajouter une ligne au tableau de suivi', minutes: 2 },
-  { value: 'salon', label: 'prevenir le salon d equipe', phrase: 'prevenir le salon d equipe', minutes: 1 },
+const ALORS: readonly {
+  readonly value: Action
+  readonly label: string
+  readonly phrase: string
+  readonly minutes: number
+}[] = [
+  {
+    value: 'fiche',
+    label: 'creer une fiche client',
+    phrase: 'creer une fiche client',
+    minutes: 4,
+  },
+  {
+    value: 'courriel',
+    label: 'envoyer un courriel',
+    phrase: 'envoyer un courriel de remerciement',
+    minutes: 3,
+  },
+  {
+    value: 'tableau',
+    label: 'ajouter au tableau de suivi',
+    phrase: 'ajouter une ligne au tableau de suivi',
+    minutes: 2,
+  },
+  {
+    value: 'salon',
+    label: 'prevenir le salon d equipe',
+    phrase: 'prevenir le salon d equipe',
+    minutes: 1,
+  },
 ]
 
 /** Une regle toute faite, qui regle les trois tambours d un coup. */
@@ -168,14 +307,41 @@ const MODELES: readonly {
   readonly alors: Action
   readonly combien: string
 }[] = [
-  { nom: 'Le remerciement', quand: 'paiement', si: 'aucun', alors: 'courriel', combien: '612 maisons' },
-  { nom: 'Le suivi des gros montants', quand: 'paiement', si: 'montant', alors: 'salon', combien: '418' },
-  { nom: 'Le fichier client', quand: 'formulaire', si: 'nouveau', alors: 'fiche', combien: '377' },
-  { nom: 'Le point du lundi', quand: 'lundi', si: 'aucun', alors: 'tableau', combien: '244' },
+  {
+    nom: 'Le remerciement',
+    quand: 'paiement',
+    si: 'aucun',
+    alors: 'courriel',
+    combien: '612 maisons',
+  },
+  {
+    nom: 'Le suivi des gros montants',
+    quand: 'paiement',
+    si: 'montant',
+    alors: 'salon',
+    combien: '418',
+  },
+  {
+    nom: 'Le fichier client',
+    quand: 'formulaire',
+    si: 'nouveau',
+    alors: 'fiche',
+    combien: '377',
+  },
+  {
+    nom: 'Le point du lundi',
+    quand: 'lundi',
+    si: 'aucun',
+    alors: 'tableau',
+    combien: '244',
+  },
 ]
 
 /** Les euros, a la francaise. */
-const EN_EUROS = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const EN_EUROS = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
 
 /** Un montant, ecrit en euros. */
 function euros(valeur: number | undefined): string {
@@ -185,7 +351,8 @@ function euros(valeur: number | undefined): string {
 /** Le filtre applique a un evenement. */
 function passe(evenement: Evenement, filtre: Filtre): boolean {
   if (filtre === 'aucun') return true
-  if (filtre === 'montant') return evenement.montant !== undefined && evenement.montant > 300
+  if (filtre === 'montant')
+    return evenement.montant !== undefined && evenement.montant > 300
   if (filtre === 'region') return evenement.region === 'Bretagne'
   return evenement.nouveau
 }
@@ -193,9 +360,12 @@ function passe(evenement: Evenement, filtre: Filtre): boolean {
 /** La ligne que l action ecrirait, pour un evenement retenu. */
 function ecriture(evenement: Evenement, action: Action): string {
   const nom = evenement.qui.split(' — ')[0] ?? evenement.qui
-  if (action === 'fiche') return `Fiche creee — ${nom}${evenement.region === undefined ? '' : `, ${evenement.region}`}`
-  if (action === 'courriel') return `Courriel parti a ${nom} — objet : « bien recu, merci »`
-  if (action === 'tableau') return `Ligne ajoutee — ${evenement.jour}, ${nom}, ${euros(evenement.montant)}`
+  if (action === 'fiche')
+    return `Fiche creee — ${nom}${evenement.region === undefined ? '' : `, ${evenement.region}`}`
+  if (action === 'courriel')
+    return `Courriel parti a ${nom} — objet : « bien recu, merci »`
+  if (action === 'tableau')
+    return `Ligne ajoutee — ${evenement.jour}, ${nom}, ${euros(evenement.montant)}`
   return `Message dans le salon ventes — ${nom}, ${euros(evenement.montant)}`
 }
 
@@ -211,15 +381,37 @@ function ecriture(evenement: Evenement, action: Action): string {
  * Le pourcentage est ecrit au centre, et la phrase qui le qualifie dessous —
  * un anneau sans son denominateur ne dit rien.
  */
-function Anneau({ part, dessus, dessous }: { readonly part: number; readonly dessus: string; readonly dessous: string }): ReactElement {
+function Anneau({
+  part,
+  dessus,
+  dessous,
+}: {
+  readonly part: number
+  readonly dessus: string
+  readonly dessous: string
+}): ReactElement {
   const { ref, vu } = useInView<SVGSVGElement>({ amount: 0.4 })
   const rayon = 62
   const tour = 2 * Math.PI * rayon
   const rempli = vu ? tour * part : 0
   return (
     <div className="o-flex o-flex-col o-items-center o-text-center">
-      <svg ref={ref} viewBox="0 0 160 160" role="img" aria-label={`${String(Math.round(part * 100))} pour cent — ${dessous}`} style={{ width: 160, height: 160 }}>
-        <circle cx="80" cy="80" r={rayon} fill="none" stroke="currentColor" strokeOpacity="0.14" strokeWidth="13" />
+      <svg
+        ref={ref}
+        viewBox="0 0 160 160"
+        role="img"
+        aria-label={`${String(Math.round(part * 100))} pour cent — ${dessous}`}
+        style={{ width: 160, height: 160 }}
+      >
+        <circle
+          cx="80"
+          cy="80"
+          r={rayon}
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.14"
+          strokeWidth="13"
+        />
         <circle
           cx="80"
           cy="80"
@@ -234,14 +426,27 @@ function Anneau({ part, dessus, dessous }: { readonly part: number; readonly des
             transition: 'stroke-dasharray 900ms cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
-        <text x="80" y="88" textAnchor="middle" className="o-tabular-nums" fontSize="34" fontWeight="600" fill="currentColor">
+        <text
+          x="80"
+          y="88"
+          textAnchor="middle"
+          className="o-tabular-nums"
+          fontSize="34"
+          fontWeight="600"
+          fill="currentColor"
+        >
           {Math.round(part * 100)} %
         </text>
       </svg>
-      <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+      <p
+        className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: ENCRE }}
+      >
         {dessus}
       </p>
-      <p className="o-m-0 o-mt-1 o-max-w-xs o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{dessous}</p>
+      <p className="o-m-0 o-mt-1 o-max-w-xs o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+        {dessous}
+      </p>
     </div>
   )
 }
@@ -251,7 +456,13 @@ function Anneau({ part, dessus, dessous }: { readonly part: number; readonly des
 /* ------------------------------------------------------------------------ */
 
 /** Le sort d un evenement, dans le journal : retenu, ecarte, ou d une autre espece. */
-function Verdict({ declenche, retenu }: { readonly declenche: boolean; readonly retenu: boolean }): ReactElement {
+function Verdict({
+  declenche,
+  retenu,
+}: {
+  readonly declenche: boolean
+  readonly retenu: boolean
+}): ReactElement {
   if (retenu) {
     return (
       <span className="o-inline-flex o-items-center o-gap-1.5" style={{ color: ENCRE }}>
@@ -261,15 +472,31 @@ function Verdict({ declenche, retenu }: { readonly declenche: boolean; readonly 
     )
   }
   return (
-    <span className="o-text-zinc-500 dark:o-text-zinc-400">{declenche ? 'ecarte par le filtre' : 'autre espece'}</span>
+    <span className="o-text-zinc-500 dark:o-text-zinc-400">
+      {declenche ? 'ecarte par le filtre' : 'autre espece'}
+    </span>
   )
 }
 
 /** Le boitier d un tambour : son rang, son mot, et la roue. */
-function Tambour({ rang, mot, children }: { readonly rang: string; readonly mot: string; readonly children: ReactNode }): ReactElement {
+function Tambour({
+  rang,
+  mot,
+  children,
+}: {
+  readonly rang: string
+  readonly mot: string
+  readonly children: ReactNode
+}): ReactElement {
   return (
-    <div className="o-relative o-rounded-2xl o-p-4" style={{ border: `1px solid ${FILET}`, backgroundColor: VOILE }}>
-      <p className="o-m-0 o-mb-2 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+    <div
+      className="o-relative o-rounded-2xl o-p-4"
+      style={{ border: `1px solid ${FILET}`, backgroundColor: VOILE }}
+    >
+      <p
+        className="o-m-0 o-mb-2 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: ENCRE }}
+      >
         <span className="o-tabular-nums">{rang}</span>
         {mot}
       </p>
@@ -348,7 +575,8 @@ function Montage(): ReactElement {
         </div>
 
         <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-          Trois briques, et c est tout. Une quatrieme ferait un langage de programmation, et un langage de programmation demande un programmeur.
+          Trois briques, et c est tout. Une quatrieme ferait un langage de programmation,
+          et un langage de programmation demande un programmeur.
         </p>
 
         {/* Les quatre regles les plus montees : elles reglent les trois
@@ -358,7 +586,8 @@ function Montage(): ReactElement {
         </p>
         <ul className="o-m-0 o-mt-4 o-list-none o-p-0">
           {MODELES.map((modele, place) => {
-            const pose = modele.quand === quand && modele.si === si && modele.alors === alors
+            const pose =
+              modele.quand === quand && modele.si === si && modele.alors === alors
             return (
               <li key={modele.nom} className="o-border-t" style={{ borderColor: FILET }}>
                 <button
@@ -372,13 +601,22 @@ function Montage(): ReactElement {
                   className="o-flex o-w-full o-cursor-pointer o-items-baseline o-gap-3 o-bg-transparent o-px-0 o-py-3 o-text-left o-transition-opacity hover:o-opacity-70 focus:o-ring"
                   style={{ border: 'none' }}
                 >
-                  <span aria-hidden="true" className="o-font-mono o-text-xs o-tabular-nums" style={{ color: ENCRE }}>
+                  <span
+                    aria-hidden="true"
+                    className="o-font-mono o-text-xs o-tabular-nums"
+                    style={{ color: ENCRE }}
+                  >
                     {String(place + 1).padStart(2, '0')}
                   </span>
-                  <span className="o-text-sm o-font-semibold" style={pose ? { color: ENCRE } : undefined}>
+                  <span
+                    className="o-text-sm o-font-semibold"
+                    style={pose ? { color: ENCRE } : undefined}
+                  >
                     {modele.nom}
                   </span>
-                  <span className="o-ml-auto o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">{modele.combien}</span>
+                  <span className="o-ml-auto o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                    {modele.combien}
+                  </span>
                 </button>
               </li>
             )
@@ -388,8 +626,15 @@ function Montage(): ReactElement {
 
       {/* ----- Le resultat, qui se construit ------------------------------ */}
       <div className="o-min-w-0 lg:o-col-span-7">
-        <div className="o-overflow-hidden o-rounded-2xl" style={{ border: `1px solid ${FILET}` }}>
-          <p aria-live="polite" className="o-m-0 o-px-6 o-py-5 o-text-lg o-leading-snug o-font-semibold o-tracking-tight" style={{ backgroundColor: VOILE, borderBottom: `1px solid ${FILET}` }}>
+        <div
+          className="o-overflow-hidden o-rounded-2xl"
+          style={{ border: `1px solid ${FILET}` }}
+        >
+          <p
+            aria-live="polite"
+            className="o-m-0 o-px-6 o-py-5 o-text-lg o-leading-snug o-font-semibold o-tracking-tight"
+            style={{ backgroundColor: VOILE, borderBottom: `1px solid ${FILET}` }}
+          >
             {phrase}
           </p>
 
@@ -402,15 +647,22 @@ function Montage(): ReactElement {
               />
             </div>
             <dl className="o-m-0 o-min-w-0 o-grid o-grid-cols-2 o-gap-x-5 o-gap-y-4 md:o-col-span-7">
-              {([
-                ['Evenements de la semaine', String(SEMAINE.length)],
-                ['Retenus par la regle', String(bilan.retenus.length)],
-                ['Temps gagne, la semaine', `${String(bilan.minutes)} min`],
-                ['Sur une annee', `${String(bilan.annee).replace('.', ',')} h`],
-              ] as const).map(([quoi, valeur], place) => (
+              {(
+                [
+                  ['Evenements de la semaine', String(SEMAINE.length)],
+                  ['Retenus par la regle', String(bilan.retenus.length)],
+                  ['Temps gagne, la semaine', `${String(bilan.minutes)} min`],
+                  ['Sur une annee', `${String(bilan.annee).replace('.', ',')} h`],
+                ] as const
+              ).map(([quoi, valeur], place) => (
                 <div key={quoi}>
-                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-                  <dd className="o-m-0 o-mt-1 o-text-2xl o-font-semibold o-tabular-nums o-tracking-tight" style={place === 3 ? { color: ENCRE } : undefined}>
+                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    {quoi}
+                  </dt>
+                  <dd
+                    className="o-m-0 o-mt-1 o-text-2xl o-font-semibold o-tabular-nums o-tracking-tight"
+                    style={place === 3 ? { color: ENCRE } : undefined}
+                  >
                     {valeur}
                   </dd>
                 </div>
@@ -436,12 +688,17 @@ function Montage(): ReactElement {
                     <span className="o-col-span-3 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-400 sm:o-col-span-2">
                       {evenement.jour}
                     </span>
-                    <span className="o-col-span-9 o-text-sm sm:o-col-span-6">{evenement.qui}</span>
+                    <span className="o-col-span-9 o-text-sm sm:o-col-span-6">
+                      {evenement.qui}
+                    </span>
                     <span className="o-col-span-12 o-font-mono o-text-xs sm:o-col-span-4 sm:o-text-right">
                       <Verdict declenche={declenche} retenu={retenu} />
                     </span>
                     {retenu && (
-                      <span className="o-col-span-12 o-mt-1 o-font-mono o-text-xs o-leading-relaxed sm:o-col-start-3 sm:o-col-span-10" style={{ color: ENCRE }}>
+                      <span
+                        className="o-col-span-12 o-mt-1 o-font-mono o-text-xs o-leading-relaxed sm:o-col-start-3 sm:o-col-span-10"
+                        style={{ color: ENCRE }}
+                      >
                         {ecriture(evenement, alors)}
                       </span>
                     )}
@@ -461,7 +718,12 @@ function Montage(): ReactElement {
 /* ------------------------------------------------------------------------ */
 
 /** Les quatre reprises, et leur attente. */
-const REPRISES: readonly { readonly rang: string; readonly apres: string; readonly x: number; readonly reussi?: boolean }[] = [
+const REPRISES: readonly {
+  readonly rang: string
+  readonly apres: string
+  readonly x: number
+  readonly reussi?: boolean
+}[] = [
   { rang: '1re tentative', apres: 'tout de suite', x: 120 },
   { rang: '2e', apres: 'une minute apres', x: 300 },
   { rang: '3e', apres: 'cinq minutes apres', x: 480 },
@@ -481,18 +743,44 @@ function FigureReprises(): ReactElement {
   const { ref, vu } = useInView<SVGSVGElement>({ amount: 0.3 })
   const gris: CSSProperties = { color: 'var(--o-palette-zinc-400)' }
   return (
-    <svg ref={ref} viewBox="0 0 1000 270" aria-hidden="true" className="o-w-full" style={{ minWidth: 720 }}>
-      <text x="40" y="30" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+    <svg
+      ref={ref}
+      viewBox="0 0 1000 270"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 720 }}
+    >
+      <text
+        x="40"
+        y="30"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         l action echoue : le service d en face renvoie une erreur passagere
       </text>
 
       {/* Le rail du temps. */}
-      <line x1="40" y1="120" x2="960" y2="120" stroke="currentColor" strokeWidth="1.2" opacity="0.45" style={gris} />
+      <line
+        x1="40"
+        y1="120"
+        x2="960"
+        y2="120"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        opacity="0.45"
+        style={gris}
+      />
 
       {REPRISES.map((reprise, rang) => (
         <g
           key={reprise.rang}
-          style={{ opacity: vu ? 1 : 0, transform: vu ? 'none' : 'translateY(10px)', transition: `opacity 500ms ease ${String(rang * 160)}ms, transform 500ms ease ${String(rang * 160)}ms` }}
+          style={{
+            opacity: vu ? 1 : 0,
+            transform: vu ? 'none' : 'translateY(10px)',
+            transition: `opacity 500ms ease ${String(rang * 160)}ms, transform 500ms ease ${String(rang * 160)}ms`,
+          }}
         >
           <circle
             cx={reprise.x}
@@ -502,10 +790,24 @@ function FigureReprises(): ReactElement {
             stroke={reprise.reussi === true ? ENCRE_NUIT : 'currentColor'}
             strokeWidth="1.6"
           />
-          <text x={reprise.x} y="98" textAnchor="middle" fontSize="13" fill="currentColor">
+          <text
+            x={reprise.x}
+            y="98"
+            textAnchor="middle"
+            fontSize="13"
+            fill="currentColor"
+          >
             {reprise.rang}
           </text>
-          <text x={reprise.x} y="150" textAnchor="middle" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+          <text
+            x={reprise.x}
+            y="150"
+            textAnchor="middle"
+            className="o-font-mono"
+            fontSize="10.5"
+            fill="currentColor"
+            style={gris}
+          >
             {reprise.apres}
           </text>
           <text
@@ -515,7 +817,9 @@ function FigureReprises(): ReactElement {
             className="o-font-mono"
             fontSize="10.5"
             fill="currentColor"
-            style={{ color: reprise.reussi === true ? ENCRE_NUIT : 'var(--o-palette-amber-300)' }}
+            style={{
+              color: reprise.reussi === true ? ENCRE_NUIT : 'var(--o-palette-amber-300)',
+            }}
           >
             {reprise.reussi === true ? 'passe' : '503'}
           </text>
@@ -523,19 +827,64 @@ function FigureReprises(): ReactElement {
       ))}
 
       {/* La lettre morte, au bout, quand meme la cinquieme echoue. */}
-      <path d="M864 120h56" fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="4 5" opacity="0.6" style={gris} />
-      <rect x="700" y="206" width="260" height="44" fill="none" stroke="currentColor" strokeOpacity="0.4" rx="6" />
-      <text x="716" y="226" className="o-font-mono" fontSize="11" fill="currentColor" style={gris}>
+      <path
+        d="M864 120h56"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeDasharray="4 5"
+        opacity="0.6"
+        style={gris}
+      />
+      <rect
+        x="700"
+        y="206"
+        width="260"
+        height="44"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.4"
+        rx="6"
+      />
+      <text
+        x="716"
+        y="226"
+        className="o-font-mono"
+        fontSize="11"
+        fill="currentColor"
+        style={gris}
+      >
         sinon : boite a lettres mortes
       </text>
-      <text x="716" y="242" className="o-font-mono" fontSize="10" fill="currentColor" style={{ color: ENCRE_NUIT }}>
+      <text
+        x="716"
+        y="242"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={{ color: ENCRE_NUIT }}
+      >
         la piece est gardee entiere, et se rejoue d un bouton
       </text>
 
-      <text x="40" y="226" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="40"
+        y="226"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         rien n est perdu entre deux tentatives : l evenement d origine reste en file,
       </text>
-      <text x="40" y="242" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="40"
+        y="242"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         et l action porte une cle qui empeche de l executer deux fois.
       </text>
     </svg>
@@ -622,7 +971,10 @@ function Attente(): ReactElement {
             <Icon icon={ArrowRight} size={15} aria-hidden="true" />
           </button>
         </form>
-        <p aria-live="polite" className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+        <p
+          aria-live="polite"
+          className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+        >
           {valide
             ? `Vous seriez le ${String(rang)}e. A soixante ouvertures par semaine, la votre tomberait en semaine ${String(semaines)}.`
             : 'Mille quatre cent dix-sept maisons attendent deja. Nous ouvrons soixante comptes par semaine, et pas un de plus : chacun est accompagne une heure.'}
@@ -630,7 +982,10 @@ function Attente(): ReactElement {
       </div>
 
       {/* Les rangs, en file : le votre est le premier a s allumer. */}
-      <ul aria-hidden="true" className="o-m-0 o-flex o-min-w-0 o-list-none o-flex-wrap o-gap-1.5 o-p-0 md:o-col-span-5">
+      <ul
+        aria-hidden="true"
+        className="o-m-0 o-flex o-min-w-0 o-list-none o-flex-wrap o-gap-1.5 o-p-0 md:o-col-span-5"
+      >
         {Array.from({ length: 24 }, (_, place) => {
           const numero = DEJA - 22 + place
           const votre = place === 23
@@ -686,10 +1041,21 @@ const DAMIER: readonly (readonly [string, string] | null)[] = [
 /* ------------------------------------------------------------------------ */
 
 /** Un intitule de section. */
-function Titre({ indice, id, children }: { readonly indice: string; readonly id: string; readonly children: ReactNode }): ReactElement {
+function Titre({
+  indice,
+  id,
+  children,
+}: {
+  readonly indice: string
+  readonly id: string
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <>
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+      <p
+        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: ENCRE }}
+      >
         {indice}
       </p>
       <h2
@@ -709,12 +1075,24 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Assemblee" sombre={false}>
-      <div className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100" style={polices}>
-        <BarreGelule marque="Assemblee" liens={LIENS} action={['#attente', 'Prendre un rang']} sombre={false} />
+      <div
+        className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100"
+        style={polices}
+      >
+        <BarreGelule
+          marque="Assemblee"
+          liens={LIENS}
+          action={['#attente', 'Prendre un rang']}
+          sombre={false}
+        />
 
         <main>
           {/* =============== L ouverture : la nappe, et la promesse ======== */}
-          <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-24 o-pt-36 md:o-px-8 md:o-pb-28 md:o-pt-44">
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-24 o-pt-36 md:o-px-8 md:o-pb-28 md:o-pt-44"
+          >
             <Nappe
               couleurs={[accentDoux(300, 60), accentDoux(500, 34), accentDoux(200, 46)]}
               opacite={0.55}
@@ -723,12 +1101,16 @@ export default function Page(): ReactElement {
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0 o-h-40"
-              style={{ background: 'linear-gradient(to bottom, transparent, var(--o-theme-bg))' }}
+              style={{
+                background: 'linear-gradient(to bottom, transparent, var(--o-theme-bg))',
+              }}
             />
 
             <div className="o-relative o-z-10 o-mx-auto o-max-w-5xl o-text-center">
               <Surgit delai={40} className="o-flex o-justify-center">
-                <Etiquette sombre={false}>Assemblee 2 — liste d attente ouverte</Etiquette>
+                <Etiquette sombre={false}>
+                  Assemblee 2 — liste d attente ouverte
+                </Etiquette>
               </Surgit>
 
               <TitreVague
@@ -740,16 +1122,34 @@ export default function Page(): ReactElement {
                 Trois briques, et la maison tourne toute seule.
               </TitreVague>
 
-              <Surgit delai={480} as="p" className="o-mx-auto o-mt-8 o-max-w-2xl o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+              <Surgit
+                delai={480}
+                as="p"
+                className="o-mx-auto o-mt-8 o-max-w-2xl o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+              >
                 Assemblee monte vos{' '}
                 <span style={{ color: ENCRE }}>
-                  <RotatingWords words={['relances', 'devis', 'rapports du lundi', 'fiches client', 'exports']} interval={2100} />
+                  <RotatingWords
+                    words={[
+                      'relances',
+                      'devis',
+                      'rapports du lundi',
+                      'fiches client',
+                      'exports',
+                    ]}
+                    interval={2100}
+                  />
                 </span>{' '}
-                <Encadre>sans une ligne de code</Encadre>, et vous montre ce que la regle aurait fait la semaine derniere avant que vous l allumiez.
+                <Encadre>sans une ligne de code</Encadre>, et vous montre ce que la regle
+                aurait fait la semaine derniere avant que vous l allumiez.
               </Surgit>
 
               <Surgit delai={620} className="o-mt-10 o-flex o-justify-center">
-                <Actions pleine={['#attente', 'Prendre un rang']} fantome={['#montage', 'Voir le montage']} sombre={false} />
+                <Actions
+                  pleine={['#attente', 'Prendre un rang']}
+                  fantome={['#montage', 'Voir le montage']}
+                  sombre={false}
+                />
               </Surgit>
             </div>
 
@@ -772,14 +1172,26 @@ export default function Page(): ReactElement {
                 <Icon icon={Plug} size={13} style={{ color: ENCRE }} aria-hidden="true" />
                 Ce qu on branche
               </li>
-              {['Tableurs', 'Messagerie', 'Paiements', 'Formulaires', 'Agenda', 'Facturation', 'Adresse web'].map((mot) => (
+              {[
+                'Tableurs',
+                'Messagerie',
+                'Paiements',
+                'Formulaires',
+                'Agenda',
+                'Facturation',
+                'Adresse web',
+              ].map((mot) => (
                 <li key={mot}>{mot}</li>
               ))}
             </ul>
           </div>
 
           {/* =============== (01) Le montage =============================== */}
-          <section id="montage" aria-labelledby="montage-titre" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+          <section
+            id="montage"
+            aria-labelledby="montage-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
@@ -788,7 +1200,9 @@ export default function Page(): ReactElement {
                   </Titre>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-5">
-                  La regle que vous montez est appliquee aux neuf evenements d une vraie semaine, ecrits plus bas. Rien n est simule : le journal est le resultat du calcul.
+                  La regle que vous montez est appliquee aux neuf evenements d une vraie
+                  semaine, ecrits plus bas. Rien n est simule : le journal est le resultat
+                  du calcul.
                 </p>
               </div>
 
@@ -799,53 +1213,109 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== M-perspective : le tableau se redresse ========= */}
-          <section id="tableau" aria-labelledby="tableau-titre" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-pb-12 o-pt-20 md:o-px-8">
+          <section
+            id="tableau"
+            aria-labelledby="tableau-titre"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-pb-12 o-pt-20 md:o-px-8"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <ContainerScroll
                 label="Le tableau de suivi"
                 rotation={24}
                 scale={0.88}
                 title={
-                  <span className="o-text-balance o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }} id="tableau-titre">
+                  <span
+                    className="o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                    }}
+                    id="tableau-titre"
+                  >
                     Le tableau se remplit sans vous.
                   </span>
                 }
                 subtitle={
                   <span className="o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                    Une ligne par evenement retenu, dans le tableur que vous aviez deja. Assemblee n en cree pas un nouveau.
+                    Une ligne par evenement retenu, dans le tableur que vous aviez deja.
+                    Assemblee n en cree pas un nouveau.
                   </span>
                 }
               >
-                <div className="o-h-full o-overflow-hidden o-rounded-xl" style={{ backgroundColor: 'var(--o-theme-bg)', border: `1px solid ${FILET}` }}>
-                  <div className="o-flex o-items-center o-gap-2 o-px-4 o-py-3" style={{ borderBottom: `1px solid ${FILET}`, backgroundColor: VOILE }}>
-                    <Icon icon={Blocks} size={14} style={{ color: ENCRE }} aria-hidden="true" />
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">suivi-clients.ods — avril 2026</p>
+                <div
+                  className="o-h-full o-overflow-hidden o-rounded-xl"
+                  style={{
+                    backgroundColor: 'var(--o-theme-bg)',
+                    border: `1px solid ${FILET}`,
+                  }}
+                >
+                  <div
+                    className="o-flex o-items-center o-gap-2 o-px-4 o-py-3"
+                    style={{ borderBottom: `1px solid ${FILET}`, backgroundColor: VOILE }}
+                  >
+                    <Icon
+                      icon={Blocks}
+                      size={14}
+                      style={{ color: ENCRE }}
+                      aria-hidden="true"
+                    />
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                      suivi-clients.ods — avril 2026
+                    </p>
                   </div>
                   <div className="o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-                    <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 520 }}>
-                      <caption className="o-sr-only">Le tableau de suivi rempli par la regle</caption>
+                    <table
+                      className="o-w-full o-text-left o-text-sm"
+                      style={{ minWidth: 520 }}
+                    >
+                      <caption className="o-sr-only">
+                        Le tableau de suivi rempli par la regle
+                      </caption>
                       <thead>
                         <tr>
-                          {['Jour', 'Qui', 'Quoi', 'Ce qu Assemblee a fait'].map((entete) => (
-                            <th key={entete} scope="col" className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400" style={{ borderBottom: `1px solid ${FILET}` }}>
-                              {entete}
-                            </th>
-                          ))}
+                          {['Jour', 'Qui', 'Quoi', 'Ce qu Assemblee a fait'].map(
+                            (entete) => (
+                              <th
+                                key={entete}
+                                scope="col"
+                                className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+                                style={{ borderBottom: `1px solid ${FILET}` }}
+                              >
+                                {entete}
+                              </th>
+                            ),
+                          )}
                         </tr>
                       </thead>
                       <tbody>
                         {SUIVI.map((ligne) => (
                           <tr key={`${ligne[0]}-${ligne[1]}`}>
-                            <td className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-400" style={{ borderTop: `1px solid ${FILET}` }}>
+                            <td
+                              className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-400"
+                              style={{ borderTop: `1px solid ${FILET}` }}
+                            >
                               {ligne[0]}
                             </td>
-                            <th scope="row" className="o-px-4 o-py-2.5 o-text-sm o-font-normal" style={{ borderTop: `1px solid ${FILET}` }}>
+                            <th
+                              scope="row"
+                              className="o-px-4 o-py-2.5 o-text-sm o-font-normal"
+                              style={{ borderTop: `1px solid ${FILET}` }}
+                            >
                               {ligne[1]}
                             </th>
-                            <td className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-400" style={{ borderTop: `1px solid ${FILET}` }}>
+                            <td
+                              className="o-px-4 o-py-2.5 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-400"
+                              style={{ borderTop: `1px solid ${FILET}` }}
+                            >
                               {ligne[2]}
                             </td>
-                            <td className="o-px-4 o-py-2.5 o-font-mono o-text-xs" style={{ borderTop: `1px solid ${FILET}`, color: ligne[3] === 'Sous le seuil' ? undefined : ENCRE }}>
+                            <td
+                              className="o-px-4 o-py-2.5 o-font-mono o-text-xs"
+                              style={{
+                                borderTop: `1px solid ${FILET}`,
+                                color: ligne[3] === 'Sous le seuil' ? undefined : ENCRE,
+                              }}
+                            >
                               {ligne[3]}
                             </td>
                           </tr>
@@ -870,22 +1340,31 @@ export default function Page(): ReactElement {
             <Grain opacite={0.05} />
             <div className="o-relative o-z-20 o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_NUIT }}>
+                <p
+                  className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE_NUIT }}
+                >
                   <Icon icon={TriangleAlert} size={13} aria-hidden="true" />
                   Figure 01
                 </p>
                 <h2
                   id="casse-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Quand l autre bout ne repond pas.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  C est la question qu on se pose au troisieme mois, jamais au premier jour. Cinq tentatives espacees, puis une boite a lettres mortes ou la piece attend, entiere.
+                  C est la question qu on se pose au troisieme mois, jamais au premier
+                  jour. Cinq tentatives espacees, puis une boite a lettres mortes ou la
+                  piece attend, entiere.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  L action porte une cle qui empeche de l executer deux fois : une reprise ne cree pas une seconde fiche pour le meme paiement.
+                  L action porte une cle qui empeche de l executer deux fois : une reprise
+                  ne cree pas une seconde fiche pour le meme paiement.
                 </p>
               </div>
 
@@ -896,20 +1375,32 @@ export default function Page(): ReactElement {
                 <ol className="o-sr-only">
                   {REPRISES.map((reprise) => (
                     <li key={reprise.rang}>
-                      {reprise.rang}, {reprise.apres} — {reprise.reussi === true ? 'passe' : 'erreur 503'}.
+                      {reprise.rang}, {reprise.apres} —{' '}
+                      {reprise.reussi === true ? 'passe' : 'erreur 503'}.
                     </li>
                   ))}
-                  <li>Au-dela, la piece part en boite a lettres mortes et se rejoue d un bouton.</li>
+                  <li>
+                    Au-dela, la piece part en boite a lettres mortes et se rejoue d un
+                    bouton.
+                  </li>
                 </ol>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400" style={{ borderColor: FILET_NUIT }}>
-                  Figure 01 — les cinq tentatives d une action qui echoue, et ce qui reste quand toutes echouent.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400"
+                  style={{ borderColor: FILET_NUIT }}
+                >
+                  Figure 01 — les cinq tentatives d une action qui echoue, et ce qui reste
+                  quand toutes echouent.
                 </figcaption>
               </figure>
             </div>
           </section>
 
           {/* =============== (02) Ce qu on branche, en mosaique ============= */}
-          <section id="branche" aria-labelledby="branche-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="branche"
+            aria-labelledby="branche-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
@@ -918,7 +1409,8 @@ export default function Page(): ReactElement {
                   </Titre>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-5">
-                  Aucune n est facturee a part. Quand une prise manque, la prise generique suffit : elle parle a toute adresse web qui rend du JSON.
+                  Aucune n est facturee a part. Quand une prise manque, la prise generique
+                  suffit : elle parle a toute adresse web qui rend du JSON.
                 </p>
               </div>
 
@@ -932,12 +1424,29 @@ export default function Page(): ReactElement {
                       id: 'tableurs',
                       title: 'Les tableurs',
                       cols: 2,
-                      body: <Tuile lignes={['Lire une feuille', 'Ajouter une ligne', 'Mettre a jour une cellule', 'Guetter une nouvelle ligne']} />,
+                      body: (
+                        <Tuile
+                          lignes={[
+                            'Lire une feuille',
+                            'Ajouter une ligne',
+                            'Mettre a jour une cellule',
+                            'Guetter une nouvelle ligne',
+                          ]}
+                        />
+                      ),
                     },
                     {
                       id: 'paiements',
                       title: 'Les paiements',
-                      body: <Tuile lignes={['Encaissement', 'Remboursement', 'Echec de prelevement']} />,
+                      body: (
+                        <Tuile
+                          lignes={[
+                            'Encaissement',
+                            'Remboursement',
+                            'Echec de prelevement',
+                          ]}
+                        />
+                      ),
                     },
                     {
                       id: 'generique',
@@ -948,7 +1457,10 @@ export default function Page(): ReactElement {
                       body: (
                         <div className="o-mt-3">
                           <p className="o-m-0 o-text-sm o-leading-relaxed">
-                            La prise generique appelle n importe quelle adresse, avec les en-tetes que vous donnez, et lit la reponse. C est elle qui couvre les outils que nous ne connaissons pas encore — et c est la seule qui merite une demi-heure d apprentissage.
+                            La prise generique appelle n importe quelle adresse, avec les
+                            en-tetes que vous donnez, et lit la reponse. C est elle qui
+                            couvre les outils que nous ne connaissons pas encore — et c
+                            est la seule qui merite une demi-heure d apprentissage.
                           </p>
                           <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-70">
                             POST · GET · en-tetes · JSON
@@ -959,23 +1471,48 @@ export default function Page(): ReactElement {
                     {
                       id: 'messagerie',
                       title: 'La messagerie',
-                      body: <Tuile lignes={['Envoyer un courriel', 'Guetter une etiquette', 'Repondre dans un fil']} />,
+                      body: (
+                        <Tuile
+                          lignes={[
+                            'Envoyer un courriel',
+                            'Guetter une etiquette',
+                            'Repondre dans un fil',
+                          ]}
+                        />
+                      ),
                     },
                     {
                       id: 'formulaires',
                       title: 'Les formulaires',
-                      body: <Tuile lignes={['Reception', 'Champs nommes', 'Pieces jointes']} />,
+                      body: (
+                        <Tuile
+                          lignes={['Reception', 'Champs nommes', 'Pieces jointes']}
+                        />
+                      ),
                     },
                     {
                       id: 'agenda',
                       title: 'L agenda',
-                      body: <Tuile lignes={['Creer un rendez-vous', 'Guetter un creneau libere']} />,
+                      body: (
+                        <Tuile
+                          lignes={['Creer un rendez-vous', 'Guetter un creneau libere']}
+                        />
+                      ),
                     },
                     {
                       id: 'facturation',
                       title: 'La facturation',
                       cols: 2,
-                      body: <Tuile lignes={['Emettre une facture', 'Relancer un impaye', 'Guetter un encaissement', 'Exporter le journal']} />,
+                      body: (
+                        <Tuile
+                          lignes={[
+                            'Emettre une facture',
+                            'Relancer un impaye',
+                            'Guetter un encaissement',
+                            'Exporter le journal',
+                          ]}
+                        />
+                      ),
                     },
                   ]}
                 />
@@ -984,7 +1521,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Un ecran, une phrase =========================== */}
-          <section aria-labelledby="phrase-titre" className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-32 md:o-px-8 md:o-py-44">
+          <section
+            aria-labelledby="phrase-titre"
+            className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-32 md:o-px-8 md:o-py-44"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-3">
                 Ce qui nous distingue
@@ -993,12 +1533,21 @@ export default function Page(): ReactElement {
                 <h2 id="phrase-titre" className="o-sr-only">
                   Ce qui distingue Assemblee
                 </h2>
-                <p className="o-m-0 o-max-w-4xl o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)', lineHeight: 1.1 }}>
+                <p
+                  className="o-m-0 o-max-w-4xl o-text-balance"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)',
+                    lineHeight: 1.1,
+                  }}
+                >
                   <span className="o-text-zinc-500 dark:o-text-zinc-500">
-                    Les outils de ce genre vous font construire dans le vide, et decouvrir le resultat le lendemain.
+                    Les outils de ce genre vous font construire dans le vide, et decouvrir
+                    le resultat le lendemain.
                   </span>{' '}
                   <span className="o-text-zinc-950 dark:o-text-zinc-50">
-                    Celui-ci rejoue votre semaine passee avant que vous ayez allume quoi que ce soit.
+                    Celui-ci rejoue votre semaine passee avant que vous ayez allume quoi
+                    que ce soit.
                   </span>
                 </p>
               </div>
@@ -1006,14 +1555,22 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== A27 : la liste d attente numerotee ============= */}
-          <section id="attente" aria-labelledby="attente-titre" className="o-scroll-mt-24 o-relative o-isolate o-overflow-hidden o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="attente"
+            aria-labelledby="attente-titre"
+            className="o-scroll-mt-24 o-relative o-isolate o-overflow-hidden o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <Nappe
               couleurs={[accentDoux(300, 46), accentDoux(500, 26), accentDoux(200, 34)]}
               opacite={0.4}
               className="o-z-0"
             />
             <div className="o-relative o-z-10 o-mx-auto o-max-w-7xl">
-              <h2 id="attente-titre" className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+              <h2
+                id="attente-titre"
+                className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+              >
                 Prenez votre rang dans la file.
               </h2>
               <div className="o-mt-12">
@@ -1032,7 +1589,10 @@ export default function Page(): ReactElement {
           </div>
 
           <div className="o-mx-auto o-mt-8 o-max-w-7xl o-px-6 md:o-px-8">
-            <ul className="o-m-0 o-grid o-list-none o-grid-cols-2 o-gap-px o-p-0 sm:o-grid-cols-3 lg:o-grid-cols-5" style={{ backgroundColor: FILET }}>
+            <ul
+              className="o-m-0 o-grid o-list-none o-grid-cols-2 o-gap-px o-p-0 sm:o-grid-cols-3 lg:o-grid-cols-5"
+              style={{ backgroundColor: FILET }}
+            >
               {DAMIER.map((entree, place) => (
                 <li
                   key={place}
@@ -1043,7 +1603,10 @@ export default function Page(): ReactElement {
                   }}
                 >
                   {entree === null ? (
-                    <span aria-hidden="true" className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-600">
+                    <span
+                      aria-hidden="true"
+                      className="o-font-mono o-text-xs o-text-zinc-400 dark:o-text-zinc-600"
+                    >
                       ·
                     </span>
                   ) : (

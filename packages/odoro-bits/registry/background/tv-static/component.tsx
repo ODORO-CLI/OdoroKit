@@ -62,11 +62,7 @@ export interface TvStaticOwnProps {
 export type TvStaticProps = Customisable<TvStaticOwnProps>
 
 /** Tokens employes par defaut : le noir du tube, la teinte, le grain clair. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-indigo-300',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-indigo-300', '--o-theme-fg'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-100 dark:o-bg-zinc-900'

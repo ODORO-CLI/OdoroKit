@@ -130,10 +130,13 @@ export function CardSwap({
   useEffect(() => {
     if (reduced || count < 2) return
 
-    const timer = window.setInterval(() => {
-      if (paused.current) return
-      setHead((value) => (value + 1) % count)
-    }, Math.max(interval, duration + 100))
+    const timer = window.setInterval(
+      () => {
+        if (paused.current) return
+        setHead((value) => (value + 1) % count)
+      },
+      Math.max(interval, duration + 100),
+    )
 
     return () => window.clearInterval(timer)
   }, [reduced, count, interval, duration])
@@ -161,7 +164,12 @@ export function CardSwap({
     <div
       {...rest}
       className={className}
-      style={{ ...style, '--o-swap-duration': `${String(reduced ? 0 : duration)}ms` } as CSSProperties}
+      style={
+        {
+          ...style,
+          '--o-swap-duration': `${String(reduced ? 0 : duration)}ms`,
+        } as CSSProperties
+      }
       data-o-swap=""
       onPointerEnter={(event) => {
         paused.current = true

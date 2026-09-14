@@ -109,7 +109,11 @@ export function SelectDoc(): ReactElement {
                   options={[
                     { value: 'gratuit', label: 'Gratuite' },
                     { value: 'pro', label: 'Pro' },
-                    { value: 'entreprise', label: 'Entreprise (bientôt)', disabled: true },
+                    {
+                      value: 'entreprise',
+                      label: 'Entreprise (bientôt)',
+                      disabled: true,
+                    },
                   ]}
                   wrapperClassName="o-w-full"
                 />

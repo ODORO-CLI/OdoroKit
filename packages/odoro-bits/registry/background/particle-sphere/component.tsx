@@ -47,7 +47,10 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { usePointerDamped } from '@registre/hooks/usePointerDamped'
 import { usePoster } from '@registre/hooks/usePoster'
 
-import { PARTICLE_SPHERE_FRAGMENT, PARTICLE_SPHERE_VERTEX } from './particle-sphere.shader.js'
+import {
+  PARTICLE_SPHERE_FRAGMENT,
+  PARTICLE_SPHERE_VERTEX,
+} from './particle-sphere.shader.js'
 
 /** Ce que l'echappatoire recoit. */
 export interface ParticleSphereControls {
@@ -176,14 +179,19 @@ export function ParticleSphere({
 
       const paint = (value: ShaderColour): InstanceType<typeof three.Color> =>
         new three.Color(value[0], value[1], value[2])
-      const [background, tint, lifted] = colors.map((token) => readTokenColour(token, host))
+      const [background, tint, lifted] = colors.map((token) =>
+        readTokenColour(token, host),
+      )
 
       // Le fond est la couleur du theme. Le token est en sRGB et le moteur
       // encode sa couleur d'effacement du lineaire vers le sRGB : sans la
       // conversion inverse, le fond ressort un cran plus clair que la page.
       renderer.setClearColor(paint(background ?? [0, 0, 0]).convertSRGBToLinear(), 1)
 
-      const total = Math.min(quality === 'low' ? Math.min(points, LOW_POINTS) : points, MAX_POINTS)
+      const total = Math.min(
+        quality === 'low' ? Math.min(points, LOW_POINTS) : points,
+        MAX_POINTS,
+      )
 
       // La spirale de Fibonacci repartit les points a distance egale ; un
       // leger tirage par point casse la regularite du reseau, qui se lirait
@@ -310,7 +318,11 @@ export function ParticleSphere({
     paint('uColorB', lifted)
     if (background !== undefined) {
       scene.renderer.setClearColor(
-        new scene.three.Color(background[0], background[1], background[2]).convertSRGBToLinear(),
+        new scene.three.Color(
+          background[0],
+          background[1],
+          background[2],
+        ).convertSRGBToLinear(),
         1,
       )
     }

@@ -68,11 +68,7 @@ export interface ElectricFieldOwnProps {
 export type ElectricFieldProps = Customisable<ElectricFieldOwnProps>
 
 /** Tokens employes par defaut : le fond, la lueur, le trait. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-cyan-400',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-theme-fg'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

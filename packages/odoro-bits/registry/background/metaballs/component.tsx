@@ -127,23 +127,28 @@ export function Metaballs({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: METABALLS_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uSpeed: speed,
-        uCount: count,
-        uThreshold: threshold,
-        uGloss: gloss,
-      },
-      name: 'metaballs',
-      // Le nombre de boules est le seul reglage qui pese : c'est le seul borne.
-      degrade: (quality) => ({
-        uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: METABALLS_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uSpeed: speed,
+      uCount: count,
+      uThreshold: threshold,
+      uGloss: gloss,
+    },
+    name: 'metaballs',
+    // Le nombre de boules est le seul reglage qui pese : c'est le seul borne.
+    degrade: (quality) => ({
+      uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

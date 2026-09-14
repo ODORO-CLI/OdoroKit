@@ -50,7 +50,15 @@ import { useMotionState } from '@odoro-cli/engine'
 import { type SceneContext } from '@odoro-cli/engine/three'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowUpRight } from '@odoro-cli/icons/filaire'
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { ClickSparks } from '@/odoro/effect/ClickSparks.jsx'
 import { GradientFlow } from '@/odoro/text/GradientFlow.jsx'
@@ -58,7 +66,18 @@ import { GlassSurface } from '@/odoro/ui/GlassSurface.jsx'
 import { LiquidButton } from '@/odoro/ui/LiquidButton.jsx'
 
 import { nuit } from './communs.jsx'
-import { affiche, BarreGelule, CHROME, Coin, Etiquette, Grain, Porte, Surgit, usePolices, verre } from './marche.jsx'
+import {
+  affiche,
+  BarreGelule,
+  CHROME,
+  Coin,
+  Etiquette,
+  Grain,
+  Porte,
+  Surgit,
+  usePolices,
+  verre,
+} from './marche.jsx'
 import { accent, aplat } from './palettes.js'
 import { Aimant, Bandeau } from './scene.jsx'
 import { eclairer, teinte, Volume } from './volume.jsx'
@@ -103,7 +122,8 @@ const PARFUMS = [
     t: 0,
     gauche: 'pressee le jeudi,',
     droite: 'bue le dimanche.',
-    phrase: 'Le zeste avant le jus : les cedrats sont rapes entiers, et l amertume blanche part au couteau.',
+    phrase:
+      'Le zeste avant le jus : les cedrats sont rapes entiers, et l amertume blanche part au couteau.',
     fruit: 'Cedrat de Corse, Ghisonaccia',
     macere: 'Quatre jours au froid',
     sucre: '3,8 g pour 100 ml',
@@ -116,7 +136,8 @@ const PARFUMS = [
     t: 0.26,
     gauche: 'cueillie a la main,',
     droite: 'infusee a froid.',
-    phrase: 'Trois cents feuilles par fournee, douze heures dans l eau froide. Chauffee, la verveine tourne au foin.',
+    phrase:
+      'Trois cents feuilles par fournee, douze heures dans l eau froide. Chauffee, la verveine tourne au foin.',
     fruit: 'Verveine citronnee, Drome',
     macere: 'Douze heures a froid',
     sucre: '2,9 g pour 100 ml',
@@ -129,7 +150,8 @@ const PARFUMS = [
     t: 0.5,
     gauche: 'ombelles ramassees,',
     droite: 'au bord du chemin.',
-    phrase: 'Les ombelles partent dans la cuve le matin meme : passe midi, elles ne donnent plus rien.',
+    phrase:
+      'Les ombelles partent dans la cuve le matin meme : passe midi, elles ne donnent plus rien.',
     fruit: 'Sureau noir, bocage vendeen',
     macere: 'Deux jours en cuve ouverte',
     sucre: '4,4 g pour 100 ml',
@@ -142,7 +164,8 @@ const PARFUMS = [
     t: 0.76,
     gauche: 'ecrasee au tamis,',
     droite: 'jamais filtree.',
-    phrase: 'Pulpe entiere, pepins retires au tamis. Le trouble au fond de la bouteille, c est la framboise.',
+    phrase:
+      'Pulpe entiere, pepins retires au tamis. Le trouble au fond de la bouteille, c est la framboise.',
     fruit: 'Framboise Tulameen, Anjou',
     macere: 'Vingt heures sur pulpe',
     sucre: '5,1 g pour 100 ml',
@@ -155,7 +178,8 @@ const PARFUMS = [
     t: 1,
     gauche: 'grappes egrappees,',
     droite: 'une a une.',
-    phrase: 'Un cassis noir de Bourgogne, egrappe a la fourchette, qui teint la bouteille avant la langue.',
+    phrase:
+      'Un cassis noir de Bourgogne, egrappe a la fourchette, qui teint la bouteille avant la langue.',
     fruit: 'Cassis Noir de Bourgogne, Nuits',
     macere: 'Trois jours sur grappe',
     sucre: '4,7 g pour 100 ml',
@@ -276,11 +300,20 @@ function Entre({
 }
 
 /** Une accroche cursive, comme ecrite dans la marge du carnet de fabrication. */
-function Accroche({ children, angle }: { readonly children: string; readonly angle: number }): ReactElement {
+function Accroche({
+  children,
+  angle,
+}: {
+  readonly children: string
+  readonly angle: number
+}): ReactElement {
   return (
     <p
       className="o-m-0 o-font-serif o-italic o-leading-tight o-text-zinc-100"
-      style={{ fontSize: 'clamp(1.25rem, 2vw, 1.85rem)', transform: `rotate(${String(angle)}deg)` }}
+      style={{
+        fontSize: 'clamp(1.25rem, 2vw, 1.85rem)',
+        transform: `rotate(${String(angle)}deg)`,
+      }}
     >
       {children}
     </p>
@@ -301,7 +334,12 @@ function CanetteDessinee({ t }: { readonly t: number }): ReactElement {
   const ombre = teinteParfum(t, 700)
   const metal = accent(100)
   return (
-    <svg viewBox="0 0 180 300" className="o-h-full o-w-full" aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 180 300"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+    >
       <defs>
         <linearGradient id="o-limonade-corps" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor={ombre} />
@@ -319,15 +357,40 @@ function CanetteDessinee({ t }: { readonly t: number }): ReactElement {
       </defs>
 
       {/* Le fond de la canette, vu de trois quarts dessous. */}
-      <ellipse cx="90" cy="240" rx="52" ry="15" fill="url(#o-limonade-metal)" opacity="0.85" />
+      <ellipse
+        cx="90"
+        cy="240"
+        rx="52"
+        ry="15"
+        fill="url(#o-limonade-metal)"
+        opacity="0.85"
+      />
       {/* Le corps, plus large en bas qu en haut. */}
-      <path d="M44 72 L38 240 L142 240 L136 72 Z" fill="url(#o-limonade-corps)" stroke={metal} strokeWidth="1.2" strokeOpacity="0.5" />
+      <path
+        d="M44 72 L38 240 L142 240 L136 72 Z"
+        fill="url(#o-limonade-corps)"
+        stroke={metal}
+        strokeWidth="1.2"
+        strokeOpacity="0.5"
+      />
       {/* L epaule qui rentre, le couvercle, et le jonc qui les serre. */}
-      <path d="M56 44 L124 44 L136 72 L44 72 Z" fill="url(#o-limonade-metal)" opacity="0.9" />
+      <path
+        d="M56 44 L124 44 L136 72 L44 72 Z"
+        fill="url(#o-limonade-metal)"
+        opacity="0.9"
+      />
       <ellipse cx="90" cy="44" rx="34" ry="9" fill={metal} opacity="0.9" />
       <ellipse cx="90" cy="44" rx="36" ry="10.5" stroke={metal} strokeWidth="3" />
       {/* Le jonc du bas, et le filet de ceinture. */}
-      <ellipse cx="90" cy="240" rx="52" ry="15" stroke={metal} strokeWidth="2.5" opacity="0.7" />
+      <ellipse
+        cx="90"
+        cy="240"
+        rx="52"
+        ry="15"
+        stroke={metal}
+        strokeWidth="2.5"
+        opacity="0.7"
+      />
       <path d="M41 156 L139 156" stroke={metal} strokeWidth="1.5" opacity="0.35" />
       {/* Le reflet vertical : sans lui, un metal peint est un carton. */}
       <path d="M67 72 L65 238 L75 238 L76 72 Z" fill={metal} opacity="0.34" />
@@ -336,7 +399,12 @@ function CanetteDessinee({ t }: { readonly t: number }): ReactElement {
         y="132"
         textAnchor="middle"
         fill={metal}
-        style={{ fontFamily: 'var(--o-vitrine-affichage, var(--o-font-sans))', fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em' }}
+        style={{
+          fontFamily: 'var(--o-vitrine-affichage, var(--o-font-sans))',
+          fontSize: 32,
+          fontWeight: 800,
+          letterSpacing: '-0.04em',
+        }}
       >
         Vif
       </text>
@@ -419,7 +487,11 @@ export default function Page(): ReactElement {
           ].join('')}
         </style>
 
-        <BarreGelule marque="Vif" liens={NAVIGATION} action={['#commander', 'Commander']} />
+        <BarreGelule
+          marque="Vif"
+          liens={NAVIGATION}
+          action={['#commander', 'Commander']}
+        />
 
         {/*
           ----- L ouverture : la canette, et le geste qui reteinte tout -------
@@ -436,20 +508,28 @@ export default function Page(): ReactElement {
             // Le verre du pupitre se teinte par jeton : la piece ne prend que
             // des noms de variables, on lui en pose donc une qui suit le
             // parfum plutot que l accent fixe de la vitrine.
-            style={{
-              minHeight: ECRAN,
-              backgroundColor: fondParfum(parfum.t, 16),
-              transition: 'background-color 700ms ease',
-              '--o-limonade-verre': teinteParfum(parfum.t, 400),
-            } as CSSProperties}
+            style={
+              {
+                minHeight: ECRAN,
+                backgroundColor: fondParfum(parfum.t, 16),
+                transition: 'background-color 700ms ease',
+                '--o-limonade-verre': teinteParfum(parfum.t, 400),
+              } as CSSProperties
+            }
           >
             <Volume
               nom="canette Vif"
               className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
-              style={{ backgroundColor: fondParfum(parfum.t, 16), transition: 'background-color 700ms ease' }}
+              style={{
+                backgroundColor: fondParfum(parfum.t, 16),
+                transition: 'background-color 700ms ease',
+              }}
               repli={
                 <div className="o-flex o-h-full o-items-center o-justify-center o-px-6 o-py-24">
-                  <div className="o-h-full o-w-full o-max-w-xs" style={{ maxHeight: 380 }}>
+                  <div
+                    className="o-h-full o-w-full o-max-w-xs"
+                    style={{ maxHeight: 380 }}
+                  >
                     <CanetteDessinee t={parfum.t} />
                   </div>
                 </div>
@@ -536,7 +616,12 @@ export default function Page(): ReactElement {
                 // trait clair sur les bords du cylindre. Entiers, tous : une
                 // lampe n est pas du texte, et une lampe teintee mentirait sur
                 // la couleur de la boisson.
-                eclairer(contexte, { cle: 0xfff4e2, remplissage: 0x93a8d6, contour: 0xffffff, force: 1.2 })
+                eclairer(contexte, {
+                  cle: 0xfff4e2,
+                  remplissage: 0x93a8d6,
+                  contour: 0xffffff,
+                  force: 1.2,
+                })
                 const rasanteGauche = new three.PointLight(0xffffff, 22, 14, 2)
                 rasanteGauche.position.set(-2.6, 0.9, 2.2)
                 const rasanteDroite = new three.PointLight(0xffffff, 26, 14, 2)
@@ -577,7 +662,10 @@ export default function Page(): ReactElement {
 
                 const part = 1 - Math.exp(-3.2 * delta)
                 const corps = scene.getObjectByName('corps')
-                if (corps instanceof three.Mesh && corps.material instanceof three.MeshPhysicalMaterial) {
+                if (
+                  corps instanceof three.Mesh &&
+                  corps.material instanceof three.MeshPhysicalMaterial
+                ) {
                   corps.material.color.lerp(memo.vise, part)
                 }
                 if (scene.background instanceof three.Color) {
@@ -591,10 +679,14 @@ export default function Page(): ReactElement {
                 // sur le titre. Elle rapetisse et remonte dans le quart haut.
                 const portrait = contexte.camera.aspect < 1
                 const voulue = portrait ? 0.3 : 0.62
-                canette.scale.setScalar(canette.scale.x + (voulue - canette.scale.x) * part)
+                canette.scale.setScalar(
+                  canette.scale.x + (voulue - canette.scale.x) * part,
+                )
 
                 visee.current.angle += delta * 0.17
-                canette.rotation.y += (visee.current.angle - canette.rotation.y) * (1 - Math.exp(-4.5 * delta))
+                canette.rotation.y +=
+                  (visee.current.angle - canette.rotation.y) *
+                  (1 - Math.exp(-4.5 * delta))
                 canette.rotation.z = 0.04 + Math.sin(time * 0.5) * 0.018
                 canette.position.y = (portrait ? 0.86 : 0) + Math.sin(time * 0.62) * 0.035
               }}
@@ -606,37 +698,49 @@ export default function Page(): ReactElement {
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
-              style={{ background: `linear-gradient(to top, ${fondParfum(parfum.t, 34)} 0%, ${fondParfum(parfum.t, 20)} 26%, transparent 58%)`, transition: 'background 700ms ease' }}
+              style={{
+                background: `linear-gradient(to top, ${fondParfum(parfum.t, 34)} 0%, ${fondParfum(parfum.t, 20)} 26%, transparent 58%)`,
+                transition: 'background 700ms ease',
+              }}
             />
 
             {/* La lueur radiale, par-dessus le canevas. */}
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
-              style={{ background: lueur, mixBlendMode: 'screen', transition: 'background 700ms ease' }}
+              style={{
+                background: lueur,
+                mixBlendMode: 'screen',
+                transition: 'background 700ms ease',
+              }}
             />
 
             {/* Les bulles, qui montent sans fin. */}
-            <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-z-10 o-overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="o-pointer-events-none o-absolute o-inset-0 o-z-10 o-overflow-hidden"
+            >
               {BULLES.map((b) => (
                 <span
                   key={b.x}
                   data-o-limonade-bulle=""
                   className="o-absolute o-block o-rounded-full o-border-w-1"
-                  style={{
-                    left: `${String(b.x)}%`,
-                    bottom: -40,
-                    width: b.taille,
-                    height: b.taille,
-                    backgroundColor: voileParfum(parfum.t, 22, 100),
-                    borderColor: voileParfum(parfum.t, 70, 50),
-                    '--o-bulle-duree': `${String(b.duree)}s`,
-                    '--o-bulle-delai': `-${String(b.delai)}s`,
-                    '--o-bulle-derive': `${String(b.derive)}px`,
-                    '--o-bulle-opacite': String(b.opacite),
-                    '--o-bulle-course': 'calc(100vh + 80px)',
-                    '--o-bulle-repos': `-${String(b.repos)}vh`,
-                  } as CSSProperties}
+                  style={
+                    {
+                      left: `${String(b.x)}%`,
+                      bottom: -40,
+                      width: b.taille,
+                      height: b.taille,
+                      backgroundColor: voileParfum(parfum.t, 22, 100),
+                      borderColor: voileParfum(parfum.t, 70, 50),
+                      '--o-bulle-duree': `${String(b.duree)}s`,
+                      '--o-bulle-delai': `-${String(b.delai)}s`,
+                      '--o-bulle-derive': `${String(b.derive)}px`,
+                      '--o-bulle-opacite': String(b.opacite),
+                      '--o-bulle-course': 'calc(100vh + 80px)',
+                      '--o-bulle-repos': `-${String(b.repos)}vh`,
+                    } as CSSProperties
+                  }
                 />
               ))}
             </div>
@@ -669,18 +773,32 @@ export default function Page(): ReactElement {
                     thickness={1.2}
                     className="o-w-full o-rounded-2xl o-p-5"
                   >
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">Ce qu il y a dedans</p>
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
+                      Ce qu il y a dedans
+                    </p>
                     <Entre key={`${parfum.cle}-mentions`} delai={60}>
-                      <dl aria-live="polite" className="o-m-0 o-mt-3 o-flex o-flex-col o-gap-2">
-                        {([
-                          ['Fruit', parfum.fruit],
-                          ['Maceration', parfum.macere],
-                          ['Sucre', parfum.sucre],
-                          ['Saison', parfum.saison],
-                        ] as const).map(([quoi, valeur]) => (
-                          <div key={quoi} className="o-grid o-gap-x-4 o-border-t o-border-white-10 o-pt-2 lg:o-grid-cols-12">
-                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-300 lg:o-col-span-4">{quoi}</dt>
-                            <dd className="o-m-0 o-text-sm o-text-zinc-50 lg:o-col-span-8">{valeur}</dd>
+                      <dl
+                        aria-live="polite"
+                        className="o-m-0 o-mt-3 o-flex o-flex-col o-gap-2"
+                      >
+                        {(
+                          [
+                            ['Fruit', parfum.fruit],
+                            ['Maceration', parfum.macere],
+                            ['Sucre', parfum.sucre],
+                            ['Saison', parfum.saison],
+                          ] as const
+                        ).map(([quoi, valeur]) => (
+                          <div
+                            key={quoi}
+                            className="o-grid o-gap-x-4 o-border-t o-border-white-10 o-pt-2 lg:o-grid-cols-12"
+                          >
+                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-300 lg:o-col-span-4">
+                              {quoi}
+                            </dt>
+                            <dd className="o-m-0 o-text-sm o-text-zinc-50 lg:o-col-span-8">
+                              {valeur}
+                            </dd>
                           </div>
                         ))}
                       </dl>
@@ -690,13 +808,26 @@ export default function Page(): ReactElement {
               </div>
 
               {/* ----- Le titre, et le clavier des parfums ----------------- */}
-              <div id="parfums" className="o-grid o-scroll-mt-24 o-gap-8 md:o-grid-cols-12 md:o-items-end">
+              <div
+                id="parfums"
+                className="o-grid o-scroll-mt-24 o-gap-8 md:o-grid-cols-12 md:o-items-end"
+              >
                 <div className="md:o-col-span-6">
                   <Surgit>
                     <Etiquette>Limonaderie — Nantes, quai Wilson</Etiquette>
                   </Surgit>
-                  <h1 className="o-m-0 o-mt-5" style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 5.2vw, 4.75rem)' }}>
-                    <Surgit as="span" className="o-inline-block" style={{ marginRight: '0.2em' }}>
+                  <h1
+                    className="o-m-0 o-mt-5"
+                    style={{
+                      ...affiche('l', 300),
+                      fontSize: 'clamp(2.5rem, 5.2vw, 4.75rem)',
+                    }}
+                  >
+                    <Surgit
+                      as="span"
+                      className="o-inline-block"
+                      style={{ marginRight: '0.2em' }}
+                    >
                       Limonade {parfum.article}
                     </Surgit>
                     <Entre key={`${parfum.cle}-nom`} as="span" className="o-inline-block">
@@ -711,13 +842,21 @@ export default function Page(): ReactElement {
                     </Entre>
                     <span aria-hidden="true">.</span>
                   </h1>
-                  <Entre key={`${parfum.cle}-phrase`} as="p" className="o-m-0 o-mt-4 o-max-w-md o-text-balance o-text-sm o-leading-relaxed o-text-zinc-200">
+                  <Entre
+                    key={`${parfum.cle}-phrase`}
+                    as="p"
+                    className="o-m-0 o-mt-4 o-max-w-md o-text-balance o-text-sm o-leading-relaxed o-text-zinc-200"
+                  >
                     {parfum.phrase}
                   </Entre>
                   {/* Les mentions du pupitre, en une ligne, quand l ecran est
                       trop etroit pour lui : une seule des deux est dans l arbre
                       d accessibilite a la fois. */}
-                  <Entre key={`${parfum.cle}-court`} as="p" className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-wider o-text-zinc-300 md:o-hidden">
+                  <Entre
+                    key={`${parfum.cle}-court`}
+                    as="p"
+                    className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-wider o-text-zinc-300 md:o-hidden"
+                  >
                     {parfum.fruit} · {parfum.macere} · {parfum.sucre} · {parfum.saison}
                   </Entre>
                 </div>
@@ -731,7 +870,12 @@ export default function Page(): ReactElement {
                       <LiquidButton
                         onClick={servirLeSuivant}
                         className="o-rounded-full o-px-5 o-py-2 o-text-sm o-font-semibold o-text-zinc-50 focus:o-ring"
-                        style={{ '--o-liquid-fill': teinteParfum(parfum.t, 400), '--o-liquid-ink': 'var(--o-palette-zinc-950)' } as CSSProperties}
+                        style={
+                          {
+                            '--o-liquid-fill': teinteParfum(parfum.t, 400),
+                            '--o-liquid-ink': 'var(--o-palette-zinc-950)',
+                          } as CSSProperties
+                        }
                       >
                         Servir le suivant
                       </LiquidButton>
@@ -740,7 +884,12 @@ export default function Page(): ReactElement {
 
                   {/* La zone coupe ce qui deborde : le retrait interieur laisse
                       la carte grandir au survol sans se faire rogner. */}
-                  <ClickSparks color={teinteParfum(parfum.t, 200)} count={12} distance={58} className="o-mt-3 o-rounded-2xl o-p-2">
+                  <ClickSparks
+                    color={teinteParfum(parfum.t, 200)}
+                    count={12}
+                    distance={58}
+                    className="o-mt-3 o-rounded-2xl o-p-2"
+                  >
                     <ul className="o-m-0 o-grid o-list-none o-grid-cols-2 o-gap-2 o-p-0 sm:o-grid-cols-3 lg:o-grid-cols-5">
                       {PARFUMS.map((p, index) => {
                         const actif = index === rang
@@ -755,7 +904,9 @@ export default function Page(): ReactElement {
                               className={`o-w-full o-cursor-pointer o-p-3 o-text-left o-transition-transform hover:o-scale-105 focus:o-ring ${verre(true)}`}
                               style={{
                                 borderColor: actif ? teinteParfum(p.t, 300) : undefined,
-                                boxShadow: actif ? `0 12px 34px -18px ${teinteParfum(p.t, 400)}` : undefined,
+                                boxShadow: actif
+                                  ? `0 12px 34px -18px ${teinteParfum(p.t, 400)}`
+                                  : undefined,
                               }}
                             >
                               <span
@@ -763,8 +914,12 @@ export default function Page(): ReactElement {
                                 className="o-block o-size-2.5 o-rounded-full"
                                 style={{ backgroundColor: teinteParfum(p.t, 300) }}
                               />
-                              <span className="o-mt-2 o-block o-text-sm o-font-semibold o-capitalize o-text-zinc-50">{p.nom}</span>
-                              <span className="o-mt-0.5 o-block o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-300">{p.sucre}</span>
+                              <span className="o-mt-2 o-block o-text-sm o-font-semibold o-capitalize o-text-zinc-50">
+                                {p.nom}
+                              </span>
+                              <span className="o-mt-0.5 o-block o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-300">
+                                {p.sucre}
+                              </span>
                             </button>
                           </li>
                         )
@@ -778,7 +933,11 @@ export default function Page(): ReactElement {
             {/* Le coin croiserait la canette sur un ecran etroit : il n y
                 parait pas. */}
             <div className="o-hidden lg:o-block">
-              <Coin position="hd">33 cl — verre consigne<br />Fournee du jeudi</Coin>
+              <Coin position="hd">
+                33 cl — verre consigne
+                <br />
+                Fournee du jeudi
+              </Coin>
             </div>
           </section>
 
@@ -796,10 +955,21 @@ export default function Page(): ReactElement {
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-0"
-              style={{ backgroundColor: teinteParfum(parfum.t, 500), opacity: 0.9, mixBlendMode: 'color', transition: 'background-color 700ms ease' }}
+              style={{
+                backgroundColor: teinteParfum(parfum.t, 500),
+                opacity: 0.9,
+                mixBlendMode: 'color',
+                transition: 'background-color 700ms ease',
+              }}
             />
             <div className="o-relative">
-              <Bandeau mots={[...APPEL]} separateur="●" vitesse={38} taille="clamp(1.75rem, 4.2vw, 4rem)" className="o-font-semibold" />
+              <Bandeau
+                mots={[...APPEL]}
+                separateur="●"
+                vitesse={38}
+                taille="clamp(1.75rem, 4.2vw, 4rem)"
+                className="o-font-semibold"
+              />
               <div className="o-mt-10 o-flex o-flex-col o-items-center o-gap-4 o-px-6 o-text-center">
                 <h2 className="o-m-0 o-max-w-2xl o-text-balance o-text-2xl o-font-semibold o-tracking-tight">
                   La caisse part le jeudi soir, et revient vide le jeudi suivant.
@@ -822,17 +992,30 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : une lettre, et une signature ----------------------
         */}
-        <footer id="lettre" className="o-relative o-scroll-mt-24 o-overflow-hidden o-px-6 o-pb-10 o-pt-20 md:o-px-10" style={{ backgroundColor: fondParfum(parfum.t, 24, 800), transition: 'background-color 700ms ease' }}>
+        <footer
+          id="lettre"
+          className="o-relative o-scroll-mt-24 o-overflow-hidden o-px-6 o-pb-10 o-pt-20 md:o-px-10"
+          style={{
+            backgroundColor: fondParfum(parfum.t, 24, 800),
+            transition: 'background-color 700ms ease',
+          }}
+        >
           <div className="o-max-w-3xl">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Un mot de l atelier</p>
-            <p className="o-m-0 o-mt-6 o-text-lg o-leading-relaxed o-text-zinc-200">
-              Nous avons commence a trois, dans un local de quarante metres carres qui sentait le vinaigre, avec une
-              soutireuse de 1974 qui refusait de demarrer en dessous de dix degres. Elle demarre toujours mal. Nous
-              tirons quatre cents caisses par semaine, jamais plus : au-dela, il faudrait acheter des concentres, et
-              ce serait une autre maison. Si un parfum manque, c est que le fruit n est pas la — il reviendra a sa
-              saison, pas avant.
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+              Un mot de l atelier
             </p>
-            <p className="o-m-0 o-mt-8 o-font-serif o-italic o-text-zinc-100" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)' }}>
+            <p className="o-m-0 o-mt-6 o-text-lg o-leading-relaxed o-text-zinc-200">
+              Nous avons commence a trois, dans un local de quarante metres carres qui
+              sentait le vinaigre, avec une soutireuse de 1974 qui refusait de demarrer en
+              dessous de dix degres. Elle demarre toujours mal. Nous tirons quatre cents
+              caisses par semaine, jamais plus : au-dela, il faudrait acheter des
+              concentres, et ce serait une autre maison. Si un parfum manque, c est que le
+              fruit n est pas la — il reviendra a sa saison, pas avant.
+            </p>
+            <p
+              className="o-m-0 o-mt-8 o-font-serif o-italic o-text-zinc-100"
+              style={{ fontSize: 'clamp(1.5rem, 3vw, 2.25rem)' }}
+            >
               Mathilde Coutant
             </p>
             <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
@@ -842,8 +1025,15 @@ export default function Page(): ReactElement {
 
           <div className="o-mt-14 o-flex o-max-w-3xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
             <span>© 2026 Vif</span>
-            <span>14 quai Wilson, 44000 Nantes — vente au quai le samedi, 10 h a 13 h</span>
-            <a href="#haut" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">Remonter ↑</a>
+            <span>
+              14 quai Wilson, 44000 Nantes — vente au quai le samedi, 10 h a 13 h
+            </span>
+            <a
+              href="#haut"
+              className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+            >
+              Remonter ↑
+            </a>
           </div>
         </footer>
       </div>

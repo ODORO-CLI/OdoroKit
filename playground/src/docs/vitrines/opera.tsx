@@ -112,7 +112,12 @@ const TARIFS = [95, 69, 48, 32, 19]
  * la meme chose. Ici elle sort d un score : la distance, l angle qu impose le
  * decalage lateral, et la hauteur qui plonge la vue.
  */
-function categorieDe(distance: number, lateral: number, hauteur: number, visibilite: Siege['visibilite']): number {
+function categorieDe(
+  distance: number,
+  lateral: number,
+  hauteur: number,
+  visibilite: Siege['visibilite'],
+): number {
   if (visibilite === 'reduite') return 5
   const score = distance + Math.abs(lateral) * 9 + hauteur * 0.55
   const brute = score < 14 ? 1 : score < 19 ? 2 : score < 24 ? 3 : score < 30 ? 4 : 5
@@ -120,10 +125,13 @@ function categorieDe(distance: number, lateral: number, hauteur: number, visibil
 }
 
 /** Fabrique un siege a partir de sa geometrie. */
-function siege(
-  base: Omit<Siege, 'categorie' | 'prix'>,
-): Siege {
-  const categorie = categorieDe(base.distance, base.lateral, base.hauteur, base.visibilite)
+function siege(base: Omit<Siege, 'categorie' | 'prix'>): Siege {
+  const categorie = categorieDe(
+    base.distance,
+    base.lateral,
+    base.hauteur,
+    base.visibilite,
+  )
   return { ...base, categorie, prix: TARIFS[categorie - 1] ?? 19 }
 }
 
@@ -150,7 +158,20 @@ function dresserLaSalle(): readonly Siege[] {
       // Les trois premiers rangs de cote plongent dans la fosse et perdent
       // le fond du plateau : c est un fait de salle, pas une categorie.
       const visibilite = rang < 3 && Math.abs(lateral) > 0.75 ? 'partielle' : 'totale'
-      sieges.push(siege({ id: `p-${String(rang)}-${String(i)}`, zone: 'parterre', rang: `Rang ${String(rang + 1)}`, numero: i + 1, x, y, distance, lateral, hauteur: 0, visibilite }))
+      sieges.push(
+        siege({
+          id: `p-${String(rang)}-${String(i)}`,
+          zone: 'parterre',
+          rang: `Rang ${String(rang + 1)}`,
+          numero: i + 1,
+          x,
+          y,
+          distance,
+          lateral,
+          hauteur: 0,
+          visibilite,
+        }),
+      )
     }
   }
 
@@ -242,14 +263,41 @@ const SALLE = dresserLaSalle()
 /** Le siege par defaut : celui du milieu du parterre, sixieme rang. */
 const PREMIER: Siege =
   SALLE.find((s) => s.id === 'p-5-9') ??
-  siege({ id: 'p-5-9', zone: 'parterre', rang: 'Rang 6', numero: 10, x: 300, y: 247, distance: 13.75, lateral: -0.05, hauteur: 0, visibilite: 'totale' })
+  siege({
+    id: 'p-5-9',
+    zone: 'parterre',
+    rang: 'Rang 6',
+    numero: 10,
+    x: 300,
+    y: 247,
+    distance: 13.75,
+    lateral: -0.05,
+    hauteur: 0,
+    visibilite: 'totale',
+  })
 
 /** Les quatre zones, avec ce qu il faut en dire. */
 const ZONES = [
-  { cle: 'parterre', nom: 'Parterre', note: 'Douze rangs, de plain-pied. Le son y est le plus plein, la vue la plus frontale.' },
-  { cle: 'corbeille', nom: 'Corbeille', note: 'Deux rangs en surplomb. On voit les deplacements au sol comme sur une carte.' },
-  { cle: 'loge', nom: 'Loges', note: 'Quatre de chaque cote. On y vient a trois, et la troisieme place voit moins.' },
-  { cle: 'paradis', nom: 'Paradis', note: 'Seize metres au-dessus du plateau. Le meilleur son de la salle, et le moins cher.' },
+  {
+    cle: 'parterre',
+    nom: 'Parterre',
+    note: 'Douze rangs, de plain-pied. Le son y est le plus plein, la vue la plus frontale.',
+  },
+  {
+    cle: 'corbeille',
+    nom: 'Corbeille',
+    note: 'Deux rangs en surplomb. On voit les deplacements au sol comme sur une carte.',
+  },
+  {
+    cle: 'loge',
+    nom: 'Loges',
+    note: 'Quatre de chaque cote. On y vient a trois, et la troisieme place voit moins.',
+  },
+  {
+    cle: 'paradis',
+    nom: 'Paradis',
+    note: 'Seize metres au-dessus du plateau. Le meilleur son de la salle, et le moins cher.',
+  },
 ] as const
 
 /* ============================ Le plan dessine ========================== */
@@ -272,14 +320,45 @@ function PlanDeSalle({
   readonly onChoisir: (id: string) => void
 }): ReactElement {
   return (
-    <svg viewBox="0 0 600 510" className="o-h-auto o-w-full" role="group" aria-label="Plan de la salle">
+    <svg
+      viewBox="0 0 600 510"
+      className="o-h-auto o-w-full"
+      role="group"
+      aria-label="Plan de la salle"
+    >
       {/* Le plateau et la fosse. */}
-      <path d="M120 26h360l-26 58H146Z" fill={accentDoux(800, 40)} stroke={accent(600)} strokeOpacity="0.5" />
-      <text x="300" y="62" textAnchor="middle" className="o-font-mono" fontSize="13" fill="var(--o-palette-zinc-300)" letterSpacing="4">
+      <path
+        d="M120 26h360l-26 58H146Z"
+        fill={accentDoux(800, 40)}
+        stroke={accent(600)}
+        strokeOpacity="0.5"
+      />
+      <text
+        x="300"
+        y="62"
+        textAnchor="middle"
+        className="o-font-mono"
+        fontSize="13"
+        fill="var(--o-palette-zinc-300)"
+        letterSpacing="4"
+      >
         PLATEAU
       </text>
-      <path d="M150 96h300a150 150 0 0 1-300 0Z" fill={accentDoux(900, 55)} stroke={accent(700)} strokeOpacity="0.5" />
-      <text x="300" y="122" textAnchor="middle" className="o-font-mono" fontSize="10" fill="var(--o-palette-zinc-400)" letterSpacing="3">
+      <path
+        d="M150 96h300a150 150 0 0 1-300 0Z"
+        fill={accentDoux(900, 55)}
+        stroke={accent(700)}
+        strokeOpacity="0.5"
+      />
+      <text
+        x="300"
+        y="122"
+        textAnchor="middle"
+        className="o-font-mono"
+        fontSize="10"
+        fill="var(--o-palette-zinc-400)"
+        letterSpacing="3"
+      >
         FOSSE — 72 MUSICIENS
       </text>
 
@@ -327,7 +406,16 @@ function PlanDeSalle({
           [536, 176, 'LOGES'],
         ] as const
       ).map(([x, y, mot]) => (
-        <text key={mot + String(x)} x={x} y={y} textAnchor="middle" className="o-font-mono" fontSize="9" fill="var(--o-palette-zinc-500)" letterSpacing="3">
+        <text
+          key={mot + String(x)}
+          x={x}
+          y={y}
+          textAnchor="middle"
+          className="o-font-mono"
+          fontSize="9"
+          fill="var(--o-palette-zinc-500)"
+          letterSpacing="3"
+        >
           {mot}
         </text>
       ))}
@@ -359,7 +447,12 @@ function VueDuSiege({ s }: { readonly s: Siege }): ReactElement {
 
       {/* Le mur et la voute de la salle. */}
       <path d="M0 0h360v240H0Z" fill={accentDoux(950, 30)} />
-      <path d="M0 26q180 -34 360 0" stroke={accent(800)} strokeOpacity="0.6" fill="none" />
+      <path
+        d="M0 26q180 -34 360 0"
+        stroke={accent(800)}
+        strokeOpacity="0.6"
+        fill="none"
+      />
 
       {/* Le cadre de scene. */}
       <g>
@@ -373,16 +466,41 @@ function VueDuSiege({ s }: { readonly s: Siege }): ReactElement {
           strokeWidth="2"
         />
         {/* Le decor : trois plans, du fond au nu du rideau. */}
-        <rect x={cx - largeur / 2 + 10} y={cy + hauteurCadre * 0.45} width={largeur - 20} height={hauteurCadre * 0.55 - 6} fill={accentDoux(700, 45)} />
+        <rect
+          x={cx - largeur / 2 + 10}
+          y={cy + hauteurCadre * 0.45}
+          width={largeur - 20}
+          height={hauteurCadre * 0.55 - 6}
+          fill={accentDoux(700, 45)}
+        />
         <path
           d={`M${String(cx - largeur * 0.2)} ${String(cy + hauteurCadre - 6)}l${String(largeur * 0.1)} ${String(-hauteurCadre * 0.4)}l${String(largeur * 0.1)} ${String(hauteurCadre * 0.4)}Z`}
           fill={accent(400)}
           opacity="0.75"
         />
-        <circle cx={cx + largeur * 0.16} cy={cy + hauteurCadre * 0.62} r={Math.max(3, hauteurCadre * 0.07)} fill={accent(200)} />
+        <circle
+          cx={cx + largeur * 0.16}
+          cy={cy + hauteurCadre * 0.62}
+          r={Math.max(3, hauteurCadre * 0.07)}
+          fill={accent(200)}
+        />
         {/* Les pendrillons. */}
-        <rect x={cx - largeur / 2} y={cy} width={largeur * 0.09} height={hauteurCadre} fill="var(--o-palette-zinc-950)" opacity="0.85" />
-        <rect x={cx + largeur / 2 - largeur * 0.09} y={cy} width={largeur * 0.09} height={hauteurCadre} fill="var(--o-palette-zinc-950)" opacity="0.85" />
+        <rect
+          x={cx - largeur / 2}
+          y={cy}
+          width={largeur * 0.09}
+          height={hauteurCadre}
+          fill="var(--o-palette-zinc-950)"
+          opacity="0.85"
+        />
+        <rect
+          x={cx + largeur / 2 - largeur * 0.09}
+          y={cy}
+          width={largeur * 0.09}
+          height={hauteurCadre}
+          fill="var(--o-palette-zinc-950)"
+          opacity="0.85"
+        />
       </g>
 
       {/* Le plancher, d autant plus visible qu on est haut. */}
@@ -406,7 +524,16 @@ function VueDuSiege({ s }: { readonly s: Siege }): ReactElement {
       )}
 
       {/* La rambarde du paradis. */}
-      {s.zone === 'paradis' && <rect x="0" y="206" width="360" height="10" fill="var(--o-palette-zinc-950)" stroke={accent(800)} />}
+      {s.zone === 'paradis' && (
+        <rect
+          x="0"
+          y="206"
+          width="360"
+          height="10"
+          fill="var(--o-palette-zinc-950)"
+          stroke={accent(800)}
+        />
+      )}
 
       {/* Les tetes des rangs de devant. */}
       {Array.from({ length: tetes }, (_, rang) => {
@@ -415,7 +542,13 @@ function VueDuSiege({ s }: { readonly s: Siege }): ReactElement {
         return (
           <g key={rang} opacity={0.9 - rang * 0.05}>
             {Array.from({ length: 7 }, (_, i) => (
-              <circle key={i} cx={34 + i * 50 + (rang % 2) * 25} cy={y} r={taille} fill="var(--o-palette-zinc-950)" />
+              <circle
+                key={i}
+                cx={34 + i * 50 + (rang % 2) * 25}
+                cy={y}
+                r={taille}
+                fill="var(--o-palette-zinc-950)"
+              />
             ))}
           </g>
         )
@@ -431,22 +564,26 @@ const ACTES = [
   {
     mot: 'Le lustre',
     titre: 'Deux mille quatre cents pieces, descendues une fois l an.',
-    texte: 'Il pese onze cents kilos et tient a un treuil de 1889. On le descend en aout, on le lave piece a piece, on le remonte en dix jours.',
+    texte:
+      'Il pese onze cents kilos et tient a un treuil de 1889. On le descend en aout, on le lave piece a piece, on le remonte en dix jours.',
   },
   {
     mot: 'La salle',
     titre: 'Mille huit cent quarante-deux places, et pas deux pareilles.',
-    texte: 'Une salle a l italienne n a pas de bonne categorie : elle a des places, et chacune voit ce qu elle voit. C est ecrit plus bas, siege par siege.',
+    texte:
+      'Une salle a l italienne n a pas de bonne categorie : elle a des places, et chacune voit ce qu elle voit. C est ecrit plus bas, siege par siege.',
   },
   {
     mot: 'La fosse',
     titre: 'Soixante-douze musiciens, sous le niveau du parterre.',
-    texte: 'La fosse se remonte en trois hauteurs. A la plus basse, on entend l orchestre sans le voir — et c est la que Wagner se donne.',
+    texte:
+      'La fosse se remonte en trois hauteurs. A la plus basse, on entend l orchestre sans le voir — et c est la que Wagner se donne.',
   },
   {
     mot: 'Le foyer',
     titre: 'On y entre a dix-neuf heures, on en ressort a vingt.',
-    texte: 'Le grand foyer ouvre une heure avant. Il n y a rien a y acheter, et c est la moitie du billet.',
+    texte:
+      'Le grand foyer ouvre une heure avant. Il n y a rien a y acheter, et c est la moitie du billet.',
   },
 ] as const
 
@@ -456,10 +593,26 @@ const ACTES = [
 const FRISE = [
   { annee: '1834', valeur: '2 200', quoi: 'places a l ouverture, bancs compris' },
   { annee: '1872', valeur: '11', quoi: 'minutes pour evacuer, la nuit de l incendie' },
-  { annee: '1889', valeur: '1 842', quoi: 'places a la reouverture, fauteuils individuels' },
-  { annee: '1954', valeur: '96', quoi: 'jeux d orgue electrifies, les becs de gaz deposes' },
-  { annee: '2003', valeur: '38', quoi: 'mois de chantier, la salle rendue a sa polychromie' },
-  { annee: '2026', valeur: '118', quoi: 'representations, dont 24 a moins de vingt euros' },
+  {
+    annee: '1889',
+    valeur: '1 842',
+    quoi: 'places a la reouverture, fauteuils individuels',
+  },
+  {
+    annee: '1954',
+    valeur: '96',
+    quoi: 'jeux d orgue electrifies, les becs de gaz deposes',
+  },
+  {
+    annee: '2003',
+    valeur: '38',
+    quoi: 'mois de chantier, la salle rendue a sa polychromie',
+  },
+  {
+    annee: '2026',
+    valeur: '118',
+    quoi: 'representations, dont 24 a moins de vingt euros',
+  },
 ] as const
 
 /* ============================ Le repli dessine ========================= */
@@ -478,24 +631,45 @@ function LustreDessine(): ReactElement {
     { y: 230, rayon: 68, bras: 8 },
   ]
   return (
-    <svg viewBox="0 0 340 400" className="o-h-full o-w-full" aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 340 400"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+    >
       <g stroke={encreSurSombre()} strokeWidth="1.4" strokeLinecap="round">
         {/* La tige et la rosace. */}
         <path d="M170 0v54M148 54h44l-8 18h-28Z" />
         <path d="M170 72v244" />
         {couronnes.map((couronne) => (
           <g key={couronne.y}>
-            <ellipse cx="170" cy={couronne.y} rx={couronne.rayon} ry={couronne.rayon * 0.26} opacity="0.85" />
+            <ellipse
+              cx="170"
+              cy={couronne.y}
+              rx={couronne.rayon}
+              ry={couronne.rayon * 0.26}
+              opacity="0.85"
+            />
             {Array.from({ length: couronne.bras }, (_, rang) => {
               const angle = (rang / couronne.bras) * Math.PI * 2
               const x = 170 + Math.cos(angle) * couronne.rayon
               const y = couronne.y + Math.sin(angle) * couronne.rayon * 0.26
               return (
                 <g key={rang}>
-                  <path d={`M170 ${String(couronne.y - 14)}Q${String((170 + x) / 2)} ${String(y - 26)} ${String(x)} ${String(y)}`} opacity="0.7" />
+                  <path
+                    d={`M170 ${String(couronne.y - 14)}Q${String((170 + x) / 2)} ${String(y - 26)} ${String(x)} ${String(y)}`}
+                    opacity="0.7"
+                  />
                   <path d={`M${String(x)} ${String(y)}v-13`} />
-                  <path d={`M${String(x)} ${String(y - 13)}q3 -7 0 -10q-3 3 0 10`} fill={accent(300)} stroke="none" />
-                  <path d={`M${String(x)} ${String(y + 3)}l4 9 -4 9 -4 -9Z`} opacity="0.6" />
+                  <path
+                    d={`M${String(x)} ${String(y - 13)}q3 -7 0 -10q-3 3 0 10`}
+                    fill={accent(300)}
+                    stroke="none"
+                  />
+                  <path
+                    d={`M${String(x)} ${String(y + 3)}l4 9 -4 9 -4 -9Z`}
+                    opacity="0.6"
+                  />
                 </g>
               )
             })}
@@ -547,7 +721,11 @@ export default function Page(): ReactElement {
 
           const groupe = new three.Group()
 
-          const matiereLaiton = new three.MeshStandardMaterial({ color: laiton, metalness: 0.92, roughness: 0.26 })
+          const matiereLaiton = new three.MeshStandardMaterial({
+            color: laiton,
+            metalness: 0.92,
+            roughness: 0.26,
+          })
           const matiereCristal = new three.MeshPhysicalMaterial({
             color: cristal,
             metalness: 0,
@@ -605,7 +783,11 @@ export default function Page(): ReactElement {
               const sin = Math.sin(angle)
 
               const courbe = new three.Mesh(bras, matiereLaiton)
-              courbe.position.set(cos * (etage.rayon - 0.3), etage.y + 0.06, sin * (etage.rayon - 0.3))
+              courbe.position.set(
+                cos * (etage.rayon - 0.3),
+                etage.y + 0.06,
+                sin * (etage.rayon - 0.3),
+              )
               courbe.rotation.set(Math.PI / 2, 0, -angle + Math.PI / 2)
               groupe.add(courbe)
 
@@ -616,7 +798,11 @@ export default function Page(): ReactElement {
               bougies.push(feu)
 
               const pendeloque = new three.Mesh(goutte, matiereCristal)
-              pendeloque.position.set(cos * (etage.rayon - 0.16), etage.y - 0.26, sin * (etage.rayon - 0.16))
+              pendeloque.position.set(
+                cos * (etage.rayon - 0.16),
+                etage.y - 0.26,
+                sin * (etage.rayon - 0.16),
+              )
               groupe.add(cire, feu, pendeloque)
             }
           }
@@ -626,7 +812,12 @@ export default function Page(): ReactElement {
 
           // Sans lumiere de contour ni lampe de dessous, un lustre en laiton
           // est une tache noire : c est le defaut qu a eu la page modele.
-          eclairer(contexte, { cle: 0xffe6bb, remplissage: 0x6b7fb8, contour: 0xfff3dc, force: 1.15 })
+          eclairer(contexte, {
+            cle: 0xffe6bb,
+            remplissage: 0x6b7fb8,
+            contour: 0xfff3dc,
+            force: 1.15,
+          })
           const chaleur = new three.PointLight(0xffcf8a, 34, 14, 2)
           chaleur.position.set(1.5, 0.7, 0)
           const dessous = new three.PointLight(0xffe0b0, 16, 12, 2)
@@ -660,7 +851,10 @@ export default function Page(): ReactElement {
           groupe.rotation.x = Math.cos(time * 0.24) * 0.01
           let rang = 0
           for (const enfant of groupe.children) {
-            const mesh = enfant as { readonly isMesh?: boolean; scale: { setScalar: (v: number) => void } }
+            const mesh = enfant as {
+              readonly isMesh?: boolean
+              scale: { setScalar: (v: number) => void }
+            }
             if (mesh.isMesh !== true) continue
             rang += 1
             if (rang % 4 !== 1) continue
@@ -679,7 +873,10 @@ export default function Page(): ReactElement {
           ----- Le lustre, et ce qui passe devant ------------------------------
         */}
         <div ref={setPiste} className="o-relative">
-          <div className="o-sticky o-z-0 o-overflow-hidden" style={{ top: CHROME, height: ECRAN }}>
+          <div
+            className="o-sticky o-z-0 o-overflow-hidden"
+            style={{ top: CHROME, height: ECRAN }}
+          >
             <div
               aria-hidden="true"
               className="o-absolute o-inset-0 o-z-0"
@@ -710,30 +907,62 @@ export default function Page(): ReactElement {
               tout ecran, et la scene collee vit chez le parent — la clipper ici
               ne lui fait rien.
             */}
-            <section id="haut" className="o-relative o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
-              <BarreFilet marque="Grand Foyer" liens={NAVIGATION} action={['#billet', 'Billetterie']} />
-              <Filigrane taille={24} opacite={6} className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-2 o-z-0">
+            <section
+              id="haut"
+              className="o-relative o-flex o-flex-col o-overflow-hidden"
+              style={{ minHeight: ECRAN }}
+            >
+              <BarreFilet
+                marque="Grand Foyer"
+                liens={NAVIGATION}
+                action={['#billet', 'Billetterie']}
+              />
+              <Filigrane
+                taille={24}
+                opacite={6}
+                className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-2 o-z-0"
+              >
                 GRAND FOYER
               </Filigrane>
 
               <div className="o-relative o-z-10 o-flex o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-14 md:o-px-14 md:o-pb-24">
                 <Surgit>
-                  <Etiquette>Opera municipal — saison 2026, cent dix-huit representations</Etiquette>
+                  <Etiquette>
+                    Opera municipal — saison 2026, cent dix-huit representations
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={130}
                   className="o-m-0 o-mt-7 o-max-w-4xl"
-                  style={{ ...scene('l'), fontSize: 'clamp(2.4rem, 7.2vw, 7.5rem)', lineHeight: 0.94 }}
+                  style={{
+                    ...scene('l'),
+                    fontSize: 'clamp(2.4rem, 7.2vw, 7.5rem)',
+                    lineHeight: 0.94,
+                  }}
                 >
                   Choisissez le siege, pas la categorie.
                 </TitreVague>
                 <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-                  <Surgit delai={540} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6">
-                    Le plan de la salle est entier, et chaque place dit sa distance, son angle, sa hauteur et ce qu elle voit du plateau.
+                  <Surgit
+                    delai={540}
+                    as="p"
+                    className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6"
+                  >
+                    Le plan de la salle est entier, et chaque place dit sa distance, son
+                    angle, sa hauteur et ce qu elle voit du plateau.
                   </Surgit>
-                  <Surgit delai={660} className="md:o-col-span-6 md:o-flex md:o-justify-end">
+                  <Surgit
+                    delai={660}
+                    className="md:o-col-span-6 md:o-flex md:o-justify-end"
+                  >
                     <Actions
-                      pleine={['#salle', <>Ouvrir le plan <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                      pleine={[
+                        '#salle',
+                        <>
+                          Ouvrir le plan{' '}
+                          <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                        </>,
+                      ]}
                       fantome={['#maison', 'La maison']}
                     />
                   </Surgit>
@@ -755,22 +984,38 @@ export default function Page(): ReactElement {
                     <p
                       aria-hidden="true"
                       className="o-m-0 o-tabular-nums"
-                      style={{ ...scene('xl'), fontSize: 'clamp(4rem, 15vw, 14rem)', lineHeight: 0.8, color: accentDoux(400, 34) }}
+                      style={{
+                        ...scene('xl'),
+                        fontSize: 'clamp(4rem, 15vw, 14rem)',
+                        lineHeight: 0.8,
+                        color: accentDoux(400, 34),
+                      }}
                     >
                       {String(acte + 1)}
                     </p>
 
                     <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                       <div className="md:o-col-span-4">
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                        <p
+                          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encreSurSombre() }}
+                        >
                           Acte {String(acte + 1)} — {a.mot}
                         </p>
                       </div>
                       <div className="o-min-w-0 md:o-col-span-8">
-                        <h2 className="o-m-0 o-max-w-3xl o-text-balance" style={{ ...scene('m'), fontSize: 'clamp(1.6rem, 4vw, 3.75rem)' }}>
+                        <h2
+                          className="o-m-0 o-max-w-3xl o-text-balance"
+                          style={{
+                            ...scene('m'),
+                            fontSize: 'clamp(1.6rem, 4vw, 3.75rem)',
+                          }}
+                        >
                           {a.titre}
                         </h2>
-                        <p className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">{a.texte}</p>
+                        <p className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
+                          {a.texte}
+                        </p>
                       </div>
                     </div>
 
@@ -781,7 +1026,10 @@ export default function Page(): ReactElement {
                           key={autre.mot}
                           className="o-h-0.5 o-grow o-transition-all"
                           style={{
-                            backgroundColor: rang <= acte ? encreSurSombre() : 'var(--o-palette-zinc-800)',
+                            backgroundColor:
+                              rang <= acte
+                                ? encreSurSombre()
+                                : 'var(--o-palette-zinc-800)',
                             opacity: rang === acte ? 1 : 0.6,
                             transform: `scaleY(${rang === acte ? String(3 + (reduced ? 1 : progression) * 2) : '1'})`,
                           }}
@@ -795,22 +1043,32 @@ export default function Page(): ReactElement {
           </div>
         </div>
 
-        <main className="o-relative o-z-10" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
+        <main
+          className="o-relative o-z-10"
+          style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+        >
           {/*
             ----- Le mecanisme : la salle -----------------------------------------
           */}
-          <section id="salle" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28">
+          <section
+            id="salle"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28"
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="01">La salle</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 4vw, 3.75rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-3xl"
+                  style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 4vw, 3.75rem)' }}
+                >
                   <SpotlightText as="span" radius={280} rest={0.62}>
                     Mille huit cent quarante-deux places, et ce que chacune voit.
                   </SpotlightText>
                 </h2>
               </div>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-4 md:o-text-right">
-                Cliquez un siege sur le plan :<br />la vue se redessine depuis lui
+                Cliquez un siege sur le plan :<br />
+                la vue se redessine depuis lui
               </p>
             </div>
 
@@ -821,8 +1079,17 @@ export default function Page(): ReactElement {
                 {/* La legende des categories. */}
                 <ul className="o-m-0 o-mt-6 o-flex o-list-none o-flex-wrap o-gap-x-6 o-gap-y-2 o-p-0">
                   {TARIFS.map((prix, rang) => (
-                    <li key={prix} className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                      <span aria-hidden="true" className="o-size-3 o-rounded-sm" style={{ backgroundColor: accent([300, 400, 500, 700, 800][rang] ?? 700) }} />
+                    <li
+                      key={prix}
+                      className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-size-3 o-rounded-sm"
+                        style={{
+                          backgroundColor: accent([300, 400, 500, 700, 800][rang] ?? 700),
+                        }}
+                      />
                       Categorie {rang + 1} — {prix} EUR
                     </li>
                   ))}
@@ -831,10 +1098,15 @@ export default function Page(): ReactElement {
                 <dl className="o-m-0 o-mt-10 o-grid o-gap-x-8 o-gap-y-4 sm:o-grid-cols-2">
                   {ZONES.map((zone) => (
                     <div key={zone.cle} className="o-border-t o-border-white-10 o-pt-3">
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: encreSurSombre() }}
+                      >
                         {zone.nom}
                       </dt>
-                      <dd className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-zinc-400">{zone.note}</dd>
+                      <dd className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-zinc-400">
+                        {zone.note}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -843,38 +1115,74 @@ export default function Page(): ReactElement {
               {/* La vue depuis le siege, et ses quatre nombres. */}
               <div className="o-min-w-0 lg:o-col-span-5">
                 <div className="o-border-w-1 o-border-white-10 o-p-5">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">La vue depuis ce siege</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    La vue depuis ce siege
+                  </p>
                   <div className="o-mt-4 o-overflow-hidden">
                     <VueDuSiege s={place} />
                   </div>
                   <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-500">
-                    Dessin calcule sur la distance, l angle et la hauteur du siege. Il ne remplace pas une visite, il en donne la geometrie.
+                    Dessin calcule sur la distance, l angle et la hauteur du siege. Il ne
+                    remplace pas une visite, il en donne la geometrie.
                   </p>
                 </div>
 
                 <div aria-live="polite" className="o-mt-8">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     Categorie {place.categorie}
                   </p>
-                  <p className="o-m-0 o-mt-3" style={{ ...scene('m'), fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
+                  <p
+                    className="o-m-0 o-mt-3"
+                    style={{ ...scene('m'), fontSize: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+                  >
                     {place.rang}, place {place.numero}
                   </p>
                   <dl className="o-m-0 o-mt-7">
                     {(
                       [
-                        ['Distance au rideau', `${place.distance.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} m`],
+                        [
+                          'Distance au rideau',
+                          `${place.distance.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} m`,
+                        ],
                         ['Hauteur sur le plateau', `${String(place.hauteur)} m`],
-                        ['Ecart a l axe', `${String(Math.round(Math.abs(place.lateral) * 100))} %${place.lateral === 0 ? '' : place.lateral < 0 ? ' cote jardin' : ' cote cour'}`],
-                        ['Visibilite', place.visibilite === 'totale' ? 'Totale' : place.visibilite === 'partielle' ? 'Partielle — un bord du plateau echappe' : 'Reduite — le fond du plateau ne se voit pas'],
+                        [
+                          'Ecart a l axe',
+                          `${String(Math.round(Math.abs(place.lateral) * 100))} %${place.lateral === 0 ? '' : place.lateral < 0 ? ' cote jardin' : ' cote cour'}`,
+                        ],
+                        [
+                          'Visibilite',
+                          place.visibilite === 'totale'
+                            ? 'Totale'
+                            : place.visibilite === 'partielle'
+                              ? 'Partielle — un bord du plateau echappe'
+                              : 'Reduite — le fond du plateau ne se voit pas',
+                        ],
                       ] as const
                     ).map(([quoi, valeur]) => (
-                      <div key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-white-10 o-py-3 sm:o-grid-cols-12">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-6">{quoi}</dt>
-                        <dd className="o-m-0 o-text-sm o-tabular-nums o-text-zinc-100 sm:o-col-span-6">{valeur}</dd>
+                      <div
+                        key={quoi}
+                        className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-white-10 o-py-3 sm:o-grid-cols-12"
+                      >
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-6">
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-text-sm o-tabular-nums o-text-zinc-100 sm:o-col-span-6">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="o-m-0 o-mt-8 o-tabular-nums" style={{ ...scene('m'), fontSize: 'clamp(2rem, 4vw, 3.25rem)', color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-mt-8 o-tabular-nums"
+                    style={{
+                      ...scene('m'),
+                      fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                      color: encreSurSombre(),
+                    }}
+                  >
                     {place.prix} EUR
                   </p>
                   <p className="o-m-0 o-mt-2 o-text-sm o-text-zinc-400">
@@ -890,28 +1198,61 @@ export default function Page(): ReactElement {
           {/*
             ----- La maison : les chiffres sur la frise (C29) ---------------------
           */}
-          <section id="maison" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28" style={{ backgroundColor: accentDoux(950, 32) }}>
+          <section
+            id="maison"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28"
+            style={{ backgroundColor: accentDoux(950, 32) }}
+          >
             <Indice rang="02">La maison</Indice>
-            <h2 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}>
+            <h2
+              className="o-m-0 o-mt-5 o-max-w-2xl"
+              style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}
+            >
               Cent quatre-vingt-douze ans, un incendie, et une polychromie rendue.
             </h2>
 
             <ol className="o-m-0 o-mt-16 o-grid o-list-none o-gap-0 o-p-0 md:o-grid-cols-6">
               {FRISE.map((date, rang) => (
-                <li key={date.annee} className="o-relative o-flex o-gap-5 o-pb-10 md:o-block md:o-pb-0 md:o-pr-6">
-                  <span aria-hidden="true" className="o-absolute o-bottom-0 o-left-1.5 o-top-4 o-w-px o-bg-white-20 md:o-hidden" />
-                  <span aria-hidden="true" className="o-absolute o-left-0 o-right-0 o-top-1.5 o-hidden o-h-px o-bg-white-20 md:o-block" />
+                <li
+                  key={date.annee}
+                  className="o-relative o-flex o-gap-5 o-pb-10 md:o-block md:o-pb-0 md:o-pr-6"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="o-absolute o-bottom-0 o-left-1.5 o-top-4 o-w-px o-bg-white-20 md:o-hidden"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="o-absolute o-left-0 o-right-0 o-top-1.5 o-hidden o-h-px o-bg-white-20 md:o-block"
+                  />
                   <span
                     aria-hidden="true"
                     className="o-relative o-mt-3 o-block o-size-3 o-shrink-0 o-rounded-full md:o-mt-0"
-                    style={{ backgroundColor: rang === FRISE.length - 1 ? encreSurSombre() : 'var(--o-palette-zinc-950)', border: `2px solid ${encreSurSombre()}` }}
+                    style={{
+                      backgroundColor:
+                        rang === FRISE.length - 1
+                          ? encreSurSombre()
+                          : 'var(--o-palette-zinc-950)',
+                      border: `2px solid ${encreSurSombre()}`,
+                    }}
                   />
                   <div className="o-min-w-0 md:o-mt-6">
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums o-text-zinc-400">{date.annee}</p>
-                    <p className="o-m-0 o-mt-3 o-tabular-nums" style={{ ...scene('m'), fontSize: 'clamp(1.9rem, 3.4vw, 3rem)', color: encreSurSombre() }}>
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums o-text-zinc-400">
+                      {date.annee}
+                    </p>
+                    <p
+                      className="o-m-0 o-mt-3 o-tabular-nums"
+                      style={{
+                        ...scene('m'),
+                        fontSize: 'clamp(1.9rem, 3.4vw, 3rem)',
+                        color: encreSurSombre(),
+                      }}
+                    >
                       {date.valeur}
                     </p>
-                    <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-zinc-400">{date.quoi}</p>
+                    <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-zinc-400">
+                      {date.quoi}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -921,19 +1262,33 @@ export default function Page(): ReactElement {
           {/*
             ----- L appel : le billet, recto verso (A43) --------------------------
           */}
-          <section id="billet" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28">
+          <section
+            id="billet"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-14 md:o-py-28"
+          >
             <div className="o-grid o-gap-12 lg:o-grid-cols-12 lg:o-items-center">
               <div className="lg:o-col-span-5">
                 <Indice rang="03">Le billet</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-md" style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-md"
+                  style={{ ...scene('m'), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}
+                >
                   A imprimer, ou a retirer au guichet.
                 </h2>
                 <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">
-                  Le billet porte la place que vous venez de choisir. Retournez-le : le verso dit l acces, l heure de fermeture des portes, et ce qui se passe si vous arrivez apres.
+                  Le billet porte la place que vous venez de choisir. Retournez-le : le
+                  verso dit l acces, l heure de fermeture des portes, et ce qui se passe
+                  si vous arrivez apres.
                 </p>
                 <div className="o-mt-9">
                   <Actions
-                    pleine={['#salle', <>Changer de place <Icon icon={Ticket} size={16} aria-hidden="true" /></>]}
+                    pleine={[
+                      '#salle',
+                      <>
+                        Changer de place{' '}
+                        <Icon icon={Ticket} size={16} aria-hidden="true" />
+                      </>,
+                    ]}
                     fantome={['tel:+33467661414', '04 67 66 14 14']}
                   />
                 </div>
@@ -945,16 +1300,33 @@ export default function Page(): ReactElement {
                   style={{ height: 300 }}
                   direction="horizontal"
                   front={
-                    <div className="o-flex o-h-full o-overflow-hidden o-border-w-1" style={{ borderColor: accent(600), backgroundColor: accentDoux(900, 55) }}>
+                    <div
+                      className="o-flex o-h-full o-overflow-hidden o-border-w-1"
+                      style={{
+                        borderColor: accent(600),
+                        backgroundColor: accentDoux(900, 55),
+                      }}
+                    >
                       <div className="o-flex o-min-w-0 o-grow o-flex-col o-justify-between o-p-6">
                         <div>
-                          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                          <p
+                            className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                            style={{ color: encreSurSombre() }}
+                          >
                             Grand Foyer — saison 2026
                           </p>
-                          <p className="o-m-0 o-mt-4" style={{ ...scene('m'), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)' }}>
+                          <p
+                            className="o-m-0 o-mt-4"
+                            style={{
+                              ...scene('m'),
+                              fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)',
+                            }}
+                          >
                             Les Noces
                           </p>
-                          <p className="o-m-0 o-mt-1 o-text-sm o-text-zinc-400">Samedi 14 novembre, 20 h — duree 3 h 05, un entracte</p>
+                          <p className="o-m-0 o-mt-1 o-text-sm o-text-zinc-400">
+                            Samedi 14 novembre, 20 h — duree 3 h 05, un entracte
+                          </p>
                         </div>
                         <dl className="o-m-0 o-grid o-grid-cols-3 o-gap-4">
                           {(
@@ -965,8 +1337,12 @@ export default function Page(): ReactElement {
                             ] as const
                           ).map(([quoi, valeur]) => (
                             <div key={quoi}>
-                              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
-                              <dd className="o-m-0 o-mt-1 o-text-sm o-tabular-nums o-text-zinc-100">{valeur}</dd>
+                              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                                {quoi}
+                              </dt>
+                              <dd className="o-m-0 o-mt-1 o-text-sm o-tabular-nums o-text-zinc-100">
+                                {valeur}
+                              </dd>
                             </div>
                           ))}
                         </dl>
@@ -974,18 +1350,34 @@ export default function Page(): ReactElement {
                       {/* La souche, detachable. */}
                       <div
                         className="o-flex o-w-24 o-shrink-0 o-flex-col o-items-center o-justify-center o-gap-3 o-border-l"
-                        style={{ borderColor: accent(600), borderLeftStyle: 'dashed', backgroundColor: accentDoux(800, 50) }}
+                        style={{
+                          borderColor: accent(600),
+                          borderLeftStyle: 'dashed',
+                          backgroundColor: accentDoux(800, 50),
+                        }}
                       >
-                        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" style={{ writingMode: 'vertical-rl' }}>
+                        <span
+                          className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                          style={{ writingMode: 'vertical-rl' }}
+                        >
                           Souche — controle
                         </span>
                       </div>
                     </div>
                   }
                   back={
-                    <div className="o-flex o-h-full o-flex-col o-justify-between o-border-w-1 o-p-6" style={{ borderColor: accent(600), backgroundColor: 'var(--o-palette-zinc-900)' }}>
+                    <div
+                      className="o-flex o-h-full o-flex-col o-justify-between o-border-w-1 o-p-6"
+                      style={{
+                        borderColor: accent(600),
+                        backgroundColor: 'var(--o-palette-zinc-900)',
+                      }}
+                    >
                       <div>
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                        <p
+                          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encreSurSombre() }}
+                        >
                           Verso — ce qu il faut savoir
                         </p>
                         <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-col o-gap-2.5 o-p-0 o-text-sm o-leading-relaxed o-text-zinc-300">
@@ -1016,20 +1408,63 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : il porte un plan de salle (P44) -------------------------
         */}
-        <footer className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-10 o-pt-16 md:o-px-14" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
+        <footer
+          className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-10 o-pt-16 md:o-px-14"
+          style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+        >
           <div className="o-grid o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-5">
               {/* Le plan, en petit : les entrees, les niveaux, le vestiaire. */}
-              <svg viewBox="0 0 340 220" className="o-h-auto o-w-full o-max-w-sm" aria-hidden="true" fill="none">
-                <rect x="60" y="10" width="220" height="30" fill={accentDoux(700, 45)} stroke={accent(600)} strokeOpacity="0.6" />
-                <path d="M76 48h188a94 94 0 0 1-188 0Z" fill={accentDoux(900, 60)} stroke={accent(700)} strokeOpacity="0.6" />
+              <svg
+                viewBox="0 0 340 220"
+                className="o-h-auto o-w-full o-max-w-sm"
+                aria-hidden="true"
+                fill="none"
+              >
+                <rect
+                  x="60"
+                  y="10"
+                  width="220"
+                  height="30"
+                  fill={accentDoux(700, 45)}
+                  stroke={accent(600)}
+                  strokeOpacity="0.6"
+                />
+                <path
+                  d="M76 48h188a94 94 0 0 1-188 0Z"
+                  fill={accentDoux(900, 60)}
+                  stroke={accent(700)}
+                  strokeOpacity="0.6"
+                />
                 <path d="M40 62h260v120H40Z" stroke={accent(700)} strokeOpacity="0.45" />
-                <path d="M40 148h260M40 166h260" stroke={accent(700)} strokeOpacity="0.3" />
-                <path d="M14 62v120M326 62v120" stroke={accent(700)} strokeOpacity="0.45" />
+                <path
+                  d="M40 148h260M40 166h260"
+                  stroke={accent(700)}
+                  strokeOpacity="0.3"
+                />
+                <path
+                  d="M14 62v120M326 62v120"
+                  stroke={accent(700)}
+                  strokeOpacity="0.45"
+                />
                 {[86, 112, 138].map((y) => (
                   <g key={y}>
-                    <rect x="16" y={y} width="20" height="18" stroke={accent(600)} strokeOpacity="0.6" />
-                    <rect x="304" y={y} width="20" height="18" stroke={accent(600)} strokeOpacity="0.6" />
+                    <rect
+                      x="16"
+                      y={y}
+                      width="20"
+                      height="18"
+                      stroke={accent(600)}
+                      strokeOpacity="0.6"
+                    />
+                    <rect
+                      x="304"
+                      y={y}
+                      width="20"
+                      height="18"
+                      stroke={accent(600)}
+                      strokeOpacity="0.6"
+                    />
                   </g>
                 ))}
                 {(
@@ -1041,7 +1476,16 @@ export default function Page(): ReactElement {
                     [170, 206, 'ENTREE — PLACE DE LA COMEDIE'],
                   ] as const
                 ).map(([x, y, mot]) => (
-                  <text key={mot} x={x} y={y} textAnchor="middle" className="o-font-mono" fontSize="9" fill="var(--o-palette-zinc-400)" letterSpacing="2.5">
+                  <text
+                    key={mot}
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    className="o-font-mono"
+                    fontSize="9"
+                    fill="var(--o-palette-zinc-400)"
+                    letterSpacing="2.5"
+                  >
                     {mot}
                   </text>
                 ))}
@@ -1053,21 +1497,37 @@ export default function Page(): ReactElement {
             </div>
 
             <div className="md:o-col-span-7">
-              <p className="o-m-0" style={{ ...scene('m'), fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
+              <p
+                className="o-m-0"
+                style={{ ...scene('m'), fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}
+              >
                 Grand Foyer
               </p>
               <dl className="o-m-0 o-mt-8 o-grid o-gap-x-8 o-gap-y-5 sm:o-grid-cols-2">
                 {(
                   [
-                    ['Guichet', 'Place de la Comedie, 34000 Montpellier — mardi au samedi, 12 h a 19 h'],
+                    [
+                      'Guichet',
+                      'Place de la Comedie, 34000 Montpellier — mardi au samedi, 12 h a 19 h',
+                    ],
                     ['Telephone', '04 67 66 14 14, du mardi au samedi'],
-                    ['Moins de 26 ans', 'Dix euros une heure avant, sur les places restantes, sans reservation'],
-                    ['Accessibilite', 'Six emplacements au parterre, ascenseur cote jardin, boucle magnetique en salle'],
+                    [
+                      'Moins de 26 ans',
+                      'Dix euros une heure avant, sur les places restantes, sans reservation',
+                    ],
+                    [
+                      'Accessibilite',
+                      'Six emplacements au parterre, ascenseur cote jardin, boucle magnetique en salle',
+                    ],
                   ] as const
                 ).map(([quoi, valeur]) => (
                   <div key={quoi} className="o-border-t o-border-white-10 o-pt-3">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
-                    <dd className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-300">{valeur}</dd>
+                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                      {quoi}
+                    </dt>
+                    <dd className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-300">
+                      {valeur}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -1085,8 +1545,14 @@ export default function Page(): ReactElement {
           </div>
 
           <p className="o-m-0 o-mt-14 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-            <span>© 2026 Grand Foyer — regie municipale, licences 1-104 227, 2-104 228, 3-104 229</span>
-            <a href="#haut" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">
+            <span>
+              © 2026 Grand Foyer — regie municipale, licences 1-104 227, 2-104 228, 3-104
+              229
+            </span>
+            <a
+              href="#haut"
+              className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+            >
               Remonter ↑
             </a>
           </p>

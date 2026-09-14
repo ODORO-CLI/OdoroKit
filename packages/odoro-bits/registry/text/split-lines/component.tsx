@@ -256,10 +256,7 @@ export function SplitLines({
 
         animations.push(
           interieur.animate(
-            [
-              { transform: 'translateY(110%)' },
-              { transform: 'translateY(0)' },
-            ],
+            [{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }],
             {
               duration,
               delay: delay + index * stagger,
@@ -309,10 +306,7 @@ export function SplitLines({
       style={style as CSSProperties}
       data-o-split-lines=""
     >
-      <span
-        ref={refSource}
-        {...(construit ? { 'data-o-split-lines-hidden': '' } : {})}
-      >
+      <span ref={refSource} {...(construit ? { 'data-o-split-lines-hidden': '' } : {})}>
         {children}
       </span>
       <span ref={refCalque} aria-hidden="true" data-o-split-lines-layer="" />

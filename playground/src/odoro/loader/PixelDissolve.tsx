@@ -236,9 +236,12 @@ export function PixelDissolve({
   useEffect(() => {
     if (!sortant) return
 
-    const minuteur = window.setTimeout(() => {
-      setParti(true)
-    }, exitMs + spreadMs + 40)
+    const minuteur = window.setTimeout(
+      () => {
+        setParti(true)
+      },
+      exitMs + spreadMs + 40,
+    )
 
     return () => {
       window.clearTimeout(minuteur)

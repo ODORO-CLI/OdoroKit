@@ -50,7 +50,15 @@ import { clock, CLOCK_PRIORITY, useMotionState } from '@odoro-cli/engine'
 import { type SceneContext } from '@odoro-cli/engine/three'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/filaire'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { SplitReveal } from '@/odoro/text/SplitReveal.jsx'
 import { AnimatedList } from '@/odoro/ui/AnimatedList.jsx'
@@ -179,9 +187,30 @@ interface Salle {
 
 /** Les trois pieces proposees. */
 const SALLES = [
-  { cle: 'salon', nom: 'Le salon', longueur: 5.4, largeur: 4.2, hauteur: 2.5, sol: 'Parquet, un tapis de laine, rideaux epais' },
-  { cle: 'chambre', nom: 'La chambre', longueur: 3.6, largeur: 3.0, hauteur: 2.4, sol: 'Moquette, un lit, une armoire pleine' },
-  { cle: 'plateau', nom: 'Le plateau', longueur: 9.0, largeur: 6.5, hauteur: 3.2, sol: 'Beton cire, verrieres, rien au mur' },
+  {
+    cle: 'salon',
+    nom: 'Le salon',
+    longueur: 5.4,
+    largeur: 4.2,
+    hauteur: 2.5,
+    sol: 'Parquet, un tapis de laine, rideaux epais',
+  },
+  {
+    cle: 'chambre',
+    nom: 'La chambre',
+    longueur: 3.6,
+    largeur: 3.0,
+    hauteur: 2.4,
+    sol: 'Moquette, un lit, une armoire pleine',
+  },
+  {
+    cle: 'plateau',
+    nom: 'Le plateau',
+    longueur: 9.0,
+    largeur: 6.5,
+    hauteur: 3.2,
+    sol: 'Beton cire, verrieres, rien au mur',
+  },
 ] as const satisfies readonly Salle[]
 
 /** Les quatre reculs possibles par rapport au mur de derriere, en metres. */
@@ -215,9 +244,27 @@ interface Finition {
 
 /** Les trois finitions, du plus froid au plus chaud. */
 const FINITIONS = [
-  { cle: 'graphite', nom: 'Laque graphite', t: 0, matiere: 'Six couches, poncees a l eau entre chacune', prix: 0 },
-  { cle: 'frene', nom: 'Frene sable', t: 0.5, matiere: 'Placage tranche, veine debout, cire dure', prix: 180 },
-  { cle: 'noyer', nom: 'Noyer huile', t: 1, matiere: 'Placage sur contreplaque bouleau, huile dure', prix: 340 },
+  {
+    cle: 'graphite',
+    nom: 'Laque graphite',
+    t: 0,
+    matiere: 'Six couches, poncees a l eau entre chacune',
+    prix: 0,
+  },
+  {
+    cle: 'frene',
+    nom: 'Frene sable',
+    t: 0.5,
+    matiere: 'Placage tranche, veine debout, cire dure',
+    prix: 180,
+  },
+  {
+    cle: 'noyer',
+    nom: 'Noyer huile',
+    t: 1,
+    matiere: 'Placage sur contreplaque bouleau, huile dure',
+    prix: 340,
+  },
 ] as const satisfies readonly Finition[]
 
 /** Un support, sous l enceinte. */
@@ -244,11 +291,27 @@ const NAVIGATION = [
 
 /** Les pieces du coffret, numerotees sur la coupe. */
 const COUPE = [
-  ['01', 'Grave', 'Membrane en papier charge, saladier en fonte injectee, suspension caoutchouc.'],
-  ['02', 'Dome', 'Vingt-cinq millimetres, tissu enduit, chambre arriere amortie a la laine.'],
+  [
+    '01',
+    'Grave',
+    'Membrane en papier charge, saladier en fonte injectee, suspension caoutchouc.',
+  ],
+  [
+    '02',
+    'Dome',
+    'Vingt-cinq millimetres, tissu enduit, chambre arriere amortie a la laine.',
+  ],
   ['03', 'Filtre', 'Deux cellules du second ordre, bobines a air, condensateurs film.'],
-  ['04', 'Event', 'Section evasee aux deux bouts : un event droit siffle des qu il travaille.'],
-  ['05', 'Cloison', 'Une traverse collee entre les deux faces : le panneau ne chante plus.'],
+  [
+    '04',
+    'Event',
+    'Section evasee aux deux bouts : un event droit siffle des qu il travaille.',
+  ],
+  [
+    '05',
+    'Cloison',
+    'Une traverse collee entre les deux faces : le panneau ne chante plus.',
+  ],
   ['06', 'Amortissement', 'Feutre de laine, quatre cents grammes, agrafe et non colle.'],
 ] as const
 
@@ -273,10 +336,17 @@ const CODES = [
  * de derriere, le gain de piece, les modes, et l angle. Rien n est lisse : les
  * creux profonds de la courbe sont ceux qu on mesure vraiment au micro.
  */
-function reponse(m: Modele, salle: Salle, recul: number, position: Position, f: number): number {
+function reponse(
+  m: Modele,
+  salle: Salle,
+  recul: number,
+  position: Position,
+  f: number,
+): number {
   // Le coffret : un passe-haut du quatrieme ordre a la frequence d accord, et
   // la directivite du dome qui retombe tout en haut.
-  const coffret = -10 * Math.log10(1 + (m.accord / f) ** 8) - 10 * Math.log10(1 + (f / 17000) ** 4)
+  const coffret =
+    -10 * Math.log10(1 + (m.accord / f) ** 8) - 10 * Math.log10(1 + (f / 17000) ** 4)
 
   // Le mur de derriere : l onde reflechie a parcouru deux fois le recul de
   // plus que l onde directe. Somme des deux pressions, en module.
@@ -287,14 +357,16 @@ function reponse(m: Modele, salle: Salle, recul: number, position: Position, f: 
   // les creux se comblent, et une mesure lissee au tiers d octave ne montre
   // plus rien : la coherence retombe donc avec la frequence.
   const coherence = 1 / (1 + (f / 500) ** 2)
-  const mur = coherence * 10 * Math.log10(Math.max(0.015, 1 + r * r + 2 * r * Math.cos(marche)))
+  const mur =
+    coherence * 10 * Math.log10(Math.max(0.015, 1 + r * r + 2 * r * Math.cos(marche)))
 
   // Le premier mode axial, et le gain de pression qui monte sous lui.
   const premier = CELERITE / (2 * salle.longueur)
   const gain = f < premier ? Math.min(11, 8 * Math.log2(premier / f)) : 0
 
   // Les deux premiers modes axiaux, longueur et largeur : deux bosses.
-  const bosse = (centre: number, hauteur: number): number => hauteur / (1 + ((f - centre) / (centre / 8)) ** 2)
+  const bosse = (centre: number, hauteur: number): number =>
+    hauteur / (1 + ((f - centre) / (centre / 8)) ** 2)
   const modes = bosse(premier, 5) + bosse(CELERITE / (2 * salle.largeur), 4)
 
   // L angle : deux parois de plus, donc du grave en plus, et seulement la.
@@ -328,7 +400,9 @@ interface Courbe {
 
 /** Calcule la courbe et les quatre valeurs qu on en tire. */
 function courbeDe(m: Modele, salle: Salle, recul: number, position: Position): Courbe {
-  const valeurs = Array.from({ length: POINTS }, (_, rang) => reponse(m, salle, recul, position, frequenceDe(rang)))
+  const valeurs = Array.from({ length: POINTS }, (_, rang) =>
+    reponse(m, salle, recul, position, frequenceDe(rang)),
+  )
 
   // La coupure : le point le plus bas a partir duquel la courbe ne redescend
   // plus sous moins trois decibels.
@@ -368,7 +442,10 @@ function courbeDe(m: Modele, salle: Salle, recul: number, position: Position): C
 
 /** Un nombre a la francaise. */
 function nombre(valeur: number, decimales = 0): string {
-  return valeur.toLocaleString('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+  return valeur.toLocaleString('fr-FR', {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })
 }
 
 /** Une frequence ecrite comme on la dit : « 286 Hz », « 2,2 kHz ». */
@@ -412,7 +489,10 @@ function abscisse(f: number): number {
 /** L ordonnee d un niveau. */
 function ordonnee(db: number): number {
   const borne = Math.max(CADRE.minDb, Math.min(CADRE.maxDb, db))
-  return CADRE.bas - ((borne - CADRE.minDb) / (CADRE.maxDb - CADRE.minDb)) * (CADRE.bas - CADRE.haut)
+  return (
+    CADRE.bas -
+    ((borne - CADRE.minDb) / (CADRE.maxDb - CADRE.minDb)) * (CADRE.bas - CADRE.haut)
+  )
 }
 
 /** Les frequences graduees, celles d une feuille de mesure. */
@@ -437,7 +517,10 @@ function CourbeDessinee({
   readonly curseur: (element: SVGGElement | null) => void
 }): ReactElement {
   const trace = useMemo(() => {
-    const points = courbe.valeurs.map((db, rang) => `${abscisse(frequenceDe(rang)).toFixed(1)} ${ordonnee(db).toFixed(1)}`)
+    const points = courbe.valeurs.map(
+      (db, rang) =>
+        `${abscisse(frequenceDe(rang)).toFixed(1)} ${ordonnee(db).toFixed(1)}`,
+    )
     return {
       ligne: `M${points.join('L')}`,
       aire: `M${points.join('L')}L${String(CADRE.droite)} ${ordonnee(0).toFixed(1)}L${String(CADRE.gauche)} ${ordonnee(0).toFixed(1)}Z`,
@@ -447,20 +530,48 @@ function CourbeDessinee({
   const trait = teinteFinition(finition.t, 300)
 
   return (
-    <svg viewBox="0 0 726 320" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 726 320"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       {/* La grille de la feuille de mesure : decades et decibels. */}
       <g stroke="var(--o-palette-zinc-800)" strokeWidth="1">
         {GRADUATIONS.map((f) => (
-          <line key={f} x1={abscisse(f).toFixed(1)} y1={CADRE.haut} x2={abscisse(f).toFixed(1)} y2={CADRE.bas} />
+          <line
+            key={f}
+            x1={abscisse(f).toFixed(1)}
+            y1={CADRE.haut}
+            x2={abscisse(f).toFixed(1)}
+            y2={CADRE.bas}
+          />
         ))}
         {[-18, -12, -6, 0, 6, 12].map((db) => (
-          <line key={db} x1={CADRE.gauche} y1={ordonnee(db).toFixed(1)} x2={CADRE.droite} y2={ordonnee(db).toFixed(1)} opacity={db === 0 ? 1 : 0.55} />
+          <line
+            key={db}
+            x1={CADRE.gauche}
+            y1={ordonnee(db).toFixed(1)}
+            x2={CADRE.droite}
+            y2={ordonnee(db).toFixed(1)}
+            opacity={db === 0 ? 1 : 0.55}
+          />
         ))}
       </g>
       {/* La tolerance : plus ou moins trois decibels. */}
       <g stroke="var(--o-palette-zinc-600)" strokeWidth="1" strokeDasharray="3 5">
-        <line x1={CADRE.gauche} y1={ordonnee(3).toFixed(1)} x2={CADRE.droite} y2={ordonnee(3).toFixed(1)} />
-        <line x1={CADRE.gauche} y1={ordonnee(-3).toFixed(1)} x2={CADRE.droite} y2={ordonnee(-3).toFixed(1)} />
+        <line
+          x1={CADRE.gauche}
+          y1={ordonnee(3).toFixed(1)}
+          x2={CADRE.droite}
+          y2={ordonnee(3).toFixed(1)}
+        />
+        <line
+          x1={CADRE.gauche}
+          y1={ordonnee(-3).toFixed(1)}
+          x2={CADRE.droite}
+          y2={ordonnee(-3).toFixed(1)}
+        />
       </g>
 
       <path d={trace.aire} fill={trait} fillOpacity="0.2" />
@@ -468,12 +579,28 @@ function CourbeDessinee({
 
       {/* Le curseur du balayage : un trait, un point, et rien d autre. */}
       <g ref={curseur} style={{ transform: `translateX(${String(CADRE.gauche)}px)` }}>
-        <line x1="0" y1={CADRE.haut} x2="0" y2={CADRE.bas} stroke={encreSurSombre()} strokeWidth="1.4" />
-        <circle cx="0" cy={ordonnee(0)} r="5" fill={encreSurSombre()} data-o-membrane-point="" />
+        <line
+          x1="0"
+          y1={CADRE.haut}
+          x2="0"
+          y2={CADRE.bas}
+          stroke={encreSurSombre()}
+          strokeWidth="1.4"
+        />
+        <circle
+          cx="0"
+          cy={ordonnee(0)}
+          r="5"
+          fill={encreSurSombre()}
+          data-o-membrane-point=""
+        />
       </g>
 
       {/* Les graduations ecrites. */}
-      <g fill="var(--o-palette-zinc-400)" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}>
+      <g
+        fill="var(--o-palette-zinc-400)"
+        style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}
+      >
         {GRADUATIONS.map((f) => (
           <text key={f} x={abscisse(f).toFixed(1)} y="302" textAnchor="middle">
             {f >= 1000 ? `${String(f / 1000)}k` : String(f)}
@@ -484,8 +611,12 @@ function CourbeDessinee({
             {db > 0 ? `+${String(db)}` : String(db)}
           </text>
         ))}
-        <text x={CADRE.gauche} y="12">dB</text>
-        <text x={CADRE.droite} y="12" textAnchor="end">Hz</text>
+        <text x={CADRE.gauche} y="12">
+          dB
+        </text>
+        <text x={CADRE.droite} y="12" textAnchor="end">
+          Hz
+        </text>
       </g>
     </svg>
   )
@@ -500,49 +631,144 @@ function CourbeDessinee({
  * la meme finition, le meme haut-parleur, le meme event. Une page dont le sujet
  * disparait avec la troisieme dimension n a pas de sujet.
  */
-function EnceinteDessinee({ modele, finition }: { readonly modele: Modele; readonly finition: Finition }): ReactElement {
+function EnceinteDessinee({
+  modele,
+  finition,
+}: {
+  readonly modele: Modele
+  readonly finition: Finition
+}): ReactElement {
   const face = teinteFinition(finition.t, 600)
   const cote = teinteFinition(finition.t, 800)
   const arete = teinteFinition(finition.t, 300)
   const colonne = modele.cle === 'm24'
 
   return (
-    <svg viewBox="0 0 320 400" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 320 400"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       {/* Le profil, derriere, en retrait. */}
-      <path d="M232 62 L286 82 L286 366 L232 346 Z" fill={cote} stroke={arete} strokeWidth="1" strokeOpacity="0.4" />
+      <path
+        d="M232 62 L286 82 L286 366 L232 346 Z"
+        fill={cote}
+        stroke={arete}
+        strokeWidth="1"
+        strokeOpacity="0.4"
+      />
       {/* La face. */}
-      <rect x="52" y="62" width="180" height="284" rx="4" fill={face} stroke={arete} strokeWidth="1.2" strokeOpacity="0.55" />
+      <rect
+        x="52"
+        y="62"
+        width="180"
+        height="284"
+        rx="4"
+        fill={face}
+        stroke={arete}
+        strokeWidth="1.2"
+        strokeOpacity="0.55"
+      />
       <path d="M52 62 L232 62 L286 82 L106 82 Z" fill={arete} fillOpacity="0.28" />
 
       {/* Le dome, et sa plaque. */}
-      <circle cx="142" cy="118" r="27" stroke={arete} strokeWidth="1.4" strokeOpacity="0.5" />
+      <circle
+        cx="142"
+        cy="118"
+        r="27"
+        stroke={arete}
+        strokeWidth="1.4"
+        strokeOpacity="0.5"
+      />
       <circle cx="142" cy="118" r="14" fill={arete} fillOpacity="0.55" />
 
       {/* Le grave : saladier, suspension, cone, cache-noyau. */}
-      <circle cx="142" cy="218" r="62" stroke={arete} strokeWidth="1.4" strokeOpacity="0.5" />
-      <circle cx="142" cy="218" r="54" stroke={arete} strokeWidth="6" strokeOpacity="0.3" />
-      <circle cx="142" cy="218" r="46" fill={cote} stroke={arete} strokeWidth="1" strokeOpacity="0.45" />
+      <circle
+        cx="142"
+        cy="218"
+        r="62"
+        stroke={arete}
+        strokeWidth="1.4"
+        strokeOpacity="0.5"
+      />
+      <circle
+        cx="142"
+        cy="218"
+        r="54"
+        stroke={arete}
+        strokeWidth="6"
+        strokeOpacity="0.3"
+      />
+      <circle
+        cx="142"
+        cy="218"
+        r="46"
+        fill={cote}
+        stroke={arete}
+        strokeWidth="1"
+        strokeOpacity="0.45"
+      />
       <circle cx="142" cy="218" r="15" fill={arete} fillOpacity="0.6" />
       {[0, 60, 120, 180, 240, 300].map((a) => {
         const r = (a * Math.PI) / 180
         return (
-          <circle key={a} cx={(142 + Math.cos(r) * 58).toFixed(1)} cy={(218 + Math.sin(r) * 58).toFixed(1)} r="3" fill={arete} fillOpacity="0.7" />
+          <circle
+            key={a}
+            cx={(142 + Math.cos(r) * 58).toFixed(1)}
+            cy={(218 + Math.sin(r) * 58).toFixed(1)}
+            r="3"
+            fill={arete}
+            fillOpacity="0.7"
+          />
         )
       })}
 
       {/* Le second grave de la colonne, quand il existe. */}
       {colonne && (
         <>
-          <circle cx="142" cy="312" r="46" stroke={arete} strokeWidth="1.4" strokeOpacity="0.5" />
-          <circle cx="142" cy="312" r="36" fill={cote} stroke={arete} strokeWidth="1" strokeOpacity="0.4" />
+          <circle
+            cx="142"
+            cy="312"
+            r="46"
+            stroke={arete}
+            strokeWidth="1.4"
+            strokeOpacity="0.5"
+          />
+          <circle
+            cx="142"
+            cy="312"
+            r="36"
+            fill={cote}
+            stroke={arete}
+            strokeWidth="1"
+            strokeOpacity="0.4"
+          />
           <circle cx="142" cy="312" r="11" fill={arete} fillOpacity="0.6" />
         </>
       )}
       {/* L event, en bas de la face, quand la place reste. */}
-      {!colonne && <ellipse cx="142" cy="312" rx="24" ry="11" fill="var(--o-palette-zinc-950)" stroke={arete} strokeWidth="1.2" strokeOpacity="0.5" />}
+      {!colonne && (
+        <ellipse
+          cx="142"
+          cy="312"
+          rx="24"
+          ry="11"
+          fill="var(--o-palette-zinc-950)"
+          stroke={arete}
+          strokeWidth="1.2"
+          strokeOpacity="0.5"
+        />
+      )}
 
       {/* Les quatre patins. */}
-      <path d="M68 346 V362 M216 346 V362 M250 352 V366 M270 358 V372" stroke={arete} strokeWidth="4" strokeOpacity="0.5" strokeLinecap="round" />
+      <path
+        d="M68 346 V362 M216 346 V362 M250 352 V366 M270 358 V372"
+        stroke={arete}
+        strokeWidth="4"
+        strokeOpacity="0.5"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
@@ -555,19 +781,51 @@ function CoupeDuCoffret({ finition }: { readonly finition: Finition }): ReactEle
   const trait = teinteFinition(finition.t, 200)
   const repere = (x: number, y: number, rang: string): ReactElement => (
     <g key={rang}>
-      <circle cx={x} cy={y} r="11" fill="var(--o-palette-zinc-950)" stroke={trait} strokeWidth="1.2" />
-      <text x={x} y={y + 4} textAnchor="middle" fill={trait} style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}>
+      <circle
+        cx={x}
+        cy={y}
+        r="11"
+        fill="var(--o-palette-zinc-950)"
+        stroke={trait}
+        strokeWidth="1.2"
+      />
+      <text
+        x={x}
+        y={y + 4}
+        textAnchor="middle"
+        fill={trait}
+        style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}
+      >
         {rang}
       </text>
     </g>
   )
 
   return (
-    <svg viewBox="0 0 420 420" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 420 420"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       {/* Le coffret en coupe : deux parois, et la matiere hachuree entre. */}
       <defs>
-        <pattern id="o-membrane-hachure" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="7" stroke={trait} strokeWidth="1.1" strokeOpacity="0.55" />
+        <pattern
+          id="o-membrane-hachure"
+          width="7"
+          height="7"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="7"
+            stroke={trait}
+            strokeWidth="1.1"
+            strokeOpacity="0.55"
+          />
         </pattern>
       </defs>
 
@@ -581,28 +839,74 @@ function CoupeDuCoffret({ finition }: { readonly finition: Finition }): ReactEle
       <rect x="84" y="64" width="232" height="292" fill={bois} fillOpacity="0.16" />
 
       {/* Le grave, vu en coupe : cone, bobine, aimant. */}
-      <path d="M84 150 L150 178 L150 206 L84 234 Z" fill={bois} fillOpacity="0.5" stroke={trait} strokeWidth="1.4" />
+      <path
+        d="M84 150 L150 178 L150 206 L84 234 Z"
+        fill={bois}
+        fillOpacity="0.5"
+        stroke={trait}
+        strokeWidth="1.4"
+      />
       <rect x="150" y="176" width="20" height="32" fill={trait} fillOpacity="0.5" />
-      <rect x="170" y="162" width="46" height="60" rx="3" fill={trait} fillOpacity="0.28" stroke={trait} strokeWidth="1.2" />
+      <rect
+        x="170"
+        y="162"
+        width="46"
+        height="60"
+        rx="3"
+        fill={trait}
+        fillOpacity="0.28"
+        stroke={trait}
+        strokeWidth="1.2"
+      />
 
       {/* Le dome et sa chambre. */}
       <path d="M84 92 A 22 22 0 0 1 84 136" stroke={trait} strokeWidth="2.4" />
-      <circle cx="112" cy="114" r="20" stroke={trait} strokeWidth="1.2" strokeDasharray="3 4" />
+      <circle
+        cx="112"
+        cy="114"
+        r="20"
+        stroke={trait}
+        strokeWidth="1.2"
+        strokeDasharray="3 4"
+      />
 
       {/* Le filtre, pose au fond. */}
-      <rect x="228" y="290" width="80" height="52" rx="3" stroke={trait} strokeWidth="1.3" />
-      <path d="M244 306 h16 m8 0 h16 M244 326 h48" stroke={trait} strokeWidth="1.6" strokeOpacity="0.7" />
+      <rect
+        x="228"
+        y="290"
+        width="80"
+        height="52"
+        rx="3"
+        stroke={trait}
+        strokeWidth="1.3"
+      />
+      <path
+        d="M244 306 h16 m8 0 h16 M244 326 h48"
+        stroke={trait}
+        strokeWidth="1.6"
+        strokeOpacity="0.7"
+      />
       <circle cx="268" cy="306" r="7" stroke={trait} strokeWidth="1.6" />
 
       {/* L event, evase aux deux bouts. */}
-      <path d="M84 296 q 18 -12 34 0 v 28 q -16 12 -34 0 Z" fill="var(--o-palette-zinc-950)" stroke={trait} strokeWidth="1.4" />
+      <path
+        d="M84 296 q 18 -12 34 0 v 28 q -16 12 -34 0 Z"
+        fill="var(--o-palette-zinc-950)"
+        stroke={trait}
+        strokeWidth="1.4"
+      />
       <path d="M118 302 H196 M118 318 H196" stroke={trait} strokeWidth="1.4" />
       <path d="M196 292 q 14 18 0 36" stroke={trait} strokeWidth="1.4" />
 
       {/* La cloison, collee entre les deux faces. */}
       <path d="M84 248 H316" stroke={trait} strokeWidth="5" strokeOpacity="0.45" />
       {/* L amortissement, agrafe au fond. */}
-      <path d="M300 74 q -10 14 0 28 q 10 14 0 28 q -10 14 0 28" stroke={trait} strokeWidth="1.6" strokeOpacity="0.6" />
+      <path
+        d="M300 74 q -10 14 0 28 q 10 14 0 28 q -10 14 0 28"
+        stroke={trait}
+        strokeWidth="1.6"
+        strokeOpacity="0.6"
+      />
 
       {/* Les renvois, puis les pastilles numerotees. */}
       <g stroke={trait} strokeWidth="0.9" strokeOpacity="0.55">
@@ -648,10 +952,24 @@ function Panier({
     <div className="o-pointer-events-none o-fixed o-bottom-4 o-left-4 o-z-40 o-flex o-justify-end sm:o-left-auto sm:o-right-6 o-right-4">
       {/* Le cadre etoile arrondit a fond par defaut : le rayon est repose
             en style, seul moyen de passer devant sa feuille injectee. */}
-        <StarBorder color="--o-vitrine-400" speed={7000} glow={0.5} className="o-pointer-events-auto o-w-full sm:o-w-72" style={{ borderRadius: 18 }}>
-        <div className={`o-w-full o-p-3.5 ${verre(true)}`} style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-zinc-950) 82%, transparent)' }}>
+      <StarBorder
+        color="--o-vitrine-400"
+        speed={7000}
+        glow={0.5}
+        className="o-pointer-events-auto o-w-full sm:o-w-72"
+        style={{ borderRadius: 18 }}
+      >
+        <div
+          className={`o-w-full o-p-3.5 ${verre(true)}`}
+          style={{
+            backgroundColor:
+              'color-mix(in oklab, var(--o-palette-zinc-950) 82%, transparent)',
+          }}
+        >
           <div className="o-flex o-items-center o-justify-between o-gap-3">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">La paire, composee</p>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
+              La paire, composee
+            </p>
             <button
               type="button"
               aria-expanded={ouvert}
@@ -665,10 +983,17 @@ function Panier({
           {ouvert && (
             <dl className="o-m-0 o-mt-3">
               {lignes.map(([quoi, valeur, prix]) => (
-                <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-3 o-border-t o-border-white-10 o-py-2">
+                <div
+                  key={quoi}
+                  className="o-flex o-items-baseline o-justify-between o-gap-3 o-border-t o-border-white-10 o-py-2"
+                >
                   <div className="o-min-w-0">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-400">{quoi}</dt>
-                    <dd className="o-m-0 o-truncate o-text-sm o-text-zinc-100">{valeur}</dd>
+                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-400">
+                      {quoi}
+                    </dt>
+                    <dd className="o-m-0 o-truncate o-text-sm o-text-zinc-100">
+                      {valeur}
+                    </dd>
                   </div>
                   <span className="o-shrink-0 o-font-mono o-text-xs o-tabular-nums o-text-zinc-300">
                     {prix === 0 ? 'compris' : euros(prix)}
@@ -679,8 +1004,17 @@ function Panier({
           )}
 
           <div className="o-mt-3 o-flex o-items-baseline o-justify-between o-gap-3 o-border-t o-border-white-20 o-pt-3">
-            <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">Total</span>
-            <span className="o-tabular-nums" style={{ ...affiche('m', 300), fontSize: '1.5rem', color: encreSurSombre() }}>
+            <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
+              Total
+            </span>
+            <span
+              className="o-tabular-nums"
+              style={{
+                ...affiche('m', 300),
+                fontSize: '1.5rem',
+                color: encreSurSombre(),
+              }}
+            >
               {euros(total)}
             </span>
           </div>
@@ -704,14 +1038,26 @@ function Panier({
 /* ============================ Les petites pieces ======================= */
 
 /** Un choix : une gelule bordee, pleine quand elle est prise. */
-function Choix({ actif, onClick, children }: { readonly actif: boolean; readonly onClick: () => void; readonly children: ReactNode }): ReactElement {
+function Choix({
+  actif,
+  onClick,
+  children,
+}: {
+  readonly actif: boolean
+  readonly onClick: () => void
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <button
       type="button"
       aria-pressed={actif}
       onClick={onClick}
       className="o-rounded-full o-border-w-1 o-px-4 o-py-1.5 o-text-sm o-transition-colors focus:o-ring"
-      style={actif ? { ...aplat(), borderColor: 'transparent' } : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-zinc-300)' }}
+      style={
+        actif
+          ? { ...aplat(), borderColor: 'transparent' }
+          : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-zinc-300)' }
+      }
     >
       {children}
     </button>
@@ -719,11 +1065,24 @@ function Choix({ actif, onClick, children }: { readonly actif: boolean; readonly
 }
 
 /** Une valeur lue sur la courbe. */
-function Lecture({ quoi, valeur, note }: { readonly quoi: string; readonly valeur: string; readonly note: string }): ReactElement {
+function Lecture({
+  quoi,
+  valeur,
+  note,
+}: {
+  readonly quoi: string
+  readonly valeur: string
+  readonly note: string
+}): ReactElement {
   return (
     <div className="o-border-t o-border-white-10 o-py-4">
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-1.5 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.375rem, 2.4vw, 2rem)' }}>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+        {quoi}
+      </dt>
+      <dd
+        className="o-m-0 o-mt-1.5 o-tabular-nums o-text-zinc-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.375rem, 2.4vw, 2rem)' }}
+      >
         {valeur}
       </dd>
       <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-400">{note}</p>
@@ -762,7 +1121,10 @@ export default function Page(): ReactElement {
   const supportChoisi = SUPPORTS.find((s) => s.id === support) ?? SUPPORTS[0]
   const cable = CABLES.find((c) => c.cle === cleCable) ?? CABLES[1]
 
-  const courbe = useMemo(() => courbeDe(modele, salle, recul, position), [modele, salle, recul, position])
+  const courbe = useMemo(
+    () => courbeDe(modele, salle, recul, position),
+    [modele, salle, recul, position],
+  )
 
   // Le meilleur recul des quatre, cherche et non choisi : celui dont l ecart
   // dans le bas medium est le plus faible.
@@ -809,7 +1171,8 @@ export default function Page(): ReactElement {
           if (point !== null) point.setAttribute('cy', ordonnee(db).toFixed(1))
         }
         const texte = lecture.current
-        if (texte !== null) texte.textContent = `${hertz(f)} — ${db >= 0 ? '+' : ''}${nombre(db, 1)} dB`
+        if (texte !== null)
+          texte.textContent = `${hertz(f)} — ${db >= 0 ? '+' : ''}${nombre(db, 1)} dB`
 
         // Le debattement de la membrane : a niveau constant, il varie comme
         // l inverse du carre de la frequence. C est la raison physique pour
@@ -850,298 +1213,381 @@ export default function Page(): ReactElement {
   return (
     <Porte forme="zoom" marque="Membrane">
       <div className="o-relative o-text-zinc-50" style={{ ...polices, ...nuit('zinc') }}>
-        <BarreGelule marque="Membrane" liens={NAVIGATION} action={['#finitions', 'Composer']} />
+        <BarreGelule
+          marque="Membrane"
+          liens={NAVIGATION}
+          action={['#finitions', 'Composer']}
+        />
 
         <main className={panierOuvert ? 'xl:o-pr-80' : ''}>
           {/*
             ----- L ouverture : l enceinte, et le mot ------------------------
           */}
-          <section id="haut" className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
-              <Volume
-                nom="enceinte M"
-                className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
-                repli={
-                  <div className="o-flex o-h-full o-items-center o-justify-end o-p-12">
-                    <div className="o-h-full o-w-full o-max-w-sm" style={{ maxHeight: 460 }}>
-                      <EnceinteDessinee modele={modele} finition={finition} />
-                    </div>
+          <section
+            id="haut"
+            className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden"
+            style={{ minHeight: ECRAN }}
+          >
+            <Volume
+              nom="enceinte M"
+              className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
+              repli={
+                <div className="o-flex o-h-full o-items-center o-justify-end o-p-12">
+                  <div
+                    className="o-h-full o-w-full o-max-w-sm"
+                    style={{ maxHeight: 460 }}
+                  >
+                    <EnceinteDessinee modele={modele} finition={finition} />
                   </div>
-                }
-                construire={(contexte) => {
-                  const { scene, camera, three } = contexte
-
-                  const memo: MemoireDeScene = {
-                    bas: new three.Color(bornes.current.bas),
-                    haut: new three.Color(bornes.current.haut),
-                    vise: new three.Color(),
-                    lues: bornes.current.bas + bornes.current.haut,
-                  }
-                  memo.vise.copy(memo.bas).lerpHSL(memo.haut, visee.current.t)
-                  memoire.current = memo
-
-                  // Le canevas est opaque : c est lui le fond de la page.
-                  scene.background = new three.Color(teinte('--o-vitrine-950', '#18181b')).multiplyScalar(0.3)
-
-                  const geometries: { dispose: () => void }[] = []
-                  const matieres: { dispose: () => void }[] = []
-
-                  const coffretMatiere = new three.MeshPhysicalMaterial({
-                    color: memo.vise.clone(),
-                    metalness: 0.1,
-                    roughness: 0.48,
-                    clearcoat: 0.55,
-                    clearcoatRoughness: 0.3,
-                  })
-                  const membraneMatiere = new three.MeshPhysicalMaterial({
-                    color: new three.Color(teinte('--o-vitrine-800', '#27272a')).multiplyScalar(0.7),
-                    metalness: 0.05,
-                    roughness: 0.86,
-                  })
-                  const metalMatiere = new three.MeshPhysicalMaterial({
-                    color: teinte('--o-vitrine-200', '#e4e4e7'),
-                    metalness: 0.5,
-                    roughness: 0.24,
-                    clearcoat: 1,
-                  })
-                  const creuxMatiere = new three.MeshStandardMaterial({ color: 0x000000, roughness: 1 })
-                  matieres.push(coffretMatiere, membraneMatiere, metalMatiere, creuxMatiere)
-
-                  /** Le coffret : un rectangle a aretes cassees, extrude. */
-                  const forme = new three.Shape()
-                  const largeur = 0.86
-                  const hauteur = 1.46
-                  const rayon = 0.022
-                  const x = largeur / 2
-                  const y = hauteur / 2
-                  forme.moveTo(-x + rayon, -y)
-                  forme.lineTo(x - rayon, -y)
-                  forme.quadraticCurveTo(x, -y, x, -y + rayon)
-                  forme.lineTo(x, y - rayon)
-                  forme.quadraticCurveTo(x, y, x - rayon, y)
-                  forme.lineTo(-x + rayon, y)
-                  forme.quadraticCurveTo(-x, y, -x, y - rayon)
-                  forme.lineTo(-x, -y + rayon)
-                  forme.quadraticCurveTo(-x, -y, -x + rayon, -y)
-                  const gCoffret = new three.ExtrudeGeometry(forme, {
-                    depth: 0.74,
-                    bevelEnabled: true,
-                    bevelThickness: 0.012,
-                    bevelSize: 0.012,
-                    bevelSegments: 2,
-                    curveSegments: 8,
-                  })
-                  gCoffret.translate(0, 0, -0.74)
-                  geometries.push(gCoffret)
-
-                  const enceinte = new three.Group()
-                  enceinte.name = 'enceinte'
-                  const coffret = new three.Mesh(gCoffret, coffretMatiere)
-                  coffret.name = 'coffret'
-                  enceinte.add(coffret)
-
-                  // Le grave : un cone au profil tourne, sa suspension, son
-                  // cache-noyau. Le groupe entier avance et recule : c est le
-                  // debattement, et c est ce qu on vient voir.
-                  const profil = [
-                    new three.Vector2(0.03, 0.1),
-                    new three.Vector2(0.1, 0.07),
-                    new three.Vector2(0.2, 0.02),
-                    new three.Vector2(0.25, 0),
-                  ]
-                  const gCone = new three.LatheGeometry(profil, 48)
-                  const gSuspension = new three.TorusGeometry(0.27, 0.028, 10, 48)
-                  const gCache = new three.SphereGeometry(0.07, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2)
-                  const gSaladier = new three.TorusGeometry(0.305, 0.022, 8, 56)
-                  geometries.push(gCone, gSuspension, gCache, gSaladier)
-
-                  const grave = new three.Group()
-                  grave.name = 'grave'
-                  const cone = new three.Mesh(gCone, membraneMatiere)
-                  cone.rotation.x = -Math.PI / 2
-                  const suspension = new three.Mesh(gSuspension, membraneMatiere)
-                  const cache = new three.Mesh(gCache, membraneMatiere)
-                  cache.rotation.x = Math.PI / 2
-                  cache.position.z = 0.1
-                  const saladier = new three.Mesh(gSaladier, metalMatiere)
-                  grave.add(cone, suspension, cache, saladier)
-                  grave.position.set(0, -0.24, 0.01)
-                  enceinte.add(grave)
-
-                  // Le dome, et sa plaque.
-                  const gDome = new three.SphereGeometry(0.052, 24, 14, 0, Math.PI * 2, 0, Math.PI / 2)
-                  const gPlaque = new three.TorusGeometry(0.085, 0.016, 8, 40)
-                  geometries.push(gDome, gPlaque)
-                  const dome = new three.Mesh(gDome, membraneMatiere)
-                  dome.rotation.x = Math.PI / 2
-                  dome.position.set(0, 0.44, 0.015)
-                  const plaque = new three.Mesh(gPlaque, metalMatiere)
-                  plaque.position.set(0, 0.44, 0.01)
-                  enceinte.add(dome, plaque)
-
-                  // L event, creuse dans la face : un cylindre noir en retrait.
-                  const gEvent = new three.CylinderGeometry(0.062, 0.062, 0.14, 32, 1, true)
-                  geometries.push(gEvent)
-                  const event = new three.Mesh(gEvent, creuxMatiere)
-                  event.rotation.x = Math.PI / 2
-                  event.position.set(0, -0.62, -0.06)
-                  enceinte.add(event)
-
-                  // Les quatre pointes, sous le coffret.
-                  const gPointe = new three.ConeGeometry(0.028, 0.09, 12)
-                  geometries.push(gPointe)
-                  for (const [px, pz] of [[-0.3, -0.12], [0.3, -0.12], [-0.3, -0.6], [0.3, -0.6]] as const) {
-                    const pointe = new three.Mesh(gPointe, metalMatiere)
-                    pointe.position.set(px, -hauteur / 2 - 0.045, pz)
-                    pointe.rotation.x = Math.PI
-                    enceinte.add(pointe)
-                  }
-
-                  enceinte.rotation.y = -0.62
-                  enceinte.rotation.x = 0.05
-                  enceinte.position.set(1.3, -0.02, 0)
-                  scene.add(enceinte)
-
-                  // Le sol : un disque sombre sous l enceinte, qui la pose au
-                  // lieu de la laisser flotter dans le noir.
-                  const gSol = new three.CircleGeometry(2.4, 48)
-                  geometries.push(gSol)
-                  const solMatiere = new three.MeshStandardMaterial({
-                    color: new three.Color(teinte('--o-vitrine-950', '#18181b')).multiplyScalar(0.55),
-                    roughness: 0.6,
-                    metalness: 0.2,
-                  })
-                  matieres.push(solMatiere)
-                  const sol = new three.Mesh(gSol, solMatiere)
-                  sol.rotation.x = -Math.PI / 2
-                  sol.position.set(1.3, -hauteur / 2 - 0.1, -0.3)
-                  scene.add(sol)
-
-                  // Un coffret laque sans lumiere rasante est une tache noire :
-                  // la cle chaude devant, un remplissage froid a gauche, le
-                  // contour derriere, et deux rasantes qui posent l arete du
-                  // coffret. La lampe de dessous fait exister les pointes.
-                  eclairer(contexte, { cle: 0xfff3e4, remplissage: 0x8fa5cf, contour: 0xffffff, force: 1.15 })
-                  const rasanteGauche = new three.PointLight(0xffffff, 26, 16, 2)
-                  rasanteGauche.position.set(-1.4, 1.4, 2.8)
-                  const rasanteDroite = new three.PointLight(0xfff2dd, 34, 16, 2)
-                  rasanteDroite.position.set(3.6, 0.8, 1.6)
-                  const dessous = new three.PointLight(0xffe6c0, 20, 12, 2)
-                  dessous.position.set(1.2, -1.9, 1.6)
-                  scene.add(rasanteGauche, rasanteDroite, dessous)
-
-                  camera.position.set(-0.1, 0.4, 4.3)
-                  camera.lookAt(1.2, -0.02, 0)
-
-                  return () => {
-                    memoire.current = null
-                    for (const g of geometries) g.dispose()
-                    for (const m of matieres) m.dispose()
-                  }
-                }}
-                animer={(contexte, { delta, time }) => {
-                  const { scene, three } = contexte
-                  const memo = memoire.current
-                  const enceinte = scene.getObjectByName('enceinte')
-                  if (memo === null || enceinte === undefined) return
-
-                  const lues = bornes.current.bas + bornes.current.haut
-                  if (lues !== memo.lues) {
-                    memo.bas.set(bornes.current.bas)
-                    memo.haut.set(bornes.current.haut)
-                    memo.lues = lues
-                  }
-                  memo.vise.copy(memo.bas).lerpHSL(memo.haut, visee.current.t)
-
-                  const part = 1 - Math.exp(-3.4 * delta)
-                  const coffret = scene.getObjectByName('coffret')
-                  if (coffret instanceof three.Mesh && coffret.material instanceof three.MeshPhysicalMaterial) {
-                    coffret.material.color.lerp(memo.vise, part)
-                  }
-
-                  // La colonne est plus haute et plus etroite : le meme coffret
-                  // etire, plutot qu un second modele a charger.
-                  const colonne = visee.current.colonne
-                  const vouluY = colonne ? 1.34 : 1
-                  const vouluX = colonne ? 0.9 : 1
-                  enceinte.scale.y += (vouluY - enceinte.scale.y) * part
-                  enceinte.scale.x += (vouluX - enceinte.scale.x) * part
-                  enceinte.scale.z = enceinte.scale.x
-
-                  // Le debattement, amplifie mille fois pour se voir : un
-                  // deplacement reel de trois millimetres serait invisible a
-                  // cette echelle, et c est le seul endroit ou nous exagerons.
-                  const grave = scene.getObjectByName('grave')
-                  if (grave !== undefined) {
-                    grave.position.z = 0.01 + Math.sin(time * 26) * debattement.current * 0.09
-                  }
-
-                  // Un quart de tour tres lent : on fait le tour du coffret
-                  // sans qu il tourne comme un presentoir de vitrine.
-                  enceinte.rotation.y = -0.62 + Math.sin(time * 0.18) * 0.14
-                }}
-              />
-
-              {/* Le voile du bas, dans la teinte du coffret : le titre y tombe. */}
-              <div
-                aria-hidden="true"
-                className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
-                style={{
-                  background: `linear-gradient(to top, ${fondFinition(finition.t, 22, 900)} 0%, transparent 62%), linear-gradient(to right, var(--o-palette-zinc-950) 4%, color-mix(in oklab, var(--o-palette-zinc-950) 50%, transparent) 42%, transparent 68%)`,
-                  transition: 'background 700ms ease',
-                }}
-              />
-              <Grain opacite={0.06} />
-
-              <div className="o-relative o-z-20 o-flex o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-28 md:o-px-12 md:o-pb-24">
-                <Surgit>
-                  <Etiquette>Saint-Etienne — coffrets montes et regles a la main</Etiquette>
-                </Surgit>
-                <TitreVague delai={140} className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...affiche('l', 800), fontSize: 'clamp(2.25rem, 6.2vw, 6.25rem)' }}>
-                  Une enceinte seule ne sonne pas.
-                </TitreVague>
-                <SplitReveal
-                  as="p"
-                  by="words"
-                  stagger={54}
-                  duration={760}
-                  distance={30}
-                  className="o-m-0 o-mt-1 o-max-w-3xl"
-                  style={{ ...affiche('l', 300), fontSize: 'clamp(1.75rem, 4.4vw, 4.25rem)', color: encreSurSombre() }}
-                >
-                  Elle sonne dans une piece.
-                </SplitReveal>
-
-                <div className="o-mt-10 o-max-w-lg">
-                  <Surgit delai={600} as="p" className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-300">
-                    Le mur derriere elle lui creuse un trou de neuf decibels, et personne ne vous le dit en magasin. Reglez la piece, le recul et la position : la courbe se refait.
-                  </Surgit>
-                  <Surgit delai={720} className="o-mt-8">
-                    <Actions
-                      pleine={['#courbe', <>Tracer la courbe <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
-                      fantome={['#coffret', 'Ouvrir le coffret']}
-                    />
-                  </Surgit>
                 </div>
-              </div>
+              }
+              construire={(contexte) => {
+                const { scene, camera, three } = contexte
 
-              <div className="o-hidden lg:o-block">
-                <Coin position="hd">
-                  {modele.reference} — {modele.type}
-                  <br />
-                  {modele.rendement} dB / W / m — {modele.impedance}
-                </Coin>
+                const memo: MemoireDeScene = {
+                  bas: new three.Color(bornes.current.bas),
+                  haut: new three.Color(bornes.current.haut),
+                  vise: new three.Color(),
+                  lues: bornes.current.bas + bornes.current.haut,
+                }
+                memo.vise.copy(memo.bas).lerpHSL(memo.haut, visee.current.t)
+                memoire.current = memo
+
+                // Le canevas est opaque : c est lui le fond de la page.
+                scene.background = new three.Color(
+                  teinte('--o-vitrine-950', '#18181b'),
+                ).multiplyScalar(0.3)
+
+                const geometries: { dispose: () => void }[] = []
+                const matieres: { dispose: () => void }[] = []
+
+                const coffretMatiere = new three.MeshPhysicalMaterial({
+                  color: memo.vise.clone(),
+                  metalness: 0.1,
+                  roughness: 0.48,
+                  clearcoat: 0.55,
+                  clearcoatRoughness: 0.3,
+                })
+                const membraneMatiere = new three.MeshPhysicalMaterial({
+                  color: new three.Color(
+                    teinte('--o-vitrine-800', '#27272a'),
+                  ).multiplyScalar(0.7),
+                  metalness: 0.05,
+                  roughness: 0.86,
+                })
+                const metalMatiere = new three.MeshPhysicalMaterial({
+                  color: teinte('--o-vitrine-200', '#e4e4e7'),
+                  metalness: 0.5,
+                  roughness: 0.24,
+                  clearcoat: 1,
+                })
+                const creuxMatiere = new three.MeshStandardMaterial({
+                  color: 0x000000,
+                  roughness: 1,
+                })
+                matieres.push(coffretMatiere, membraneMatiere, metalMatiere, creuxMatiere)
+
+                /** Le coffret : un rectangle a aretes cassees, extrude. */
+                const forme = new three.Shape()
+                const largeur = 0.86
+                const hauteur = 1.46
+                const rayon = 0.022
+                const x = largeur / 2
+                const y = hauteur / 2
+                forme.moveTo(-x + rayon, -y)
+                forme.lineTo(x - rayon, -y)
+                forme.quadraticCurveTo(x, -y, x, -y + rayon)
+                forme.lineTo(x, y - rayon)
+                forme.quadraticCurveTo(x, y, x - rayon, y)
+                forme.lineTo(-x + rayon, y)
+                forme.quadraticCurveTo(-x, y, -x, y - rayon)
+                forme.lineTo(-x, -y + rayon)
+                forme.quadraticCurveTo(-x, -y, -x + rayon, -y)
+                const gCoffret = new three.ExtrudeGeometry(forme, {
+                  depth: 0.74,
+                  bevelEnabled: true,
+                  bevelThickness: 0.012,
+                  bevelSize: 0.012,
+                  bevelSegments: 2,
+                  curveSegments: 8,
+                })
+                gCoffret.translate(0, 0, -0.74)
+                geometries.push(gCoffret)
+
+                const enceinte = new three.Group()
+                enceinte.name = 'enceinte'
+                const coffret = new three.Mesh(gCoffret, coffretMatiere)
+                coffret.name = 'coffret'
+                enceinte.add(coffret)
+
+                // Le grave : un cone au profil tourne, sa suspension, son
+                // cache-noyau. Le groupe entier avance et recule : c est le
+                // debattement, et c est ce qu on vient voir.
+                const profil = [
+                  new three.Vector2(0.03, 0.1),
+                  new three.Vector2(0.1, 0.07),
+                  new three.Vector2(0.2, 0.02),
+                  new three.Vector2(0.25, 0),
+                ]
+                const gCone = new three.LatheGeometry(profil, 48)
+                const gSuspension = new three.TorusGeometry(0.27, 0.028, 10, 48)
+                const gCache = new three.SphereGeometry(
+                  0.07,
+                  24,
+                  12,
+                  0,
+                  Math.PI * 2,
+                  0,
+                  Math.PI / 2,
+                )
+                const gSaladier = new three.TorusGeometry(0.305, 0.022, 8, 56)
+                geometries.push(gCone, gSuspension, gCache, gSaladier)
+
+                const grave = new three.Group()
+                grave.name = 'grave'
+                const cone = new three.Mesh(gCone, membraneMatiere)
+                cone.rotation.x = -Math.PI / 2
+                const suspension = new three.Mesh(gSuspension, membraneMatiere)
+                const cache = new three.Mesh(gCache, membraneMatiere)
+                cache.rotation.x = Math.PI / 2
+                cache.position.z = 0.1
+                const saladier = new three.Mesh(gSaladier, metalMatiere)
+                grave.add(cone, suspension, cache, saladier)
+                grave.position.set(0, -0.24, 0.01)
+                enceinte.add(grave)
+
+                // Le dome, et sa plaque.
+                const gDome = new three.SphereGeometry(
+                  0.052,
+                  24,
+                  14,
+                  0,
+                  Math.PI * 2,
+                  0,
+                  Math.PI / 2,
+                )
+                const gPlaque = new three.TorusGeometry(0.085, 0.016, 8, 40)
+                geometries.push(gDome, gPlaque)
+                const dome = new three.Mesh(gDome, membraneMatiere)
+                dome.rotation.x = Math.PI / 2
+                dome.position.set(0, 0.44, 0.015)
+                const plaque = new three.Mesh(gPlaque, metalMatiere)
+                plaque.position.set(0, 0.44, 0.01)
+                enceinte.add(dome, plaque)
+
+                // L event, creuse dans la face : un cylindre noir en retrait.
+                const gEvent = new three.CylinderGeometry(0.062, 0.062, 0.14, 32, 1, true)
+                geometries.push(gEvent)
+                const event = new three.Mesh(gEvent, creuxMatiere)
+                event.rotation.x = Math.PI / 2
+                event.position.set(0, -0.62, -0.06)
+                enceinte.add(event)
+
+                // Les quatre pointes, sous le coffret.
+                const gPointe = new three.ConeGeometry(0.028, 0.09, 12)
+                geometries.push(gPointe)
+                for (const [px, pz] of [
+                  [-0.3, -0.12],
+                  [0.3, -0.12],
+                  [-0.3, -0.6],
+                  [0.3, -0.6],
+                ] as const) {
+                  const pointe = new three.Mesh(gPointe, metalMatiere)
+                  pointe.position.set(px, -hauteur / 2 - 0.045, pz)
+                  pointe.rotation.x = Math.PI
+                  enceinte.add(pointe)
+                }
+
+                enceinte.rotation.y = -0.62
+                enceinte.rotation.x = 0.05
+                enceinte.position.set(1.3, -0.02, 0)
+                scene.add(enceinte)
+
+                // Le sol : un disque sombre sous l enceinte, qui la pose au
+                // lieu de la laisser flotter dans le noir.
+                const gSol = new three.CircleGeometry(2.4, 48)
+                geometries.push(gSol)
+                const solMatiere = new three.MeshStandardMaterial({
+                  color: new three.Color(
+                    teinte('--o-vitrine-950', '#18181b'),
+                  ).multiplyScalar(0.55),
+                  roughness: 0.6,
+                  metalness: 0.2,
+                })
+                matieres.push(solMatiere)
+                const sol = new three.Mesh(gSol, solMatiere)
+                sol.rotation.x = -Math.PI / 2
+                sol.position.set(1.3, -hauteur / 2 - 0.1, -0.3)
+                scene.add(sol)
+
+                // Un coffret laque sans lumiere rasante est une tache noire :
+                // la cle chaude devant, un remplissage froid a gauche, le
+                // contour derriere, et deux rasantes qui posent l arete du
+                // coffret. La lampe de dessous fait exister les pointes.
+                eclairer(contexte, {
+                  cle: 0xfff3e4,
+                  remplissage: 0x8fa5cf,
+                  contour: 0xffffff,
+                  force: 1.15,
+                })
+                const rasanteGauche = new three.PointLight(0xffffff, 26, 16, 2)
+                rasanteGauche.position.set(-1.4, 1.4, 2.8)
+                const rasanteDroite = new three.PointLight(0xfff2dd, 34, 16, 2)
+                rasanteDroite.position.set(3.6, 0.8, 1.6)
+                const dessous = new three.PointLight(0xffe6c0, 20, 12, 2)
+                dessous.position.set(1.2, -1.9, 1.6)
+                scene.add(rasanteGauche, rasanteDroite, dessous)
+
+                camera.position.set(-0.1, 0.4, 4.3)
+                camera.lookAt(1.2, -0.02, 0)
+
+                return () => {
+                  memoire.current = null
+                  for (const g of geometries) g.dispose()
+                  for (const m of matieres) m.dispose()
+                }
+              }}
+              animer={(contexte, { delta, time }) => {
+                const { scene, three } = contexte
+                const memo = memoire.current
+                const enceinte = scene.getObjectByName('enceinte')
+                if (memo === null || enceinte === undefined) return
+
+                const lues = bornes.current.bas + bornes.current.haut
+                if (lues !== memo.lues) {
+                  memo.bas.set(bornes.current.bas)
+                  memo.haut.set(bornes.current.haut)
+                  memo.lues = lues
+                }
+                memo.vise.copy(memo.bas).lerpHSL(memo.haut, visee.current.t)
+
+                const part = 1 - Math.exp(-3.4 * delta)
+                const coffret = scene.getObjectByName('coffret')
+                if (
+                  coffret instanceof three.Mesh &&
+                  coffret.material instanceof three.MeshPhysicalMaterial
+                ) {
+                  coffret.material.color.lerp(memo.vise, part)
+                }
+
+                // La colonne est plus haute et plus etroite : le meme coffret
+                // etire, plutot qu un second modele a charger.
+                const colonne = visee.current.colonne
+                const vouluY = colonne ? 1.34 : 1
+                const vouluX = colonne ? 0.9 : 1
+                enceinte.scale.y += (vouluY - enceinte.scale.y) * part
+                enceinte.scale.x += (vouluX - enceinte.scale.x) * part
+                enceinte.scale.z = enceinte.scale.x
+
+                // Le debattement, amplifie mille fois pour se voir : un
+                // deplacement reel de trois millimetres serait invisible a
+                // cette echelle, et c est le seul endroit ou nous exagerons.
+                const grave = scene.getObjectByName('grave')
+                if (grave !== undefined) {
+                  grave.position.z =
+                    0.01 + Math.sin(time * 26) * debattement.current * 0.09
+                }
+
+                // Un quart de tour tres lent : on fait le tour du coffret
+                // sans qu il tourne comme un presentoir de vitrine.
+                enceinte.rotation.y = -0.62 + Math.sin(time * 0.18) * 0.14
+              }}
+            />
+
+            {/* Le voile du bas, dans la teinte du coffret : le titre y tombe. */}
+            <div
+              aria-hidden="true"
+              className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
+              style={{
+                background: `linear-gradient(to top, ${fondFinition(finition.t, 22, 900)} 0%, transparent 62%), linear-gradient(to right, var(--o-palette-zinc-950) 4%, color-mix(in oklab, var(--o-palette-zinc-950) 50%, transparent) 42%, transparent 68%)`,
+                transition: 'background 700ms ease',
+              }}
+            />
+            <Grain opacite={0.06} />
+
+            <div className="o-relative o-z-20 o-flex o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-28 md:o-px-12 md:o-pb-24">
+              <Surgit>
+                <Etiquette>Saint-Etienne — coffrets montes et regles a la main</Etiquette>
+              </Surgit>
+              <TitreVague
+                delai={140}
+                className="o-m-0 o-mt-5 o-max-w-3xl"
+                style={{
+                  ...affiche('l', 800),
+                  fontSize: 'clamp(2.25rem, 6.2vw, 6.25rem)',
+                }}
+              >
+                Une enceinte seule ne sonne pas.
+              </TitreVague>
+              <SplitReveal
+                as="p"
+                by="words"
+                stagger={54}
+                duration={760}
+                distance={30}
+                className="o-m-0 o-mt-1 o-max-w-3xl"
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(1.75rem, 4.4vw, 4.25rem)',
+                  color: encreSurSombre(),
+                }}
+              >
+                Elle sonne dans une piece.
+              </SplitReveal>
+
+              <div className="o-mt-10 o-max-w-lg">
+                <Surgit
+                  delai={600}
+                  as="p"
+                  className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-300"
+                >
+                  Le mur derriere elle lui creuse un trou de neuf decibels, et personne ne
+                  vous le dit en magasin. Reglez la piece, le recul et la position : la
+                  courbe se refait.
+                </Surgit>
+                <Surgit delai={720} className="o-mt-8">
+                  <Actions
+                    pleine={[
+                      '#courbe',
+                      <>
+                        Tracer la courbe{' '}
+                        <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                      </>,
+                    ]}
+                    fantome={['#coffret', 'Ouvrir le coffret']}
+                  />
+                </Surgit>
               </div>
+            </div>
+
+            <div className="o-hidden lg:o-block">
+              <Coin position="hd">
+                {modele.reference} — {modele.type}
+                <br />
+                {modele.rendement} dB / W / m — {modele.impedance}
+              </Coin>
+            </div>
           </section>
 
           {/*
             ----- Le mecanisme : la courbe -----------------------------------
           */}
-          <section id="courbe" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28">
+          <section
+            id="courbe"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28"
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-7">
                 <Indice rang="01">La courbe</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}>
-                  A {nombre(recul * 100)} centimetres du mur, le creux tombe a {hertz(courbe.creux)}.
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-2xl"
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                  }}
+                >
+                  A {nombre(recul * 100)} centimetres du mur, le creux tombe a{' '}
+                  {hertz(courbe.creux)}.
                 </h2>
               </div>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-5 md:o-text-right">
@@ -1154,43 +1600,76 @@ export default function Page(): ReactElement {
             <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-12">
               <div className="o-flex o-flex-col o-gap-7 lg:o-col-span-4">
                 <fieldset className="o-m-0 o-p-0">
-                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le modele</legend>
+                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Le modele
+                  </legend>
                   <div className="o-flex o-flex-wrap o-gap-2">
                     {MODELES.map((m) => (
-                      <Choix key={m.cle} actif={m.cle === cleModele} onClick={() => { setCleModele(m.cle) }}>
+                      <Choix
+                        key={m.cle}
+                        actif={m.cle === cleModele}
+                        onClick={() => {
+                          setCleModele(m.cle)
+                        }}
+                      >
                         {m.reference}
                       </Choix>
                     ))}
                   </div>
-                  <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-300">{modele.note}</p>
+                  <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-300">
+                    {modele.note}
+                  </p>
                 </fieldset>
 
                 <fieldset className="o-m-0 o-p-0">
-                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">La piece</legend>
+                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    La piece
+                  </legend>
                   <div className="o-flex o-flex-wrap o-gap-2">
                     {SALLES.map((s) => (
-                      <Choix key={s.cle} actif={s.cle === cleSalle} onClick={() => { setCleSalle(s.cle) }}>
+                      <Choix
+                        key={s.cle}
+                        actif={s.cle === cleSalle}
+                        onClick={() => {
+                          setCleSalle(s.cle)
+                        }}
+                      >
                         {s.nom}
                       </Choix>
                     ))}
                   </div>
                   <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-text-zinc-400">
-                    {nombre(salle.longueur, 1)} x {nombre(salle.largeur, 1)} x {nombre(salle.hauteur, 1)} m — {salle.sol}
+                    {nombre(salle.longueur, 1)} x {nombre(salle.largeur, 1)} x{' '}
+                    {nombre(salle.hauteur, 1)} m — {salle.sol}
                   </p>
                 </fieldset>
 
                 <fieldset className="o-m-0 o-p-0">
-                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le recul, et la position</legend>
+                  <legend className="o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Le recul, et la position
+                  </legend>
                   <div className="o-flex o-flex-wrap o-gap-2">
                     {RECULS.map((d) => (
-                      <Choix key={d} actif={d === recul} onClick={() => { setRecul(d) }}>
+                      <Choix
+                        key={d}
+                        actif={d === recul}
+                        onClick={() => {
+                          setRecul(d)
+                        }}
+                      >
                         {`${nombre(d * 100)} cm`}
                       </Choix>
                     ))}
                   </div>
                   <div className="o-mt-2 o-flex o-flex-wrap o-gap-2">
                     {POSITIONS.map((p) => (
-                      <Choix key={p.cle} actif={p.cle === clePosition} onClick={() => { setClePosition(p.cle) }}>
+                      <Choix
+                        key={p.cle}
+                        actif={p.cle === clePosition}
+                        onClick={() => {
+                          setClePosition(p.cle)
+                        }}
+                      >
                         {p.nom}
                       </Choix>
                     ))}
@@ -1207,22 +1686,38 @@ export default function Page(): ReactElement {
                 <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-4">
                   <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
                     Balayage —{' '}
-                    <span ref={lecture} aria-hidden="true" className="o-tabular-nums" style={{ color: encreSurSombre() }}>
+                    <span
+                      ref={lecture}
+                      aria-hidden="true"
+                      className="o-tabular-nums"
+                      style={{ color: encreSurSombre() }}
+                    >
                       20 Hz — 0,0 dB
                     </span>
                   </p>
                   <button
                     type="button"
                     aria-pressed={enMarche}
-                    onClick={() => { setEnMarche((v) => !v) }}
+                    onClick={() => {
+                      setEnMarche((v) => !v)
+                    }}
                     className="o-rounded-full o-border-w-1 o-border-white-20 o-px-4 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-200 o-transition-colors hover:o-bg-white-10 focus:o-ring"
                   >
                     {enMarche ? 'Arreter le balayage' : 'Relancer le balayage'}
                   </button>
                 </div>
 
-                <div className="o-mt-3 o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-white-10 o-p-3 md:o-p-5" style={{ backgroundColor: fondFinition(finition.t, 8, 900) }}>
-                  <CourbeDessinee courbe={courbe} finition={finition} curseur={(el) => { curseur.current = el }} />
+                <div
+                  className="o-mt-3 o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-white-10 o-p-3 md:o-p-5"
+                  style={{ backgroundColor: fondFinition(finition.t, 8, 900) }}
+                >
+                  <CourbeDessinee
+                    courbe={courbe}
+                    finition={finition}
+                    curseur={(el) => {
+                      curseur.current = el
+                    }}
+                  />
                 </div>
 
                 <dl className="o-m-0 o-mt-8 o-grid o-gap-x-10 sm:o-grid-cols-2">
@@ -1271,20 +1766,40 @@ export default function Page(): ReactElement {
 
               <div className="lg:o-col-span-6">
                 <Indice rang="02">Le coffret</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-md" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 3.6vw, 3rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-md"
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 3.6vw, 3rem)',
+                  }}
+                >
                   Six pieces, et une seule qui coute cher.
                 </h2>
                 <p className="o-m-0 o-mt-5 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-                  Le haut-parleur vaut le tiers du prix ; le contreplaque de bouleau, la colle et les heures valent le reste. Un coffret mal fait s entend avant le haut-parleur.
+                  Le haut-parleur vaut le tiers du prix ; le contreplaque de bouleau, la
+                  colle et les heures valent le reste. Un coffret mal fait s entend avant
+                  le haut-parleur.
                 </p>
                 <dl className="o-m-0 o-mt-10">
                   {COUPE.map(([rang, quoi, texte]) => (
-                    <div key={rang} className="o-grid o-gap-x-5 o-gap-y-1 o-border-t o-border-white-10 o-py-4 sm:o-grid-cols-12">
+                    <div
+                      key={rang}
+                      className="o-grid o-gap-x-5 o-gap-y-1 o-border-t o-border-white-10 o-py-4 sm:o-grid-cols-12"
+                    >
                       <dt className="o-flex o-items-baseline o-gap-3 sm:o-col-span-4">
-                        <span className="o-font-mono o-text-xs o-tabular-nums" style={{ color: encreSurSombre() }}>{rang}</span>
-                        <span className="o-text-sm o-font-semibold o-text-zinc-50">{quoi}</span>
+                        <span
+                          className="o-font-mono o-text-xs o-tabular-nums"
+                          style={{ color: encreSurSombre() }}
+                        >
+                          {rang}
+                        </span>
+                        <span className="o-text-sm o-font-semibold o-text-zinc-50">
+                          {quoi}
+                        </span>
                       </dt>
-                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-300 sm:o-col-span-8">{texte}</dd>
+                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-300 sm:o-col-span-8">
+                        {texte}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -1295,71 +1810,120 @@ export default function Page(): ReactElement {
           {/*
             ----- Les finitions, le support, le cable ------------------------
           */}
-          <section id="finitions" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28">
+          <section
+            id="finitions"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28"
+          >
             <Indice rang="03">Le reste</Indice>
-            <h2 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}>
+            <h2
+              className="o-m-0 o-mt-5 o-max-w-2xl"
+              style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}
+            >
               Ce qui se choisit, et ce qui se paye.
             </h2>
 
             <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-12">
               <div className="lg:o-col-span-7">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">La finition du coffret</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  La finition du coffret
+                </p>
                 <ul className="o-m-0 o-mt-4 o-grid o-list-none o-gap-3 o-p-0 sm:o-grid-cols-3">
                   {FINITIONS.map((f) => {
                     const actif = f.cle === cleFinition
                     return (
                       <li key={f.cle}>
-                        <SpotlightCard radius={220} strength={0.4} color={teinteFinition(f.t, 300)} className="o-h-full o-rounded-2xl">
-                        <button
-                          type="button"
-                          aria-pressed={actif}
-                          onClick={() => { setCleFinition(f.cle) }}
-                          className={`o-h-full o-w-full o-cursor-pointer o-p-4 o-text-left focus:o-ring ${verre(true)}`}
-                          style={{ borderColor: actif ? teinteFinition(f.t, 300) : undefined }}
+                        <SpotlightCard
+                          radius={220}
+                          strength={0.4}
+                          color={teinteFinition(f.t, 300)}
+                          className="o-h-full o-rounded-2xl"
                         >
-                          <span
-                            aria-hidden="true"
-                            className="o-block o-h-16 o-w-full o-rounded-lg"
-                            style={{ background: `linear-gradient(150deg, ${teinteFinition(f.t, 400)}, ${teinteFinition(f.t, 800)})` }}
-                          />
-                          <span className="o-mt-3 o-block o-text-sm o-font-semibold o-text-zinc-50">{f.nom}</span>
-                          <span className="o-mt-1 o-block o-text-xs o-leading-relaxed o-text-zinc-400">{f.matiere}</span>
-                          <span className="o-mt-2 o-block o-font-mono o-text-xs o-tabular-nums" style={{ color: encreSurSombre() }}>
-                            {f.prix === 0 ? 'Comprise' : `+ ${euros(f.prix)} par enceinte`}
-                          </span>
-                        </button>
+                          <button
+                            type="button"
+                            aria-pressed={actif}
+                            onClick={() => {
+                              setCleFinition(f.cle)
+                            }}
+                            className={`o-h-full o-w-full o-cursor-pointer o-p-4 o-text-left focus:o-ring ${verre(true)}`}
+                            style={{
+                              borderColor: actif ? teinteFinition(f.t, 300) : undefined,
+                            }}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="o-block o-h-16 o-w-full o-rounded-lg"
+                              style={{
+                                background: `linear-gradient(150deg, ${teinteFinition(f.t, 400)}, ${teinteFinition(f.t, 800)})`,
+                              }}
+                            />
+                            <span className="o-mt-3 o-block o-text-sm o-font-semibold o-text-zinc-50">
+                              {f.nom}
+                            </span>
+                            <span className="o-mt-1 o-block o-text-xs o-leading-relaxed o-text-zinc-400">
+                              {f.matiere}
+                            </span>
+                            <span
+                              className="o-mt-2 o-block o-font-mono o-text-xs o-tabular-nums"
+                              style={{ color: encreSurSombre() }}
+                            >
+                              {f.prix === 0
+                                ? 'Comprise'
+                                : `+ ${euros(f.prix)} par enceinte`}
+                            </span>
+                          </button>
                         </SpotlightCard>
                       </li>
                     )
                   })}
                 </ul>
 
-                <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">La longueur de cable</p>
+                <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  La longueur de cable
+                </p>
                 <div className="o-mt-3 o-flex o-flex-wrap o-gap-2">
                   {CABLES.map((c) => (
-                    <Choix key={c.cle} actif={c.cle === cleCable} onClick={() => { setCleCable(c.cle) }}>
+                    <Choix
+                      key={c.cle}
+                      actif={c.cle === cleCable}
+                      onClick={() => {
+                        setCleCable(c.cle)
+                      }}
+                    >
                       {`${c.nom} — ${euros(c.prix)}`}
                     </Choix>
                   ))}
                 </div>
                 <p className="o-m-0 o-mt-3 o-max-w-md o-text-xs o-leading-relaxed o-text-zinc-400">
-                  Cuivre etame de quatre millimetres carres, sans gaine bavarde. Au-dela de cinq metres, la resistance de ligne commence a se voir sur une charge de quatre ohms.
+                  Cuivre etame de quatre millimetres carres, sans gaine bavarde. Au-dela
+                  de cinq metres, la resistance de ligne commence a se voir sur une charge
+                  de quatre ohms.
                 </p>
               </div>
 
               <div className="lg:o-col-span-5">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le support</p>
-                <div className="o-mt-4 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-2" style={{ backgroundColor: fondFinition(finition.t, 8, 900) }}>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  Le support
+                </p>
+                <div
+                  className="o-mt-4 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-2"
+                  style={{ backgroundColor: fondFinition(finition.t, 8, 900) }}
+                >
                   <AnimatedList
                     label="Support sous l enceinte"
-                    items={SUPPORTS.map((s) => ({ id: s.id, label: s.label, hint: s.prix === 0 ? 'compris' : euros(s.prix) }))}
+                    items={SUPPORTS.map((s) => ({
+                      id: s.id,
+                      label: s.label,
+                      hint: s.prix === 0 ? 'compris' : euros(s.prix),
+                    }))}
                     value={support}
                     onChange={setSupport}
                     stagger={70}
                   />
                 </div>
                 <p className="o-m-0 o-mt-4 o-max-w-sm o-text-xs o-leading-relaxed o-text-zinc-400">
-                  {supportChoisi.hint}. Une bibliotheque met le haut-parleur a quarante centimetres du mur sans qu on le decide : c est le premier reglage, et il est gratuit.
+                  {supportChoisi.hint}. Une bibliotheque met le haut-parleur a quarante
+                  centimetres du mur sans qu on le decide : c est le premier reglage, et
+                  il est gratuit.
                 </p>
               </div>
             </div>
@@ -1370,14 +1934,32 @@ export default function Page(): ReactElement {
           */}
           <section
             className="o-flex o-flex-col o-justify-center o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-12"
-            style={{ minHeight: '62vh', backgroundColor: fondFinition(finition.t, 12, 900) }}
+            style={{
+              minHeight: '62vh',
+              backgroundColor: fondFinition(finition.t, 12, 900),
+            }}
           >
-            <p className="o-m-0 o-max-w-4xl o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.8vw, 3.75rem)', lineHeight: 1.12 }}>
-              <span className="o-text-zinc-500">Nous ne vendons pas de cable a mille euros, pas de pointes en ceramique, pas de disque de demonstration. </span>
-              <span className="o-text-zinc-50">Nous vendons une paire d enceintes et une apres-midi pour les placer chez vous.</span>
+            <p
+              className="o-m-0 o-max-w-4xl o-text-balance"
+              style={{
+                ...affiche('m', 300),
+                fontSize: 'clamp(1.75rem, 3.8vw, 3.75rem)',
+                lineHeight: 1.12,
+              }}
+            >
+              <span className="o-text-zinc-500">
+                Nous ne vendons pas de cable a mille euros, pas de pointes en ceramique,
+                pas de disque de demonstration.{' '}
+              </span>
+              <span className="o-text-zinc-50">
+                Nous vendons une paire d enceintes et une apres-midi pour les placer chez
+                vous.
+              </span>
             </p>
             <p className="o-m-0 o-mt-10 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-300">
-              La livraison comprend la mesure au micro dans votre piece, le reglage du recul, et le proces-verbal. Si la courbe ne tient pas, l enceinte repart et vous ne payez rien.
+              La livraison comprend la mesure au micro dans votre piece, le reglage du
+              recul, et le proces-verbal. Si la courbe ne tient pas, l enceinte repart et
+              vous ne payez rien.
             </p>
           </section>
         </main>
@@ -1385,20 +1967,41 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : le catalogue ------------------------------------
         */}
-        <footer className={`o-relative o-border-t o-border-white-10 o-px-6 o-pb-40 o-pt-16 md:o-px-12 ${panierOuvert ? 'xl:o-pr-80' : ''}`}>
+        <footer
+          className={`o-relative o-border-t o-border-white-10 o-px-6 o-pb-40 o-pt-16 md:o-px-12 ${panierOuvert ? 'xl:o-pr-80' : ''}`}
+        >
           <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-            <p className="o-m-0" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}>Membrane</p>
+            <p
+              className="o-m-0"
+              style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}
+            >
+              Membrane
+            </p>
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
               Catalogue 2026 — references, cotes, masses
             </p>
           </div>
 
           <div className="o-mt-8 o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-            <table className="o-w-full o-text-left o-font-mono o-text-xs" style={{ minWidth: 680, borderCollapse: 'collapse' }}>
+            <table
+              className="o-w-full o-text-left o-font-mono o-text-xs"
+              style={{ minWidth: 680, borderCollapse: 'collapse' }}
+            >
               <thead>
                 <tr className="o-text-zinc-400">
-                  {['Code', 'Designation', 'Cotes en mm', 'Masse', 'Impedance', 'Rendement'].map((entete) => (
-                    <th key={entete} scope="col" className="o-border-b o-border-white-20 o-py-3 o-pr-6 o-font-normal o-uppercase o-tracking-widest">
+                  {[
+                    'Code',
+                    'Designation',
+                    'Cotes en mm',
+                    'Masse',
+                    'Impedance',
+                    'Rendement',
+                  ].map((entete) => (
+                    <th
+                      key={entete}
+                      scope="col"
+                      className="o-border-b o-border-white-20 o-py-3 o-pr-6 o-font-normal o-uppercase o-tracking-widest"
+                    >
                       {entete}
                     </th>
                   ))}
@@ -1407,11 +2010,18 @@ export default function Page(): ReactElement {
               <tbody>
                 {CODES.map((ligne) => (
                   <tr key={ligne[0]}>
-                    <th scope="row" className="o-border-b o-border-white-10 o-py-3 o-pr-6 o-font-normal o-tabular-nums" style={{ color: encreSurSombre() }}>
+                    <th
+                      scope="row"
+                      className="o-border-b o-border-white-10 o-py-3 o-pr-6 o-font-normal o-tabular-nums"
+                      style={{ color: encreSurSombre() }}
+                    >
                       {ligne[0]}
                     </th>
                     {ligne.slice(1).map((cellule, rang) => (
-                      <td key={rang} className="o-border-b o-border-white-10 o-py-3 o-pr-6 o-tabular-nums o-text-zinc-300">
+                      <td
+                        key={rang}
+                        className="o-border-b o-border-white-10 o-py-3 o-pr-6 o-tabular-nums o-text-zinc-300"
+                      >
                         {cellule}
                       </td>
                     ))}
@@ -1424,11 +2034,21 @@ export default function Page(): ReactElement {
           <div className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
             <span>© 2026 Membrane</span>
             <span>9 rue des Aciers, 42000 Saint-Etienne — ecoute sur rendez-vous</span>
-            <a href="#haut" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">Remonter ↑</a>
+            <a
+              href="#haut"
+              className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+            >
+              Remonter ↑
+            </a>
           </div>
         </footer>
 
-        <Panier lignes={lignes} total={total} ouvert={panierOuvert} onBascule={basculerPanier} />
+        <Panier
+          lignes={lignes}
+          total={total}
+          ouvert={panierOuvert}
+          onBascule={basculerPanier}
+        />
       </div>
     </Porte>
   )

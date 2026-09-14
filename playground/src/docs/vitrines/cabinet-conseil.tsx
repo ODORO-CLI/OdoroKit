@@ -45,7 +45,18 @@ import { UnderlineDraw } from '@/odoro/text/UnderlineDraw.jsx'
 import { nuit } from './communs.jsx'
 import { photo, portrait } from './media.js'
 import { accent, accentDoux, aplat, encre } from './palettes.js'
-import { Actions, affiche, BarreCoins, Etiquette, Indice, Manifeste, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  Etiquette,
+  Indice,
+  Manifeste,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Chapitre } from './scene.jsx'
 
 /** Filet tire de l encre courante : le systeme n a pas de classe pour cela. */
@@ -62,7 +73,9 @@ const FILET_FORT = 'color-mix(in oklab, currentColor 42%, transparent)'
  * cite ici ; en dessous de cent, l accent est ramene vers l encre du corps.
  */
 function teinte(part = 100): string {
-  return part >= 100 ? encre() : `color-mix(in oklab, ${encre()} ${String(part)}%, var(--o-theme-fg))`
+  return part >= 100
+    ? encre()
+    : `color-mix(in oklab, ${encre()} ${String(part)}%, var(--o-theme-fg))`
 }
 
 /** L encre des grands titres : presque celle du corps, teintee juste assez. */
@@ -72,10 +85,12 @@ const TITRE = { color: teinte(22) } as CSSProperties
 const MASQUE = 'linear-gradient(to bottom, black, black 30%, transparent 78%)'
 
 /** La voix mono des notes de marge. */
-const NOTE = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-500 dark:o-text-slate-400'
+const NOTE =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-500 dark:o-text-slate-400'
 
 /** La meme voix, sur la bande toujours sombre : les nuances claires seules. */
-const NOTE_SUR_NUIT = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-400'
+const NOTE_SUR_NUIT =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-400'
 
 /** Les liens du bloc-titre. */
 const NAVIGATION = [
@@ -259,7 +274,8 @@ const DOMAINES: readonly Domaine[] = [
         client: 'Distribution, 1 100 salaries',
         duree: '4 mois',
         chiffre: '2 directions fusionnees',
-        resultat: 'Doublons supprimes sans depart contraint : quatorze postes redeployes en interne.',
+        resultat:
+          'Doublons supprimes sans depart contraint : quatorze postes redeployes en interne.',
       },
     ],
   },
@@ -322,26 +338,58 @@ const NOTES_CABINET = [
  * cabinet a publier ses regles. C est precisement pourquoi elles sont ici.
  */
 const COLOPHON: readonly (readonly [string, ReactNode])[] = [
-  ['Raison sociale', 'Verne & Associes SAS, cabinet de conseil de direction — capital 400 000 €'],
+  [
+    'Raison sociale',
+    'Verne & Associes SAS, cabinet de conseil de direction — capital 400 000 €',
+  ],
   ['Siege', '31 rue de Marignan, 75008 Paris'],
   ['Bureaux', 'Paris — Lyon — Nantes'],
   ['Immatriculation', 'RCS Paris 393 118 442 — APE 7022Z — TVA FR 42 393 118 442'],
-  ['Assurance', 'Responsabilite civile professionnelle Covea Risks, 10 M€ par sinistre, Union europeenne, Royaume-Uni et Suisse'],
-  ['Independance', 'Jamais deux parties d une meme operation. Revue de conflits sur cinq ans avant toute mission.'],
-  ['Honoraires', 'Aucune retro-commission d un tiers introduit dans un dossier : ni banque, ni fonds, ni cabinet d avocats.'],
+  [
+    'Assurance',
+    'Responsabilite civile professionnelle Covea Risks, 10 M€ par sinistre, Union europeenne, Royaume-Uni et Suisse',
+  ],
+  [
+    'Independance',
+    'Jamais deux parties d une meme operation. Revue de conflits sur cinq ans avant toute mission.',
+  ],
+  [
+    'Honoraires',
+    'Aucune retro-commission d un tiers introduit dans un dossier : ni banque, ni fonds, ni cabinet d avocats.',
+  ],
   ['Confidentialite', 'Etendue par contrat a dix ans apres la fin des travaux.'],
-  ['Ce que nous ne faisons pas', 'Aucun acte juridique, aucune consultation juridique a titre principal, aucun conseil en investissement financier.'],
+  [
+    'Ce que nous ne faisons pas',
+    'Aucun acte juridique, aucune consultation juridique a titre principal, aucun conseil en investissement financier.',
+  ],
   ['Donnees', 'Conservees trois ans, ni cedees ni prospectees — dpo@verne-associes.fr'],
-  ['Publications', 'Quatre notes par an, ISSN 2681-4417, deposees a la Bibliotheque nationale, telechargeables sans formulaire.'],
+  [
+    'Publications',
+    'Quatre notes par an, ISSN 2681-4417, deposees a la Bibliotheque nationale, telechargeables sans formulaire.',
+  ],
 ]
 
 /** Une note de marge : deux lignes de mono, alignees sur le contenu. */
-function Marge({ children, className = '' }: { readonly children: ReactNode; readonly className?: string }): ReactElement {
+function Marge({
+  children,
+  className = '',
+}: {
+  readonly children: ReactNode
+  readonly className?: string
+}): ReactElement {
   return <p className={`o-m-0 ${NOTE} ${className}`}>{children}</p>
 }
 
 /** Un lien de la page, dont le trait se dessine au survol. */
-function Lien({ href, children, className = '' }: { readonly href: string; readonly children: string; readonly className?: string }): ReactElement {
+function Lien({
+  href,
+  children,
+  className = '',
+}: {
+  readonly href: string
+  readonly children: string
+  readonly className?: string
+}): ReactElement {
   return (
     <a href={href} className={`o-no-underline o-text-current focus:o-ring ${className}`}>
       <UnderlineDraw trigger="hover" thickness={2} color={encre()}>
@@ -354,9 +402,15 @@ function Lien({ href, children, className = '' }: { readonly href: string; reado
 /** Une mission dans un chapitre : l annee a gauche, le chiffre dans la marge droite. */
 function Dossier({ mission }: { readonly mission: Mission }): ReactElement {
   return (
-    <li className="o-grid o-gap-x-8 o-gap-y-3 o-py-8 md:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
+    <li
+      className="o-grid o-gap-x-8 o-gap-y-3 o-py-8 md:o-grid-cols-12"
+      style={{ borderTop: `1px solid ${FILET}` }}
+    >
       <div className="md:o-col-span-2">
-        <p className="o-m-0 o-tabular-nums o-text-slate-950 dark:o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 2.6vw, 2.5rem)' }}>
+        <p
+          className="o-m-0 o-tabular-nums o-text-slate-950 dark:o-text-slate-50"
+          style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 2.6vw, 2.5rem)' }}
+        >
           {mission.annee}
         </p>
         <Marge className="o-mt-1">{mission.duree}</Marge>
@@ -366,10 +420,15 @@ function Dossier({ mission }: { readonly mission: Mission }): ReactElement {
           {mission.titre}
         </h4>
         <Marge className="o-mt-2">{mission.client}</Marge>
-        <p className="o-mt-4 o-max-w-lg o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">{mission.resultat}</p>
+        <p className="o-mt-4 o-max-w-lg o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+          {mission.resultat}
+        </p>
       </div>
       {/* Le chiffre est une note dans la marge : mono, aligne a droite, sans cartouche. */}
-      <p className="o-m-0 o-font-mono o-text-sm o-leading-relaxed o-tabular-nums md:o-col-span-3 md:o-pt-1 md:o-text-right" style={{ color: teinte() }}>
+      <p
+        className="o-m-0 o-font-mono o-text-sm o-leading-relaxed o-tabular-nums md:o-col-span-3 md:o-pt-1 md:o-text-right"
+        style={{ color: teinte() }}
+      >
         {mission.chiffre}
       </p>
     </li>
@@ -386,21 +445,37 @@ function Dossier({ mission }: { readonly mission: Mission }): ReactElement {
  */
 function Coupe(): ReactElement {
   return (
-    <section aria-labelledby="coupe-titre" className="o-px-6 o-py-28 md:o-px-8 md:o-py-40" style={nuit('slate')}>
+    <section
+      aria-labelledby="coupe-titre"
+      className="o-px-6 o-py-28 md:o-px-8 md:o-py-40"
+      style={nuit('slate')}
+    >
       <div className="o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-12">
         <p className={`o-m-0 md:o-col-span-3 ${NOTE_SUR_NUIT}`}>
-          Entre deux domaines<br />La note, quatre fois l an<br />ISSN 2681-4417
+          Entre deux domaines
+          <br />
+          La note, quatre fois l an
+          <br />
+          ISSN 2681-4417
         </p>
         <div className="md:o-col-span-9">
-          <h2 id="coupe-titre" className="o-sr-only">Ce que nous croyons</h2>
+          <h2 id="coupe-titre" className="o-sr-only">
+            Ce que nous croyons
+          </h2>
           <Manifeste eteint="Un cabinet qui repete au conseil ce que le conseil pense deja">
-            ne coute pas cher : il ne sert simplement a rien. Nous facturons la phrase que personne ne veut dire.
+            ne coute pas cher : il ne sert simplement a rien. Nous facturons la phrase que
+            personne ne veut dire.
           </Manifeste>
           <p className="o-mt-10 o-max-w-xl o-leading-relaxed o-text-slate-300">
-            Nos notes sont publiques et se telechargent sans formulaire. Elles disent parfois le contraire de ce qu un client aimerait lire ; nous les publions quand meme.
+            Nos notes sont publiques et se telechargent sans formulaire. Elles disent
+            parfois le contraire de ce qu un client aimerait lire ; nous les publions
+            quand meme.
           </p>
           <p className="o-m-0 o-mt-8 o-text-lg">
-            <a href="#ecrire" className="o-inline-flex o-items-center o-gap-2 o-no-underline o-text-slate-50 focus:o-ring">
+            <a
+              href="#ecrire"
+              className="o-inline-flex o-items-center o-gap-2 o-no-underline o-text-slate-50 focus:o-ring"
+            >
               <UnderlineDraw trigger="hover" thickness={2} color={encre()}>
                 Recevoir les quatre notes de l annee
               </UnderlineDraw>
@@ -418,7 +493,10 @@ export default function Page(): ReactElement {
   const polices = usePolices('manrope')
   return (
     <Porte forme="trou" marque="Verne & Associes" sombre={false}>
-      <div className="o-bg-slate-50 dark:o-bg-slate-950 o-text-slate-800 dark:o-text-slate-200" style={polices}>
+      <div
+        className="o-bg-slate-50 dark:o-bg-slate-950 o-text-slate-800 dark:o-text-slate-200"
+        style={polices}
+      >
         {/*
           ----- Le bloc-titre --------------------------------------------------
 
@@ -436,55 +514,138 @@ export default function Page(): ReactElement {
           />
 
           <div className="o-relative o-z-10 o-flex o-min-h-screen o-flex-col">
-            <BarreCoins marque="Verne & Associes" liens={NAVIGATION} droite="Paris — Lyon — Nantes" sombre={false} />
+            <BarreCoins
+              marque="Verne & Associes"
+              liens={NAVIGATION}
+              droite="Paris — Lyon — Nantes"
+              sombre={false}
+            />
 
             {/* Tout tient de gouttiere a gouttiere, sur un retrait de 30 px — Forma. */}
             <div className="o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-8 o-pt-8 md:o-px-8">
               <div className="o-grid o-gap-8 md:o-grid-cols-12">
                 <div className="o-min-w-0 md:o-col-span-8">
                   <Surgit>
-                    <Etiquette sombre={false}>Fonde en 1994 — trente et une personnes</Etiquette>
+                    <Etiquette sombre={false}>
+                      Fonde en 1994 — trente et une personnes
+                    </Etiquette>
                   </Surgit>
-                  <TitreVague delai={120} className="o-m-0 o-mt-6 o-max-w-4xl o-text-slate-950 dark:o-text-slate-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 5.5vw, 5.5rem)' }}>
+                  <TitreVague
+                    delai={120}
+                    className="o-m-0 o-mt-6 o-max-w-4xl o-text-slate-950 dark:o-text-slate-50"
+                    style={{
+                      ...affiche('l', 300),
+                      fontSize: 'clamp(2.5rem, 5.5vw, 5.5rem)',
+                    }}
+                  >
                     Nous ne vendons pas une methode. Nous disons ce que nous pensons.
                   </TitreVague>
                 </div>
-                <Surgit delai={400} className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4">
+                <Surgit
+                  delai={400}
+                  className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4"
+                >
                   <p className="o-m-0 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                    Conseils d administration, directions generales et actionnaires familiaux. Quatre domaines, et{' '}
-                    <HighlightSweep colour={accentDoux(400, 45)} thickness={0.5} delay={900} declenchement="montage">
-                      <span className="o-text-slate-950 dark:o-text-slate-50">une note de huit pages toutes les deux semaines</span>
+                    Conseils d administration, directions generales et actionnaires
+                    familiaux. Quatre domaines, et{' '}
+                    <HighlightSweep
+                      colour={accentDoux(400, 45)}
+                      thickness={0.5}
+                      delay={900}
+                      declenchement="montage"
+                    >
+                      <span className="o-text-slate-950 dark:o-text-slate-50">
+                        une note de huit pages toutes les deux semaines
+                      </span>
                     </HighlightSweep>
                     .
                   </p>
-                  <Actions sombre={false} pleine={['#ecrire', <>Nous ecrire <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#domaines', 'Les quatre domaines']} />
+                  <Actions
+                    sombre={false}
+                    pleine={[
+                      '#ecrire',
+                      <>
+                        Nous ecrire{' '}
+                        <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                      </>,
+                    ]}
+                    fantome={['#domaines', 'Les quatre domaines']}
+                  />
                 </Surgit>
               </div>
 
               {/* La rangee de cartes — Forma. Aucun chiffre : la liste des domaines, une position, une note. */}
               <div className="o-grid o-gap-4 md:o-grid-cols-12">
-                <Surgit delai={520} className="o-flex o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-zinc-800 dark:o-bg-slate-900 md:o-col-span-3">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">Domaines</p>
+                <Surgit
+                  delai={520}
+                  className="o-flex o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-zinc-800 dark:o-bg-slate-900 md:o-col-span-3"
+                >
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
+                    Domaines
+                  </p>
                   <ol className="o-m-0 o-mt-6 o-list-none o-p-0">
                     {DOMAINES.map((d) => (
-                      <li key={d.cle} className="o-flex o-items-baseline o-gap-3 o-py-1.5 o-text-sm">
-                        <span className="o-w-5 o-shrink-0 o-font-mono o-text-xs" style={{ color: teinte() }}>{d.numero}</span>
-                        <Lien href={`#${d.cle}`} className="o-text-slate-950 dark:o-text-slate-50">{d.titre}</Lien>
+                      <li
+                        key={d.cle}
+                        className="o-flex o-items-baseline o-gap-3 o-py-1.5 o-text-sm"
+                      >
+                        <span
+                          className="o-w-5 o-shrink-0 o-font-mono o-text-xs"
+                          style={{ color: teinte() }}
+                        >
+                          {d.numero}
+                        </span>
+                        <Lien
+                          href={`#${d.cle}`}
+                          className="o-text-slate-950 dark:o-text-slate-50"
+                        >
+                          {d.titre}
+                        </Lien>
                       </li>
                     ))}
                   </ol>
                 </Surgit>
-                <Surgit delai={600} className="o-flex o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-zinc-800 dark:o-bg-slate-900 md:o-col-span-3">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">Position</p>
-                  <p className="o-m-0 o-mt-6 o-text-lg o-leading-snug o-text-slate-950 dark:o-text-slate-50" style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300 }}>
-                    Nous refusons une mission sur trois. C est la contrepartie d un cabinet de trente et une personnes.
+                <Surgit
+                  delai={600}
+                  className="o-flex o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-zinc-800 dark:o-bg-slate-900 md:o-col-span-3"
+                >
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
+                    Position
+                  </p>
+                  <p
+                    className="o-m-0 o-mt-6 o-text-lg o-leading-snug o-text-slate-950 dark:o-text-slate-50"
+                    style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300 }}
+                  >
+                    Nous refusons une mission sur trois. C est la contrepartie d un
+                    cabinet de trente et une personnes.
                   </p>
                 </Surgit>
-                <Surgit delai={680} className="o-relative o-min-h-64 o-overflow-hidden o-rounded-2xl md:o-col-span-6">
-                  <img src={photo('cadre-bandeau-six', 1400, 800)} alt="Facade moderniste en beton, noir et blanc" className="o-absolute o-inset-0 o-size-full o-object-cover" />
-                  <div aria-hidden="true" className="o-absolute o-inset-0" style={{ background: 'linear-gradient(to top, color-mix(in oklab, var(--o-palette-slate-950) 72%, transparent), transparent 55%)' }} />
-                  <p className="o-absolute o-bottom-4 o-left-4 o-m-0 o-max-w-md o-rounded-full o-bg-slate-950 dark:o-bg-slate-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-100 dark:o-text-slate-100">Note 214 — Le conseil d administration a l epreuve de la transmission</p>
-                  <a href="#ecrire" aria-label="Recevoir la note 214" className="o-absolute o-bottom-4 o-right-4 o-inline-flex o-size-10 o-items-center o-justify-center o-rounded-full o-no-underline focus:o-ring" style={aplat()}>
+                <Surgit
+                  delai={680}
+                  className="o-relative o-min-h-64 o-overflow-hidden o-rounded-2xl md:o-col-span-6"
+                >
+                  <img
+                    src={photo('cadre-bandeau-six', 1400, 800)}
+                    alt="Facade moderniste en beton, noir et blanc"
+                    className="o-absolute o-inset-0 o-size-full o-object-cover"
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="o-absolute o-inset-0"
+                    style={{
+                      background:
+                        'linear-gradient(to top, color-mix(in oklab, var(--o-palette-slate-950) 72%, transparent), transparent 55%)',
+                    }}
+                  />
+                  <p className="o-absolute o-bottom-4 o-left-4 o-m-0 o-max-w-md o-rounded-full o-bg-slate-950 dark:o-bg-slate-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-100 dark:o-text-slate-100">
+                    Note 214 — Le conseil d administration a l epreuve de la transmission
+                  </p>
+                  <a
+                    href="#ecrire"
+                    aria-label="Recevoir la note 214"
+                    className="o-absolute o-bottom-4 o-right-4 o-inline-flex o-size-10 o-items-center o-justify-center o-rounded-full o-no-underline focus:o-ring"
+                    style={aplat()}
+                  >
                     <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                   </a>
                 </Surgit>
@@ -500,62 +661,117 @@ export default function Page(): ReactElement {
             Quatre domaines, quatre etiquettes collantes. Les missions defilent a
             droite, et leur chiffre reste dans la marge.
           */}
-          <section id="domaines" className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="domaines"
+            className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
-                <Indice rang="01" sombre={false}>Les domaines</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)', ...TITRE }}>
+                <Indice rang="01" sombre={false}>
+                  Les domaines
+                </Indice>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-3xl"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.5vw, 4.25rem)',
+                    ...TITRE,
+                  }}
+                >
                   Quatre sujets, et rien au-dela.
                 </h2>
               </div>
               <Marge className="md:o-col-span-4 md:o-text-right">
-                Trois dossiers par domaine<br />Nommes avec l accord ecrit du client
+                Trois dossiers par domaine
+                <br />
+                Nommes avec l accord ecrit du client
               </Marge>
             </div>
           </section>
 
           {DOMAINES.map((d, rang) => (
             <Fragment key={d.cle}>
-            <div id={d.cle} className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
-              <Chapitre
-                indice={`${d.numero} — ${String(rang + 1).padStart(2, '0')} / 04`}
-                largeur={4}
-                titre={
-                  <h3 className="o-m-0" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3rem)', ...TITRE }}>
-                    {d.titre}
-                  </h3>
-                }
-                texte={
-                  <>
-                    <span className="o-block o-text-slate-600 dark:o-text-slate-400">{d.texte}</span>
-                    {d.citation !== undefined && (
-                      <span className="o-mt-8 o-block o-border-l o-pl-4" style={{ borderColor: teinte() }}>
-                        <span className="o-block o-text-base o-leading-snug o-text-slate-950 dark:o-text-slate-50" style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300 }}>
-                          « {d.citation[0]} »
-                        </span>
-                        <span className={`o-mt-3 o-block ${NOTE}`}>{d.citation[1]}</span>
-                      </span>
-                    )}
-                  </>
-                }
+              <div
+                id={d.cle}
+                className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
               >
-                <ol className="o-m-0 o-list-none o-p-0" style={{ borderBottom: `1px solid ${FILET}` }}>
-                  {d.missions.map((m) => (
-                    <Dossier key={m.titre} mission={m} />
-                  ))}
-                </ol>
-                {/* Apres le deuxieme chapitre, une photo qui derive et chevauche le suivant. */}
-                {rang === 1 && (
-                  <figure className="o-relative o-z-10 o-m-0 o-mt-16 md:o-ml-24" style={{ marginBottom: 'calc(-7rem - 4vw)' }}>
-                    <ParallaxImage src={photo('cadre-agence-bureau', 1600, 1000)} alt="Une salle de reunion vide, table longue et lumiere de cote" ratio={1.6} strength={0.45} className="o-overflow-hidden o-rounded-2xl" />
-                    <figcaption className={`o-mt-3 ${NOTE} md:o-absolute md:o-left-0 md:o-top-0 md:o-mt-0 md:o-w-20`} style={{ transform: 'translateX(calc(-100% - 1rem))' }}>
-                      Salle du conseil<br />rue de Marignan
-                    </figcaption>
-                  </figure>
-                )}
-              </Chapitre>
-            </div>
-            {rang === 1 && <Coupe />}
+                <Chapitre
+                  indice={`${d.numero} — ${String(rang + 1).padStart(2, '0')} / 04`}
+                  largeur={4}
+                  titre={
+                    <h3
+                      className="o-m-0"
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.75rem, 3.2vw, 3rem)',
+                        ...TITRE,
+                      }}
+                    >
+                      {d.titre}
+                    </h3>
+                  }
+                  texte={
+                    <>
+                      <span className="o-block o-text-slate-600 dark:o-text-slate-400">
+                        {d.texte}
+                      </span>
+                      {d.citation !== undefined && (
+                        <span
+                          className="o-mt-8 o-block o-border-l o-pl-4"
+                          style={{ borderColor: teinte() }}
+                        >
+                          <span
+                            className="o-block o-text-base o-leading-snug o-text-slate-950 dark:o-text-slate-50"
+                            style={{
+                              fontFamily: 'var(--o-vitrine-affichage)',
+                              fontWeight: 300,
+                            }}
+                          >
+                            « {d.citation[0]} »
+                          </span>
+                          <span className={`o-mt-3 o-block ${NOTE}`}>
+                            {d.citation[1]}
+                          </span>
+                        </span>
+                      )}
+                    </>
+                  }
+                >
+                  <ol
+                    className="o-m-0 o-list-none o-p-0"
+                    style={{ borderBottom: `1px solid ${FILET}` }}
+                  >
+                    {d.missions.map((m) => (
+                      <Dossier key={m.titre} mission={m} />
+                    ))}
+                  </ol>
+                  {/* Apres le deuxieme chapitre, une photo qui derive et chevauche le suivant. */}
+                  {rang === 1 && (
+                    <figure
+                      className="o-relative o-z-10 o-m-0 o-mt-16 md:o-ml-24"
+                      style={{ marginBottom: 'calc(-7rem - 4vw)' }}
+                    >
+                      <ParallaxImage
+                        src={photo('cadre-agence-bureau', 1600, 1000)}
+                        alt="Une salle de reunion vide, table longue et lumiere de cote"
+                        ratio={1.6}
+                        strength={0.45}
+                        className="o-overflow-hidden o-rounded-2xl"
+                      />
+                      <figcaption
+                        className={`o-mt-3 ${NOTE} md:o-absolute md:o-left-0 md:o-top-0 md:o-mt-0 md:o-w-20`}
+                        style={{ transform: 'translateX(calc(-100% - 1rem))' }}
+                      >
+                        Salle du conseil
+                        <br />
+                        rue de Marignan
+                      </figcaption>
+                    </figure>
+                  )}
+                </Chapitre>
+              </div>
+              {rang === 1 && <Coupe />}
             </Fragment>
           ))}
 
@@ -565,45 +781,88 @@ export default function Page(): ReactElement {
             Les chiffres du cabinet ne forment pas une barre : ce sont des notes
             en mono, posees dans la colonne de gauche, en face des noms.
           */}
-          <section id="associes" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="associes"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-12">
               <div className="md:o-col-span-3">
-                <Indice rang="02" sombre={false}>Les associes</Indice>
+                <Indice rang="02" sombre={false}>
+                  Les associes
+                </Indice>
                 <dl className="o-m-0 o-mt-10 o-flex o-flex-col o-gap-5">
                   {NOTES_CABINET.map(([valeur, quoi]) => (
-                    <div key={quoi} className="o-pt-4" style={{ borderTop: `1px solid ${FILET}` }}>
-                      <dt className="o-font-mono o-text-lg o-tabular-nums" style={{ color: teinte() }}>{valeur}</dt>
+                    <div
+                      key={quoi}
+                      className="o-pt-4"
+                      style={{ borderTop: `1px solid ${FILET}` }}
+                    >
+                      <dt
+                        className="o-font-mono o-text-lg o-tabular-nums"
+                        style={{ color: teinte() }}
+                      >
+                        {valeur}
+                      </dt>
                       <dd className={`o-m-0 o-mt-1 ${NOTE}`}>{quoi}</dd>
                     </div>
                   ))}
                 </dl>
               </div>
               <div className="md:o-col-span-9">
-                <h2 className="o-m-0 o-max-w-2xl" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)', ...TITRE }}>
+                <h2
+                  className="o-m-0 o-max-w-2xl"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.5vw, 4.25rem)',
+                    ...TITRE,
+                  }}
+                >
                   Quatre noms sur la plaque.
                 </h2>
                 <p className="o-mt-5 o-max-w-xl o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                  Un associe est present a chaque reunion de comite. C est la seule promesse que nous ecrivons dans la lettre de mission.
+                  Un associe est present a chaque reunion de comite. C est la seule
+                  promesse que nous ecrivons dans la lettre de mission.
                 </p>
                 <ul className="o-m-0 o-mt-14 o-list-none o-p-0">
                   {ASSOCIES.map((a) => {
                     const visage = portrait(a.graine, `${a.nom}, ${a.role}`)
                     return (
-                      <li key={a.nom} className="o-grid o-gap-x-8 o-gap-y-4 o-py-8 md:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
+                      <li
+                        key={a.nom}
+                        className="o-grid o-gap-x-8 o-gap-y-4 o-py-8 md:o-grid-cols-12"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
                         <div className="o-flex o-items-start o-gap-4 md:o-col-span-5">
-                          <img src={visage.src} alt={visage.alt} width={64} height={64} loading="lazy" className="o-size-16 o-shrink-0 o-rounded-full o-object-cover" />
+                          <img
+                            src={visage.src}
+                            alt={visage.alt}
+                            width={64}
+                            height={64}
+                            loading="lazy"
+                            className="o-size-16 o-shrink-0 o-rounded-full o-object-cover"
+                          />
                           <div>
-                            <h3 className="o-m-0 o-text-2xl o-font-medium o-tracking-tight o-text-slate-950 dark:o-text-slate-50">{a.nom}</h3>
+                            <h3 className="o-m-0 o-text-2xl o-font-medium o-tracking-tight o-text-slate-950 dark:o-text-slate-50">
+                              {a.nom}
+                            </h3>
                             <Marge className="o-mt-1">{a.role}</Marge>
                           </div>
                         </div>
-                        <p className="o-m-0 o-leading-relaxed o-text-slate-600 dark:o-text-slate-400 md:o-col-span-4">{a.bio}</p>
+                        <p className="o-m-0 o-leading-relaxed o-text-slate-600 dark:o-text-slate-400 md:o-col-span-4">
+                          {a.bio}
+                        </p>
                         <div className="md:o-col-span-3 md:o-text-right">
                           {a.notes.map((n) => (
                             <Marge key={n}>{n}</Marge>
                           ))}
                           <p className="o-m-0 o-mt-3 o-text-sm">
-                            <Lien href={`mailto:${a.courriel}`} className="o-text-slate-950 dark:o-text-slate-50">Ecrire</Lien>
+                            <Lien
+                              href={`mailto:${a.courriel}`}
+                              className="o-text-slate-950 dark:o-text-slate-50"
+                            >
+                              Ecrire
+                            </Lien>
                           </p>
                         </div>
                       </li>
@@ -617,34 +876,57 @@ export default function Page(): ReactElement {
           {/*
             ----- L appel : une adresse, en 64 px, soulignee --------------------
           */}
-          <section id="ecrire" className="o-scroll-mt-24 o-flex o-min-h-screen o-flex-col o-justify-center o-px-6 o-py-24 md:o-px-8" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="ecrire"
+            className="o-scroll-mt-24 o-flex o-min-h-screen o-flex-col o-justify-center o-px-6 o-py-24 md:o-px-8"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12">
               <Marge className="md:o-col-span-3">
-                Un premier entretien d une heure,<br />sans facturation, avec un associe
+                Un premier entretien d une heure,
+                <br />
+                sans facturation, avec un associe
               </Marge>
               <div className="o-min-w-0 md:o-col-span-9">
                 <a
                   href="mailto:contact@verne-associes.fr"
                   className="o-inline-block o-max-w-full o-break-words o-no-underline focus:o-ring"
-                  style={{ ...affiche('l', 300), fontSize: 'clamp(1.6rem, 4.6vw, 4rem)', color: teinte(40) }}
+                  style={{
+                    ...affiche('l', 300),
+                    fontSize: 'clamp(1.6rem, 4.6vw, 4rem)',
+                    color: teinte(40),
+                  }}
                 >
                   <UnderlineDraw thickness={3} duration={1100} color={encre()}>
                     contact@verne-associes.fr
                   </UnderlineDraw>
-                  <Icon icon={ArrowUpRight} size={28} aria-hidden="true" className="o-ml-2 o-inline-block o-align-baseline" />
+                  <Icon
+                    icon={ArrowUpRight}
+                    size={28}
+                    aria-hidden="true"
+                    className="o-ml-2 o-inline-block o-align-baseline"
+                  />
                 </a>
                 <div className="o-mt-12 o-grid o-max-w-2xl o-gap-6 sm:o-grid-cols-2">
                   <div className="o-pt-4" style={{ borderTop: `1px solid ${FILET}` }}>
                     <Marge>Si le sujet est urgent</Marge>
                     <p className="o-m-0 o-mt-2 o-text-lg o-text-slate-950 dark:o-text-slate-50">
-                      <a href="tel:+33142660412" className="o-no-underline o-text-current focus:o-ring">01 42 66 04 12</a>
+                      <a
+                        href="tel:+33142660412"
+                        className="o-no-underline o-text-current focus:o-ring"
+                      >
+                        01 42 66 04 12
+                      </a>
                     </p>
-                    <p className="o-m-0 o-mt-1 o-text-sm o-text-slate-600 dark:o-text-slate-400">Un associe repond de 8 h a 20 h, du lundi au vendredi.</p>
+                    <p className="o-m-0 o-mt-1 o-text-sm o-text-slate-600 dark:o-text-slate-400">
+                      Un associe repond de 8 h a 20 h, du lundi au vendredi.
+                    </p>
                   </div>
                   <div className="o-pt-4" style={{ borderTop: `1px solid ${FILET}` }}>
                     <Marge>Avant tout entretien</Marge>
                     <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                      Nous verifions l absence de conflit d interets sur cinq ans. S il en existe un, nous le disons, et nous donnons deux autres noms.
+                      Nous verifions l absence de conflit d interets sur cinq ans. S il en
+                      existe un, nous le disons, et nous donnons deux autres noms.
                     </p>
                   </div>
                 </div>
@@ -656,24 +938,58 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : un tableau a filets, style documentation --------------
         */}
-        <footer className="o-px-6 o-pb-10 o-pt-14 md:o-px-8" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+        <footer
+          className="o-px-6 o-pb-10 o-pt-14 md:o-px-8"
+          style={{ borderTop: `1px solid ${FILET_FORT}` }}
+        >
           <div className="o-grid o-gap-x-12 o-gap-y-8 md:o-grid-cols-12">
             <div className="md:o-col-span-3">
-              <p className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-slate-950 dark:o-text-slate-50">Verne &amp; Associes</p>
-              <Marge className="o-mt-2">Cabinet de conseil de direction<br />Colophon</Marge>
+              <p className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-slate-950 dark:o-text-slate-50">
+                Verne &amp; Associes
+              </p>
+              <Marge className="o-mt-2">
+                Cabinet de conseil de direction
+                <br />
+                Colophon
+              </Marge>
             </div>
             <dl className="o-m-0 md:o-col-span-9">
               {COLOPHON.map(([terme, valeur]) => (
-                <div key={terme} className="o-grid o-gap-x-6 o-gap-y-1 o-py-3 sm:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
+                <div
+                  key={terme}
+                  className="o-grid o-gap-x-6 o-gap-y-1 o-py-3 sm:o-grid-cols-12"
+                  style={{ borderTop: `1px solid ${FILET}` }}
+                >
                   <dt className={`sm:o-col-span-4 ${NOTE}`}>{terme}</dt>
-                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-700 dark:o-text-slate-300 sm:o-col-span-8">{valeur}</dd>
+                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-700 dark:o-text-slate-300 sm:o-col-span-8">
+                    {valeur}
+                  </dd>
                 </div>
               ))}
-              <div className="o-grid o-gap-x-6 o-gap-y-1 o-py-3 sm:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}`, borderBottom: `1px solid ${FILET}` }}>
+              <div
+                className="o-grid o-gap-x-6 o-gap-y-1 o-py-3 sm:o-grid-cols-12"
+                style={{
+                  borderTop: `1px solid ${FILET}`,
+                  borderBottom: `1px solid ${FILET}`,
+                }}
+              >
                 <dt className={`sm:o-col-span-4 ${NOTE}`}>Liens</dt>
                 <dd className="o-m-0 o-flex o-flex-wrap o-gap-x-6 o-gap-y-2 o-text-sm sm:o-col-span-8">
-                  {(['Mentions legales', 'Donnees personnelles', 'Code de deontologie', 'Accessibilite : partiellement conforme'] as const).map((l) => (
-                    <Lien key={l} href="#haut" className="o-text-slate-700 dark:o-text-slate-300">{l}</Lien>
+                  {(
+                    [
+                      'Mentions legales',
+                      'Donnees personnelles',
+                      'Code de deontologie',
+                      'Accessibilite : partiellement conforme',
+                    ] as const
+                  ).map((l) => (
+                    <Lien
+                      key={l}
+                      href="#haut"
+                      className="o-text-slate-700 dark:o-text-slate-300"
+                    >
+                      {l}
+                    </Lien>
                   ))}
                 </dd>
               </div>

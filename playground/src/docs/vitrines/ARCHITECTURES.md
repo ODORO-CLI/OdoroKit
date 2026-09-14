@@ -74,42 +74,42 @@ Ce qui ne varie pas : la presence des huit temps.
 
 ## La table
 
-| Vitrine | Metier | Type de document | Etat |
-|---|---|---|---|
-| `spatial` | Operateur de satellites | **Console de suivi** — barre d etat, rail de selection, pupitre de telemetrie, bande de passages | fait |
-| `biotech` | Biotechnologie | **Portail scientifique** — index colle, document long, liste de references numerotees | fait |
-| `voyage` | Voyagiste de montagne | **Carnet de route** — itineraire jour par jour, profil de denivele | fait |
-| `architecture` | Agence d architecture | **Planche de concours** — planches numerotees, legendes en gouttiere | fait |
-| `joaillerie` | Haute joaillerie | **Ecrin** — un ecran par piece, texte minimal, defilement par crans | fait |
-| `jeu-video` | Studio de jeu video | **Carnet de developpement** — fil antechronologique, rail d etat colle | fait |
-| `energie` | Energie renouvelable | **Rapport annuel** — couverture, sommaire, chapitres numerotes, notes de bas de page | fait |
-| `label-musique` | Label et salle | **Affiche de saison** — programme imprime, dates en colonnes | fait |
-| `parfum` | Parfumeur | **Notice depliante** — panneaux qui se deplient lateralement | fait |
-| `robotique` | Robotique industrielle | **Fiche technique** — tableaux denses, cotes, abaques | fait |
-| `bistro` | Bistrot | **La carte** — lignes tarifees, ardoise du jour, heures en tableau | fait |
-| `torrefaction` | Torrefacteur | **Gazette** — manchette et colonnes de journal | fait |
-| `barbier` | Barbier | **Prise de rendez-vous** — agenda d abord, le reste apres | fait |
-| `fleuriste` | Fleuriste | **Etal** — grille dense, rail de facettes, pas de heros | fait |
-| `studio-yoga` | Studio de yoga | **Grille horaire** — semaine en tableau, un cours par case | fait |
-| `salle-sport` | Salle de sport | **Tableau de performance** — classement, records, progression | fait |
-| `clinique` | Clinique | **Parcours de soin** — un pas par ecran, progression explicite | fait |
-| `spa` | Spa | **Revue** — magazine, chapeaux, exergues | fait |
-| `api-dev` | Outil pour developpeurs | **Documentation** — sommaire lateral, ancres, blocs de code | fait |
-| `saas-analytique` | Logiciel d analyse | **Coque applicative** — panneaux, filtres, etat vide | fait |
-| `plateforme-ia` | Plateforme d IA | **Comparateur** — la page est un tableau de comparaison | fait |
-| `securite` | Cybersecurite | **Bulletin de veille** — fil d incidents par severite | fait |
-| `fintech` | Banque | **Releve de compte** — ecritures, soldes, justificatifs | fait |
-| `crypto` | Place d echange | **Carnet d ordres** — colonnes vives, profondeur de marche | fait |
-| `immobilier` | Immobilier | **Annonces** — fiches et rail de carte | fait |
-| `cabinet-conseil` | Cabinet de conseil | **Dossiers** — affaires numerotees, references croisees | fait |
-| `festival` | Festival | **Programme** — horaires par scene et par heure | fait |
-| `podcast` | Podcast | **Lecteur** — lecture d abord, episodes en liste | fait |
-| `conference` | Conference | **Actes** — sessions, salles, intervenants | fait |
-| `galerie-art` | Galerie d art | **Accrochage** — mur par mur, cartels | fait |
-| `mode` | Pret-a-porter | **Lookbook** — planches pleine page, legendes seules | fait |
-| `sneakers` | Sneakers | **Fiche produit** — media colle, caracteristiques qui defilent | fait |
-| `hotel` | Hotel | **Registre** — disponibilite par chambre et par nuit | fait |
-| `voiture-electrique` | Automobile | **Configurateur** — la page entiere est un configurateur | fait |
+| Vitrine              | Metier                  | Type de document                                                                                 | Etat |
+| -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------ | ---- |
+| `spatial`            | Operateur de satellites | **Console de suivi** — barre d etat, rail de selection, pupitre de telemetrie, bande de passages | fait |
+| `biotech`            | Biotechnologie          | **Portail scientifique** — index colle, document long, liste de references numerotees            | fait |
+| `voyage`             | Voyagiste de montagne   | **Carnet de route** — itineraire jour par jour, profil de denivele                               | fait |
+| `architecture`       | Agence d architecture   | **Planche de concours** — planches numerotees, legendes en gouttiere                             | fait |
+| `joaillerie`         | Haute joaillerie        | **Ecrin** — un ecran par piece, texte minimal, defilement par crans                              | fait |
+| `jeu-video`          | Studio de jeu video     | **Carnet de developpement** — fil antechronologique, rail d etat colle                           | fait |
+| `energie`            | Energie renouvelable    | **Rapport annuel** — couverture, sommaire, chapitres numerotes, notes de bas de page             | fait |
+| `label-musique`      | Label et salle          | **Affiche de saison** — programme imprime, dates en colonnes                                     | fait |
+| `parfum`             | Parfumeur               | **Notice depliante** — panneaux qui se deplient lateralement                                     | fait |
+| `robotique`          | Robotique industrielle  | **Fiche technique** — tableaux denses, cotes, abaques                                            | fait |
+| `bistro`             | Bistrot                 | **La carte** — lignes tarifees, ardoise du jour, heures en tableau                               | fait |
+| `torrefaction`       | Torrefacteur            | **Gazette** — manchette et colonnes de journal                                                   | fait |
+| `barbier`            | Barbier                 | **Prise de rendez-vous** — agenda d abord, le reste apres                                        | fait |
+| `fleuriste`          | Fleuriste               | **Etal** — grille dense, rail de facettes, pas de heros                                          | fait |
+| `studio-yoga`        | Studio de yoga          | **Grille horaire** — semaine en tableau, un cours par case                                       | fait |
+| `salle-sport`        | Salle de sport          | **Tableau de performance** — classement, records, progression                                    | fait |
+| `clinique`           | Clinique                | **Parcours de soin** — un pas par ecran, progression explicite                                   | fait |
+| `spa`                | Spa                     | **Revue** — magazine, chapeaux, exergues                                                         | fait |
+| `api-dev`            | Outil pour developpeurs | **Documentation** — sommaire lateral, ancres, blocs de code                                      | fait |
+| `saas-analytique`    | Logiciel d analyse      | **Coque applicative** — panneaux, filtres, etat vide                                             | fait |
+| `plateforme-ia`      | Plateforme d IA         | **Comparateur** — la page est un tableau de comparaison                                          | fait |
+| `securite`           | Cybersecurite           | **Bulletin de veille** — fil d incidents par severite                                            | fait |
+| `fintech`            | Banque                  | **Releve de compte** — ecritures, soldes, justificatifs                                          | fait |
+| `crypto`             | Place d echange         | **Carnet d ordres** — colonnes vives, profondeur de marche                                       | fait |
+| `immobilier`         | Immobilier              | **Annonces** — fiches et rail de carte                                                           | fait |
+| `cabinet-conseil`    | Cabinet de conseil      | **Dossiers** — affaires numerotees, references croisees                                          | fait |
+| `festival`           | Festival                | **Programme** — horaires par scene et par heure                                                  | fait |
+| `podcast`            | Podcast                 | **Lecteur** — lecture d abord, episodes en liste                                                 | fait |
+| `conference`         | Conference              | **Actes** — sessions, salles, intervenants                                                       | fait |
+| `galerie-art`        | Galerie d art           | **Accrochage** — mur par mur, cartels                                                            | fait |
+| `mode`               | Pret-a-porter           | **Lookbook** — planches pleine page, legendes seules                                             | fait |
+| `sneakers`           | Sneakers                | **Fiche produit** — media colle, caracteristiques qui defilent                                   | fait |
+| `hotel`              | Hotel                   | **Registre** — disponibilite par chambre et par nuit                                             | fait |
+| `voiture-electrique` | Automobile              | **Configurateur** — la page entiere est un configurateur                                         | fait |
 
 ## Comment on verifie
 
@@ -127,49 +127,49 @@ chargee par Google Fonts (`usePolices`), une revelation gardee par le rideau
 milieu, lui, n a pas bouge. La table dit de quelle reference chaque ouverture
 descend, et avec quelle voix.
 
-| Vitrine | Reference | Voix | Rideau | Ouverture |
-|---|---|---|---|---|
-| `agence-ia` (neuve) | Sentira | fraunces | compteur | nappe de particules, mot-marque serif de 220 px, bande de logos |
-| `studio-creatif` (neuve) | Spector | jakarta | lettres | photo sous grille, capitales condensees dont le premier mot est en accent |
-| `photographe` (neuve) | Gallary | affiche | trou | nom en grotesque noire, heure en direct, bande de quatre tirages |
-| `designer` (neuve) | Creatie | bricolage | trou | paysage, autocollants inclines, dock de verre |
-| `robot-domestique` (neuve) | Nubo | inter | iris | cuisine chaude, gelule flottante, mot en italique |
-| `travail-profond` (neuve) | Flowstate | onest | compteur | fluide plein cadre, barre de liste d attente en verre |
-| `studio-3d` (neuve) | Auralis | grotesk | zoom | sphere de particules collee, deux mots espaces, actes en verre |
-| `bistro` | Salonix | fraunces | trou | salle plein cadre, etat du service en palettes, carte flottante |
-| `barbier` | Salonix | jakarta | iris | vapeur, mot-marque en capitales lourdes, soin le plus demande en carte |
-| `studio-yoga` | Nubo | inter | compteur | salle vide, gelule flottante, mot en italique, chiffres en verre |
-| `fleuriste` | Creatie | bricolage | trou | brassee plein cadre, autocollants, cartes de verre aux coins |
-| `torrefaction` | Fuel | affiche | lettres | sechage ambre, mot-marque chrome en bas du cadre, croix aux coins |
-| `label-musique` | Fuel / Tenora | affiche | zoom | noeud torique, mot-marque qui remplit la largeur, heure en direct |
-| `spatial` | Ascend / New Era | onest | compteur | anneaux orbitaux, gelule flottante, chiffres en verre |
-| `biotech` | Vesper | onest | compteur | helice, HUD de tresorerie en verre |
-| `energie` | Baseline / Ascend | inter | compteur | parc plein cadre, titre vu a travers la photographie |
-| `voyage` | Aerra | inter | compteur | mot-marque en filigrane derriere la crete |
-| `architecture` | Forma | manrope | trou (clair) | gouttiere a gouttiere, rangee de trois cartes |
-| `jeu-video` | Tenora | grotesk | lettres | grille de points, blocs en escalier, mots en boites blanches |
-| `robotique` | Stackside | grotesk | compteur (clair) | trame de demi-teinte, grille 2 x 2 de chiffres en verre |
-| `spa` | Altitude | cormorant | iris (clair) | nuit sur le bassin, capsule de demande, chiffres en verre |
-| `mode` | Nordframe | affiche | lettres (clair) | bande de tirages, nom qui remplit la page |
-| `cabinet-conseil` | Forma | manrope | trou (clair) | papier millimetre, rangee de cartes |
-| `joaillerie` | Laocoon | cormorant | iris | premier panneau : cristal, actions et chiffres |
-| `parfum` | Flowstate | fraunces | iris | premier volet : chrome liquide, actions et chiffres |
-| `salle-sport` | Tenora / Spector | oswald | zoom | son affiche, inchangee |
-| `clinique` | Baseline | manrope | iris (clair) | son parcours, inchange |
-| `api-dev` | Vesper | onest | compteur | sa documentation, inchangee |
-| `saas-analytique` | Rescale | manrope | iris (clair) | son produit d abord, inchange |
-| `plateforme-ia` | New Era | inter | compteur | son anneau, inchange |
-| `securite` | Vesper / Artefakt | grotesk | lettres | son pupitre, inchange |
-| `fintech` | Lumen | inter | compteur (clair) | son releve, inchange |
-| `crypto` | Vesper | grotesk | zoom | son carnet d ordres, inchange |
-| `immobilier` | Aerra | inter | compteur (clair) | sa couverture, inchangee |
-| `festival` | Tenora | grotesk | lettres | son affiche, inchangee |
-| `podcast` | Miles | inter | zoom | sa typographie geante, inchangee |
-| `conference` | Tenora | grotesk | compteur (clair) | sa billetterie d abord, inchangee |
-| `galerie-art` | Gallary | affiche | trou (clair) | son accrochage, inchange |
-| `sneakers` | Soda | unbounded | zoom | son compte a rebours, inchange |
-| `hotel` | Altitude | cormorant | compteur | son registre, inchange |
-| `voiture-electrique` | Lumen / Fuel | inter | compteur | son configurateur, inchange |
+| Vitrine                    | Reference         | Voix      | Rideau           | Ouverture                                                                 |
+| -------------------------- | ----------------- | --------- | ---------------- | ------------------------------------------------------------------------- |
+| `agence-ia` (neuve)        | Sentira           | fraunces  | compteur         | nappe de particules, mot-marque serif de 220 px, bande de logos           |
+| `studio-creatif` (neuve)   | Spector           | jakarta   | lettres          | photo sous grille, capitales condensees dont le premier mot est en accent |
+| `photographe` (neuve)      | Gallary           | affiche   | trou             | nom en grotesque noire, heure en direct, bande de quatre tirages          |
+| `designer` (neuve)         | Creatie           | bricolage | trou             | paysage, autocollants inclines, dock de verre                             |
+| `robot-domestique` (neuve) | Nubo              | inter     | iris             | cuisine chaude, gelule flottante, mot en italique                         |
+| `travail-profond` (neuve)  | Flowstate         | onest     | compteur         | fluide plein cadre, barre de liste d attente en verre                     |
+| `studio-3d` (neuve)        | Auralis           | grotesk   | zoom             | sphere de particules collee, deux mots espaces, actes en verre            |
+| `bistro`                   | Salonix           | fraunces  | trou             | salle plein cadre, etat du service en palettes, carte flottante           |
+| `barbier`                  | Salonix           | jakarta   | iris             | vapeur, mot-marque en capitales lourdes, soin le plus demande en carte    |
+| `studio-yoga`              | Nubo              | inter     | compteur         | salle vide, gelule flottante, mot en italique, chiffres en verre          |
+| `fleuriste`                | Creatie           | bricolage | trou             | brassee plein cadre, autocollants, cartes de verre aux coins              |
+| `torrefaction`             | Fuel              | affiche   | lettres          | sechage ambre, mot-marque chrome en bas du cadre, croix aux coins         |
+| `label-musique`            | Fuel / Tenora     | affiche   | zoom             | noeud torique, mot-marque qui remplit la largeur, heure en direct         |
+| `spatial`                  | Ascend / New Era  | onest     | compteur         | anneaux orbitaux, gelule flottante, chiffres en verre                     |
+| `biotech`                  | Vesper            | onest     | compteur         | helice, HUD de tresorerie en verre                                        |
+| `energie`                  | Baseline / Ascend | inter     | compteur         | parc plein cadre, titre vu a travers la photographie                      |
+| `voyage`                   | Aerra             | inter     | compteur         | mot-marque en filigrane derriere la crete                                 |
+| `architecture`             | Forma             | manrope   | trou (clair)     | gouttiere a gouttiere, rangee de trois cartes                             |
+| `jeu-video`                | Tenora            | grotesk   | lettres          | grille de points, blocs en escalier, mots en boites blanches              |
+| `robotique`                | Stackside         | grotesk   | compteur (clair) | trame de demi-teinte, grille 2 x 2 de chiffres en verre                   |
+| `spa`                      | Altitude          | cormorant | iris (clair)     | nuit sur le bassin, capsule de demande, chiffres en verre                 |
+| `mode`                     | Nordframe         | affiche   | lettres (clair)  | bande de tirages, nom qui remplit la page                                 |
+| `cabinet-conseil`          | Forma             | manrope   | trou (clair)     | papier millimetre, rangee de cartes                                       |
+| `joaillerie`               | Laocoon           | cormorant | iris             | premier panneau : cristal, actions et chiffres                            |
+| `parfum`                   | Flowstate         | fraunces  | iris             | premier volet : chrome liquide, actions et chiffres                       |
+| `salle-sport`              | Tenora / Spector  | oswald    | zoom             | son affiche, inchangee                                                    |
+| `clinique`                 | Baseline          | manrope   | iris (clair)     | son parcours, inchange                                                    |
+| `api-dev`                  | Vesper            | onest     | compteur         | sa documentation, inchangee                                               |
+| `saas-analytique`          | Rescale           | manrope   | iris (clair)     | son produit d abord, inchange                                             |
+| `plateforme-ia`            | New Era           | inter     | compteur         | son anneau, inchange                                                      |
+| `securite`                 | Vesper / Artefakt | grotesk   | lettres          | son pupitre, inchange                                                     |
+| `fintech`                  | Lumen             | inter     | compteur (clair) | son releve, inchange                                                      |
+| `crypto`                   | Vesper            | grotesk   | zoom             | son carnet d ordres, inchange                                             |
+| `immobilier`               | Aerra             | inter     | compteur (clair) | sa couverture, inchangee                                                  |
+| `festival`                 | Tenora            | grotesk   | lettres          | son affiche, inchangee                                                    |
+| `podcast`                  | Miles             | inter     | zoom             | sa typographie geante, inchangee                                          |
+| `conference`               | Tenora            | grotesk   | compteur (clair) | sa billetterie d abord, inchangee                                         |
+| `galerie-art`              | Gallary           | affiche   | trou (clair)     | son accrochage, inchange                                                  |
+| `sneakers`                 | Soda              | unbounded | zoom             | son compte a rebours, inchange                                            |
+| `hotel`                    | Altitude          | cormorant | compteur         | son registre, inchange                                                    |
+| `voiture-electrique`       | Lumen / Fuel      | inter     | compteur         | son configurateur, inchange                                               |
 
 ## Comment on greffe une vitrine
 

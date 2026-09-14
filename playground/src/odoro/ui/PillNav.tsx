@@ -192,7 +192,9 @@ export function PillNav({
   }
 
   const linkUnder = (target: EventTarget): HTMLElement | null =>
-    target instanceof HTMLElement ? target.closest<HTMLElement>('[data-o-pill-link]') : null
+    target instanceof HTMLElement
+      ? target.closest<HTMLElement>('[data-o-pill-link]')
+      : null
 
   const { className, style } = mergePresentation({}, rest)
 

@@ -163,9 +163,9 @@ export function EntryPage({ id }: { id: string }): ReactElement {
         <ApercuCode id={entry.id}>
           {demo === undefined ? (
             <Callout tone="warning">
-              Ce composant n’a pas encore de démonstration vivante. Sa fiche reste
-              exacte : elle vient du registre, et l’onglet « Code » montre ce que la
-              commande ecrira.
+              Ce composant n’a pas encore de démonstration vivante. Sa fiche reste exacte
+              : elle vient du registre, et l’onglet « Code » montre ce que la commande
+              ecrira.
             </Callout>
           ) : (
             <Atelier

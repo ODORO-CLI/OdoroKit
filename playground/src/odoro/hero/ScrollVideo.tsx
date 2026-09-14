@@ -356,7 +356,10 @@ export function ScrollVideo({
 
         {/* Le fil de progression : la seule indication de l'avancee dans la
             video, la barre du navigateur mesurant la page et non la course. */}
-        <div aria-hidden className="o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-200 dark:o-bg-zinc-800">
+        <div
+          aria-hidden
+          className="o-absolute o-bottom-0 o-h-0.5 o-w-full o-bg-zinc-200 dark:o-bg-zinc-800"
+        >
           <div
             ref={barRef}
             className="o-h-full o-w-full o-bg-zinc-50"

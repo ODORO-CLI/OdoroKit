@@ -123,18 +123,23 @@ export function GhostFibers({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: GHOST_FIBERS_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uFibers: fibers, uBend: bend, uSpeed: speed },
-      name: 'ghost-fibers',
-      // Chaque fibre coute deux exponentielles par fragment : c'est le seul
-      // levier qui compte, et il se regle par le nombre.
-      degrade: (quality) => ({
-        uFibers: quality === 'low' ? Math.min(fibers, 5) : fibers,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: GHOST_FIBERS_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uFibers: fibers, uBend: bend, uSpeed: speed },
+    name: 'ghost-fibers',
+    // Chaque fibre coute deux exponentielles par fragment : c'est le seul
+    // levier qui compte, et il se regle par le nombre.
+    degrade: (quality) => ({
+      uFibers: quality === 'low' ? Math.min(fibers, 5) : fibers,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

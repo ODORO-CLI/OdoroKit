@@ -144,7 +144,9 @@ export function SkeletonAvatar({
 
   /** Retard du reflet, dans l'ordre de lecture de la liste. */
   const delay = (rank: number): CSSProperties =>
-    ({ '--o-skav-delay': `${String(Math.round((speed / 10) * rank))}ms` }) as CSSProperties
+    ({
+      '--o-skav-delay': `${String(Math.round((speed / 10) * rank))}ms`,
+    }) as CSSProperties
 
   return (
     <div

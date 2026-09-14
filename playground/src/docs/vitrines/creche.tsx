@@ -81,7 +81,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '07:30',
     minutes: 450,
     titre: 'On ouvre',
-    texte: 'La porte, le portemanteau a sa hauteur, le doudou qui reste dans la poche du manteau si on prefere.',
+    texte:
+      'La porte, le portemanteau a sa hauteur, le doudou qui reste dans la poche du manteau si on prefere.',
     qui: 'Nadia, referente du matin',
     dessin: (
       <g {...TRAIT}>
@@ -97,7 +98,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '08:30',
     minutes: 510,
     titre: 'Le petit-dejeuner de ceux qui n ont pas eu le temps',
-    texte: 'Un bol, du pain, et aucune obligation : certains ont dejeune a six heures, d autres pas du tout.',
+    texte:
+      'Un bol, du pain, et aucune obligation : certains ont dejeune a six heures, d autres pas du tout.',
     qui: 'Come, en cuisine',
     dessin: (
       <g {...TRAIT}>
@@ -113,7 +115,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '09:15',
     minutes: 555,
     titre: 'L atelier du jour',
-    texte: 'Peinture au doigt le lundi, pate a modeler le mardi, transvasement de graines le jeudi. Rien n est obligatoire.',
+    texte:
+      'Peinture au doigt le lundi, pate a modeler le mardi, transvasement de graines le jeudi. Rien n est obligatoire.',
     qui: 'Salome, educatrice',
     dessin: (
       <g {...TRAIT}>
@@ -127,7 +130,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '10:30',
     minutes: 630,
     titre: 'Le jardin, meme sous la pluie',
-    texte: 'Trente minutes dehors tous les jours. Nous avons dix combinaisons de pluie et deux paires de bottes par pointure.',
+    texte:
+      'Trente minutes dehors tous les jours. Nous avons dix combinaisons de pluie et deux paires de bottes par pointure.',
     qui: 'Hugo, animateur',
     dessin: (
       <g {...TRAIT}>
@@ -143,7 +147,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '11:30',
     minutes: 690,
     titre: 'Le repas',
-    texte: 'Fait sur place, menu affiche la veille, et le meme plat pour tout le monde sauf regime medical.',
+    texte:
+      'Fait sur place, menu affiche la veille, et le meme plat pour tout le monde sauf regime medical.',
     qui: 'Come, en cuisine',
     dessin: (
       <g {...TRAIT}>
@@ -157,7 +162,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '12:30',
     minutes: 750,
     titre: 'La sieste',
-    texte: 'Chacun a son lit et son drap, toujours le meme. On reveille personne : on attend que ca vienne.',
+    texte:
+      'Chacun a son lit et son drap, toujours le meme. On reveille personne : on attend que ca vienne.',
     qui: 'Lea, referente de l apres-midi',
     dessin: (
       <g {...TRAIT}>
@@ -174,7 +180,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '14:30',
     minutes: 870,
     titre: 'Le reveil, un par un',
-    texte: 'Les volets s ouvrent au fur et a mesure. Un enfant qui dort jusqu a quinze heures trente dort jusqu a quinze heures trente.',
+    texte:
+      'Les volets s ouvrent au fur et a mesure. Un enfant qui dort jusqu a quinze heures trente dort jusqu a quinze heures trente.',
     qui: 'Lea, referente de l apres-midi',
     dessin: (
       <g {...TRAIT}>
@@ -189,7 +196,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '15:15',
     minutes: 915,
     titre: 'Le gouter',
-    texte: 'Pain, fruit, eau. Les gateaux d anniversaire sont les bienvenus, les bougies restent a la maison.',
+    texte:
+      'Pain, fruit, eau. Les gateaux d anniversaire sont les bienvenus, les bougies restent a la maison.',
     qui: 'Nadia, referente du matin',
     dessin: (
       <g {...TRAIT}>
@@ -205,7 +213,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '16:00',
     minutes: 960,
     titre: 'Le tapis et les livres',
-    texte: 'Quatre-vingts albums, empruntes a la mediatheque toutes les six semaines. On lit a voix haute, ou pas.',
+    texte:
+      'Quatre-vingts albums, empruntes a la mediatheque toutes les six semaines. On lit a voix haute, ou pas.',
     qui: 'Salome, educatrice',
     dessin: (
       <g {...TRAIT}>
@@ -220,7 +229,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '16:45',
     minutes: 1005,
     titre: 'Les grands ressortent',
-    texte: 'Tricycles, craies et le bac a sable, jusqu a ce que les premiers parents arrivent.',
+    texte:
+      'Tricycles, craies et le bac a sable, jusqu a ce que les premiers parents arrivent.',
     qui: 'Hugo, animateur',
     dessin: (
       <g {...TRAIT}>
@@ -236,7 +246,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '17:30',
     minutes: 1050,
     titre: 'Les retrouvailles',
-    texte: 'Deux minutes de transmission, toujours : ce qui a ete mange, ce qui a ete dormi, ce qui a ete difficile.',
+    texte:
+      'Deux minutes de transmission, toujours : ce qui a ete mange, ce qui a ete dormi, ce qui a ete difficile.',
     qui: 'L equipe, a tour de role',
     dessin: (
       <g {...TRAIT}>
@@ -252,7 +263,8 @@ const MOMENTS: readonly Moment[] = [
     heure: '18:30',
     minutes: 1110,
     titre: 'On ferme',
-    texte: 'Le menage est fait par deux parents de permanence. C est ecrit dans les statuts, et ca tient depuis 1998.',
+    texte:
+      'Le menage est fait par deux parents de permanence. C est ecrit dans les statuts, et ca tient depuis 1998.',
     qui: 'Les parents de permanence',
     dessin: (
       <g {...TRAIT}>
@@ -290,7 +302,12 @@ function Marelle(): ReactElement {
     [112, 60, 100, 70, '8'],
   ]
   return (
-    <svg viewBox="0 0 220 520" className="o-h-auto o-w-full" role="img" aria-label="Une marelle dessinee a la craie, huit cases et le ciel">
+    <svg
+      viewBox="0 0 220 520"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Une marelle dessinee a la craie, huit cases et le ciel"
+    >
       {cases.map(([x, y, l, h, mot]) => (
         <g key={mot}>
           <path
@@ -312,14 +329,24 @@ function Marelle(): ReactElement {
           </text>
         </g>
       ))}
-      <path d="M8 42c60-14 146-14 204 0" fill="none" stroke={craie} strokeWidth="3" strokeDasharray="10 9" />
+      <path
+        d="M8 42c60-14 146-14 204 0"
+        fill="none"
+        stroke={craie}
+        strokeWidth="3"
+        strokeDasharray="10 9"
+      />
       <text
         x="110"
         y="24"
         textAnchor="middle"
         fontSize="18"
         fill={craie}
-        style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.22em' }}
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.22em',
+        }}
       >
         Ciel
       </text>
@@ -334,7 +361,10 @@ function VingtQuatre({ minutes }: { readonly minutes: number }): ReactElement {
   const part = (m: number): number => (m / 1440) * 100
   return (
     <div>
-      <div className="o-relative o-h-2 o-w-full o-overflow-hidden o-rounded-full" style={{ backgroundColor: accentDoux(700, 14) }}>
+      <div
+        className="o-relative o-h-2 o-w-full o-overflow-hidden o-rounded-full"
+        style={{ backgroundColor: accentDoux(700, 14) }}
+      >
         <span
           aria-hidden="true"
           className="o-absolute o-top-0 o-block o-h-full"
@@ -347,7 +377,11 @@ function VingtQuatre({ minutes }: { readonly minutes: number }): ReactElement {
         <span
           aria-hidden="true"
           className="o-absolute o-top-0 o-block o-h-full o-w-1 o-rounded-full"
-          style={{ left: `${part(minutes).toFixed(2)}%`, backgroundColor: encre(), transition: 'left 500ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+          style={{
+            left: `${part(minutes).toFixed(2)}%`,
+            backgroundColor: encre(),
+            transition: 'left 500ms cubic-bezier(0.22, 1, 0.36, 1)',
+          }}
         />
       </div>
       <div className="o-mt-3 o-flex o-justify-between o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
@@ -362,15 +396,34 @@ function VingtQuatre({ minutes }: { readonly minutes: number }): ReactElement {
 /* ============================ Un moment ================================ */
 
 /** La scene d un moment : le dessin, l heure, le texte. */
-function Scene({ moment, rang, epingle }: { readonly moment: Moment; readonly rang: number; readonly epingle: boolean }): ReactElement {
+function Scene({
+  moment,
+  rang,
+  epingle,
+}: {
+  readonly moment: Moment
+  readonly rang: number
+  readonly epingle: boolean
+}): ReactElement {
   return (
-    <div className={epingle ? 'o-grid o-items-center o-gap-10 md:o-grid-cols-12' : 'o-grid o-items-center o-gap-8 md:o-grid-cols-12'}>
+    <div
+      className={
+        epingle
+          ? 'o-grid o-items-center o-gap-10 md:o-grid-cols-12'
+          : 'o-grid o-items-center o-gap-8 md:o-grid-cols-12'
+      }
+    >
       <div className="md:o-col-span-5">
         <div
           className="o-mx-auto o-w-full o-max-w-sm o-rounded-3xl o-p-8"
           style={{ backgroundColor: accentDoux(200, 40), color: encre() }}
         >
-          <svg viewBox="0 0 240 180" className="o-h-auto o-w-full" role="img" aria-label={moment.titre}>
+          <svg
+            viewBox="0 0 240 180"
+            className="o-h-auto o-w-full"
+            role="img"
+            aria-label={moment.titre}
+          >
             <g stroke="currentColor">{moment.dessin}</g>
           </svg>
         </div>
@@ -381,18 +434,32 @@ function Scene({ moment, rang, epingle }: { readonly moment: Moment; readonly ra
         </p>
         <p
           className="o-m-0 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
-          style={{ ...affiche('m', 800), fontSize: 'clamp(3rem, 7vw, 5.5rem)', lineHeight: 0.86, letterSpacing: '-0.05em' }}
+          style={{
+            ...affiche('m', 800),
+            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
+            lineHeight: 0.86,
+            letterSpacing: '-0.05em',
+          }}
         >
           {moment.heure}
         </p>
         <h3
           className="o-m-0 o-mt-5 o-max-w-xl o-text-zinc-950 dark:o-text-zinc-50"
-          style={{ ...affiche('m', 300), fontSize: 'clamp(1.3rem, 2.6vw, 2.25rem)', lineHeight: 1.06 }}
+          style={{
+            ...affiche('m', 300),
+            fontSize: 'clamp(1.3rem, 2.6vw, 2.25rem)',
+            lineHeight: 1.06,
+          }}
         >
           {moment.titre}
         </h3>
-        <p className="o-m-0 o-mt-5 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{moment.texte}</p>
-        <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+        <p className="o-m-0 o-mt-5 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+          {moment.texte}
+        </p>
+        <p
+          className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: encre() }}
+        >
           {moment.qui}
         </p>
       </div>
@@ -404,11 +471,36 @@ function Scene({ moment, rang, epingle }: { readonly moment: Moment; readonly ra
 
 /** Les cinq salaries, en monogrammes : les personnes sont inventees. */
 const EQUIPE = [
-  { graine: 'portrait-nord-nadia', nom: 'Nadia Belkacem', role: 'Educatrice de jeunes enfants, direction', mot: 'Je connais le prenom des vingt-deux, et celui des quarante et un parents.' },
-  { graine: 'portrait-nord-salome', nom: 'Salome Rivet', role: 'Educatrice', mot: 'Un atelier rate est un atelier ou j ai decide a leur place.' },
-  { graine: 'portrait-nord-lea', nom: 'Lea Mourier', role: 'Auxiliaire de puericulture', mot: 'La sieste est le moment le plus technique de la journee. Personne ne le croit.' },
-  { graine: 'portrait-nord-come', nom: 'Come Delaporte', role: 'Cuisine et entretien', mot: 'Quatre-vingts repas par semaine, zero plat reconditionne.' },
-  { graine: 'portrait-nord-hugo', nom: 'Hugo Vasseur', role: 'Animateur, temps partiel', mot: 'Dehors, meme trente minutes, change tout le reste de la journee.' },
+  {
+    graine: 'portrait-nord-nadia',
+    nom: 'Nadia Belkacem',
+    role: 'Educatrice de jeunes enfants, direction',
+    mot: 'Je connais le prenom des vingt-deux, et celui des quarante et un parents.',
+  },
+  {
+    graine: 'portrait-nord-salome',
+    nom: 'Salome Rivet',
+    role: 'Educatrice',
+    mot: 'Un atelier rate est un atelier ou j ai decide a leur place.',
+  },
+  {
+    graine: 'portrait-nord-lea',
+    nom: 'Lea Mourier',
+    role: 'Auxiliaire de puericulture',
+    mot: 'La sieste est le moment le plus technique de la journee. Personne ne le croit.',
+  },
+  {
+    graine: 'portrait-nord-come',
+    nom: 'Come Delaporte',
+    role: 'Cuisine et entretien',
+    mot: 'Quatre-vingts repas par semaine, zero plat reconditionne.',
+  },
+  {
+    graine: 'portrait-nord-hugo',
+    nom: 'Hugo Vasseur',
+    role: 'Animateur, temps partiel',
+    mot: 'Dehors, meme trente minutes, change tout le reste de la journee.',
+  },
 ] as const
 
 /* ============================ La question unique ======================= */
@@ -438,10 +530,19 @@ const REPONSES = [
 /* ============================ Le pied qui se plie ====================== */
 
 /** Un volet du pied : il se deplie, et il reste trouvable par la recherche. */
-function Volet({ titre, children }: { readonly titre: string; readonly children: ReactNode }): ReactElement {
+function Volet({
+  titre,
+  children,
+}: {
+  readonly titre: string
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <details className="o-border-t o-border-white-10 o-py-5">
-      <summary className="o-flex o-cursor-pointer o-items-center o-justify-between o-gap-4 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest focus:o-ring" style={{ color: encreSurSombre() }}>
+      <summary
+        className="o-flex o-cursor-pointer o-items-center o-justify-between o-gap-4 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest focus:o-ring"
+        style={{ color: encreSurSombre() }}
+      >
         {titre}
         <span aria-hidden="true" className="o-text-zinc-400">
           +
@@ -485,11 +586,18 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Marelle" sombre={false}>
-      <div className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200" style={polices}>
+      <div
+        className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200"
+        style={polices}
+      >
         {/* La nappe pastel derive derriere toute la page : F-css, sans canevas. */}
         <div aria-hidden="true" className="o-pointer-events-none o-fixed o-inset-0 o-z-0">
           <Nappe
-            couleurs={[accentDoux(300, 60), accentDoux(500, 34), 'color-mix(in oklab, var(--o-vitrine-seconde) 40%, transparent)']}
+            couleurs={[
+              accentDoux(300, 60),
+              accentDoux(500, 34),
+              'color-mix(in oklab, var(--o-vitrine-seconde) 40%, transparent)',
+            ]}
             opacite={0.34}
           />
         </div>
@@ -506,29 +614,50 @@ export default function Page(): ReactElement {
               <div className="md:o-col-span-7">
                 <Surgit>
                   <Etiquette sombre={false}>
-                    {ouvert ? 'Ouvert en ce moment — jusqu a 18:30' : 'Ferme en ce moment — ouverture a 07:30'}
+                    {ouvert
+                      ? 'Ouvert en ce moment — jusqu a 18:30'
+                      : 'Ferme en ce moment — ouverture a 07:30'}
                   </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={140}
                   className="o-m-0 o-mt-7 o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('xl', 800), fontSize: 'clamp(3rem, 12vw, 10.5rem)', lineHeight: 0.84, letterSpacing: '-0.05em' }}
+                  style={{
+                    ...affiche('xl', 800),
+                    fontSize: 'clamp(3rem, 12vw, 10.5rem)',
+                    lineHeight: 0.84,
+                    letterSpacing: '-0.05em',
+                  }}
                 >
                   Marelle
                 </TitreVague>
-                <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Creche associative parentale, vingt-deux berceaux, depuis 1998. Les parents sont aux statuts, au
-                  menage du samedi et au conseil d administration.
+                <Surgit
+                  delai={520}
+                  as="p"
+                  className="o-m-0 o-mt-8 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+                >
+                  Creche associative parentale, vingt-deux berceaux, depuis 1998. Les
+                  parents sont aux statuts, au menage du samedi et au conseil d
+                  administration.
                 </Surgit>
                 <Surgit delai={660} className="o-mt-10">
                   <Actions
-                    pleine={['#journee', <>Voir une journee <Icon icon={ArrowRight} size={15} aria-hidden="true" /></>]}
+                    pleine={[
+                      '#journee',
+                      <>
+                        Voir une journee{' '}
+                        <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                      </>,
+                    ]}
                     fantome={['#inscription', 'Inscrire un enfant']}
                     sombre={false}
                   />
                 </Surgit>
 
-                <Surgit delai={800} className="o-mt-12 o-flex o-flex-wrap o-items-center o-gap-x-10 o-gap-y-6">
+                <Surgit
+                  delai={800}
+                  className="o-mt-12 o-flex o-flex-wrap o-items-center o-gap-x-10 o-gap-y-6"
+                >
                   <Autocollant angle={-7}>22 berceaux</Autocollant>
                   <Autocollant angle={5}>1 parent de permanence par samedi</Autocollant>
                 </Surgit>
@@ -544,17 +673,28 @@ export default function Page(): ReactElement {
 
           <main>
             {/* ================= Une phrase, seule ======================== */}
-            <section aria-labelledby="phrase-titre" className="o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+            <section
+              aria-labelledby="phrase-titre"
+              className="o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-5xl">
-                <Indice rang="01" sombre={false}>Ce qu est une creche parentale</Indice>
+                <Indice rang="01" sombre={false}>
+                  Ce qu est une creche parentale
+                </Indice>
                 <h2
                   id="phrase-titre"
                   className="o-m-0 o-mt-10 o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 4.6vw, 4.25rem)', lineHeight: 1.04 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.9rem, 4.6vw, 4.25rem)',
+                    lineHeight: 1.04,
+                  }}
                 >
-                  <span className="o-text-zinc-500">Ce n est pas une garderie moins chere. </span>
-                  C est un lieu que les parents font tourner, et qui ne tient que si chacun y met une journee par
-                  trimestre.
+                  <span className="o-text-zinc-500">
+                    Ce n est pas une garderie moins chere.{' '}
+                  </span>
+                  C est un lieu que les parents font tourner, et qui ne tient que si
+                  chacun y met une journee par trimestre.
                 </h2>
               </div>
             </section>
@@ -564,12 +704,18 @@ export default function Page(): ReactElement {
               <div className="o-px-6 o-pb-10 md:o-px-10">
                 <div className="o-mx-auto o-max-w-6xl">
                   <Reveal>
-                    <Indice rang="02" sombre={false}>La journee</Indice>
+                    <Indice rang="02" sombre={false}>
+                      La journee
+                    </Indice>
                   </Reveal>
                   <Reveal delay={80}>
                     <h2
                       className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50"
-                      style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                        lineHeight: 1,
+                      }}
                     >
                       Douze moments, du portemanteau au trousseau de cles.
                     </h2>
@@ -615,15 +761,24 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= L equipe ================================= */}
-            <section id="equipe" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+            <section
+              id="equipe"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-6xl">
                 <Reveal>
-                  <Indice rang="03" sombre={false}>L equipe</Indice>
+                  <Indice rang="03" sombre={false}>
+                    L equipe
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Cinq salaries, et quarante et un parents.
                   </h2>
@@ -631,9 +786,15 @@ export default function Page(): ReactElement {
 
                 <ul className="o-m-0 o-mt-14 o-grid o-list-none o-gap-x-8 o-gap-y-12 o-p-0 sm:o-grid-cols-2 lg:o-grid-cols-3">
                   {EQUIPE.map((personne, rang) => {
-                    const image = portrait(personne.graine, `${personne.nom}, ${personne.role}`)
+                    const image = portrait(
+                      personne.graine,
+                      `${personne.nom}, ${personne.role}`,
+                    )
                     return (
-                      <li key={personne.nom} className={rang % 3 === 1 ? 'lg:o-mt-14' : ''}>
+                      <li
+                        key={personne.nom}
+                        className={rang % 3 === 1 ? 'lg:o-mt-14' : ''}
+                      >
                         <div className="o-flex o-items-center o-gap-5">
                           <img
                             src={image.src}
@@ -641,7 +802,9 @@ export default function Page(): ReactElement {
                             width={72}
                             height={72}
                             className="o-size-16 o-shrink-0 o-rounded-2xl"
-                            style={{ transform: `rotate(${String(rang % 2 === 0 ? -4 : 4)}deg)` }}
+                            style={{
+                              transform: `rotate(${String(rang % 2 === 0 ? -4 : 4)}deg)`,
+                            }}
                           />
                           <div className="o-min-w-0">
                             <p className="o-m-0 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
@@ -663,18 +826,28 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= La lettre, et sa signature =============== */}
-            <section id="association" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('zinc')}>
+            <section
+              id="association"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+              style={nuit('zinc')}
+            >
               <div className="o-mx-auto o-max-w-3xl">
                 <Indice rang="04">L association</Indice>
                 <p
                   className="o-m-0 o-mt-10 o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.6vw, 2rem)', lineHeight: 1.32 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.25rem, 2.6vw, 2rem)',
+                    lineHeight: 1.32,
+                  }}
                 >
-                  Aux familles qui nous decouvrent : nous ne cherchons pas a vous convaincre. Une creche parentale
-                  demande une journee de permanence par trimestre, une reunion tous les deux mois, et l acceptation
-                  d etre employeur avec quarante autres personnes. Quand cela ne va pas, c est a nous de le regler —
-                  pas a un siege social. C est plus exigeant qu une place en municipale, et c est le seul endroit ou
-                  vous saurez vraiment ce que votre enfant a fait de sa journee.
+                  Aux familles qui nous decouvrent : nous ne cherchons pas a vous
+                  convaincre. Une creche parentale demande une journee de permanence par
+                  trimestre, une reunion tous les deux mois, et l acceptation d etre
+                  employeur avec quarante autres personnes. Quand cela ne va pas, c est a
+                  nous de le regler — pas a un siege social. C est plus exigeant qu une
+                  place en municipale, et c est le seul endroit ou vous saurez vraiment ce
+                  que votre enfant a fait de sa journee.
                 </p>
                 <div className="o-mt-12 o-flex o-flex-wrap o-items-end o-gap-8">
                   <HandWritten
@@ -695,15 +868,25 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= A22 : une question, trois reponses ======= */}
-            <section id="inscription" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+            <section
+              id="inscription"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-5xl">
                 <Reveal>
-                  <Indice rang="05" sombre={false}>Nous ecrire</Indice>
+                  <Indice rang="05" sombre={false}>
+                    Nous ecrire
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...affiche('m', 800), fontSize: 'clamp(2rem, 6vw, 5rem)', lineHeight: 0.94, letterSpacing: '-0.04em' }}
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(2rem, 6vw, 5rem)',
+                      lineHeight: 0.94,
+                      letterSpacing: '-0.04em',
+                    }}
                   >
                     Vous venez pour quoi ?
                   </h2>
@@ -724,12 +907,24 @@ export default function Page(): ReactElement {
                             className="o-flex o-h-full o-w-full o-cursor-pointer o-flex-col o-items-start o-gap-3 o-rounded-3xl o-border-w-1 o-p-6 o-text-left o-transition-colors focus:o-ring"
                             style={
                               actif
-                                ? { backgroundColor: encre(), borderColor: encre(), color: 'var(--o-theme-bg)' }
-                                : { borderColor: accentDoux(700, 34), backgroundColor: 'transparent' }
+                                ? {
+                                    backgroundColor: encre(),
+                                    borderColor: encre(),
+                                    color: 'var(--o-theme-bg)',
+                                  }
+                                : {
+                                    borderColor: accentDoux(700, 34),
+                                    backgroundColor: 'transparent',
+                                  }
                             }
                           >
-                            <span className="o-block o-text-lg o-font-semibold o-tracking-tight">{r.mot}</span>
-                            <span className="o-block o-text-sm o-leading-relaxed" style={{ opacity: actif ? 0.9 : 0.75 }}>
+                            <span className="o-block o-text-lg o-font-semibold o-tracking-tight">
+                              {r.mot}
+                            </span>
+                            <span
+                              className="o-block o-text-sm o-leading-relaxed"
+                              style={{ opacity: actif ? 0.9 : 0.75 }}
+                            >
                               {r.detail}
                             </span>
                           </button>
@@ -743,9 +938,20 @@ export default function Page(): ReactElement {
                   <a
                     href="#association"
                     className="o-inline-flex o-items-center o-gap-3 o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 3.2vw, 2.5rem)', lineHeight: 1.1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.25rem, 3.2vw, 2.5rem)',
+                      lineHeight: 1.1,
+                    }}
                   >
-                    <span style={{ textDecoration: 'underline', textUnderlineOffset: '0.16em' }}>{choisie?.vers}</span>
+                    <span
+                      style={{
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '0.16em',
+                      }}
+                    >
+                      {choisie?.vers}
+                    </span>
                     <Icon icon={ArrowUpRight} size={26} aria-hidden="true" />
                   </a>
                 </p>
@@ -754,10 +960,13 @@ export default function Page(): ReactElement {
                   <StickerPeel corner="top-right" size={54} back={accentDoux(700, 40)}>
                     <span
                       className="o-block o-max-w-2xs o-rounded-3xl o-p-6 o-text-sm o-leading-relaxed"
-                      style={{ backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)' }}
+                      style={{
+                        backgroundColor: accent(400),
+                        color: 'var(--o-palette-zinc-950)',
+                      }}
                     >
-                      La commission d admission se tient le 14 mars. Les dossiers arrives apres le 1er mars passent a
-                      la session de juin.
+                      La commission d admission se tient le 14 mars. Les dossiers arrives
+                      apres le 1er mars passent a la session de juin.
                     </span>
                   </StickerPeel>
                 </div>
@@ -770,7 +979,12 @@ export default function Page(): ReactElement {
             <div className="o-mx-auto o-max-w-4xl">
               <p
                 className="o-m-0 o-text-zinc-50"
-                style={{ ...affiche('m', 800), fontSize: 'clamp(2rem, 7vw, 5rem)', lineHeight: 0.9, letterSpacing: '-0.05em' }}
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(2rem, 7vw, 5rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.05em',
+                }}
               >
                 Marelle
               </p>
@@ -780,17 +994,21 @@ export default function Page(): ReactElement {
 
               <div className="o-mt-10">
                 <Volet titre="L association">
-                  Creee en 1998 par sept familles. Vingt-deux berceaux agrees par la protection maternelle et
-                  infantile, cinq salaries, un conseil d administration de neuf parents elus en octobre. Les comptes
-                  et le proces-verbal de la derniere assemblee sont remis a toute famille qui les demande.
+                  Creee en 1998 par sept familles. Vingt-deux berceaux agrees par la
+                  protection maternelle et infantile, cinq salaries, un conseil d
+                  administration de neuf parents elus en octobre. Les comptes et le
+                  proces-verbal de la derniere assemblee sont remis a toute famille qui
+                  les demande.
                 </Volet>
                 <Volet titre="Venir">
-                  Tram ligne A, arret Lices, puis deux minutes a pied. Une cour fermee, un local a poussettes, et
-                  quatre places de depose-minute devant le numero 12. L entree est de plain-pied.
+                  Tram ligne A, arret Lices, puis deux minutes a pied. Une cour fermee, un
+                  local a poussettes, et quatre places de depose-minute devant le numero
+                  12. L entree est de plain-pied.
                 </Volet>
                 <Volet titre="Les papiers">
-                  Dossier d inscription, attestation de la caisse d allocations familiales, carnet de vaccinations a
-                  jour, et une attestation d assurance responsabilite civile. Le tarif suit le bareme national : il
+                  Dossier d inscription, attestation de la caisse d allocations
+                  familiales, carnet de vaccinations a jour, et une attestation d
+                  assurance responsabilite civile. Le tarif suit le bareme national : il
                   depend de vos revenus et du nombre d enfants, pas de nous.
                 </Volet>
               </div>

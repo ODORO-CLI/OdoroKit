@@ -84,7 +84,9 @@ const KEY_TIMES = Array.from({ length: SEQUENCE.length * 2 + 1 }, (_, index) => 
   const hold = index % 2 === 1 ? 0.55 : 0
   return ((step + hold) / SEQUENCE.length).toFixed(4)
 }).join(';')
-const KEY_SPLINES = Array.from({ length: SEQUENCE.length * 2 }, () => '0.4 0 0.2 1').join(';')
+const KEY_SPLINES = Array.from({ length: SEQUENCE.length * 2 }, () => '0.4 0 0.2 1').join(
+  ';',
+)
 
 /** Pose le cadre, une fois par document. */
 function ensurePolygonMorphRule(): void {

@@ -74,7 +74,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-950'
 
 /** Nombre de vagues vivantes a la fois. */
 const SLOTS = 4
@@ -146,13 +147,18 @@ export function Ink({
     return () => host.removeEventListener('pointerdown', onDown)
   }, [host, uClicks])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: INK_FRAGMENT,
-      colors,
-      uniforms: { uClicks, uSpeed: speed, uFeather: feather },
-      name: 'ink',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: INK_FRAGMENT,
+    colors,
+    uniforms: { uClicks, uSpeed: speed, uFeather: feather },
+    name: 'ink',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

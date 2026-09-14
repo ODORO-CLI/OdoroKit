@@ -202,7 +202,15 @@ function graines(nombre: number, germe: number): readonly number[] {
 }
 
 /** La neige marine : la matiere morte qui tombe, et qui nourrit tout le reste. */
-function Neige({ nombre, taille, opacite }: { readonly nombre: number; readonly taille: number; readonly opacite: number }): ReactElement {
+function Neige({
+  nombre,
+  taille,
+  opacite,
+}: {
+  readonly nombre: number
+  readonly taille: number
+  readonly opacite: number
+}): ReactElement {
   const semis = graines(nombre * 2, nombre * 7 + 3)
   return (
     <div aria-hidden="true" className="o-absolute o-inset-0 o-overflow-hidden">
@@ -226,21 +234,27 @@ function Neige({ nombre, taille, opacite }: { readonly nombre: number; readonly 
 /** Les rais de lumiere de la surface, qui ondulent sans fin. */
 function Rais(): ReactElement {
   return (
-    <div aria-hidden="true" className="o-absolute o-inset-0 o-overflow-hidden o-mix-blend-screen">
+    <div
+      aria-hidden="true"
+      className="o-absolute o-inset-0 o-overflow-hidden o-mix-blend-screen"
+    >
       {[8, 22, 38, 55, 71, 88].map((gauche, rang) => (
         <span
           key={gauche}
           data-o-ab-rai=""
           className="o-absolute o-block"
-          style={{
-            left: `${String(gauche)}%`,
-            top: '-10%',
-            width: `${String(3 + (rang % 3) * 2)}vw`,
-            height: '120%',
-            background: 'linear-gradient(to bottom, color-mix(in oklab, white 55%, transparent), transparent 70%)',
-            '--o-ab-duree': `${String(9 + rang * 1.3)}s`,
-            '--o-ab-delai': `${String(-rang * 1.7)}s`,
-          } as CSSProperties}
+          style={
+            {
+              left: `${String(gauche)}%`,
+              top: '-10%',
+              width: `${String(3 + (rang % 3) * 2)}vw`,
+              height: '120%',
+              background:
+                'linear-gradient(to bottom, color-mix(in oklab, white 55%, transparent), transparent 70%)',
+              '--o-ab-duree': `${String(9 + rang * 1.3)}s`,
+              '--o-ab-delai': `${String(-rang * 1.7)}s`,
+            } as CSSProperties
+          }
         />
       ))}
     </div>
@@ -259,16 +273,18 @@ function Bulles({ nombre }: { readonly nombre: number }): ReactElement {
             key={rang}
             data-o-ab-bulle=""
             className="o-absolute o-block o-rounded-full o-border-w-1 o-border-white-20"
-            style={{
-              left: `${String((((semis[rang * 3 + 1] ?? 0) * 100)).toFixed(2))}%`,
-              bottom: `${String((((semis[rang * 3 + 2] ?? 0) * 30)).toFixed(2))}%`,
-              width: taille,
-              height: taille,
-              background: 'color-mix(in oklab, white 14%, transparent)',
-              '--o-ab-duree': `${String(11 + (semis[rang * 3] ?? 0) * 12)}s`,
-              '--o-ab-delai': `${String(-rang * 1.9)}s`,
-              '--o-ab-derive': `${String(Math.round(((semis[rang * 3 + 1] ?? 0) - 0.5) * 60))}px`,
-            } as CSSProperties}
+            style={
+              {
+                left: `${String(((semis[rang * 3 + 1] ?? 0) * 100).toFixed(2))}%`,
+                bottom: `${String(((semis[rang * 3 + 2] ?? 0) * 30).toFixed(2))}%`,
+                width: taille,
+                height: taille,
+                background: 'color-mix(in oklab, white 14%, transparent)',
+                '--o-ab-duree': `${String(11 + (semis[rang * 3] ?? 0) * 12)}s`,
+                '--o-ab-delai': `${String(-rang * 1.9)}s`,
+                '--o-ab-derive': `${String(Math.round(((semis[rang * 3 + 1] ?? 0) - 0.5) * 60))}px`,
+              } as CSSProperties
+            }
           />
         )
       })}
@@ -279,20 +295,54 @@ function Bulles({ nombre }: { readonly nombre: number }): ReactElement {
 /* ============================ La faune ================================= */
 
 /** Une meduse : une ombrelle et des filaments. */
-function Meduse({ taille, couleur }: { readonly taille: number; readonly couleur: string }): ReactElement {
+function Meduse({
+  taille,
+  couleur,
+}: {
+  readonly taille: number
+  readonly couleur: string
+}): ReactElement {
   return (
-    <svg viewBox="0 0 100 150" width={taille} height={taille * 1.5} aria-hidden="true" fill="none">
-      <path d="M8 52C8 26 27 8 50 8s42 18 42 44c0 8-4 11-12 11H20C12 63 8 60 8 52Z" fill={couleur} opacity="0.85" />
-      <path d="M28 63c0 26-8 42-14 62M44 63c0 30-3 48-5 66M56 63c0 30 3 48 5 66M72 63c0 26 8 42 14 62" stroke={couleur} strokeWidth="2.5" opacity="0.55" strokeLinecap="round" />
+    <svg
+      viewBox="0 0 100 150"
+      width={taille}
+      height={taille * 1.5}
+      aria-hidden="true"
+      fill="none"
+    >
+      <path
+        d="M8 52C8 26 27 8 50 8s42 18 42 44c0 8-4 11-12 11H20C12 63 8 60 8 52Z"
+        fill={couleur}
+        opacity="0.85"
+      />
+      <path
+        d="M28 63c0 26-8 42-14 62M44 63c0 30-3 48-5 66M56 63c0 30 3 48 5 66M72 63c0 26 8 42 14 62"
+        stroke={couleur}
+        strokeWidth="2.5"
+        opacity="0.55"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
 
 /** Un banc de poissons : le meme corps, seme a des tailles differentes. */
-function Banc({ nombre, couleur, largeur }: { readonly nombre: number; readonly couleur: string; readonly largeur: number }): ReactElement {
+function Banc({
+  nombre,
+  couleur,
+  largeur,
+}: {
+  readonly nombre: number
+  readonly couleur: string
+  readonly largeur: number
+}): ReactElement {
   const semis = graines(nombre * 3, nombre * 17 + 11)
   return (
-    <div aria-hidden="true" className="o-relative" style={{ width: largeur, height: largeur * 0.5 }}>
+    <div
+      aria-hidden="true"
+      className="o-relative"
+      style={{ width: largeur, height: largeur * 0.5 }}
+    >
       {Array.from({ length: nombre }, (_, rang) => (
         <svg
           key={rang}
@@ -306,7 +356,11 @@ function Banc({ nombre, couleur, largeur }: { readonly nombre: number; readonly 
             transform: `scaleX(${(semis[rang * 3] ?? 0) > 0.5 ? '-1' : '1'})`,
           }}
         >
-          <path d="M2 8c6-7 16-7 24-4l10-4-4 8 4 8-10-4C18 15 8 15 2 8Z" fill={couleur} opacity="0.7" />
+          <path
+            d="M2 8c6-7 16-7 24-4l10-4-4 8 4 8-10-4C18 15 8 15 2 8Z"
+            fill={couleur}
+            opacity="0.7"
+          />
         </svg>
       ))}
     </div>
@@ -314,7 +368,13 @@ function Banc({ nombre, couleur, largeur }: { readonly nombre: number; readonly 
 }
 
 /** Un cachalot en plongee : la plus grande silhouette de la page. */
-function Cachalot({ largeur, couleur }: { readonly largeur: number; readonly couleur: string }): ReactElement {
+function Cachalot({
+  largeur,
+  couleur,
+}: {
+  readonly largeur: number
+  readonly couleur: string
+}): ReactElement {
   return (
     <svg viewBox="0 0 300 110" width={largeur} aria-hidden="true" fill="none">
       <path
@@ -322,19 +382,49 @@ function Cachalot({ largeur, couleur }: { readonly largeur: number; readonly cou
         fill={couleur}
         opacity="0.8"
       />
-      <path d="M118 30c-8 10-10 22-6 34" stroke={couleur} strokeWidth="3" opacity="0.35" strokeLinecap="round" />
+      <path
+        d="M118 30c-8 10-10 22-6 34"
+        stroke={couleur}
+        strokeWidth="3"
+        opacity="0.35"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
 
 /** Une baudroie et son leurre lumineux — le seul point clair de la nuit. */
-function Baudroie({ largeur, couleur, lueur }: { readonly largeur: number; readonly couleur: string; readonly lueur: string }): ReactElement {
+function Baudroie({
+  largeur,
+  couleur,
+  lueur,
+}: {
+  readonly largeur: number
+  readonly couleur: string
+  readonly lueur: string
+}): ReactElement {
   return (
     <div aria-hidden="true" className="o-relative" style={{ width: largeur }}>
       <svg viewBox="0 0 200 130" width={largeur} aria-hidden="true" fill="none">
-        <path d="M28 74c0-26 24-44 56-44 34 0 60 18 68 42l36-22-14 30 16 28-40-18c-12 16-34 26-62 26-36 0-60-18-60-42Z" fill={couleur} opacity="0.9" />
-        <path d="M96 30c-4-16 2-24 12-26" stroke={couleur} strokeWidth="3.5" strokeLinecap="round" opacity="0.8" />
-        <path d="M52 62l10 10 10-10M78 62l10 10 10-10M104 62l10 10 10-10" stroke={couleur} strokeWidth="2" opacity="0.5" strokeLinecap="round" />
+        <path
+          d="M28 74c0-26 24-44 56-44 34 0 60 18 68 42l36-22-14 30 16 28-40-18c-12 16-34 26-62 26-36 0-60-18-60-42Z"
+          fill={couleur}
+          opacity="0.9"
+        />
+        <path
+          d="M96 30c-4-16 2-24 12-26"
+          stroke={couleur}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+        <path
+          d="M52 62l10 10 10-10M78 62l10 10 10-10M104 62l10 10 10-10"
+          stroke={couleur}
+          strokeWidth="2"
+          opacity="0.5"
+          strokeLinecap="round"
+        />
       </svg>
       <span
         data-o-ab-leurre=""
@@ -353,10 +443,25 @@ function Baudroie({ largeur, couleur, lueur }: { readonly largeur: number; reado
 }
 
 /** Le relief du fond : une plaine de vase, puis les parois de la fosse. */
-function Relief({ couleur, hauteur }: { readonly couleur: string; readonly hauteur: number }): ReactElement {
+function Relief({
+  couleur,
+  hauteur,
+}: {
+  readonly couleur: string
+  readonly hauteur: number
+}): ReactElement {
   return (
-    <svg viewBox="0 0 1200 200" preserveAspectRatio="none" width="100%" height={hauteur} aria-hidden="true">
-      <path d="M0 200V96c74-22 132 10 196 24 72 16 118-30 196-30 84 0 122 42 204 42 76 0 116-46 196-46 66 0 124 30 190 44 78 16 138-14 218-34v104Z" fill={couleur} />
+    <svg
+      viewBox="0 0 1200 200"
+      preserveAspectRatio="none"
+      width="100%"
+      height={hauteur}
+      aria-hidden="true"
+    >
+      <path
+        d="M0 200V96c74-22 132 10 196 24 72 16 118-30 196-30 84 0 122 42 204 42 76 0 116-46 196-46 66 0 124 30 190 44 78 16 138-14 218-34v104Z"
+        fill={couleur}
+      />
     </svg>
   )
 }
@@ -370,16 +475,28 @@ function Panneau({ rang }: { readonly rang: number }): ReactElement {
   return (
     <div className="o-flex o-h-full o-items-end o-p-6 o-pb-24 md:o-p-10 md:o-pb-28">
       <div className={`${verre(true)} o-max-w-md o-p-6 md:o-p-7`}>
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
-          {zone.grec} — a partir de {zone.depart === 0 ? 'la surface' : `${String(zone.depart)} m`}
+        <p
+          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: encreSurSombre() }}
+        >
+          {zone.grec} — a partir de{' '}
+          {zone.depart === 0 ? 'la surface' : `${String(zone.depart)} m`}
         </p>
-        <h3 className="o-m-0 o-mt-4 o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)' }}>
+        <h3
+          className="o-m-0 o-mt-4 o-text-zinc-50"
+          style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)' }}
+        >
           {zone.nom}
         </h3>
-        <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">{zone.texte}</p>
+        <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">
+          {zone.texte}
+        </p>
         <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
           {zone.faune.map((espece) => (
-            <li key={espece} className="o-rounded-full o-border-w-1 o-border-white-20 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
+            <li
+              key={espece}
+              className="o-rounded-full o-border-w-1 o-border-white-20 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200"
+            >
               {espece}
             </li>
           ))}
@@ -426,10 +543,12 @@ export default function Page(): ReactElement {
   const sonder = (p: number): void => {
     const bas = profondeurA(p)
     if (metres.current !== null) metres.current.textContent = bas.toLocaleString('fr-FR')
-    if (pression.current !== null) pression.current.textContent = String(Math.max(1, Math.round(bas / 10)))
+    if (pression.current !== null)
+      pression.current.textContent = String(Math.max(1, Math.round(bas / 10)))
     const rang = zoneA(bas)
     const zone = ZONES[rang] ?? ZONES[0]
-    if (degres.current !== null && zone !== undefined) degres.current.textContent = String(zone.temperature)
+    if (degres.current !== null && zone !== undefined)
+      degres.current.textContent = String(zone.temperature)
     // Le seul rendu React de la descente : cinq fois en tout, pour que le
     // lecteur d ecran annonce la zone que les chiffres ne lui disent pas.
     setZoneLue((precedent) => (precedent === rang ? precedent : rang))
@@ -445,7 +564,10 @@ export default function Page(): ReactElement {
         />
 
         {/* ================= La surface : l ouverture ===================== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-16 o-pt-32 md:o-px-10" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-16 o-pt-32 md:o-px-10"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <div
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
@@ -472,8 +594,14 @@ export default function Page(): ReactElement {
           </div>
 
           <div className="o-relative o-z-20 o-flex o-flex-wrap o-items-end o-justify-between o-gap-8">
-            <Surgit delai={520} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-200">
-              La moitie de la planete est une plaine de vase noire a quatre degres. Nous en avons vu moins que de la surface de Mars. Descendez : la page est la plongee.
+            <Surgit
+              delai={520}
+              as="p"
+              className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-200"
+            >
+              La moitie de la planete est une plaine de vase noire a quatre degres. Nous
+              en avons vu moins que de la surface de Mars. Descendez : la page est la
+              plongee.
             </Surgit>
             <Surgit delai={640} className="o-flex o-items-center o-gap-4">
               <a
@@ -486,8 +614,15 @@ export default function Page(): ReactElement {
             </Surgit>
           </div>
 
-          <Coin position="bg">48° 23 N — 4° 29 O<br />Salle basse, niveau -1</Coin>
-          <Coin position="bd">Ouvert du mardi au dimanche<br />10 h — 18 h</Coin>
+          <Coin position="bg">
+            48° 23 N — 4° 29 O<br />
+            Salle basse, niveau -1
+          </Coin>
+          <Coin position="bd">
+            Ouvert du mardi au dimanche
+            <br />
+            10 h — 18 h
+          </Coin>
         </header>
 
         {/* ================= La descente : le diorama ===================== */}
@@ -563,7 +698,10 @@ export default function Page(): ReactElement {
             <Couche profondeur={0.7} derive={26}>
               <div className="o-absolute" style={{ left: '4%', top: '150%' }}>
                 <Flotte amplitude={22} duree={18}>
-                  <Cachalot largeur={460} couleur="color-mix(in oklab, var(--o-palette-slate-950) 58%, white)" />
+                  <Cachalot
+                    largeur={460}
+                    couleur="color-mix(in oklab, var(--o-palette-slate-950) 58%, white)"
+                  />
                 </Flotte>
               </div>
             </Couche>
@@ -598,14 +736,29 @@ export default function Page(): ReactElement {
             {/* Le sondeur, colle en haut a droite de la scene. */}
             <div className="o-pointer-events-none o-absolute o-right-6 o-top-6 o-z-40 md:o-right-10 md:o-top-10">
               <div className={`${verre(true)} o-px-5 o-py-4 o-text-right`}>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Sondeur</p>
-                <p className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}>
-                  <span aria-hidden="true">−</span>
-                  <span ref={metres} aria-hidden="true">0</span>
-                  <span className="o-ml-1 o-text-base">m</span>
-                  <span className="o-sr-only">Profondeur atteinte : {ZONES[zoneLue]?.nom ?? ''}</span>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  Sondeur
                 </p>
-                <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" aria-hidden="true">
+                <p
+                  className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                  }}
+                >
+                  <span aria-hidden="true">−</span>
+                  <span ref={metres} aria-hidden="true">
+                    0
+                  </span>
+                  <span className="o-ml-1 o-text-base">m</span>
+                  <span className="o-sr-only">
+                    Profondeur atteinte : {ZONES[zoneLue]?.nom ?? ''}
+                  </span>
+                </p>
+                <p
+                  className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                  aria-hidden="true"
+                >
                   <span ref={pression}>1</span> bar · <span ref={degres}>18</span> °C
                 </p>
               </div>
@@ -615,52 +768,94 @@ export default function Page(): ReactElement {
 
         {/* ================= Ce qu on remonte ============================= */}
         <GradualBlur side="top" size={140} strength={12} layers={6} tint="#02060d">
-          <section id="collections" className="o-relative o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={{ background: '#02060d' }}>
+          <section
+            id="collections"
+            className="o-relative o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+            style={{ background: '#02060d' }}
+          >
             <Neige nombre={30} taille={2} opacite={0.18} />
             <div className="o-relative o-mx-auto o-max-w-6xl">
-            <Reveal>
-              <Indice rang="01">Les collections</Indice>
-            </Reveal>
-            <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}>
-                Ce que les campagnes ont remonte.
-              </h2>
-            </Reveal>
+              <Reveal>
+                <Indice rang="01">Les collections</Indice>
+              </Reveal>
+              <Reveal delay={80}>
+                <h2
+                  className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.5vw, 4.25rem)',
+                  }}
+                >
+                  Ce que les campagnes ont remonte.
+                </h2>
+              </Reveal>
 
-            <ol className="o-m-0 o-mt-16 o-list-none o-border-t o-border-white-10 o-p-0">
-              {[
-                ['1 240 m', 'Le calmar vampire', 'Ni calmar ni pieuvre : le dernier survivant de son ordre, qui vit dans la couche ou l oxygene manque et que rien d autre ne supporte.'],
-                ['2 500 m', 'La cheminee hydrothermale', 'Trois cent cinquante degres, et une vie entiere qui ne doit rien au soleil. Nous en avons ramene un tube de deux metres, en 1994.'],
-                ['4 100 m', 'La carotte de sediment', 'Huit metres de vase, soit quatre millions d annees de climat lus centimetre par centimetre.'],
-                ['10 916 m', 'La boue du Challenger', 'Trente grammes rapportes du point le plus bas de la planete. Ils contenaient deja du microplastique.'],
-              ].map(([profondeur, titre, texte], rang) => (
-                <li key={titre} className="o-grid o-items-baseline o-gap-4 o-border-b o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-10">
-                  <span className="o-font-mono o-text-xs o-uppercase o-tabular-nums o-tracking-widest md:o-col-span-2" style={{ color: encreSurSombre() }}>
-                    {profondeur}
-                  </span>
-                  <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-50 md:o-col-span-4">
-                    <span className="o-sr-only">Piece {rang + 1} — </span>
-                    {titre}
-                  </h3>
-                  <p className="o-m-0 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-6">{texte}</p>
-                </li>
-              ))}
+              <ol className="o-m-0 o-mt-16 o-list-none o-border-t o-border-white-10 o-p-0">
+                {[
+                  [
+                    '1 240 m',
+                    'Le calmar vampire',
+                    'Ni calmar ni pieuvre : le dernier survivant de son ordre, qui vit dans la couche ou l oxygene manque et que rien d autre ne supporte.',
+                  ],
+                  [
+                    '2 500 m',
+                    'La cheminee hydrothermale',
+                    'Trois cent cinquante degres, et une vie entiere qui ne doit rien au soleil. Nous en avons ramene un tube de deux metres, en 1994.',
+                  ],
+                  [
+                    '4 100 m',
+                    'La carotte de sediment',
+                    'Huit metres de vase, soit quatre millions d annees de climat lus centimetre par centimetre.',
+                  ],
+                  [
+                    '10 916 m',
+                    'La boue du Challenger',
+                    'Trente grammes rapportes du point le plus bas de la planete. Ils contenaient deja du microplastique.',
+                  ],
+                ].map(([profondeur, titre, texte], rang) => (
+                  <li
+                    key={titre}
+                    className="o-grid o-items-baseline o-gap-4 o-border-b o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-10"
+                  >
+                    <span
+                      className="o-font-mono o-text-xs o-uppercase o-tabular-nums o-tracking-widest md:o-col-span-2"
+                      style={{ color: encreSurSombre() }}
+                    >
+                      {profondeur}
+                    </span>
+                    <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-50 md:o-col-span-4">
+                      <span className="o-sr-only">Piece {rang + 1} — </span>
+                      {titre}
+                    </h3>
+                    <p className="o-m-0 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-6">
+                      {texte}
+                    </p>
+                  </li>
+                ))}
               </ol>
             </div>
           </section>
         </GradualBlur>
 
         {/* ================= Visiter ====================================== */}
-        <section id="visite" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ background: '#01040a' }}>
+        <section
+          id="visite"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ background: '#01040a' }}
+        >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-5">
               <Indice rang="02">Visiter</Indice>
               <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">
-                La descente dure vingt-deux minutes dans la salle basse, sur un ecran de onze metres. Les seances partent toutes les demi-heures ; la derniere a 17 h 30.
+                La descente dure vingt-deux minutes dans la salle basse, sur un ecran de
+                onze metres. Les seances partent toutes les demi-heures ; la derniere a 17
+                h 30.
               </p>
               <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500">
-                Musee de la mer<br />
-                Pointe du Diable, 29200 Brest<br />
+                Musee de la mer
+                <br />
+                Pointe du Diable, 29200 Brest
+                <br />
                 Tramway A — arret Octant
               </p>
             </div>
@@ -671,9 +866,14 @@ export default function Page(): ReactElement {
                 ['Moins de 26 ans, premier dimanche du mois', 'Gratuit'],
                 ['Groupes scolaires, sur reservation', '4 € par eleve'],
               ].map(([quoi, combien]) => (
-                <div key={quoi} className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-1 o-border-b o-border-white-10 o-py-4">
+                <div
+                  key={quoi}
+                  className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-1 o-border-b o-border-white-10 o-py-4"
+                >
                   <dt className="o-text-sm o-text-zinc-300">{quoi}</dt>
-                  <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-50">{combien}</dd>
+                  <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-50">
+                    {combien}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -681,29 +881,62 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= Le pied : le nom, debout ===================== */}
-        <footer className="o-relative o-overflow-hidden o-px-6 o-pb-28 o-pt-20 md:o-px-10" style={{ background: '#01040a' }}>
+        <footer
+          className="o-relative o-overflow-hidden o-px-6 o-pb-28 o-pt-20 md:o-px-10"
+          style={{ background: '#01040a' }}
+        >
           <div className="o-mx-auto o-flex o-max-w-6xl o-gap-10">
             <p
               aria-hidden="true"
               className="o-m-0 o-select-none o-whitespace-nowrap o-text-zinc-50 o-opacity-30"
-              style={{ ...affiche('m', 300), writingMode: 'vertical-rl', fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', letterSpacing: '0.08em' }}
+              style={{
+                ...affiche('m', 300),
+                writingMode: 'vertical-rl',
+                fontSize: 'clamp(2.5rem, 6vw, 5.5rem)',
+                letterSpacing: '0.08em',
+              }}
             >
               ABYSSE
             </p>
             <div className="o-grid o-grow o-gap-10 sm:o-grid-cols-3">
               {[
-                { titre: 'L exposition', liens: ['La descente', 'Les collections', 'Le film de 22 minutes', 'Accessibilite'] },
-                { titre: 'Le musee', liens: ['Les campagnes', 'La bibliotheque', 'Recrutement', 'Presse'] },
-                { titre: 'Venir', liens: ['Horaires et tarifs', 'Groupes scolaires', 'Plan d acces', 'Nous ecrire'] },
+                {
+                  titre: 'L exposition',
+                  liens: [
+                    'La descente',
+                    'Les collections',
+                    'Le film de 22 minutes',
+                    'Accessibilite',
+                  ],
+                },
+                {
+                  titre: 'Le musee',
+                  liens: ['Les campagnes', 'La bibliotheque', 'Recrutement', 'Presse'],
+                },
+                {
+                  titre: 'Venir',
+                  liens: [
+                    'Horaires et tarifs',
+                    'Groupes scolaires',
+                    'Plan d acces',
+                    'Nous ecrire',
+                  ],
+                },
               ].map((colonne) => (
                 <nav key={colonne.titre} aria-label={colonne.titre}>
-                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <h2
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     {colonne.titre}
                   </h2>
                   <ul className="o-m-0 o-mt-4 o-list-none o-space-y-2 o-p-0">
                     {colonne.liens.map((lien) => (
                       <li key={lien}>
-                        <a href="#descente" className="o-text-sm o-text-zinc-400 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring">
+                        <a
+                          href="#descente"
+                          className="o-text-sm o-text-zinc-400 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                        >
                           {lien}
                         </a>
                       </li>
@@ -714,30 +947,42 @@ export default function Page(): ReactElement {
             </div>
           </div>
           <p className="o-mx-auto o-mt-16 o-max-w-6xl o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-            Musee de la mer — etablissement public — © 2026. Profondeurs, temperatures et faune d apres les campagnes Ifremer.
+            Musee de la mer — etablissement public — © 2026. Profondeurs, temperatures et
+            faune d apres les campagnes Ifremer.
           </p>
         </footer>
 
         {/* La billetterie, posee en bas de l ecran : c est la seule action. */}
         <div
           className="o-pointer-events-none o-fixed o-bottom-0 o-left-0 o-z-40 o-flex o-w-full o-justify-center o-p-4 o-transition-all md:o-justify-end md:o-px-10"
-          style={{ opacity: plonge ? 1 : 0, transform: plonge ? 'none' : 'translateY(120%)' }}
+          style={{
+            opacity: plonge ? 1 : 0,
+            transform: plonge ? 'none' : 'translateY(120%)',
+          }}
           aria-hidden={!plonge}
         >
-          <div className={`${verre(true)} o-pointer-events-auto o-flex o-flex-wrap o-items-center o-justify-center o-gap-x-5 o-gap-y-2 o-px-5 o-py-3`}>
+          <div
+            className={`${verre(true)} o-pointer-events-auto o-flex o-flex-wrap o-items-center o-justify-center o-gap-x-5 o-gap-y-2 o-px-5 o-py-3`}
+          >
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
               Prochaine seance 14 h 30 — 22 places
             </p>
             <a
               href="#visite"
               className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-5 o-py-2 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
-              style={{ backgroundColor: encreSurSombre(), color: 'var(--o-palette-slate-950)' }}
+              style={{
+                backgroundColor: encreSurSombre(),
+                color: 'var(--o-palette-slate-950)',
+              }}
             >
               <Icon icon={Ticket} size={15} aria-hidden="true" />
               Reserver
               <Icon icon={ArrowRight} size={15} aria-hidden="true" />
             </a>
-            <a href="#collections" className="o-hidden o-items-center o-gap-1.5 o-text-sm o-text-zinc-300 o-no-underline hover:o-text-zinc-50 focus:o-ring sm:o-inline-flex">
+            <a
+              href="#collections"
+              className="o-hidden o-items-center o-gap-1.5 o-text-sm o-text-zinc-300 o-no-underline hover:o-text-zinc-50 focus:o-ring sm:o-inline-flex"
+            >
               Les collections
               <Icon icon={ArrowUpRight} size={14} aria-hidden="true" />
             </a>

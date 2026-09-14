@@ -285,7 +285,7 @@ export function InfiniteMenu({
       angle.current = dragStartAngle - (dy / pxPerStep) * step
       const dt = Math.max(event.timeStamp - lastTime, 1) / 1000
       // Vitesse en degres par seconde, lissee sur les derniers mouvements.
-      const instant = (-(event.clientY - lastY) / pxPerStep) * step / dt
+      const instant = ((-(event.clientY - lastY) / pxPerStep) * step) / dt
       velocity.current = velocity.current * 0.6 + instant * 0.4
       lastY = event.clientY
       lastTime = event.timeStamp
@@ -295,7 +295,8 @@ export function InfiniteMenu({
       if (!dragging.current) return
       dragging.current = false
       host.removeAttribute('data-o-wheel-drag')
-      if (host.hasPointerCapture(event.pointerId)) host.releasePointerCapture(event.pointerId)
+      if (host.hasPointerCapture(event.pointerId))
+        host.releasePointerCapture(event.pointerId)
       // Un lacher sans elan, ou sous mouvement reduit : cran le plus proche.
       if (reduced || Math.abs(velocity.current) < 60) {
         velocity.current = 0

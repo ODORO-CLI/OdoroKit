@@ -169,7 +169,8 @@ export function usePolices(nom: NomDeVoix): CSSProperties {
       '--o-font-mono': fontStack(famille(voix.mono), 'monospace'),
       '--o-vitrine-affichage': fontStack(famille(voix.affichage)),
     }
-    if (voix.accent !== undefined) vars['--o-font-serif'] = fontStack(famille(voix.accent), 'serif')
+    if (voix.accent !== undefined)
+      vars['--o-font-serif'] = fontStack(famille(voix.accent), 'serif')
     return vars as CSSProperties
   }, [voix])
 }
@@ -195,7 +196,10 @@ const CORPS = {
  * @param graisse 300 (Sentira, Miles, Vesper) ou 800 (Gallary, Spector, Fuel).
  *   Jamais entre les deux : c est la graisse du corps de texte.
  */
-export function affiche(corps: keyof typeof CORPS, graisse: 300 | 400 | 500 | 700 | 800 = 300): CSSProperties {
+export function affiche(
+  corps: keyof typeof CORPS,
+  graisse: 300 | 400 | 500 | 700 | 800 = 300,
+): CSSProperties {
   return {
     fontFamily: 'var(--o-vitrine-affichage, var(--o-font-sans))',
     fontSize: CORPS[corps],
@@ -207,9 +211,18 @@ export function affiche(corps: keyof typeof CORPS, graisse: 300 | 400 | 500 | 70
 }
 
 /** Le mot d accent en serif italique, dans un titre. */
-export function Accent({ children, couleur }: { readonly children: ReactNode; readonly couleur?: string }): ReactElement {
+export function Accent({
+  children,
+  couleur,
+}: {
+  readonly children: ReactNode
+  readonly couleur?: string
+}): ReactElement {
   return (
-    <em className="o-font-serif o-italic o-font-normal" style={{ color: couleur, letterSpacing: '-0.01em' }}>
+    <em
+      className="o-font-serif o-italic o-font-normal"
+      style={{ color: couleur, letterSpacing: '-0.01em' }}
+    >
       {children}
     </em>
   )
@@ -220,7 +233,12 @@ export function Encadre({ children }: { readonly children: ReactNode }): ReactEl
   return (
     <span
       className="o-inline-block o-rounded-full o-border-w-1 o-align-middle"
-      style={{ borderColor: 'currentcolor', padding: '0 0.28em', lineHeight: 1.15, fontWeight: 300 }}
+      style={{
+        borderColor: 'currentcolor',
+        padding: '0 0.28em',
+        lineHeight: 1.15,
+        fontWeight: 300,
+      }}
     >
       {children}
     </span>
@@ -304,7 +322,11 @@ function useMoletteLaterale(): void {
       const pas = evenement.deltaMode === 1 ? evenement.deltaY * 16 : evenement.deltaY
       const vise = bande.scrollLeft + pas
       // Au bout, la bande rend la main : c est ce qui empeche le blocage.
-      if ((pas < 0 && bande.scrollLeft <= 0) || (pas > 0 && bande.scrollLeft >= course - 1)) return
+      if (
+        (pas < 0 && bande.scrollLeft <= 0) ||
+        (pas > 0 && bande.scrollLeft >= course - 1)
+      )
+        return
 
       bande.scrollLeft = Math.max(0, Math.min(course, vise))
       evenement.preventDefault()
@@ -359,7 +381,10 @@ export function Porte({
   const tenue = reduced ? 300 : 1100
 
   const label = (
-    <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ink }}>
+    <span
+      className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+      style={{ color: ink }}
+    >
       {marque}
     </span>
   )
@@ -377,20 +402,59 @@ export function Porte({
   switch (forme) {
     case 'compteur':
       rideau = (
-        <CounterGate background={fond} ink={ink} ready={pretExterne} label={label} minVisibleMs={tenue} onDone={finir} />
+        <CounterGate
+          background={fond}
+          ink={ink}
+          ready={pretExterne}
+          label={label}
+          minVisibleMs={tenue}
+          onDone={finir}
+        />
       )
       break
     case 'iris':
-      rideau = <IrisOpen background={fond} ink={ink} label={label} holdMs={tenue} onDone={finir} />
+      rideau = (
+        <IrisOpen
+          background={fond}
+          ink={ink}
+          label={label}
+          holdMs={tenue}
+          onDone={finir}
+        />
+      )
       break
     case 'lettres':
-      rideau = <LettersGate background={fond} ink={ink} word={marque.toUpperCase()} holdMs={reduced ? 200 : 500} onDone={finir} />
+      rideau = (
+        <LettersGate
+          background={fond}
+          ink={ink}
+          word={marque.toUpperCase()}
+          holdMs={reduced ? 200 : 500}
+          onDone={finir}
+        />
+      )
       break
     case 'zoom':
-      rideau = <ZoomGate background={fond} ink={ink} label={label} holdMs={tenue} onDone={finir} />
+      rideau = (
+        <ZoomGate
+          background={fond}
+          ink={ink}
+          label={label}
+          holdMs={tenue}
+          onDone={finir}
+        />
+      )
       break
     default:
-      rideau = <CurtainWipe background={fond} ink={ink} label={label} holdMs={tenue} onDone={finir} />
+      rideau = (
+        <CurtainWipe
+          background={fond}
+          ink={ink}
+          label={label}
+          holdMs={tenue}
+          onDone={finir}
+        />
+      )
   }
 
   return (
@@ -428,7 +492,11 @@ export function Surgit({
   const { reduced } = useMotionState()
   const cache: CSSProperties = reduced
     ? { opacity: 0 }
-    : { opacity: 0, transform: `translate3d(0, ${String(distance)}px, 0)`, filter: 'blur(10px)' }
+    : {
+        opacity: 0,
+        transform: `translate3d(0, ${String(distance)}px, 0)`,
+        filter: 'blur(10px)',
+      }
   const visible: CSSProperties = { opacity: 1, transform: 'none', filter: 'blur(0)' }
   const courbe = 'cubic-bezier(0.16, 1, 0.3, 1)'
   return (
@@ -520,14 +588,21 @@ export function BarreGelule({
   return (
     // La documentation pose 101 px de barres au-dessus de la vitrine : la gelule
     // flotte en dessous, la ou un site seul la mettrait au bord.
-    <div className="o-pointer-events-none o-fixed o-inset-x-0 o-z-40 o-flex o-justify-center o-px-4" style={{ top: `calc(${String(CHROME)}px + 1rem)` }}>
+    <div
+      className="o-pointer-events-none o-fixed o-inset-x-0 o-z-40 o-flex o-justify-center o-px-4"
+      style={{ top: `calc(${String(CHROME)}px + 1rem)` }}
+    >
       <nav
         aria-label="Navigation"
         className={`o-pointer-events-auto o-flex o-items-center o-gap-1 o-rounded-full o-border-w-1 o-p-1.5 o-pl-4 o-backdrop-blur-xl ${
-          sombre ? 'o-border-white-10 o-bg-black-70' : 'o-border-black-10 o-bg-white-70 dark:o-border-zinc-800 dark:o-bg-zinc-950'
+          sombre
+            ? 'o-border-white-10 o-bg-black-70'
+            : 'o-border-black-10 o-bg-white-70 dark:o-border-zinc-800 dark:o-bg-zinc-950'
         }`}
       >
-        <span className={`o-mr-3 o-text-sm o-font-semibold o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}>
+        <span
+          className={`o-mr-3 o-text-sm o-font-semibold o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+        >
           {marque}
         </span>
         {liens.map(([href, mot]) => (
@@ -565,18 +640,29 @@ export function BarreFilet({
   readonly action?: readonly [href: string, mot: string]
   readonly sombre?: boolean
 }): ReactElement {
-  const texte = sombre ? 'o-text-zinc-300 hover:o-text-white' : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
+  const texte = sombre
+    ? 'o-text-zinc-300 hover:o-text-white'
+    : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
   return (
     <header
       className={`o-relative o-z-30 o-border-b ${sombre ? 'o-border-white-10' : 'o-border-black-10 dark:o-border-zinc-800'}`}
     >
       <div className="o-mx-auto o-grid o-max-w-7xl o-grid-cols-2 o-items-center o-gap-4 o-px-6 o-py-5 md:o-grid-cols-3">
-        <span className={`o-text-base o-font-semibold o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}>
+        <span
+          className={`o-text-base o-font-semibold o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+        >
           {marque}
         </span>
-        <nav aria-label="Navigation" className="o-hidden o-justify-center o-gap-7 md:o-flex">
+        <nav
+          aria-label="Navigation"
+          className="o-hidden o-justify-center o-gap-7 md:o-flex"
+        >
           {liens.map(([href, mot]) => (
-            <a key={href} href={href} className={`o-text-sm o-no-underline o-transition-colors ${texte} focus:o-ring`}>
+            <a
+              key={href}
+              href={href}
+              className={`o-text-sm o-no-underline o-transition-colors ${texte} focus:o-ring`}
+            >
               {mot}
             </a>
           ))}
@@ -586,7 +672,9 @@ export function BarreFilet({
             <a
               href={action[0]}
               className={`o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-font-medium o-no-underline o-transition-colors focus:o-ring ${
-                sombre ? 'o-border-white-20 o-text-white hover:o-bg-white-10' : 'o-border-black-20 o-text-zinc-950 hover:o-bg-black-10 dark:o-text-zinc-50 dark:hover:o-bg-zinc-800'
+                sombre
+                  ? 'o-border-white-20 o-text-white hover:o-bg-white-10'
+                  : 'o-border-black-20 o-text-zinc-950 hover:o-bg-black-10 dark:o-text-zinc-50 dark:hover:o-bg-zinc-800'
               }`}
             >
               {action[1]}
@@ -611,18 +699,30 @@ export function BarreCoins({
   readonly droite?: ReactNode
   readonly sombre?: boolean
 }): ReactElement {
-  const texte = sombre ? 'o-text-zinc-300 hover:o-text-white' : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
+  const texte = sombre
+    ? 'o-text-zinc-300 hover:o-text-white'
+    : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
   return (
     <header className="o-relative o-z-30 o-flex o-items-center o-justify-between o-gap-6 o-px-6 o-py-5 o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-px-8">
-      <span className={sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}>{marque}</span>
+      <span className={sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}>
+        {marque}
+      </span>
       <nav aria-label="Navigation" className="o-hidden o-gap-8 md:o-flex">
         {liens.map(([href, mot]) => (
-          <a key={href} href={href} className={`o-no-underline o-transition-colors ${texte} focus:o-ring`}>
+          <a
+            key={href}
+            href={href}
+            className={`o-no-underline o-transition-colors ${texte} focus:o-ring`}
+          >
             {mot}
           </a>
         ))}
       </nav>
-      <span className={sombre ? 'o-text-zinc-300' : 'o-text-zinc-600 dark:o-text-zinc-400'}>{droite}</span>
+      <span
+        className={sombre ? 'o-text-zinc-300' : 'o-text-zinc-600 dark:o-text-zinc-400'}
+      >
+        {droite}
+      </span>
     </header>
   )
 }
@@ -642,10 +742,18 @@ export function Etiquette({
   return (
     <span
       className={`o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest ${
-        sombre ? 'o-border-white-20 o-bg-white-10 o-text-zinc-100' : 'o-border-black-10 o-bg-black-10 o-text-zinc-800 dark:o-border-zinc-800 dark:o-bg-zinc-900 dark:o-text-zinc-100'
+        sombre
+          ? 'o-border-white-20 o-bg-white-10 o-text-zinc-100'
+          : 'o-border-black-10 o-bg-black-10 o-text-zinc-800 dark:o-border-zinc-800 dark:o-bg-zinc-900 dark:o-text-zinc-100'
       }`}
     >
-      {point && <span aria-hidden="true" className="o-size-1.5 o-rounded-full" style={{ backgroundColor: sombre ? encreSurSombre() : encre() }} />}
+      {point && (
+        <span
+          aria-hidden="true"
+          className="o-size-1.5 o-rounded-full"
+          style={{ backgroundColor: sombre ? encreSurSombre() : encre() }}
+        />
+      )}
       {children}
     </span>
   )
@@ -694,7 +802,9 @@ export function Actions({
         <a
           href={fantome[0]}
           className={`o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-backdrop-blur-md o-transition-colors focus:o-ring ${
-            sombre ? 'o-border-white-20 o-bg-white-10 o-text-white hover:o-bg-white-20' : 'o-border-black-20 o-text-zinc-950 hover:o-bg-black-10 dark:o-text-zinc-50 dark:hover:o-bg-zinc-800'
+            sombre
+              ? 'o-border-white-20 o-bg-white-10 o-text-white hover:o-bg-white-20'
+              : 'o-border-black-20 o-text-zinc-950 hover:o-bg-black-10 dark:o-text-zinc-50 dark:hover:o-bg-zinc-800'
           }`}
         >
           {fantome[1]}
@@ -713,7 +823,13 @@ export function verre(sombre = true): string {
 
 /** Le grain de film, a poser en dernier enfant d un fond sombre. */
 export function Grain({ opacite = 0.06 }: { readonly opacite?: number }): ReactElement {
-  return <Noise className="o-pointer-events-none o-absolute o-inset-0 o-z-10" opacity={opacite} scale={0.9} />
+  return (
+    <Noise
+      className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
+      opacity={opacite}
+      scale={0.9}
+    />
+  )
 }
 
 /** Quatre croix aux coins d un cadre, comme chez Fuel. */
@@ -721,8 +837,19 @@ export function Croix({ sombre = true }: { readonly sombre?: boolean }): ReactEl
   const c = sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'
   return (
     <>
-      {(['o-left-4 o-top-4', 'o-right-4 o-top-4', 'o-bottom-4 o-left-4', 'o-bottom-4 o-right-4'] as const).map((pos) => (
-        <span key={pos} aria-hidden="true" className={`o-pointer-events-none o-absolute o-z-10 o-font-mono o-text-sm o-opacity-60 ${pos} ${c}`}>
+      {(
+        [
+          'o-left-4 o-top-4',
+          'o-right-4 o-top-4',
+          'o-bottom-4 o-left-4',
+          'o-bottom-4 o-right-4',
+        ] as const
+      ).map((pos) => (
+        <span
+          key={pos}
+          aria-hidden="true"
+          className={`o-pointer-events-none o-absolute o-z-10 o-font-mono o-text-sm o-opacity-60 ${pos} ${c}`}
+        >
           +
         </span>
       ))}
@@ -740,19 +867,37 @@ export function Coin({
   readonly position: 'bg' | 'bd' | 'hg' | 'hd'
   readonly sombre?: boolean
 }): ReactElement {
-  const pos = { bg: 'o-bottom-6 o-left-6 o-text-left', bd: 'o-bottom-6 o-right-6 o-text-right', hg: 'o-top-24 o-left-6', hd: 'o-top-24 o-right-6 o-text-right' }[position]
+  const pos = {
+    bg: 'o-bottom-6 o-left-6 o-text-left',
+    bd: 'o-bottom-6 o-right-6 o-text-right',
+    hg: 'o-top-24 o-left-6',
+    hd: 'o-top-24 o-right-6 o-text-right',
+  }[position]
   return (
-    <p className={`o-pointer-events-none o-absolute o-z-20 o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest ${pos} ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>
+    <p
+      className={`o-pointer-events-none o-absolute o-z-20 o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest ${pos} ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+    >
       {children}
     </p>
   )
 }
 
 /** L heure locale en direct, comme chez Gallary. */
-export function Horloge({ ville = 'Paris', fuseau = 'Europe/Paris' }: { readonly ville?: string; readonly fuseau?: string }): ReactElement {
+export function Horloge({
+  ville = 'Paris',
+  fuseau = 'Europe/Paris',
+}: {
+  readonly ville?: string
+  readonly fuseau?: string
+}): ReactElement {
   const [heure, setHeure] = useState('')
   useEffect(() => {
-    const format = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: fuseau })
+    const format = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZone: fuseau,
+    })
     const tic = (): void => {
       setHeure(format.format(new Date()))
     }
@@ -770,11 +915,24 @@ export function Horloge({ ville = 'Paris', fuseau = 'Europe/Paris' }: { readonly
 }
 
 /** L indice d une section, en mono : « (04) — Le parc ». */
-export function Indice({ rang, children, sombre = true }: { readonly rang: string; readonly children: ReactNode; readonly sombre?: boolean }): ReactElement {
+export function Indice({
+  rang,
+  children,
+  sombre = true,
+}: {
+  readonly rang: string
+  readonly children: ReactNode
+  readonly sombre?: boolean
+}): ReactElement {
   return (
-    <p className={`o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>
+    <p
+      className={`o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+    >
       <span style={{ color: sombre ? encreSurSombre() : encre() }}>({rang})</span>
-      <span aria-hidden="true" className={`o-h-px o-w-6 ${sombre ? 'o-bg-white-20' : 'o-bg-black-20 dark:o-bg-zinc-800'}`} />
+      <span
+        aria-hidden="true"
+        className={`o-h-px o-w-6 ${sombre ? 'o-bg-white-20' : 'o-bg-black-20 dark:o-bg-zinc-800'}`}
+      />
       {children}
     </p>
   )
@@ -801,10 +959,20 @@ export function Manifeste({
   return (
     <p
       className={`o-m-0 o-max-w-5xl o-text-balance ${className}`}
-      style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)', lineHeight: 1.1 }}
+      style={{
+        ...affiche('m', 300),
+        fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)',
+        lineHeight: 1.1,
+      }}
     >
-      <span className={sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-500'}>{eteint} </span>
-      <span className={sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}>{children}</span>
+      <span
+        className={sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-500'}
+      >
+        {eteint}{' '}
+      </span>
+      <span className={sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}>
+        {children}
+      </span>
     </p>
   )
 }
@@ -818,12 +986,21 @@ export interface Numero {
 }
 
 /** La liste numerotee : `01 02 03` en 120 px a gauche — Fuel, Salonix. */
-export function Numerotee({ lignes, sombre = true }: { readonly lignes: readonly Numero[]; readonly sombre?: boolean }): ReactElement {
+export function Numerotee({
+  lignes,
+  sombre = true,
+}: {
+  readonly lignes: readonly Numero[]
+  readonly sombre?: boolean
+}): ReactElement {
   const filet = sombre ? 'o-border-white-10' : 'o-border-black-10 dark:o-border-zinc-800'
   return (
     <ol className={`o-m-0 o-list-none o-border-t o-p-0 ${filet}`}>
       {lignes.map((ligne, rang) => (
-        <li key={rang} className={`o-grid o-items-center o-gap-6 o-border-b o-py-8 md:o-grid-cols-12 md:o-gap-10 ${filet}`}>
+        <li
+          key={rang}
+          className={`o-grid o-items-center o-gap-6 o-border-b o-py-8 md:o-grid-cols-12 md:o-gap-10 ${filet}`}
+        >
           <span
             aria-hidden="true"
             className={`o-tabular-nums md:o-col-span-3 ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
@@ -831,14 +1008,24 @@ export function Numerotee({ lignes, sombre = true }: { readonly lignes: readonly
           >
             {String(rang + 1).padStart(2, '0')}
           </span>
-          <div className={ligne.media === undefined ? 'md:o-col-span-9' : 'md:o-col-span-5'}>
-            <h3 className={`o-m-0 o-text-2xl o-font-medium o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}>
+          <div
+            className={ligne.media === undefined ? 'md:o-col-span-9' : 'md:o-col-span-5'}
+          >
+            <h3
+              className={`o-m-0 o-text-2xl o-font-medium o-tracking-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+            >
               <span className="o-sr-only">{String(rang + 1).padStart(2, '0')} — </span>
               {ligne.titre}
             </h3>
-            <p className={`o-mt-3 o-max-w-md o-text-base o-leading-relaxed ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}>{ligne.texte}</p>
+            <p
+              className={`o-mt-3 o-max-w-md o-text-base o-leading-relaxed ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}
+            >
+              {ligne.texte}
+            </p>
           </div>
-          {ligne.media !== undefined && <div className="o-min-w-0 md:o-col-span-4">{ligne.media}</div>}
+          {ligne.media !== undefined && (
+            <div className="o-min-w-0 md:o-col-span-4">{ligne.media}</div>
+          )}
         </li>
       ))}
     </ol>
@@ -868,11 +1055,32 @@ export function Chiffres({
       className={`o-m-0 o-grid o-grid-cols-2 o-gap-px lg:o-grid-cols-4 ${enVerre ? `${verre(sombre)} o-overflow-hidden o-p-1` : `o-border-t ${filet}`}`}
     >
       {nombres.map((n, rang) => (
-        <Surgit key={n.quoi} delai={200 + rang * 90} as="div" className={enVerre ? 'o-px-5 o-py-4' : `o-py-6 o-pr-6 ${rang > 0 ? `lg:o-border-l lg:o-pl-6 ${filet}` : ''}`}>
-          <dt className={`o-tabular-nums o-tracking-tighter ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`} style={{ ...affiche('m', 300), fontSize: enVerre ? 'clamp(1.75rem, 3vw, 2.75rem)' : 'clamp(2.5rem, 5vw, 5rem)' }}>
+        <Surgit
+          key={n.quoi}
+          delai={200 + rang * 90}
+          as="div"
+          className={
+            enVerre
+              ? 'o-px-5 o-py-4'
+              : `o-py-6 o-pr-6 ${rang > 0 ? `lg:o-border-l lg:o-pl-6 ${filet}` : ''}`
+          }
+        >
+          <dt
+            className={`o-tabular-nums o-tracking-tighter ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+            style={{
+              ...affiche('m', 300),
+              fontSize: enVerre
+                ? 'clamp(1.75rem, 3vw, 2.75rem)'
+                : 'clamp(2.5rem, 5vw, 5rem)',
+            }}
+          >
             {n.valeur}
           </dt>
-          <dd className={`o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>{n.quoi}</dd>
+          <dd
+            className={`o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+          >
+            {n.quoi}
+          </dd>
         </Surgit>
       ))}
     </dl>
@@ -880,15 +1088,30 @@ export function Chiffres({
 }
 
 /** La bande de logos : des mots-marques en gris, fondus aux bords. */
-export function Logos({ marques, titre, sombre = true }: { readonly marques: readonly string[]; readonly titre?: ReactNode; readonly sombre?: boolean }): ReactElement {
+export function Logos({
+  marques,
+  titre,
+  sombre = true,
+}: {
+  readonly marques: readonly string[]
+  readonly titre?: ReactNode
+  readonly sombre?: boolean
+}): ReactElement {
   return (
     <div className="o-py-8">
       {titre !== undefined && (
-        <p className={`o-mb-5 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>{titre}</p>
+        <p
+          className={`o-mb-5 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+        >
+          {titre}
+        </p>
       )}
       <Marquee speed={70} fade={14}>
         {marques.map((m) => (
-          <span key={m} className={`o-shrink-0 o-px-10 o-text-xl o-font-semibold o-tracking-tight ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-500'}`}>
+          <span
+            key={m}
+            className={`o-shrink-0 o-px-10 o-text-xl o-font-semibold o-tracking-tight ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-500'}`}
+          >
             {m}
           </span>
         ))}
@@ -911,10 +1134,19 @@ export function Appel({
 }): ReactElement {
   return (
     <section className="o-relative o-isolate o-overflow-hidden o-px-6 o-py-24 o-text-center md:o-py-36">
-      <h2 className={`o-m-0 ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`} style={affiche('xl', 300)}>
+      <h2
+        className={`o-m-0 ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+        style={affiche('xl', 300)}
+      >
         {titre}
       </h2>
-      {texte !== undefined && <p className={`o-mx-auto o-mt-6 o-max-w-xl o-text-lg o-leading-relaxed ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}>{texte}</p>}
+      {texte !== undefined && (
+        <p
+          className={`o-mx-auto o-mt-6 o-max-w-xl o-text-lg o-leading-relaxed ${sombre ? 'o-text-zinc-400' : 'o-text-zinc-600 dark:o-text-zinc-400'}`}
+        >
+          {texte}
+        </p>
+      )}
       <div className="o-mt-10 o-flex o-justify-center">
         <Actions pleine={action} sombre={sombre} />
       </div>
@@ -941,17 +1173,26 @@ export function Pied({
   readonly sombre?: boolean
 }): ReactElement {
   const filet = sombre ? 'o-border-white-10' : 'o-border-black-10 dark:o-border-zinc-800'
-  const doux = sombre ? 'o-text-zinc-400 hover:o-text-white' : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
+  const doux = sombre
+    ? 'o-text-zinc-400 hover:o-text-white'
+    : 'o-text-zinc-600 hover:o-text-zinc-950 dark:o-text-zinc-400 dark:hover:o-text-zinc-50'
   return (
     <footer className={`o-relative o-overflow-hidden o-border-t o-px-6 o-pt-14 ${filet}`}>
       <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 sm:o-grid-cols-2 lg:o-grid-cols-4">
         {colonnes.map((col) => (
           <div key={col.titre}>
-            <p className={`o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>{col.titre}</p>
+            <p
+              className={`o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+            >
+              {col.titre}
+            </p>
             <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-col o-gap-2 o-p-0">
               {col.liens.map(([href, mot]) => (
                 <li key={`${href}-${mot}`}>
-                  <a href={href} className={`o-text-sm o-no-underline o-transition-colors ${doux} focus:o-ring`}>
+                  <a
+                    href={href}
+                    className={`o-text-sm o-no-underline o-transition-colors ${doux} focus:o-ring`}
+                  >
                     {mot}
                   </a>
                 </li>
@@ -963,11 +1204,17 @@ export function Pied({
       <p
         aria-hidden="true"
         className={`o-m-0 o-mt-16 o-select-none o-whitespace-nowrap o-text-center o-leading-tight ${sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
-        style={{ ...affiche('xxl', 800), fontSize: 'clamp(3rem, 17.5vw, 19rem)', lineHeight: 0.82 }}
+        style={{
+          ...affiche('xxl', 800),
+          fontSize: 'clamp(3rem, 17.5vw, 19rem)',
+          lineHeight: 0.82,
+        }}
       >
         {marque}
       </p>
-      <div className={`o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-py-6 o-font-mono o-text-xs o-uppercase o-tracking-widest ${filet} ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>
+      <div
+        className={`o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-py-6 o-font-mono o-text-xs o-uppercase o-tracking-widest ${filet} ${sombre ? 'o-text-zinc-500' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+      >
         <span>{mention}</span>
         <span>© 2026 {marque}</span>
       </div>

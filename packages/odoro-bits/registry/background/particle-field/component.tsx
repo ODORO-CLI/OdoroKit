@@ -125,20 +125,25 @@ export function ParticleField({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: PARTICLE_FIELD_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uSpeed: speed,
-        uDensity: density,
-        uRadius: radius,
-        uLayers: LAYERS,
-      },
-      name: 'particle-field',
-      degrade: (quality) => ({ uLayers: quality === 'low' ? LOW_LAYERS : LAYERS }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: PARTICLE_FIELD_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uSpeed: speed,
+      uDensity: density,
+      uRadius: radius,
+      uLayers: LAYERS,
+    },
+    name: 'particle-field',
+    degrade: (quality) => ({ uLayers: quality === 'low' ? LOW_LAYERS : LAYERS }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

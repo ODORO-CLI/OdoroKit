@@ -80,12 +80,7 @@ export function useIntervalClock(
   callback: () => void,
   options: IntervalClockOptions = {},
 ): void {
-  const {
-    interval = 1000,
-    actif = true,
-    immediat = false,
-    name = 'intervalle',
-  } = options
+  const { interval = 1000, actif = true, immediat = false, name = 'intervalle' } = options
 
   // La fonction vit dans une ref : sans cela, une fonction fabriquee au rendu
   // — le cas normal — redemarrerait le compte a chaque rendu, et l'intervalle

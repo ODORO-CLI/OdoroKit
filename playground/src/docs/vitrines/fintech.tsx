@@ -75,7 +75,22 @@ import { TiltCard } from '@/odoro/ui/TiltCard.jsx'
 import { nuit } from './communs.jsx'
 import { photo } from './media.js'
 import { accent, accentDoux, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreFilet, Chiffres, Coin, Etiquette, Grain, Indice, Manifeste, Numerotee, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreFilet,
+  Chiffres,
+  Coin,
+  Etiquette,
+  Grain,
+  Indice,
+  Manifeste,
+  Numerotee,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Chapitre, Flotte, ZoomDefile } from './scene.jsx'
 
 /** Filet tire de l encre courante : le systeme n a pas de classe pour cela. */
@@ -168,12 +183,42 @@ const RELEVES = [
     hausse: false,
     misDeCote: '2 930 €',
     operations: [
-      { jour: '31/07', libelle: 'Virement recu — SALAIRE JUIL.', categorie: 'Revenus', montant: 2410 },
-      { jour: '28/07', libelle: 'Location de voiture — Faro', categorie: 'Voyages', montant: -286.4 },
-      { jour: '22/07', libelle: 'Mise de cote automatique', categorie: 'Livret Palier', montant: -180 },
-      { jour: '18/07', libelle: 'Change EUR vers GBP — taux du jour', categorie: 'Voyages', montant: -240 },
-      { jour: '11/07', libelle: 'Assurance habitation — prelevement', categorie: 'Logement', montant: -31.9 },
-      { jour: '05/07', libelle: 'Loyer — virement programme', categorie: 'Logement', montant: -740 },
+      {
+        jour: '31/07',
+        libelle: 'Virement recu — SALAIRE JUIL.',
+        categorie: 'Revenus',
+        montant: 2410,
+      },
+      {
+        jour: '28/07',
+        libelle: 'Location de voiture — Faro',
+        categorie: 'Voyages',
+        montant: -286.4,
+      },
+      {
+        jour: '22/07',
+        libelle: 'Mise de cote automatique',
+        categorie: 'Livret Palier',
+        montant: -180,
+      },
+      {
+        jour: '18/07',
+        libelle: 'Change EUR vers GBP — taux du jour',
+        categorie: 'Voyages',
+        montant: -240,
+      },
+      {
+        jour: '11/07',
+        libelle: 'Assurance habitation — prelevement',
+        categorie: 'Logement',
+        montant: -31.9,
+      },
+      {
+        jour: '05/07',
+        libelle: 'Loyer — virement programme',
+        categorie: 'Logement',
+        montant: -740,
+      },
     ],
   },
   {
@@ -186,12 +231,42 @@ const RELEVES = [
     hausse: true,
     misDeCote: '3 110 €',
     operations: [
-      { jour: '31/08', libelle: 'Virement recu — SALAIRE AOUT', categorie: 'Revenus', montant: 2410 },
-      { jour: '27/08', libelle: 'Mise de cote automatique', categorie: 'Livret Palier', montant: -380 },
-      { jour: '19/08', libelle: 'Retrait a Seville — sans commission', categorie: 'Voyages', montant: -150 },
-      { jour: '14/08', libelle: 'Interets du livret — juillet', categorie: 'Livret Palier', montant: 7.81 },
-      { jour: '09/08', libelle: 'Peage et carburant — A63', categorie: 'Transports', montant: -78.2 },
-      { jour: '05/08', libelle: 'Loyer — virement programme', categorie: 'Logement', montant: -740 },
+      {
+        jour: '31/08',
+        libelle: 'Virement recu — SALAIRE AOUT',
+        categorie: 'Revenus',
+        montant: 2410,
+      },
+      {
+        jour: '27/08',
+        libelle: 'Mise de cote automatique',
+        categorie: 'Livret Palier',
+        montant: -380,
+      },
+      {
+        jour: '19/08',
+        libelle: 'Retrait a Seville — sans commission',
+        categorie: 'Voyages',
+        montant: -150,
+      },
+      {
+        jour: '14/08',
+        libelle: 'Interets du livret — juillet',
+        categorie: 'Livret Palier',
+        montant: 7.81,
+      },
+      {
+        jour: '09/08',
+        libelle: 'Peage et carburant — A63',
+        categorie: 'Transports',
+        montant: -78.2,
+      },
+      {
+        jour: '05/08',
+        libelle: 'Loyer — virement programme',
+        categorie: 'Logement',
+        montant: -740,
+      },
     ],
   },
   {
@@ -204,12 +279,42 @@ const RELEVES = [
     hausse: true,
     misDeCote: '3 510 €',
     operations: [
-      { jour: '09/09', libelle: 'Virement recu — SALAIRE SEPT.', categorie: 'Revenus', montant: 2410 },
-      { jour: '08/09', libelle: 'Mise de cote automatique', categorie: 'Livret Palier', montant: -400 },
-      { jour: '08/09', libelle: 'Boulangerie Grangier', categorie: 'Courses', montant: -8.4 },
-      { jour: '07/09', libelle: 'Abonnement musique — annule', categorie: 'Abonnements', montant: -10.99 },
-      { jour: '06/09', libelle: 'Retrait a Lisbonne — sans commission', categorie: 'Voyages', montant: -120 },
-      { jour: '05/09', libelle: 'Loyer — virement programme', categorie: 'Logement', montant: -740 },
+      {
+        jour: '09/09',
+        libelle: 'Virement recu — SALAIRE SEPT.',
+        categorie: 'Revenus',
+        montant: 2410,
+      },
+      {
+        jour: '08/09',
+        libelle: 'Mise de cote automatique',
+        categorie: 'Livret Palier',
+        montant: -400,
+      },
+      {
+        jour: '08/09',
+        libelle: 'Boulangerie Grangier',
+        categorie: 'Courses',
+        montant: -8.4,
+      },
+      {
+        jour: '07/09',
+        libelle: 'Abonnement musique — annule',
+        categorie: 'Abonnements',
+        montant: -10.99,
+      },
+      {
+        jour: '06/09',
+        libelle: 'Retrait a Lisbonne — sans commission',
+        categorie: 'Voyages',
+        montant: -120,
+      },
+      {
+        jour: '05/09',
+        libelle: 'Loyer — virement programme',
+        categorie: 'Logement',
+        montant: -740,
+      },
     ],
   },
 ] as const
@@ -343,10 +448,20 @@ const GRILLE = [
   {
     groupe: 'Quand le compte passe dessous',
     lignes: [
-      ['Decouvert autorise', 'Non propose', "Jusqu a 1 000 €", "Jusqu a 5 000 €"],
+      ['Decouvert autorise', 'Non propose', 'Jusqu a 1 000 €', 'Jusqu a 5 000 €'],
       ['Taux annuel effectif global', '—', '7,9 %', '6,4 %'],
-      ['Commission d intervention', '8 €, plafond legal 80 € par mois', '8 €, plafond legal 80 € par mois', '8 €, plafond legal 80 € par mois'],
-      ['Rejet de prelevement', '20 €, plafond legal', '20 €, plafond legal', '20 €, plafond legal'],
+      [
+        'Commission d intervention',
+        '8 €, plafond legal 80 € par mois',
+        '8 €, plafond legal 80 € par mois',
+        '8 €, plafond legal 80 € par mois',
+      ],
+      [
+        'Rejet de prelevement',
+        '20 €, plafond legal',
+        '20 €, plafond legal',
+        '20 €, plafond legal',
+      ],
       ['Lettre d information pour compte debiteur', 'Gratuite', 'Gratuite', 'Gratuite'],
     ],
   },
@@ -492,8 +607,13 @@ function Titre({
 }): ReactElement {
   return (
     <div className="o-max-w-3xl">
-      <Indice rang={rang} sombre={false}>{surtitre}</Indice>
-      <h2 className="o-m-0 o-mt-5 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}>
+      <Indice rang={rang} sombre={false}>
+        {surtitre}
+      </Indice>
+      <h2
+        className="o-m-0 o-mt-5 o-text-zinc-950 dark:o-text-zinc-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}
+      >
         {children}
       </h2>
       {texte !== undefined && (
@@ -851,11 +971,11 @@ function Simulateur(): ReactElement {
         </dl>
 
         <p className="o-mt-6 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-          Taux annuel brut de 3,2 %, en vigueur au 1er janvier 2026, revise
-          chaque trimestre : une simulation n est pas un engagement. Les
-          interets sont calcules par quinzaine et verses le 31 decembre. Le
-          Livret Palier n est pas un livret reglemente ; ses interets supportent
-          le prelevement forfaitaire unique de 30 %, sauf option pour le bareme.
+          Taux annuel brut de 3,2 %, en vigueur au 1er janvier 2026, revise chaque
+          trimestre : une simulation n est pas un engagement. Les interets sont calcules
+          par quinzaine et verses le 31 decembre. Le Livret Palier n est pas un livret
+          reglemente ; ses interets supportent le prelevement forfaitaire unique de 30 %,
+          sauf option pour le bareme.
         </p>
       </div>
     </div>
@@ -880,7 +1000,11 @@ function Ouverture(): ReactElement {
         <legend className="o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-100">
           Vous ouvrez un compte
         </legend>
-        <div role="group" aria-label="Profil du titulaire" className="o-mt-3 o-flex o-flex-wrap o-gap-2">
+        <div
+          role="group"
+          aria-label="Profil du titulaire"
+          className="o-mt-3 o-flex o-flex-wrap o-gap-2"
+        >
           {PROFILS.map((p) => {
             const actif = p.cle === profil
             return (
@@ -955,7 +1079,12 @@ function Ouverture(): ReactElement {
           event.preventDefault()
         }}
       >
-        <Input label="Prenom et nom" name="nom" autoComplete="name" placeholder="Camille Marchand" />
+        <Input
+          label="Prenom et nom"
+          name="nom"
+          autoComplete="name"
+          placeholder="Camille Marchand"
+        />
         <Input
           label="Adresse electronique"
           name="courriel"
@@ -1019,14 +1148,27 @@ function Carte(): ReactElement {
           background: `linear-gradient(135deg, ${accentDoux(300, 55)} 0%, var(--o-palette-zinc-900) 55%, ${accentDoux(700, 40)} 100%)`,
         }}
       >
-        <div aria-hidden="true" className="o-absolute o-inset-0" style={{ background: 'linear-gradient(115deg, transparent 30%, color-mix(in oklab, white 18%, transparent) 45%, transparent 60%)' }} />
+        <div
+          aria-hidden="true"
+          className="o-absolute o-inset-0"
+          style={{
+            background:
+              'linear-gradient(115deg, transparent 30%, color-mix(in oklab, white 18%, transparent) 45%, transparent 60%)',
+          }}
+        />
         <div className="o-relative o-flex o-h-full o-flex-col o-justify-between">
           <div className="o-flex o-items-start o-justify-between">
             <span className="o-text-lg o-font-semibold o-tracking-tight">Palier</span>
-            <span aria-hidden="true" className="o-h-7 o-w-9 o-rounded-md o-border-w-1 o-border-white-20" style={{ background: 'linear-gradient(135deg, #e7d7a0, #b8973f)' }} />
+            <span
+              aria-hidden="true"
+              className="o-h-7 o-w-9 o-rounded-md o-border-w-1 o-border-white-20"
+              style={{ background: 'linear-gradient(135deg, #e7d7a0, #b8973f)' }}
+            />
           </div>
           <div>
-            <p className="o-m-0 o-font-mono o-text-base o-tracking-widest md:o-text-lg">4179 •••• •••• 2208</p>
+            <p className="o-m-0 o-font-mono o-text-base o-tracking-widest md:o-text-lg">
+              4179 •••• •••• 2208
+            </p>
             <div className="o-mt-3 o-flex o-items-end o-justify-between o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
               <span>C. Marchand</span>
               <span>09 / 31</span>
@@ -1039,7 +1181,15 @@ function Carte(): ReactElement {
 }
 
 /** Un champ du pied : une ligne soulignee, l etiquette dans le champ. */
-function Champ({ nom, type = 'text', large = false }: { readonly nom: string; readonly type?: string; readonly large?: boolean }): ReactElement {
+function Champ({
+  nom,
+  type = 'text',
+  large = false,
+}: {
+  readonly nom: string
+  readonly type?: string
+  readonly large?: boolean
+}): ReactElement {
   return (
     <label className={`o-block ${large ? 'md:o-col-span-2' : ''}`}>
       <span className="o-sr-only">{nom}</span>
@@ -1057,7 +1207,10 @@ export default function Page(): ReactElement {
   const polices = usePolices('inter')
   return (
     <Porte forme="compteur" marque="Palier">
-      <div className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L affiche : une mer de nuit, la carte qui se dresse ===== */}
         <ZoomDefile
           de={1.1}
@@ -1074,35 +1227,82 @@ export default function Page(): ReactElement {
                 scale={1.6}
                 fallback="o-bg-gradient-to-b o-from-zinc-950 o-to-zinc-900"
               />
-              <div aria-hidden="true" className="o-absolute o-inset-0" style={{ background: 'linear-gradient(to bottom, color-mix(in oklab, var(--o-palette-zinc-950) 70%, transparent), transparent 35%, color-mix(in oklab, var(--o-palette-zinc-950) 60%, transparent) 80%, var(--o-palette-zinc-950))' }} />
+              <div
+                aria-hidden="true"
+                className="o-absolute o-inset-0"
+                style={{
+                  background:
+                    'linear-gradient(to bottom, color-mix(in oklab, var(--o-palette-zinc-950) 70%, transparent), transparent 35%, color-mix(in oklab, var(--o-palette-zinc-950) 60%, transparent) 80%, var(--o-palette-zinc-950))',
+                }}
+              />
               <Grain opacite={0.07} />
             </div>
           }
         >
-          <BarreFilet marque="Palier" liens={NAVIGATION} action={['#ouverture', 'Espace client']} />
-          <div id="haut" className="o-relative o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 o-px-6 o-pb-24 o-pt-16 lg:o-grid-cols-12" style={{ minHeight: 'calc(100vh - 81px)' }}>
+          <BarreFilet
+            marque="Palier"
+            liens={NAVIGATION}
+            action={['#ouverture', 'Espace client']}
+          />
+          <div
+            id="haut"
+            className="o-relative o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 o-px-6 o-pb-24 o-pt-16 lg:o-grid-cols-12"
+            style={{ minHeight: 'calc(100vh - 81px)' }}
+          >
             <div className="lg:o-col-span-7">
               <Surgit>
                 <Etiquette>Etablissement de credit — ACPR 18422</Etiquette>
               </Surgit>
-              <TitreVague delai={120} className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.75rem, 7.5vw, 7.5rem)' }}>
+              <TitreVague
+                delai={120}
+                className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50"
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.75rem, 7.5vw, 7.5rem)',
+                }}
+              >
                 Une banque qui compte a voix haute.
               </TitreVague>
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-                Compte courant, carte metal, virements instantanes, livret a 3,2 %. Ce que Palier vous fait gagner est ecrit sur cette page — le releve d abord, la grille tarifaire entiere ensuite.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-8 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300"
+              >
+                Compte courant, carte metal, virements instantanes, livret a 3,2 %. Ce que
+                Palier vous fait gagner est ecrit sur cette page — le releve d abord, la
+                grille tarifaire entiere ensuite.
               </Surgit>
               <Surgit delai={640} className="o-mt-10">
-                <Actions pleine={['#ouverture', <>Ouvrir un compte en 4 minutes <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#compte', 'Voir un releve']} />
+                <Actions
+                  pleine={[
+                    '#ouverture',
+                    <>
+                      Ouvrir un compte en 4 minutes{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#compte', 'Voir un releve']}
+                />
               </Surgit>
             </div>
-            <Surgit delai={400} className="o-flex o-justify-center lg:o-col-span-5 lg:o-justify-end">
+            <Surgit
+              delai={400}
+              className="o-flex o-justify-center lg:o-col-span-5 lg:o-justify-end"
+            >
               <Flotte amplitude={8} duree={7} angle={-4}>
                 <Carte />
               </Flotte>
             </Surgit>
           </div>
-          <Coin position="bg">Depots couverts jusqu a 100 000 €<br />Fonds de garantie des depots</Coin>
-          <Coin position="bd">Nantes — quai de la Fosse<br />Ouvert depuis 2019</Coin>
+          <Coin position="bg">
+            Depots couverts jusqu a 100 000 €<br />
+            Fonds de garantie des depots
+          </Coin>
+          <Coin position="bd">
+            Nantes — quai de la Fosse
+            <br />
+            Ouvert depuis 2019
+          </Coin>
         </ZoomDefile>
 
         <main>
@@ -1111,12 +1311,18 @@ export default function Page(): ReactElement {
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-8">
-                  <Titre rang="01" surtitre="Le releve" texte="Trois mois consultables, chacun avec son solde, ses operations et sa mise de cote. Un compte a une histoire ; la voici.">
+                  <Titre
+                    rang="01"
+                    surtitre="Le releve"
+                    texte="Trois mois consultables, chacun avec son solde, ses operations et sa mise de cote. Un compte a une histoire ; la voici."
+                  >
                     Voici un compte. Pas une promesse.
                   </Titre>
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-4 md:o-text-right">
-                  Compte de demonstration<br />Montants et operations fictifs
+                  Compte de demonstration
+                  <br />
+                  Montants et operations fictifs
                 </p>
               </div>
               <Reveal className="o-mt-12">
@@ -1126,7 +1332,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= Les quatre chiffres, sur filets =============== */}
-          <section aria-label="Palier en quatre chiffres" className="o-px-6 o-pb-24 md:o-pb-32">
+          <section
+            aria-label="Palier en quatre chiffres"
+            className="o-px-6 o-pb-24 md:o-pb-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Chiffres
                 sombre={false}
@@ -1141,12 +1350,21 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (02) L epargne : le simulateur, en chapitre ===== */}
-          <div id="epargne" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-6 o-py-24 md:o-py-32">
+          <div
+            id="epargne"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-6 o-py-24 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Chapitre
                 indice="(02) — Epargne"
                 titre={
-                  <h2 className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4vw, 3.75rem)' }}>
+                  <h2
+                    className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(2rem, 4vw, 3.75rem)',
+                    }}
+                  >
                     Ce que trois euros par jour deviennent.
                   </h2>
                 }
@@ -1160,13 +1378,21 @@ export default function Page(): ReactElement {
           {/* ================= (03) Le telephone ============================= */}
           <section id="application" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-py-32">
             <div className="o-mx-auto o-max-w-7xl">
-              <Titre rang="03" surtitre="L application" texte="Trois ecrans, et rien d autre : Palier n a pas de tableau de bord a apprendre.">
+              <Titre
+                rang="03"
+                surtitre="L application"
+                texte="Trois ecrans, et rien d autre : Palier n a pas de tableau de bord a apprendre."
+              >
                 Le compte tient dans la main.
               </Titre>
               <FeatureTabs
                 className="o-mt-14"
                 label="Les ecrans de l application Palier"
-                features={ECRANS.map((e) => ({ title: e.title, body: e.body, hint: e.hint }))}
+                features={ECRANS.map((e) => ({
+                  title: e.title,
+                  body: e.body,
+                  hint: e.hint,
+                }))}
                 render={(index) => {
                   const ecran = ECRANS[index] ?? ECRANS[0]
                   return <Telephone graine={ecran.graine} alt={ecran.alt} />
@@ -1180,31 +1406,49 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (04) La securite : un manifeste, puis quatre garanties numerotees ===== */}
-          <section id="securite" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-py-36" style={{ ...nuit('zinc'), ...NUIT }}>
+          <section
+            id="securite"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-py-36"
+            style={{ ...nuit('zinc'), ...NUIT }}
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Indice rang="04">Securite</Indice>
               <div className="o-mt-8">
                 <Manifeste eteint="Palier n est pas un intermediaire qui tient vos depots chez un autre.">
-                  Palier est un etablissement de credit : l argent reste ou vous l avez laisse, a votre nom, dans nos livres.
+                  Palier est un etablissement de credit : l argent reste ou vous l avez
+                  laisse, a votre nom, dans nos livres.
                 </Manifeste>
               </div>
               <div className="o-mt-20">
-                <Numerotee lignes={GARANTIES.map((g) => ({ titre: g.titre, texte: g.texte }))} />
+                <Numerotee
+                  lignes={GARANTIES.map((g) => ({ titre: g.titre, texte: g.texte }))}
+                />
               </div>
               <div className="o-mt-16 o-grid o-gap-10 md:o-grid-cols-12">
                 <dl className="o-m-0 md:o-col-span-7">
                   {GARANTIE_DEPOTS.map(([terme, valeur]) => (
-                    <div key={terme} className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3">
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{terme}</dt>
-                      <dd className="o-m-0 o-text-right o-text-sm o-text-zinc-100">{valeur}</dd>
+                    <div
+                      key={terme}
+                      className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3"
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                        {terme}
+                      </dt>
+                      <dd className="o-m-0 o-text-right o-text-sm o-text-zinc-100">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
                 <div className="md:o-col-span-5">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Ce que la garantie ne couvre pas</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Ce que la garantie ne couvre pas
+                  </p>
                   <ul className="o-m-0 o-mt-4 o-list-none o-space-y-3 o-p-0 o-text-sm o-leading-relaxed o-text-zinc-300">
                     {HORS_GARANTIE.map((l) => (
-                      <li key={l} className="o-border-l o-border-white-20 o-pl-4">{l}</li>
+                      <li key={l} className="o-border-l o-border-white-20 o-pl-4">
+                        {l}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -1215,10 +1459,20 @@ export default function Page(): ReactElement {
           {/* ================= (05) Tarifs : trois offres, puis la grille en chapitre ===== */}
           <section id="tarifs" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-py-32">
             <div className="o-mx-auto o-max-w-7xl">
-              <Titre rang="05" surtitre="Tarifs" texte="Un prix par profil, sans palier cache ni frais de dossier. L annuel retire deux mois.">
+              <Titre
+                rang="05"
+                surtitre="Tarifs"
+                texte="Un prix par profil, sans palier cache ni frais de dossier. L annuel retire deux mois."
+              >
                 Trois offres, et rien en bas de page.
               </Titre>
-              <PricingTiers className="o-mt-14" tiers={OFFRES} suffix=" €" yearlyDiscount={0.17} locale="fr-FR" />
+              <PricingTiers
+                className="o-mt-14"
+                tiers={OFFRES}
+                suffix=" €"
+                yearlyDiscount={0.17}
+                locale="fr-FR"
+              />
             </div>
           </section>
 
@@ -1228,36 +1482,75 @@ export default function Page(): ReactElement {
                 indice="(06) — La grille, entiere"
                 largeur={3}
                 titre={
-                  <h2 className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3vw, 3rem)' }}>
+                  <h2
+                    className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3vw, 3rem)',
+                    }}
+                  >
                     Y compris ce qui fait mal.
                   </h2>
                 }
                 texte="Ce qui separe un forfait a zero euro d un forfait a neuf, ce sont les frais qu on ne choisit pas : le change, le retrait hors zone euro, le decouvert."
               >
-                <div className="o-relative o-overflow-x-auto o-border-t o-border-black-10 dark:o-border-zinc-800" style={{ contain: 'paint' }}>
+                <div
+                  className="o-relative o-overflow-x-auto o-border-t o-border-black-10 dark:o-border-zinc-800"
+                  style={{ contain: 'paint' }}
+                >
                   <table className="o-w-full o-min-w-full o-text-left o-text-sm">
-                    <caption className="o-sr-only">Grille tarifaire comparee des trois offres Palier, applicable au 1er janvier 2026</caption>
+                    <caption className="o-sr-only">
+                      Grille tarifaire comparee des trois offres Palier, applicable au 1er
+                      janvier 2026
+                    </caption>
                     <thead>
                       <tr className="o-border-b o-border-black-10 dark:o-border-zinc-800">
-                        {['Prestation', 'Essentiel', 'Courant', 'Societe'].map((entete, index) => (
-                          <th key={entete} scope="col" className={['o-px-3 o-py-3 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400', index > 0 ? 'o-text-right' : ''].join(' ')}>
-                            {entete}
-                          </th>
-                        ))}
+                        {['Prestation', 'Essentiel', 'Courant', 'Societe'].map(
+                          (entete, index) => (
+                            <th
+                              key={entete}
+                              scope="col"
+                              className={[
+                                'o-px-3 o-py-3 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400',
+                                index > 0 ? 'o-text-right' : '',
+                              ].join(' ')}
+                            >
+                              {entete}
+                            </th>
+                          ),
+                        )}
                       </tr>
                     </thead>
                     {GRILLE.map((bloc) => (
                       <tbody key={bloc.groupe}>
                         <tr>
-                          <th scope="colgroup" colSpan={4} className="o-px-3 o-pb-2 o-pt-8 o-text-left o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                          <th
+                            scope="colgroup"
+                            colSpan={4}
+                            className="o-px-3 o-pb-2 o-pt-8 o-text-left o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest"
+                            style={{ color: encre() }}
+                          >
                             {bloc.groupe}
                           </th>
                         </tr>
                         {bloc.lignes.map((ligne) => (
-                          <tr key={ligne[0]} className="o-border-b o-border-black-10 dark:o-border-zinc-800">
-                            <th scope="row" className="o-px-3 o-py-3 o-font-normal o-text-zinc-900 dark:o-text-zinc-100">{ligne[0]}</th>
+                          <tr
+                            key={ligne[0]}
+                            className="o-border-b o-border-black-10 dark:o-border-zinc-800"
+                          >
+                            <th
+                              scope="row"
+                              className="o-px-3 o-py-3 o-font-normal o-text-zinc-900 dark:o-text-zinc-100"
+                            >
+                              {ligne[0]}
+                            </th>
                             {ligne.slice(1).map((valeur, index) => (
-                              <td key={`${ligne[0]}-${String(index)}`} className="o-px-3 o-py-3 o-text-right o-font-mono o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300">{valeur}</td>
+                              <td
+                                key={`${ligne[0]}-${String(index)}`}
+                                className="o-px-3 o-py-3 o-text-right o-font-mono o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300"
+                              >
+                                {valeur}
+                              </td>
                             ))}
                           </tr>
                         ))}
@@ -1266,36 +1559,74 @@ export default function Page(): ReactElement {
                   </table>
                 </div>
                 <p className="o-mt-6 o-max-w-2xl o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                  Tarifs en euros, toutes taxes comprises, applicables au 1er janvier 2026. La commission d intervention et les frais de rejet sont plafonnes par la loi ; nous appliquons le plafond, jamais au-dela. Le decouvert est un credit : il coute et engage l emprunteur.
+                  Tarifs en euros, toutes taxes comprises, applicables au 1er janvier
+                  2026. La commission d intervention et les frais de rejet sont plafonnes
+                  par la loi ; nous appliquons le plafond, jamais au-dela. Le decouvert
+                  est un credit : il coute et engage l emprunteur.
                 </p>
               </Chapitre>
             </div>
           </div>
 
           {/* ================= (07) L ouverture : le mecanisme sert d appel ===== */}
-          <section id="ouverture" className="o-scroll-mt-24 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-6 o-py-24 md:o-py-32">
+          <section
+            id="ouverture"
+            className="o-scroll-mt-24 o-bg-zinc-50 dark:o-bg-zinc-900 o-px-6 o-py-24 md:o-py-32"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 lg:o-grid-cols-12">
               <div className="lg:o-col-span-5">
-                <Titre rang="07" surtitre="Ouverture" texte="Aucun rendez-vous, aucune impression, aucun envoi postal. Les pieces demandees dependent de qui ouvre le compte : choisissez votre profil, la liste se refait.">
+                <Titre
+                  rang="07"
+                  surtitre="Ouverture"
+                  texte="Aucun rendez-vous, aucune impression, aucun envoi postal. Les pieces demandees dependent de qui ouvre le compte : choisissez votre profil, la liste se refait."
+                >
                   Quatre minutes, telephone en main.
                 </Titre>
                 <ol className="o-mt-12 o-list-none o-border-t o-border-black-10 dark:o-border-zinc-800 o-p-0">
                   {[
-                    ['01', 'Vos coordonnees', 'Nom, date de naissance, adresse. Une minute, depuis le telephone.'],
-                    ['02', 'Les pieces, photographiees', 'Verifiees en deux minutes pour un particulier, sous trois jours ouvres pour une societe.'],
-                    ['03', 'Le premier versement', 'De dix a deux cent cinquante euros selon le profil. L IBAN est disponible dans la foulee.'],
+                    [
+                      '01',
+                      'Vos coordonnees',
+                      'Nom, date de naissance, adresse. Une minute, depuis le telephone.',
+                    ],
+                    [
+                      '02',
+                      'Les pieces, photographiees',
+                      'Verifiees en deux minutes pour un particulier, sous trois jours ouvres pour une societe.',
+                    ],
+                    [
+                      '03',
+                      'Le premier versement',
+                      'De dix a deux cent cinquante euros selon le profil. L IBAN est disponible dans la foulee.',
+                    ],
                   ].map(([numero, titre, texte]) => (
-                    <li key={numero} className="o-grid o-grid-cols-12 o-gap-4 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-5">
-                      <span aria-hidden="true" className="o-col-span-2 o-font-mono o-text-xs o-tabular-nums o-tracking-widest" style={{ color: encre() }}>{numero}</span>
+                    <li
+                      key={numero}
+                      className="o-grid o-grid-cols-12 o-gap-4 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-5"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-col-span-2 o-font-mono o-text-xs o-tabular-nums o-tracking-widest"
+                        style={{ color: encre() }}
+                      >
+                        {numero}
+                      </span>
                       <div className="o-col-span-10">
-                        <h3 className="o-m-0 o-text-lg o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">{titre}</h3>
-                        <p className="o-m-0 o-mt-1 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{texte}</p>
+                        <h3 className="o-m-0 o-text-lg o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
+                          {titre}
+                        </h3>
+                        <p className="o-m-0 o-mt-1 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+                          {texte}
+                        </p>
                       </div>
                     </li>
                   ))}
                 </ol>
                 <p className="o-mt-8 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                  L ouverture peut etre refusee sans motif, comme la loi l autorise. Toute personne a qui trois etablissements ont refuse un compte peut saisir la Banque de France au titre du droit au compte : nous fournissons l attestation le jour meme.
+                  L ouverture peut etre refusee sans motif, comme la loi l autorise. Toute
+                  personne a qui trois etablissements ont refuse un compte peut saisir la
+                  Banque de France au titre du droit au compte : nous fournissons l
+                  attestation le jour meme.
                 </p>
               </div>
               <div className="lg:o-col-span-7">
@@ -1306,12 +1637,23 @@ export default function Page(): ReactElement {
         </main>
 
         {/* ================= Le pied : noir, avec le contact integre ============ */}
-        <footer className="o-px-6 o-pb-10 o-pt-24 o-text-zinc-50" style={{ ...nuit('zinc'), ...NUIT }}>
+        <footer
+          className="o-px-6 o-pb-10 o-pt-24 o-text-zinc-50"
+          style={{ ...nuit('zinc'), ...NUIT }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <div className="o-grid o-gap-16 lg:o-grid-cols-12">
               <div className="lg:o-col-span-6">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Une question avant d ouvrir ?</p>
-                <p className="o-m-0 o-mt-5 o-max-w-lg o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)' }}>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  Une question avant d ouvrir ?
+                </p>
+                <p
+                  className="o-m-0 o-mt-5 o-max-w-lg o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)',
+                  }}
+                >
                   Un conseiller repond dans l heure, de 8 h a 20 h.
                 </p>
                 <form
@@ -1324,7 +1666,14 @@ export default function Page(): ReactElement {
                   <Champ nom="Votre courriel" type="email" />
                   <Champ nom="Votre question" large />
                   <div className="o-mt-6 md:o-col-span-2">
-                    <button type="submit" className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-transition-transform hover:o-scale-105 focus:o-ring" style={{ backgroundColor: encreSurSombre(), color: 'var(--o-palette-zinc-950)' }}>
+                    <button
+                      type="submit"
+                      className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-transition-transform hover:o-scale-105 focus:o-ring"
+                      style={{
+                        backgroundColor: encreSurSombre(),
+                        color: 'var(--o-palette-zinc-950)',
+                      }}
+                    >
                       Envoyer <Icon icon={ArrowUpRight} size={16} aria-hidden="true" />
                     </button>
                   </div>
@@ -1332,16 +1681,47 @@ export default function Page(): ReactElement {
               </div>
               <div className="o-grid o-gap-10 sm:o-grid-cols-3 lg:o-col-span-6">
                 {[
-                  { titre: 'Produits', liens: ['Compte courant', 'Carte metal', 'Livret Palier', 'Compte professionnel'] },
-                  { titre: 'La banque', liens: ['Qui nous sommes', 'Recrutement', 'Presse', 'Rapport annuel 2025'] },
-                  { titre: 'Aide', liens: ['Centre d aide', 'Brochure tarifaire', 'Reclamations', 'Mediateur'] },
+                  {
+                    titre: 'Produits',
+                    liens: [
+                      'Compte courant',
+                      'Carte metal',
+                      'Livret Palier',
+                      'Compte professionnel',
+                    ],
+                  },
+                  {
+                    titre: 'La banque',
+                    liens: [
+                      'Qui nous sommes',
+                      'Recrutement',
+                      'Presse',
+                      'Rapport annuel 2025',
+                    ],
+                  },
+                  {
+                    titre: 'Aide',
+                    liens: [
+                      'Centre d aide',
+                      'Brochure tarifaire',
+                      'Reclamations',
+                      'Mediateur',
+                    ],
+                  },
                 ].map((colonne) => (
                   <nav key={colonne.titre} aria-label={colonne.titre}>
-                    <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{colonne.titre}</h2>
+                    <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                      {colonne.titre}
+                    </h2>
                     <ul className="o-m-0 o-mt-4 o-list-none o-space-y-2 o-p-0">
                       {colonne.liens.map((l) => (
                         <li key={l}>
-                          <a href="#haut" className="o-text-sm o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-zinc-50 focus:o-ring">{l}</a>
+                          <a
+                            href="#haut"
+                            className="o-text-sm o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                          >
+                            {l}
+                          </a>
                         </li>
                       ))}
                     </ul>
@@ -1351,13 +1731,23 @@ export default function Page(): ReactElement {
             </div>
             <div className="o-mt-20 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-text-zinc-400">
               <p className="o-m-0 o-flex o-items-center o-gap-2">
-                <Icon icon={Landmark} size={14} aria-hidden="true" />
-                © 2026 Palier SA — RCS Nantes 842 119 007 — capital 32 000 000 €
+                <Icon icon={Landmark} size={14} aria-hidden="true" />© 2026 Palier SA —
+                RCS Nantes 842 119 007 — capital 32 000 000 €
               </p>
               <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-gap-4 o-p-0">
-                {['Mentions legales', 'Donnees personnelles', 'Cookies', 'Accessibilite'].map((l) => (
+                {[
+                  'Mentions legales',
+                  'Donnees personnelles',
+                  'Cookies',
+                  'Accessibilite',
+                ].map((l) => (
                   <li key={l}>
-                    <a href="#haut" className="o-no-underline o-text-zinc-400 hover:o-text-zinc-50 focus:o-ring">{l}</a>
+                    <a
+                      href="#haut"
+                      className="o-no-underline o-text-zinc-400 hover:o-text-zinc-50 focus:o-ring"
+                    >
+                      {l}
+                    </a>
                   </li>
                 ))}
               </ul>

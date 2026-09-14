@@ -120,24 +120,168 @@ interface Produit {
 }
 
 const BANC: readonly Produit[] = [
-  { nom: 'Fraise', famille: 'fruit', couleur: 'var(--o-palette-rose-500)', mois: '...oXXo.....', prix: '5,80 EUR la barquette', origine: 'Carpentras', note: 'Elle ne voyage pas. Une fraise de fevrier a pris l avion, et ca se goute.' },
-  { nom: 'Cerise', famille: 'fruit', couleur: 'var(--o-palette-rose-700)', mois: '....oXo.....', prix: '7,20 EUR le kilo', origine: 'Ceret', note: 'Six semaines par an, pas une de plus. On en fait une affaire.' },
-  { nom: 'Abricot', famille: 'fruit', couleur: 'var(--o-palette-orange-400)', mois: '.....oXXo...', prix: '4,90 EUR le kilo', origine: 'Vallee du Rhone', note: 'Cueilli mur, il ne se garde pas trois jours. C est le prix du gout.' },
-  { nom: 'Melon', famille: 'fruit', couleur: 'var(--o-palette-orange-300)', mois: '.....oXXXo..', prix: '3,50 EUR piece', origine: 'Cavaillon', note: 'Lourd pour sa taille, et le pedoncule qui se decolle : les deux signes.' },
-  { nom: 'Raisin', famille: 'fruit', couleur: 'var(--o-palette-purple-600)', mois: '.......oXXo.', prix: '4,60 EUR le kilo', origine: 'Ventoux', note: 'La pruine blanche sur le grain n est pas un defaut, c est la fraicheur.' },
-  { nom: 'Pomme', famille: 'fruit', couleur: 'var(--o-palette-lime-500)', mois: 'XXo....oXXXX', prix: '2,90 EUR le kilo', origine: 'Vergers du Perche', note: 'La seule qui traverse l hiver sans mentir : elle se garde en chambre froide.' },
-  { nom: 'Poire', famille: 'fruit', couleur: 'var(--o-palette-yellow-600)', mois: 'oo.....oXXXo', prix: '3,40 EUR le kilo', origine: 'Anjou', note: 'On la vend ferme et on la laisse murir chez vous, sur le rebord.' },
-  { nom: 'Tomate', famille: 'legume', couleur: 'var(--o-palette-red-600)', mois: '....oXXXXo..', prix: '3,80 EUR le kilo', origine: 'Plaine de Versailles', note: 'Jamais au frigo. Le froid tue le parfum, et il ne revient pas.' },
-  { nom: 'Courgette', famille: 'legume', couleur: 'var(--o-palette-lime-600)', mois: '....XXXXX...', prix: '2,60 EUR le kilo', origine: 'Ile-de-France', note: 'Petite et ferme. Une grosse courgette est une courgette oubliee.' },
-  { nom: 'Aubergine', famille: 'legume', couleur: 'var(--o-palette-violet-700)', mois: '.....oXXXo..', prix: '3,20 EUR le kilo', origine: 'Provence', note: 'La peau doit rebondir sous le pouce. Molle, elle est amere.' },
-  { nom: 'Radis', famille: 'legume', couleur: 'var(--o-palette-rose-600)', mois: '..oXXXXXo...', prix: '1,60 EUR la botte', origine: 'Maraichers de Cergy', note: 'On achete une botte pour ses fanes autant que pour ses radis : la soupe.' },
-  { nom: 'Asperge', famille: 'legume', couleur: 'var(--o-palette-lime-300)', mois: '...oXo......', prix: '8,50 EUR la botte', origine: 'Sologne', note: 'Six semaines. Le talon doit etre humide et la pointe serree.' },
-  { nom: 'Epinard', famille: 'legume', couleur: 'var(--o-palette-green-600)', mois: '..oXXo..oXX.', prix: '4,20 EUR le kilo', origine: 'Val de Loire', note: 'Deux saisons dans l annee, printemps et arriere-saison. Rien l ete.' },
-  { nom: 'Carotte', famille: 'legume', couleur: 'var(--o-palette-orange-500)', mois: 'ooooXXXXXXoo', prix: '1,90 EUR le kilo', origine: 'Sables des Landes', note: 'De saison presque toute l annee — c est rare, et c est pour ca qu on en vit.' },
-  { nom: 'Poireau', famille: 'legume', couleur: 'var(--o-palette-lime-700)', mois: 'XXXo....oXXX', prix: '2,40 EUR le kilo', origine: 'Manche', note: 'Le legume de l hiver. Le blanc pour la soupe, le vert pour le bouillon.' },
-  { nom: 'Endive', famille: 'legume', couleur: 'var(--o-palette-yellow-400)', mois: 'XXXo.....oXX', prix: '2,80 EUR le kilo', origine: 'Nord', note: 'Poussee sans lumiere, d ou le blanc. Verte, elle amerise.' },
-  { nom: 'Chou-fleur', famille: 'legume', couleur: 'var(--o-palette-lime-200)', mois: 'XXoo....oXXX', prix: '2,50 EUR piece', origine: 'Bretagne', note: 'Les feuilles serrees autour de la pomme disent qu il est frais.' },
-  { nom: 'Potiron', famille: 'legume', couleur: 'var(--o-palette-orange-600)', mois: 'o.......oXXX', prix: '2,20 EUR le kilo', origine: 'Beauce', note: 'On le vend a la part, coupe devant vous : personne ne cuisine dix kilos.' },
+  {
+    nom: 'Fraise',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-rose-500)',
+    mois: '...oXXo.....',
+    prix: '5,80 EUR la barquette',
+    origine: 'Carpentras',
+    note: 'Elle ne voyage pas. Une fraise de fevrier a pris l avion, et ca se goute.',
+  },
+  {
+    nom: 'Cerise',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-rose-700)',
+    mois: '....oXo.....',
+    prix: '7,20 EUR le kilo',
+    origine: 'Ceret',
+    note: 'Six semaines par an, pas une de plus. On en fait une affaire.',
+  },
+  {
+    nom: 'Abricot',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-orange-400)',
+    mois: '.....oXXo...',
+    prix: '4,90 EUR le kilo',
+    origine: 'Vallee du Rhone',
+    note: 'Cueilli mur, il ne se garde pas trois jours. C est le prix du gout.',
+  },
+  {
+    nom: 'Melon',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-orange-300)',
+    mois: '.....oXXXo..',
+    prix: '3,50 EUR piece',
+    origine: 'Cavaillon',
+    note: 'Lourd pour sa taille, et le pedoncule qui se decolle : les deux signes.',
+  },
+  {
+    nom: 'Raisin',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-purple-600)',
+    mois: '.......oXXo.',
+    prix: '4,60 EUR le kilo',
+    origine: 'Ventoux',
+    note: 'La pruine blanche sur le grain n est pas un defaut, c est la fraicheur.',
+  },
+  {
+    nom: 'Pomme',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-lime-500)',
+    mois: 'XXo....oXXXX',
+    prix: '2,90 EUR le kilo',
+    origine: 'Vergers du Perche',
+    note: 'La seule qui traverse l hiver sans mentir : elle se garde en chambre froide.',
+  },
+  {
+    nom: 'Poire',
+    famille: 'fruit',
+    couleur: 'var(--o-palette-yellow-600)',
+    mois: 'oo.....oXXXo',
+    prix: '3,40 EUR le kilo',
+    origine: 'Anjou',
+    note: 'On la vend ferme et on la laisse murir chez vous, sur le rebord.',
+  },
+  {
+    nom: 'Tomate',
+    famille: 'legume',
+    couleur: 'var(--o-palette-red-600)',
+    mois: '....oXXXXo..',
+    prix: '3,80 EUR le kilo',
+    origine: 'Plaine de Versailles',
+    note: 'Jamais au frigo. Le froid tue le parfum, et il ne revient pas.',
+  },
+  {
+    nom: 'Courgette',
+    famille: 'legume',
+    couleur: 'var(--o-palette-lime-600)',
+    mois: '....XXXXX...',
+    prix: '2,60 EUR le kilo',
+    origine: 'Ile-de-France',
+    note: 'Petite et ferme. Une grosse courgette est une courgette oubliee.',
+  },
+  {
+    nom: 'Aubergine',
+    famille: 'legume',
+    couleur: 'var(--o-palette-violet-700)',
+    mois: '.....oXXXo..',
+    prix: '3,20 EUR le kilo',
+    origine: 'Provence',
+    note: 'La peau doit rebondir sous le pouce. Molle, elle est amere.',
+  },
+  {
+    nom: 'Radis',
+    famille: 'legume',
+    couleur: 'var(--o-palette-rose-600)',
+    mois: '..oXXXXXo...',
+    prix: '1,60 EUR la botte',
+    origine: 'Maraichers de Cergy',
+    note: 'On achete une botte pour ses fanes autant que pour ses radis : la soupe.',
+  },
+  {
+    nom: 'Asperge',
+    famille: 'legume',
+    couleur: 'var(--o-palette-lime-300)',
+    mois: '...oXo......',
+    prix: '8,50 EUR la botte',
+    origine: 'Sologne',
+    note: 'Six semaines. Le talon doit etre humide et la pointe serree.',
+  },
+  {
+    nom: 'Epinard',
+    famille: 'legume',
+    couleur: 'var(--o-palette-green-600)',
+    mois: '..oXXo..oXX.',
+    prix: '4,20 EUR le kilo',
+    origine: 'Val de Loire',
+    note: 'Deux saisons dans l annee, printemps et arriere-saison. Rien l ete.',
+  },
+  {
+    nom: 'Carotte',
+    famille: 'legume',
+    couleur: 'var(--o-palette-orange-500)',
+    mois: 'ooooXXXXXXoo',
+    prix: '1,90 EUR le kilo',
+    origine: 'Sables des Landes',
+    note: 'De saison presque toute l annee — c est rare, et c est pour ca qu on en vit.',
+  },
+  {
+    nom: 'Poireau',
+    famille: 'legume',
+    couleur: 'var(--o-palette-lime-700)',
+    mois: 'XXXo....oXXX',
+    prix: '2,40 EUR le kilo',
+    origine: 'Manche',
+    note: 'Le legume de l hiver. Le blanc pour la soupe, le vert pour le bouillon.',
+  },
+  {
+    nom: 'Endive',
+    famille: 'legume',
+    couleur: 'var(--o-palette-yellow-400)',
+    mois: 'XXXo.....oXX',
+    prix: '2,80 EUR le kilo',
+    origine: 'Nord',
+    note: 'Poussee sans lumiere, d ou le blanc. Verte, elle amerise.',
+  },
+  {
+    nom: 'Chou-fleur',
+    famille: 'legume',
+    couleur: 'var(--o-palette-lime-200)',
+    mois: 'XXoo....oXXX',
+    prix: '2,50 EUR piece',
+    origine: 'Bretagne',
+    note: 'Les feuilles serrees autour de la pomme disent qu il est frais.',
+  },
+  {
+    nom: 'Potiron',
+    famille: 'legume',
+    couleur: 'var(--o-palette-orange-600)',
+    mois: 'o.......oXXX',
+    prix: '2,20 EUR le kilo',
+    origine: 'Beauce',
+    note: 'On le vend a la part, coupe devant vous : personne ne cuisine dix kilos.',
+  },
 ]
 
 /** L etat d un produit pour un mois : pleine saison, bord de saison, hors. */
@@ -175,7 +319,8 @@ interface Picto {
 const PICTOS: readonly Picto[] = [
   {
     titre: 'Le cageot consigne',
-    legende: 'Deux euros a la premiere, rendus quand vous la rapportez. Elle fait vingt tours.',
+    legende:
+      'Deux euros a la premiere, rendus quand vous la rapportez. Elle fait vingt tours.',
     trace: (
       <>
         <path d="M8 18h48l-6 26H14z" />
@@ -198,7 +343,8 @@ const PICTOS: readonly Picto[] = [
   },
   {
     titre: 'La tournee a velo',
-    legende: 'Livraison le mercredi dans le 11e et le 12e, a triporteur, sans frais des 25 euros.',
+    legende:
+      'Livraison le mercredi dans le 11e et le 12e, a triporteur, sans frais des 25 euros.',
     trace: (
       <>
         <circle cx="16" cy="38" r="10" />
@@ -210,7 +356,8 @@ const PICTOS: readonly Picto[] = [
   },
   {
     titre: 'L heure du reassort',
-    legende: 'Rungis a 4 h, sur le banc a 7 h. Ce qui reste le soir part a la cantine du quartier.',
+    legende:
+      'Rungis a 4 h, sur le banc a 7 h. Ce qui reste le soir part a la cantine du quartier.',
     trace: (
       <>
         <circle cx="32" cy="32" r="20" />
@@ -278,15 +425,27 @@ function CartePostale(): ReactElement {
       }}
     >
       {/* ----- Le verso : le formulaire, toujours la ----- */}
-      <div className="o-rounded-3xl o-p-8 md:o-p-10" style={{ backgroundColor: 'var(--o-theme-bg)', boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}` }}>
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">Le verso — a remplir</p>
+      <div
+        className="o-rounded-3xl o-p-8 md:o-p-10"
+        style={{
+          backgroundColor: 'var(--o-theme-bg)',
+          boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}`,
+        }}
+      >
+        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">
+          Le verso — a remplir
+        </p>
         <form onSubmit={envoyer} className="o-mt-6 o-grid o-gap-5 sm:o-grid-cols-2">
-          {([
-            ['primeur-nom', 'Votre nom', 'text', 'Camille Dorier'],
-            ['primeur-rue', 'Votre rue', 'text', '14 rue Trousseau'],
-          ] as const).map(([id, libelle, genre, exemple]) => (
+          {(
+            [
+              ['primeur-nom', 'Votre nom', 'text', 'Camille Dorier'],
+              ['primeur-rue', 'Votre rue', 'text', '14 rue Trousseau'],
+            ] as const
+          ).map(([id, libelle, genre, exemple]) => (
             <label key={id} htmlFor={id} className="o-block">
-              <span className="o-block o-text-xs o-font-medium o-text-stone-600">{libelle}</span>
+              <span className="o-block o-text-xs o-font-medium o-text-stone-600">
+                {libelle}
+              </span>
               <input
                 id={id}
                 name={id}
@@ -297,7 +456,9 @@ function CartePostale(): ReactElement {
             </label>
           ))}
           <label htmlFor="primeur-jour" className="o-block">
-            <span className="o-block o-text-xs o-font-medium o-text-stone-600">Le jour de la tournee</span>
+            <span className="o-block o-text-xs o-font-medium o-text-stone-600">
+              Le jour de la tournee
+            </span>
             <select
               id="primeur-jour"
               name="primeur-jour"
@@ -309,7 +470,9 @@ function CartePostale(): ReactElement {
             </select>
           </label>
           <label htmlFor="primeur-taille" className="o-block">
-            <span className="o-block o-text-xs o-font-medium o-text-stone-600">La taille du cageot</span>
+            <span className="o-block o-text-xs o-font-medium o-text-stone-600">
+              La taille du cageot
+            </span>
             <select
               id="primeur-taille"
               name="primeur-taille"
@@ -327,7 +490,10 @@ function CartePostale(): ReactElement {
             >
               Poster la carte
             </button>
-            <p className="o-m-0 o-text-xs o-leading-relaxed o-text-stone-600" aria-live="polite">
+            <p
+              className="o-m-0 o-text-xs o-leading-relaxed o-text-stone-600"
+              aria-live="polite"
+            >
               {envoye
                 ? 'C est note : on vous met un cageot de cote pour mercredi.'
                 : 'Sans engagement : on arrete quand vous le dites, au banc ou par telephone.'}
@@ -344,7 +510,8 @@ function CartePostale(): ReactElement {
           backgroundColor: accentDoux(100, 70),
           boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}`,
           opacity: ouverte ? 0 : 1,
-          transform: reduced || !ouverte ? undefined : 'translate3d(0, -6%, 0) rotate(-3deg)',
+          transform:
+            reduced || !ouverte ? undefined : 'translate3d(0, -6%, 0) rotate(-3deg)',
           transition: reduced
             ? 'opacity 220ms ease'
             : 'opacity 420ms ease, transform 620ms cubic-bezier(0.16, 1, 0.3, 1)',
@@ -354,10 +521,16 @@ function CartePostale(): ReactElement {
         <div className="o-flex o-h-full o-flex-col o-justify-between o-gap-8">
           <div className="o-flex o-items-start o-justify-between o-gap-6">
             <div>
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">Le recto</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">
+                Le recto
+              </p>
               <p
                 className="o-m-0 o-mt-4 o-text-stone-950"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)', lineHeight: 1 }}
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)',
+                  lineHeight: 1,
+                }}
               >
                 Le cageot,
                 <br />
@@ -373,8 +546,20 @@ function CartePostale(): ReactElement {
                 strokeWidth="1"
                 strokeDasharray="4 3"
               />
-              <path d="M18 74h54l-8-34H26z" fill="none" stroke={accentDoux(900, 55)} strokeWidth="1.5" />
-              <circle cx="45" cy="30" r="9" fill="none" stroke={accentDoux(900, 55)} strokeWidth="1.5" />
+              <path
+                d="M18 74h54l-8-34H26z"
+                fill="none"
+                stroke={accentDoux(900, 55)}
+                strokeWidth="1.5"
+              />
+              <circle
+                cx="45"
+                cy="30"
+                r="9"
+                fill="none"
+                stroke={accentDoux(900, 55)}
+                strokeWidth="1.5"
+              />
               {/* L encre est posee en `color` et reprise par `fill` : une sonde
                   de contraste lit la couleur calculee, pas l attribut. */}
               <text
@@ -382,7 +567,11 @@ function CartePostale(): ReactElement {
                 y="94"
                 fontSize="11"
                 fill="currentColor"
-                style={{ color: accentDoux(900, 60), fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                style={{
+                  color: accentDoux(900, 60),
+                  fontFamily: 'var(--o-font-mono)',
+                  letterSpacing: '0.1em',
+                }}
               >
                 0,99
               </text>
@@ -392,9 +581,19 @@ function CartePostale(): ReactElement {
           {/* Les lignes d adresse, vides : c est une carte a remplir. */}
           <div className="o-flex o-flex-col o-gap-4">
             {[0, 1, 2].map((rang) => (
-              <span key={rang} className="o-block o-h-px" style={{ backgroundColor: accentDoux(700, 34), width: `${String(92 - rang * 14)}%` }} />
+              <span
+                key={rang}
+                className="o-block o-h-px"
+                style={{
+                  backgroundColor: accentDoux(700, 34),
+                  width: `${String(92 - rang * 14)}%`,
+                }}
+              />
             ))}
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+            <p
+              className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              style={{ color: encre() }}
+            >
               Survolez la carte — ou entrez au clavier
             </p>
           </div>
@@ -437,7 +636,9 @@ function Calendrier({
               }}
               aria-pressed={choisi}
               className={`o-cursor-pointer o-appearance-none o-rounded-2xl o-border-none o-px-2 o-py-4 o-text-center o-text-xs o-font-semibold o-uppercase o-tracking-widest o-transition-transform hover:o-scale-105 focus:o-ring ${
-                choisi ? '' : 'o-bg-white-60 o-text-zinc-700 dark:o-bg-zinc-900 dark:o-text-zinc-300'
+                choisi
+                  ? ''
+                  : 'o-bg-white-60 o-text-zinc-700 dark:o-bg-zinc-900 dark:o-text-zinc-300'
               }`}
               style={choisi ? aplat() : undefined}
             >
@@ -447,13 +648,24 @@ function Calendrier({
         })}
       </div>
 
-      <p className="o-m-0 o-mt-10 o-text-zinc-950 dark:o-text-zinc-50" aria-live="polite" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.6vw, 3rem)', lineHeight: 1 }}>
+      <p
+        className="o-m-0 o-mt-10 o-text-zinc-950 dark:o-text-zinc-50"
+        aria-live="polite"
+        style={{
+          ...affiche('m', 300),
+          fontSize: 'clamp(1.5rem, 3.6vw, 3rem)',
+          lineHeight: 1,
+        }}
+      >
         En {MOIS[mois]?.toLowerCase()}, {String(deSaison)} des dix-huit.
       </p>
 
       <div className="o-mt-10 o-grid o-gap-10 lg:o-grid-cols-12">
         <div className="lg:o-col-span-7">
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+          <p
+            className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+            style={{ color: encre() }}
+          >
             En pleine saison
           </p>
           <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-wrap o-gap-3 o-p-0">
@@ -461,15 +673,23 @@ function Calendrier({
               <li key={produit.nom}>
                 <span
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-4 o-py-2 o-text-sm o-font-semibold o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ backgroundColor: `color-mix(in oklab, ${produit.couleur} 38%, var(--o-theme-bg))` }}
+                  style={{
+                    backgroundColor: `color-mix(in oklab, ${produit.couleur} 38%, var(--o-theme-bg))`,
+                  }}
                 >
-                  <span aria-hidden="true" className="o-block o-size-1.5 o-rounded-full" style={{ backgroundColor: produit.couleur }} />
+                  <span
+                    aria-hidden="true"
+                    className="o-block o-size-1.5 o-rounded-full"
+                    style={{ backgroundColor: produit.couleur }}
+                  />
                   {produit.nom}
                 </span>
               </li>
             ))}
             {pleine.length === 0 && (
-              <li className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">Rien en pleine saison ce mois-ci. C est la soudure.</li>
+              <li className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+                Rien en pleine saison ce mois-ci. C est la soudure.
+              </li>
             )}
           </ul>
 
@@ -481,13 +701,17 @@ function Calendrier({
               <li key={produit.nom}>
                 <span
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-text-zinc-800 dark:o-text-zinc-200"
-                  style={{ borderColor: `color-mix(in oklab, ${produit.couleur} 55%, transparent)` }}
+                  style={{
+                    borderColor: `color-mix(in oklab, ${produit.couleur} 55%, transparent)`,
+                  }}
                 >
                   {produit.nom}
                 </span>
               </li>
             ))}
-            {bord.length === 0 && <li className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">Aucun.</li>}
+            {bord.length === 0 && (
+              <li className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">Aucun.</li>
+            )}
           </ul>
 
           <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
@@ -495,7 +719,10 @@ function Calendrier({
           </p>
           <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-wrap o-gap-x-4 o-gap-y-2 o-p-0">
             {hors.map((produit) => (
-              <li key={produit.nom} className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-line-through">
+              <li
+                key={produit.nom}
+                className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-line-through"
+              >
                 {produit.nom}
               </li>
             ))}
@@ -505,23 +732,45 @@ function Calendrier({
         {/* Le mot du primeur sur le premier produit du mois. */}
         <div className="lg:o-col-span-5">
           {(pleine[0] ?? bord[0]) !== undefined && (
-            <div className="o-rounded-3xl o-p-8" style={{ backgroundColor: 'var(--o-theme-bg)', boxShadow: `inset 0 0 0 1px ${accentDoux(700, 22)}` }}>
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Le mot du banc</p>
+            <div
+              className="o-rounded-3xl o-p-8"
+              style={{
+                backgroundColor: 'var(--o-theme-bg)',
+                boxShadow: `inset 0 0 0 1px ${accentDoux(700, 22)}`,
+              }}
+            >
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                Le mot du banc
+              </p>
               <p
                 className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)', lineHeight: 1 }}
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)',
+                  lineHeight: 1,
+                }}
               >
                 {(pleine[0] ?? bord[0])?.nom}
               </p>
-              <p className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{(pleine[0] ?? bord[0])?.note}</p>
+              <p className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                {(pleine[0] ?? bord[0])?.note}
+              </p>
               <dl className="o-m-0 o-mt-8 o-grid o-grid-cols-2 o-gap-6">
                 <div>
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Prix du jour</dt>
-                  <dd className="o-m-0 o-mt-2 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">{(pleine[0] ?? bord[0])?.prix}</dd>
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    Prix du jour
+                  </dt>
+                  <dd className="o-m-0 o-mt-2 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">
+                    {(pleine[0] ?? bord[0])?.prix}
+                  </dd>
                 </div>
                 <div>
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Ca vient de</dt>
-                  <dd className="o-m-0 o-mt-2 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">{(pleine[0] ?? bord[0])?.origine}</dd>
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    Ca vient de
+                  </dt>
+                  <dd className="o-m-0 o-mt-2 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">
+                    {(pleine[0] ?? bord[0])?.origine}
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -543,13 +792,20 @@ function CarteDeChaleur({ mois }: { readonly mois: number }): ReactElement {
     // libelles caches (`o-sr-only`, poses en absolu) se calent sur le premier
     // ancetre positionne, sortent de la bande et elargissent la page.
     <div className="o-relative o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-      <table className="o-w-full o-text-left" style={{ minWidth: 620, borderCollapse: 'collapse' }}>
+      <table
+        className="o-w-full o-text-left"
+        style={{ minWidth: 620, borderCollapse: 'collapse' }}
+      >
         <caption className="o-sr-only">
-          Les dix-huit produits du banc, mois par mois : pleine saison, debut ou fin de saison, hors saison
+          Les dix-huit produits du banc, mois par mois : pleine saison, debut ou fin de
+          saison, hors saison
         </caption>
         <thead>
           <tr>
-            <th scope="col" className="o-py-2 o-pr-4 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-400">
+            <th
+              scope="col"
+              className="o-py-2 o-pr-4 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-400"
+            >
               Produit
             </th>
             {MOIS_COURT.map((lettre, rang) => (
@@ -557,7 +813,9 @@ function CarteDeChaleur({ mois }: { readonly mois: number }): ReactElement {
                 key={`${lettre}-${String(rang)}`}
                 scope="col"
                 className="o-px-1 o-py-2 o-text-center o-font-mono o-text-xs o-font-normal o-uppercase"
-                style={{ color: rang === mois ? encreSurSombre() : 'var(--o-palette-zinc-500)' }}
+                style={{
+                  color: rang === mois ? encreSurSombre() : 'var(--o-palette-zinc-500)',
+                }}
               >
                 <span className="o-sr-only">{MOIS[rang]}</span>
                 <span aria-hidden="true">{lettre}</span>
@@ -568,7 +826,10 @@ function CarteDeChaleur({ mois }: { readonly mois: number }): ReactElement {
         <tbody>
           {BANC.map((produit) => (
             <tr key={produit.nom}>
-              <th scope="row" className="o-py-1 o-pr-4 o-text-sm o-font-normal o-text-zinc-100">
+              <th
+                scope="row"
+                className="o-py-1 o-pr-4 o-text-sm o-font-normal o-text-zinc-100"
+              >
                 {produit.nom}
               </th>
               {MOIS_COURT.map((_, rang) => {
@@ -585,11 +846,17 @@ function CarteDeChaleur({ mois }: { readonly mois: number }): ReactElement {
                       className="o-block o-h-5 o-rounded-sm"
                       style={{
                         backgroundColor: fond,
-                        outline: rang === mois ? `1px solid ${encreSurSombre()}` : undefined,
+                        outline:
+                          rang === mois ? `1px solid ${encreSurSombre()}` : undefined,
                       }}
                     >
                       <span className="o-sr-only">
-                        {MOIS[rang]} : {etat === 'pleine' ? 'pleine saison' : etat === 'bord' ? 'debut ou fin de saison' : 'hors saison'}
+                        {MOIS[rang]} :{' '}
+                        {etat === 'pleine'
+                          ? 'pleine saison'
+                          : etat === 'bord'
+                            ? 'debut ou fin de saison'
+                            : 'hors saison'}
                       </span>
                     </span>
                   </td>
@@ -618,22 +885,38 @@ export default function Page(): ReactElement {
     return [pris(0), pris(1), pris(2)] as const
   }, [mois])
 
-  const vedettes = useMemo(() => BANC.filter((produit) => etatDe(produit, mois) === 'pleine').slice(0, 4), [mois])
+  const vedettes = useMemo(
+    () => BANC.filter((produit) => etatDe(produit, mois) === 'pleine').slice(0, 4),
+    [mois],
+  )
   const mots = useMemo(() => {
-    const noms = BANC.filter((produit) => etatDe(produit, mois) !== 'hors').map((produit) => produit.nom.toLowerCase())
+    const noms = BANC.filter((produit) => etatDe(produit, mois) !== 'hors').map(
+      (produit) => produit.nom.toLowerCase(),
+    )
     return noms.length > 0 ? noms : ['la patience']
   }, [mois])
 
   return (
     <Porte forme="iris" marque="Cageot" sombre={false}>
-      <div className="o-relative o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-relative o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         <Nappe couleurs={[couleurs[0], couleurs[1], couleurs[2]]} opacite={0.75} />
 
         <div className="o-relative o-z-10">
-          <BarreGelule marque="Cageot" liens={NAVIGATION} action={['#carte', 'Le cageot']} sombre={false} />
+          <BarreGelule
+            marque="Cageot"
+            liens={NAVIGATION}
+            action={['#carte', 'Le cageot']}
+            sombre={false}
+          />
 
           {/* ================= L ouverture ================================ */}
-          <header className="o-relative o-flex o-flex-col o-justify-center o-px-6 o-pb-16 o-pt-32 md:o-px-10" style={{ minHeight: ECRAN }}>
+          <header
+            className="o-relative o-flex o-flex-col o-justify-center o-px-6 o-pb-16 o-pt-32 md:o-px-10"
+            style={{ minHeight: ECRAN }}
+          >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
               <Surgit>
                 <Etiquette sombre={false}>Primeur — place d Aligre, Paris 12</Etiquette>
@@ -641,40 +924,79 @@ export default function Page(): ReactElement {
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-8 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...affiche('xl', 800), fontSize: 'clamp(3rem, 13vw, 12rem)', lineHeight: 0.84, letterSpacing: '-0.05em' }}
+                style={{
+                  ...affiche('xl', 800),
+                  fontSize: 'clamp(3rem, 13vw, 12rem)',
+                  lineHeight: 0.84,
+                  letterSpacing: '-0.05em',
+                }}
               >
                 Cageot
               </TitreVague>
 
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-baseline o-gap-x-3 o-text-lg o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-baseline o-gap-x-3 o-text-lg o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300"
+              >
                 <span>Ce mois-ci, on a</span>
                 <span className="o-text-2xl o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">
                   <RotatingWords words={mots} interval={1900} />
                 </span>
               </Surgit>
-              <Surgit delai={560} as="p" className="o-m-0 o-mt-4 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Le reste, on ne l a pas : c est toute la difference entre un
-                primeur et un rayon.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-m-0 o-mt-4 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+              >
+                Le reste, on ne l a pas : c est toute la difference entre un primeur et un
+                rayon.
               </Surgit>
 
               <Surgit delai={640} className="o-mt-10">
-                <Actions pleine={['#calendrier', 'Voir le mois']} fantome={['#carte', 'Recevoir le cageot']} sombre={false} />
+                <Actions
+                  pleine={['#calendrier', 'Voir le mois']}
+                  fantome={['#carte', 'Recevoir le cageot']}
+                  sombre={false}
+                />
               </Surgit>
 
               {/* Les cagettes du mois, qui flottent — et les autocollants penches. */}
               <Surgit delai={760} className="o-mt-16">
-                <FloatGroup amplitude={7} duration={4200} className="o-grid o-gap-4 sm:o-grid-cols-2 lg:o-grid-cols-4">
+                <FloatGroup
+                  amplitude={7}
+                  duration={4200}
+                  className="o-grid o-gap-4 sm:o-grid-cols-2 lg:o-grid-cols-4"
+                >
                   {vedettes.map((produit, rang) => (
                     <div
                       key={produit.nom}
                       className="o-relative o-rounded-3xl o-p-6"
-                      style={{ backgroundColor: `color-mix(in oklab, ${produit.couleur} 26%, var(--o-theme-bg))`, boxShadow: `inset 0 0 0 1px ${accentDoux(700, 20)}` }}
+                      style={{
+                        backgroundColor: `color-mix(in oklab, ${produit.couleur} 26%, var(--o-theme-bg))`,
+                        boxShadow: `inset 0 0 0 1px ${accentDoux(700, 20)}`,
+                      }}
                     >
                       {/* La cagette, dessinee. */}
                       <svg viewBox="0 0 120 80" className="o-w-full" aria-hidden="true">
-                        <path d="M10 26h100l-10 44H20z" fill="none" stroke={produit.couleur} strokeWidth="2" />
-                        <path d="M10 26l8-12h84l8 12" fill="none" stroke={produit.couleur} strokeWidth="2" />
-                        <path d="M34 36v26M60 36v26M86 36v26" stroke={produit.couleur} strokeWidth="1.5" opacity="0.6" />
+                        <path
+                          d="M10 26h100l-10 44H20z"
+                          fill="none"
+                          stroke={produit.couleur}
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M10 26l8-12h84l8 12"
+                          fill="none"
+                          stroke={produit.couleur}
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M34 36v26M60 36v26M86 36v26"
+                          stroke={produit.couleur}
+                          strokeWidth="1.5"
+                          opacity="0.6"
+                        />
                         {[0, 1, 2, 3, 4].map((graine) => (
                           <circle
                             key={graine}
@@ -685,7 +1007,9 @@ export default function Page(): ReactElement {
                           />
                         ))}
                       </svg>
-                      <p className="o-m-0 o-mt-4 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">{produit.nom}</p>
+                      <p className="o-m-0 o-mt-4 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">
+                        {produit.nom}
+                      </p>
                       <p className="o-m-0 o-mt-1 o-text-xs o-text-zinc-600 dark:o-text-zinc-400">
                         {produit.prix} — {produit.origine}
                       </p>
@@ -696,16 +1020,32 @@ export default function Page(): ReactElement {
             </div>
 
             {/* Les autocollants, penches, comme sur une vitre. */}
-            <Flotte amplitude={9} duree={7} angle={-8} className="o-pointer-events-none o-absolute o-hidden lg:o-block" style={{ top: '7rem', right: '2rem' }}>
+            <Flotte
+              amplitude={9}
+              duree={7}
+              angle={-8}
+              className="o-pointer-events-none o-absolute o-hidden lg:o-block"
+              style={{ top: '7rem', right: '2rem' }}
+            >
               <Autocollant angle={-8}>Cueilli hier</Autocollant>
             </Flotte>
-            <Flotte amplitude={12} duree={9} delai={1.4} angle={6} className="o-pointer-events-none o-absolute o-hidden lg:o-block" style={{ top: '44%', right: '5rem' }}>
+            <Flotte
+              amplitude={12}
+              duree={9}
+              delai={1.4}
+              angle={6}
+              className="o-pointer-events-none o-absolute o-hidden lg:o-block"
+              style={{ top: '44%', right: '5rem' }}
+            >
               <Autocollant angle={6}>Vrac, sans plastique</Autocollant>
             </Flotte>
           </header>
 
           {/* ================= Le mecanisme : le calendrier =============== */}
-          <section id="calendrier" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="calendrier"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
                 <Indice rang="01" sombre={false}>
@@ -715,16 +1055,20 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4.6vw, 4rem)', lineHeight: 0.94 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4.6vw, 4rem)',
+                    lineHeight: 0.94,
+                  }}
                 >
                   Douze mois, et ce qu ils donnent vraiment.
                 </h2>
               </Reveal>
               <Reveal delay={140}>
                 <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Choisissez un mois : le banc se recompose, le fond change de
-                  couleur, et ce que nous n avons pas reste ecrit, barre. La
-                  table est la meme toute l annee — c est elle qui commande.
+                  Choisissez un mois : le banc se recompose, le fond change de couleur, et
+                  ce que nous n avons pas reste ecrit, barre. La table est la meme toute l
+                  annee — c est elle qui commande.
                 </p>
               </Reveal>
               <div className="o-mt-14">
@@ -734,7 +1078,11 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= L annee entiere, en cases (C18) ============ */}
-          <section id="annee" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('stone')}>
+          <section
+            id="annee"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            style={nuit('stone')}
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
                 <Indice rang="02">L annee</Indice>
@@ -742,14 +1090,18 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-6 o-max-w-3xl o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4.6vw, 4rem)', lineHeight: 0.94 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4.6vw, 4rem)',
+                    lineHeight: 0.94,
+                  }}
                 >
                   L annee tient dans une grille.
                 </h2>
               </Reveal>
               <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-300">
-                Case pleine : pleine saison. Case eteinte : debut ou fin. Case
-                sombre : on ne l a pas. La colonne du mois choisi est cerclee.
+                Case pleine : pleine saison. Case eteinte : debut ou fin. Case sombre : on
+                ne l a pas. La colonne du mois choisi est cerclee.
               </p>
               <div className="o-mt-12">
                 <CarteDeChaleur mois={mois} />
@@ -758,7 +1110,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= Le cageot de la semaine ==================== */}
-          <section id="cageot" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="cageot"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-grid o-max-w-6xl o-items-center o-gap-12 lg:o-grid-cols-12">
               <div className="lg:o-col-span-5">
                 <Reveal>
@@ -769,15 +1124,18 @@ export default function Page(): ReactElement {
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.94 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 0.94,
+                    }}
                   >
                     Ce qu on y met cette semaine.
                   </h2>
                 </Reveal>
                 <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Compose le lundi matin, au retour de Rungis, avec ce qui etait
-                  bon ce matin-la. Retournez la cagette pour voir le detail et
-                  les provenances.
+                  Compose le lundi matin, au retour de Rungis, avec ce qui etait bon ce
+                  matin-la. Retournez la cagette pour voir le detail et les provenances.
                 </p>
                 <div className="o-mt-8" style={{ maxWidth: '17rem' }}>
                   <StickerPeel corner="top-right" size={64} back={accentDoux(300, 60)}>
@@ -798,26 +1156,61 @@ export default function Page(): ReactElement {
                   front={
                     <div
                       className="o-flex o-h-full o-flex-col o-justify-between o-gap-6 o-rounded-3xl o-p-8"
-                      style={{ backgroundColor: accentDoux(200, 60), boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}` }}
+                      style={{
+                        backgroundColor: accentDoux(200, 60),
+                        boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}`,
+                      }}
                     >
                       <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">
                         Semaine 37 — la cagette
                       </p>
                       <svg viewBox="0 0 240 130" className="o-w-full" aria-hidden="true">
-                        <path d="M16 40h208l-18 74H34z" fill="none" stroke={accentDoux(900, 60)} strokeWidth="2" />
-                        <path d="M16 40l14-18h180l14 18" fill="none" stroke={accentDoux(900, 60)} strokeWidth="2" />
-                        <path d="M60 52v52M120 52v52M180 52v52" stroke={accentDoux(900, 40)} strokeWidth="1.5" />
-                        <path d="M28 76h184" stroke={accentDoux(900, 30)} strokeWidth="1.5" strokeDasharray="5 6" />
+                        <path
+                          d="M16 40h208l-18 74H34z"
+                          fill="none"
+                          stroke={accentDoux(900, 60)}
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M16 40l14-18h180l14 18"
+                          fill="none"
+                          stroke={accentDoux(900, 60)}
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M60 52v52M120 52v52M180 52v52"
+                          stroke={accentDoux(900, 40)}
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M28 76h184"
+                          stroke={accentDoux(900, 30)}
+                          strokeWidth="1.5"
+                          strokeDasharray="5 6"
+                        />
                         {/* Ce qui depasse de la cagette : la marchandise du mois. */}
-                        {BANC.filter((produit) => etatDe(produit, new Date().getMonth()) === 'pleine')
+                        {BANC.filter(
+                          (produit) =>
+                            etatDe(produit, new Date().getMonth()) === 'pleine',
+                        )
                           .slice(0, 5)
                           .map((produit, rang) => (
-                            <circle key={produit.nom} cx={44 + rang * 38} cy={30 - (rang % 2) * 6} r={13 + (rang % 2) * 2} fill={produit.couleur} />
+                            <circle
+                              key={produit.nom}
+                              cx={44 + rang * 38}
+                              cy={30 - (rang % 2) * 6}
+                              r={13 + (rang % 2) * 2}
+                              fill={produit.couleur}
+                            />
                           ))}
                       </svg>
                       <p
                         className="o-m-0 o-text-stone-950"
-                        style={{ ...affiche('m', 300), fontSize: 'clamp(1.35rem, 2.4vw, 2rem)', lineHeight: 1 }}
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(1.35rem, 2.4vw, 2rem)',
+                          lineHeight: 1,
+                        }}
                       >
                         Sept produits, tous de saison.
                       </p>
@@ -826,16 +1219,27 @@ export default function Page(): ReactElement {
                   back={
                     <div
                       className="o-flex o-h-full o-flex-col o-gap-4 o-rounded-3xl o-p-8"
-                      style={{ backgroundColor: 'var(--o-theme-bg)', boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}` }}
+                      style={{
+                        backgroundColor: 'var(--o-theme-bg)',
+                        boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}`,
+                      }}
                     >
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: encre() }}
+                      >
                         Le detail
                       </p>
                       <ul className="o-m-0 o-list-none o-p-0">
                         {CAGEOT.map(([quoi, ou]) => (
-                          <li key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-stone-200 o-py-2">
+                          <li
+                            key={quoi}
+                            className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-stone-200 o-py-2"
+                          >
                             <span className="o-text-sm o-text-stone-950">{quoi}</span>
-                            <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">{ou}</span>
+                            <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">
+                              {ou}
+                            </span>
                           </li>
                         ))}
                       </ul>
@@ -857,7 +1261,11 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mb-12 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.94 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 0.94,
+                  }}
                 >
                   Une carte postale, et on vous garde un cageot.
                 </h2>
@@ -872,11 +1280,24 @@ export default function Page(): ReactElement {
               <ul className="o-m-0 o-grid o-list-none o-gap-10 o-p-0 sm:o-grid-cols-2 lg:o-grid-cols-4">
                 {PICTOS.map((picto) => (
                   <li key={picto.titre}>
-                    <svg viewBox="0 0 64 64" className="o-w-16" aria-hidden="true" fill="none" stroke={encre()} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      viewBox="0 0 64 64"
+                      className="o-w-16"
+                      aria-hidden="true"
+                      fill="none"
+                      stroke={encre()}
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       {picto.trace}
                     </svg>
-                    <h2 className="o-m-0 o-mt-5 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">{picto.titre}</h2>
-                    <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{picto.legende}</p>
+                    <h2 className="o-m-0 o-mt-5 o-text-base o-font-semibold o-text-zinc-950 dark:o-text-zinc-50">
+                      {picto.titre}
+                    </h2>
+                    <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                      {picto.legende}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -891,7 +1312,8 @@ export default function Page(): ReactElement {
                     className="o-inline-flex o-items-center o-gap-2 o-text-sm o-font-semibold o-no-underline focus:o-ring"
                     style={{ color: encre() }}
                   >
-                    banc@cageot.fr <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                    banc@cageot.fr{' '}
+                    <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                   </a>
                   <a
                     href="#calendrier"

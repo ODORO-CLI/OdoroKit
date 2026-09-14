@@ -69,7 +69,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-purple-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-purple-950'
 
 /**
  * Kaleidoscope.

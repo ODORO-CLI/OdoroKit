@@ -49,11 +49,15 @@ function Card({
       {background}
       <div className="o-relative o-grid o-gap-8 o-p-8 md:o-p-12 lg:o-grid-cols-2 lg:o-items-center">
         <div className="o-flex o-flex-col o-gap-4">
-          <span className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">{eyebrow}</span>
+          <span className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">
+            {eyebrow}
+          </span>
           <h3 className="o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight o-text-balance">
             {title}
           </h3>
-          <p className="o-max-w-md o-text-zinc-600 dark:o-text-zinc-300 o-text-pretty">{text}</p>
+          <p className="o-max-w-md o-text-zinc-600 dark:o-text-zinc-300 o-text-pretty">
+            {text}
+          </p>
           <Link
             to={to}
             className="o-inline-flex o-items-center o-gap-1 o-text-sm o-font-medium o-text-brand-600 dark:o-text-brand-300 o-no-underline hover:o-underline o-underline-offset-4"
@@ -108,7 +112,11 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
           text="Statiques en CSS pur ou animes en shader, tous colores par les tokens du projet. Certains reagissent au curseur : torche, ondes de clic, sillage."
           to="/docs/backgrounds"
           background={
-            <MeshStatic className="o-absolute o-inset-0 o-opacity-70" strength={0.55} blur={30} />
+            <MeshStatic
+              className="o-absolute o-inset-0 o-opacity-70"
+              strength={0.55}
+              blur={30}
+            />
           }
           aside={
             <div className="o-grid o-grid-cols-3 o-gap-3">
@@ -132,18 +140,26 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
           text="Ce qui bouge est un calque ; le texte d origine reste dans la page, lisible aux lecteurs d ecran et selectionnable a la souris."
           to="/docs/text"
           background={
-            <Blueprint className="o-absolute o-inset-0 o-opacity-60" cell={26} strength={0.35} />
+            <Blueprint
+              className="o-absolute o-inset-0 o-opacity-60"
+              cell={26}
+              strength={0.35}
+            />
           }
           aside={
             <ul className="o-flex o-flex-col o-gap-2 o-font-mono o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
-              {['split-reveal', 'decode-text', 'counter-roll', 'letter-swap', 'glitch-text'].map(
-                (slug) => (
-                  <li key={slug} className="o-flex o-items-center o-gap-2">
-                    <span className="o-size-1.5 o-rounded-full o-bg-brand-400" />
-                    {slug}
-                  </li>
-                ),
-              )}
+              {[
+                'split-reveal',
+                'decode-text',
+                'counter-roll',
+                'letter-swap',
+                'glitch-text',
+              ].map((slug) => (
+                <li key={slug} className="o-flex o-items-center o-gap-2">
+                  <span className="o-size-1.5 o-rounded-full o-bg-brand-400" />
+                  {slug}
+                </li>
+              ))}
             </ul>
           }
         />
@@ -153,12 +169,19 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
           text="Cartes inclinees, lueurs, aimants, etincelles au clic, faisceaux entre elements : des variables CSS ecrites depuis la boucle, jamais un setState par image."
           to="/docs/effects/magnetic"
           background={
-            <SpotGrid className="o-absolute o-inset-0 o-opacity-70" gap={22} dot={2} vignette={0.5} />
+            <SpotGrid
+              className="o-absolute o-inset-0 o-opacity-70"
+              gap={22}
+              dot={2}
+              vignette={0.5}
+            />
           }
           aside={
             <TiltCard tilt={12} glare={0.35} className="o-w-64">
               <div className="o-rounded-xl o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-zinc-50 dark:o-bg-zinc-900 o-p-6">
-                <p className="o-text-xs o-uppercase o-tracking-wider o-text-zinc-500">tilt-card</p>
+                <p className="o-text-xs o-uppercase o-tracking-wider o-text-zinc-500">
+                  tilt-card
+                </p>
                 <p className="o-mt-2 o-text-lg o-font-semibold">Inclinez-moi</p>
                 <p className="o-mt-1 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
                   Le reflet suit le pointeur, la carte s’incline.
@@ -173,7 +196,12 @@ export function Showcase({ counts }: ShowcaseProps): ReactElement {
           text="Grilles revelees, piles collantes, etapes au defilement, tarifs, FAQ, pied de page cinematique — cette page en est faite."
           to="/docs/sections"
           background={
-            <Stripes className="o-absolute o-inset-0 o-opacity-40" width={8} gap={26} angle={45} />
+            <Stripes
+              className="o-absolute o-inset-0 o-opacity-40"
+              width={8}
+              gap={26}
+              angle={45}
+            />
           }
           aside={
             <div className="o-grid o-grid-cols-2 o-gap-3">

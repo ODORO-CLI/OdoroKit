@@ -131,9 +131,7 @@ export function FoldText({
     const element = ref.current
     if (element === null || reduced) return
 
-    const lettres = [
-      ...element.querySelectorAll<HTMLElement>('[data-o-fold-letter]'),
-    ]
+    const lettres = [...element.querySelectorAll<HTMLElement>('[data-o-fold-letter]')]
     if (lettres.length === 0) return
 
     let animations: Animation[] = []

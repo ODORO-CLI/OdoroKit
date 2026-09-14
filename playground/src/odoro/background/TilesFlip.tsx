@@ -113,13 +113,18 @@ export function TilesFlip({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: TILES_FLIP_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uSpeed: speed, uDensity: density, uRadius: radius },
-      name: 'tiles-flip',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: TILES_FLIP_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uSpeed: speed, uDensity: density, uRadius: radius },
+    name: 'tiles-flip',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

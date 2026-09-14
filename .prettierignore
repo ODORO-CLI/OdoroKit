@@ -19,3 +19,18 @@ playground/src/docs/catalogue.generated.ts
 # conventions. Les reformater les ferait diverger de leur source amont sans
 # que personne n'y gagne — et le prochain rafraichissement rouvrirait le diff.
 templates/
+
+# Les gabarits de l'echafaudeur.
+#
+# Des donnees copiees chez l'utilisateur final. Leur mise en forme est celle du
+# projet genere, pas celle de ce depot.
+packages/odoro/templates/
+
+# Le pack de design.
+#
+# Une source de verite qu'on republie en lecture et qu'on ne modifie jamais.
+# La verification de style echouait sur vingt de ses fichiers, et plantait sur
+# `runtime/tokens.template.css` — sur du contenu qu'on n'a de toute facon pas le
+# droit de reformater.
+ODORO-Design-Pack/
+playground/public/instructive/

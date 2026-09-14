@@ -36,7 +36,13 @@
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { Anchor, ArrowDown, Phone } from '@odoro-cli/icons/filaire'
-import { useEffect, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { GradualBlur } from '@/odoro/effect/GradualBlur.jsx'
 import { SplitFlap } from '@/odoro/text/SplitFlap.jsx'
@@ -112,7 +118,8 @@ const LOTS: readonly [Lot, ...Lot[]] = [
     prix: 28.5,
     rendement: 45,
     calendrier: 'rrrovvvvvvvo',
-    conseil: 'Entier au four, sur un lit de fenouil. La chair est ferme, elle ne demande rien.',
+    conseil:
+      'Entier au four, sur un lit de fenouil. La chair est ferme, elle ne demande rien.',
   },
   {
     cle: 'lieu',
@@ -126,7 +133,8 @@ const LOTS: readonly [Lot, ...Lot[]] = [
     prix: 19.8,
     rendement: 48,
     calendrier: 'vvoorrrovvvv',
-    conseil: 'En pave epais, poele cote peau, sept minutes. Le meilleur rapport de la criee.',
+    conseil:
+      'En pave epais, poele cote peau, sept minutes. Le meilleur rapport de la criee.',
   },
   {
     cle: 'sardine',
@@ -168,7 +176,8 @@ const LOTS: readonly [Lot, ...Lot[]] = [
     prix: 7.6,
     rendement: 55,
     calendrier: 'oovvvvvvvoor',
-    conseil: 'En filets au vin blanc, ou marine vingt-quatre heures. Le poisson le moins cher de la halle.',
+    conseil:
+      'En filets au vin blanc, ou marine vingt-quatre heures. Le poisson le moins cher de la halle.',
   },
   {
     cle: 'sole',
@@ -182,7 +191,8 @@ const LOTS: readonly [Lot, ...Lot[]] = [
     prix: 42,
     rendement: 40,
     calendrier: 'rrrovvvvvvvo',
-    conseil: 'Meuniere, beurre demi-sel, rien d autre. Nous la levons devant vous si vous voulez.',
+    conseil:
+      'Meuniere, beurre demi-sel, rien d autre. Nous la levons devant vous si vous voulez.',
   },
   {
     cle: 'tourteau',
@@ -210,7 +220,20 @@ const PORTS = [
 ] as const
 
 /** Les douze mois, pour le calendrier de saison. */
-const MOIS = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Jui', 'Jul', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec'] as const
+const MOIS = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Avr',
+  'Mai',
+  'Jui',
+  'Jul',
+  'Aou',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+] as const
 
 /** Le feu d une espece au mois demande. */
 function feuDe(lot: Lot, mois: number): Feu {
@@ -248,7 +271,10 @@ function euros(n: number): string {
  */
 function Encrage({ retourne = false }: { readonly retourne?: boolean }): ReactElement {
   return (
-    <div aria-hidden="true" className="o-pointer-events-none o-relative o-h-16 o-w-full o-overflow-hidden md:o-h-24">
+    <div
+      aria-hidden="true"
+      className="o-pointer-events-none o-relative o-h-16 o-w-full o-overflow-hidden md:o-h-24"
+    >
       <svg
         viewBox="0 0 1200 120"
         preserveAspectRatio="none"
@@ -273,7 +299,12 @@ function Encrage({ retourne = false }: { readonly retourne?: boolean }): ReactEl
 /** Le poisson de l ouverture : un lieu jaune, de profil, au trait. */
 function PoissonDeProfil(): ReactElement {
   return (
-    <svg viewBox="0 0 520 240" className="o-h-full o-w-full" aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 520 240"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+    >
       <path
         d="M52 120c56-62 150-88 236-84 62 3 108 24 140 46 22-20 48-34 78-42-14 30-18 56-14 80-4 24 0 50 14 80-30-8-56-22-78-42-32 22-78 43-140 46-86 4-180-22-236-84Z"
         fill={accentDoux(400, 55)}
@@ -281,8 +312,16 @@ function PoissonDeProfil(): ReactElement {
         strokeWidth="2.4"
         strokeLinejoin="round"
       />
-      <path d="M258 40c10 22 12 38 10 54M258 200c10-22 12-38 10-54" stroke={accent(800)} strokeWidth="2.4" />
-      <path d="M180 96c-30 10-44 24-44 24s14 14 44 24" stroke={accent(800)} strokeWidth="2" />
+      <path
+        d="M258 40c10 22 12 38 10 54M258 200c10-22 12-38 10-54"
+        stroke={accent(800)}
+        strokeWidth="2.4"
+      />
+      <path
+        d="M180 96c-30 10-44 24-44 24s14 14 44 24"
+        stroke={accent(800)}
+        strokeWidth="2"
+      />
       <circle cx="116" cy="108" r="9" fill={accent(900)} />
       <circle cx="113" cy="105" r="3" fill={accent(100)} />
       <path d="M86 92c14 22 14 34 0 56" stroke={accent(800)} strokeWidth="2.4" />
@@ -295,7 +334,13 @@ function PoissonDeProfil(): ReactElement {
           opacity="0.75"
         />
       ))}
-      <path d="M130 120h310" stroke={accent(700)} strokeWidth="1.4" opacity="0.6" strokeDasharray="7 9" />
+      <path
+        d="M130 120h310"
+        stroke={accent(700)}
+        strokeWidth="1.4"
+        opacity="0.6"
+        strokeDasharray="7 9"
+      />
     </svg>
   )
 }
@@ -315,19 +360,40 @@ function PlanCote({ lot }: { readonly lot: Lot }): ReactElement {
   const x2 = 70 + partLongueur * 400
   const trait = encre()
   return (
-    <svg viewBox="0 0 540 320" className="o-h-auto o-w-full" role="img" aria-label={`Plan cote du lot : ${lot.espece}, ${String(lot.taille)} centimetres, ${String(lot.poids)} kilogramme en moyenne`}>
+    <svg
+      viewBox="0 0 540 320"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label={`Plan cote du lot : ${lot.espece}, ${String(lot.taille)} centimetres, ${String(lot.poids)} kilogramme en moyenne`}
+    >
       {/* Le papier millimetre du plan. */}
       <g stroke={trait} opacity="0.12">
         {Array.from({ length: 14 }, (_, rang) => (
-          <line key={`h${String(rang)}`} x1="0" y1={rang * 24} x2="540" y2={rang * 24} strokeWidth="0.6" />
+          <line
+            key={`h${String(rang)}`}
+            x1="0"
+            y1={rang * 24}
+            x2="540"
+            y2={rang * 24}
+            strokeWidth="0.6"
+          />
         ))}
         {Array.from({ length: 23 }, (_, rang) => (
-          <line key={`v${String(rang)}`} x1={rang * 24} y1="0" x2={rang * 24} y2="320" strokeWidth="0.6" />
+          <line
+            key={`v${String(rang)}`}
+            x1={rang * 24}
+            y1="0"
+            x2={rang * 24}
+            y2="320"
+            strokeWidth="0.6"
+          />
         ))}
       </g>
 
       {/* La silhouette, a plat. */}
-      <g transform={`translate(70 96) scale(${String(partLongueur)} ${String(0.7 + partLongueur * 0.3)})`}>
+      <g
+        transform={`translate(70 96) scale(${String(partLongueur)} ${String(0.7 + partLongueur * 0.3)})`}
+      >
         <path
           d="M0 60C46 6 130-16 210-12c56 3 98 22 128 42 20-18 44-30 72-38-13 27-17 50-13 72-4 22 0 45 13 72-28-8-52-20-72-38-30 20-72 39-128 42C130 136 46 114 0 60Z"
           fill={accentDoux(400, 40)}
@@ -344,9 +410,20 @@ function PlanCote({ lot }: { readonly lot: Lot }): ReactElement {
         <line x1="70" y1="216" x2="70" y2="248" />
         <line x1={x2} y1="216" x2={x2} y2="248" />
         <line x1="70" y1="238" x2={x2} y2="238" />
-        <path d={`M70 238l10-5v10ZM${String(x2)} 238l-10-5v10Z`} fill={trait} stroke="none" />
+        <path
+          d={`M70 238l10-5v10ZM${String(x2)} 238l-10-5v10Z`}
+          fill={trait}
+          stroke="none"
+        />
       </g>
-      <text x={(70 + x2) / 2} y="230" textAnchor="middle" fontSize="20" fontFamily="var(--o-font-mono)" fill={trait}>
+      <text
+        x={(70 + x2) / 2}
+        y="230"
+        textAnchor="middle"
+        fontSize="20"
+        fontFamily="var(--o-font-mono)"
+        fill={trait}
+      >
         {lot.taille} cm
       </text>
 
@@ -355,7 +432,14 @@ function PlanCote({ lot }: { readonly lot: Lot }): ReactElement {
         <line x1={x2 - 40} y1="92" x2="500" y2="52" />
         <circle cx={x2 - 40} cy="92" r="3.5" fill={trait} />
       </g>
-      <text x="500" y="46" textAnchor="end" fontSize="18" fontFamily="var(--o-font-mono)" fill={trait}>
+      <text
+        x="500"
+        y="46"
+        textAnchor="end"
+        fontSize="18"
+        fontFamily="var(--o-font-mono)"
+        fill={trait}
+      >
         {lot.poids.toLocaleString('fr-FR')} kg la piece
       </text>
 
@@ -364,7 +448,14 @@ function PlanCote({ lot }: { readonly lot: Lot }): ReactElement {
         <line x1="200" y1="140" x2="150" y2="290" />
         <circle cx="200" cy="140" r="3.5" fill={trait} />
       </g>
-      <text x="150" y="308" textAnchor="middle" fontSize="18" fontFamily="var(--o-font-mono)" fill={trait}>
+      <text
+        x="150"
+        y="308"
+        textAnchor="middle"
+        fontSize="18"
+        fontFamily="var(--o-font-mono)"
+        fill={trait}
+      >
         {lot.rendement} pour cent de filet
       </text>
     </svg>
@@ -425,7 +516,11 @@ function NumeroQuiSeCompose(): ReactElement {
           key={paire + String(rang)}
           aria-hidden="true"
           className="o-inline-flex o-items-end o-tabular-nums"
-          style={{ ...affiche('xl', 800), fontSize: 'clamp(2.5rem, 11vw, 8rem)', color: encre() }}
+          style={{
+            ...affiche('xl', 800),
+            fontSize: 'clamp(2.5rem, 11vw, 8rem)',
+            color: encre(),
+          }}
         >
           {rang < poses ? (
             paire
@@ -433,9 +528,18 @@ function NumeroQuiSeCompose(): ReactElement {
             // Deux traits, pas deux soulignes : un caractere de remplacement
             // serait du texte pale a lire, et il n y a rien a lire tant que le
             // numero ne s est pas compose.
-            <span className="o-inline-flex o-items-end o-gap-2" style={{ height: '0.78em' }}>
-              <span className="o-block o-h-1.5 o-w-8 o-rounded-full md:o-w-14" style={{ backgroundColor: 'var(--o-theme-line)' }} />
-              <span className="o-block o-h-1.5 o-w-8 o-rounded-full md:o-w-14" style={{ backgroundColor: 'var(--o-theme-line)' }} />
+            <span
+              className="o-inline-flex o-items-end o-gap-2"
+              style={{ height: '0.78em' }}
+            >
+              <span
+                className="o-block o-h-1.5 o-w-8 o-rounded-full md:o-w-14"
+                style={{ backgroundColor: 'var(--o-theme-line)' }}
+              />
+              <span
+                className="o-block o-h-1.5 o-w-8 o-rounded-full md:o-w-14"
+                style={{ backgroundColor: 'var(--o-theme-line)' }}
+              />
             </span>
           )}
         </span>
@@ -460,11 +564,20 @@ export default function Page(): ReactElement {
   const [port, setPort] = useState<string>('tous')
   const [ouvert, setOuvert] = useState<string>(LOTS[0].cle)
 
-  const listes = useMemo(() => (port === 'tous' ? LOTS : LOTS.filter((l) => l.portCle === port)), [port])
-  const lot = useMemo(() => listes.find((l) => l.cle === ouvert) ?? listes[0] ?? LOTS[0], [listes, ouvert])
+  const listes = useMemo(
+    () => (port === 'tous' ? LOTS : LOTS.filter((l) => l.portCle === port)),
+    [port],
+  )
+  const lot = useMemo(
+    () => listes.find((l) => l.cle === ouvert) ?? listes[0] ?? LOTS[0],
+    [listes, ouvert],
+  )
 
   /** Le nombre de lots en pleine saison, dit tel quel dans l ouverture. */
-  const enSaison = useMemo(() => LOTS.filter((l) => feuDe(l, mois) === 'v').length, [mois])
+  const enSaison = useMemo(
+    () => LOTS.filter((l) => feuDe(l, mois) === 'v').length,
+    [mois],
+  )
 
   return (
     <Porte forme="trou" marque="Criee" sombre={false}>
@@ -472,38 +585,72 @@ export default function Page(): ReactElement {
         {/*
           ----- L ouverture : la nappe d eau, le poisson qui derive ------------
         */}
-        <section id="haut" className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: ECRAN, backgroundColor: accentDoux(300, 12) }}>
+        <section
+          id="haut"
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: ECRAN, backgroundColor: accentDoux(300, 12) }}
+        >
           <Nappe
             couleurs={[accentDoux(400, 62), accentDoux(600, 46), accentDoux(200, 70)]}
             opacite={0.85}
             className="o-z-0"
           />
           <div aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-z-0">
-            <GradualBlur side="bottom" size={160} strength={14} layers={6} scrollable={false} tint={accentDoux(200, 40)}>
+            <GradualBlur
+              side="bottom"
+              size={160}
+              strength={14}
+              layers={6}
+              scrollable={false}
+              tint={accentDoux(200, 40)}
+            >
               <div className="o-h-40 o-w-full" />
             </GradualBlur>
           </div>
 
-          <BarreGelule marque="Criee" liens={NAVIGATION} action={['#appeler', 'Appeler']} sombre={false} />
+          <BarreGelule
+            marque="Criee"
+            liens={NAVIGATION}
+            action={['#appeler', 'Appeler']}
+            sombre={false}
+          />
 
           <div className="o-relative o-z-10 o-mx-auto o-grid o-w-full o-max-w-7xl o-grow o-gap-8 o-px-6 o-pb-16 o-pt-28 md:o-grid-cols-12 md:o-items-center md:o-px-10">
             <div className="md:o-col-span-7">
               <Surgit>
-                <Etiquette sombre={false}>Halle Saint-Louis, Brest — debarque de 5 h 20</Etiquette>
+                <Etiquette sombre={false}>
+                  Halle Saint-Louis, Brest — debarque de 5 h 20
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase o-text-slate-900 dark:o-text-slate-50"
-                style={{ ...affiche('l', 700), fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)', letterSpacing: '-0.02em' }}
+                style={{
+                  ...affiche('l', 700),
+                  fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)',
+                  letterSpacing: '-0.02em',
+                }}
               >
                 Sept lots, sept bateaux, un matin.
               </TitreVague>
-              <Surgit delai={540} as="p" className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-slate-700 dark:o-text-slate-200">
-                Nous n achetons qu a la criee, et nous ecrivons le nom du bateau sur l etiquette. Ce qui n est pas de saison n est pas sur l etal : {String(enSaison)} especes sur sept le sont ce mois-ci.
+              <Surgit
+                delai={540}
+                as="p"
+                className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-slate-700 dark:o-text-slate-200"
+              >
+                Nous n achetons qu a la criee, et nous ecrivons le nom du bateau sur l
+                etiquette. Ce qui n est pas de saison n est pas sur l etal :{' '}
+                {String(enSaison)} especes sur sept le sont ce mois-ci.
               </Surgit>
               <Surgit delai={660} className="o-mt-9">
                 <Actions
-                  pleine={['#arrivage', <>Voir l arrivage <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#arrivage',
+                    <>
+                      Voir l arrivage{' '}
+                      <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#bateaux', 'Les bateaux']}
                   sombre={false}
                 />
@@ -531,20 +678,31 @@ export default function Page(): ReactElement {
         {/*
           ----- Le mecanisme : l arrivage du jour -------------------------------
         */}
-        <section id="arrivage" className="o-relative o-scroll-mt-24 o-px-6 o-pb-20 o-pt-4 md:o-px-10 md:o-pb-28">
+        <section
+          id="arrivage"
+          className="o-relative o-scroll-mt-24 o-px-6 o-pb-20 o-pt-4 md:o-px-10 md:o-pb-28"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-7">
-                <Indice rang="01" sombre={false}>L arrivage</Indice>
+                <Indice rang="01" sombre={false}>
+                  L arrivage
+                </Indice>
                 <h2
                   className="o-m-0 o-mt-5 o-max-w-2xl o-uppercase o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 700), fontSize: 'clamp(1.9rem, 4.4vw, 3.75rem)', letterSpacing: '-0.02em' }}
+                  style={{
+                    ...affiche('m', 700),
+                    fontSize: 'clamp(1.9rem, 4.4vw, 3.75rem)',
+                    letterSpacing: '-0.02em',
+                  }}
                 >
                   Le tableau de la criee
                 </h2>
               </div>
               <p className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-700 dark:o-text-slate-300 md:o-col-span-5">
-                Le feu est calcule sur le mois de votre machine ({MOIS[mois] ?? 'Jan'}) et sur le calendrier de chaque espece. Rouge veut dire frai : nous n en achetons pas, meme quand la criee en propose.
+                Le feu est calcule sur le mois de votre machine ({MOIS[mois] ?? 'Jan'}) et
+                sur le calendrier de chaque espece. Rouge veut dire frai : nous n en
+                achetons pas, meme quand la criee en propose.
               </p>
             </div>
 
@@ -570,12 +728,19 @@ export default function Page(): ReactElement {
             </div>
 
             {/* Le tableau, rang par rang. Chaque nom bat comme un afficheur. */}
-            <ol className="o-m-0 o-mt-10 o-list-none o-border-t o-p-0" style={{ borderColor: 'var(--o-theme-line)' }}>
+            <ol
+              className="o-m-0 o-mt-10 o-list-none o-border-t o-p-0"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
               {listes.map((l) => {
                 const feu = feuDe(l, mois)
                 const actif = l.cle === lot.cle
                 return (
-                  <li key={l.cle} className="o-border-b" style={{ borderColor: 'var(--o-theme-line)' }}>
+                  <li
+                    key={l.cle}
+                    className="o-border-b"
+                    style={{ borderColor: 'var(--o-theme-line)' }}
+                  >
                     <button
                       type="button"
                       aria-pressed={actif}
@@ -621,7 +786,8 @@ export default function Page(): ReactElement {
             </ol>
             {listes.length === 0 && (
               <p className="o-mt-8 o-text-lg o-text-slate-700 dark:o-text-slate-300">
-                Ce port n a pas debarque ce matin. Le vent d ouest tenait a huit ce week-end.
+                Ce port n a pas debarque ce matin. Le vent d ouest tenait a huit ce
+                week-end.
               </p>
             )}
 
@@ -631,7 +797,13 @@ export default function Page(): ReactElement {
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
                   Plan cote du lot
                 </p>
-                <div className="o-mt-5 o-rounded-2xl o-border-w-1 o-p-4" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(200, 16) }}>
+                <div
+                  className="o-mt-5 o-rounded-2xl o-border-w-1 o-p-4"
+                  style={{
+                    borderColor: 'var(--o-theme-line)',
+                    backgroundColor: accentDoux(200, 16),
+                  }}
+                >
                   <PlanCote lot={lot} />
                 </div>
               </div>
@@ -639,18 +811,31 @@ export default function Page(): ReactElement {
               <div className="o-min-w-0 md:o-col-span-6">
                 <h3
                   className="o-m-0 o-uppercase o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 700), fontSize: 'clamp(1.6rem, 3.4vw, 2.75rem)', letterSpacing: '-0.02em' }}
+                  style={{
+                    ...affiche('m', 700),
+                    fontSize: 'clamp(1.6rem, 3.4vw, 2.75rem)',
+                    letterSpacing: '-0.02em',
+                  }}
                 >
                   {lot.espece}
                 </h3>
                 <p
                   className="o-m-0 o-mt-3 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest"
-                  style={{ backgroundColor: 'var(--o-theme-surface)', color: 'var(--o-theme-fg)' }}
+                  style={{
+                    backgroundColor: 'var(--o-theme-surface)',
+                    color: 'var(--o-theme-fg)',
+                  }}
                 >
-                  <span aria-hidden="true" className="o-size-2 o-rounded-full" style={{ backgroundColor: TEINTE_FEU[feuDe(lot, mois)] }} />
+                  <span
+                    aria-hidden="true"
+                    className="o-size-2 o-rounded-full"
+                    style={{ backgroundColor: TEINTE_FEU[feuDe(lot, mois)] }}
+                  />
                   {DIT_FEU[feuDe(lot, mois)]}
                 </p>
-                <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-slate-700 dark:o-text-slate-200">{lot.conseil}</p>
+                <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-slate-700 dark:o-text-slate-200">
+                  {lot.conseil}
+                </p>
 
                 {/* Le calendrier de saison : douze cases, une par mois. */}
                 <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
@@ -664,33 +849,57 @@ export default function Page(): ReactElement {
                         key={nom}
                         className="o-flex o-flex-col o-items-center o-gap-1.5 o-rounded-md o-py-2 o-font-mono o-text-xs"
                         style={{
-                          backgroundColor: rang === mois ? 'var(--o-theme-surface)' : 'transparent',
-                          color: rang === mois ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',
+                          backgroundColor:
+                            rang === mois ? 'var(--o-theme-surface)' : 'transparent',
+                          color:
+                            rang === mois ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',
                         }}
                       >
-                        <span aria-hidden="true" className="o-size-2.5 o-rounded-full" style={{ backgroundColor: TEINTE_FEU[f] }} />
+                        <span
+                          aria-hidden="true"
+                          className="o-size-2.5 o-rounded-full"
+                          style={{ backgroundColor: TEINTE_FEU[f] }}
+                        />
                         {nom}
                       </li>
                     )
                   })}
                 </ol>
                 <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                  Vert : pleine saison. Orange : bordure, la chair est moins grasse. Rouge : frai, l espece est laissee tranquille.
+                  Vert : pleine saison. Orange : bordure, la chair est moins grasse. Rouge
+                  : frai, l espece est laissee tranquille.
                 </p>
 
-                <dl className="o-m-0 o-mt-10 o-border-t" style={{ borderColor: 'var(--o-theme-line)' }}>
+                <dl
+                  className="o-m-0 o-mt-10 o-border-t"
+                  style={{ borderColor: 'var(--o-theme-line)' }}
+                >
                   {(
                     [
                       ['Bateau', `${lot.bateau} — ${lot.port}`],
                       ['Engin', lot.engin],
-                      ['Piece moyenne', `${lot.taille.toLocaleString('fr-FR')} cm, ${lot.poids.toLocaleString('fr-FR')} kg`],
-                      ['Rendement', `${String(lot.rendement)} pour cent de filet, le reste part au fumet`],
+                      [
+                        'Piece moyenne',
+                        `${lot.taille.toLocaleString('fr-FR')} cm, ${lot.poids.toLocaleString('fr-FR')} kg`,
+                      ],
+                      [
+                        'Rendement',
+                        `${String(lot.rendement)} pour cent de filet, le reste part au fumet`,
+                      ],
                       ['Prix', `${euros(lot.prix)} le kilo, vide et ecaille`],
                     ] as const
                   ).map(([quoi, valeur]) => (
-                    <div key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-4 sm:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400 sm:o-col-span-4">{quoi}</dt>
-                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-800 dark:o-text-slate-200 sm:o-col-span-8">{valeur}</dd>
+                    <div
+                      key={quoi}
+                      className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-4 sm:o-grid-cols-12"
+                      style={{ borderColor: 'var(--o-theme-line)' }}
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400 sm:o-col-span-4">
+                        {quoi}
+                      </dt>
+                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-800 dark:o-text-slate-200 sm:o-col-span-8">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -708,19 +917,52 @@ export default function Page(): ReactElement {
           style={nuit('slate')}
         >
           <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0">
-            <Parallaxe vitesse={0.1} glisse={0.85} className="o-absolute o-inset-x-0 o-bottom-0 o-h-2/3">
-              <svg viewBox="0 0 1200 300" preserveAspectRatio="none" className="o-h-full o-w-full">
-                <path d="M0 120q150-40 300 0t300 0 300 0 300 0v180H0Z" fill={accentDoux(700, 30)} />
+            <Parallaxe
+              vitesse={0.1}
+              glisse={0.85}
+              className="o-absolute o-inset-x-0 o-bottom-0 o-h-2/3"
+            >
+              <svg
+                viewBox="0 0 1200 300"
+                preserveAspectRatio="none"
+                className="o-h-full o-w-full"
+              >
+                <path
+                  d="M0 120q150-40 300 0t300 0 300 0 300 0v180H0Z"
+                  fill={accentDoux(700, 30)}
+                />
               </svg>
             </Parallaxe>
-            <Parallaxe vitesse={0.22} glisse={0.8} className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/2">
-              <svg viewBox="0 0 1200 240" preserveAspectRatio="none" className="o-h-full o-w-full">
-                <path d="M0 90q120-46 240 0t240 0 240 0 240 0 240 0v150H0Z" fill={accentDoux(600, 46)} />
+            <Parallaxe
+              vitesse={0.22}
+              glisse={0.8}
+              className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/2"
+            >
+              <svg
+                viewBox="0 0 1200 240"
+                preserveAspectRatio="none"
+                className="o-h-full o-w-full"
+              >
+                <path
+                  d="M0 90q120-46 240 0t240 0 240 0 240 0 240 0v150H0Z"
+                  fill={accentDoux(600, 46)}
+                />
               </svg>
             </Parallaxe>
-            <Parallaxe vitesse={0.4} glisse={0.72} className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/3">
-              <svg viewBox="0 0 1200 180" preserveAspectRatio="none" className="o-h-full o-w-full">
-                <path d="M0 70q90-52 180 0t180 0 180 0 180 0 180 0 180 0v110H0Z" fill={accentDoux(500, 70)} />
+            <Parallaxe
+              vitesse={0.4}
+              glisse={0.72}
+              className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/3"
+            >
+              <svg
+                viewBox="0 0 1200 180"
+                preserveAspectRatio="none"
+                className="o-h-full o-w-full"
+              >
+                <path
+                  d="M0 70q90-52 180 0t180 0 180 0 180 0 180 0 180 0v110H0Z"
+                  fill={accentDoux(500, 70)}
+                />
               </svg>
             </Parallaxe>
           </div>
@@ -729,26 +971,56 @@ export default function Page(): ReactElement {
             <Indice rang="02">Les bateaux</Indice>
             <h2
               className="o-m-0 o-mt-6 o-max-w-4xl o-uppercase o-text-slate-50"
-              style={{ ...affiche('m', 700), fontSize: 'clamp(1.9rem, 4.6vw, 4rem)', letterSpacing: '-0.02em' }}
+              style={{
+                ...affiche('m', 700),
+                fontSize: 'clamp(1.9rem, 4.6vw, 4rem)',
+                letterSpacing: '-0.02em',
+              }}
             >
               Quatre bateaux, quatre ports, et personne entre eux et nous.
             </h2>
-            <ul className="o-m-0 o-mt-14 o-grid o-list-none o-gap-px o-p-0 md:o-grid-cols-4" style={{ backgroundColor: 'var(--o-theme-line)' }}>
+            <ul
+              className="o-m-0 o-mt-14 o-grid o-list-none o-gap-px o-p-0 md:o-grid-cols-4"
+              style={{ backgroundColor: 'var(--o-theme-line)' }}
+            >
               {(
                 [
-                  ['L Iroise II', 'Le Guilvinec', 'Ligneur de 12 m, deux hommes, sortie a la journee'],
-                  ['Sainte-Barbe', 'Loctudy', 'Ligneur de 10 m, patron proprietaire depuis 1998'],
-                  ['Le Cormoran', 'Saint-Guenole', 'Bolincheur de 16 m, peche de nuit, retour a 4 h'],
+                  [
+                    'L Iroise II',
+                    'Le Guilvinec',
+                    'Ligneur de 12 m, deux hommes, sortie a la journee',
+                  ],
+                  [
+                    'Sainte-Barbe',
+                    'Loctudy',
+                    'Ligneur de 10 m, patron proprietaire depuis 1998',
+                  ],
+                  [
+                    'Le Cormoran',
+                    'Saint-Guenole',
+                    'Bolincheur de 16 m, peche de nuit, retour a 4 h',
+                  ],
                   ['Marie-Jeanne', 'Erquy', 'Caseyeur et dragueur, marees de deux jours'],
                 ] as const
               ).map(([nom, lieu, texte]) => (
-                <li key={nom} className="o-p-6" style={{ backgroundColor: 'var(--o-theme-bg)' }}>
-                  <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                <li
+                  key={nom}
+                  className="o-p-6"
+                  style={{ backgroundColor: 'var(--o-theme-bg)' }}
+                >
+                  <p
+                    className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     <Icon icon={Anchor} size={14} aria-hidden="true" />
                     {lieu}
                   </p>
-                  <p className="o-m-0 o-mt-4 o-text-xl o-font-semibold o-tracking-tight o-text-slate-50">{nom}</p>
-                  <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-slate-300">{texte}</p>
+                  <p className="o-m-0 o-mt-4 o-text-xl o-font-semibold o-tracking-tight o-text-slate-50">
+                    {nom}
+                  </p>
+                  <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-slate-300">
+                    {texte}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -760,10 +1032,17 @@ export default function Page(): ReactElement {
         {/*
           ----- Le comptoir : un ecran de texte seul ----------------------------
         */}
-        <section id="atelier" className="o-relative o-flex o-scroll-mt-24 o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36">
+        <section
+          id="atelier"
+          className="o-relative o-flex o-scroll-mt-24 o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
-            <Manifeste eteint="Nous ne vendons pas de saumon d elevage, pas de cabillaud d Islande, pas de crevettes de Madagascar." sombre={false}>
-              Ce qui nage a moins de deux cents milles, et rien d autre. La liste est plus courte, elle change tous les jours, et c est tout l interet.
+            <Manifeste
+              eteint="Nous ne vendons pas de saumon d elevage, pas de cabillaud d Islande, pas de crevettes de Madagascar."
+              sombre={false}
+            >
+              Ce qui nage a moins de deux cents milles, et rien d autre. La liste est plus
+              courte, elle change tous les jours, et c est tout l interet.
             </Manifeste>
           </div>
         </section>
@@ -785,7 +1064,9 @@ export default function Page(): ReactElement {
               <NumeroQuiSeCompose />
             </div>
             <p className="o-m-0 o-mt-8 o-max-w-xl o-text-base o-leading-relaxed o-text-slate-700 dark:o-text-slate-200">
-              Dites-nous le nombre de couverts, pas l espece : nous choisissons au debarquement et nous vous rappelons si le lot n est pas bon. Un plateau de fruits de mer demande quarante-huit heures.
+              Dites-nous le nombre de couverts, pas l espece : nous choisissons au
+              debarquement et nous vous rappelons si le lot n est pas bon. Un plateau de
+              fruits de mer demande quarante-huit heures.
             </p>
           </div>
         </section>
@@ -794,35 +1075,83 @@ export default function Page(): ReactElement {
           ----- Le pied : une etiquette de produit (P26) ------------------------
         */}
         <footer className="o-relative o-px-6 o-py-16 md:o-px-10" style={nuit('slate')}>
-          <div className="o-mx-auto o-max-w-4xl o-rounded-lg o-border-w-1 o-p-6 md:o-p-10" style={{ borderColor: 'var(--o-theme-fg)' }}>
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+          <div
+            className="o-mx-auto o-max-w-4xl o-rounded-lg o-border-w-1 o-p-6 md:o-p-10"
+            style={{ borderColor: 'var(--o-theme-fg)' }}
+          >
+            <p
+              className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              style={{ color: encreSurSombre() }}
+            >
               Etiquette reglementaire
             </p>
-            <p className="o-m-0 o-mt-4 o-uppercase o-text-slate-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.02em' }}>
+            <p
+              className="o-m-0 o-mt-4 o-uppercase o-text-slate-50"
+              style={{
+                ...affiche('m', 700),
+                fontSize: 'clamp(1.75rem, 4vw, 3rem)',
+                letterSpacing: '-0.02em',
+              }}
+            >
               Criee — poissonnerie
             </p>
-            <dl className="o-m-0 o-mt-8 o-border-t" style={{ borderColor: 'var(--o-theme-line)' }}>
+            <dl
+              className="o-m-0 o-mt-8 o-border-t"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
               {(
                 [
-                  ['Denomination', 'Poissons, coquillages et crustaces frais, vendus entiers ou prepares a la demande'],
+                  [
+                    'Denomination',
+                    'Poissons, coquillages et crustaces frais, vendus entiers ou prepares a la demande',
+                  ],
                   ['Origine', 'France — Bretagne sud et nord'],
-                  ['Zone de peche', 'FAO 27.VIII.a (golfe de Gascogne) et 27.VII.e (Manche ouest)'],
-                  ['Engins', 'Ligne a main, ligne de fond, bolinche, casier, filet maillant cale, drague'],
-                  ['Lot', 'Un lot par bateau et par maree — le numero est sur le ticket de caisse'],
-                  ['Conservation', 'Entre 0 et 2 degres, sur glace ; a consommer dans les 24 heures'],
-                  ['Conditionnement', 'Papier sulfurise et sac kraft ; aucun plastique au comptoir depuis 2021'],
-                  ['Etablissement', 'Criee SARL, 7 halle Saint-Louis, 29200 Brest — agrement FR 29.019.201 CE'],
+                  [
+                    'Zone de peche',
+                    'FAO 27.VIII.a (golfe de Gascogne) et 27.VII.e (Manche ouest)',
+                  ],
+                  [
+                    'Engins',
+                    'Ligne a main, ligne de fond, bolinche, casier, filet maillant cale, drague',
+                  ],
+                  [
+                    'Lot',
+                    'Un lot par bateau et par maree — le numero est sur le ticket de caisse',
+                  ],
+                  [
+                    'Conservation',
+                    'Entre 0 et 2 degres, sur glace ; a consommer dans les 24 heures',
+                  ],
+                  [
+                    'Conditionnement',
+                    'Papier sulfurise et sac kraft ; aucun plastique au comptoir depuis 2021',
+                  ],
+                  [
+                    'Etablissement',
+                    'Criee SARL, 7 halle Saint-Louis, 29200 Brest — agrement FR 29.019.201 CE',
+                  ],
                 ] as const
               ).map(([terme, valeur]) => (
-                <div key={terme} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-400 sm:o-col-span-4">{terme}</dt>
-                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-200 sm:o-col-span-8">{valeur}</dd>
+                <div
+                  key={terme}
+                  className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12"
+                  style={{ borderColor: 'var(--o-theme-line)' }}
+                >
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-400 sm:o-col-span-4">
+                    {terme}
+                  </dt>
+                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-200 sm:o-col-span-8">
+                    {valeur}
+                  </dd>
                 </div>
               ))}
             </dl>
             <p className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-400">
               <span>© 2026 Criee SARL</span>
-              <a href="#haut" className="o-text-slate-400 o-no-underline hover:o-text-slate-50 focus:o-ring">
+              <a
+                href="#haut"
+                className="o-text-slate-400 o-no-underline hover:o-text-slate-50 focus:o-ring"
+              >
                 Remonter ↑
               </a>
             </p>

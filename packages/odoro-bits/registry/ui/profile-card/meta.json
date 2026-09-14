@@ -15,7 +15,12 @@
   ],
   "dependencies": [],
   "registryDependencies": ["hooks/use-pointer-damped"],
-  "tokens": ["--o-theme-surface", "--o-theme-line", "--o-theme-muted", "--o-palette-brand-500"],
+  "tokens": [
+    "--o-theme-surface",
+    "--o-theme-line",
+    "--o-theme-muted",
+    "--o-palette-brand-500"
+  ],
   "props": [
     {
       "name": "name",

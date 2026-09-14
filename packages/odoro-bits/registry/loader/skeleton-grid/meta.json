@@ -15,10 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-line",
-    "--o-theme-surface"
-  ],
+  "tokens": ["--o-theme-line", "--o-theme-surface"],
   "props": [
     {
       "name": "rows",

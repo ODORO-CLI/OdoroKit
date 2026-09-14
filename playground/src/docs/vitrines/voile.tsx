@@ -41,7 +41,14 @@ import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { Stars } from '@/odoro/background/Stars.jsx'
 import { BorderBeam } from '@/odoro/effect/BorderBeam.jsx'
@@ -88,24 +95,168 @@ interface Jour {
  * milles sur la carte, un jour d alizes de deux cent quatre-vingt-huit.
  */
 const JOURNAL: readonly Jour[] = [
-  { rang: 1, date: '8 novembre', vent: 315, force: 5, milles: 148, empannages: 0, note: 'Depart a 13 h 02. Sortie du chenal sous grand-voile haute, un ris par precaution.' },
-  { rang: 2, date: '9 novembre', vent: 270, force: 6, milles: 172, empannages: 0, note: 'Gascogne dans la nuit. Mer courte, tout claque, personne ne dort.' },
-  { rang: 3, date: '10 novembre', vent: 180, force: 3, milles: 96, empannages: 2, note: 'Le vent tombe au sud. Deux empannages pour rester dans le courant portugais.' },
-  { rang: 4, date: '11 novembre', vent: 200, force: 2, milles: 64, empannages: 1, note: 'La molle. Soixante-quatre milles en vingt-quatre heures — la journee la plus courte.' },
-  { rang: 5, date: '12 novembre', vent: 45, force: 4, milles: 138, empannages: 0, note: 'Le nord-est se leve enfin. On descend vers Madere avec le spi leger.' },
-  { rang: 6, date: '13 novembre', vent: 45, force: 5, milles: 206, empannages: 0, note: 'Portant etabli. Pilote automatique en cap-vent, on repare la drisse de secours.' },
-  { rang: 7, date: '14 novembre', vent: 45, force: 6, milles: 245, empannages: 1, note: 'Entree dans les alizes au large des Canaries. La mer se forme derriere.' },
-  { rang: 8, date: '15 novembre', vent: 50, force: 6, milles: 268, empannages: 0, note: 'Deux cent soixante-huit milles. Surf a 21 noeuds tenus pendant six secondes.' },
-  { rang: 9, date: '16 novembre', vent: 90, force: 6, milles: 282, empannages: 0, note: 'Est franc. On ne touche a rien de la journee, ce qui n arrive jamais.' },
-  { rang: 10, date: '17 novembre', vent: 95, force: 5, milles: 254, empannages: 2, note: 'Deux empannages pour eviter un grain de trente noeuds vu au radar.' },
-  { rang: 11, date: '18 novembre', vent: 85, force: 5, milles: 231, empannages: 1, note: 'Reparation du chariot de grand-voile, deux heures a genoux dans le cockpit.' },
-  { rang: 12, date: '19 novembre', vent: 40, force: 3, milles: 118, empannages: 3, note: 'Le vent mollit et tourne. Trois empannages pour ne pas sortir du couloir.' },
-  { rang: 13, date: '20 novembre', vent: 150, force: 2, milles: 86, empannages: 4, note: 'Le trou. Quatre empannages, quatre-vingt-six milles, et beaucoup de patience.' },
-  { rang: 14, date: '21 novembre', vent: 90, force: 4, milles: 197, empannages: 1, note: 'Le vent revient par l est. On remet le grand spi a 4 h du matin.' },
-  { rang: 15, date: '22 novembre', vent: 80, force: 6, milles: 264, empannages: 0, note: 'Alizes retrouves. Nuit de surf sous la lune, rien a signaler.' },
-  { rang: 16, date: '23 novembre', vent: 85, force: 6, milles: 288, empannages: 0, note: 'Meilleure journee de la traversee : deux cent quatre-vingt-huit milles.' },
-  { rang: 17, date: '24 novembre', vent: 50, force: 5, milles: 246, empannages: 2, note: 'On vise le nord de la Guadeloupe. Deux empannages dans le petit jour.' },
-  { rang: 18, date: '25 novembre', vent: 40, force: 4, milles: 177, empannages: 1, note: 'Arrivee a 19 h 41 apres 17 jours 6 heures 39 minutes de mer.' },
+  {
+    rang: 1,
+    date: '8 novembre',
+    vent: 315,
+    force: 5,
+    milles: 148,
+    empannages: 0,
+    note: 'Depart a 13 h 02. Sortie du chenal sous grand-voile haute, un ris par precaution.',
+  },
+  {
+    rang: 2,
+    date: '9 novembre',
+    vent: 270,
+    force: 6,
+    milles: 172,
+    empannages: 0,
+    note: 'Gascogne dans la nuit. Mer courte, tout claque, personne ne dort.',
+  },
+  {
+    rang: 3,
+    date: '10 novembre',
+    vent: 180,
+    force: 3,
+    milles: 96,
+    empannages: 2,
+    note: 'Le vent tombe au sud. Deux empannages pour rester dans le courant portugais.',
+  },
+  {
+    rang: 4,
+    date: '11 novembre',
+    vent: 200,
+    force: 2,
+    milles: 64,
+    empannages: 1,
+    note: 'La molle. Soixante-quatre milles en vingt-quatre heures — la journee la plus courte.',
+  },
+  {
+    rang: 5,
+    date: '12 novembre',
+    vent: 45,
+    force: 4,
+    milles: 138,
+    empannages: 0,
+    note: 'Le nord-est se leve enfin. On descend vers Madere avec le spi leger.',
+  },
+  {
+    rang: 6,
+    date: '13 novembre',
+    vent: 45,
+    force: 5,
+    milles: 206,
+    empannages: 0,
+    note: 'Portant etabli. Pilote automatique en cap-vent, on repare la drisse de secours.',
+  },
+  {
+    rang: 7,
+    date: '14 novembre',
+    vent: 45,
+    force: 6,
+    milles: 245,
+    empannages: 1,
+    note: 'Entree dans les alizes au large des Canaries. La mer se forme derriere.',
+  },
+  {
+    rang: 8,
+    date: '15 novembre',
+    vent: 50,
+    force: 6,
+    milles: 268,
+    empannages: 0,
+    note: 'Deux cent soixante-huit milles. Surf a 21 noeuds tenus pendant six secondes.',
+  },
+  {
+    rang: 9,
+    date: '16 novembre',
+    vent: 90,
+    force: 6,
+    milles: 282,
+    empannages: 0,
+    note: 'Est franc. On ne touche a rien de la journee, ce qui n arrive jamais.',
+  },
+  {
+    rang: 10,
+    date: '17 novembre',
+    vent: 95,
+    force: 5,
+    milles: 254,
+    empannages: 2,
+    note: 'Deux empannages pour eviter un grain de trente noeuds vu au radar.',
+  },
+  {
+    rang: 11,
+    date: '18 novembre',
+    vent: 85,
+    force: 5,
+    milles: 231,
+    empannages: 1,
+    note: 'Reparation du chariot de grand-voile, deux heures a genoux dans le cockpit.',
+  },
+  {
+    rang: 12,
+    date: '19 novembre',
+    vent: 40,
+    force: 3,
+    milles: 118,
+    empannages: 3,
+    note: 'Le vent mollit et tourne. Trois empannages pour ne pas sortir du couloir.',
+  },
+  {
+    rang: 13,
+    date: '20 novembre',
+    vent: 150,
+    force: 2,
+    milles: 86,
+    empannages: 4,
+    note: 'Le trou. Quatre empannages, quatre-vingt-six milles, et beaucoup de patience.',
+  },
+  {
+    rang: 14,
+    date: '21 novembre',
+    vent: 90,
+    force: 4,
+    milles: 197,
+    empannages: 1,
+    note: 'Le vent revient par l est. On remet le grand spi a 4 h du matin.',
+  },
+  {
+    rang: 15,
+    date: '22 novembre',
+    vent: 80,
+    force: 6,
+    milles: 264,
+    empannages: 0,
+    note: 'Alizes retrouves. Nuit de surf sous la lune, rien a signaler.',
+  },
+  {
+    rang: 16,
+    date: '23 novembre',
+    vent: 85,
+    force: 6,
+    milles: 288,
+    empannages: 0,
+    note: 'Meilleure journee de la traversee : deux cent quatre-vingt-huit milles.',
+  },
+  {
+    rang: 17,
+    date: '24 novembre',
+    vent: 50,
+    force: 5,
+    milles: 246,
+    empannages: 2,
+    note: 'On vise le nord de la Guadeloupe. Deux empannages dans le petit jour.',
+  },
+  {
+    rang: 18,
+    date: '25 novembre',
+    vent: 40,
+    force: 4,
+    milles: 177,
+    empannages: 1,
+    note: 'Arrivee a 19 h 41 apres 17 jours 6 heures 39 minutes de mer.',
+  },
 ]
 
 /** Les milles cumules a la fin de chaque jour. */
@@ -125,11 +276,36 @@ interface Portion {
 }
 
 const PORTIONS: readonly Portion[] = [
-  { nom: 'Le golfe de Gascogne', dernier: 2, texte: 'Deux jours de mer courte et de vent debout dans la houle. On ne gagne rien ici : on evite d y perdre un mat.' },
-  { nom: 'La descente iberique', dernier: 5, texte: 'Le long du Portugal, le vent tombe puis se retablit au nord-est. Trois jours de negociation avec une carte meteo.' },
-  { nom: 'Les alizes', dernier: 11, texte: 'Cinq jours de portant etabli, sept cents milles au-dessus de la moyenne, et la seule partie du parcours ou l on dort.' },
-  { nom: 'Le trou', dernier: 13, texte: 'Une dorsale anticyclonique posee en travers de la route. Deux jours a cent milles, sept empannages, et toute l avance qui fond.' },
-  { nom: 'L arrivee aux Antilles', dernier: 18, texte: 'Les alizes reviennent par l est. Quatre jours de surf, une nuit de lune, et le chenal de Pointe-a-Pitre au petit matin.' },
+  {
+    nom: 'Le golfe de Gascogne',
+    dernier: 2,
+    texte:
+      'Deux jours de mer courte et de vent debout dans la houle. On ne gagne rien ici : on evite d y perdre un mat.',
+  },
+  {
+    nom: 'La descente iberique',
+    dernier: 5,
+    texte:
+      'Le long du Portugal, le vent tombe puis se retablit au nord-est. Trois jours de negociation avec une carte meteo.',
+  },
+  {
+    nom: 'Les alizes',
+    dernier: 11,
+    texte:
+      'Cinq jours de portant etabli, sept cents milles au-dessus de la moyenne, et la seule partie du parcours ou l on dort.',
+  },
+  {
+    nom: 'Le trou',
+    dernier: 13,
+    texte:
+      'Une dorsale anticyclonique posee en travers de la route. Deux jours a cent milles, sept empannages, et toute l avance qui fond.',
+  },
+  {
+    nom: 'L arrivee aux Antilles',
+    dernier: 18,
+    texte:
+      'Les alizes reviennent par l est. Quatre jours de surf, une nuit de lune, et le chenal de Pointe-a-Pitre au petit matin.',
+  },
 ]
 
 /** La portion a laquelle appartient un jour. */
@@ -169,7 +345,9 @@ const ROUTE: readonly (readonly [number, number])[] = [
 const LONGUEURS: readonly number[] = ROUTE.reduce<number[]>((suite, point, rang) => {
   if (rang === 0) return [0]
   const avant = ROUTE[rang - 1] ?? point
-  suite.push((suite[rang - 1] ?? 0) + Math.hypot(point[0] - avant[0], point[1] - avant[1]))
+  suite.push(
+    (suite[rang - 1] ?? 0) + Math.hypot(point[0] - avant[0], point[1] - avant[1]),
+  )
   return suite
 }, [])
 
@@ -199,7 +377,9 @@ function pointA(fraction: number): readonly [number, number] {
 }
 
 /** Les positions du soir de chaque jour, calculees une fois. */
-const POSITIONS: readonly (readonly [number, number])[] = CUMULS.map((cumul) => pointA(cumul / TOTAL))
+const POSITIONS: readonly (readonly [number, number])[] = CUMULS.map((cumul) =>
+  pointA(cumul / TOTAL),
+)
 
 /** Le chemin de la route, en une seule commande SVG. */
 const CHEMIN = `M${ROUTE.map(([x, y]) => `${String(x)} ${String(y)}`).join(' L ')}`
@@ -285,7 +465,13 @@ function graines(nombre: number, germe: number): readonly number[] {
 }
 
 /** Un semis d etoiles, sur toute la largeur de la course du diorama. */
-function Semis({ nombre, germe }: { readonly nombre: number; readonly germe: number }): ReactElement {
+function Semis({
+  nombre,
+  germe,
+}: {
+  readonly nombre: number
+  readonly germe: number
+}): ReactElement {
   const semis = graines(nombre * 3, germe)
   return (
     <div aria-hidden="true" className="o-absolute o-inset-0">
@@ -296,8 +482,8 @@ function Semis({ nombre, germe }: { readonly nombre: number; readonly germe: num
             key={rang}
             className="o-absolute o-block o-rounded-full o-bg-white"
             style={{
-              left: `${String((((semis[rang * 3 + 1] ?? 0) * 100)).toFixed(2))}%`,
-              top: `${String((((semis[rang * 3 + 2] ?? 0) * 96)).toFixed(2))}%`,
+              left: `${String(((semis[rang * 3 + 1] ?? 0) * 100).toFixed(2))}%`,
+              top: `${String(((semis[rang * 3 + 2] ?? 0) * 96).toFixed(2))}%`,
               width: taille,
               height: taille,
               opacity: 0.25 + (semis[rang * 3] ?? 0) * 0.6,
@@ -322,13 +508,21 @@ function Houle({
   readonly opacite?: number
 }): ReactElement {
   return (
-    <div aria-hidden="true" className="o-absolute o-bottom-0 o-left-0" style={{ width: '520vw', height: hauteur, opacity: opacite }}>
+    <div
+      aria-hidden="true"
+      className="o-absolute o-bottom-0 o-left-0"
+      style={{ width: '520vw', height: hauteur, opacity: opacite }}
+    >
       <div
         data-o-vo-houle=""
         className="o-h-full o-w-full"
         style={{ '--o-vo-duree': `${String(duree)}s` } as CSSProperties}
       >
-        <svg viewBox="0 0 400 60" preserveAspectRatio="none" className="o-h-full o-w-full">
+        <svg
+          viewBox="0 0 400 60"
+          preserveAspectRatio="none"
+          className="o-h-full o-w-full"
+        >
           <path
             d="M0 60 L0 34 q 12.5 -16 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 t 25 0 L400 60 Z"
             fill={couleur}
@@ -340,15 +534,35 @@ function Houle({
 }
 
 /** Le bateau, de profil, gite sous le spinnaker. */
-function Bateau({ largeur, coque, voile, drisse }: { readonly largeur: number; readonly coque: string; readonly voile: string; readonly drisse: string }): ReactElement {
+function Bateau({
+  largeur,
+  coque,
+  voile,
+  drisse,
+}: {
+  readonly largeur: number
+  readonly coque: string
+  readonly voile: string
+  readonly drisse: string
+}): ReactElement {
   return (
-    <svg viewBox="0 0 260 320" width={largeur} height={largeur * 1.23} aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 260 320"
+      width={largeur}
+      height={largeur * 1.23}
+      aria-hidden="true"
+      fill="none"
+    >
       {/* Le mat et le greement. */}
       <path d="M132 268 L118 26" stroke={drisse} strokeWidth="4" strokeLinecap="round" />
       <path d="M118 30 L44 250" stroke={drisse} strokeWidth="2" />
       <path d="M118 30 L216 244" stroke={drisse} strokeWidth="2" />
       {/* Le spinnaker, gonfle sur l avant. */}
-      <path d="M120 38 C 196 88, 232 178, 214 246 C 176 236, 142 172, 124 96 Z" fill={voile} opacity="0.92" />
+      <path
+        d="M120 38 C 196 88, 232 178, 214 246 C 176 236, 142 172, 124 96 Z"
+        fill={voile}
+        opacity="0.92"
+      />
       {/* La grand-voile. */}
       <path d="M116 36 L108 250 L48 246 Z" fill={voile} opacity="0.7" />
       {/* La coque, et la quille. */}
@@ -366,14 +580,33 @@ function Bateau({ largeur, coque, voile, drisse }: { readonly largeur: number; r
  * C est la forme C12 de la fiche, et c est aussi le seul instrument du bord
  * qu on regarde vraiment toutes les dix minutes.
  */
-function Cadran({ direction, force }: { readonly direction: number; readonly force: number }): ReactElement {
+function Cadran({
+  direction,
+  force,
+}: {
+  readonly direction: number
+  readonly force: number
+}): ReactElement {
   const { reduced } = useMotionState()
   const arc = Math.min(1, force / 8)
   const rayon = 74
   const tour = 2 * Math.PI * rayon
   return (
-    <svg viewBox="0 0 200 200" className="o-h-auto o-w-full" style={{ maxWidth: 220 }} role="img" aria-label={`Vent de ${String(Math.round(direction))} degres, force ${String(force)} Beaufort`}>
-      <circle cx="100" cy="100" r={rayon} fill="none" stroke="color-mix(in oklab, white 16%, transparent)" strokeWidth="10" />
+    <svg
+      viewBox="0 0 200 200"
+      className="o-h-auto o-w-full"
+      style={{ maxWidth: 220 }}
+      role="img"
+      aria-label={`Vent de ${String(Math.round(direction))} degres, force ${String(force)} Beaufort`}
+    >
+      <circle
+        cx="100"
+        cy="100"
+        r={rayon}
+        fill="none"
+        stroke="color-mix(in oklab, white 16%, transparent)"
+        strokeWidth="10"
+      />
       {/* L arc de force : la part du cadran que le vent occupe. */}
       <circle
         cx="100"
@@ -386,7 +619,9 @@ function Cadran({ direction, force }: { readonly direction: number; readonly for
         transform="rotate(-90 100 100)"
         style={{
           strokeDasharray: `${String((tour * arc).toFixed(1))} ${String(tour.toFixed(1))}`,
-          transition: reduced ? undefined : 'stroke-dasharray 700ms cubic-bezier(0.22, 1, 0.36, 1)',
+          transition: reduced
+            ? undefined
+            : 'stroke-dasharray 700ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       />
       {/* Les quatre aires cardinales. */}
@@ -400,7 +635,11 @@ function Cadran({ direction, force }: { readonly direction: number; readonly for
             fontSize="15"
             textAnchor="middle"
             fill="currentColor"
-            style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em', color: 'var(--o-palette-slate-400)' }}
+            style={{
+              fontFamily: 'var(--o-font-mono)',
+              letterSpacing: '0.1em',
+              color: 'var(--o-palette-slate-400)',
+            }}
           >
             {lettre}
           </text>
@@ -411,10 +650,17 @@ function Cadran({ direction, force }: { readonly direction: number; readonly for
         style={{
           transformOrigin: '100px 100px',
           transform: `rotate(${String(direction)}deg)`,
-          transition: reduced ? undefined : 'transform 800ms cubic-bezier(0.22, 1, 0.36, 1)',
+          transition: reduced
+            ? undefined
+            : 'transform 800ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        <path d="M100 100 L100 38" stroke={encreSurSombre()} strokeWidth="5" strokeLinecap="round" />
+        <path
+          d="M100 100 L100 38"
+          stroke={encreSurSombre()}
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
         <path d="M92 48 L100 32 L108 48 Z" fill={encreSurSombre()} />
       </g>
       <circle cx="100" cy="100" r="7" fill="var(--o-palette-slate-50)" />
@@ -457,40 +703,91 @@ function Carte(): ReactElement {
   const tete = POSITIONS[jour - 1] ?? POSITIONS[0] ?? [0, 0]
   const portion = PORTIONS[portionDe(jour)] ?? PORTIONS[0]
 
-  const options = useMemo(() => JOURNAL.map((j) => ({ value: String(j.rang), label: `J${String(j.rang)} — ${j.date}` })), [])
+  const options = useMemo(
+    () =>
+      JOURNAL.map((j) => ({
+        value: String(j.rang),
+        label: `J${String(j.rang)} — ${j.date}`,
+      })),
+    [],
+  )
 
   return (
     <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-14">
       {/* ------- La carte ------- */}
       <div className="lg:o-col-span-8">
-        <div className="o-relative o-overflow-hidden o-rounded-2xl" style={{ backgroundColor: 'var(--o-palette-slate-900)' }}>
-          <svg viewBox="0 0 1200 700" className="o-h-auto o-w-full" role="img" aria-label="Carte de la traversee : Les Sables d Olonne, les Canaries, Pointe-a-Pitre, et la route parcourue">
+        <div
+          className="o-relative o-overflow-hidden o-rounded-2xl"
+          style={{ backgroundColor: 'var(--o-palette-slate-900)' }}
+        >
+          <svg
+            viewBox="0 0 1200 700"
+            className="o-h-auto o-w-full"
+            role="img"
+            aria-label="Carte de la traversee : Les Sables d Olonne, les Canaries, Pointe-a-Pitre, et la route parcourue"
+          >
             <defs>
-              <pattern id="o-vo-grille" width="60" height="60" patternUnits="userSpaceOnUse">
-                <path d="M60 0H0V60" fill="none" stroke="color-mix(in oklab, white 6%, transparent)" strokeWidth="1" />
+              <pattern
+                id="o-vo-grille"
+                width="60"
+                height="60"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M60 0H0V60"
+                  fill="none"
+                  stroke="color-mix(in oklab, white 6%, transparent)"
+                  strokeWidth="1"
+                />
               </pattern>
             </defs>
             <rect width="1200" height="700" fill="url(#o-vo-grille)" />
 
             {/* Les terres : l Europe en haut a droite, les Antilles a gauche. */}
-            <path d="M1200 0 L1200 190 C 1140 186, 1096 150, 1060 96 C 1040 66, 1050 20, 1074 0 Z" fill="color-mix(in oklab, white 9%, transparent)" />
-            <path d="M1104 236 C 1140 224, 1180 246, 1200 286 L1200 700 L1010 700 C 1004 620, 1040 520, 1074 420 C 1092 366, 1082 268, 1104 236 Z" fill="color-mix(in oklab, white 9%, transparent)" />
-            <path d="M96 396 C 128 384, 158 402, 154 428 C 150 452, 112 462, 86 448 C 62 436, 66 406, 96 396 Z" fill="color-mix(in oklab, white 9%, transparent)" />
-            <path d="M0 560 C 60 538, 150 546, 196 574 C 224 592, 206 628, 160 636 C 104 646, 30 628, 0 600 Z" fill="color-mix(in oklab, white 9%, transparent)" />
+            <path
+              d="M1200 0 L1200 190 C 1140 186, 1096 150, 1060 96 C 1040 66, 1050 20, 1074 0 Z"
+              fill="color-mix(in oklab, white 9%, transparent)"
+            />
+            <path
+              d="M1104 236 C 1140 224, 1180 246, 1200 286 L1200 700 L1010 700 C 1004 620, 1040 520, 1074 420 C 1092 366, 1082 268, 1104 236 Z"
+              fill="color-mix(in oklab, white 9%, transparent)"
+            />
+            <path
+              d="M96 396 C 128 384, 158 402, 154 428 C 150 452, 112 462, 86 448 C 62 436, 66 406, 96 396 Z"
+              fill="color-mix(in oklab, white 9%, transparent)"
+            />
+            <path
+              d="M0 560 C 60 538, 150 546, 196 574 C 224 592, 206 628, 160 636 C 104 646, 30 628, 0 600 Z"
+              fill="color-mix(in oklab, white 9%, transparent)"
+            />
 
             {/* Les loxodromies : la trame des cartes marines. */}
             <g stroke="color-mix(in oklab, white 8%, transparent)" strokeWidth="1">
               {[0, 30, 60, 90, 120, 150].map((angle) => (
-                <path key={angle} d={`M600 300 L${String(600 + Math.cos((angle * Math.PI) / 180) * 900)} ${String(300 + Math.sin((angle * Math.PI) / 180) * 900)}`} />
+                <path
+                  key={angle}
+                  d={`M600 300 L${String(600 + Math.cos((angle * Math.PI) / 180) * 900)} ${String(300 + Math.sin((angle * Math.PI) / 180) * 900)}`}
+                />
               ))}
               {[180, 210, 240, 270, 300, 330].map((angle) => (
-                <path key={angle} d={`M600 300 L${String(600 + Math.cos((angle * Math.PI) / 180) * 900)} ${String(300 + Math.sin((angle * Math.PI) / 180) * 900)}`} />
+                <path
+                  key={angle}
+                  d={`M600 300 L${String(600 + Math.cos((angle * Math.PI) / 180) * 900)} ${String(300 + Math.sin((angle * Math.PI) / 180) * 900)}`}
+                />
               ))}
               <circle cx="600" cy="300" r="118" fill="none" />
             </g>
 
             {/* La route au repos, puis la route parcourue par-dessus. */}
-            <path d={CHEMIN} fill="none" stroke="color-mix(in oklab, white 18%, transparent)" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="2 10" />
+            <path
+              d={CHEMIN}
+              fill="none"
+              stroke="color-mix(in oklab, white 18%, transparent)"
+              strokeWidth="4"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeDasharray="2 10"
+            />
             <path
               d={CHEMIN}
               fill="none"
@@ -502,7 +799,9 @@ function Carte(): ReactElement {
               style={{
                 strokeDasharray: 1000,
                 strokeDashoffset: 1000 - Math.round(fraction * 1000),
-                transition: reduced ? undefined : `stroke-dashoffset ${String(PAS)}ms linear`,
+                transition: reduced
+                  ? undefined
+                  : `stroke-dashoffset ${String(PAS)}ms linear`,
               }}
             />
 
@@ -512,8 +811,25 @@ function Carte(): ReactElement {
               const [x, y] = POSITIONS[index] ?? [0, 0]
               return (
                 <g key={`empannage-${String(j.rang)}`}>
-                  <path d={`M${String(x - 9)} ${String(y + 16)} L${String(x)} ${String(y + 4)} L${String(x + 9)} ${String(y + 16)}`} fill="none" stroke={encreSurSombre()} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <text x={x} y={y + 34} fontSize="15" textAnchor="middle" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-palette-slate-400)' }}>
+                  <path
+                    d={`M${String(x - 9)} ${String(y + 16)} L${String(x)} ${String(y + 4)} L${String(x + 9)} ${String(y + 16)}`}
+                    fill="none"
+                    stroke={encreSurSombre()}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <text
+                    x={x}
+                    y={y + 34}
+                    fontSize="15"
+                    textAnchor="middle"
+                    fill="currentColor"
+                    style={{
+                      fontFamily: 'var(--o-font-mono)',
+                      color: 'var(--o-palette-slate-400)',
+                    }}
+                  >
                     {String(j.empannages)}
                   </text>
                 </g>
@@ -521,19 +837,71 @@ function Carte(): ReactElement {
             })}
 
             {/* La tete du trace : le bateau, la ou il en est. */}
-            <circle cx={tete[0]} cy={tete[1]} r="9" fill={accent(300)} style={{ transition: reduced ? undefined : `cx ${String(PAS)}ms linear, cy ${String(PAS)}ms linear` }} />
+            <circle
+              cx={tete[0]}
+              cy={tete[1]}
+              r="9"
+              fill={accent(300)}
+              style={{
+                transition: reduced
+                  ? undefined
+                  : `cx ${String(PAS)}ms linear, cy ${String(PAS)}ms linear`,
+              }}
+            />
             {!reduced && (
-              <circle data-o-vo-feu="" cx={tete[0]} cy={tete[1]} r="20" fill="none" stroke={accent(300)} strokeWidth="2" style={{ transition: `cx ${String(PAS)}ms linear, cy ${String(PAS)}ms linear` }} />
+              <circle
+                data-o-vo-feu=""
+                cx={tete[0]}
+                cy={tete[1]}
+                r="20"
+                fill="none"
+                stroke={accent(300)}
+                strokeWidth="2"
+                style={{
+                  transition: `cx ${String(PAS)}ms linear, cy ${String(PAS)}ms linear`,
+                }}
+              />
             )}
 
             {/* Les deux bouts de la course. */}
             <g>
-              <circle cx={ROUTE[0]?.[0] ?? 0} cy={ROUTE[0]?.[1] ?? 0} r="6" fill="var(--o-palette-slate-50)" />
-              <text x={(ROUTE[0]?.[0] ?? 0) - 14} y={(ROUTE[0]?.[1] ?? 0) - 16} fontSize="19" textAnchor="end" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em', color: 'var(--o-palette-slate-50)' }}>
+              <circle
+                cx={ROUTE[0]?.[0] ?? 0}
+                cy={ROUTE[0]?.[1] ?? 0}
+                r="6"
+                fill="var(--o-palette-slate-50)"
+              />
+              <text
+                x={(ROUTE[0]?.[0] ?? 0) - 14}
+                y={(ROUTE[0]?.[1] ?? 0) - 16}
+                fontSize="19"
+                textAnchor="end"
+                fill="currentColor"
+                style={{
+                  fontFamily: 'var(--o-font-mono)',
+                  letterSpacing: '0.12em',
+                  color: 'var(--o-palette-slate-50)',
+                }}
+              >
                 LES SABLES
               </text>
-              <circle cx={ROUTE[ROUTE.length - 1]?.[0] ?? 0} cy={ROUTE[ROUTE.length - 1]?.[1] ?? 0} r="6" fill="var(--o-palette-slate-50)" />
-              <text x={(ROUTE[ROUTE.length - 1]?.[0] ?? 0) - 4} y={(ROUTE[ROUTE.length - 1]?.[1] ?? 0) + 40} fontSize="19" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em', color: 'var(--o-palette-slate-50)' }}>
+              <circle
+                cx={ROUTE[ROUTE.length - 1]?.[0] ?? 0}
+                cy={ROUTE[ROUTE.length - 1]?.[1] ?? 0}
+                r="6"
+                fill="var(--o-palette-slate-50)"
+              />
+              <text
+                x={(ROUTE[ROUTE.length - 1]?.[0] ?? 0) - 4}
+                y={(ROUTE[ROUTE.length - 1]?.[1] ?? 0) + 40}
+                fontSize="19"
+                fill="currentColor"
+                style={{
+                  fontFamily: 'var(--o-font-mono)',
+                  letterSpacing: '0.12em',
+                  color: 'var(--o-palette-slate-50)',
+                }}
+              >
                 POINTE-A-PITRE
               </text>
             </g>
@@ -543,7 +911,8 @@ function Carte(): ReactElement {
         {/* La barre de progression, en milles : le seul chiffre qui compte. */}
         <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4">
           <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-            Jour {String(jour)} sur {String(JOURNAL.length)} — {String(CUMULS[jour - 1] ?? 0)} milles sur {String(TOTAL)}
+            Jour {String(jour)} sur {String(JOURNAL.length)} —{' '}
+            {String(CUMULS[jour - 1] ?? 0)} milles sur {String(TOTAL)}
           </p>
           <button
             type="button"
@@ -557,13 +926,24 @@ function Carte(): ReactElement {
             }}
             className="o-rounded-full o-border-w-1 o-border-white-20 o-px-4 o-py-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-100 o-transition-colors hover:o-bg-white-10 focus:o-ring"
           >
-            {jour >= JOURNAL.length ? 'Rejouer la traversee' : tourne ? 'Arreter le carnet' : 'Reprendre'}
+            {jour >= JOURNAL.length
+              ? 'Rejouer la traversee'
+              : tourne
+                ? 'Arreter le carnet'
+                : 'Reprendre'}
           </button>
         </div>
-        <div aria-hidden="true" className="o-mt-3 o-h-1 o-w-full o-overflow-hidden o-rounded-full o-bg-white-10">
+        <div
+          aria-hidden="true"
+          className="o-mt-3 o-h-1 o-w-full o-overflow-hidden o-rounded-full o-bg-white-10"
+        >
           <span
             className="o-block o-h-full"
-            style={{ width: `${String((fraction * 100).toFixed(2))}%`, backgroundColor: accent(400), transition: reduced ? undefined : `width ${String(PAS)}ms linear` }}
+            style={{
+              width: `${String((fraction * 100).toFixed(2))}%`,
+              backgroundColor: accent(400),
+              transition: reduced ? undefined : `width ${String(PAS)}ms linear`,
+            }}
           />
         </div>
       </div>
@@ -576,11 +956,23 @@ function Carte(): ReactElement {
             <span aria-hidden="true" className="o-h-px o-w-6 o-bg-white-20" />
             {courant?.date ?? ''}
           </p>
-          <p className="o-m-0 o-mt-5 o-tabular-nums o-text-zinc-50" aria-live="polite" style={{ ...affiche('m', 300), fontSize: 'clamp(2.5rem, 5vw, 4rem)', lineHeight: 0.9 }}>
+          <p
+            className="o-m-0 o-mt-5 o-tabular-nums o-text-zinc-50"
+            aria-live="polite"
+            style={{
+              ...affiche('m', 300),
+              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              lineHeight: 0.9,
+            }}
+          >
             {String(courant?.milles ?? 0)}
-            <span className="o-ml-2 o-text-base" style={{ letterSpacing: 'normal' }}>milles</span>
+            <span className="o-ml-2 o-text-base" style={{ letterSpacing: 'normal' }}>
+              milles
+            </span>
           </p>
-          <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">{courant?.note ?? ''}</p>
+          <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">
+            {courant?.note ?? ''}
+          </p>
 
           <div className="o-mt-6 o-flex o-items-center o-gap-5 o-border-t o-border-white-10 o-pt-6">
             <Cadran direction={courant?.vent ?? 0} force={courant?.force ?? 0} />
@@ -591,7 +983,9 @@ function Carte(): ReactElement {
                 ['Portion', portion?.nom ?? ''],
               ].map(([quoi, valeur]) => (
                 <div key={quoi} className="o-py-1">
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    {quoi}
+                  </dt>
                   <dd className="o-m-0 o-text-sm o-text-zinc-100">{valeur}</dd>
                 </div>
               ))}
@@ -601,7 +995,9 @@ function Carte(): ReactElement {
 
         {/* La roue du carnet : on va chercher un jour a la main. */}
         <div className="o-mt-8">
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Aller a un jour</p>
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            Aller a un jour
+          </p>
           <div className="o-mt-4">
             <OptionWheel
               label="Jour du carnet de bord"
@@ -650,8 +1046,17 @@ function Compte(): ReactElement {
   ]
 
   return (
-    <BorderBeam duration={5200} width={2} trail={22} color={accent(400)} className="o-rounded-2xl">
-      <div className="o-rounded-2xl o-p-8 md:o-p-12" style={{ backgroundColor: 'var(--o-palette-slate-900)' }}>
+    <BorderBeam
+      duration={5200}
+      width={2}
+      trail={22}
+      color={accent(400)}
+      className="o-rounded-2xl"
+    >
+      <div
+        className="o-rounded-2xl o-p-8 md:o-p-12"
+        style={{ backgroundColor: 'var(--o-palette-slate-900)' }}
+      >
         <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
           Cloture des inscriptions — Transat en double 2027
         </p>
@@ -659,22 +1064,36 @@ function Compte(): ReactElement {
           {cases.map(([quoi, valeur]) => (
             <div key={quoi}>
               <dt className="o-sr-only">{quoi}</dt>
-              <dd className="o-m-0 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(3rem, 8vw, 7rem)', lineHeight: 0.84 }}>
+              <dd
+                className="o-m-0 o-tabular-nums o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(3rem, 8vw, 7rem)',
+                  lineHeight: 0.84,
+                }}
+              >
                 {valeur}
               </dd>
-              <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</p>
+              <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                {quoi}
+              </p>
             </div>
           ))}
         </dl>
         <p className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
-          Deux places de coequipier restent ouvertes sur le Class40 pour la saison 2027. Il faut savoir barrer de nuit, et accepter de faire la cuisine.
+          Deux places de coequipier restent ouvertes sur le Class40 pour la saison 2027.
+          Il faut savoir barrer de nuit, et accepter de faire la cuisine.
         </p>
         <a
           href="#route"
           className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-7 o-py-4 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
-          style={{ backgroundColor: encreSurSombre(), color: 'var(--o-palette-slate-950)' }}
+          style={{
+            backgroundColor: encreSurSombre(),
+            color: 'var(--o-palette-slate-950)',
+          }}
         >
-          Deposer une candidature <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+          Deposer une candidature{' '}
+          <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
         </a>
       </div>
     </BorderBeam>
@@ -692,14 +1111,25 @@ function Panneau({ rang }: { readonly rang: number }): ReactElement {
     <div className="o-flex o-h-full o-items-end o-p-6 md:o-p-10">
       <div className="o-max-w-md o-rounded-2xl o-border-w-1 o-border-white-10 o-bg-black-70 o-p-6 o-backdrop-blur-xl md:o-p-8">
         <p className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-          <span style={{ color: encreSurSombre() }}>{String(rang + 1).padStart(2, '0')}</span>
+          <span style={{ color: encreSurSombre() }}>
+            {String(rang + 1).padStart(2, '0')}
+          </span>
           <span aria-hidden="true" className="o-h-px o-w-6 o-bg-white-20" />
           Jours {String(premier)} a {String(portion.dernier)}
         </p>
-        <h3 className="o-m-0 o-mt-4 o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.2vw, 2.75rem)', lineHeight: 0.98 }}>
+        <h3
+          className="o-m-0 o-mt-4 o-text-zinc-50"
+          style={{
+            ...affiche('m', 300),
+            fontSize: 'clamp(1.5rem, 3.2vw, 2.75rem)',
+            lineHeight: 0.98,
+          }}
+        >
           {portion.nom}
         </h3>
-        <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">{portion.texte}</p>
+        <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">
+          {portion.texte}
+        </p>
       </div>
     </div>
   )
@@ -737,9 +1167,12 @@ export default function Page(): ReactElement {
   const naviguer = (p: number): void => {
     const parcourus = Math.round(p * TOTAL)
     const jour = JOURNAL[jourA(p) - 1] ?? JOURNAL[0]
-    if (milles.current !== null) milles.current.textContent = parcourus.toLocaleString('fr-FR')
-    if (noeuds.current !== null && jour !== undefined) noeuds.current.textContent = (jour.milles / 24).toFixed(1).replace('.', ',')
-    if (cap.current !== null && jour !== undefined) cap.current.textContent = String(Math.round(200 + (jour.vent - 40) * 0.35))
+    if (milles.current !== null)
+      milles.current.textContent = parcourus.toLocaleString('fr-FR')
+    if (noeuds.current !== null && jour !== undefined)
+      noeuds.current.textContent = (jour.milles / 24).toFixed(1).replace('.', ',')
+    if (cap.current !== null && jour !== undefined)
+      cap.current.textContent = String(Math.round(200 + (jour.vent - 40) * 0.35))
     const rang = portionDe(jourA(p))
     setPortionLue((precedent) => (precedent === rang ? precedent : rang))
   }
@@ -747,10 +1180,17 @@ export default function Page(): ReactElement {
   return (
     <Porte forme="lettres" marque="Grand Largue">
       <div className="o-relative" style={{ ...nuit('slate'), ...polices }}>
-        <BarreFilet marque="Grand Largue" liens={NAVIGATION} action={['#inscriptions', 'Embarquer']} />
+        <BarreFilet
+          marque="Grand Largue"
+          liens={NAVIGATION}
+          action={['#inscriptions', 'Embarquer']}
+        />
 
         {/* ================= L ouverture : la carte marine =============== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-14 o-pt-16 md:o-px-10" style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 78px)` }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-14 o-pt-16 md:o-px-10"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 78px)` }}
+        >
           <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0">
             <Stars
               className="o-absolute o-inset-0"
@@ -762,10 +1202,28 @@ export default function Page(): ReactElement {
             />
           </div>
           {/* La rose des vents, posee sur le ciel : le seul ornement du heros. */}
-          <div aria-hidden="true" className="o-pointer-events-none o-absolute o-right-0 o-z-10 o-hidden lg:o-block" style={{ top: '22%', width: '46vw', opacity: 0.24 }}>
+          <div
+            aria-hidden="true"
+            className="o-pointer-events-none o-absolute o-right-0 o-z-10 o-hidden lg:o-block"
+            style={{ top: '22%', width: '46vw', opacity: 0.24 }}
+          >
             <svg viewBox="0 0 400 400" className="o-h-auto o-w-full">
-              <circle cx="200" cy="200" r="186" fill="none" stroke={accent(300)} strokeWidth="1" />
-              <circle cx="200" cy="200" r="132" fill="none" stroke={accent(300)} strokeWidth="1" />
+              <circle
+                cx="200"
+                cy="200"
+                r="186"
+                fill="none"
+                stroke={accent(300)}
+                strokeWidth="1"
+              />
+              <circle
+                cx="200"
+                cy="200"
+                r="132"
+                fill="none"
+                stroke={accent(300)}
+                strokeWidth="1"
+              />
               {Array.from({ length: 32 }, (_, rang) => {
                 const angle = (rang * 11.25 * Math.PI) / 180
                 const dedans = rang % 4 === 0 ? 132 : rang % 2 === 0 ? 162 : 174
@@ -778,8 +1236,18 @@ export default function Page(): ReactElement {
                   />
                 )
               })}
-              <path d="M200 42 L226 200 L200 358 L174 200 Z" fill="none" stroke={accent(300)} strokeWidth="1.5" />
-              <path d="M42 200 L200 174 L358 200 L200 226 Z" fill="none" stroke={accent(300)} strokeWidth="1.5" />
+              <path
+                d="M200 42 L226 200 L200 358 L174 200 Z"
+                fill="none"
+                stroke={accent(300)}
+                strokeWidth="1.5"
+              />
+              <path
+                d="M42 200 L200 174 L358 200 L200 226 Z"
+                fill="none"
+                stroke={accent(300)}
+                strokeWidth="1.5"
+              />
             </svg>
           </div>
           <Grain opacite={0.05} />
@@ -798,14 +1266,23 @@ export default function Page(): ReactElement {
           </div>
 
           <div className="o-relative o-z-20 o-flex o-flex-wrap o-items-end o-justify-between o-gap-8">
-            <Surgit delai={520} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-              Trois mille quatre cent quatre-vingts milles entre Les Sables et Pointe-a-Pitre. Nous publions le carnet de bord entier, jour par jour, y compris les deux journees ou nous n avancions plus.
+            <Surgit
+              delai={520}
+              as="p"
+              className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300"
+            >
+              Trois mille quatre cent quatre-vingts milles entre Les Sables et
+              Pointe-a-Pitre. Nous publions le carnet de bord entier, jour par jour, y
+              compris les deux journees ou nous n avancions plus.
             </Surgit>
             <Surgit delai={640} className="o-flex o-flex-wrap o-gap-3">
               <a
                 href="#traversee"
                 className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
-                style={{ backgroundColor: encreSurSombre(), color: 'var(--o-palette-slate-950)' }}
+                style={{
+                  backgroundColor: encreSurSombre(),
+                  color: 'var(--o-palette-slate-950)',
+                }}
               >
                 Prendre la mer <Icon icon={ArrowRight} size={15} aria-hidden="true" />
               </a>
@@ -822,7 +1299,10 @@ export default function Page(): ReactElement {
             Les metadonnees sont en bande et non aux coins : posees en coin,
             elles tombaient sur le paragraphe et sur les gelules.
           */}
-          <Surgit delai={760} className="o-relative o-z-20 o-mt-10 o-grid o-gap-4 o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 sm:o-grid-cols-3">
+          <Surgit
+            delai={760}
+            className="o-relative o-z-20 o-mt-10 o-grid o-gap-4 o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 sm:o-grid-cols-3"
+          >
             <p className="o-m-0">46° 29 N — 1° 47 O · Port-Olona</p>
             <p className="o-m-0 sm:o-text-center">17 j 06 h 39 min de traversee</p>
             <p className="o-m-0 sm:o-text-right">Meilleure journee — 288 milles</p>
@@ -847,31 +1327,51 @@ export default function Page(): ReactElement {
               <div
                 aria-hidden="true"
                 className="o-absolute o-inset-0"
-                style={{ background: `linear-gradient(to bottom, var(--o-palette-slate-950) 0%, ${accentDoux(900, 62)} 58%, ${accentDoux(800, 48)} 100%)` }}
+                style={{
+                  background: `linear-gradient(to bottom, var(--o-palette-slate-950) 0%, ${accentDoux(900, 62)} 58%, ${accentDoux(800, 48)} 100%)`,
+                }}
               />
             </Couche>
 
             {/* Le semis d etoiles : dessine, parce qu une page n ouvre qu une
                 seule surface graphique et qu elle est deja prise par le heros. */}
             <Couche profondeur={0.05}>
-              <div aria-hidden="true" className="o-absolute o-inset-0" style={{ height: '58%' }}>
+              <div
+                aria-hidden="true"
+                className="o-absolute o-inset-0"
+                style={{ height: '58%' }}
+              >
                 <Semis nombre={90} germe={8123} />
               </div>
             </Couche>
 
             {/* La lune, basse sur l horizon : elle donne l heure de la scene. */}
             <Couche profondeur={0.12}>
-              <div aria-hidden="true" className="o-absolute" style={{ right: '14%', top: '16%' }}>
+              <div
+                aria-hidden="true"
+                className="o-absolute"
+                style={{ right: '14%', top: '16%' }}
+              >
                 <span
                   className="o-block o-rounded-full"
-                  style={{ width: 66, height: 66, backgroundColor: accentDoux(100, 92), boxShadow: `0 0 90px 24px ${accentDoux(300, 26)}` }}
+                  style={{
+                    width: 66,
+                    height: 66,
+                    backgroundColor: accentDoux(100, 92),
+                    boxShadow: `0 0 90px 24px ${accentDoux(300, 26)}`,
+                  }}
                 />
               </div>
             </Couche>
 
             {/* Trois houles, trois profondeurs : c est l ecart qui fait la mer. */}
             <Couche profondeur={0.2}>
-              <Houle couleur={accentDoux(800, 66)} hauteur="34%" duree={44} opacite={0.8} />
+              <Houle
+                couleur={accentDoux(800, 66)}
+                hauteur="34%"
+                duree={44}
+                opacite={0.8}
+              />
             </Couche>
             <Couche profondeur={0.5}>
               <Houle couleur={accentDoux(900, 74)} hauteur="26%" duree={30} />
@@ -882,8 +1382,15 @@ export default function Page(): ReactElement {
 
             {/* Le bateau : il ne se deplace pas, c est la mer qui passe. */}
             <Couche profondeur={0}>
-              <div className="o-absolute o-inset-x-0 o-bottom-0 o-flex o-justify-center" style={{ height: '58%' }}>
-                <div data-o-vo-gite="" className="o-self-end" style={{ marginBottom: '6%' }}>
+              <div
+                className="o-absolute o-inset-x-0 o-bottom-0 o-flex o-justify-center"
+                style={{ height: '58%' }}
+              >
+                <div
+                  data-o-vo-gite=""
+                  className="o-self-end"
+                  style={{ marginBottom: '6%' }}
+                >
                   <Bateau
                     largeur={reduced ? 220 : 300}
                     coque="var(--o-palette-slate-950)"
@@ -897,13 +1404,30 @@ export default function Page(): ReactElement {
             {/* Le releve du bord, colle en haut a droite. */}
             <div className="o-pointer-events-none o-absolute o-right-6 o-top-6 o-z-40 md:o-right-10 md:o-top-10">
               <div className="o-rounded-2xl o-border-w-1 o-border-white-10 o-bg-black-70 o-px-5 o-py-4 o-text-right o-backdrop-blur-xl">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Loch</p>
-                <p className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}>
-                  <span ref={milles} aria-hidden="true">0</span>
-                  <span className="o-ml-1 o-text-base" style={{ letterSpacing: 'normal' }}>milles</span>
-                  <span className="o-sr-only">Portion en cours : {PORTIONS[portionLue]?.nom ?? ''}</span>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  Loch
                 </p>
-                <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" aria-hidden="true">
+                <p
+                  className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50"
+                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3rem)' }}
+                >
+                  <span ref={milles} aria-hidden="true">
+                    0
+                  </span>
+                  <span
+                    className="o-ml-1 o-text-base"
+                    style={{ letterSpacing: 'normal' }}
+                  >
+                    milles
+                  </span>
+                  <span className="o-sr-only">
+                    Portion en cours : {PORTIONS[portionLue]?.nom ?? ''}
+                  </span>
+                </p>
+                <p
+                  className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                  aria-hidden="true"
+                >
                   <span ref={noeuds}>0,0</span> noeuds · cap <span ref={cap}>200</span>°
                 </p>
               </div>
@@ -912,19 +1436,31 @@ export default function Page(): ReactElement {
         </div>
 
         {/* ================= Le bateau : le plan de voilure =============== */}
-        <section id="bateau" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="bateau"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 md:o-grid-cols-12 md:o-gap-16">
             <div className="md:o-col-span-5">
               <Reveal>
                 <Indice rang="01">Le bateau</Indice>
               </Reveal>
               <Reveal delay={80}>
-                <h2 className="o-m-0 o-mt-6 o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.25rem)', lineHeight: 0.98 }}>
+                <h2
+                  className="o-m-0 o-mt-6 o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.25rem)',
+                    lineHeight: 0.98,
+                  }}
+                >
                   Douze metres, quatre voiles, deux equipiers.
                 </h2>
               </Reveal>
               <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-                Un Class40 de serie, mis a l eau en 2021, gagne d occasion et refait a la main pendant deux hivers. Rien dessus n est exotique : c est le contraire d un prototype, et c est pour cela qu il arrive.
+                Un Class40 de serie, mis a l eau en 2021, gagne d occasion et refait a la
+                main pendant deux hivers. Rien dessus n est exotique : c est le contraire
+                d un prototype, et c est pour cela qu il arrive.
               </p>
               <dl className="o-m-0 o-mt-10">
                 {[
@@ -934,30 +1470,83 @@ export default function Page(): ReactElement {
                   ['Voile au portant', '155 m2 de spi'],
                   ['Deplacement', '4 650 kg lege'],
                 ].map(([quoi, valeur]) => (
-                  <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-                    <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-100">{valeur}</dd>
+                  <div
+                    key={quoi}
+                    className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3"
+                  >
+                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                      {quoi}
+                    </dt>
+                    <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-100">
+                      {valeur}
+                    </dd>
                   </div>
                 ))}
               </dl>
             </div>
 
             <div className="md:o-col-span-7">
-              <div className="o-relative o-overflow-hidden o-rounded-2xl o-p-8" style={{ backgroundColor: 'var(--o-palette-slate-900)' }}>
-                <svg viewBox="0 0 600 520" className="o-h-auto o-w-full" role="img" aria-label="Plan de voilure du Class40 : grand-voile, solent, spinnaker, quille droite">
+              <div
+                className="o-relative o-overflow-hidden o-rounded-2xl o-p-8"
+                style={{ backgroundColor: 'var(--o-palette-slate-900)' }}
+              >
+                <svg
+                  viewBox="0 0 600 520"
+                  className="o-h-auto o-w-full"
+                  role="img"
+                  aria-label="Plan de voilure du Class40 : grand-voile, solent, spinnaker, quille droite"
+                >
                   {/* La ligne de flottaison. */}
-                  <path d="M40 430H560" stroke="color-mix(in oklab, white 22%, transparent)" strokeWidth="1" strokeDasharray="4 8" />
+                  <path
+                    d="M40 430H560"
+                    stroke="color-mix(in oklab, white 22%, transparent)"
+                    strokeWidth="1"
+                    strokeDasharray="4 8"
+                  />
                   {/* La coque. */}
-                  <path d="M64 430 C 110 398, 210 386, 330 388 C 430 390, 512 402, 540 430 Z" fill="color-mix(in oklab, white 14%, transparent)" stroke={accent(400)} strokeWidth="2" />
+                  <path
+                    d="M64 430 C 110 398, 210 386, 330 388 C 430 390, 512 402, 540 430 Z"
+                    fill="color-mix(in oklab, white 14%, transparent)"
+                    stroke={accent(400)}
+                    strokeWidth="2"
+                  />
                   {/* La quille et le safran. */}
-                  <path d="M300 430 L300 498 L338 498 L318 430 Z" fill="color-mix(in oklab, white 14%, transparent)" stroke={accent(400)} strokeWidth="2" />
-                  <path d="M498 430 L492 476 L512 470 L512 430 Z" fill="none" stroke={accent(400)} strokeWidth="2" />
+                  <path
+                    d="M300 430 L300 498 L338 498 L318 430 Z"
+                    fill="color-mix(in oklab, white 14%, transparent)"
+                    stroke={accent(400)}
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M498 430 L492 476 L512 470 L512 430 Z"
+                    fill="none"
+                    stroke={accent(400)}
+                    strokeWidth="2"
+                  />
                   {/* Le mat, la bome, la grand-voile. */}
-                  <path d="M262 388 L262 40" stroke="var(--o-palette-slate-50)" strokeWidth="3" />
-                  <path d="M262 368 L118 372" stroke="var(--o-palette-slate-50)" strokeWidth="3" />
-                  <path d="M258 48 L258 366 L124 370 Z" fill={accentDoux(200, 26)} stroke={accentDoux(100, 70)} strokeWidth="2" />
+                  <path
+                    d="M262 388 L262 40"
+                    stroke="var(--o-palette-slate-50)"
+                    strokeWidth="3"
+                  />
+                  <path
+                    d="M262 368 L118 372"
+                    stroke="var(--o-palette-slate-50)"
+                    strokeWidth="3"
+                  />
+                  <path
+                    d="M258 48 L258 366 L124 370 Z"
+                    fill={accentDoux(200, 26)}
+                    stroke={accentDoux(100, 70)}
+                    strokeWidth="2"
+                  />
                   {/* Le solent. */}
-                  <path d="M266 76 L266 384 L470 404 Z" fill={accentDoux(300, 20)} stroke={accentDoux(200, 60)} strokeWidth="2" />
+                  <path
+                    d="M266 76 L266 384 L470 404 Z"
+                    fill={accentDoux(300, 20)}
+                    stroke={accentDoux(200, 60)}
+                    strokeWidth="2"
+                  />
                   {/* Les reperes numerotes. */}
                   {[
                     { x: 190, y: 210, n: '1', quoi: 'Grand-voile — 88 m2' },
@@ -967,7 +1556,17 @@ export default function Page(): ReactElement {
                   ].map((repere) => (
                     <g key={repere.n}>
                       <circle cx={repere.x} cy={repere.y} r="14" fill={accent(500)} />
-                      <text x={repere.x} y={repere.y + 6} fontSize="17" textAnchor="middle" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-palette-slate-950)' }}>
+                      <text
+                        x={repere.x}
+                        y={repere.y + 6}
+                        fontSize="17"
+                        textAnchor="middle"
+                        fill="currentColor"
+                        style={{
+                          fontFamily: 'var(--o-font-mono)',
+                          color: 'var(--o-palette-slate-950)',
+                        }}
+                      >
                         {repere.n}
                       </text>
                     </g>
@@ -980,7 +1579,10 @@ export default function Page(): ReactElement {
                     ['3', 'Tete de mat a 18,9 m'],
                     ['4', 'Quille droite, 3,00 m, 1 700 kg'],
                   ].map(([n, quoi]) => (
-                    <li key={n} className="o-flex o-items-baseline o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    <li
+                      key={n}
+                      className="o-flex o-items-baseline o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                    >
                       <span style={{ color: encreSurSombre() }}>{n}</span>
                       {quoi}
                     </li>
@@ -992,17 +1594,32 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= La route : le mecanisme ====================== */}
-        <section id="route" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="route"
+          className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
               <Indice rang="02">La route</Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4.2vw, 3.5rem)', lineHeight: 0.96 }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.85rem, 4.2vw, 3.5rem)',
+                  lineHeight: 0.96,
+                }}
+              >
                 Dix-huit jours
                 <br />
                 <RotatingWords
-                  words={['au grand largue', 'au portant', 'au pres serre', 'dans la molle']}
+                  words={[
+                    'au grand largue',
+                    'au portant',
+                    'au pres serre',
+                    'dans la molle',
+                  ]}
                   interval={2400}
                   duration={520}
                   style={{ color: encreSurSombre() }}
@@ -1010,7 +1627,9 @@ export default function Page(): ReactElement {
               </h2>
             </Reveal>
             <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-300">
-              Le trace avance d un jour toutes les huit cent cinquante millisecondes. Ce qui change, c est la distance qu il couvre : celle du carnet. Regardez-le s arreter au treizieme jour.
+              Le trace avance d un jour toutes les huit cent cinquante millisecondes. Ce
+              qui change, c est la distance qu il couvre : celle du carnet. Regardez-le s
+              arreter au treizieme jour.
             </p>
             <div className="o-mt-14">
               <Carte />
@@ -1032,10 +1651,26 @@ export default function Page(): ReactElement {
               La saison — six ports, deux hemispheres
             </p>
             <div className="o-mt-8 o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-              <svg viewBox="0 0 1000 500" className="o-h-auto" style={{ minWidth: 720, width: '100%' }} role="img" aria-label="Mappemonde : Les Sables d Olonne, Horta, Pointe-a-Pitre, Salvador, Le Cap et Auckland">
+              <svg
+                viewBox="0 0 1000 500"
+                className="o-h-auto"
+                style={{ minWidth: 720, width: '100%' }}
+                role="img"
+                aria-label="Mappemonde : Les Sables d Olonne, Horta, Pointe-a-Pitre, Salvador, Le Cap et Auckland"
+              >
                 <defs>
-                  <pattern id="o-vo-points" width="11" height="11" patternUnits="userSpaceOnUse">
-                    <circle cx="5.5" cy="5.5" r="2" fill="color-mix(in oklab, white 26%, transparent)" />
+                  <pattern
+                    id="o-vo-points"
+                    width="11"
+                    height="11"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <circle
+                      cx="5.5"
+                      cy="5.5"
+                      r="2"
+                      fill="color-mix(in oklab, white 26%, transparent)"
+                    />
                   </pattern>
                   <clipPath id="o-vo-terres">
                     {TERRES.map((terre) => (
@@ -1043,7 +1678,12 @@ export default function Page(): ReactElement {
                     ))}
                   </clipPath>
                 </defs>
-                <rect width="1000" height="500" fill="url(#o-vo-points)" clipPath="url(#o-vo-terres)" />
+                <rect
+                  width="1000"
+                  height="500"
+                  fill="url(#o-vo-points)"
+                  clipPath="url(#o-vo-terres)"
+                />
                 {PORTS.map((port, rang) => {
                   // Passe le milieu de la carte, l etiquette se range a gauche
                   // du point : a droite, elle sortait du cadre.
@@ -1052,12 +1692,45 @@ export default function Page(): ReactElement {
                   return (
                     <g key={port.nom}>
                       {/* Le halo, qui bat comme un feu de port. */}
-                      <circle data-o-vo-feu="" cx={port.x} cy={port.y} r="15" fill="none" stroke={accent(400)} strokeWidth="1.5" style={{ '--o-vo-delai': `${String(rang * 0.4)}s` } as CSSProperties} />
+                      <circle
+                        data-o-vo-feu=""
+                        cx={port.x}
+                        cy={port.y}
+                        r="15"
+                        fill="none"
+                        stroke={accent(400)}
+                        strokeWidth="1.5"
+                        style={
+                          { '--o-vo-delai': `${String(rang * 0.4)}s` } as CSSProperties
+                        }
+                      />
                       <circle cx={port.x} cy={port.y} r="5" fill={accent(400)} />
-                      <text x={bord} y={port.y + 1} fontSize="15" textAnchor={aGauche ? 'end' : 'start'} fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em', color: 'var(--o-palette-slate-50)' }}>
+                      <text
+                        x={bord}
+                        y={port.y + 1}
+                        fontSize="15"
+                        textAnchor={aGauche ? 'end' : 'start'}
+                        fill="currentColor"
+                        style={{
+                          fontFamily: 'var(--o-font-mono)',
+                          letterSpacing: '0.1em',
+                          color: 'var(--o-palette-slate-50)',
+                        }}
+                      >
                         {port.nom}
                       </text>
-                      <text x={bord} y={port.y + 19} fontSize="12" textAnchor={aGauche ? 'end' : 'start'} fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.08em', color: 'var(--o-palette-slate-400)' }}>
+                      <text
+                        x={bord}
+                        y={port.y + 19}
+                        fontSize="12"
+                        textAnchor={aGauche ? 'end' : 'start'}
+                        fill="currentColor"
+                        style={{
+                          fontFamily: 'var(--o-font-mono)',
+                          letterSpacing: '0.08em',
+                          color: 'var(--o-palette-slate-400)',
+                        }}
+                      >
                         {port.quand}
                       </text>
                     </g>
@@ -1066,7 +1739,8 @@ export default function Page(): ReactElement {
               </svg>
             </div>
             <p className="o-m-0 o-mt-10 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-              Grand Largue — association loi 1901 — Port-Olona, Les Sables d Olonne — © 2026. Les milles publies sont ceux du loch, non corriges du courant.
+              Grand Largue — association loi 1901 — Port-Olona, Les Sables d Olonne — ©
+              2026. Les milles publies sont ceux du loch, non corriges du courant.
             </p>
           </div>
         </footer>

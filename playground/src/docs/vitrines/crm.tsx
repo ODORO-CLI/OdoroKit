@@ -48,7 +48,13 @@
 
 import { Icon } from '@odoro-cli/icons'
 import { ArrowUpRight, NotebookPen, Receipt, Scale } from '@odoro-cli/icons/filaire'
-import { useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { GraphPaper } from '@/odoro/background/GraphPaper.jsx'
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'
@@ -113,7 +119,10 @@ const EN_DATE = new Intl.DateTimeFormat('fr-FR', {
 })
 
 /** Les euros, a deux decimales, comme sur une facture. */
-const EN_EUROS = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const EN_EUROS = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
 
 /** La date d un jour du carnet. */
 function dateDe(jour: number): string {
@@ -284,10 +293,34 @@ interface Palier {
  * tot.
  */
 const PALIERS: readonly Palier[] = [
-  { rang: 0, nom: 'Rappel simple', depuis: 0, geste: 'Un courriel, sans penalite annoncee. La plupart des retards tiennent a une facture egaree.' },
-  { rang: 1, nom: 'Relance ferme', depuis: 7, geste: 'Un courriel avec le decompte des penalites deja courues, et la date de la mise en demeure.' },
-  { rang: 2, nom: 'Mise en demeure', depuis: 21, geste: 'Une lettre recommandee avec avis de reception. C est elle qui fait courir le delai de l injonction.' },
-  { rang: 3, nom: 'Injonction de payer', depuis: 45, geste: 'Requete au tribunal. Le carnet sort le decompte, les pieces et l avis de reception en un seul dossier.' },
+  {
+    rang: 0,
+    nom: 'Rappel simple',
+    depuis: 0,
+    geste:
+      'Un courriel, sans penalite annoncee. La plupart des retards tiennent a une facture egaree.',
+  },
+  {
+    rang: 1,
+    nom: 'Relance ferme',
+    depuis: 7,
+    geste:
+      'Un courriel avec le decompte des penalites deja courues, et la date de la mise en demeure.',
+  },
+  {
+    rang: 2,
+    nom: 'Mise en demeure',
+    depuis: 21,
+    geste:
+      'Une lettre recommandee avec avis de reception. C est elle qui fait courir le delai de l injonction.',
+  },
+  {
+    rang: 3,
+    nom: 'Injonction de payer',
+    depuis: 45,
+    geste:
+      'Requete au tribunal. Le carnet sort le decompte, les pieces et l avis de reception en un seul dossier.',
+  },
 ]
 
 /** Ce que le carnet sait dire d un client, a un jour donne. */
@@ -312,7 +345,14 @@ function etatDe(client: Client, jour: number): Etat {
   const forfait = client.genre === 'professionnel' ? FORFAIT : 0
   let palier = 0
   for (const p of PALIERS) if (retard >= p.depuis) palier = p.rang
-  return { retard, palier, interets, forfait, du: client.montant + interets + forfait, taux }
+  return {
+    retard,
+    palier,
+    interets,
+    forfait,
+    du: client.montant + interets + forfait,
+    taux,
+  }
 }
 
 /** Le message que le carnet prepare, au palier atteint. */
@@ -321,9 +361,10 @@ function message(client: Client, etat: Etat, jour: number): string {
   if (etat.palier < 0) {
     return `Rien a envoyer. La facture ${client.facture} vient a echeance le ${dateDe(client.echeance)}, dans ${String(-etat.retard)} jours.`
   }
-  const penalites = etat.forfait > 0
-    ? `${euros(etat.interets)} d interets et ${euros(etat.forfait)} d indemnite forfaitaire de recouvrement`
-    : `${euros(etat.interets)} d interets au taux legal`
+  const penalites =
+    etat.forfait > 0
+      ? `${euros(etat.interets)} d interets et ${euros(etat.forfait)} d indemnite forfaitaire de recouvrement`
+      : `${euros(etat.interets)} d interets au taux legal`
   if (etat.palier === 0) {
     return `Bonjour, la facture ${client.facture} du chantier « ${client.chantier} » est venue a echeance le ${dateDe(client.echeance)}. Il s agit sans doute d un oubli : le reglement de ${euros(client.montant)} peut se faire par virement sous huit jours.`
   }
@@ -341,7 +382,11 @@ function message(client: Client, etat: Etat, jour: number): string {
 /* ------------------------------------------------------------------------ */
 
 /** Une station de la figure du chantier. */
-const STATIONS: readonly { readonly nom: string; readonly quand: string; readonly part: number }[] = [
+const STATIONS: readonly {
+  readonly nom: string
+  readonly quand: string
+  readonly part: number
+}[] = [
   { nom: 'Devis remis', quand: 'jour 0', part: 0 },
   { nom: 'Devis signe', quand: 'jour 28', part: 0.3 },
   { nom: 'Chantier', quand: 'jour 42', part: 0.3 },
@@ -368,9 +413,18 @@ function FigureChantier(): ReactElement {
   const gris: CSSProperties = { color: 'var(--o-theme-muted)' }
   const encaisse = abscisseStation(6)
   return (
-    <svg viewBox="0 0 1000 344" aria-hidden="true" className="o-w-full" style={{ minWidth: 760 }}>
+    <svg
+      viewBox="0 0 1000 344"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 760 }}
+    >
       {/* La surface d avance : ce que l artisan a sorti et pas encore revu. */}
-      <path d={`M${String(abscisseStation(2))} 196V122h${String(encaisse - abscisseStation(2))}v74Z`} fill={accent(500)} opacity="0.13" />
+      <path
+        d={`M${String(abscisseStation(2))} 196V122h${String(encaisse - abscisseStation(2))}v74Z`}
+        fill={accent(500)}
+        opacity="0.13"
+      />
       <text
         x={(abscisseStation(2) + encaisse) / 2}
         y="112"
@@ -384,17 +438,41 @@ function FigureChantier(): ReactElement {
       </text>
 
       {/* Le rail des stations. */}
-      <line x1="60" y1="196" x2="960" y2="196" stroke="currentColor" strokeWidth="1.4" opacity="0.45" style={gris} />
+      <line
+        x1="60"
+        y1="196"
+        x2="960"
+        y2="196"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        opacity="0.45"
+        style={gris}
+      />
 
       {STATIONS.map((station, rang) => {
         const x = abscisseStation(rang)
         return (
           <g key={station.nom}>
-            <circle cx={x} cy="196" r="6" fill="var(--o-theme-bg)" stroke="currentColor" strokeWidth="1.6" />
+            <circle
+              cx={x}
+              cy="196"
+              r="6"
+              fill="var(--o-theme-bg)"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
             <text x={x} y="222" textAnchor="middle" fontSize="13" fill="currentColor">
               {station.nom}
             </text>
-            <text x={x} y="240" textAnchor="middle" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+            <text
+              x={x}
+              y="240"
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="10"
+              fill="currentColor"
+              style={gris}
+            >
               {station.quand}
             </text>
           </g>
@@ -402,10 +480,26 @@ function FigureChantier(): ReactElement {
       })}
 
       {/* Ce qui est encaisse : un escalier a deux marches, sous le rail. */}
-      <text x="60" y="268" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="60"
+        y="268"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         encaisse
       </text>
-      <line x1="60" y1="310" x2="960" y2="310" stroke="currentColor" strokeWidth="1" opacity="0.35" style={gris} />
+      <line
+        x1="60"
+        y1="310"
+        x2="960"
+        y2="310"
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.35"
+        style={gris}
+      />
       <path
         d={`M60 310V310H${String(abscisseStation(1))}V${String(310 - 0.3 * 52)}H${String(encaisse)}V${String(310 - 52)}H960`}
         fill="none"
@@ -418,19 +512,57 @@ function FigureChantier(): ReactElement {
         fill={ENCRE}
         opacity="0.12"
       />
-      <text x={abscisseStation(3)} y="288" textAnchor="middle" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x={abscisseStation(3)}
+        y="288"
+        textAnchor="middle"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         30 % d acompte, et rien d autre pendant trois mois
       </text>
-      <text x="956" y="330" textAnchor="end" className="o-font-mono" fontSize="10.5" fill="currentColor" style={{ color: ENCRE }}>
+      <text
+        x="956"
+        y="330"
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={{ color: ENCRE }}
+      >
         100 % au jour 128
       </text>
 
       {/* Le cran de relance, pose sur le rail juste apres l echeance. */}
-      <path d={`M${String(abscisseStation(5))} 196v-30h58`} fill="none" stroke="currentColor" strokeWidth="1.2" strokeDasharray="4 5" opacity="0.7" style={gris} />
-      <text x={abscisseStation(5) + 64} y="170" className="o-font-mono" fontSize="10.5" fill="currentColor" style={{ color: ENCRE }}>
+      <path
+        d={`M${String(abscisseStation(5))} 196v-30h58`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeDasharray="4 5"
+        opacity="0.7"
+        style={gris}
+      />
+      <text
+        x={abscisseStation(5) + 64}
+        y="170"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={{ color: ENCRE }}
+      >
         relance
       </text>
-      <text x="60" y="42" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="60"
+        y="42"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         chantier type du carnet — 128 jours entre le devis remis et l argent recu
       </text>
     </svg>
@@ -442,7 +574,11 @@ function FigureChantier(): ReactElement {
 /* ------------------------------------------------------------------------ */
 
 /** Une barre du graphique des delais. */
-const DELAIS: readonly { readonly quoi: string; readonly jours: number; readonly part: string }[] = [
+const DELAIS: readonly {
+  readonly quoi: string
+  readonly jours: number
+  readonly part: string
+}[] = [
   { quoi: 'Aucune relance', jours: 68, part: '31 % des factures' },
   { quoi: 'Rappel a J+2', jours: 41, part: '38 %' },
   { quoi: 'Relance ferme a J+8', jours: 29, part: '21 %' },
@@ -468,7 +604,13 @@ function FigureDelais(): ReactElement {
   const { ref, vu } = useInView<SVGSVGElement>({ amount: 0.3 })
   const gris: CSSProperties = { color: 'var(--o-palette-zinc-400)' }
   return (
-    <svg ref={ref} viewBox="0 0 1000 306" aria-hidden="true" className="o-w-full" style={{ minWidth: 620 }}>
+    <svg
+      ref={ref}
+      viewBox="0 0 1000 306"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 620 }}
+    >
       {DELAIS.map((barre, rang) => {
         const x = 118 + rang * 176
         const hauteur = (barre.jours / DELAI_MAX) * 150
@@ -507,7 +649,15 @@ function FigureDelais(): ReactElement {
             <text x={x} y="276" textAnchor="middle" fontSize="13" fill="currentColor">
               {barre.quoi}
             </text>
-            <text x={x} y="294" textAnchor="middle" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+            <text
+              x={x}
+              y="294"
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="10.5"
+              fill="currentColor"
+              style={gris}
+            >
               {barre.part}
             </text>
           </g>
@@ -515,8 +665,24 @@ function FigureDelais(): ReactElement {
       })}
 
       {/* La seule ligne de la figure : le sol des barres. */}
-      <line x1="40" y1="252" x2="960" y2="252" stroke="currentColor" strokeWidth="1.2" opacity="0.5" style={gris} />
-      <text x="40" y="30" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <line
+        x1="40"
+        y1="252"
+        x2="960"
+        y2="252"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        opacity="0.5"
+        style={gris}
+      />
+      <text
+        x="40"
+        y="30"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         delai moyen entre l emission et l encaissement — 1 240 factures du carnet, 2025
       </text>
     </svg>
@@ -528,10 +694,19 @@ function FigureDelais(): ReactElement {
 /* ------------------------------------------------------------------------ */
 
 /** Un objet de la pile : le dessin au trait de ce que le carnet remplace. */
-function ObjetPile({ nom }: { readonly nom: 'cahier' | 'boite' | 'tableur' | 'messagerie' }): ReactElement {
+function ObjetPile({
+  nom,
+}: {
+  readonly nom: 'cahier' | 'boite' | 'tableur' | 'messagerie'
+}): ReactElement {
   const trait = { stroke: 'currentColor', strokeWidth: 1.6, fill: 'none' } as const
   return (
-    <svg viewBox="0 0 220 160" aria-hidden="true" className="o-w-full" style={{ maxWidth: 240, opacity: 0.9 }}>
+    <svg
+      viewBox="0 0 220 160"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ maxWidth: 240, opacity: 0.9 }}
+    >
       {nom === 'cahier' && (
         <g {...trait}>
           <path d="M34 26h152v112H34z" />
@@ -567,8 +742,18 @@ function ObjetPile({ nom }: { readonly nom: 'cahier' | 'boite' | 'tableur' | 'me
           {[70, 114, 158].map((x) => (
             <path key={x} d={`M${String(x)} 30v104`} opacity="0.5" />
           ))}
-          <path d="M26 30h168v26H26z" fill={accent(500)} fillOpacity="0.18" stroke="none" />
-          <path d="M120 92l16 16 28-36" stroke={accent(500)} strokeWidth="2.4" opacity="0.9" />
+          <path
+            d="M26 30h168v26H26z"
+            fill={accent(500)}
+            fillOpacity="0.18"
+            stroke="none"
+          />
+          <path
+            d="M120 92l16 16 28-36"
+            stroke={accent(500)}
+            strokeWidth="2.4"
+            opacity="0.9"
+          />
         </g>
       )}
       {nom === 'messagerie' && (
@@ -576,8 +761,24 @@ function ObjetPile({ nom }: { readonly nom: 'cahier' | 'boite' | 'tableur' | 'me
           <path d="M28 42h164v78H28z" />
           <path d="M28 42l82 50 82-50" />
           <path d="M28 120l58-42M192 120l-58-42" opacity="0.5" />
-          <circle cx="176" cy="52" r="15" fill={accent(500)} fillOpacity="0.22" stroke={accent(500)} strokeWidth="1.6" />
-          <text x="176" y="57" textAnchor="middle" fontSize="13" fill={accent(500)} stroke="none" className="o-font-mono">
+          <circle
+            cx="176"
+            cy="52"
+            r="15"
+            fill={accent(500)}
+            fillOpacity="0.22"
+            stroke={accent(500)}
+            strokeWidth="1.6"
+          />
+          <text
+            x="176"
+            y="57"
+            textAnchor="middle"
+            fontSize="13"
+            fill={accent(500)}
+            stroke="none"
+            className="o-font-mono"
+          >
             41
           </text>
         </g>
@@ -598,28 +799,32 @@ const PILE: readonly {
     objet: 'cahier',
     rang: '01',
     titre: 'Le cahier a spirale du camion',
-    texte: 'Il tient tout : l adresse, le code de la porte, ce qui a ete dit au telephone. Il ne tient rien de ce qui se compte — et il reste dans le camion le jour ou le comptable appelle.',
+    texte:
+      'Il tient tout : l adresse, le code de la porte, ce qui a ete dit au telephone. Il ne tient rien de ce qui se compte — et il reste dans le camion le jour ou le comptable appelle.',
     note: 'Le carnet garde la meme forme, et la meme vitesse de saisie : une ligne, une date, un montant.',
   },
   {
     objet: 'boite',
     rang: '02',
     titre: 'La boite a devis',
-    texte: 'Les devis signes, les bons de commande, les proces-verbaux de reception. Quarante centimetres de papier par an, et la seule piece qui manque est toujours celle que le juge demande.',
+    texte:
+      'Les devis signes, les bons de commande, les proces-verbaux de reception. Quarante centimetres de papier par an, et la seule piece qui manque est toujours celle que le juge demande.',
     note: 'Chaque piece est attachee au chantier, et repart avec lui dans le dossier d injonction.',
   },
   {
     objet: 'tableur',
     rang: '03',
     titre: 'Le tableur des impayes',
-    texte: 'Une feuille ouverte le dimanche soir, des formules qui se cassent quand on insere une ligne, et une colonne « relance ? » que personne ne remplit deux semaines de suite.',
+    texte:
+      'Une feuille ouverte le dimanche soir, des formules qui se cassent quand on insere une ligne, et une colonne « relance ? » que personne ne remplit deux semaines de suite.',
     note: 'Le calcul des penalites est fait par le carnet, avec le bon taux selon que le client est un professionnel ou non.',
   },
   {
     objet: 'messagerie',
     rang: '04',
     titre: 'La boite mail',
-    texte: 'Quarante et un messages non lus, dont trois demandes de devis. Le fil d un chantier y est coupe en dix morceaux, entre deux publicites de fournisseur.',
+    texte:
+      'Quarante et un messages non lus, dont trois demandes de devis. Le fil d un chantier y est coupe en dix morceaux, entre deux publicites de fournisseur.',
     note: 'Les echanges d un chantier se rangent sous le chantier. La relance part de la, avec les pieces jointes deja dedans.',
   },
 ]
@@ -642,7 +847,10 @@ function Titre({
 }): ReactElement {
   return (
     <>
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: sombre ? ENCRE_NUIT : ENCRE }}>
+      <p
+        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: sombre ? ENCRE_NUIT : ENCRE }}
+      >
         {indice}
       </p>
       <h2
@@ -659,58 +867,181 @@ function Titre({
 /** La fiche dessinee de l ouverture : le produit, en affiche. */
 function FicheDessinee(): ReactElement {
   return (
-    <svg viewBox="0 0 360 440" aria-hidden="true" className="o-w-full" style={{ maxWidth: 380 }}>
+    <svg
+      viewBox="0 0 360 440"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ maxWidth: 380 }}
+    >
       <defs>
         <filter id="carnet-ombre" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="14" stdDeviation="16" floodOpacity="0.16" />
         </filter>
       </defs>
       <g transform="rotate(-3 180 220)" filter="url(#carnet-ombre)">
-        <rect x="26" y="40" width="308" height="376" rx="10" fill="var(--o-theme-bg)" stroke="currentColor" strokeOpacity="0.18" />
-        <rect x="26" y="40" width="308" height="54" rx="10" fill={accent(500)} fillOpacity="0.12" />
-        <line x1="26" y1="94" x2="334" y2="94" stroke="currentColor" strokeOpacity="0.18" />
-        <line x1="64" y1="94" x2="64" y2="416" stroke={accent(500)} strokeOpacity="0.45" />
+        <rect
+          x="26"
+          y="40"
+          width="308"
+          height="376"
+          rx="10"
+          fill="var(--o-theme-bg)"
+          stroke="currentColor"
+          strokeOpacity="0.18"
+        />
+        <rect
+          x="26"
+          y="40"
+          width="308"
+          height="54"
+          rx="10"
+          fill={accent(500)}
+          fillOpacity="0.12"
+        />
+        <line
+          x1="26"
+          y1="94"
+          x2="334"
+          y2="94"
+          stroke="currentColor"
+          strokeOpacity="0.18"
+        />
+        <line
+          x1="64"
+          y1="94"
+          x2="64"
+          y2="416"
+          stroke={accent(500)}
+          strokeOpacity="0.45"
+        />
 
         {/* La reliure : quatre anneaux au-dessus de la fiche. */}
         {[86, 150, 214, 278].map((x) => (
           <g key={x}>
-            <path d={`M${String(x)} 40v-18`} stroke="currentColor" strokeOpacity="0.4" strokeWidth="3" strokeLinecap="round" />
-            <path d={`M${String(x)} 22a9 9 0 0 1 14 0`} fill="none" stroke="currentColor" strokeOpacity="0.4" strokeWidth="3" strokeLinecap="round" />
-            <path d={`M${String(x + 14)} 22v18`} stroke="currentColor" strokeOpacity="0.4" strokeWidth="3" strokeLinecap="round" />
+            <path
+              d={`M${String(x)} 40v-18`}
+              stroke="currentColor"
+              strokeOpacity="0.4"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d={`M${String(x)} 22a9 9 0 0 1 14 0`}
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity="0.4"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d={`M${String(x + 14)} 22v18`}
+              stroke="currentColor"
+              strokeOpacity="0.4"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
           </g>
         ))}
 
-        <text x="46" y="74" className="o-font-mono" fontSize="11" letterSpacing="1.6" fill="currentColor" fillOpacity="0.62">
+        <text
+          x="46"
+          y="74"
+          className="o-font-mono"
+          fontSize="11"
+          letterSpacing="1.6"
+          fill="currentColor"
+          fillOpacity="0.62"
+        >
           FICHE 031
         </text>
-        <text x="314" y="74" textAnchor="end" className="o-font-mono" fontSize="11" letterSpacing="1.6" fill={accent(600)}>
+        <text
+          x="314"
+          y="74"
+          textAnchor="end"
+          className="o-font-mono"
+          fontSize="11"
+          letterSpacing="1.6"
+          fill={accent(600)}
+        >
           IMPAYEE
         </text>
 
         <text x="80" y="132" fontSize="19" fontWeight="600" fill="currentColor">
           SCI des Hauts de Sevre
         </text>
-        <text x="80" y="154" className="o-font-mono" fontSize="11" fill="currentColor" fillOpacity="0.6">
+        <text
+          x="80"
+          y="154"
+          className="o-font-mono"
+          fontSize="11"
+          fill="currentColor"
+          fillOpacity="0.6"
+        >
           Reze 44400 — bailleur
         </text>
 
         {[190, 218, 246, 274].map((y, i) => (
           <g key={y}>
-            <line x1="80" y1={y} x2="314" y2={y} stroke="currentColor" strokeOpacity="0.12" />
-            <rect x="80" y={y - 14} width={[136, 190, 112, 164][i]} height="7" rx="3.5" fill="currentColor" fillOpacity="0.22" />
+            <line
+              x1="80"
+              y1={y}
+              x2="314"
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity="0.12"
+            />
+            <rect
+              x="80"
+              y={y - 14}
+              width={[136, 190, 112, 164][i]}
+              height="7"
+              rx="3.5"
+              fill="currentColor"
+              fillOpacity="0.22"
+            />
           </g>
         ))}
 
-        <text x="80" y="322" className="o-font-mono" fontSize="11" letterSpacing="1.4" fill="currentColor" fillOpacity="0.6">
+        <text
+          x="80"
+          y="322"
+          className="o-font-mono"
+          fontSize="11"
+          letterSpacing="1.4"
+          fill="currentColor"
+          fillOpacity="0.6"
+        >
           DU AU 12/04
         </text>
-        <text x="80" y="360" className="o-font-mono o-tabular-nums" fontSize="30" fill="currentColor">
+        <text
+          x="80"
+          y="360"
+          className="o-font-mono o-tabular-nums"
+          fontSize="30"
+          fill="currentColor"
+        >
           4 924,10
         </text>
 
-        <rect x="80" y="384" width="234" height="8" rx="4" fill="currentColor" fillOpacity="0.12" />
+        <rect
+          x="80"
+          y="384"
+          width="234"
+          height="8"
+          rx="4"
+          fill="currentColor"
+          fillOpacity="0.12"
+        />
         <rect x="80" y="384" width="142" height="8" rx="4" fill={accent(500)} />
-        <text x="314" y="378" textAnchor="end" className="o-font-mono" fontSize="10.5" fill="currentColor" fillOpacity="0.6">
+        <text
+          x="314"
+          y="378"
+          textAnchor="end"
+          className="o-font-mono"
+          fontSize="10.5"
+          fill="currentColor"
+          fillOpacity="0.6"
+        >
           relance ferme
         </text>
       </g>
@@ -745,7 +1076,10 @@ function Carnet(): ReactElement {
         return {
           id: c.id,
           label: c.nom,
-          hint: e.retard < 0 ? `echeance dans ${String(-e.retard)} j` : `retard ${String(e.retard)} j — ${euros(e.du)}`,
+          hint:
+            e.retard < 0
+              ? `echeance dans ${String(-e.retard)} j`
+              : `retard ${String(e.retard)} j — ${euros(e.du)}`,
         }
       }),
     [jour],
@@ -765,11 +1099,21 @@ function Carnet(): ReactElement {
     <div className="o-grid o-gap-8 lg:o-grid-cols-12 lg:o-gap-10">
       {/* ----- La colonne de gauche : le jour, puis les clients ------------ */}
       <div className="o-min-w-0 lg:o-col-span-4">
-        <div className="o-rounded-2xl o-p-5" style={{ border: `1px solid ${FILET}`, backgroundColor: VOILE }}>
-          <label htmlFor="carnet-jour" className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
+        <div
+          className="o-rounded-2xl o-p-5"
+          style={{ border: `1px solid ${FILET}`, backgroundColor: VOILE }}
+        >
+          <label
+            htmlFor="carnet-jour"
+            className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400"
+          >
             Le carnet est ouvert au
           </label>
-          <output htmlFor="carnet-jour" className="o-mt-2 o-block o-font-mono o-tabular-nums" style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.5rem)', color: ENCRE }}>
+          <output
+            htmlFor="carnet-jour"
+            className="o-mt-2 o-block o-font-mono o-tabular-nums"
+            style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.5rem)', color: ENCRE }}
+          >
             {dateDe(jour)}
           </output>
           <input
@@ -796,12 +1140,25 @@ function Carnet(): ReactElement {
           Les clients ouverts
         </p>
         <div className="o-mt-3">
-          <AnimatedList items={lignes} label="Les clients du carnet" value={choisi} onChange={setChoisi} fade={false} />
+          <AnimatedList
+            items={lignes}
+            label="Les clients du carnet"
+            value={choisi}
+            onChange={setChoisi}
+            fade={false}
+          />
         </div>
 
-        <ol className="o-m-0 o-mt-8 o-list-none o-border-t o-p-0" style={{ borderColor: FILET }}>
+        <ol
+          className="o-m-0 o-mt-8 o-list-none o-border-t o-p-0"
+          style={{ borderColor: FILET }}
+        >
           {PALIERS.map((p) => (
-            <li key={p.rang} className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-border-b o-py-3" style={{ borderColor: FILET }}>
+            <li
+              key={p.rang}
+              className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-border-b o-py-3"
+              style={{ borderColor: FILET }}
+            >
               <span
                 aria-hidden="true"
                 className="o-col-span-3 o-font-mono o-text-xs o-tabular-nums o-tracking-widest"
@@ -811,7 +1168,10 @@ function Carnet(): ReactElement {
               </span>
               <span
                 className="o-col-span-9 o-text-sm"
-                style={{ opacity: etat.palier === p.rang ? 1 : 0.55, fontWeight: etat.palier === p.rang ? 600 : 400 }}
+                style={{
+                  opacity: etat.palier === p.rang ? 1 : 0.55,
+                  fontWeight: etat.palier === p.rang ? 600 : 400,
+                }}
               >
                 {p.nom}
               </span>
@@ -819,19 +1179,31 @@ function Carnet(): ReactElement {
           ))}
         </ol>
         <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-          L echelle est la meme pour tous : ce qui change, c est le taux, et le droit de reclamer les quarante euros.
+          L echelle est la meme pour tous : ce qui change, c est le taux, et le droit de
+          reclamer les quarante euros.
         </p>
       </div>
 
       {/* ----- La fiche, et ce qui en decoule ------------------------------ */}
       <div className="o-min-w-0 lg:o-col-span-8">
-        <article className="o-rounded-2xl o-overflow-hidden" style={{ border: `1px solid ${FILET}` }}>
-          <header className="o-flex o-flex-wrap o-items-baseline o-gap-x-4 o-gap-y-1 o-px-6 o-py-5" style={{ borderBottom: `1px solid ${FILET}`, backgroundColor: VOILE }}>
-            <h3 className="o-m-0 o-text-xl o-font-semibold o-tracking-tight">{client.nom}</h3>
+        <article
+          className="o-rounded-2xl o-overflow-hidden"
+          style={{ border: `1px solid ${FILET}` }}
+        >
+          <header
+            className="o-flex o-flex-wrap o-items-baseline o-gap-x-4 o-gap-y-1 o-px-6 o-py-5"
+            style={{ borderBottom: `1px solid ${FILET}`, backgroundColor: VOILE }}
+          >
+            <h3 className="o-m-0 o-text-xl o-font-semibold o-tracking-tight">
+              {client.nom}
+            </h3>
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
               {client.lieu}
             </p>
-            <p className="o-m-0 o-ml-auto o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+            <p
+              className="o-m-0 o-ml-auto o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              style={{ color: ENCRE }}
+            >
               {client.genre === 'professionnel' ? 'Professionnel' : 'Particulier'}
             </p>
           </header>
@@ -857,7 +1229,10 @@ function Carnet(): ReactElement {
                     <span className="o-col-span-8 o-text-sm sm:o-col-span-6">
                       {ecriture.quoi}
                       {ecriture.ouverte === true && (
-                        <span className="o-ml-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                        <span
+                          className="o-ml-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: ENCRE }}
+                        >
                           ouverte
                         </span>
                       )}
@@ -872,26 +1247,44 @@ function Carnet(): ReactElement {
           </div>
 
           {/* ----- La relance, calculee ------------------------------------- */}
-          <div className="o-px-6 o-py-6" style={{ borderTop: `1px solid ${FILET}`, backgroundColor: VOILE }}>
+          <div
+            className="o-px-6 o-py-6"
+            style={{ borderTop: `1px solid ${FILET}`, backgroundColor: VOILE }}
+          >
             <div className="o-flex o-flex-wrap o-items-center o-gap-3">
               <Icon icon={Scale} size={16} style={{ color: ENCRE }} aria-hidden="true" />
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
                 Ce que le carnet ferait aujourd hui
               </p>
-              <p className="o-m-0 o-ml-auto o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+              <p
+                className="o-m-0 o-ml-auto o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                style={{ color: ENCRE }}
+              >
                 {palier === undefined ? 'Rien a faire' : palier.nom}
               </p>
             </div>
 
             <dl className="o-m-0 o-mt-5 o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-4 sm:o-grid-cols-4">
-              {([
-                ['Retard', etat.retard < 0 ? `${String(-etat.retard)} j avant` : `${String(etat.retard)} j`],
-                ['Principal', euros(client.montant)],
-                [etat.forfait > 0 ? 'Interets + 40 EUR' : 'Interets', euros(etat.interets + etat.forfait)],
-                ['Reclamable', euros(etat.du)],
-              ] as const).map(([quoi, valeur], rang) => (
+              {(
+                [
+                  [
+                    'Retard',
+                    etat.retard < 0
+                      ? `${String(-etat.retard)} j avant`
+                      : `${String(etat.retard)} j`,
+                  ],
+                  ['Principal', euros(client.montant)],
+                  [
+                    etat.forfait > 0 ? 'Interets + 40 EUR' : 'Interets',
+                    euros(etat.interets + etat.forfait),
+                  ],
+                  ['Reclamable', euros(etat.du)],
+                ] as const
+              ).map(([quoi, valeur], rang) => (
                 <div key={quoi}>
-                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
+                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    {quoi}
+                  </dt>
                   <dd
                     className="o-m-0 o-mt-1 o-font-mono o-text-lg o-tabular-nums o-tracking-tight"
                     style={rang === 3 ? { color: ENCRE } : undefined}
@@ -911,13 +1304,18 @@ function Carnet(): ReactElement {
             <blockquote
               aria-live="polite"
               className="o-m-0 o-mt-5 o-rounded-xl o-p-5 o-font-mono o-text-xs o-leading-relaxed"
-              style={{ border: `1px solid ${FILET}`, backgroundColor: 'var(--o-theme-bg)' }}
+              style={{
+                border: `1px solid ${FILET}`,
+                backgroundColor: 'var(--o-theme-bg)',
+              }}
             >
               {message(client, etat, jour)}
             </blockquote>
 
             {palier !== undefined && (
-              <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{palier.geste}</p>
+              <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                {palier.geste}
+              </p>
             )}
           </div>
         </article>
@@ -936,7 +1334,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="trou" marque="Carnet" sombre={false}>
-      <div className="o-bg-stone-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100" style={polices}>
+      <div
+        className="o-bg-stone-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100"
+        style={polices}
+      >
         <BarreFilet
           marque="Carnet"
           liens={LIENS.slice(0, 4)}
@@ -946,7 +1347,11 @@ export default function Page(): ReactElement {
 
         <main>
           {/* =============== L affiche produit ============================== */}
-          <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-20 o-pt-16 md:o-px-8 md:o-pb-28 md:o-pt-24">
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-20 o-pt-16 md:o-px-8 md:o-pb-28 md:o-pt-24"
+          >
             <GraphPaper
               className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
               size={12}
@@ -957,7 +1362,9 @@ export default function Page(): ReactElement {
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0 o-h-32"
-              style={{ background: 'linear-gradient(to bottom, transparent, var(--o-theme-bg))' }}
+              style={{
+                background: 'linear-gradient(to bottom, transparent, var(--o-theme-bg))',
+              }}
             />
 
             <div className="o-relative o-z-10 o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 lg:o-grid-cols-12">
@@ -973,19 +1380,38 @@ export default function Page(): ReactElement {
                 >
                   Le carnet de l artisan.
                 </TitreVague>
-                <Surgit delai={520} as="p" className="o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Un client, un chantier, une facture. Et le jour ou elle n est pas payee, le decompte exact de ce que vous pouvez reclamer — au bon taux, selon que le client est une entreprise ou non.
+                <Surgit
+                  delai={520}
+                  as="p"
+                  className="o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+                >
+                  Un client, un chantier, une facture. Et le jour ou elle n est pas payee,
+                  le decompte exact de ce que vous pouvez reclamer — au bon taux, selon
+                  que le client est une entreprise ou non.
                 </Surgit>
-                <Surgit delai={580} as="p" className="o-mt-4 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                  Ecrit pour les entreprises de un a douze compagnons, qui n ont ni service comptable ni juriste.
+                <Surgit
+                  delai={580}
+                  as="p"
+                  className="o-mt-4 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400"
+                >
+                  Ecrit pour les entreprises de un a douze compagnons, qui n ont ni
+                  service comptable ni juriste.
                 </Surgit>
                 <Surgit delai={640} className="o-mt-9">
-                  <Actions pleine={['#essai', 'Ouvrir un carnet']} fantome={['#fiche', 'Voir une fiche']} sombre={false} />
+                  <Actions
+                    pleine={['#essai', 'Ouvrir un carnet']}
+                    fantome={['#fiche', 'Voir une fiche']}
+                    sombre={false}
+                  />
                 </Surgit>
               </div>
 
               <div className="o-min-w-0 o-flex o-justify-center lg:o-col-span-5 lg:o-justify-end">
-                <Surgit delai={340} distance={38} className="o-w-full o-flex o-justify-center lg:o-justify-end">
+                <Surgit
+                  delai={340}
+                  distance={38}
+                  className="o-w-full o-flex o-justify-center lg:o-justify-end"
+                >
                   <FicheDessinee />
                 </Surgit>
               </div>
@@ -1027,7 +1453,11 @@ export default function Page(): ReactElement {
           </div>
 
           {/* =============== (01) Le mecanisme : la fiche client ============ */}
-          <section id="fiche" aria-labelledby="fiche-titre" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+          <section
+            id="fiche"
+            aria-labelledby="fiche-titre"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
@@ -1036,7 +1466,9 @@ export default function Page(): ReactElement {
                   </Titre>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-5">
-                  Cinq clients reels d un carnet de plombier nantais, avec leur historique. Le curseur porte la date : les retards courent, les paliers de relance se franchissent, et le texte du message change avec eux.
+                  Cinq clients reels d un carnet de plombier nantais, avec leur
+                  historique. Le curseur porte la date : les retards courent, les paliers
+                  de relance se franchissent, et le texte du message change avec eux.
                 </p>
               </div>
 
@@ -1056,21 +1488,30 @@ export default function Page(): ReactElement {
           >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   Figure 01
                 </p>
                 <h2
                   id="chantier-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Cent vingt-huit jours.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Du devis remis a l argent recu, un chantier moyen du carnet dure quatre mois. L acompte couvre trente pour cent ; le reste est avance par l artisan.
+                  Du devis remis a l argent recu, un chantier moyen du carnet dure quatre
+                  mois. L acompte couvre trente pour cent ; le reste est avance par l
+                  artisan.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  La surface teintee est cette avance. C est elle, et pas le chiffre d affaires, qui decide si une entreprise de six personnes passe l hiver.
+                  La surface teintee est cette avance. C est elle, et pas le chiffre d
+                  affaires, qui decide si une entreprise de six personnes passe l hiver.
                 </p>
               </div>
 
@@ -1081,12 +1522,17 @@ export default function Page(): ReactElement {
                 <ol className="o-sr-only">
                   {STATIONS.map((station) => (
                     <li key={station.nom}>
-                      {station.nom} — {station.quand}, {String(Math.round(station.part * 100))} pour cent encaisse.
+                      {station.nom} — {station.quand},{' '}
+                      {String(Math.round(station.part * 100))} pour cent encaisse.
                     </li>
                   ))}
                 </ol>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400" style={{ borderColor: FILET }}>
-                  Figure 01 — les sept stations d un chantier type, et la part encaissee sous chacune. La relance s accroche entre l echeance et l encaissement.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400"
+                  style={{ borderColor: FILET }}
+                >
+                  Figure 01 — les sept stations d un chantier type, et la part encaissee
+                  sous chacune. La relance s accroche entre l echeance et l encaissement.
                 </figcaption>
               </figure>
             </div>
@@ -1104,21 +1550,30 @@ export default function Page(): ReactElement {
             <Grain opacite={0.05} />
             <div className="o-relative o-z-20 o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_NUIT }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE_NUIT }}
+                >
                   Figure 02
                 </p>
                 <h2
                   id="retard-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Relancer tot, ou ne pas relancer.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  La derniere barre remonte, et c est le seul enseignement de la figure. Le tribunal ne raccourcit rien : il fait entrer le dossier dans un calendrier qui n est plus le votre.
+                  La derniere barre remonte, et c est le seul enseignement de la figure.
+                  Le tribunal ne raccourcit rien : il fait entrer le dossier dans un
+                  calendrier qui n est plus le votre.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  Le rappel envoye deux jours apres l echeance, lui, retire vingt-sept jours de delai moyen. Il tient en trois lignes, et personne ne le tape.
+                  Le rappel envoye deux jours apres l echeance, lui, retire vingt-sept
+                  jours de delai moyen. Il tient en trois lignes, et personne ne le tape.
                 </p>
               </div>
 
@@ -1129,19 +1584,26 @@ export default function Page(): ReactElement {
                 <ul className="o-sr-only">
                   {DELAIS.map((barre) => (
                     <li key={barre.quoi}>
-                      {barre.quoi} — {String(barre.jours)} jours de delai moyen, {barre.part}.
+                      {barre.quoi} — {String(barre.jours)} jours de delai moyen,{' '}
+                      {barre.part}.
                     </li>
                   ))}
                 </ul>
                 <figcaption className="o-mt-6 o-border-t o-border-white-10 o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">
-                  Figure 02 — delai moyen entre l emission et l encaissement, par palier de relance atteint. Mille deux cent quarante factures du carnet, exercice 2025.
+                  Figure 02 — delai moyen entre l emission et l encaissement, par palier
+                  de relance atteint. Mille deux cent quarante factures du carnet,
+                  exercice 2025.
                 </figcaption>
               </figure>
             </div>
           </section>
 
           {/* =============== L empilement : ce que le carnet remplace ======= */}
-          <section id="remplace" aria-labelledby="remplace-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="remplace"
+            aria-labelledby="remplace-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-5xl">
               <Titre indice="(02) — Ce qu il remplace" id="remplace-titre">
                 Quatre objets, et pourquoi ils ne suffisent plus.
@@ -1153,21 +1615,32 @@ export default function Page(): ReactElement {
                     <article
                       key={carte.rang}
                       className="o-rounded-2xl o-p-8 md:o-p-12"
-                      style={{ border: `1px solid ${FILET}`, backgroundColor: 'var(--o-theme-bg)' }}
+                      style={{
+                        border: `1px solid ${FILET}`,
+                        backgroundColor: 'var(--o-theme-bg)',
+                      }}
                     >
                       <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-center">
                         <div className="o-min-w-0 md:o-col-span-4">
                           <ObjetPile nom={carte.objet} />
                         </div>
                         <div className="o-min-w-0 md:o-col-span-8">
-                          <p className="o-m-0 o-font-mono o-text-xs o-tabular-nums o-tracking-widest" style={{ color: ENCRE }}>
+                          <p
+                            className="o-m-0 o-font-mono o-text-xs o-tabular-nums o-tracking-widest"
+                            style={{ color: ENCRE }}
+                          >
                             {carte.rang}
                           </p>
                           <h3 className="o-m-0 o-mt-3 o-text-balance o-text-2xl o-font-semibold o-tracking-tight md:o-text-3xl">
                             {carte.titre}
                           </h3>
-                          <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{carte.texte}</p>
-                          <p className="o-mt-4 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed" style={{ borderColor: FILET, color: ENCRE }}>
+                          <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                            {carte.texte}
+                          </p>
+                          <p
+                            className="o-mt-4 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed"
+                            style={{ borderColor: FILET, color: ENCRE }}
+                          >
                             {carte.note}
                           </p>
                         </div>
@@ -1180,22 +1653,36 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Le prix, en une ligne ========================== */}
-          <section aria-labelledby="prix-titre" className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-16 md:o-px-8">
+          <section
+            aria-labelledby="prix-titre"
+            className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-16 md:o-px-8"
+          >
             <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-baseline o-gap-x-8 o-gap-y-3">
-              <h2 id="prix-titre" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+              <h2
+                id="prix-titre"
+                className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+              >
                 Le prix
               </h2>
-              <p className="o-m-0 o-tabular-nums o-tracking-tighter" style={{ ...affiche('m', 300), fontSize: 'clamp(2.5rem, 6vw, 5rem)' }}>
+              <p
+                className="o-m-0 o-tabular-nums o-tracking-tighter"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2.5rem, 6vw, 5rem)' }}
+              >
                 19 EUR
               </p>
               <p className="o-m-0 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                par mois et par artisan, tout compris. Pas de palier, pas de licence a l annee, pas de supplement pour les relances. On arrete quand on veut, et le carnet s exporte en un fichier.
+                par mois et par artisan, tout compris. Pas de palier, pas de licence a l
+                annee, pas de supplement pour les relances. On arrete quand on veut, et le
+                carnet s exporte en un fichier.
               </p>
             </div>
           </section>
 
           {/* =============== Une phrase, un ecran =========================== */}
-          <section aria-labelledby="promesse-titre" className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-32 md:o-px-8 md:o-py-44">
+          <section
+            aria-labelledby="promesse-titre"
+            className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-32 md:o-px-8 md:o-py-44"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-3">
                 La promesse
@@ -1204,26 +1691,42 @@ export default function Page(): ReactElement {
                 <h2 id="promesse-titre" className="o-sr-only">
                   La promesse du carnet
                 </h2>
-                <Manifeste sombre={false} eteint="Un logiciel de gestion vous demande d entrer votre metier dans ses cases.">
-                  Celui-ci tient un carnet, comme le votre, et sait seulement compter les jours a votre place.
+                <Manifeste
+                  sombre={false}
+                  eteint="Un logiciel de gestion vous demande d entrer votre metier dans ses cases."
+                >
+                  Celui-ci tient un carnet, comme le votre, et sait seulement compter les
+                  jours a votre place.
                 </Manifeste>
               </div>
             </div>
           </section>
 
           {/* =============== A16 : le champ et le bouton, un seul filet ===== */}
-          <section id="essai" aria-labelledby="essai-titre" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="essai"
+            aria-labelledby="essai-titre"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-3xl o-text-center">
-              <h2 id="essai-titre" className="o-m-0 o-text-balance o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.75rem)' }}>
+              <h2
+                id="essai-titre"
+                className="o-m-0 o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.75rem)' }}
+              >
                 Un carnet vide vous attend.
               </h2>
               <p className="o-mx-auto o-mt-5 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Trente jours, sans carte bancaire. Vous reprenez vos clients depuis un fichier, ou vous les tapez au fil des chantiers.
+                Trente jours, sans carte bancaire. Vous reprenez vos clients depuis un
+                fichier, ou vous les tapez au fil des chantiers.
               </p>
 
               <form
                 className="o-mx-auto o-mt-10 o-flex o-max-w-xl o-items-center o-gap-2 o-rounded-full o-p-1.5"
-                style={{ border: `1px solid ${FILET}`, backgroundColor: 'var(--o-theme-bg)' }}
+                style={{
+                  border: `1px solid ${FILET}`,
+                  backgroundColor: 'var(--o-theme-bg)',
+                }}
                 onSubmit={(evenement) => {
                   evenement.preventDefault()
                 }}
@@ -1250,7 +1753,12 @@ export default function Page(): ReactElement {
               </form>
 
               <p className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                <Icon icon={NotebookPen} size={14} style={{ color: ENCRE }} aria-hidden="true" />
+                <Icon
+                  icon={NotebookPen}
+                  size={14}
+                  style={{ color: ENCRE }}
+                  aria-hidden="true"
+                />
                 Ecrit a Nantes, pour des entreprises de un a douze compagnons
               </p>
             </div>
@@ -1271,43 +1779,65 @@ export default function Page(): ReactElement {
               </span>
             </div>
 
-            <div className="o-mt-8 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-3" style={{ borderColor: FILET }}>
-              {([
+            <div
+              className="o-mt-8 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-3"
+              style={{ borderColor: FILET }}
+            >
+              {(
                 [
-                  'La redaction',
-                  'Carnet est ecrit par quatre personnes a Nantes. Direction de la publication : Claire Vasseur. Conception : Tom Bridier, Nadia Lempereur. Documentation et assistance : Come Arsac, du lundi au vendredi, de huit heures a dix-huit heures, au numero du contrat.',
-                ],
-                [
-                  'La fabrication',
-                  'Serveurs a Gravelines et a Roubaix, sur une infrastructure francaise. Sauvegarde chiffree toutes les heures, conservee trente-cinq jours. Aucune donnee n est transmise a un tiers, aucun traceur publicitaire n est pose. Les exports sont au format ouvert.',
-                ],
-                [
-                  'Le depot legal',
-                  'Carnet SAS, capital de 42 000 EUR, RCS Nantes 908 214 337, siege au 14 quai de la Fosse, 44000 Nantes. TVA FR 41 908214337. Hebergeur : OVH SAS, 2 rue Kellermann, 59100 Roubaix. Accessibilite : partiellement conforme, declaration au 2 fevrier 2026.',
-                ],
-              ] as const).map(([titre, texte]) => (
+                  [
+                    'La redaction',
+                    'Carnet est ecrit par quatre personnes a Nantes. Direction de la publication : Claire Vasseur. Conception : Tom Bridier, Nadia Lempereur. Documentation et assistance : Come Arsac, du lundi au vendredi, de huit heures a dix-huit heures, au numero du contrat.',
+                  ],
+                  [
+                    'La fabrication',
+                    'Serveurs a Gravelines et a Roubaix, sur une infrastructure francaise. Sauvegarde chiffree toutes les heures, conservee trente-cinq jours. Aucune donnee n est transmise a un tiers, aucun traceur publicitaire n est pose. Les exports sont au format ouvert.',
+                  ],
+                  [
+                    'Le depot legal',
+                    'Carnet SAS, capital de 42 000 EUR, RCS Nantes 908 214 337, siege au 14 quai de la Fosse, 44000 Nantes. TVA FR 41 908214337. Hebergeur : OVH SAS, 2 rue Kellermann, 59100 Roubaix. Accessibilite : partiellement conforme, declaration au 2 fevrier 2026.',
+                  ],
+                ] as const
+              ).map(([titre, texte]) => (
                 <div key={titre}>
-                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <h2
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     {titre}
                   </h2>
-                  <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{texte}</p>
+                  <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                    {texte}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400" style={{ borderColor: FILET }}>
+            <div
+              className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+              style={{ borderColor: FILET }}
+            >
               <span className="o-inline-flex o-items-center o-gap-2">
                 <Icon icon={Receipt} size={13} aria-hidden="true" />
                 Numero 4 — avril 2026
               </span>
-              <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
-                {([
-                  ['#fiche', 'Mentions legales'],
-                  ['#fiche', 'Donnees personnelles'],
-                  ['#fiche', 'Conditions'],
-                  ['#retard', 'Sources des chiffres'],
-                ] as const).map(([cible, mot]) => (
-                  <a key={mot} href={cible} className="o-no-underline o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-100 o-transition-colors focus:o-ring">
+              <nav
+                aria-label="Mentions"
+                className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2"
+              >
+                {(
+                  [
+                    ['#fiche', 'Mentions legales'],
+                    ['#fiche', 'Donnees personnelles'],
+                    ['#fiche', 'Conditions'],
+                    ['#retard', 'Sources des chiffres'],
+                  ] as const
+                ).map(([cible, mot]) => (
+                  <a
+                    key={mot}
+                    href={cible}
+                    className="o-no-underline o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-900 dark:hover:o-text-zinc-100 o-transition-colors focus:o-ring"
+                  >
                     {mot}
                   </a>
                 ))}

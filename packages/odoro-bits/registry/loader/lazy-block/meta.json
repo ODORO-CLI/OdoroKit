@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-line",
-    "--o-theme-surface",
-    "--o-ease-standard"
-  ],
+  "tokens": ["--o-theme-line", "--o-theme-surface", "--o-ease-standard"],
   "props": [
     {
       "name": "children",

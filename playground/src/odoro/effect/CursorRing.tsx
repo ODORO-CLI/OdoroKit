@@ -151,8 +151,14 @@ export function CursorRing({
       const box = host.getBoundingClientRect()
       bounds.width = box.width
       bounds.height = box.height
-      host.style.setProperty('--o-ring-dot-x', `${(event.clientX - box.left).toFixed(1)}px`)
-      host.style.setProperty('--o-ring-dot-y', `${(event.clientY - box.top).toFixed(1)}px`)
+      host.style.setProperty(
+        '--o-ring-dot-x',
+        `${(event.clientX - box.left).toFixed(1)}px`,
+      )
+      host.style.setProperty(
+        '--o-ring-dot-y',
+        `${(event.clientY - box.top).toFixed(1)}px`,
+      )
       host.setAttribute('data-o-cursor-ring-on', '')
     }
 
@@ -203,7 +209,13 @@ export function CursorRing({
   } as CSSProperties
 
   return (
-    <div {...rest} ref={setHost} className={className} style={hostStyle} data-o-cursor-ring="">
+    <div
+      {...rest}
+      ref={setHost}
+      className={className}
+      style={hostStyle}
+      data-o-cursor-ring=""
+    >
       {children}
       {/* Sous mouvement reduit, le remplacant n'existe pas du tout : le
           curseur natif reste, et rien ne traine derriere lui. */}

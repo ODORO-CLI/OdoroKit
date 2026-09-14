@@ -36,16 +36,16 @@ npm create odoro@latest my-app -- --yes --modules=libs,router,icons
 npm create odoro@latest my-app -- --yes --modules=none
 ```
 
-| Flag                | Effect                                                    |
-| ------------------- | --------------------------------------------------------- |
-| `--template <name>` | `react-ts` or `react-ts-server`.                           |
-| `--modules <list>`  | `libs,router,icons,engine,registre` — or `none`.           |
-| `--pm <name>`       | `pnpm`, `npm`, `yarn` or `bun`.                            |
-| `--no-git`          | Skip the git repository.                                   |
-| `--no-install`      | Skip the dependency install.                               |
-| `--overwrite`       | Empty the target folder first.                             |
-| `--merge`           | Write over the existing contents.                          |
-| `--yes`             | Accept every default without asking.                       |
+| Flag                | Effect                                           |
+| ------------------- | ------------------------------------------------ |
+| `--template <name>` | `react-ts` or `react-ts-server`.                 |
+| `--modules <list>`  | `libs,router,icons,engine,registre` — or `none`. |
+| `--pm <name>`       | `pnpm`, `npm`, `yarn` or `bun`.                  |
+| `--no-git`          | Skip the git repository.                         |
+| `--no-install`      | Skip the dependency install.                     |
+| `--overwrite`       | Empty the target folder first.                   |
+| `--merge`           | Write over the existing contents.                |
+| `--yes`             | Accept every default without asking.             |
 
 ## Two boxes that are not packages
 

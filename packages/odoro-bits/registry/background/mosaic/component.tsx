@@ -67,7 +67,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-brand-900'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-brand-900'
 
 /**
  * Mosaique.

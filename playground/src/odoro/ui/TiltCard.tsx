@@ -215,8 +215,7 @@ export function TiltCard({
 
         // Le signe de X est inverse : pointer vers la droite doit faire pivoter
         // le bord droit vers l'arriere, pas vers l'avant.
-        interieur.style.transform =
-          `rotateX(${String(-y * tilt)}deg) rotateY(${String(x * tilt)}deg)`
+        interieur.style.transform = `rotateX(${String(-y * tilt)}deg) rotateY(${String(x * tilt)}deg)`
       }
 
       image = requestAnimationFrame(pas)

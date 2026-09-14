@@ -69,11 +69,7 @@ export interface FloatingLinesOwnProps {
 export type FloatingLinesProps = Customisable<FloatingLinesOwnProps>
 
 /** Tokens employes par defaut : le fond, le halo, le coeur du trait. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-muted',
-  '--o-palette-sky-400',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

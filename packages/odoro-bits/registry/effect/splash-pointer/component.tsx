@@ -133,7 +133,11 @@ export function SplashPointer({
           { transform: 'scale(0.2)', opacity: 0.9 },
           { transform: `scale(${(spread / 24).toFixed(2)})`, opacity: 0 },
         ],
-        { duration: Math.round(duration * 0.6), easing: 'cubic-bezier(0, 0, 0.2, 1)', fill: 'forwards' },
+        {
+          duration: Math.round(duration * 0.6),
+          easing: 'cubic-bezier(0, 0, 0.2, 1)',
+          fill: 'forwards',
+        },
       )
       wave.onfinish = () => ring.remove()
 
@@ -175,7 +179,11 @@ export function SplashPointer({
           })
         }
 
-        const flight = drop.animate(frames, { duration, easing: 'linear', fill: 'forwards' })
+        const flight = drop.animate(frames, {
+          duration,
+          easing: 'linear',
+          fill: 'forwards',
+        })
         flight.onfinish = () => drop.remove()
       }
     }

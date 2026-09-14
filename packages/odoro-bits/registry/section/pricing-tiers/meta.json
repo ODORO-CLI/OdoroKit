@@ -9,13 +9,39 @@
   "registryDependencies": ["text/count-up"],
   "tokens": ["--o-theme-bg", "--o-theme-fg"],
   "props": [
-    { "name": "tiers", "type": "readonly Tier[]", "required": true, "description": "Les offres, dans l ordre d affichage." },
-    { "name": "as", "type": "ElementType", "default": "section", "description": "Balise rendue." },
-    { "name": "currency", "type": "string", "description": "Symbole colle avant le prix." },
+    {
+      "name": "tiers",
+      "type": "readonly Tier[]",
+      "required": true,
+      "description": "Les offres, dans l ordre d affichage."
+    },
+    {
+      "name": "as",
+      "type": "ElementType",
+      "default": "section",
+      "description": "Balise rendue."
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "description": "Symbole colle avant le prix."
+    },
     { "name": "suffix", "type": "string", "description": "Symbole colle apres le prix." },
-    { "name": "yearlyDiscount", "type": "number", "default": 0.2, "description": "Part remise sur l annee. Zero retire la bascule.", "min": 0, "max": 0.6, "step": 0.05 },
+    {
+      "name": "yearlyDiscount",
+      "type": "number",
+      "default": 0.2,
+      "description": "Part remise sur l annee. Zero retire la bascule.",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05
+    },
     { "name": "locale", "type": "string", "description": "Langue du formatage." },
-    { "name": "onChoose", "type": "(tier: Tier) => void", "description": "Appele au clic sur une offre." }
+    {
+      "name": "onChoose",
+      "type": "(tier: Tier) => void",
+      "description": "Appele au clic sur une offre."
+    }
   ],
   "perf": {
     "tier": "light",

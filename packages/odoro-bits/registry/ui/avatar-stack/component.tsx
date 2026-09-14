@@ -166,7 +166,11 @@ export function AvatarStack({
       {surplus > 0 ? (
         <span
           data-o-avatar=""
-          style={{ '--o-avatar-tone': 'color-mix(in oklch,currentColor 35%,transparent)' } as CSSProperties}
+          style={
+            {
+              '--o-avatar-tone': 'color-mix(in oklch,currentColor 35%,transparent)',
+            } as CSSProperties
+          }
         >
           <span aria-hidden="true">+{surplus}</span>
           <span className="o-sr-only">{`${String(surplus)} personnes de plus`}</span>

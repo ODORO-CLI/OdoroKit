@@ -48,7 +48,7 @@ export type ModuleId = 'libs' | 'router' | 'icons' | 'engine' | 'registre'
 /** Ce qu'on sait d'un module. */
 export interface Module {
   readonly id: ModuleId
-/** Libelle affiche dans la liste. En anglais : voir l'en-tete du module. */
+  /** Libelle affiche dans la liste. En anglais : voir l'en-tete du module. */
   readonly label: string
   /** Precision affichee en gris, a droite du libelle. En anglais de meme. */
   readonly hint: string

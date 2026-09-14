@@ -238,6 +238,12 @@ export function CursorGridDom({
   )
 
   return (
-    <div {...rest} ref={setHost} className={className} style={style as CSSProperties} aria-hidden />
+    <div
+      {...rest}
+      ref={setHost}
+      className={className}
+      style={style as CSSProperties}
+      aria-hidden
+    />
   )
 }

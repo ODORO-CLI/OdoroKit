@@ -81,7 +81,18 @@ import { ReflectiveCard } from '@/odoro/ui/ReflectiveCard.jsx'
 
 import { photo } from './media.js'
 import { accent, accentDoux } from './palettes.js'
-import { Actions, affiche, CHROME, Coin, Etiquette, Grain, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  CHROME,
+  Coin,
+  Etiquette,
+  Grain,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Bandeau } from './scene.jsx'
 
 /** Filet blanc tres faible : le systeme n a pas de classe pour une opacite. */
@@ -141,12 +152,47 @@ const NAVIGATION = [
  * d ecran reproductibles la ou un tirage au sort ne le serait pas.
  */
 const PAIRES = [
-  { code: 'BTC', nom: 'Bitcoin', base: 61840, derive: 0.011, phase: 0, volume: '1,84 Md€' },
-  { code: 'ETH', nom: 'Ethereum', base: 3118, derive: 0.017, phase: 1.2, volume: '742 M€' },
-  { code: 'SOL', nom: 'Solana', base: 148.6, derive: 0.026, phase: 2.4, volume: '311 M€' },
+  {
+    code: 'BTC',
+    nom: 'Bitcoin',
+    base: 61840,
+    derive: 0.011,
+    phase: 0,
+    volume: '1,84 Md€',
+  },
+  {
+    code: 'ETH',
+    nom: 'Ethereum',
+    base: 3118,
+    derive: 0.017,
+    phase: 1.2,
+    volume: '742 M€',
+  },
+  {
+    code: 'SOL',
+    nom: 'Solana',
+    base: 148.6,
+    derive: 0.026,
+    phase: 2.4,
+    volume: '311 M€',
+  },
   { code: 'XMR', nom: 'Monero', base: 172.9, derive: 0.014, phase: 3.6, volume: '48 M€' },
-  { code: 'ADA', nom: 'Cardano', base: 0.617, derive: 0.021, phase: 4.8, volume: '96 M€' },
-  { code: 'LINK', nom: 'Chainlink', base: 17.42, derive: 0.019, phase: 6, volume: '58 M€' },
+  {
+    code: 'ADA',
+    nom: 'Cardano',
+    base: 0.617,
+    derive: 0.021,
+    phase: 4.8,
+    volume: '96 M€',
+  },
+  {
+    code: 'LINK',
+    nom: 'Chainlink',
+    base: 17.42,
+    derive: 0.019,
+    phase: 6,
+    volume: '58 M€',
+  },
 ] as const
 
 /**
@@ -214,7 +260,13 @@ const MONTANTS = [250, 1000, 5000, 25000] as const
 const PERIODES = [
   { cle: '24h', libelle: '24 h', pas: 1, points: 48, legende: 'un point par demi-heure' },
   { cle: '7j', libelle: '7 j', pas: 7, points: 56, legende: 'un point par trois heures' },
-  { cle: '30j', libelle: '30 j', pas: 30, points: 60, legende: 'un point par douze heures' },
+  {
+    cle: '30j',
+    libelle: '30 j',
+    pas: 30,
+    points: 60,
+    legende: 'un point par douze heures',
+  },
   { cle: '1an', libelle: '1 an', pas: 365, points: 52, legende: 'un point par semaine' },
 ] as const
 
@@ -292,14 +344,38 @@ const LIGNES = [
     label: 'Ecart moyen affiche sur BTC',
     values: ['0,4 pb', '1,8 pb', '32 pb'],
   },
-  { group: 'Entrees et sorties', label: 'Virement SEPA entrant', values: [true, true, true] },
-  { group: 'Entrees et sorties', label: 'Virement SEPA sortant', values: ['Gratuit', '1,50 €', '3,00 €'] },
-  { group: 'Entrees et sorties', label: 'Retrait en chaine', values: ['Cout reseau seul', 'Cout reseau + 4 €', 'Indisponible'] },
+  {
+    group: 'Entrees et sorties',
+    label: 'Virement SEPA entrant',
+    values: [true, true, true],
+  },
+  {
+    group: 'Entrees et sorties',
+    label: 'Virement SEPA sortant',
+    values: ['Gratuit', '1,50 €', '3,00 €'],
+  },
+  {
+    group: 'Entrees et sorties',
+    label: 'Retrait en chaine',
+    values: ['Cout reseau seul', 'Cout reseau + 4 €', 'Indisponible'],
+  },
   { group: 'Le reste', label: 'Frais de garde', values: [false, false, false] },
   { group: 'Le reste', label: 'Frais d inactivite', values: [false, true, true] },
-  { group: 'Le reste', label: 'Preuve de reserves mensuelle', values: [true, false, false] },
-  { group: 'Le reste', label: 'Interface de programmation publique', values: [true, true, false] },
-  { group: 'Le reste', label: 'Export fiscal francais', values: ['Formulaire 2086 pre-rempli', 'CSV brut', false] },
+  {
+    group: 'Le reste',
+    label: 'Preuve de reserves mensuelle',
+    values: [true, false, false],
+  },
+  {
+    group: 'Le reste',
+    label: 'Interface de programmation publique',
+    values: [true, true, false],
+  },
+  {
+    group: 'Le reste',
+    label: 'Export fiscal francais',
+    values: ['Formulaire 2086 pre-rempli', 'CSV brut', false],
+  },
 ] as const
 
 /** Les niveaux du carnet d ordres simplifie. */
@@ -334,17 +410,20 @@ const MOBILE = [
   {
     icone: Zap,
     titre: 'Passer un ordre en deux gestes',
-    texte: 'La paire est deja ouverte, le montant se saisit au pave, la confirmation tient dans le pouce.',
+    texte:
+      'La paire est deja ouverte, le montant se saisit au pave, la confirmation tient dans le pouce.',
   },
   {
     icone: Activity,
     titre: 'Alertes de seuil',
-    texte: 'Un cours franchi previent en moins d une seconde, meme quand l application est fermee.',
+    texte:
+      'Un cours franchi previent en moins d une seconde, meme quand l application est fermee.',
   },
   {
     icone: Wallet,
     titre: 'Retrait vers votre banque',
-    texte: 'Le virement instantane part vers l IBAN enregistre, sept jours sur sept, sans frais.',
+    texte:
+      'Le virement instantane part vers l IBAN enregistre, sept jours sur sept, sans frais.',
   },
 ] as const
 
@@ -530,7 +609,8 @@ export default function Page(): ReactElement {
   const frais = montant * commission
   const limite = valeur * 0.995
   const seuil = valeur * 1.02
-  const reference = ordre === 'limite' ? limite : ordre === 'declenchement' ? seuil : valeur
+  const reference =
+    ordre === 'limite' ? limite : ordre === 'declenchement' ? seuil : valeur
   const recu = (montant - frais) / reference
 
   const points = historique(paire, battement, fenetre)
@@ -542,49 +622,55 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Orbe">
-    <div className="o-bg-zinc-950 o-text-zinc-100 dark:o-text-zinc-100" style={{ ...polices, ...THEME_SOMBRE }}>
-      {/* ----- Barre fine, avec le portefeuille ----------------------------- */}
-      <header className="o-border-b o-bg-zinc-950" style={{ borderColor: FILET }}>
-        <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-px-4 o-py-2.5 md:o-px-6">
-          <a
-            href="#fiche"
-            className="o-inline-flex o-items-center o-gap-2 o-no-underline o-text-zinc-50 focus:o-ring"
-          >
-            <Icon icon={Globe} size={16} style={{ color: encre() }} />
-            <span className="o-text-sm o-font-bold o-tracking-tight">Orbe</span>
-          </a>
-
-          <nav aria-label="Sections du site" className="o-flex o-flex-wrap o-items-center o-gap-5">
-            {NAVIGATION.map(([href, libelle]) => (
-              <a
-                key={href}
-                href={href}
-                className="o-text-xs o-font-medium o-no-underline o-text-zinc-400 hover:o-text-zinc-50 o-transition-colors focus:o-ring"
-              >
-                {libelle}
-              </a>
-            ))}
-          </nav>
-
-          <a
-            href="#ouvrir"
-            className="o-ml-auto o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-font-semibold o-no-underline o-text-zinc-100 hover:o-text-zinc-50 o-transition-colors focus:o-ring"
-            style={{ borderColor: FILET_FORT }}
-          >
-            <Icon icon={Wallet} size={14} aria-hidden="true" />
-            Portefeuille
-            <span
-              className="o-inline-flex o-size-5 o-items-center o-justify-center o-rounded-full o-tabular-nums"
-              style={APLAT}
+      <div
+        className="o-bg-zinc-950 o-text-zinc-100 dark:o-text-zinc-100"
+        style={{ ...polices, ...THEME_SOMBRE }}
+      >
+        {/* ----- Barre fine, avec le portefeuille ----------------------------- */}
+        <header className="o-border-b o-bg-zinc-950" style={{ borderColor: FILET }}>
+          <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-px-4 o-py-2.5 md:o-px-6">
+            <a
+              href="#fiche"
+              className="o-inline-flex o-items-center o-gap-2 o-no-underline o-text-zinc-50 focus:o-ring"
             >
-              2
-            </span>
-          </a>
-        </div>
-      </header>
+              <Icon icon={Globe} size={16} style={{ color: encre() }} />
+              <span className="o-text-sm o-font-bold o-tracking-tight">Orbe</span>
+            </a>
 
-      <main>
-        {/*
+            <nav
+              aria-label="Sections du site"
+              className="o-flex o-flex-wrap o-items-center o-gap-5"
+            >
+              {NAVIGATION.map(([href, libelle]) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="o-text-xs o-font-medium o-no-underline o-text-zinc-400 hover:o-text-zinc-50 o-transition-colors focus:o-ring"
+                >
+                  {libelle}
+                </a>
+              ))}
+            </nav>
+
+            <a
+              href="#ouvrir"
+              className="o-ml-auto o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-font-semibold o-no-underline o-text-zinc-100 hover:o-text-zinc-50 o-transition-colors focus:o-ring"
+              style={{ borderColor: FILET_FORT }}
+            >
+              <Icon icon={Wallet} size={14} aria-hidden="true" />
+              Portefeuille
+              <span
+                className="o-inline-flex o-size-5 o-items-center o-justify-center o-rounded-full o-tabular-nums"
+                style={APLAT}
+              >
+                2
+              </span>
+            </a>
+          </div>
+        </header>
+
+        <main>
+          {/*
           ================================================= L affiche
 
           Le seul contexte anime de la page est ici, plein cadre : le flux de
@@ -592,279 +678,311 @@ export default function Page(): ReactElement {
           produit — le carnet, le panneau d achat — commence juste dessous,
           derriere le ticker.
         */}
-        <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden">
-          <div aria-hidden="true" className="o-absolute o-inset-0">
-            <DataStream
-              className="o-absolute o-inset-0"
-              lanes={18}
-              speed={0.5}
-              density={4}
-              thickness={0.24}
-              colors={['--o-theme-bg', '--o-vitrine-500', '--o-vitrine-seconde']}
-              fallback="o-bg-zinc-950"
-            />
-            {/* Le voile ne s efface jamais completement : les metadonnees de
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden"
+          >
+            <div aria-hidden="true" className="o-absolute o-inset-0">
+              <DataStream
+                className="o-absolute o-inset-0"
+                lanes={18}
+                speed={0.5}
+                density={4}
+                thickness={0.24}
+                colors={['--o-theme-bg', '--o-vitrine-500', '--o-vitrine-seconde']}
+                fallback="o-bg-zinc-950"
+              />
+              {/* Le voile ne s efface jamais completement : les metadonnees de
                 coin se posent sur la droite du cadre, et un flux plein les
                 rendrait illisibles. */}
-            <div
-              className="o-absolute o-inset-0"
-              style={{
-                background:
-                  'linear-gradient(102deg, #09090b 0%, color-mix(in oklab, #09090b 92%, transparent) 36%, color-mix(in oklab, #09090b 74%, transparent) 68%, color-mix(in oklab, #09090b 62%, transparent) 100%)',
-              }}
-            />
-            <div
-              className="o-absolute o-inset-x-0 o-bottom-0 o-h-40"
-              style={{ background: 'linear-gradient(to bottom, transparent, #09090b)' }}
-            />
-            <Grain opacite={0.06} />
-          </div>
-
-          <div
-            className="o-relative o-z-20 o-mx-auto o-flex o-max-w-7xl o-flex-col o-justify-center o-px-4 o-pb-24 o-pt-14 md:o-px-6"
-            style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 160px)` }}
-          >
-            <Surgit>
-              <Etiquette>Prestataire enregistre a l AMF — E2024-118, Paris</Etiquette>
-            </Surgit>
-            <TitreVague
-              delai={120}
-              className="o-m-0 o-mt-8 o-max-w-4xl o-text-zinc-50"
-              style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 6vw, 6rem)' }}
-            >
-              Le cours affiche est celui qu on vous passe.
-            </TitreVague>
-            <Surgit delai={520} as="p" className="o-m-0 o-mt-9 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
-              Ni moyenne differee, ni marge cachee dans l ecart. Le carnet est
-              ouvert sur cette page, et les frais se calculent devant vous.
-            </Surgit>
-            <Surgit delai={660} className="o-mt-10">
-              <Actions
-                pleine={['#ouvrir', <>Ouvrir un compte <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]}
-                fantome={['#carnet', 'Voir le carnet']}
+              <div
+                className="o-absolute o-inset-0"
+                style={{
+                  background:
+                    'linear-gradient(102deg, #09090b 0%, color-mix(in oklab, #09090b 92%, transparent) 36%, color-mix(in oklab, #09090b 74%, transparent) 68%, color-mix(in oklab, #09090b 62%, transparent) 100%)',
+                }}
               />
-            </Surgit>
-          </div>
+              <div
+                className="o-absolute o-inset-x-0 o-bottom-0 o-h-40"
+                style={{ background: 'linear-gradient(to bottom, transparent, #09090b)' }}
+              />
+              <Grain opacite={0.06} />
+            </div>
 
-          <Coin position="bg">214 paires cotees · reserves publiees chaque mois<br />Retrait ouvert des la premiere heure</Coin>
-          <Coin position="bd">Perte totale du capital possible<br />Aucun conseil, aucune recommandation</Coin>
-        </section>
+            <div
+              className="o-relative o-z-20 o-mx-auto o-flex o-max-w-7xl o-flex-col o-justify-center o-px-4 o-pb-24 o-pt-14 md:o-px-6"
+              style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 160px)` }}
+            >
+              <Surgit>
+                <Etiquette>Prestataire enregistre a l AMF — E2024-118, Paris</Etiquette>
+              </Surgit>
+              <TitreVague
+                delai={120}
+                className="o-m-0 o-mt-8 o-max-w-4xl o-text-zinc-50"
+                style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 6vw, 6rem)' }}
+              >
+                Le cours affiche est celui qu on vous passe.
+              </TitreVague>
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-9 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300"
+              >
+                Ni moyenne differee, ni marge cachee dans l ecart. Le carnet est ouvert
+                sur cette page, et les frais se calculent devant vous.
+              </Surgit>
+              <Surgit delai={660} className="o-mt-10">
+                <Actions
+                  pleine={[
+                    '#ouvrir',
+                    <>
+                      Ouvrir un compte{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#carnet', 'Voir le carnet']}
+                />
+              </Surgit>
+            </div>
 
-        {/*
+            <Coin position="bg">
+              214 paires cotees · reserves publiees chaque mois
+              <br />
+              Retrait ouvert des la premiere heure
+            </Coin>
+            <Coin position="bd">
+              Perte totale du capital possible
+              <br />
+              Aucun conseil, aucune recommandation
+            </Coin>
+          </section>
+
+          {/*
           ================================================= Le ticker (C9)
 
           La seule mise en scene de chiffres de la page : une bande qui passe.
           Elle ferme l affiche et ouvre la fiche, comme le bandeau de cotation
           court sous l ecran d une salle de marche.
         */}
-        <div
-          aria-hidden="true"
-          className="o-relative o-z-20 o-overflow-hidden o-border-t o-border-b o-bg-zinc-950 o-py-4"
-          style={{ borderColor: FILET }}
-        >
-          <Marquee speed={40} fade={8} pauseOnHover={false}>
-            {[...PAIRES, ...PAIRES].map((p, rang) => {
-              const v = variation(p, battement)
-              const monte = v >= 0
-              return (
-                <span
-                  key={`${p.code}-${String(rang)}`}
-                  className="o-flex o-shrink-0 o-items-baseline o-gap-3 o-px-7 o-text-sm o-tabular-nums o-whitespace-nowrap"
-                >
-                  <span className="o-font-bold o-tracking-tight o-text-zinc-50">{p.code}</span>
-                  <span className="o-text-zinc-300">{prix(cours(p, battement))} €</span>
-                  <span style={{ color: monte ? encre() : 'var(--o-palette-zinc-400)' }}>
-                    {(monte ? '+' : '') + v.toFixed(2).replace('.', ',')} %
+          <div
+            aria-hidden="true"
+            className="o-relative o-z-20 o-overflow-hidden o-border-t o-border-b o-bg-zinc-950 o-py-4"
+            style={{ borderColor: FILET }}
+          >
+            <Marquee speed={40} fade={8} pauseOnHover={false}>
+              {[...PAIRES, ...PAIRES].map((p, rang) => {
+                const v = variation(p, battement)
+                const monte = v >= 0
+                return (
+                  <span
+                    key={`${p.code}-${String(rang)}`}
+                    className="o-flex o-shrink-0 o-items-baseline o-gap-3 o-px-7 o-text-sm o-tabular-nums o-whitespace-nowrap"
+                  >
+                    <span className="o-font-bold o-tracking-tight o-text-zinc-50">
+                      {p.code}
+                    </span>
+                    <span className="o-text-zinc-300">{prix(cours(p, battement))} €</span>
+                    <span
+                      style={{ color: monte ? encre() : 'var(--o-palette-zinc-400)' }}
+                    >
+                      {(monte ? '+' : '') + v.toFixed(2).replace('.', ',')} %
+                    </span>
+                    <span className="o-text-zinc-700">/</span>
                   </span>
-                  <span className="o-text-zinc-700">/</span>
-                </span>
-              )
-            })}
-          </Marquee>
-        </div>
+                )
+              })}
+            </Marquee>
+          </div>
 
-        {/* ----- La fiche : media a gauche, panneau colle a droite ---------- */}
-        <div
-          id="fiche"
-          className="o-mx-auto o-grid o-max-w-7xl o-gap-8 o-px-4 o-py-8 md:o-px-6 md:o-py-10 lg:o-grid-cols-12"
-        >
-          {/* --- Le media : cours, courbe, vignettes, carnet --------------- */}
-          <div className="lg:o-col-span-7">
-            <p className="o-flex o-flex-wrap o-items-center o-gap-2 o-text-xs o-text-zinc-400">
-              <a href="#marches" className="o-no-underline o-text-zinc-400 hover:o-text-zinc-50 focus:o-ring">
-                Marches
-              </a>
-              <span aria-hidden="true">/</span>
-              <span>Crypto-actifs</span>
-              <span aria-hidden="true">/</span>
-              <span className="o-text-zinc-100">{paire.nom}</span>
-            </p>
+          {/* ----- La fiche : media a gauche, panneau colle a droite ---------- */}
+          <div
+            id="fiche"
+            className="o-mx-auto o-grid o-max-w-7xl o-gap-8 o-px-4 o-py-8 md:o-px-6 md:o-py-10 lg:o-grid-cols-12"
+          >
+            {/* --- Le media : cours, courbe, vignettes, carnet --------------- */}
+            <div className="lg:o-col-span-7">
+              <p className="o-flex o-flex-wrap o-items-center o-gap-2 o-text-xs o-text-zinc-400">
+                <a
+                  href="#marches"
+                  className="o-no-underline o-text-zinc-400 hover:o-text-zinc-50 focus:o-ring"
+                >
+                  Marches
+                </a>
+                <span aria-hidden="true">/</span>
+                <span>Crypto-actifs</span>
+                <span aria-hidden="true">/</span>
+                <span className="o-text-zinc-100">{paire.nom}</span>
+              </p>
 
-            <div
-              className="o-relative o-isolate o-mt-3 o-overflow-hidden o-rounded-2xl o-border-w-1"
-              style={{ borderColor: FILET }}
-            >
-              {/* Le flux anime est monte dans l affiche : une page n a droit
+              <div
+                className="o-relative o-isolate o-mt-3 o-overflow-hidden o-rounded-2xl o-border-w-1"
+                style={{ borderColor: FILET }}
+              >
+                {/* Le flux anime est monte dans l affiche : une page n a droit
                   qu a un contexte graphique, et c est l ouverture qui le
                   merite. Ici, les couloirs sont dessines et immobiles — un
                   cadre de cotation, pas une scene. */}
-              <div
-                aria-hidden="true"
-                className="o-absolute o-inset-0 o-z-0"
-                style={{
-                  backgroundColor: 'var(--o-palette-zinc-950)',
-                  backgroundImage: `repeating-linear-gradient(to bottom, ${accentDoux(500, 16)} 0 1px, transparent 1px 15px)`,
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="o-absolute o-inset-0 o-z-0"
-                style={{
-                  background:
-                    'linear-gradient(to right, #09090b 0%, color-mix(in oklab, #09090b 55%, transparent) 45%, transparent 100%)',
-                }}
-              />
-
-              <div className="o-relative o-z-10 o-flex o-h-80 o-flex-col o-justify-between o-p-5 md:o-h-96 md:o-p-6">
-                <div className="o-flex o-flex-wrap o-items-start o-justify-between o-gap-3">
-                  <div
-                    className="o-rounded-xl o-px-3 o-py-2"
-                    style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
-                  >
-                    <p className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
-                      {paire.code} / EUR — carnet unique
-                    </p>
-                    <p className="o-mt-1 o-text-3xl o-font-bold o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-text-4xl">
-                      {prix(valeur)}
-                      <span className="o-ml-2 o-text-xl o-font-normal o-text-zinc-400">€</span>
-                    </p>
-                  </div>
-                  <p
-                    className="o-inline-flex o-items-center o-gap-1 o-rounded-full o-px-3 o-py-1.5 o-text-sm o-font-semibold o-tabular-nums"
-                    style={{
-                      backgroundColor: 'var(--o-palette-zinc-950)',
-                      color: hausse ? encre() : 'var(--o-palette-zinc-300)',
-                    }}
-                  >
-                    <Icon
-                      icon={hausse ? ArrowUpRight : ArrowDownRight}
-                      size={14}
-                      aria-hidden="true"
-                    />
-                    {(hausse ? '+' : '') + ecart.toFixed(2).replace('.', ',')} % sur 24 h
-                  </p>
-                </div>
-
-                {/* --- Le choix de la fenetre d historique --------------- */}
                 <div
-                  role="group"
-                  aria-label="Periode de l historique de prix"
-                  className="o-flex o-flex-wrap o-gap-1.5"
-                >
-                  {PERIODES.map((p) => {
-                    const actif = p.cle === periode
-                    return (
-                      <button
-                        key={p.cle}
-                        type="button"
-                        aria-pressed={actif}
-                        onClick={() => {
-                          setPeriode(p.cle)
-                        }}
-                        className="o-rounded-lg o-border-w-1 o-px-3 o-py-1 o-text-xs o-font-semibold o-tabular-nums o-cursor-pointer o-transition-colors focus:o-ring"
-                        style={
-                          actif
-                            ? { ...APLAT, borderColor: encre() }
-                            : {
-                                borderColor: FILET,
-                                backgroundColor: 'var(--o-palette-zinc-950)',
-                                color: 'var(--o-palette-zinc-100)',
-                              }
-                        }
-                      >
-                        {p.libelle}
-                        <span className="o-sr-only"> d historique</span>
-                      </button>
-                    )
-                  })}
-                </div>
+                  aria-hidden="true"
+                  className="o-absolute o-inset-0 o-z-0"
+                  style={{
+                    backgroundColor: 'var(--o-palette-zinc-950)',
+                    backgroundImage: `repeating-linear-gradient(to bottom, ${accentDoux(500, 16)} 0 1px, transparent 1px 15px)`,
+                  }}
+                />
+                <div
+                  aria-hidden="true"
+                  className="o-absolute o-inset-0 o-z-0"
+                  style={{
+                    background:
+                      'linear-gradient(to right, #09090b 0%, color-mix(in oklab, #09090b 55%, transparent) 45%, transparent 100%)',
+                  }}
+                />
 
-                <div className="o-relative o-h-24 o-w-full md:o-h-28">
-                  <Courbe points={points} />
-                </div>
-
-                <dl className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2 o-text-xs">
-                  {[
-                    ['Plus haut', `${prix(plusHaut)} €`],
-                    ['Plus bas', `${prix(plusBas)} €`],
-                    [
-                      `Sur ${fenetre.libelle}`,
-                      `${variationFenetre >= 0 ? '+' : ''}${variationFenetre.toFixed(2).replace('.', ',')} %`,
-                    ],
-                    ['Volume 24 h', paire.volume],
-                  ].map(([terme, contenu]) => (
+                <div className="o-relative o-z-10 o-flex o-h-80 o-flex-col o-justify-between o-p-5 md:o-h-96 md:o-p-6">
+                  <div className="o-flex o-flex-wrap o-items-start o-justify-between o-gap-3">
                     <div
-                      key={terme}
-                      className="o-rounded-lg o-px-2 o-py-1"
+                      className="o-rounded-xl o-px-3 o-py-2"
                       style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
                     >
-                      <dt className="o-text-zinc-400">{terme}</dt>
-                      <dd className="o-mt-0.5 o-font-semibold o-tabular-nums o-text-zinc-100">
-                        {contenu}
-                      </dd>
+                      <p className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
+                        {paire.code} / EUR — carnet unique
+                      </p>
+                      <p className="o-mt-1 o-text-3xl o-font-bold o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-text-4xl">
+                        {prix(valeur)}
+                        <span className="o-ml-2 o-text-xl o-font-normal o-text-zinc-400">
+                          €
+                        </span>
+                      </p>
                     </div>
-                  ))}
-                </dl>
-              </div>
-            </div>
-
-            <p className="o-mt-2 o-text-xs o-text-zinc-400">
-              Historique sur {fenetre.libelle}, {fenetre.legende}. Les performances
-              passees ne prejugent pas des performances futures.
-            </p>
-
-            {/* --- La rangee de vignettes : les six paires ---------------- */}
-            <div
-              role="group"
-              aria-label="Choisir la paire affichee"
-              className="o-mt-3 o-grid o-grid-cols-3 o-gap-2 sm:o-grid-cols-6"
-            >
-              {PAIRES.map((p) => {
-                const actif = p.code === paireActive
-                const v = variation(p, battement)
-                return (
-                  <button
-                    key={p.code}
-                    type="button"
-                    aria-pressed={actif}
-                    onClick={() => {
-                      setPaireActive(p.code)
-                    }}
-                    className={[
-                      'o-rounded-xl o-border-w-1 o-px-2 o-py-2 o-text-left o-cursor-pointer o-transition-colors focus:o-ring',
-                      actif ? 'o-bg-zinc-900' : 'o-bg-zinc-950 hover:o-bg-zinc-900',
-                    ].join(' ')}
-                    style={{ borderColor: actif ? encre() : FILET }}
-                  >
-                    <span className="o-block o-text-xs o-font-bold o-text-zinc-50">
-                      {p.code}
-                    </span>
-                    <span
-                      className="o-block o-text-xs o-tabular-nums"
-                      style={{ color: v >= 0 ? encre() : 'var(--o-palette-zinc-400)' }}
+                    <p
+                      className="o-inline-flex o-items-center o-gap-1 o-rounded-full o-px-3 o-py-1.5 o-text-sm o-font-semibold o-tabular-nums"
+                      style={{
+                        backgroundColor: 'var(--o-palette-zinc-950)',
+                        color: hausse ? encre() : 'var(--o-palette-zinc-300)',
+                      }}
                     >
-                      {(v >= 0 ? '+' : '') + v.toFixed(1).replace('.', ',')} %
-                    </span>
-                    <span className="o-sr-only">
-                      {p.nom}, voir son carnet et son cours
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+                      <Icon
+                        icon={hausse ? ArrowUpRight : ArrowDownRight}
+                        size={14}
+                        aria-hidden="true"
+                      />
+                      {(hausse ? '+' : '') + ecart.toFixed(2).replace('.', ',')} % sur 24
+                      h
+                    </p>
+                  </div>
 
-            {/* --- Le carnet d ordres, en grand --------------------------- */}
-            {/*
+                  {/* --- Le choix de la fenetre d historique --------------- */}
+                  <div
+                    role="group"
+                    aria-label="Periode de l historique de prix"
+                    className="o-flex o-flex-wrap o-gap-1.5"
+                  >
+                    {PERIODES.map((p) => {
+                      const actif = p.cle === periode
+                      return (
+                        <button
+                          key={p.cle}
+                          type="button"
+                          aria-pressed={actif}
+                          onClick={() => {
+                            setPeriode(p.cle)
+                          }}
+                          className="o-rounded-lg o-border-w-1 o-px-3 o-py-1 o-text-xs o-font-semibold o-tabular-nums o-cursor-pointer o-transition-colors focus:o-ring"
+                          style={
+                            actif
+                              ? { ...APLAT, borderColor: encre() }
+                              : {
+                                  borderColor: FILET,
+                                  backgroundColor: 'var(--o-palette-zinc-950)',
+                                  color: 'var(--o-palette-zinc-100)',
+                                }
+                          }
+                        >
+                          {p.libelle}
+                          <span className="o-sr-only"> d historique</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div className="o-relative o-h-24 o-w-full md:o-h-28">
+                    <Courbe points={points} />
+                  </div>
+
+                  <dl className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2 o-text-xs">
+                    {[
+                      ['Plus haut', `${prix(plusHaut)} €`],
+                      ['Plus bas', `${prix(plusBas)} €`],
+                      [
+                        `Sur ${fenetre.libelle}`,
+                        `${variationFenetre >= 0 ? '+' : ''}${variationFenetre.toFixed(2).replace('.', ',')} %`,
+                      ],
+                      ['Volume 24 h', paire.volume],
+                    ].map(([terme, contenu]) => (
+                      <div
+                        key={terme}
+                        className="o-rounded-lg o-px-2 o-py-1"
+                        style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+                      >
+                        <dt className="o-text-zinc-400">{terme}</dt>
+                        <dd className="o-mt-0.5 o-font-semibold o-tabular-nums o-text-zinc-100">
+                          {contenu}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              </div>
+
+              <p className="o-mt-2 o-text-xs o-text-zinc-400">
+                Historique sur {fenetre.libelle}, {fenetre.legende}. Les performances
+                passees ne prejugent pas des performances futures.
+              </p>
+
+              {/* --- La rangee de vignettes : les six paires ---------------- */}
+              <div
+                role="group"
+                aria-label="Choisir la paire affichee"
+                className="o-mt-3 o-grid o-grid-cols-3 o-gap-2 sm:o-grid-cols-6"
+              >
+                {PAIRES.map((p) => {
+                  const actif = p.code === paireActive
+                  const v = variation(p, battement)
+                  return (
+                    <button
+                      key={p.code}
+                      type="button"
+                      aria-pressed={actif}
+                      onClick={() => {
+                        setPaireActive(p.code)
+                      }}
+                      className={[
+                        'o-rounded-xl o-border-w-1 o-px-2 o-py-2 o-text-left o-cursor-pointer o-transition-colors focus:o-ring',
+                        actif ? 'o-bg-zinc-900' : 'o-bg-zinc-950 hover:o-bg-zinc-900',
+                      ].join(' ')}
+                      style={{ borderColor: actif ? encre() : FILET }}
+                    >
+                      <span className="o-block o-text-xs o-font-bold o-text-zinc-50">
+                        {p.code}
+                      </span>
+                      <span
+                        className="o-block o-text-xs o-tabular-nums"
+                        style={{ color: v >= 0 ? encre() : 'var(--o-palette-zinc-400)' }}
+                      >
+                        {(v >= 0 ? '+' : '') + v.toFixed(1).replace('.', ',')} %
+                      </span>
+                      <span className="o-sr-only">
+                        {p.nom}, voir son carnet et son cours
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* --- Le carnet d ordres, en grand --------------------------- */}
+              {/*
               Le carnet fait partie du visuel de la fiche, pas du plan du
               document : son intitule est un paragraphe, pour que le premier
               titre de la page reste le nom du produit, dans le panneau.
@@ -874,583 +992,555 @@ export default function Page(): ReactElement {
               palettes. La vente porte l encre sourde, l achat porte l accent,
               et chaque liste est nommee.
             */}
-            <section
-              id="carnet"
-              aria-label={`Carnet d ordres ${paire.code} contre euro`}
-              className="o-mt-8 o-rounded-2xl o-border-w-1 o-p-5 md:o-p-6"
-              style={{ borderColor: FILET, backgroundColor: VOILE }}
+              <section
+                id="carnet"
+                aria-label={`Carnet d ordres ${paire.code} contre euro`}
+                className="o-mt-8 o-rounded-2xl o-border-w-1 o-p-5 md:o-p-6"
+                style={{ borderColor: FILET, backgroundColor: VOILE }}
+              >
+                <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
+                  <p className="o-text-xl o-font-semibold o-tracking-tight o-text-zinc-50">
+                    Carnet d ordres — {paire.code} / EUR
+                  </p>
+                  <p className="o-text-xs o-text-zinc-400">
+                    Huit lignes sur des milliers : ce qu on vend au-dessus, ce qu on
+                    achete en dessous.
+                  </p>
+                </div>
+
+                <p className="o-mt-5 o-flex o-items-center o-justify-between o-px-3 o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  <span>Ventes en attente</span>
+                  <span>Quantite</span>
+                </p>
+                <ul className="o-mt-2 o-list-none o-space-y-1 o-p-0">
+                  {[...CARNET].reverse().map((n, index) => (
+                    <li
+                      key={`vente-${String(index)}`}
+                      className="o-relative o-flex o-items-center o-justify-between o-overflow-hidden o-rounded-md o-px-3 o-py-2 o-text-sm o-tabular-nums"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-absolute o-inset-y-0 o-right-0"
+                        style={{
+                          width: `${String(Math.round(n.taille * 100))}%`,
+                          backgroundColor: 'color-mix(in oklab, white 10%, transparent)',
+                        }}
+                      />
+                      <span className="o-relative o-text-zinc-200">
+                        {prix(valeur * (1 + n.ecart / 1000))} €
+                      </span>
+                      <span className="o-relative o-text-zinc-400">
+                        {(n.taille * 12).toFixed(3).replace('.', ',')}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p
+                  className="o-my-3 o-flex o-items-center o-justify-between o-border-t o-border-b o-px-3 o-py-2 o-text-base o-font-semibold o-tabular-nums o-text-zinc-50"
+                  style={{ borderColor: FILET_FORT }}
+                >
+                  <span>{prix(valeur)} €</span>
+                  <span className="o-text-xs o-font-normal o-text-zinc-400">
+                    ecart 0,4 pb — dernier prix traite
+                  </span>
+                </p>
+
+                <p className="o-flex o-items-center o-justify-between o-px-3 o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  <span>Achats en attente</span>
+                  <span>Quantite</span>
+                </p>
+                <ul className="o-mt-2 o-list-none o-space-y-1 o-p-0">
+                  {CARNET.map((n, index) => (
+                    <li
+                      key={`achat-${String(index)}`}
+                      className="o-relative o-flex o-items-center o-justify-between o-overflow-hidden o-rounded-md o-px-3 o-py-2 o-text-sm o-tabular-nums"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-absolute o-inset-y-0 o-right-0"
+                        style={{
+                          width: `${String(Math.round(n.taille * 100))}%`,
+                          backgroundColor: accentDoux(500, 26),
+                        }}
+                      />
+                      <span className="o-relative" style={{ color: encre() }}>
+                        {prix(valeur * (1 - n.ecart / 1000))} €
+                      </span>
+                      <span className="o-relative o-text-zinc-400">
+                        {(n.taille * 9).toFixed(3).replace('.', ',')}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <dl className="o-mt-8 o-grid o-gap-5 sm:o-grid-cols-3">
+                  {PRINCIPES.map((point) => (
+                    <div
+                      key={point.titre}
+                      className="o-border-l o-pl-4"
+                      style={{ borderColor: FILET_FORT }}
+                    >
+                      <dt className="o-text-sm o-font-semibold o-tracking-tight o-text-zinc-50">
+                        {point.titre}
+                      </dt>
+                      <dd className="o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-400">
+                        {point.texte}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            </div>
+
+            {/* --- Le panneau d achat, colle au defilement ------------------ */}
+            <aside
+              aria-label="Passer un ordre"
+              className="o-self-start lg:o-col-span-5 lg:o-sticky lg:o-top-20"
             >
-              <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-                <p className="o-text-xl o-font-semibold o-tracking-tight o-text-zinc-50">
-                  Carnet d ordres — {paire.code} / EUR
-                </p>
-                <p className="o-text-xs o-text-zinc-400">
-                  Huit lignes sur des milliers : ce qu on vend au-dessus, ce qu on
-                  achete en dessous.
-                </p>
-              </div>
-
-              <p className="o-mt-5 o-flex o-items-center o-justify-between o-px-3 o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                <span>Ventes en attente</span>
-                <span>Quantite</span>
-              </p>
-              <ul className="o-mt-2 o-list-none o-space-y-1 o-p-0">
-                {[...CARNET].reverse().map((n, index) => (
-                  <li
-                    key={`vente-${String(index)}`}
-                    className="o-relative o-flex o-items-center o-justify-between o-overflow-hidden o-rounded-md o-px-3 o-py-2 o-text-sm o-tabular-nums"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="o-absolute o-inset-y-0 o-right-0"
-                      style={{
-                        width: `${String(Math.round(n.taille * 100))}%`,
-                        backgroundColor: 'color-mix(in oklab, white 10%, transparent)',
-                      }}
-                    />
-                    <span className="o-relative o-text-zinc-200">
-                      {prix(valeur * (1 + n.ecart / 1000))} €
-                    </span>
-                    <span className="o-relative o-text-zinc-400">
-                      {(n.taille * 12).toFixed(3).replace('.', ',')}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <p
-                className="o-my-3 o-flex o-items-center o-justify-between o-border-t o-border-b o-px-3 o-py-2 o-text-base o-font-semibold o-tabular-nums o-text-zinc-50"
+              <div
+                className="o-rounded-2xl o-border-w-1 o-bg-zinc-900 o-p-5 md:o-p-6"
                 style={{ borderColor: FILET_FORT }}
               >
-                <span>{prix(valeur)} €</span>
-                <span className="o-text-xs o-font-normal o-text-zinc-400">
-                  ecart 0,4 pb — dernier prix traite
-                </span>
-              </p>
+                <p
+                  className="o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                  style={{ color: encre() }}
+                >
+                  Orbe — place d echange europeenne
+                </p>
 
-              <p className="o-flex o-items-center o-justify-between o-px-3 o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                <span>Achats en attente</span>
-                <span>Quantite</span>
-              </p>
-              <ul className="o-mt-2 o-list-none o-space-y-1 o-p-0">
-                {CARNET.map((n, index) => (
-                  <li
-                    key={`achat-${String(index)}`}
-                    className="o-relative o-flex o-items-center o-justify-between o-overflow-hidden o-rounded-md o-px-3 o-py-2 o-text-sm o-tabular-nums"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="o-absolute o-inset-y-0 o-right-0"
-                      style={{
-                        width: `${String(Math.round(n.taille * 100))}%`,
-                        backgroundColor: accentDoux(500, 26),
-                      }}
-                    />
-                    <span className="o-relative" style={{ color: encre() }}>
-                      {prix(valeur * (1 - n.ecart / 1000))} €
-                    </span>
-                    <span className="o-relative o-text-zinc-400">
-                      {(n.taille * 9).toFixed(3).replace('.', ',')}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <dl className="o-mt-8 o-grid o-gap-5 sm:o-grid-cols-3">
-                {PRINCIPES.map((point) => (
-                  <div key={point.titre} className="o-border-l o-pl-4" style={{ borderColor: FILET_FORT }}>
-                    <dt className="o-text-sm o-font-semibold o-tracking-tight o-text-zinc-50">
-                      {point.titre}
-                    </dt>
-                    <dd className="o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-400">
-                      {point.texte}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          </div>
-
-          {/* --- Le panneau d achat, colle au defilement ------------------ */}
-          <aside
-            aria-label="Passer un ordre"
-            className="o-self-start lg:o-col-span-5 lg:o-sticky lg:o-top-20"
-          >
-            <div
-              className="o-rounded-2xl o-border-w-1 o-bg-zinc-900 o-p-5 md:o-p-6"
-              style={{ borderColor: FILET_FORT }}
-            >
-              <p
-                className="o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-                style={{ color: encre() }}
-              >
-                Orbe — place d echange europeenne
-              </p>
-
-              {/* Le premier titre de la page est celui de l affiche : ici,
+                {/* Le premier titre de la page est celui de l affiche : ici,
                   c est le nom du produit consulte, donc un titre de second
                   rang. */}
-              <h2 className="o-mt-2 o-text-3xl o-font-bold o-tracking-tight o-text-zinc-50">
-                {paire.nom} / Euro
-              </h2>
+                <h2 className="o-mt-2 o-text-3xl o-font-bold o-tracking-tight o-text-zinc-50">
+                  {paire.nom} / Euro
+                </h2>
 
-              <p className="o-mt-4 o-text-4xl o-font-bold o-tabular-nums o-tracking-tight o-text-zinc-50">
-                <CounterRoll value={Math.round(valeur)} locale="fr-FR" />
-                <span className="o-ml-2 o-text-xl o-font-normal o-text-zinc-400">€</span>
-              </p>
-              <p className="o-mt-1 o-text-sm o-text-zinc-400">
-                Cours du carnet, pas une moyenne differee. Ecart affiche 0,4 pb.
-              </p>
-
-              {/* --- Le type d ordre ---------------------------------- */}
-              <fieldset
-                className="o-mt-6 o-border-t o-p-0 o-pt-5"
-                style={{ borderColor: FILET }}
-              >
-                <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
-                  Type d ordre
-                </legend>
-                <div className="o-mt-3 o-grid o-gap-2 sm:o-grid-cols-3">
-                  {ORDRES.map((o) => {
-                    const actif = o.cle === ordre
-                    const commissionType =
-                      o.role === 'apporteur' ? niveau.apporteur : niveau.preneur
-                    return (
-                      <button
-                        key={o.cle}
-                        type="button"
-                        aria-pressed={actif}
-                        onClick={() => {
-                          setOrdre(o.cle)
-                        }}
-                        className={[
-                          'o-rounded-xl o-border-w-1 o-px-3 o-py-2.5 o-text-left o-cursor-pointer o-transition-colors focus:o-ring',
-                          actif ? 'o-bg-zinc-950' : 'hover:o-bg-zinc-950',
-                        ].join(' ')}
-                        style={{ borderColor: actif ? encre() : FILET }}
-                      >
-                        <span className="o-block o-text-sm o-font-semibold o-text-zinc-50">
-                          {o.libelle}
-                        </span>
-                        <span className="o-block o-text-xs o-tabular-nums o-text-zinc-400">
-                          {taux(commissionType)}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Le champ que ce type d ordre ajoute : c est la seule chose
-                    qui distingue vraiment les trois, et elle est montree. */}
-                <div
-                  className="o-mt-4 o-rounded-xl o-p-4"
-                  style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
-                >
-                  {type.champ === 'aucun' ? (
-                    <p className="o-text-sm o-text-zinc-300">
-                      Aucun prix a saisir : l ordre part au meilleur prix
-                      disponible, tout de suite.
-                    </p>
-                  ) : (
-                    <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-                      <span className="o-text-sm o-text-zinc-300">
-                        {type.champ === 'prix' ? 'Votre prix limite' : 'Seuil de declenchement'}
-                      </span>
-                      <span
-                        className="o-font-mono o-text-lg o-font-semibold o-tabular-nums"
-                        style={{ color: encre() }}
-                      >
-                        {prix(type.champ === 'prix' ? limite : seuil)} €
-                      </span>
-                    </div>
-                  )}
-                  <p className="o-mt-2 o-text-xs o-leading-relaxed o-text-zinc-400">
-                    {type.execution}
-                  </p>
-                  <p className="o-mt-2 o-flex o-gap-2 o-text-xs o-leading-relaxed o-text-zinc-300">
-                    <Icon
-                      icon={TriangleAlert}
-                      size={13}
-                      className="o-mt-0.5 o-shrink-0"
-                      aria-hidden="true"
-                    />
-                    {type.avertissement}
-                  </p>
-                </div>
-              </fieldset>
-
-              {/* --- Le montant --------------------------------------- */}
-              <fieldset
-                className="o-mt-5 o-border-t o-p-0 o-pt-5"
-                style={{ borderColor: FILET }}
-              >
-                <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
-                  Montant
-                </legend>
-                <div className="o-mt-3 o-grid o-grid-cols-2 o-gap-2 sm:o-grid-cols-4">
-                  {MONTANTS.map((m) => {
-                    const actif = m === montant
-                    return (
-                      <button
-                        key={m}
-                        type="button"
-                        aria-pressed={actif}
-                        onClick={() => {
-                          setMontant(m)
-                        }}
-                        className="o-rounded-xl o-border-w-1 o-px-3 o-py-2 o-text-sm o-font-semibold o-tabular-nums o-cursor-pointer o-transition-colors focus:o-ring"
-                        style={
-                          actif
-                            ? { ...APLAT, borderColor: encre() }
-                            : { borderColor: FILET, color: 'var(--o-palette-zinc-100)' }
-                        }
-                      >
-                        {m.toLocaleString('fr-FR')} €
-                      </button>
-                    )
-                  })}
-                </div>
-              </fieldset>
-
-              {/* --- Le palier de commission --------------------------- */}
-              <fieldset
-                className="o-mt-5 o-border-t o-p-0 o-pt-5"
-                style={{ borderColor: FILET }}
-              >
-                <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
-                  Votre volume sur trente jours
-                </legend>
-                <div className="o-mt-3 o-grid o-gap-2 sm:o-grid-cols-2">
-                  {PALIERS.map((p) => {
-                    const actif = p.cle === palier
-                    return (
-                      <button
-                        key={p.cle}
-                        type="button"
-                        aria-pressed={actif}
-                        onClick={() => {
-                          setPalier(p.cle)
-                        }}
-                        className="o-rounded-xl o-border-w-1 o-px-3 o-py-2 o-text-left o-text-xs o-cursor-pointer o-transition-colors focus:o-ring"
-                        style={
-                          actif
-                            ? { ...APLAT, borderColor: encre() }
-                            : { borderColor: FILET, color: 'var(--o-palette-zinc-100)' }
-                        }
-                      >
-                        <span className="o-block o-font-semibold">{p.libelle}</span>
-                        <span className="o-block o-tabular-nums">
-                          {taux(p.apporteur)} / {taux(p.preneur)}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-                <p className="o-mt-2 o-text-xs o-text-zinc-400">
-                  Apporteur de liquidite / preneur de liquidite. Le palier est
-                  recalcule chaque nuit sur les trente derniers jours.
+                <p className="o-mt-4 o-text-4xl o-font-bold o-tabular-nums o-tracking-tight o-text-zinc-50">
+                  <CounterRoll value={Math.round(valeur)} locale="fr-FR" />
+                  <span className="o-ml-2 o-text-xl o-font-normal o-text-zinc-400">
+                    €
+                  </span>
                 </p>
-              </fieldset>
+                <p className="o-mt-1 o-text-sm o-text-zinc-400">
+                  Cours du carnet, pas une moyenne differee. Ecart affiche 0,4 pb.
+                </p>
 
-              {/* --- Le decompte -------------------------------------- */}
-              <dl className="o-mt-5 o-space-y-2 o-border-t o-pt-5 o-text-sm" style={{ borderColor: FILET }}>
-                <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-                  <dt className="o-text-zinc-400">
-                    Commission {type.role === 'apporteur' ? 'apporteur' : 'preneur'} — {taux(commission)}
-                  </dt>
-                  <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">
-                    {euros(frais)} €
-                  </dd>
-                </div>
-                <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-                  <dt className="o-text-zinc-400">Virement SEPA</dt>
-                  <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">Gratuit</dd>
-                </div>
-                <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-                  <dt className="o-text-zinc-400">Prix de reference retenu</dt>
-                  <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">
-                    {prix(reference)} €
-                  </dd>
-                </div>
-                <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-                  <dt className="o-text-zinc-400">Vous recevez, si l ordre est servi</dt>
-                  <dd className="o-font-semibold o-tabular-nums" style={{ color: encre() }}>
-                    {recu.toLocaleString('fr-FR', {
-                      minimumFractionDigits: 4,
-                      maximumFractionDigits: 4,
-                    })}{' '}
-                    {paire.code}
-                  </dd>
-                </div>
-              </dl>
+                {/* --- Le type d ordre ---------------------------------- */}
+                <fieldset
+                  className="o-mt-6 o-border-t o-p-0 o-pt-5"
+                  style={{ borderColor: FILET }}
+                >
+                  <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
+                    Type d ordre
+                  </legend>
+                  <div className="o-mt-3 o-grid o-gap-2 sm:o-grid-cols-3">
+                    {ORDRES.map((o) => {
+                      const actif = o.cle === ordre
+                      const commissionType =
+                        o.role === 'apporteur' ? niveau.apporteur : niveau.preneur
+                      return (
+                        <button
+                          key={o.cle}
+                          type="button"
+                          aria-pressed={actif}
+                          onClick={() => {
+                            setOrdre(o.cle)
+                          }}
+                          className={[
+                            'o-rounded-xl o-border-w-1 o-px-3 o-py-2.5 o-text-left o-cursor-pointer o-transition-colors focus:o-ring',
+                            actif ? 'o-bg-zinc-950' : 'hover:o-bg-zinc-950',
+                          ].join(' ')}
+                          style={{ borderColor: actif ? encre() : FILET }}
+                        >
+                          <span className="o-block o-text-sm o-font-semibold o-text-zinc-50">
+                            {o.libelle}
+                          </span>
+                          <span className="o-block o-text-xs o-tabular-nums o-text-zinc-400">
+                            {taux(commissionType)}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
 
-              <a
-                href="#ouvrir"
-                className="o-mt-6 o-flex o-w-full o-items-center o-justify-center o-gap-2 o-rounded-xl o-px-5 o-py-3.5 o-text-sm o-font-semibold o-no-underline o-transition-colors focus:o-ring"
-                style={APLAT}
-              >
-                Ouvrir un compte et passer cet ordre
-                <Icon icon={ArrowRight} size={16} />
-              </a>
-
-              <p
-                className="o-mt-4 o-flex o-items-start o-gap-2 o-rounded-xl o-border-w-1 o-p-3 o-text-xs o-leading-relaxed o-text-zinc-200"
-                style={{ borderColor: FILET_FORT }}
-              >
-                <Icon icon={TriangleAlert} size={14} className="o-mt-0.5 o-shrink-0" aria-hidden="true" />
-                <span>
-                  Investir dans les crypto-actifs comporte un risque de perte
-                  totale du capital. Ces actifs ne sont ni garantis ni couverts
-                  par le fonds de garantie des depots.{' '}
-                  <a
-                    href="#risque"
-                    className="o-underline o-underline-offset-2 focus:o-ring"
-                    style={{ color: encre() }}
+                  {/* Le champ que ce type d ordre ajoute : c est la seule chose
+                    qui distingue vraiment les trois, et elle est montree. */}
+                  <div
+                    className="o-mt-4 o-rounded-xl o-p-4"
+                    style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
                   >
-                    Lire l avertissement complet
-                  </a>
-                  .
-                </span>
-              </p>
-            </div>
-          </aside>
-        </div>
+                    {type.champ === 'aucun' ? (
+                      <p className="o-text-sm o-text-zinc-300">
+                        Aucun prix a saisir : l ordre part au meilleur prix disponible,
+                        tout de suite.
+                      </p>
+                    ) : (
+                      <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
+                        <span className="o-text-sm o-text-zinc-300">
+                          {type.champ === 'prix'
+                            ? 'Votre prix limite'
+                            : 'Seuil de declenchement'}
+                        </span>
+                        <span
+                          className="o-font-mono o-text-lg o-font-semibold o-tabular-nums"
+                          style={{ color: encre() }}
+                        >
+                          {prix(type.champ === 'prix' ? limite : seuil)} €
+                        </span>
+                      </div>
+                    )}
+                    <p className="o-mt-2 o-text-xs o-leading-relaxed o-text-zinc-400">
+                      {type.execution}
+                    </p>
+                    <p className="o-mt-2 o-flex o-gap-2 o-text-xs o-leading-relaxed o-text-zinc-300">
+                      <Icon
+                        icon={TriangleAlert}
+                        size={13}
+                        className="o-mt-0.5 o-shrink-0"
+                        aria-hidden="true"
+                      />
+                      {type.avertissement}
+                    </p>
+                  </div>
+                </fieldset>
 
-        {/* ----- Sections d information, sous le media -------------------- */}
-        <section
-          id="marches"
-          className="o-border-t o-bg-zinc-900"
-          style={{ borderColor: FILET }}
-        >
-          {/*
+                {/* --- Le montant --------------------------------------- */}
+                <fieldset
+                  className="o-mt-5 o-border-t o-p-0 o-pt-5"
+                  style={{ borderColor: FILET }}
+                >
+                  <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
+                    Montant
+                  </legend>
+                  <div className="o-mt-3 o-grid o-grid-cols-2 o-gap-2 sm:o-grid-cols-4">
+                    {MONTANTS.map((m) => {
+                      const actif = m === montant
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          aria-pressed={actif}
+                          onClick={() => {
+                            setMontant(m)
+                          }}
+                          className="o-rounded-xl o-border-w-1 o-px-3 o-py-2 o-text-sm o-font-semibold o-tabular-nums o-cursor-pointer o-transition-colors focus:o-ring"
+                          style={
+                            actif
+                              ? { ...APLAT, borderColor: encre() }
+                              : { borderColor: FILET, color: 'var(--o-palette-zinc-100)' }
+                          }
+                        >
+                          {m.toLocaleString('fr-FR')} €
+                        </button>
+                      )
+                    })}
+                  </div>
+                </fieldset>
+
+                {/* --- Le palier de commission --------------------------- */}
+                <fieldset
+                  className="o-mt-5 o-border-t o-p-0 o-pt-5"
+                  style={{ borderColor: FILET }}
+                >
+                  <legend className="o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400">
+                    Votre volume sur trente jours
+                  </legend>
+                  <div className="o-mt-3 o-grid o-gap-2 sm:o-grid-cols-2">
+                    {PALIERS.map((p) => {
+                      const actif = p.cle === palier
+                      return (
+                        <button
+                          key={p.cle}
+                          type="button"
+                          aria-pressed={actif}
+                          onClick={() => {
+                            setPalier(p.cle)
+                          }}
+                          className="o-rounded-xl o-border-w-1 o-px-3 o-py-2 o-text-left o-text-xs o-cursor-pointer o-transition-colors focus:o-ring"
+                          style={
+                            actif
+                              ? { ...APLAT, borderColor: encre() }
+                              : { borderColor: FILET, color: 'var(--o-palette-zinc-100)' }
+                          }
+                        >
+                          <span className="o-block o-font-semibold">{p.libelle}</span>
+                          <span className="o-block o-tabular-nums">
+                            {taux(p.apporteur)} / {taux(p.preneur)}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p className="o-mt-2 o-text-xs o-text-zinc-400">
+                    Apporteur de liquidite / preneur de liquidite. Le palier est recalcule
+                    chaque nuit sur les trente derniers jours.
+                  </p>
+                </fieldset>
+
+                {/* --- Le decompte -------------------------------------- */}
+                <dl
+                  className="o-mt-5 o-space-y-2 o-border-t o-pt-5 o-text-sm"
+                  style={{ borderColor: FILET }}
+                >
+                  <div className="o-flex o-items-baseline o-justify-between o-gap-4">
+                    <dt className="o-text-zinc-400">
+                      Commission {type.role === 'apporteur' ? 'apporteur' : 'preneur'} —{' '}
+                      {taux(commission)}
+                    </dt>
+                    <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">
+                      {euros(frais)} €
+                    </dd>
+                  </div>
+                  <div className="o-flex o-items-baseline o-justify-between o-gap-4">
+                    <dt className="o-text-zinc-400">Virement SEPA</dt>
+                    <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">
+                      Gratuit
+                    </dd>
+                  </div>
+                  <div className="o-flex o-items-baseline o-justify-between o-gap-4">
+                    <dt className="o-text-zinc-400">Prix de reference retenu</dt>
+                    <dd className="o-font-semibold o-tabular-nums o-text-zinc-100">
+                      {prix(reference)} €
+                    </dd>
+                  </div>
+                  <div className="o-flex o-items-baseline o-justify-between o-gap-4">
+                    <dt className="o-text-zinc-400">
+                      Vous recevez, si l ordre est servi
+                    </dt>
+                    <dd
+                      className="o-font-semibold o-tabular-nums"
+                      style={{ color: encre() }}
+                    >
+                      {recu.toLocaleString('fr-FR', {
+                        minimumFractionDigits: 4,
+                        maximumFractionDigits: 4,
+                      })}{' '}
+                      {paire.code}
+                    </dd>
+                  </div>
+                </dl>
+
+                <a
+                  href="#ouvrir"
+                  className="o-mt-6 o-flex o-w-full o-items-center o-justify-center o-gap-2 o-rounded-xl o-px-5 o-py-3.5 o-text-sm o-font-semibold o-no-underline o-transition-colors focus:o-ring"
+                  style={APLAT}
+                >
+                  Ouvrir un compte et passer cet ordre
+                  <Icon icon={ArrowRight} size={16} />
+                </a>
+
+                <p
+                  className="o-mt-4 o-flex o-items-start o-gap-2 o-rounded-xl o-border-w-1 o-p-3 o-text-xs o-leading-relaxed o-text-zinc-200"
+                  style={{ borderColor: FILET_FORT }}
+                >
+                  <Icon
+                    icon={TriangleAlert}
+                    size={14}
+                    className="o-mt-0.5 o-shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    Investir dans les crypto-actifs comporte un risque de perte totale du
+                    capital. Ces actifs ne sont ni garantis ni couverts par le fonds de
+                    garantie des depots.{' '}
+                    <a
+                      href="#risque"
+                      className="o-underline o-underline-offset-2 focus:o-ring"
+                      style={{ color: encre() }}
+                    >
+                      Lire l avertissement complet
+                    </a>
+                    .
+                  </span>
+                </p>
+              </div>
+            </aside>
+          </div>
+
+          {/* ----- Sections d information, sous le media -------------------- */}
+          <section
+            id="marches"
+            className="o-border-t o-bg-zinc-900"
+            style={{ borderColor: FILET }}
+          >
+            {/*
             Le bandeau : la signature de mouvement de la page. Les noms des
             paires passent en grand, a contresens du ticker de l affiche —
             deux vitesses, deux sens, une seule salle de marche.
           */}
-          <div aria-hidden="true" className="o-overflow-hidden o-border-b o-py-7" style={{ borderColor: FILET }}>
-            <Bandeau
-              mots={PAIRES.map((p) => p.nom)}
-              separateur="◆"
-              vitesse={36}
-              inverse
-              className="o-text-zinc-50"
-              taille="clamp(2.25rem, 6vw, 6rem)"
-              style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300, letterSpacing: '-0.03em' }}
-            />
-          </div>
-
-          <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
-            <Titre
-              surtitre="Marches"
-              texte="Six des deux cent quatorze paires cotees. Le cours affiche est celui du carnet, pas une moyenne differee."
+            <div
+              aria-hidden="true"
+              className="o-overflow-hidden o-border-b o-py-7"
+              style={{ borderColor: FILET }}
             >
-              Ce qui se traite en ce moment.
-            </Titre>
+              <Bandeau
+                mots={PAIRES.map((p) => p.nom)}
+                separateur="◆"
+                vitesse={36}
+                inverse
+                className="o-text-zinc-50"
+                taille="clamp(2.25rem, 6vw, 6rem)"
+                style={{
+                  fontFamily: 'var(--o-vitrine-affichage)',
+                  fontWeight: 300,
+                  letterSpacing: '-0.03em',
+                }}
+              />
+            </div>
 
-            {/* `o-relative` n est pas decoratif : les libelles `o-sr-only` sont
+            <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
+              <Titre
+                surtitre="Marches"
+                texte="Six des deux cent quatorze paires cotees. Le cours affiche est celui du carnet, pas une moyenne differee."
+              >
+                Ce qui se traite en ce moment.
+              </Titre>
+
+              {/* `o-relative` n est pas decoratif : les libelles `o-sr-only` sont
                 positionnes en absolu, et sans bloc conteneur ici ils se
                 poseraient par rapport a la page — la page entiere defilerait
                 alors de cote sur un telephone, pour un element d un pixel. */}
-            <div
-              className="o-relative o-mt-10 o-overflow-x-auto o-rounded-2xl o-border-w-1"
-              style={{ borderColor: FILET }}
-            >
-              <table className="o-w-full o-min-w-full o-text-left o-text-sm">
-                <caption className="o-sr-only">
-                  Cours des six paires principales, mis a jour en continu
-                </caption>
-                <thead>
-                  <tr className="o-border-b" style={{ borderColor: FILET }}>
-                    {['Paire', 'Cours', 'Sur 24 h', 'Volume 24 h', ''].map((entete, index) => (
-                      <th
-                        key={entete === '' ? 'action' : entete}
-                        scope="col"
-                        className={[
-                          'o-px-4 o-py-3 o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400',
-                          index >= 2 ? 'o-text-right' : '',
-                        ].join(' ')}
-                      >
-                        {entete === '' ? <span className="o-sr-only">Action</span> : entete}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {PAIRES.map((p) => {
-                    const v = variation(p, battement)
-                    const monte = v >= 0
-                    return (
-                      <tr key={p.code} className="o-border-b" style={{ borderColor: FILET }}>
-                        <th scope="row" className="o-px-4 o-py-4 o-font-normal">
-                          <span className="o-flex o-items-center o-gap-3">
-                            <span
-                              className="o-inline-flex o-size-8 o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-xs o-font-bold"
-                              style={APLAT}
-                              aria-hidden="true"
-                            >
-                              {p.code.slice(0, 2)}
-                            </span>
-                            <span>
-                              <span className="o-block o-font-semibold o-text-zinc-50">{p.code}</span>
-                              <span className="o-block o-text-xs o-text-zinc-400">{p.nom}</span>
-                            </span>
-                          </span>
-                        </th>
-                        <td className="o-px-4 o-py-4 o-tabular-nums o-font-semibold o-text-zinc-50">
-                          {prix(cours(p, battement))} €
-                        </td>
-                        <td
-                          className="o-px-4 o-py-4 o-text-right o-tabular-nums o-font-semibold"
-                          style={{ color: monte ? encre() : 'var(--o-palette-zinc-300)' }}
-                        >
-                          <span className="o-inline-flex o-items-center o-gap-1">
-                            <Icon
-                              icon={monte ? ArrowUpRight : ArrowDownRight}
-                              size={14}
-                              aria-hidden="true"
-                            />
-                            {(monte ? '+' : '') + v.toFixed(2).replace('.', ',')} %
-                          </span>
-                        </td>
-                        <td className="o-px-4 o-py-4 o-text-right o-tabular-nums o-text-zinc-400">
-                          {p.volume}
-                        </td>
-                        <td className="o-px-4 o-py-4 o-text-right">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setPaireActive(p.code)
-                            }}
-                            className="o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-font-semibold o-text-zinc-100 o-cursor-pointer hover:o-text-zinc-50 o-transition-colors focus:o-ring"
-                            style={{ borderColor: FILET_FORT }}
-                          >
-                            Ouvrir la fiche
-                            <span className="o-sr-only"> de la paire {p.nom}</span>
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <p className="o-mt-4 o-text-xs o-text-zinc-400">
-              Cours indicatifs a titre de demonstration. Les crypto-actifs ne sont
-              ni garantis ni reglementes comme un depot bancaire.
-            </p>
-          </div>
-        </section>
-
-        <section id="frais" className="o-border-t o-bg-zinc-950" style={{ borderColor: FILET }}>
-          <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
-            <Titre
-              surtitre="Frais"
-              texte="Un « zero commission » se paie dans l ecart entre l achat et la vente. Voici les deux chiffres cote a cote."
-            >
-              Ce que coute reellement un ordre.
-            </Titre>
-
-            {/* La grille par palier, qui est celle que le panneau applique. */}
-            <div
-              className="o-relative o-mt-10 o-overflow-x-auto o-rounded-2xl o-border-w-1"
-              style={{ borderColor: FILET }}
-            >
-              <table className="o-w-full o-min-w-full o-text-left o-text-sm">
-                <caption className="o-border-b o-px-4 o-py-3 o-text-left o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" style={{ borderColor: FILET }}>
-                  Grille de commission par palier de volume, au 1er janvier 2026
-                </caption>
-                <thead>
-                  <tr className="o-border-b" style={{ borderColor: FILET }}>
-                    {['Volume echange sur 30 jours', 'Apporteur', 'Preneur', 'Sur un ordre de 1 000 €'].map(
-                      (entete, index) => (
-                        <th
-                          key={entete}
-                          scope="col"
-                          className={[
-                            'o-px-4 o-py-3 o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400',
-                            index > 0 ? 'o-text-right' : '',
-                          ].join(' ')}
-                        >
-                          {entete}
-                        </th>
-                      ),
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {PALIERS.map((p) => (
-                    <tr
-                      key={p.cle}
-                      className="o-border-b"
-                      style={{
-                        borderColor: FILET,
-                        backgroundColor: p.cle === palier ? accentDoux(500, 14) : undefined,
-                      }}
-                    >
-                      <th scope="row" className="o-px-4 o-py-3 o-font-normal o-text-zinc-100">
-                        {p.libelle}
-                        {p.cle === palier ? (
-                          <span className="o-sr-only"> — palier choisi dans le panneau</span>
-                        ) : null}
-                      </th>
-                      <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
-                        {taux(p.apporteur)}
-                      </td>
-                      <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
-                        {taux(p.preneur)}
-                      </td>
-                      <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-font-semibold o-text-zinc-50">
-                        {euros(1000 * p.apporteur)} € a {euros(1000 * p.preneur)} €
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/*
-              Le tableau defile dans sa propre zone, mais les libelles caches
-              qu il pose en absolu n ont aucun bloc conteneur : sur un telephone
-              ils allongent le document entier. Le confinement de peinture
-              arrete la, et le retrait d un quart de rem laisse la place a
-              l anneau de focus de la zone.
-            */}
-            <div className="o-mt-10 o-p-1" style={{ contain: 'paint' }}>
-              <ComparisonTable
-                caption="Frais compares d Orbe et de deux autres places, au 1er janvier 2026"
-                columns={COLONNES}
-                rows={LIGNES}
-                maxHeight={520}
-                yesLabel="Compris"
-                noLabel="Aucun"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ----- Preuve de reserves ---------------------------------------- */}
-        <section id="reserves" className="o-border-t o-bg-zinc-900" style={{ borderColor: FILET }}>
-          <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
-            <Titre
-              surtitre="Preuve de reserves"
-              texte="Une place qui garde les fonds d autrui doit montrer ce qu elle detient face a ce qu elle doit. Le rapport est publie le premier de chaque mois, et verifiable ligne a ligne."
-            >
-              Ce que nous detenons, ce que nous devons.
-            </Titre>
-
-            <div className="o-mt-10 o-grid o-gap-8 lg:o-grid-cols-5">
               <div
-                className="o-relative o-overflow-x-auto o-rounded-2xl o-border-w-1 lg:o-col-span-3"
+                className="o-relative o-mt-10 o-overflow-x-auto o-rounded-2xl o-border-w-1"
                 style={{ borderColor: FILET }}
               >
                 <table className="o-w-full o-min-w-full o-text-left o-text-sm">
                   <caption className="o-sr-only">
-                    Reserves detenues et engagements clients au 1er septembre 2026
+                    Cours des six paires principales, mis a jour en continu
                   </caption>
                   <thead>
                     <tr className="o-border-b" style={{ borderColor: FILET }}>
-                      {['Actif', 'Detenu', 'Du aux clients', 'Ratio'].map((entete, index) => (
+                      {['Paire', 'Cours', 'Sur 24 h', 'Volume 24 h', ''].map(
+                        (entete, index) => (
+                          <th
+                            key={entete === '' ? 'action' : entete}
+                            scope="col"
+                            className={[
+                              'o-px-4 o-py-3 o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400',
+                              index >= 2 ? 'o-text-right' : '',
+                            ].join(' ')}
+                          >
+                            {entete === '' ? (
+                              <span className="o-sr-only">Action</span>
+                            ) : (
+                              entete
+                            )}
+                          </th>
+                        ),
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PAIRES.map((p) => {
+                      const v = variation(p, battement)
+                      const monte = v >= 0
+                      return (
+                        <tr
+                          key={p.code}
+                          className="o-border-b"
+                          style={{ borderColor: FILET }}
+                        >
+                          <th scope="row" className="o-px-4 o-py-4 o-font-normal">
+                            <span className="o-flex o-items-center o-gap-3">
+                              <span
+                                className="o-inline-flex o-size-8 o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-xs o-font-bold"
+                                style={APLAT}
+                                aria-hidden="true"
+                              >
+                                {p.code.slice(0, 2)}
+                              </span>
+                              <span>
+                                <span className="o-block o-font-semibold o-text-zinc-50">
+                                  {p.code}
+                                </span>
+                                <span className="o-block o-text-xs o-text-zinc-400">
+                                  {p.nom}
+                                </span>
+                              </span>
+                            </span>
+                          </th>
+                          <td className="o-px-4 o-py-4 o-tabular-nums o-font-semibold o-text-zinc-50">
+                            {prix(cours(p, battement))} €
+                          </td>
+                          <td
+                            className="o-px-4 o-py-4 o-text-right o-tabular-nums o-font-semibold"
+                            style={{
+                              color: monte ? encre() : 'var(--o-palette-zinc-300)',
+                            }}
+                          >
+                            <span className="o-inline-flex o-items-center o-gap-1">
+                              <Icon
+                                icon={monte ? ArrowUpRight : ArrowDownRight}
+                                size={14}
+                                aria-hidden="true"
+                              />
+                              {(monte ? '+' : '') + v.toFixed(2).replace('.', ',')} %
+                            </span>
+                          </td>
+                          <td className="o-px-4 o-py-4 o-text-right o-tabular-nums o-text-zinc-400">
+                            {p.volume}
+                          </td>
+                          <td className="o-px-4 o-py-4 o-text-right">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPaireActive(p.code)
+                              }}
+                              className="o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-font-semibold o-text-zinc-100 o-cursor-pointer hover:o-text-zinc-50 o-transition-colors focus:o-ring"
+                              style={{ borderColor: FILET_FORT }}
+                            >
+                              Ouvrir la fiche
+                              <span className="o-sr-only"> de la paire {p.nom}</span>
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="o-mt-4 o-text-xs o-text-zinc-400">
+                Cours indicatifs a titre de demonstration. Les crypto-actifs ne sont ni
+                garantis ni reglementes comme un depot bancaire.
+              </p>
+            </div>
+          </section>
+
+          <section
+            id="frais"
+            className="o-border-t o-bg-zinc-950"
+            style={{ borderColor: FILET }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
+              <Titre
+                surtitre="Frais"
+                texte="Un « zero commission » se paie dans l ecart entre l achat et la vente. Voici les deux chiffres cote a cote."
+              >
+                Ce que coute reellement un ordre.
+              </Titre>
+
+              {/* La grille par palier, qui est celle que le panneau applique. */}
+              <div
+                className="o-relative o-mt-10 o-overflow-x-auto o-rounded-2xl o-border-w-1"
+                style={{ borderColor: FILET }}
+              >
+                <table className="o-w-full o-min-w-full o-text-left o-text-sm">
+                  <caption
+                    className="o-border-b o-px-4 o-py-3 o-text-left o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+                    style={{ borderColor: FILET }}
+                  >
+                    Grille de commission par palier de volume, au 1er janvier 2026
+                  </caption>
+                  <thead>
+                    <tr className="o-border-b" style={{ borderColor: FILET }}>
+                      {[
+                        'Volume echange sur 30 jours',
+                        'Apporteur',
+                        'Preneur',
+                        'Sur un ordre de 1 000 €',
+                      ].map((entete, index) => (
                         <th
                           key={entete}
                           scope="col"
@@ -1465,22 +1555,36 @@ export default function Page(): ReactElement {
                     </tr>
                   </thead>
                   <tbody>
-                    {RESERVES.map((r) => (
-                      <tr key={r.actif} className="o-border-b" style={{ borderColor: FILET }}>
-                        <th scope="row" className="o-px-4 o-py-3 o-font-semibold o-text-zinc-50">
-                          {r.actif}
+                    {PALIERS.map((p) => (
+                      <tr
+                        key={p.cle}
+                        className="o-border-b"
+                        style={{
+                          borderColor: FILET,
+                          backgroundColor:
+                            p.cle === palier ? accentDoux(500, 14) : undefined,
+                        }}
+                      >
+                        <th
+                          scope="row"
+                          className="o-px-4 o-py-3 o-font-normal o-text-zinc-100"
+                        >
+                          {p.libelle}
+                          {p.cle === palier ? (
+                            <span className="o-sr-only">
+                              {' '}
+                              — palier choisi dans le panneau
+                            </span>
+                          ) : null}
                         </th>
                         <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
-                          {r.detenu}
+                          {taux(p.apporteur)}
                         </td>
                         <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
-                          {r.du}
+                          {taux(p.preneur)}
                         </td>
-                        <td
-                          className="o-px-4 o-py-3 o-text-right o-tabular-nums o-font-semibold"
-                          style={{ color: encre() }}
-                        >
-                          {r.ratio.toFixed(1).replace('.', ',')} %
+                        <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-font-semibold o-text-zinc-50">
+                          {euros(1000 * p.apporteur)} € a {euros(1000 * p.preneur)} €
                         </td>
                       </tr>
                     ))}
@@ -1488,262 +1592,384 @@ export default function Page(): ReactElement {
                 </table>
               </div>
 
-              <dl className="lg:o-col-span-2">
-                {PREUVE.map(([terme, valeurPreuve]) => (
-                  <div
-                    key={terme}
-                    className="o-border-b o-py-3"
-                    style={{ borderColor: FILET }}
-                  >
-                    <dt className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                      {terme}
-                    </dt>
-                    <dd className="o-mt-1 o-text-sm o-text-zinc-100">{valeurPreuve}</dd>
-                  </div>
-                ))}
-                <p className="o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-400">
-                  Une preuve de reserves montre l actif a un instant donne. Elle
-                  ne dit rien des dettes contractees ailleurs : c est pourquoi la
-                  ligne des passifs hors clients y figure, attestee par le
-                  cabinet.
-                </p>
-              </dl>
+              {/*
+              Le tableau defile dans sa propre zone, mais les libelles caches
+              qu il pose en absolu n ont aucun bloc conteneur : sur un telephone
+              ils allongent le document entier. Le confinement de peinture
+              arrete la, et le retrait d un quart de rem laisse la place a
+              l anneau de focus de la zone.
+            */}
+              <div className="o-mt-10 o-p-1" style={{ contain: 'paint' }}>
+                <ComparisonTable
+                  caption="Frais compares d Orbe et de deux autres places, au 1er janvier 2026"
+                  columns={COLONNES}
+                  rows={LIGNES}
+                  maxHeight={520}
+                  yesLabel="Compris"
+                  noLabel="Aucun"
+                />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="coffre" className="o-border-t o-bg-zinc-950" style={{ borderColor: FILET }}>
-          <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
-            <Titre
-              surtitre="Securite"
-              texte="Une place d echange qui garde vos fonds doit dire ou ils sont. Les notres sont a trois adresses, et le compte est public."
-            >
-              Ou dorment les fonds.
-            </Titre>
+          {/* ----- Preuve de reserves ---------------------------------------- */}
+          <section
+            id="reserves"
+            className="o-border-t o-bg-zinc-900"
+            style={{ borderColor: FILET }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
+              <Titre
+                surtitre="Preuve de reserves"
+                texte="Une place qui garde les fonds d autrui doit montrer ce qu elle detient face a ce qu elle doit. Le rapport est publie le premier de chaque mois, et verifiable ligne a ligne."
+              >
+                Ce que nous detenons, ce que nous devons.
+              </Titre>
 
-            {/*
+              <div className="o-mt-10 o-grid o-gap-8 lg:o-grid-cols-5">
+                <div
+                  className="o-relative o-overflow-x-auto o-rounded-2xl o-border-w-1 lg:o-col-span-3"
+                  style={{ borderColor: FILET }}
+                >
+                  <table className="o-w-full o-min-w-full o-text-left o-text-sm">
+                    <caption className="o-sr-only">
+                      Reserves detenues et engagements clients au 1er septembre 2026
+                    </caption>
+                    <thead>
+                      <tr className="o-border-b" style={{ borderColor: FILET }}>
+                        {['Actif', 'Detenu', 'Du aux clients', 'Ratio'].map(
+                          (entete, index) => (
+                            <th
+                              key={entete}
+                              scope="col"
+                              className={[
+                                'o-px-4 o-py-3 o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-400',
+                                index > 0 ? 'o-text-right' : '',
+                              ].join(' ')}
+                            >
+                              {entete}
+                            </th>
+                          ),
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {RESERVES.map((r) => (
+                        <tr
+                          key={r.actif}
+                          className="o-border-b"
+                          style={{ borderColor: FILET }}
+                        >
+                          <th
+                            scope="row"
+                            className="o-px-4 o-py-3 o-font-semibold o-text-zinc-50"
+                          >
+                            {r.actif}
+                          </th>
+                          <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
+                            {r.detenu}
+                          </td>
+                          <td className="o-px-4 o-py-3 o-text-right o-tabular-nums o-text-zinc-300">
+                            {r.du}
+                          </td>
+                          <td
+                            className="o-px-4 o-py-3 o-text-right o-tabular-nums o-font-semibold"
+                            style={{ color: encre() }}
+                          >
+                            {r.ratio.toFixed(1).replace('.', ',')} %
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <dl className="lg:o-col-span-2">
+                  {PREUVE.map(([terme, valeurPreuve]) => (
+                    <div
+                      key={terme}
+                      className="o-border-b o-py-3"
+                      style={{ borderColor: FILET }}
+                    >
+                      <dt className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                        {terme}
+                      </dt>
+                      <dd className="o-mt-1 o-text-sm o-text-zinc-100">{valeurPreuve}</dd>
+                    </div>
+                  ))}
+                  <p className="o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-400">
+                    Une preuve de reserves montre l actif a un instant donne. Elle ne dit
+                    rien des dettes contractees ailleurs : c est pourquoi la ligne des
+                    passifs hors clients y figure, attestee par le cabinet.
+                  </p>
+                </dl>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="coffre"
+            className="o-border-t o-bg-zinc-950"
+            style={{ borderColor: FILET }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
+              <Titre
+                surtitre="Securite"
+                texte="Une place d echange qui garde vos fonds doit dire ou ils sont. Les notres sont a trois adresses, et le compte est public."
+              >
+                Ou dorment les fonds.
+              </Titre>
+
+              {/*
               Un seul panneau, pas trois cartes egales : les trois lignes du
               coffre se lisent l une sous l autre, avec leur rang en grand a
               gauche — un registre, ce qu est un coffre.
             */}
-            <ReflectiveCard
-              shine={0.16}
-              brush={0.08}
-              className="o-mt-12 o-overflow-hidden o-rounded-2xl o-border-w-1 o-bg-zinc-900"
-              style={{ borderColor: FILET }}
-            >
-              <ol className="o-m-0 o-list-none o-p-0">
-                {COFFRE.map((c, rang) => (
-                  <li
-                    key={c.titre}
-                    className={`o-grid o-items-baseline o-gap-x-6 o-gap-y-2 o-px-6 o-py-7 md:o-grid-cols-12 md:o-px-8 ${rang > 0 ? 'o-border-t' : ''}`}
-                    style={rang > 0 ? { borderColor: FILET } : undefined}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="o-font-bold o-tabular-nums o-tracking-tighter md:o-col-span-2"
-                      style={{ fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', lineHeight: 1, color: encre() }}
+              <ReflectiveCard
+                shine={0.16}
+                brush={0.08}
+                className="o-mt-12 o-overflow-hidden o-rounded-2xl o-border-w-1 o-bg-zinc-900"
+                style={{ borderColor: FILET }}
+              >
+                <ol className="o-m-0 o-list-none o-p-0">
+                  {COFFRE.map((c, rang) => (
+                    <li
+                      key={c.titre}
+                      className={`o-grid o-items-baseline o-gap-x-6 o-gap-y-2 o-px-6 o-py-7 md:o-grid-cols-12 md:o-px-8 ${rang > 0 ? 'o-border-t' : ''}`}
+                      style={rang > 0 ? { borderColor: FILET } : undefined}
                     >
-                      {String(rang + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="o-m-0 o-flex o-items-center o-gap-3 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50 md:o-col-span-4">
-                      <Icon icon={c.icone} size={18} style={{ color: encre() }} aria-hidden="true" />
-                      {c.titre}
+                      <span
+                        aria-hidden="true"
+                        className="o-font-bold o-tabular-nums o-tracking-tighter md:o-col-span-2"
+                        style={{
+                          fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                          lineHeight: 1,
+                          color: encre(),
+                        }}
+                      >
+                        {String(rang + 1).padStart(2, '0')}
+                      </span>
+                      <h3 className="o-m-0 o-flex o-items-center o-gap-3 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50 md:o-col-span-4">
+                        <Icon
+                          icon={c.icone}
+                          size={18}
+                          style={{ color: encre() }}
+                          aria-hidden="true"
+                        />
+                        {c.titre}
+                      </h3>
+                      <p className="o-m-0 o-leading-relaxed o-text-zinc-400 md:o-col-span-6">
+                        {c.texte}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </ReflectiveCard>
+
+              <p className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-2 o-text-sm o-text-zinc-400">
+                <Icon icon={ShieldCheck} size={16} aria-hidden="true" />
+                Orbe SAS est enregistree comme prestataire de services sur actifs
+                numeriques aupres de l AMF sous le numero E2024-118.
+              </p>
+            </div>
+          </section>
+
+          {/* ----- L avertissement de risque, en clair ------------------------ */}
+          <section
+            id="risque"
+            className="o-border-t o-bg-zinc-900"
+            style={{ borderColor: FILET }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
+              <div className="o-max-w-2xl">
+                <p
+                  className="o-inline-flex o-items-center o-gap-2 o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                  style={{ color: encre() }}
+                >
+                  <Icon icon={TriangleAlert} size={14} aria-hidden="true" />
+                  Avertissement de risque
+                </p>
+                <h2 className="o-mt-3 o-text-3xl o-font-bold o-tracking-tight md:o-text-4xl o-text-zinc-50">
+                  Ce que nous ne pouvons pas vous promettre.
+                </h2>
+                <p className="o-mt-4 o-text-lg o-leading-relaxed o-text-zinc-300">
+                  Cette page vend un service d execution. Elle n est ni un conseil ni une
+                  invitation a investir, et ce qui suit n est pas une formalite : c est la
+                  partie du metier qui coute de l argent aux gens quand elle est passee
+                  sous silence.
+                </p>
+              </div>
+
+              <ol className="o-mt-12 o-grid o-list-none o-gap-x-10 o-gap-y-8 o-p-0 md:o-grid-cols-2">
+                {RISQUES.map((r, index) => (
+                  <li
+                    key={r.titre}
+                    className="o-border-t o-pt-5"
+                    style={{ borderColor: FILET_FORT }}
+                  >
+                    <p
+                      className="o-font-mono o-text-xs o-font-bold o-tabular-nums"
+                      style={{ color: encre() }}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </p>
+                    <h3 className="o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
+                      {r.titre}
                     </h3>
-                    <p className="o-m-0 o-leading-relaxed o-text-zinc-400 md:o-col-span-6">{c.texte}</p>
+                    <p className="o-mt-2 o-leading-relaxed o-text-zinc-300">{r.texte}</p>
                   </li>
                 ))}
               </ol>
-            </ReflectiveCard>
 
-            <p className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-2 o-text-sm o-text-zinc-400">
-              <Icon icon={ShieldCheck} size={16} aria-hidden="true" />
-              Orbe SAS est enregistree comme prestataire de services sur actifs
-              numeriques aupres de l AMF sous le numero E2024-118.
-            </p>
-          </div>
-        </section>
-
-        {/* ----- L avertissement de risque, en clair ------------------------ */}
-        <section id="risque" className="o-border-t o-bg-zinc-900" style={{ borderColor: FILET }}>
-          <div className="o-mx-auto o-max-w-7xl o-px-4 o-py-16 md:o-px-6 md:o-py-24">
-            <div className="o-max-w-2xl">
               <p
-                className="o-inline-flex o-items-center o-gap-2 o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-                style={{ color: encre() }}
-              >
-                <Icon icon={TriangleAlert} size={14} aria-hidden="true" />
-                Avertissement de risque
-              </p>
-              <h2 className="o-mt-3 o-text-3xl o-font-bold o-tracking-tight md:o-text-4xl o-text-zinc-50">
-                Ce que nous ne pouvons pas vous promettre.
-              </h2>
-              <p className="o-mt-4 o-text-lg o-leading-relaxed o-text-zinc-300">
-                Cette page vend un service d execution. Elle n est ni un conseil
-                ni une invitation a investir, et ce qui suit n est pas une
-                formalite : c est la partie du metier qui coute de l argent aux
-                gens quand elle est passee sous silence.
-              </p>
-            </div>
-
-            <ol className="o-mt-12 o-grid o-list-none o-gap-x-10 o-gap-y-8 o-p-0 md:o-grid-cols-2">
-              {RISQUES.map((r, index) => (
-                <li
-                  key={r.titre}
-                  className="o-border-t o-pt-5"
-                  style={{ borderColor: FILET_FORT }}
-                >
-                  <p
-                    className="o-font-mono o-text-xs o-font-bold o-tabular-nums"
-                    style={{ color: encre() }}
-                  >
-                    {String(index + 1).padStart(2, '0')}
-                  </p>
-                  <h3 className="o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
-                    {r.titre}
-                  </h3>
-                  <p className="o-mt-2 o-leading-relaxed o-text-zinc-300">{r.texte}</p>
-                </li>
-              ))}
-            </ol>
-
-            <p
-              className="o-mt-12 o-max-w-3xl o-rounded-2xl o-border-w-1 o-p-5 o-text-sm o-leading-relaxed o-text-zinc-200"
-              style={{ borderColor: FILET_FORT }}
-            >
-              Orbe SAS est enregistree aupres de l Autorite des marches financiers
-              en qualite de prestataire de services sur actifs numeriques
-              (E2024-118). Cet enregistrement porte sur la conservation et
-              l echange d actifs numeriques : il ne vaut ni agrement des produits
-              echanges, ni garantie de l Etat, ni approbation de leur valeur. Le
-              document d information general est remis avant toute premiere
-              operation.
-            </p>
-          </div>
-        </section>
-
-        <section
-          id="application"
-          className="o-border-t o-bg-zinc-950"
-          style={{ borderColor: FILET }}
-        >
-          <div className="o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 o-px-4 o-py-16 md:o-px-6 md:o-py-24 lg:o-grid-cols-2">
-            <div>
-              <Titre
-                surtitre="Application"
-                texte="Le meme carnet, le meme prix, la meme grille de frais. Rien n est reserve au site."
-              >
-                La place tient dans la poche.
-              </Titre>
-
-              <ul className="o-mt-10 o-list-none o-space-y-6 o-p-0">
-                {MOBILE.map((m) => (
-                  <li key={m.titre} className="o-flex o-gap-4">
-                    <span
-                      className="o-inline-flex o-size-10 o-shrink-0 o-items-center o-justify-center o-rounded-xl"
-                      style={APLAT}
-                      aria-hidden="true"
-                    >
-                      <Icon icon={m.icone} size={20} />
-                    </span>
-                    <div>
-                      <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
-                        {m.titre}
-                      </h3>
-                      <p className="o-mt-1 o-leading-relaxed o-text-zinc-400">{m.texte}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <p className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-2 o-text-sm o-text-zinc-400">
-                <Icon icon={Smartphone} size={16} aria-hidden="true" />
-                iOS et Android — 4,6 sur 21 400 avis.
-              </p>
-            </div>
-
-            <div className="o-relative">
-              <div
-                className="o-mx-auto o-w-full o-max-w-xs o-overflow-hidden o-rounded-3xl o-border-w-4 o-bg-zinc-900 o-shadow-2xl"
+                className="o-mt-12 o-max-w-3xl o-rounded-2xl o-border-w-1 o-p-5 o-text-sm o-leading-relaxed o-text-zinc-200"
                 style={{ borderColor: FILET_FORT }}
               >
-                <img
-                  src={photo('orbe-ecran-carnet', 720, 1480)}
-                  alt="L application Orbe affichant le carnet d ordres de la paire bitcoin contre euro"
-                  width={720}
-                  height={1480}
-                  loading="lazy"
-                  className="o-block o-w-full o-h-auto o-object-cover"
-                />
-              </div>
-              <span
-                aria-hidden="true"
-                className="max-sm:o-hidden o-absolute o-left-0 o-top-12 o-rounded-xl o-border-w-1 o-bg-zinc-950 o-px-4 o-py-3 o-text-sm o-font-semibold o-tabular-nums o-shadow-2xl"
-                style={{ borderColor: FILET, color: encre() }}
-              >
-                <Icon icon={Layers} size={14} className="o-mr-2 o-align-middle" />
-                Ordre servi — 0,214 BTC
-              </span>
+                Orbe SAS est enregistree aupres de l Autorite des marches financiers en
+                qualite de prestataire de services sur actifs numeriques (E2024-118). Cet
+                enregistrement porte sur la conservation et l echange d actifs numeriques
+                : il ne vaut ni agrement des produits echanges, ni garantie de l Etat, ni
+                approbation de leur valeur. Le document d information general est remis
+                avant toute premiere operation.
+              </p>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/*
+          <section
+            id="application"
+            className="o-border-t o-bg-zinc-950"
+            style={{ borderColor: FILET }}
+          >
+            <div className="o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 o-px-4 o-py-16 md:o-px-6 md:o-py-24 lg:o-grid-cols-2">
+              <div>
+                <Titre
+                  surtitre="Application"
+                  texte="Le meme carnet, le meme prix, la meme grille de frais. Rien n est reserve au site."
+                >
+                  La place tient dans la poche.
+                </Titre>
+
+                <ul className="o-mt-10 o-list-none o-space-y-6 o-p-0">
+                  {MOBILE.map((m) => (
+                    <li key={m.titre} className="o-flex o-gap-4">
+                      <span
+                        className="o-inline-flex o-size-10 o-shrink-0 o-items-center o-justify-center o-rounded-xl"
+                        style={APLAT}
+                        aria-hidden="true"
+                      >
+                        <Icon icon={m.icone} size={20} />
+                      </span>
+                      <div>
+                        <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
+                          {m.titre}
+                        </h3>
+                        <p className="o-mt-1 o-leading-relaxed o-text-zinc-400">
+                          {m.texte}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-2 o-text-sm o-text-zinc-400">
+                  <Icon icon={Smartphone} size={16} aria-hidden="true" />
+                  iOS et Android — 4,6 sur 21 400 avis.
+                </p>
+              </div>
+
+              <div className="o-relative">
+                <div
+                  className="o-mx-auto o-w-full o-max-w-xs o-overflow-hidden o-rounded-3xl o-border-w-4 o-bg-zinc-900 o-shadow-2xl"
+                  style={{ borderColor: FILET_FORT }}
+                >
+                  <img
+                    src={photo('orbe-ecran-carnet', 720, 1480)}
+                    alt="L application Orbe affichant le carnet d ordres de la paire bitcoin contre euro"
+                    width={720}
+                    height={1480}
+                    loading="lazy"
+                    className="o-block o-w-full o-h-auto o-object-cover"
+                  />
+                </div>
+                <span
+                  aria-hidden="true"
+                  className="max-sm:o-hidden o-absolute o-left-0 o-top-12 o-rounded-xl o-border-w-1 o-bg-zinc-950 o-px-4 o-py-3 o-text-sm o-font-semibold o-tabular-nums o-shadow-2xl"
+                  style={{ borderColor: FILET, color: encre() }}
+                >
+                  <Icon icon={Layers} size={14} className="o-mr-2 o-align-middle" />
+                  Ordre servi — 0,214 BTC
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/*
           ================================================= L appel — A4
 
           Une bande pleine largeur en accent, et le texte defile dedans. Ni
           gelule posee au centre d un ecran vide, ni titre de cent vingt
           points : sur une place d echange, ce qui appelle, c est ce qui passe.
         */}
-        <section id="ouvrir" aria-labelledby="ouvrir-titre" className="o-border-t" style={{ borderColor: FILET }}>
-          <div style={APLAT}>
-            <div aria-hidden="true" className="o-overflow-hidden o-py-7">
-              <Marquee speed={32} fade={0} pauseOnHover={false}>
-                {[0, 1].map((rang) => (
-                  <span
-                    key={rang}
-                    className="o-flex o-shrink-0 o-items-center o-gap-6 o-px-6 o-whitespace-nowrap"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 4vw, 3.5rem)' }}
-                  >
-                    <span>Ouvrir un compte</span>
-                    <Icon icon={ArrowUpRight} size={26} />
-                    <span>Verification en six minutes</span>
-                    <Icon icon={ArrowUpRight} size={26} />
-                    <span>Premier virement SEPA gratuit</span>
-                    <Icon icon={ArrowUpRight} size={26} />
-                    <span>Retrait des la premiere heure</span>
-                    <Icon icon={ArrowUpRight} size={26} />
-                  </span>
-                ))}
-              </Marquee>
-            </div>
+          <section
+            id="ouvrir"
+            aria-labelledby="ouvrir-titre"
+            className="o-border-t"
+            style={{ borderColor: FILET }}
+          >
+            <div style={APLAT}>
+              <div aria-hidden="true" className="o-overflow-hidden o-py-7">
+                <Marquee speed={32} fade={0} pauseOnHover={false}>
+                  {[0, 1].map((rang) => (
+                    <span
+                      key={rang}
+                      className="o-flex o-shrink-0 o-items-center o-gap-6 o-px-6 o-whitespace-nowrap"
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.5rem, 4vw, 3.5rem)',
+                      }}
+                    >
+                      <span>Ouvrir un compte</span>
+                      <Icon icon={ArrowUpRight} size={26} />
+                      <span>Verification en six minutes</span>
+                      <Icon icon={ArrowUpRight} size={26} />
+                      <span>Premier virement SEPA gratuit</span>
+                      <Icon icon={ArrowUpRight} size={26} />
+                      <span>Retrait des la premiere heure</span>
+                      <Icon icon={ArrowUpRight} size={26} />
+                    </span>
+                  ))}
+                </Marquee>
+              </div>
 
-            <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-px-4 o-pb-8 md:o-px-6">
-              <h2 id="ouvrir-titre" className="o-m-0 o-max-w-md o-text-base o-font-semibold o-tracking-tight">
-                Le compte s ouvre pendant que le marche tourne.
-              </h2>
-              <a
-                href="#fiche"
-                className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-no-underline focus:o-ring"
-                /* Un lien ne prend pas l encre de son parent : la feuille de la
+              <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-px-4 o-pb-8 md:o-px-6">
+                <h2
+                  id="ouvrir-titre"
+                  className="o-m-0 o-max-w-md o-text-base o-font-semibold o-tracking-tight"
+                >
+                  Le compte s ouvre pendant que le marche tourne.
+                </h2>
+                <a
+                  href="#fiche"
+                  className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-no-underline focus:o-ring"
+                  /* Un lien ne prend pas l encre de son parent : la feuille de la
                    documentation lui en donne une. Sur cette bande en accent,
                    c est le fond de la page qui doit servir d encre. */
-                style={{ color: 'var(--o-theme-bg)', borderColor: 'currentcolor' }}
-              >
-                Ouvrir un compte
-                <Icon icon={ArrowUpRight} size={16} aria-hidden="true" />
-              </a>
+                  style={{ color: 'var(--o-theme-bg)', borderColor: 'currentcolor' }}
+                >
+                  Ouvrir un compte
+                  <Icon icon={ArrowUpRight} size={16} aria-hidden="true" />
+                </a>
+              </div>
             </div>
-          </div>
 
-          <p className="o-mx-auto o-max-w-3xl o-px-4 o-py-7 o-text-center o-text-xs o-leading-relaxed o-text-zinc-400 md:o-px-6">
-            Investir dans les crypto-actifs comporte un risque de perte totale du
-            capital. Orbe ne fournit ni conseil ni recommandation.
-          </p>
-        </section>
-      </main>
+            <p className="o-mx-auto o-max-w-3xl o-px-4 o-py-7 o-text-center o-text-xs o-leading-relaxed o-text-zinc-400 md:o-px-6">
+              Investir dans les crypto-actifs comporte un risque de perte totale du
+              capital. Orbe ne fournit ni conseil ni recommandation.
+            </p>
+          </section>
+        </main>
 
-      {/*
+        {/*
         =================================================== Le pied — P8
 
         Un bandeau de mots qui defilent, puis une seule ligne de mentions. Pas
@@ -1751,57 +1977,66 @@ export default function Page(): ReactElement {
         deja dans la barre du haut, et une place d echange se quitte sur le nom
         des actifs, pas sur un annuaire.
       */}
-      <footer className="o-border-t o-bg-zinc-950" style={{ borderColor: FILET }}>
-        <div aria-hidden="true" className="o-overflow-hidden o-py-10">
-          <Bandeau
-            mots={['Orbe', ...PAIRES.map((p) => p.code)]}
-            separateur="·"
-            vitesse={28}
-            className="o-text-zinc-50"
-            taille="clamp(3rem, 12vw, 11rem)"
-            style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 800, letterSpacing: '-0.05em' }}
-          />
-        </div>
+        <footer className="o-border-t o-bg-zinc-950" style={{ borderColor: FILET }}>
+          <div aria-hidden="true" className="o-overflow-hidden o-py-10">
+            <Bandeau
+              mots={['Orbe', ...PAIRES.map((p) => p.code)]}
+              separateur="·"
+              vitesse={28}
+              className="o-text-zinc-50"
+              taille="clamp(3rem, 12vw, 11rem)"
+              style={{
+                fontFamily: 'var(--o-vitrine-affichage)',
+                fontWeight: 800,
+                letterSpacing: '-0.05em',
+              }}
+            />
+          </div>
 
-        <div
-          className="o-mx-auto o-max-w-7xl o-border-t o-px-4 o-py-7 md:o-px-6"
-          style={{ borderColor: FILET }}
-        >
-          <p className="o-m-0 o-max-w-4xl o-text-xs o-leading-relaxed o-text-zinc-400">
-            <span className="o-inline-flex o-items-center o-gap-2 o-font-semibold o-text-zinc-50">
-              <Icon icon={Globe} size={14} style={{ color: encre() }} aria-hidden="true" />
-              Orbe SAS
-            </span>{' '}
-            — prestataire de services sur actifs numeriques enregistre a l AMF
-            sous le numero E2024-118, 9 rue de la Bourse, 75002 Paris. Investir
-            dans les crypto-actifs presente un risque de perte totale du
-            capital ; les performances passees ne prejugent pas des performances
-            futures ; Orbe ne fournit ni conseil ni recommandation.
-          </p>
-          <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-p-0 o-text-xs o-text-zinc-400">
-            <li>© 2026 Orbe</li>
-            {[
-              ['#marches', 'Toutes les paires'],
-              ['#frais', 'Grille de frais'],
-              ['#reserves', 'Preuve de reserves'],
-              ['#risque', 'Avertissement de risque'],
-              ['#fiche', 'Mentions legales'],
-              ['#fiche', 'Donnees personnelles'],
-              ['#fiche', 'Accessibilite : partiellement conforme'],
-            ].map(([cible, mot]) => (
-              <li key={mot}>
-                <a
-                  href={cible}
-                  className="o-no-underline o-text-zinc-400 hover:o-text-zinc-200 focus:o-ring"
-                >
-                  {mot}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </footer>
-    </div>
+          <div
+            className="o-mx-auto o-max-w-7xl o-border-t o-px-4 o-py-7 md:o-px-6"
+            style={{ borderColor: FILET }}
+          >
+            <p className="o-m-0 o-max-w-4xl o-text-xs o-leading-relaxed o-text-zinc-400">
+              <span className="o-inline-flex o-items-center o-gap-2 o-font-semibold o-text-zinc-50">
+                <Icon
+                  icon={Globe}
+                  size={14}
+                  style={{ color: encre() }}
+                  aria-hidden="true"
+                />
+                Orbe SAS
+              </span>{' '}
+              — prestataire de services sur actifs numeriques enregistre a l AMF sous le
+              numero E2024-118, 9 rue de la Bourse, 75002 Paris. Investir dans les
+              crypto-actifs presente un risque de perte totale du capital ; les
+              performances passees ne prejugent pas des performances futures ; Orbe ne
+              fournit ni conseil ni recommandation.
+            </p>
+            <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-p-0 o-text-xs o-text-zinc-400">
+              <li>© 2026 Orbe</li>
+              {[
+                ['#marches', 'Toutes les paires'],
+                ['#frais', 'Grille de frais'],
+                ['#reserves', 'Preuve de reserves'],
+                ['#risque', 'Avertissement de risque'],
+                ['#fiche', 'Mentions legales'],
+                ['#fiche', 'Donnees personnelles'],
+                ['#fiche', 'Accessibilite : partiellement conforme'],
+              ].map(([cible, mot]) => (
+                <li key={mot}>
+                  <a
+                    href={cible}
+                    className="o-no-underline o-text-zinc-400 hover:o-text-zinc-200 focus:o-ring"
+                  >
+                    {mot}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </footer>
+      </div>
     </Porte>
   )
 }

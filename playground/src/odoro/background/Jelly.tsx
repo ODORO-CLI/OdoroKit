@@ -162,7 +162,9 @@ export function Jelly({
 
       const paint = (value: ShaderColour): InstanceType<typeof three.Color> =>
         new three.Color(value[0], value[1], value[2])
-      const [background, body, highlight] = colors.map((token) => readTokenColour(token, host))
+      const [background, body, highlight] = colors.map((token) =>
+        readTokenColour(token, host),
+      )
 
       // Le fond est la couleur du theme. Le token est en sRGB et le moteur
       // encode sa couleur d'effacement du lineaire vers le sRGB : sans la
@@ -170,7 +172,10 @@ export function Jelly({
       renderer.setClearColor(paint(background ?? [0, 0, 0]).convertSRGBToLinear(), 1)
 
       // Un depart a -1000 donne un age enorme, donc un impact eteint d'office.
-      const impacts = Array.from({ length: SLOTS }, () => new three.Vector4(0, 0, 1, -1000))
+      const impacts = Array.from(
+        { length: SLOTS },
+        () => new three.Vector4(0, 0, 1, -1000),
+      )
 
       uniforms.current = {
         uTime: { value: 0 },
@@ -217,8 +222,12 @@ export function Jelly({
     frame: (_scene, { time, delta }) => {
       const live = world.current
       if (live === null) return
-      const { wobble: amplitude, stiffness: frequency, damping: decay, rpm: turns } =
-        settings.current
+      const {
+        wobble: amplitude,
+        stiffness: frequency,
+        damping: decay,
+        rpm: turns,
+      } = settings.current
       const current = uniforms.current
 
       // La rotation est exprimee en fonction du temps ecoule : le meme
@@ -256,7 +265,8 @@ export function Jelly({
       // Touchee, ou pas : dans le second cas, le point le plus proche du
       // rayon recoit le coup, et le bord tremble.
       const hit = live.raycaster.ray.intersectSphere(live.sphere, live.point)
-      if (hit === null) live.raycaster.ray.closestPointToPoint(live.sphere.center, live.point)
+      if (hit === null)
+        live.raycaster.ray.closestPointToPoint(live.sphere.center, live.point)
 
       // Du monde vers la gelee, qui tourne : l'impact est fixe a sa surface.
       live.mesh.worldToLocal(live.point).normalize()
@@ -280,7 +290,9 @@ export function Jelly({
     const scene = context.current
     const live = uniforms.current
     if (scene === null || live['uBody'] === undefined) return
-    const [background, body, highlight] = colors.map((token) => readTokenColour(token, host))
+    const [background, body, highlight] = colors.map((token) =>
+      readTokenColour(token, host),
+    )
     const paint = (key: string, value: ShaderColour | undefined): void => {
       const uniform = live[key]
       if (uniform === undefined || value === undefined) return
@@ -294,7 +306,11 @@ export function Jelly({
     paint('uHighlight', highlight)
     if (background !== undefined) {
       scene.renderer.setClearColor(
-        new scene.three.Color(background[0], background[1], background[2]).convertSRGBToLinear(),
+        new scene.three.Color(
+          background[0],
+          background[1],
+          background[2],
+        ).convertSRGBToLinear(),
         1,
       )
     }

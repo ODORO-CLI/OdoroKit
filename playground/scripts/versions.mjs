@@ -33,14 +33,17 @@ for (const dossier of dossiers.sort((a, b) => a.name.localeCompare(b.name))) {
   if (!dossier.isDirectory()) continue
   let manifeste
   try {
-    manifeste = JSON.parse(await readFile(join(PAQUETS, dossier.name, 'package.json'), 'utf8'))
+    manifeste = JSON.parse(
+      await readFile(join(PAQUETS, dossier.name, 'package.json'), 'utf8'),
+    )
   } catch {
     continue
   }
   // Un paquet prive n a pas de page sur le registre : l annoncer avec un
   // numero de version enverrait le lecteur sur une adresse morte.
   if (manifeste.private === true) continue
-  if (typeof manifeste.name !== 'string' || typeof manifeste.version !== 'string') continue
+  if (typeof manifeste.name !== 'string' || typeof manifeste.version !== 'string')
+    continue
   releve.push({ nom: manifeste.name, version: manifeste.version })
 }
 
@@ -72,4 +75,6 @@ ${entrees}
 `
 
 await writeFile(SORTIE, module_, 'utf8')
-console.log(`[versions] ${String(releve.length)} paquets : ${releve.map((p) => `${p.nom}@${p.version}`).join(', ')}`)
+console.log(
+  `[versions] ${String(releve.length)} paquets : ${releve.map((p) => `${p.nom}@${p.version}`).join(', ')}`,
+)

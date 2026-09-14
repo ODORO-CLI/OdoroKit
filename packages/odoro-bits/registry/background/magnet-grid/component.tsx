@@ -74,7 +74,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-slate-950 o-to-zinc-50 dark:o-to-indigo-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-slate-950 o-to-zinc-50 dark:o-to-indigo-950'
 
 /**
  * Grille magnetique.
@@ -114,19 +115,24 @@ export function MagnetGrid({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: MAGNET_GRID_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uDensity: density,
-        uRadius: radius,
-        uForce: force,
-        uAttract: attract ? 1 : 0,
-      },
-      name: 'magnet-grid',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: MAGNET_GRID_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uDensity: density,
+      uRadius: radius,
+      uForce: force,
+      uAttract: attract ? 1 : 0,
+    },
+    name: 'magnet-grid',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

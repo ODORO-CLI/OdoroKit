@@ -74,7 +74,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-cyan-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-cyan-950'
 
 /** Nombre de clics vivants a la fois. */
 const SLOTS = 8
@@ -141,13 +142,18 @@ export function ClickWaves({
     return () => host.removeEventListener('pointerdown', onDown)
   }, [host, uClicks])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: CLICK_WAVES_FRAGMENT,
-      colors,
-      uniforms: { uClicks, uSpeed: speed, uWidth: width, uDecay: decay },
-      name: 'click-waves',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: CLICK_WAVES_FRAGMENT,
+    colors,
+    uniforms: { uClicks, uSpeed: speed, uWidth: width, uDecay: decay },
+    name: 'click-waves',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

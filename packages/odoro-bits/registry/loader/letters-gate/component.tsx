@@ -56,14 +56,13 @@
  * @module
  */
 
-import { clock, mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
 import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactElement,
-} from 'react'
+  clock,
+  mergePresentation,
+  useMotionState,
+  type Customisable,
+} from '@odoro-cli/engine'
+import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 
 /** Proprietes propres au composant. */
 export interface LettersGateOwnProps {
@@ -332,7 +331,9 @@ export function LettersGate({
         <div data-o-letg-face="" aria-hidden="true" />
 
         <div role="status">
-          <span className="o-sr-only">{status.length > 0 ? `${status} ${word}` : word}</span>
+          <span className="o-sr-only">
+            {status.length > 0 ? `${status} ${word}` : word}
+          </span>
 
           {/* Le mot decoupe est decoratif : lu tel quel, il serait epele. */}
           <span data-o-letg-word="" aria-hidden="true">
@@ -343,7 +344,9 @@ export function LettersGate({
                   caracteres.current[index] = noeud
                 }}
                 data-o-letg-ch=""
-                style={{ '--o-letg-d': `${String(index * EXIT_STAGGER)}ms` } as CSSProperties}
+                style={
+                  { '--o-letg-d': `${String(index * EXIT_STAGGER)}ms` } as CSSProperties
+                }
               >
                 {caractere}
               </span>

@@ -154,8 +154,7 @@ export function ScrollReveal({
       () => {
         const boite = element.getBoundingClientRect()
         const vueHaut = defilant === null ? 0 : defilant.getBoundingClientRect().top
-        const vueHauteur =
-          defilant === null ? window.innerHeight : defilant.clientHeight
+        const vueHauteur = defilant === null ? window.innerHeight : defilant.clientHeight
         const vueBas = vueHaut + vueHauteur
 
         // Zero quand le haut du bloc touche le bas du champ ; un quand il a

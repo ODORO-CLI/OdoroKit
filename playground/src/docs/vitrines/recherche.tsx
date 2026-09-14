@@ -52,7 +52,17 @@ import { useInView } from '@/odoro/hooks/useInView'
 
 import { Filigrane, nuit } from './communs.jsx'
 import { accent, accentDoux, encreSurSombre } from './palettes.js'
-import { affiche, BarreCoins, Coin, Etiquette, Grain, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  affiche,
+  BarreCoins,
+  Coin,
+  Etiquette,
+  Grain,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 
 /* ------------------------------------------------------------------------ */
 /*                               Les encres                                 */
@@ -102,7 +112,9 @@ const LIENS = [
 type Source = 'wiki' | 'lecteur' | 'messagerie' | 'tickets' | 'code'
 
 /** Le pictogramme et le mot d une source. */
-const SOURCES: Readonly<Record<Source, { readonly mot: string; readonly icone: IconData }>> = {
+const SOURCES: Readonly<
+  Record<Source, { readonly mot: string; readonly icone: IconData }>
+> = {
   wiki: { mot: 'Wiki', icone: FileText },
   lecteur: { mot: 'Lecteur', icone: Folder },
   messagerie: { mot: 'Messagerie', icone: Mail },
@@ -286,9 +298,47 @@ const CORPUS: readonly Document[] = [
  * autant qu un gain de justesse.
  */
 const VIDES: ReadonlySet<string> = new Set([
-  'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'et', 'ou', 'a', 'au', 'aux', 'en', 'dans',
-  'sur', 'pour', 'par', 'avec', 'sans', 'est', 'sont', 'que', 'qui', 'quoi', 'comment', 'ce',
-  'cette', 'ces', 'se', 'ne', 'pas', 'plus', 'mon', 'ma', 'mes', 'je', 'il', 'elle', 'on', 'y',
+  'le',
+  'la',
+  'les',
+  'un',
+  'une',
+  'des',
+  'du',
+  'de',
+  'et',
+  'ou',
+  'a',
+  'au',
+  'aux',
+  'en',
+  'dans',
+  'sur',
+  'pour',
+  'par',
+  'avec',
+  'sans',
+  'est',
+  'sont',
+  'que',
+  'qui',
+  'quoi',
+  'comment',
+  'ce',
+  'cette',
+  'ces',
+  'se',
+  'ne',
+  'pas',
+  'plus',
+  'mon',
+  'ma',
+  'mes',
+  'je',
+  'il',
+  'elle',
+  'on',
+  'y',
 ])
 
 /** Un mot ramene a sa racine, par une regle et une seule. */
@@ -341,8 +391,12 @@ interface Indexe {
 
 /** Le corpus, racinise une fois pour toutes. */
 const INDEX: readonly Indexe[] = CORPUS.map((doc) => {
-  const titre = jetons(doc.titre).filter((m) => !VIDES.has(m)).map(raciniser)
-  const corps = jetons(doc.corps).filter((m) => !VIDES.has(m)).map(raciniser)
+  const titre = jetons(doc.titre)
+    .filter((m) => !VIDES.has(m))
+    .map(raciniser)
+  const corps = jetons(doc.corps)
+    .filter((m) => !VIDES.has(m))
+    .map(raciniser)
   const frequences: Record<string, number> = {}
   for (const mot of corps) frequences[mot] = (frequences[mot] ?? 0) + 1
   for (const mot of titre) frequences[mot] = (frequences[mot] ?? 0) + 1
@@ -389,7 +443,8 @@ function analyser(requete: string): Analyse {
   const ajoutes: string[] = []
   for (const racine of racines) {
     for (const synonyme of SYNONYMES[racine] ?? []) {
-      if (!racines.includes(synonyme) && !ajoutes.includes(synonyme)) ajoutes.push(synonyme)
+      if (!racines.includes(synonyme) && !ajoutes.includes(synonyme))
+        ajoutes.push(synonyme)
     }
   }
   return { bruts, retires, racines, ajoutes }
@@ -459,7 +514,9 @@ function chercher(requete: string): readonly Score[] {
   const analyse = analyser(requete)
   const notes = INDEX.map((entree) => noter(entree, analyse))
   if (analyse.racines.length === 0) {
-    return [...notes].sort((a, b) => b.clics + b.fraicheur - (a.clics + a.fraicheur)).slice(0, 6)
+    return [...notes]
+      .sort((a, b) => b.clics + b.fraicheur - (a.clics + a.fraicheur))
+      .slice(0, 6)
   }
   return notes
     .filter((n) => n.titre + n.corps > 0)
@@ -477,17 +534,18 @@ function deux(valeur: number): string {
 /* ------------------------------------------------------------------------ */
 
 /** Un extrait ou les mots trouves sont marques. */
-function Extrait({ texte, touches }: { readonly texte: string; readonly touches: readonly string[] }): ReactElement {
+function Extrait({
+  texte,
+  touches,
+}: {
+  readonly texte: string
+  readonly touches: readonly string[]
+}): ReactElement {
   const morceaux = texte.split(/([A-Za-z0-9]+)/)
   return (
     <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-400">
       {morceaux.map((morceau, rang) => {
-        const nu = raciniser(
-          morceau
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[̀-ͯ]/g, ''),
-        )
+        const nu = raciniser(morceau.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''))
         if (!touches.includes(nu)) return <span key={rang}>{morceau}</span>
         return (
           <span key={rang} style={{ color: ENCRE, backgroundColor: accentDoux(500, 18) }}>
@@ -509,12 +567,19 @@ function BarreScore({ score }: { readonly score: Score }): ReactElement {
   ]
   const somme = parts.reduce((t, p) => t + p.valeur, 0) || 1
   return (
-    <div aria-hidden="true" className="o-flex o-h-2 o-w-full o-overflow-hidden" style={{ backgroundColor: 'var(--o-palette-zinc-900)' }}>
+    <div
+      aria-hidden="true"
+      className="o-flex o-h-2 o-w-full o-overflow-hidden"
+      style={{ backgroundColor: 'var(--o-palette-zinc-900)' }}
+    >
       {parts.map((part) => (
         <span
           key={part.quoi}
           className="o-block o-h-full"
-          style={{ width: `${String((part.valeur / somme) * 100)}%`, backgroundColor: part.couleur }}
+          style={{
+            width: `${String((part.valeur / somme) * 100)}%`,
+            backgroundColor: part.couleur,
+          }}
         />
       ))}
     </div>
@@ -522,7 +587,12 @@ function BarreScore({ score }: { readonly score: Score }): ReactElement {
 }
 
 /** Les trois requetes proposees, pour voir le moteur travailler sans taper. */
-const EXEMPLES = ['note de frais', 'conges d ete', 'vpn depuis l etranger', 'mot de passe'] as const
+const EXEMPLES = [
+  'note de frais',
+  'conges d ete',
+  'vpn depuis l etranger',
+  'mot de passe',
+] as const
 
 /** Le moteur : le champ, l analyse de la requete, et les resultats notes. */
 function Moteur(): ReactElement {
@@ -533,7 +603,10 @@ function Moteur(): ReactElement {
   return (
     <div>
       {/* Le champ : un seul filet, rien de rond. */}
-      <div className="o-flex o-items-center o-gap-3 o-px-4 o-py-3" style={{ border: `1px solid ${FILET}` }}>
+      <div
+        className="o-flex o-items-center o-gap-3 o-px-4 o-py-3"
+        style={{ border: `1px solid ${FILET}` }}
+      >
         <Icon icon={Search} size={18} style={{ color: ENCRE }} aria-hidden="true" />
         <label htmlFor="moteur-requete" className="o-sr-only">
           Chercher dans les documents de la maison
@@ -557,7 +630,9 @@ function Moteur(): ReactElement {
       </div>
 
       <div className="o-mt-3 o-flex o-flex-wrap o-items-center o-gap-2">
-        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">Essayez</span>
+        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+          Essayez
+        </span>
         {EXEMPLES.map((exemple) => (
           <button
             key={exemple}
@@ -566,7 +641,11 @@ function Moteur(): ReactElement {
               setRequete(exemple)
             }}
             className="o-cursor-pointer o-px-3 o-py-1 o-font-mono o-text-xs o-text-zinc-300 o-transition-colors hover:o-text-zinc-50 focus:o-ring"
-            style={{ border: `1px solid ${FILET}`, borderRadius: 0, backgroundColor: 'transparent' }}
+            style={{
+              border: `1px solid ${FILET}`,
+              borderRadius: 0,
+              backgroundColor: 'transparent',
+            }}
           >
             {exemple}
           </button>
@@ -580,20 +659,34 @@ function Moteur(): ReactElement {
             Ce que votre phrase devient
           </p>
           <dl className="o-m-0 o-mt-5">
-            {([
-              ['Jetons', analyse.bruts, 'o-text-zinc-300'],
-              ['Mots vides retires', analyse.retires, 'o-text-zinc-400'],
-              ['Racines', analyse.racines, 'o-text-zinc-50'],
-              ['Synonymes ajoutes', analyse.ajoutes, 'o-text-zinc-400'],
-            ] as const).map(([quoi, mots, teinte]) => (
-              <div key={quoi} className="o-border-t o-py-3" style={{ borderColor: FILET }}>
-                <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
-                <dd className={`o-m-0 o-mt-2 o-flex o-flex-wrap o-gap-1.5 o-font-mono o-text-xs ${teinte}`}>
+            {(
+              [
+                ['Jetons', analyse.bruts, 'o-text-zinc-300'],
+                ['Mots vides retires', analyse.retires, 'o-text-zinc-400'],
+                ['Racines', analyse.racines, 'o-text-zinc-50'],
+                ['Synonymes ajoutes', analyse.ajoutes, 'o-text-zinc-400'],
+              ] as const
+            ).map(([quoi, mots, teinte]) => (
+              <div
+                key={quoi}
+                className="o-border-t o-py-3"
+                style={{ borderColor: FILET }}
+              >
+                <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                  {quoi}
+                </dt>
+                <dd
+                  className={`o-m-0 o-mt-2 o-flex o-flex-wrap o-gap-1.5 o-font-mono o-text-xs ${teinte}`}
+                >
                   {mots.length === 0 ? (
                     <span className="o-text-zinc-400">aucun</span>
                   ) : (
                     mots.map((mot, rang) => (
-                      <span key={`${mot}-${String(rang)}`} className="o-px-2 o-py-0.5" style={{ border: `1px solid ${FILET}` }}>
+                      <span
+                        key={`${mot}-${String(rang)}`}
+                        className="o-px-2 o-py-0.5"
+                        style={{ border: `1px solid ${FILET}` }}
+                      >
                         {mot}
                       </span>
                     ))
@@ -602,26 +695,46 @@ function Moteur(): ReactElement {
               </div>
             ))}
           </dl>
-          <p className="o-m-0 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500" style={{ borderColor: FILET }}>
-            Le corpus a subi exactement le meme traitement au chargement. C est la seule raison pour laquelle « conges » trouve « conge » et « RTT ».
+          <p
+            className="o-m-0 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500"
+            style={{ borderColor: FILET }}
+          >
+            Le corpus a subi exactement le meme traitement au chargement. C est la seule
+            raison pour laquelle « conges » trouve « conge » et « RTT ».
           </p>
 
           {/* La formule, en clair : quatre lignes valent mieux qu un nom savant. */}
-          <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">La formule</p>
+          <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+            La formule
+          </p>
           <ul className="o-m-0 o-mt-4 o-list-none o-p-0">
-            {([
-              ['titre', 'poids de la racine, multiplie par 2,6'],
-              ['corps', 'poids, sature : un mot dit dix fois ne vaut pas dix fois un mot dit une fois'],
-              ['fraicheur', 'decroissance douce sur trois cents jours'],
-              ['clics', 'logarithme des ouvertures, borne par la page la plus lue'],
-              ['perime', 'penalite fixe de 1,10 sur une page remplacee'],
-              ['synonyme', 'un terme ajoute par la table ne compte que pour 0,55'],
-            ] as const).map(([terme, regle]) => (
-              <li key={terme} className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-border-t o-py-2.5" style={{ borderColor: FILET }}>
-                <span className="o-col-span-4 o-font-mono o-text-xs" style={{ color: ENCRE }}>
+            {(
+              [
+                ['titre', 'poids de la racine, multiplie par 2,6'],
+                [
+                  'corps',
+                  'poids, sature : un mot dit dix fois ne vaut pas dix fois un mot dit une fois',
+                ],
+                ['fraicheur', 'decroissance douce sur trois cents jours'],
+                ['clics', 'logarithme des ouvertures, borne par la page la plus lue'],
+                ['perime', 'penalite fixe de 1,10 sur une page remplacee'],
+                ['synonyme', 'un terme ajoute par la table ne compte que pour 0,55'],
+              ] as const
+            ).map(([terme, regle]) => (
+              <li
+                key={terme}
+                className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-border-t o-py-2.5"
+                style={{ borderColor: FILET }}
+              >
+                <span
+                  className="o-col-span-4 o-font-mono o-text-xs"
+                  style={{ color: ENCRE }}
+                >
                   {terme}
                 </span>
-                <span className="o-col-span-8 o-text-xs o-leading-relaxed o-text-zinc-500">{regle}</span>
+                <span className="o-col-span-8 o-text-xs o-leading-relaxed o-text-zinc-500">
+                  {regle}
+                </span>
               </li>
             ))}
           </ul>
@@ -634,14 +747,22 @@ function Moteur(): ReactElement {
           </p>
           <ol aria-live="polite" className="o-m-0 o-mt-5 o-list-none o-p-0">
             {resultats.length === 0 && (
-              <li className="o-border-t o-py-8 o-font-mono o-text-sm o-text-zinc-500" style={{ borderColor: FILET }}>
-                Aucun document ne porte ces mots. Un moteur honnete le dit, au lieu de proposer autre chose.
+              <li
+                className="o-border-t o-py-8 o-font-mono o-text-sm o-text-zinc-500"
+                style={{ borderColor: FILET }}
+              >
+                Aucun document ne porte ces mots. Un moteur honnete le dit, au lieu de
+                proposer autre chose.
               </li>
             )}
             {resultats.map((score, rang) => {
               const source = SOURCES[score.doc.source]
               return (
-                <li key={score.doc.id} className="o-border-t o-py-5" style={{ borderColor: FILET }}>
+                <li
+                  key={score.doc.id}
+                  className="o-border-t o-py-5"
+                  style={{ borderColor: FILET }}
+                >
                   <div className="o-grid o-gap-4 md:o-grid-cols-12">
                     <div className="o-min-w-0 md:o-col-span-9">
                       <p className="o-m-0 o-flex o-flex-wrap o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
@@ -652,17 +773,26 @@ function Moteur(): ReactElement {
                           <Icon icon={source.icone} size={12} aria-hidden="true" />
                           {source.mot}
                         </span>
-                        <span className="o-normal-case o-tracking-normal">{score.doc.chemin}</span>
+                        <span className="o-normal-case o-tracking-normal">
+                          {score.doc.chemin}
+                        </span>
                         {score.doc.perime === true && (
-                          <span style={{ color: 'var(--o-palette-amber-300)' }}>remplacee</span>
+                          <span style={{ color: 'var(--o-palette-amber-300)' }}>
+                            remplacee
+                          </span>
                         )}
                       </p>
-                      <h3 className="o-m-0 o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">{score.doc.titre}</h3>
+                      <h3 className="o-m-0 o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
+                        {score.doc.titre}
+                      </h3>
                       <Extrait texte={score.doc.corps} touches={score.touches} />
                     </div>
 
                     <div className="o-min-w-0 md:o-col-span-3">
-                      <p className="o-m-0 o-font-mono o-tabular-nums o-text-2xl o-tracking-tight" style={{ color: ENCRE }}>
+                      <p
+                        className="o-m-0 o-font-mono o-tabular-nums o-text-2xl o-tracking-tight"
+                        style={{ color: ENCRE }}
+                      >
                         {deux(score.total)}
                       </p>
                       <div className="o-mt-2">
@@ -676,7 +806,9 @@ function Moteur(): ReactElement {
                         {score.penalite > 0 && (
                           <>
                             <br />
-                            <span style={{ color: 'var(--o-palette-amber-300)' }}>− perime {deux(score.penalite)}</span>
+                            <span style={{ color: 'var(--o-palette-amber-300)' }}>
+                              − perime {deux(score.penalite)}
+                            </span>
                           </>
                         )}
                       </p>
@@ -697,7 +829,10 @@ function Moteur(): ReactElement {
 /* ------------------------------------------------------------------------ */
 
 /** Les trois racines montrees par la figure, et les documents qui les portent. */
-const ANCRAGES: readonly { readonly racine: string; readonly documents: readonly number[] }[] = [
+const ANCRAGES: readonly {
+  readonly racine: string
+  readonly documents: readonly number[]
+}[] = [
   { racine: 'note', documents: [1, 3, 4, 11] },
   { racine: 'frai', documents: [1, 3, 11] },
   { racine: 'remboursement', documents: [1, 4, 11] },
@@ -727,8 +862,20 @@ function ordonneeDocument(numero: number): number {
 function FigureIndex(): ReactElement {
   const gris: CSSProperties = { color: 'var(--o-palette-zinc-500)' }
   return (
-    <svg viewBox="0 0 1000 320" aria-hidden="true" className="o-w-full" style={{ minWidth: 720 }}>
-      <text x="40" y="34" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+    <svg
+      viewBox="0 0 1000 320"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 720 }}
+    >
+      <text
+        x="40"
+        y="34"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         les trois racines de « note de frais », et leurs listes d ancrage
       </text>
 
@@ -737,17 +884,47 @@ function FigureIndex(): ReactElement {
         const y = 92 + rang * 76
         return (
           <g key={ancrage.racine}>
-            <rect x="40" y={y - 26} width="150" height="38" fill="none" stroke="currentColor" strokeOpacity="0.35" />
+            <rect
+              x="40"
+              y={y - 26}
+              width="150"
+              height="38"
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity="0.35"
+            />
             <text x="52" y={y} className="o-font-mono" fontSize="14" fill={ENCRE}>
               {ancrage.racine}
             </text>
-            <text x="202" y={y - 16} className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+            <text
+              x="202"
+              y={y - 16}
+              className="o-font-mono"
+              fontSize="10"
+              fill="currentColor"
+              style={gris}
+            >
               liste d ancrage
             </text>
             {ancrage.documents.map((numero, place) => (
               <g key={numero}>
-                <rect x={202 + place * 58} y={y - 8} width="48" height="22" fill="none" stroke={ENCRE} strokeOpacity="0.55" />
-                <text x={226 + place * 58} y={y + 7} textAnchor="middle" className="o-font-mono" fontSize="11" fill="currentColor">
+                <rect
+                  x={202 + place * 58}
+                  y={y - 8}
+                  width="48"
+                  height="22"
+                  fill="none"
+                  stroke={ENCRE}
+                  strokeOpacity="0.55"
+                />
+                <text
+                  x={226 + place * 58}
+                  y={y + 7}
+                  textAnchor="middle"
+                  className="o-font-mono"
+                  fontSize="11"
+                  fill="currentColor"
+                >
                   d{numero}
                 </text>
                 <line
@@ -780,17 +957,38 @@ function FigureIndex(): ReactElement {
               stroke={retenu ? ENCRE : 'currentColor'}
               strokeOpacity={retenu ? 0.9 : 0.3}
             />
-            <text x="686" y={y + 5} className="o-font-mono" fontSize="11.5" fill="currentColor" style={retenu ? { color: ENCRE } : gris}>
+            <text
+              x="686"
+              y={y + 5}
+              className="o-font-mono"
+              fontSize="11.5"
+              fill="currentColor"
+              style={retenu ? { color: ENCRE } : gris}
+            >
               d{entree.numero} — {entree.titre}
             </text>
           </g>
         )
       })}
 
-      <text x="672" y="286" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="672"
+        y="286"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         trois listes qui se recoupent : d1 les porte toutes
       </text>
-      <text x="40" y="286" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="40"
+        y="286"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         11 400 documents indexes — 38 ms de mediane, 96 ms au 99e centile
       </text>
     </svg>
@@ -828,8 +1026,21 @@ function FigureRequetes(): ReactElement {
   const gris: CSSProperties = { color: 'var(--o-theme-muted)' }
   const maximum = REQUETES[0]?.fois ?? 1
   return (
-    <svg ref={ref} viewBox="0 0 1000 380" aria-hidden="true" className="o-w-full" style={{ minWidth: 620 }}>
-      <text x="20" y="24" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+    <svg
+      ref={ref}
+      viewBox="0 0 1000 380"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 620 }}
+    >
+      <text
+        x="20"
+        y="24"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         les dix requetes les plus tapees — 42 800 recherches sur douze mois
       </text>
 
@@ -838,7 +1049,13 @@ function FigureRequetes(): ReactElement {
         const largeur = (requete.fois / maximum) * 620
         return (
           <g key={requete.mot}>
-            <text x="20" y={y + 4} className="o-font-mono" fontSize="12" fill="currentColor">
+            <text
+              x="20"
+              y={y + 4}
+              className="o-font-mono"
+              fontSize="12"
+              fill="currentColor"
+            >
               {requete.mot}
             </text>
             <line
@@ -861,7 +1078,11 @@ function FigureRequetes(): ReactElement {
               className="o-font-mono o-tabular-nums"
               fontSize="11.5"
               fill="currentColor"
-              style={{ color: 'var(--o-theme-muted)', opacity: vu ? 1 : 0, transition: `opacity 600ms ease ${String(260 + rang * 70)}ms` }}
+              style={{
+                color: 'var(--o-theme-muted)',
+                opacity: vu ? 1 : 0,
+                transition: `opacity 600ms ease ${String(260 + rang * 70)}ms`,
+              }}
             >
               {requete.fois}
             </text>
@@ -870,7 +1091,16 @@ function FigureRequetes(): ReactElement {
       })}
 
       {/* La seule ligne de la figure : la marge d ou partent les traits. */}
-      <line x1="230" y1="44" x2="230" y2="372" stroke="currentColor" strokeWidth="1" opacity="0.4" style={gris} />
+      <line
+        x1="230"
+        y1="44"
+        x2="230"
+        y2="372"
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.4"
+        style={gris}
+      />
     </svg>
   )
 }
@@ -897,7 +1127,11 @@ const ARBRE: readonly TreeNode[] = [
     hint: '6 800 documents',
     children: [
       { id: 'lecteur-compta', label: 'Comptabilite', hint: 'texte extrait des tableurs' },
-      { id: 'lecteur-juridique', label: 'Juridique', hint: 'texte extrait des documents' },
+      {
+        id: 'lecteur-juridique',
+        label: 'Juridique',
+        hint: 'texte extrait des documents',
+      },
       { id: 'lecteur-images', label: 'Images et plans', hint: 'non indexes' },
     ],
   },
@@ -919,7 +1153,10 @@ const ARBRE: readonly TreeNode[] = [
 /* ------------------------------------------------------------------------ */
 
 /** Les entrees du pied, en index alphabetique. */
-const ENTREES: readonly { readonly lettre: string; readonly mots: readonly (readonly [string, string])[] }[] = [
+const ENTREES: readonly {
+  readonly lettre: string
+  readonly mots: readonly (readonly [string, string])[]
+}[] = [
   {
     lettre: 'A',
     mots: [
@@ -996,22 +1233,32 @@ export default function Page(): ReactElement {
 
         <main>
           {/* =============== L ouverture : la grille et le mot ============== */}
-          <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden">
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden"
+          >
             <div
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
               style={{
                 backgroundImage: `linear-gradient(to right, ${FILET} 1px, transparent 1px), linear-gradient(to bottom, ${FILET} 1px, transparent 1px)`,
                 backgroundSize: '72px 72px',
-                maskImage: 'radial-gradient(ellipse at 50% 40%, black 20%, transparent 78%)',
-                WebkitMaskImage: 'radial-gradient(ellipse at 50% 40%, black 20%, transparent 78%)',
+                maskImage:
+                  'radial-gradient(ellipse at 50% 40%, black 20%, transparent 78%)',
+                WebkitMaskImage:
+                  'radial-gradient(ellipse at 50% 40%, black 20%, transparent 78%)',
               }}
             />
             <Grain opacite={0.06} />
 
             <Crosshair color={accent(500)} gap={22} coords={false}>
               <div className="o-relative o-z-20 o-px-6 o-pb-24 o-pt-10 md:o-px-8 md:o-pb-32">
-                <Filigrane taille={21} opacite={8} className="o-absolute o-inset-x-0 o-top-20 o-z-0">
+                <Filigrane
+                  taille={21}
+                  opacite={8}
+                  className="o-absolute o-inset-x-0 o-top-20 o-z-0"
+                >
                   INDEX
                 </Filigrane>
 
@@ -1029,11 +1276,24 @@ export default function Page(): ReactElement {
                     La recherche interne qui montre son calcul.
                   </TitreVague>
 
-                  <div className="o-mt-10 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-12" style={{ borderColor: FILET }}>
-                    <Surgit delai={440} as="p" className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                      Quatorze documents de demonstration, un index inverse, quatre termes de score. Tapez dans le champ plus bas : rien n est simule, et chaque resultat porte son addition.
+                  <div
+                    className="o-mt-10 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-12"
+                    style={{ borderColor: FILET }}
+                  >
+                    <Surgit
+                      delai={440}
+                      as="p"
+                      className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5"
+                    >
+                      Quatorze documents de demonstration, un index inverse, quatre termes
+                      de score. Tapez dans le champ plus bas : rien n est simule, et
+                      chaque resultat porte son addition.
                     </Surgit>
-                    <Surgit delai={520} as="p" className="o-m-0 o-font-mono o-text-xs o-leading-relaxed o-uppercase o-tracking-widest o-text-zinc-500 md:o-col-span-3">
+                    <Surgit
+                      delai={520}
+                      as="p"
+                      className="o-m-0 o-font-mono o-text-xs o-leading-relaxed o-uppercase o-tracking-widest o-text-zinc-500 md:o-col-span-3"
+                    >
                       Cinq sources
                       <br />
                       Aucune donnee ne sort
@@ -1044,7 +1304,11 @@ export default function Page(): ReactElement {
                       <a
                         href="#frappe"
                         className="o-inline-flex o-items-center o-gap-3 o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
-                        style={{ backgroundColor: accent(300), color: 'var(--o-palette-zinc-950)', borderRadius: 0 }}
+                        style={{
+                          backgroundColor: accent(300),
+                          color: 'var(--o-palette-zinc-950)',
+                          borderRadius: 0,
+                        }}
                       >
                         <Icon icon={Search} size={15} aria-hidden="true" />
                         Essayer le moteur
@@ -1068,36 +1332,60 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Le ruban des sources =========================== */}
-          <div className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8" style={{ borderColor: FILET }}>
+          <div
+            className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8"
+            style={{ borderColor: FILET }}
+          >
             <ul className="o-m-0 o-mx-auto o-flex o-max-w-7xl o-list-none o-flex-wrap o-items-center o-gap-x-10 o-gap-y-3 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
               {(Object.keys(SOURCES) as readonly Source[]).map((cle) => (
                 <li key={cle} className="o-inline-flex o-items-center o-gap-2">
-                  <Icon icon={SOURCES[cle].icone} size={13} style={{ color: ENCRE }} aria-hidden="true" />
+                  <Icon
+                    icon={SOURCES[cle].icone}
+                    size={13}
+                    style={{ color: ENCRE }}
+                    aria-hidden="true"
+                  />
                   {SOURCES[cle].mot}
                 </li>
               ))}
-              <li className="o-ml-auto o-normal-case o-tracking-normal o-text-zinc-400">Rien d autre n est lu.</li>
+              <li className="o-ml-auto o-normal-case o-tracking-normal o-text-zinc-400">
+                Rien d autre n est lu.
+              </li>
             </ul>
           </div>
 
           {/* =============== (01) La frappe ================================= */}
-          <section id="frappe" aria-labelledby="frappe-titre" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+          <section
+            id="frappe"
+            aria-labelledby="frappe-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     (01) — La frappe
                   </p>
                   <h2
                     id="frappe-titre"
                     className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                    }}
                   >
-                    <DecodeText duration={900}>Tapez. Le classement s explique.</DecodeText>
+                    <DecodeText duration={900}>
+                      Tapez. Le classement s explique.
+                    </DecodeText>
                   </h2>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                  Un moteur qui ne dit pas pourquoi il classe ainsi ne se corrige pas. Celui-ci pose son addition a droite de chaque resultat, et la barre montre d ou vient le score.
+                  Un moteur qui ne dit pas pourquoi il classe ainsi ne se corrige pas.
+                  Celui-ci pose son addition a droite de chaque resultat, et la barre
+                  montre d ou vient le score.
                 </p>
               </div>
 
@@ -1116,21 +1404,31 @@ export default function Page(): ReactElement {
           >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   Figure 01
                 </p>
                 <h2
                   id="index-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   L index est a l envers.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  Un moteur ne lit pas les documents pour repondre. Il a ecrit, une fois, la liste des documents ou chaque racine apparait — et il ne fait plus que croiser des listes.
+                  Un moteur ne lit pas les documents pour repondre. Il a ecrit, une fois,
+                  la liste des documents ou chaque racine apparait — et il ne fait plus
+                  que croiser des listes.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  C est pour cela qu ajouter dix mille documents ne rallonge pas la reponse dans les memes proportions : ce sont les listes qui s allongent, pas leur nombre.
+                  C est pour cela qu ajouter dix mille documents ne rallonge pas la
+                  reponse dans les memes proportions : ce sont les listes qui s allongent,
+                  pas leur nombre.
                 </p>
               </div>
 
@@ -1141,13 +1439,18 @@ export default function Page(): ReactElement {
                 <ul className="o-sr-only">
                   {ANCRAGES.map((ancrage) => (
                     <li key={ancrage.racine}>
-                      {ancrage.racine} — documents {ancrage.documents.map((n) => `d${String(n)}`).join(', ')}.
+                      {ancrage.racine} — documents{' '}
+                      {ancrage.documents.map((n) => `d${String(n)}`).join(', ')}.
                     </li>
                   ))}
                   <li>Le document d1 est le seul porte par les trois listes.</li>
                 </ul>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500" style={{ borderColor: FILET }}>
-                  Figure 01 — les listes d ancrage de « note de frais ». Le trait plein mene au seul document que les trois listes designent ensemble.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500"
+                  style={{ borderColor: FILET }}
+                >
+                  Figure 01 — les listes d ancrage de « note de frais ». Le trait plein
+                  mene au seul document que les trois listes designent ensemble.
                 </figcaption>
               </figure>
             </div>
@@ -1164,19 +1467,27 @@ export default function Page(): ReactElement {
           >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">Figure 02</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
+                  Figure 02
+                </p>
                 <h2
                   id="requetes-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-950"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Dix questions font le tiers du trafic.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-600">
-                  Sur quarante-deux mille huit cents recherches, ces dix-la en font quatorze mille. Ce n est pas un defaut du moteur : c est la carte des pages qu il faudrait ecrire mieux.
+                  Sur quarante-deux mille huit cents recherches, ces dix-la en font
+                  quatorze mille. Ce n est pas un defaut du moteur : c est la carte des
+                  pages qu il faudrait ecrire mieux.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600">
-                  Index rend cette liste chaque semaine, avec les requetes restees sans clic. Ce sont celles-la qui valent une reponse.
+                  Index rend cette liste chaque semaine, avec les requetes restees sans
+                  clic. Ce sont celles-la qui valent une reponse.
                 </p>
               </div>
 
@@ -1191,38 +1502,60 @@ export default function Page(): ReactElement {
                     </li>
                   ))}
                 </ul>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600" style={{ borderColor: FILET_JOUR }}>
-                  Figure 02 — les dix requetes les plus tapees sur douze mois, chez un client de trois cent quarante personnes.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600"
+                  style={{ borderColor: FILET_JOUR }}
+                >
+                  Figure 02 — les dix requetes les plus tapees sur douze mois, chez un
+                  client de trois cent quarante personnes.
                 </figcaption>
               </figure>
             </div>
           </section>
 
           {/* =============== (02) Les sources =============================== */}
-          <section id="sources" aria-labelledby="sources-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="sources"
+            aria-labelledby="sources-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 lg:o-grid-cols-12">
               <div className="o-min-w-0 lg:o-col-span-5">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   (02) — Les sources
                 </p>
                 <h2
                   id="sources-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Ce qui entre, et ce qui n entre pas.
                 </h2>
                 <p className="o-mt-6 o-text-base o-leading-relaxed o-text-zinc-400">
-                  Un moteur interne se juge d abord sur ce qu il refuse de lire. Les messages prives ne sont jamais indexes ; les images ne le sont pas non plus, faute de pouvoir en extraire un texte honnete.
+                  Un moteur interne se juge d abord sur ce qu il refuse de lire. Les
+                  messages prives ne sont jamais indexes ; les images ne le sont pas non
+                  plus, faute de pouvoir en extraire un texte honnete.
                 </p>
                 <p className="o-mt-4 o-text-base o-leading-relaxed o-text-zinc-400">
-                  Les droits de la source sont repris tels quels : un document que vous ne pouvez pas ouvrir n apparait pas dans vos resultats, et son existence meme ne fuite pas par le nombre de reponses.
+                  Les droits de la source sont repris tels quels : un document que vous ne
+                  pouvez pas ouvrir n apparait pas dans vos resultats, et son existence
+                  meme ne fuite pas par le nombre de reponses.
                 </p>
               </div>
 
               <div className="o-min-w-0 lg:o-col-span-7">
                 <div className="o-p-6" style={{ border: `1px solid ${FILET}` }}>
-                  <TreeView nodes={ARBRE} label="Les sources indexees" defaultOpen={['wiki', 'lecteur', 'messagerie']} />
+                  <TreeView
+                    nodes={ARBRE}
+                    label="Les sources indexees"
+                    defaultOpen={['wiki', 'lecteur', 'messagerie']}
+                  />
                 </div>
               </div>
             </div>
@@ -1231,7 +1564,11 @@ export default function Page(): ReactElement {
           {/* =============== Un ecran de texte seul, qui s allume ===========
               La signature de la page : le seul long paragraphe s allume mot a
               mot au defilement. Rien d autre sur cet ecran. */}
-          <section aria-labelledby="manifeste-titre" className="o-border-t o-px-6 o-py-32 md:o-px-8 md:o-py-44" style={{ borderColor: FILET }}>
+          <section
+            aria-labelledby="manifeste-titre"
+            className="o-border-t o-px-6 o-py-32 md:o-px-8 md:o-py-44"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 md:o-col-span-3">
                 Le principe
@@ -1245,22 +1582,39 @@ export default function Page(): ReactElement {
                   dim={0.16}
                   blur={5}
                   className="o-m-0 o-max-w-4xl o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3.2vw, 3.25rem)', lineHeight: 1.14 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.6rem, 3.2vw, 3.25rem)',
+                    lineHeight: 1.14,
+                  }}
                 >
-                  Un moteur qui devine ce que vous vouliez dire vous prive du droit de le lui apprendre. Celui-ci se trompe visiblement, et se corrige en une ligne de table.
+                  Un moteur qui devine ce que vous vouliez dire vous prive du droit de le
+                  lui apprendre. Celui-ci se trompe visiblement, et se corrige en une
+                  ligne de table.
                 </ScrollReveal>
               </div>
             </div>
           </section>
 
           {/* =============== A16 : un champ et un bouton, un seul filet ===== */}
-          <section id="essai" aria-labelledby="essai-titre" className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderColor: FILET }}>
+          <section
+            id="essai"
+            aria-labelledby="essai-titre"
+            className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-max-w-3xl">
-              <h2 id="essai-titre" className="o-m-0 o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.5rem)' }}>
+              <h2
+                id="essai-titre"
+                className="o-m-0 o-text-balance o-text-zinc-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.5rem)' }}
+              >
                 Index sur vos documents, en quatre jours.
               </h2>
               <p className="o-mt-5 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400">
-                Un connecteur, un premier index, une semaine d observation des requetes. Laissez une adresse : la reponse arrive avec le questionnaire de sources, pas avec une demonstration commerciale.
+                Un connecteur, un premier index, une semaine d observation des requetes.
+                Laissez une adresse : la reponse arrive avec le questionnaire de sources,
+                pas avec une demonstration commerciale.
               </p>
 
               <form
@@ -1284,7 +1638,12 @@ export default function Page(): ReactElement {
                 <button
                   type="submit"
                   className="o-shrink-0 o-cursor-pointer o-px-7 o-py-4 o-text-sm o-font-semibold o-transition-opacity hover:o-opacity-85 focus:o-ring"
-                  style={{ backgroundColor: accent(300), color: 'var(--o-palette-zinc-950)', border: 'none', borderRadius: 0 }}
+                  style={{
+                    backgroundColor: accent(300),
+                    color: 'var(--o-palette-zinc-950)',
+                    border: 'none',
+                    borderRadius: 0,
+                  }}
                 >
                   Demander
                 </button>
@@ -1294,7 +1653,10 @@ export default function Page(): ReactElement {
         </main>
 
         {/* =============== P21 : l index alphabetique des pages ============= */}
-        <footer className="o-border-t o-px-6 o-pb-10 o-pt-16 md:o-px-8" style={{ borderColor: FILET }}>
+        <footer
+          className="o-border-t o-px-6 o-pb-10 o-pt-16 md:o-px-8"
+          style={{ borderColor: FILET }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <p className="o-m-0 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
               Index de cette page
@@ -1303,15 +1665,27 @@ export default function Page(): ReactElement {
             <div className="o-mt-10 o-grid o-gap-x-12 o-gap-y-8 sm:o-grid-cols-2 lg:o-grid-cols-4">
               {ENTREES.map((entree) => (
                 <section key={entree.lettre} aria-label={`Entrees en ${entree.lettre}`}>
-                  <h2 className="o-m-0 o-border-b o-pb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ borderColor: FILET, color: ENCRE }}>
+                  <h2
+                    className="o-m-0 o-border-b o-pb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ borderColor: FILET, color: ENCRE }}
+                  >
                     {entree.lettre}
                   </h2>
                   <ul className="o-m-0 o-mt-3 o-flex o-list-none o-flex-col o-gap-1.5 o-p-0">
                     {entree.mots.map(([mot, renvoi]) => (
-                      <li key={mot} className="o-flex o-items-baseline o-gap-2 o-text-xs o-uppercase o-tracking-wider o-text-zinc-400">
+                      <li
+                        key={mot}
+                        className="o-flex o-items-baseline o-gap-2 o-text-xs o-uppercase o-tracking-wider o-text-zinc-400"
+                      >
                         <span className="o-min-w-0">{mot}</span>
-                        <span aria-hidden="true" className="o-h-px o-grow" style={{ backgroundColor: FILET }} />
-                        <span className="o-font-mono o-tabular-nums o-text-zinc-500">{renvoi}</span>
+                        <span
+                          aria-hidden="true"
+                          className="o-h-px o-grow"
+                          style={{ backgroundColor: FILET }}
+                        />
+                        <span className="o-font-mono o-tabular-nums o-text-zinc-500">
+                          {renvoi}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -1319,16 +1693,28 @@ export default function Page(): ReactElement {
               ))}
             </div>
 
-            <div className="o-mt-14 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500" style={{ borderColor: FILET }}>
+            <div
+              className="o-mt-14 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500"
+              style={{ borderColor: FILET }}
+            >
               <span>Index — Lyon 69007, 14 rue Chevreul</span>
-              <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
-                {([
-                  ['#sources', 'Traitement des donnees'],
-                  ['#index', 'Documentation'],
-                  ['#frappe', 'Journal des versions'],
-                  ['#essai', 'Nous ecrire'],
-                ] as const).map(([cible, mot]) => (
-                  <a key={mot} href={cible} className="o-no-underline o-text-zinc-500 hover:o-text-zinc-200 o-transition-colors focus:o-ring">
+              <nav
+                aria-label="Mentions"
+                className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2"
+              >
+                {(
+                  [
+                    ['#sources', 'Traitement des donnees'],
+                    ['#index', 'Documentation'],
+                    ['#frappe', 'Journal des versions'],
+                    ['#essai', 'Nous ecrire'],
+                  ] as const
+                ).map(([cible, mot]) => (
+                  <a
+                    key={mot}
+                    href={cible}
+                    className="o-no-underline o-text-zinc-500 hover:o-text-zinc-200 o-transition-colors focus:o-ring"
+                  >
                     {mot}
                   </a>
                 ))}

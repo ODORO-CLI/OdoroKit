@@ -149,7 +149,9 @@ export function ElasticMesh({
       context.current = scene
       const { three, renderer, camera, quality } = scene
 
-      const [bg, calm, strained] = colors.map((token) => readTokenColour(token, ref.current))
+      const [bg, calm, strained] = colors.map((token) =>
+        readTokenColour(token, ref.current),
+      )
 
       // Le fond de la scene est le fond de la page. Le token est en sRGB et
       // le moteur encode sa couleur d'effacement du lineaire vers le sRGB :
@@ -159,7 +161,8 @@ export function ElasticMesh({
         1,
       )
 
-      const side = quality === 'low' ? Math.min(density, LOW_DENSITY) : Math.max(density, 4)
+      const side =
+        quality === 'low' ? Math.min(density, LOW_DENSITY) : Math.max(density, 4)
       const count = side * side
 
       // La camera regarde la nappe de biais : de face, un deplacement hors du
@@ -314,7 +317,11 @@ export function ElasticMesh({
     live.rest = calm ?? live.rest
     live.strained = strained ?? live.strained
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

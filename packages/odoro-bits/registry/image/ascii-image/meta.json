@@ -15,12 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-theme-fg",
-    "--o-duration-slow",
-    "--o-ease-standard"
-  ],
+  "tokens": ["--o-theme-bg", "--o-theme-fg", "--o-duration-slow", "--o-ease-standard"],
   "props": [
     {
       "name": "src",

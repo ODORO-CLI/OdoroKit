@@ -69,7 +69,13 @@ const ECRAN = `calc(100vh - ${String(CHROME)}px)`
  */
 const RIDEAU_MINIMUM_MS = 1500
 const RIDEAU_REDUIT_MS = 300
-const ENTREE = { motMarque: 120, titre: 260, sousTitre: 420, action: 540, legende: 660 } as const
+const ENTREE = {
+  motMarque: 120,
+  titre: 260,
+  sousTitre: 420,
+  action: 540,
+  legende: 660,
+} as const
 
 /* ============================ Le sigle ================================= */
 
@@ -95,9 +101,21 @@ function traceSigle(taille: number): string {
 }
 
 /** Le sigle en SVG : de la geometrie, jamais une image. */
-function Sigle({ className, style }: { readonly className?: string; readonly style?: CSSProperties }): ReactElement {
+function Sigle({
+  className,
+  style,
+}: {
+  readonly className?: string
+  readonly style?: CSSProperties
+}): ReactElement {
   return (
-    <svg viewBox="0 0 100 100" className={className} style={style} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      style={style}
+      aria-hidden="true"
+      focusable="false"
+    >
       <path fillRule="evenodd" d={traceSigle(100)} fill="currentColor" />
     </svg>
   )
@@ -115,7 +133,8 @@ const NAVIGATION = [
 const HEROS = {
   eteint: 'Une maison en bois,',
   allume: 'la vallee en face',
-  sousTitre: 'Manigod, la maison du Belvedere. 214 m2 habitables, 4 chambres, terrain de 1 800 m2. 1 340 000 EUR, honoraires inclus.',
+  sousTitre:
+    'Manigod, la maison du Belvedere. 214 m2 habitables, 4 chambres, terrain de 1 800 m2. 1 340 000 EUR, honoraires inclus.',
   action: 'Fixer une visite',
   motMarque: 'odoro',
   legende: ['Construite en 2021, DPE A, fibre,', '12 minutes du centre, route deneigee'],
@@ -123,11 +142,20 @@ const HEROS = {
 
 const MAISON = {
   surtitre: 'Le Belvedere',
-  corps: '214 m2 habitables, 4 chambres, 2 salles de bain. Bardage en bois brule, grands vitrages, toiture en zinc, 2,80 m sous plafond. Sejour traversant plein sud, ouvert sur la vallee. 12 minutes du centre, route deneigee toute l annee.',
+  corps:
+    '214 m2 habitables, 4 chambres, 2 salles de bain. Bardage en bois brule, grands vitrages, toiture en zinc, 2,80 m sous plafond. Sejour traversant plein sud, ouvert sur la vallee. 12 minutes du centre, route deneigee toute l annee.',
   action: 'Visiter le bien',
   misesEnAvant: [
-    { glyphe: 'cercle', titre: 'DPE classe A', texte: 'Construite en 2021, chauffage par pompe a chaleur, fibre optique.' },
-    { glyphe: 'triangle', titre: 'Le terrain', texte: '1 800 m2 en pleine propriete et 46 m2 de terrasse.' },
+    {
+      glyphe: 'cercle',
+      titre: 'DPE classe A',
+      texte: 'Construite en 2021, chauffage par pompe a chaleur, fibre optique.',
+    },
+    {
+      glyphe: 'triangle',
+      titre: 'Le terrain',
+      texte: '1 800 m2 en pleine propriete et 46 m2 de terrasse.',
+    },
   ],
   citation: 'Un mandat par bien, pas deux.',
   signature: 'L agent qui a rentre le bien, 4 mai 2026',
@@ -137,7 +165,8 @@ const MAISON = {
 const CHIFFRES = {
   surtitre: 'Chiffres cles',
   titre: 'La maison du Belvedere a ete construite en 2021.',
-  sousTitre: '1 800 m2 de terrain en pleine propriete, 4 chambres, 2 salles de bain, DPE A, pompe a chaleur',
+  sousTitre:
+    '1 800 m2 de terrain en pleine propriete, 4 chambres, 2 salles de bain, DPE A, pompe a chaleur',
   nombres: [
     { valeur: 46, quoi: 'm2 de terrasse' },
     { valeur: 214, quoi: 'm2 habitables' },
@@ -147,7 +176,8 @@ const CHIFFRES = {
 
 const SITUATION = {
   surtitre: 'Situation',
-  corps: '12 minutes du centre par la departementale, deneigee toute l annee. Premiers commerces a 4 km, ecole a 6 minutes, college a 9. Gare a 20 minutes, entree d autoroute a 25. Fibre raccordee. Terrain de 1 800 m2 en pleine propriete, sans vis-a-vis au sud.',
+  corps:
+    '12 minutes du centre par la departementale, deneigee toute l annee. Premiers commerces a 4 km, ecole a 6 minutes, college a 9. Gare a 20 minutes, entree d autoroute a 25. Fibre raccordee. Terrain de 1 800 m2 en pleine propriete, sans vis-a-vis au sud.',
   action: 'Demander la visite',
   indication: 'Passez le curseur pour voir la maison au trait',
 } as const
@@ -155,23 +185,60 @@ const SITUATION = {
 /** Les six profils, et la case de chacun dans la grille de trois par trois. */
 const ACQUEREURS = {
   surtitre: 'Acquereurs',
-  intro: 'Six profils, ecrits noir sur blanc avant le premier rendez-vous. Une maison de 214 m2, un seul mandat, jamais un stagiaire a la visite : mieux vaut savoir tout de suite si elle est pour vous.',
+  intro:
+    'Six profils, ecrits noir sur blanc avant le premier rendez-vous. Une maison de 214 m2, un seul mandat, jamais un stagiaire a la visite : mieux vaut savoir tout de suite si elle est pour vous.',
   profils: [
-    { rang: '01', titre: 'Famille d ici', texte: 'Quatre chambres, deux salles de bain. Le centre et ses ecoles a 12 minutes.', case: 0 },
-    { rang: '02', titre: 'Bureau a domicile', texte: 'Fibre en place, 214 m2 habitables, 2,80 m sous plafond : la place d un bureau.', case: 1 },
-    { rang: '03', titre: 'Sortir de la ville', texte: 'Terrain de 1 800 m2 en pleine propriete. Route deneigee toute l annee.', case: 3 },
-    { rang: '04', titre: 'La vue', texte: 'Terrasse de 46 m2 au-dessus de la vallee. Sejour traversant, plein sud.', case: 5 },
-    { rang: '05', titre: 'Sans travaux', texte: 'Construite en 2021, DPE A, pompe a chaleur : rien a reprendre avant d emmenager.', case: 7 },
-    { rang: '06', titre: 'La liste d attente', texte: 'Vous etes prevenu avant la mise en ligne : 140 biens vendus, 47 jours en moyenne.', case: 8 },
+    {
+      rang: '01',
+      titre: 'Famille d ici',
+      texte:
+        'Quatre chambres, deux salles de bain. Le centre et ses ecoles a 12 minutes.',
+      case: 0,
+    },
+    {
+      rang: '02',
+      titre: 'Bureau a domicile',
+      texte:
+        'Fibre en place, 214 m2 habitables, 2,80 m sous plafond : la place d un bureau.',
+      case: 1,
+    },
+    {
+      rang: '03',
+      titre: 'Sortir de la ville',
+      texte: 'Terrain de 1 800 m2 en pleine propriete. Route deneigee toute l annee.',
+      case: 3,
+    },
+    {
+      rang: '04',
+      titre: 'La vue',
+      texte: 'Terrasse de 46 m2 au-dessus de la vallee. Sejour traversant, plein sud.',
+      case: 5,
+    },
+    {
+      rang: '05',
+      titre: 'Sans travaux',
+      texte:
+        'Construite en 2021, DPE A, pompe a chaleur : rien a reprendre avant d emmenager.',
+      case: 7,
+    },
+    {
+      rang: '06',
+      titre: 'La liste d attente',
+      texte:
+        'Vous etes prevenu avant la mise en ligne : 140 biens vendus, 47 jours en moyenne.',
+      case: 8,
+    },
   ],
-  sigle: 'Le sigle Odoro, angle carre et arc de 270 degres, tournant au fil du defilement',
+  sigle:
+    'Le sigle Odoro, angle carre et arc de 270 degres, tournant au fil du defilement',
 } as const
 
 const CONTACT = {
   surtitre: 'Contact',
   eteint: 'Venez voir la maison,',
   allume: 'pas une plaquette',
-  corps: 'Laissez vos coordonnees. Nous convenons d une visite avec la personne qui suit la maison depuis le mandat. Reponse le jour meme.',
+  corps:
+    'Laissez vos coordonnees. Nous convenons d une visite avec la personne qui suit la maison depuis le mandat. Reponse le jour meme.',
   champs: [
     { nom: 'nom', etiquette: 'Nom', type: 'text', completion: 'name' },
     { nom: 'telephone', etiquette: 'Tel.', type: 'tel', completion: 'tel' },
@@ -320,7 +387,15 @@ function TitreEnVue({
   return (
     <div ref={ref}>
       {vu ? (
-        <SplitReveal as={as} by="words" stagger={cadence} duration={700} distance={28} className={className} style={style}>
+        <SplitReveal
+          as={as}
+          by="words"
+          stagger={cadence}
+          duration={700}
+          distance={28}
+          className={className}
+          style={style}
+        >
           {children}
         </SplitReveal>
       ) : (
@@ -355,7 +430,11 @@ function Surtitre({
         sombre ? 'o-text-white' : 'o-text-zinc-950 dark:o-text-zinc-50'
       } ${className}`}
     >
-      <span aria-hidden="true" className="o-size-1.5 o-shrink-0 o-rounded-full" style={{ backgroundColor: 'currentcolor' }} />
+      <span
+        aria-hidden="true"
+        className="o-size-1.5 o-shrink-0 o-rounded-full"
+        style={{ backgroundColor: 'currentcolor' }}
+      />
       {children}
     </Balise>
   )
@@ -381,15 +460,24 @@ function Bouton({
   readonly className?: string
 }): ReactElement {
   const coque = `o-relative o-flex o-h-12 o-items-center o-justify-between o-gap-6 o-overflow-hidden o-rounded-lg o-py-1 o-pl-6 o-pr-1 o-text-sm o-font-medium o-no-underline focus:o-ring ${
-    surImage ? 'o-bg-zinc-950 o-text-white' : 'o-bg-zinc-950 o-text-white dark:o-bg-zinc-50 dark:o-text-zinc-950'
+    surImage
+      ? 'o-bg-zinc-950 o-text-white'
+      : 'o-bg-zinc-950 o-text-white dark:o-bg-zinc-50 dark:o-text-zinc-950'
   } ${className}`
   const contenu = (
     <>
-      <span aria-hidden="true" data-bv-lueur="" className="o-pointer-events-none o-absolute o-inset-y-0 o-w-1/3 o-skew-x-12 o-bg-white-20 o-blur-sm" style={{ left: '-33%' }} />
+      <span
+        aria-hidden="true"
+        data-bv-lueur=""
+        className="o-pointer-events-none o-absolute o-inset-y-0 o-w-1/3 o-skew-x-12 o-bg-white-20 o-blur-sm"
+        style={{ left: '-33%' }}
+      />
       <span className="o-relative o-whitespace-nowrap">{children}</span>
       <span
         className={`o-relative o-flex o-size-10 o-shrink-0 o-items-center o-justify-center o-overflow-hidden o-rounded-md ${
-          surImage ? 'o-bg-white o-text-zinc-950' : 'o-bg-white o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50'
+          surImage
+            ? 'o-bg-white o-text-zinc-950'
+            : 'o-bg-white o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50'
         }`}
       >
         <span data-bv-fleche-a="" className="o-flex">
@@ -419,13 +507,26 @@ function Bouton({
 function Glyphe({ nom }: { readonly nom: 'cercle' | 'triangle' }): ReactElement {
   if (nom === 'cercle') {
     return (
-      <svg viewBox="0 0 72 72" className="o-size-full" fill="none" aria-hidden="true" focusable="false">
+      <svg
+        viewBox="0 0 72 72"
+        className="o-size-full"
+        fill="none"
+        aria-hidden="true"
+        focusable="false"
+      >
         <circle cx="36" cy="36" r="19.5" stroke="currentColor" />
       </svg>
     )
   }
   return (
-    <svg viewBox="0 0 43 41" className="o-absolute" style={{ left: 12, top: 12, width: 43 }} fill="none" aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 43 41"
+      className="o-absolute"
+      style={{ left: 12, top: 12, width: 43 }}
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         d="M18.4688 5.25586C19.8157 2.92123 23.1843 2.92123 24.5312 5.25586L40.1064 32.251C41.4524 34.5843 39.7679 37.5 37.0742 37.5H5.92578C3.23205 37.5 1.5476 34.5843 2.89355 32.251L18.4688 5.25586Z"
         stroke="currentColor"
@@ -475,7 +576,8 @@ function ardoise(nuance: number, part: number, gris: number): string {
 const CIEL = `linear-gradient(to bottom, ${ardoise(900, 60, 950)} 0%, ${ardoise(800, 55, 800)} 22%, ${ardoise(600, 45, 600)} 50%, ${ardoise(500, 40, 500)} 62%, ${ardoise(400, 45, 400)} 72%, ${ardoise(200, 55, 300)} 90%)`
 
 /** Le sol de la vallee, qui monte du bas d une bande de crepuscule. */
-const SOL = 'linear-gradient(to top, var(--o-palette-slate-950) 0%, color-mix(in oklab, var(--o-palette-slate-950) 72%, transparent) 11%, transparent 30%)'
+const SOL =
+  'linear-gradient(to top, var(--o-palette-slate-950) 0%, color-mix(in oklab, var(--o-palette-slate-950) 72%, transparent) 11%, transparent 30%)'
 
 /** Une bande de crepuscule : la nuit d ardoise, et le ciel par-dessus. */
 function crepuscule(): CSSProperties {
@@ -492,7 +594,11 @@ function trace(points: Points): string {
 }
 
 /** Un point entre deux autres. */
-function entre(a: readonly [number, number], b: readonly [number, number], t: number): [number, number] {
+function entre(
+  a: readonly [number, number],
+  b: readonly [number, number],
+  t: number,
+): [number, number] {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
 }
 
@@ -506,23 +612,90 @@ function entre(a: readonly [number, number], b: readonly [number, number], t: nu
  * passe dessous. Les verticales restent verticales, comme dans une vue a deux
  * points de fuite.
  */
-const FACE_A: Points = [[150, 335], [500, 290], [500, 600], [150, 585]]
-const COTE_A: Points = [[90, 318], [150, 335], [150, 585], [90, 556]]
-const TOIT_A: Points = [[90, 306], [150, 323], [500, 278], [500, 290], [150, 335], [90, 318]]
-const JOINT: Points = [[500, 300], [540, 300], [540, 610], [500, 600]]
-const FACE_B: Points = [[540, 300], [880, 345], [880, 590], [540, 610]]
-const TOIT_B: Points = [[540, 288], [880, 333], [880, 345], [540, 300]]
-const SOCLE_A: Points = [[200, 585], [470, 600], [470, 692], [200, 680]]
-const SOCLE_B: Points = [[580, 610], [840, 594], [840, 690], [580, 702]]
-const BAIE_A: Points = [[185, 375], [465, 340], [465, 562], [185, 570]]
-const BAIE_B: Points = [[570, 352], [848, 392], [848, 560], [570, 580]]
-const FENTE: Points = [[510, 380], [530, 380], [530, 570], [510, 565]]
+const FACE_A: Points = [
+  [150, 335],
+  [500, 290],
+  [500, 600],
+  [150, 585],
+]
+const COTE_A: Points = [
+  [90, 318],
+  [150, 335],
+  [150, 585],
+  [90, 556],
+]
+const TOIT_A: Points = [
+  [90, 306],
+  [150, 323],
+  [500, 278],
+  [500, 290],
+  [150, 335],
+  [90, 318],
+]
+const JOINT: Points = [
+  [500, 300],
+  [540, 300],
+  [540, 610],
+  [500, 600],
+]
+const FACE_B: Points = [
+  [540, 300],
+  [880, 345],
+  [880, 590],
+  [540, 610],
+]
+const TOIT_B: Points = [
+  [540, 288],
+  [880, 333],
+  [880, 345],
+  [540, 300],
+]
+const SOCLE_A: Points = [
+  [200, 585],
+  [470, 600],
+  [470, 692],
+  [200, 680],
+]
+const SOCLE_B: Points = [
+  [580, 610],
+  [840, 594],
+  [840, 690],
+  [580, 702],
+]
+const BAIE_A: Points = [
+  [185, 375],
+  [465, 340],
+  [465, 562],
+  [185, 570],
+]
+const BAIE_B: Points = [
+  [570, 352],
+  [848, 392],
+  [848, 560],
+  [570, 580],
+]
+const FENTE: Points = [
+  [510, 380],
+  [530, 380],
+  [530, 570],
+  [510, 565],
+]
 const SOL_MAISON = 'M0 720V690C120 660 300 640 500 660C700 680 860 640 1000 668V720Z'
 const VALLEE = 'M0 560L110 500L250 528L400 452L540 506L690 440L850 492L1000 458V720H0Z'
 
 /** Les lignes d une baie : trois travees, la retombee du plafond, le garde-corps. */
-function lignesDeBaie(baie: Points): { readonly meneaux: readonly string[]; readonly plafond: string; readonly gardeCorps: string; readonly gardeCorpsHaut: number } {
-  const [hg, hd, bd, bg] = baie as unknown as readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]
+function lignesDeBaie(baie: Points): {
+  readonly meneaux: readonly string[]
+  readonly plafond: string
+  readonly gardeCorps: string
+  readonly gardeCorpsHaut: number
+} {
+  const [hg, hd, bd, bg] = baie as unknown as readonly [
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+  ]
   const meneaux = [1 / 3, 2 / 3].map((t) => {
     const haut = entre(hg, hd, t)
     const bas = entre(bg, bd, t)
@@ -538,20 +711,32 @@ function lignesDeBaie(baie: Points): { readonly meneaux: readonly string[]; read
 
 /** Le garde-corps en verre : la part basse de la baie, un peu voilee. */
 function gardeCorps(baie: Points): Points {
-  const [hg, hd, bd, bg] = baie as unknown as readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]
+  const [hg, hd, bd, bg] = baie as unknown as readonly [
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+  ]
   return [entre(hg, bg, 0.64), entre(hd, bd, 0.64), bd, bg]
 }
 
 /** Les lignes de bardage d une face, une toutes les trente unites. */
 function bardage(face: Points, pas = 30): readonly string[] {
-  const [hg, hd, bd, bg] = face as unknown as readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]
+  const [hg, hd, bd, bg] = face as unknown as readonly [
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+  ]
   const largeur = hd[0] - hg[0]
   const lignes: string[] = []
   for (let x = pas; x < largeur; x += pas) {
     const t = x / largeur
     const haut = entre(hg, hd, t)
     const bas = entre(bg, bd, t)
-    lignes.push(`M${String(haut[0])} ${String(haut[1])}L${String(bas[0])} ${String(bas[1])}`)
+    lignes.push(
+      `M${String(haut[0])} ${String(haut[1])}L${String(bas[0])} ${String(bas[1])}`,
+    )
   }
   return lignes
 }
@@ -597,7 +782,15 @@ function Maison({
   if (mode === 'trait') {
     const montre = dessine || reduced
     let rang = 0
-    const Ligne = ({ d, opacite = 1, epaisseur = 1.4 }: { readonly d: string; readonly opacite?: number; readonly epaisseur?: number }): ReactElement => {
+    const Ligne = ({
+      d,
+      opacite = 1,
+      epaisseur = 1.4,
+    }: {
+      readonly d: string
+      readonly opacite?: number
+      readonly epaisseur?: number
+    }): ReactElement => {
       rang += 1
       const delai = 60 * rang
       return (
@@ -613,14 +806,30 @@ function Maison({
           style={{
             strokeDasharray: 1,
             strokeDashoffset: montre ? 0 : 1,
-            transition: reduced ? undefined : `stroke-dashoffset 1400ms cubic-bezier(0.22, 1, 0.36, 1) ${String(delai)}ms`,
+            transition: reduced
+              ? undefined
+              : `stroke-dashoffset 1400ms cubic-bezier(0.22, 1, 0.36, 1) ${String(delai)}ms`,
           }}
         />
       )
     }
     return (
-      <svg viewBox="0 0 1000 720" className={className} style={style} aria-hidden={label === undefined ? 'true' : undefined} role={label === undefined ? undefined : 'img'} aria-label={label} focusable="false">
-        {vallee && <Ligne d="M0 560L110 500L250 528L400 452L540 506L690 440L850 492L1000 458" opacite={0.35} epaisseur={1} />}
+      <svg
+        viewBox="0 0 1000 720"
+        className={className}
+        style={style}
+        aria-hidden={label === undefined ? 'true' : undefined}
+        role={label === undefined ? undefined : 'img'}
+        aria-label={label}
+        focusable="false"
+      >
+        {vallee && (
+          <Ligne
+            d="M0 560L110 500L250 528L400 452L540 506L690 440L850 492L1000 458"
+            opacite={0.35}
+            epaisseur={1}
+          />
+        )}
         <Ligne d={trace(TOIT_A)} />
         <Ligne d={trace(FACE_A)} />
         <Ligne d={trace(COTE_A)} />
@@ -632,19 +841,38 @@ function Maison({
         <Ligne d={trace(BAIE_A)} />
         <Ligne d={trace(BAIE_B)} />
         <Ligne d={trace(FENTE)} opacite={0.8} />
-        {[...baieA.meneaux, baieA.plafond, baieA.gardeCorps, ...baieB.meneaux, baieB.plafond, baieB.gardeCorps].map((d) => (
+        {[
+          ...baieA.meneaux,
+          baieA.plafond,
+          baieA.gardeCorps,
+          ...baieB.meneaux,
+          baieB.plafond,
+          baieB.gardeCorps,
+        ].map((d) => (
           <Ligne key={d} d={d} opacite={0.75} epaisseur={1} />
         ))}
         {[...bardage(FACE_A), ...bardage(FACE_B)].map((d) => (
           <Ligne key={d} d={d} opacite={0.22} epaisseur={0.8} />
         ))}
-        <Ligne d="M0 690C120 660 300 640 500 660C700 680 860 640 1000 668" opacite={0.5} epaisseur={1} />
+        <Ligne
+          d="M0 690C120 660 300 640 500 660C700 680 860 640 1000 668"
+          opacite={0.5}
+          epaisseur={1}
+        />
       </svg>
     )
   }
 
   return (
-    <svg viewBox="0 0 1000 720" className={className} style={style} aria-hidden={label === undefined ? 'true' : undefined} role={label === undefined ? undefined : 'img'} aria-label={label} focusable="false">
+    <svg
+      viewBox="0 0 1000 720"
+      className={className}
+      style={style}
+      aria-hidden={label === undefined ? 'true' : undefined}
+      role={label === undefined ? undefined : 'img'}
+      aria-label={label}
+      focusable="false"
+    >
       <defs>
         <pattern id={id('bois')} width="8" height="8" patternUnits="userSpaceOnUse">
           <rect width="8" height="8" fill="#1b1816" />
@@ -755,17 +983,25 @@ function Pastille(): ReactElement {
     }
   }, [ouvert])
 
-  const lien = 'o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-text-zinc-800 dark:o-text-zinc-200 hover:o-opacity-60 o-transition-opacity focus:o-ring'
+  const lien =
+    'o-rounded-md o-px-3 o-py-1.5 o-text-sm o-no-underline o-text-zinc-800 dark:o-text-zinc-200 hover:o-opacity-60 o-transition-opacity focus:o-ring'
   const case_ = 'o-bg-white o-text-zinc-950 dark:o-bg-zinc-800 dark:o-text-zinc-50'
 
   return (
-    <div className="o-pointer-events-none o-fixed o-inset-x-0 o-z-40 o-flex o-justify-center o-px-4" style={{ top: `calc(${String(CHROME)}px + 0.75rem)` }}>
+    <div
+      className="o-pointer-events-none o-fixed o-inset-x-0 o-z-40 o-flex o-justify-center o-px-4"
+      style={{ top: `calc(${String(CHROME)}px + 0.75rem)` }}
+    >
       <div className="o-pointer-events-auto o-w-full md:o-w-auto">
         <nav
           aria-label="Navigation principale"
           className="o-flex o-items-center o-justify-between o-gap-4 o-rounded-lg o-border-w-1 o-border-black-10 o-bg-white-80 o-p-1 o-backdrop-blur-md dark:o-border-zinc-800 bv-voile md:o-justify-start md:o-gap-10"
         >
-          <a href="#haut" aria-label="Belvedere — accueil" className={`o-flex o-size-11 o-shrink-0 o-items-center o-justify-center o-rounded-md o-transition-transform hover:o-scale-105 focus:o-ring ${case_}`}>
+          <a
+            href="#haut"
+            aria-label="Belvedere — accueil"
+            className={`o-flex o-size-11 o-shrink-0 o-items-center o-justify-center o-rounded-md o-transition-transform hover:o-scale-105 focus:o-ring ${case_}`}
+          >
             <Sigle className="o-w-5" style={{ color: ORANGE }} />
           </a>
           <ul className="o-m-0 o-hidden o-list-none o-items-center o-gap-5 o-p-0 md:o-flex">
@@ -777,8 +1013,15 @@ function Pastille(): ReactElement {
               </li>
             ))}
           </ul>
-          <a href="#visiter" className={`o-hidden o-h-11 o-items-center o-gap-2 o-rounded-md o-px-5 o-text-sm o-font-medium o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring md:o-flex ${case_}`}>
-            <span aria-hidden="true" className="o-size-2 o-shrink-0 o-rounded-full" style={{ backgroundColor: 'currentcolor' }} />
+          <a
+            href="#visiter"
+            className={`o-hidden o-h-11 o-items-center o-gap-2 o-rounded-md o-px-5 o-text-sm o-font-medium o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring md:o-flex ${case_}`}
+          >
+            <span
+              aria-hidden="true"
+              className="o-size-2 o-shrink-0 o-rounded-full"
+              style={{ backgroundColor: 'currentcolor' }}
+            />
             Contact
           </a>
           <button
@@ -791,11 +1034,27 @@ function Pastille(): ReactElement {
             aria-label={ouvert ? 'Fermer le menu' : 'Ouvrir le menu'}
             className={`o-flex o-size-11 o-shrink-0 o-flex-col o-items-center o-justify-center o-gap-1.5 o-rounded-md focus:o-ring md:o-hidden ${case_}`}
           >
-            <span className="o-h-px o-w-5 o-transition-transform" style={{ backgroundColor: 'currentcolor', transform: ouvert ? 'translateY(3.5px) rotate(45deg)' : undefined }} />
-            <span className="o-h-px o-w-5 o-transition-transform" style={{ backgroundColor: 'currentcolor', transform: ouvert ? 'translateY(-3.5px) rotate(-45deg)' : undefined }} />
+            <span
+              className="o-h-px o-w-5 o-transition-transform"
+              style={{
+                backgroundColor: 'currentcolor',
+                transform: ouvert ? 'translateY(3.5px) rotate(45deg)' : undefined,
+              }}
+            />
+            <span
+              className="o-h-px o-w-5 o-transition-transform"
+              style={{
+                backgroundColor: 'currentcolor',
+                transform: ouvert ? 'translateY(-3.5px) rotate(-45deg)' : undefined,
+              }}
+            />
           </button>
         </nav>
-        <div id="bv-liste" hidden={!ouvert} className="o-mt-2 o-rounded-lg o-border-w-1 o-border-black-10 o-bg-white-80 o-backdrop-blur-md dark:o-border-zinc-800 bv-voile md:o-hidden">
+        <div
+          id="bv-liste"
+          hidden={!ouvert}
+          className="o-mt-2 o-rounded-lg o-border-w-1 o-border-black-10 o-bg-white-80 o-backdrop-blur-md dark:o-border-zinc-800 bv-voile md:o-hidden"
+        >
           <ul className="o-m-0 o-flex o-list-none o-flex-col o-gap-3 o-p-5">
             {NAVIGATION.map(([cible, mot]) => (
               <li key={cible}>
@@ -818,7 +1077,11 @@ function Pastille(): ReactElement {
                   setOuvert(false)
                 }}
               >
-                <span aria-hidden="true" className="o-size-2 o-shrink-0 o-rounded-full" style={{ backgroundColor: 'currentcolor' }} />
+                <span
+                  aria-hidden="true"
+                  className="o-size-2 o-shrink-0 o-rounded-full"
+                  style={{ backgroundColor: 'currentcolor' }}
+                />
                 Contact
               </a>
             </li>
@@ -880,8 +1143,20 @@ interface EtatSigle {
  * Le contexte est opaque : le fond de la scene est celui de la section, relu
  * toutes les trente images pour suivre un changement de theme.
  */
-function SigleEnVolume({ progression, section }: { readonly progression: React.RefObject<number>; readonly section: React.RefObject<HTMLElement | null> }): ReactElement {
-  const etat = useRef<EtatSigle>({ angle: 0, hauteur: 0, amorce: false, images: 0, fond: '' })
+function SigleEnVolume({
+  progression,
+  section,
+}: {
+  readonly progression: React.RefObject<number>
+  readonly section: React.RefObject<HTMLElement | null>
+}): ReactElement {
+  const etat = useRef<EtatSigle>({
+    angle: 0,
+    hauteur: 0,
+    amorce: false,
+    images: 0,
+    fond: '',
+  })
 
   const fondDeSection = useCallback((): string => {
     const hote = section.current
@@ -895,7 +1170,11 @@ function SigleEnVolume({ progression, section }: { readonly progression: React.R
       className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
       repli={
         <div className="o-flex o-h-full o-items-center o-justify-center">
-          <Sigle data-bv-sigle-repli="" className="o-w-40 o-opacity-90 md:o-w-56" style={{ color: ORANGE }} />
+          <Sigle
+            data-bv-sigle-repli=""
+            className="o-w-40 o-opacity-90 md:o-w-56"
+            style={{ color: ORANGE }}
+          />
         </div>
       }
       construire={(contexte) => {
@@ -909,7 +1188,21 @@ function SigleEnVolume({ progression, section }: { readonly progression: React.R
         // 270 degres dans le sens horaire, arete de gauche qui remonte. Le
         // trou interieur reprend le meme trace a 0,7 du rayon.
         const rayon = 1
-        const dessinerAnneau = (cible: { moveTo: (x: number, y: number) => unknown; lineTo: (x: number, y: number) => unknown; absarc: (x: number, y: number, r: number, a: number, b: number, horaire: boolean) => unknown }, r: number): void => {
+        const dessinerAnneau = (
+          cible: {
+            moveTo: (x: number, y: number) => unknown
+            lineTo: (x: number, y: number) => unknown
+            absarc: (
+              x: number,
+              y: number,
+              r: number,
+              a: number,
+              b: number,
+              horaire: boolean,
+            ) => unknown
+          },
+          r: number,
+        ): void => {
           cible.moveTo(-r, r)
           cible.lineTo(0, r)
           cible.absarc(0, 0, r, Math.PI / 2, Math.PI, true)
@@ -951,7 +1244,12 @@ function SigleEnVolume({ progression, section }: { readonly progression: React.R
         pivot.rotation.x = 0.3
         scene.add(pivot)
 
-        eclairer(contexte, { cle: 0xfff3e2, remplissage: 0x9db6d6, contour: 0xffffff, force: 1.15 })
+        eclairer(contexte, {
+          cle: 0xfff3e2,
+          remplissage: 0x9db6d6,
+          contour: 0xffffff,
+          force: 1.15,
+        })
         const rasante = new three.PointLight(0xffffff, 16, 14, 2)
         rasante.position.set(3.2, 1.4, 1.6)
         const dessous = new three.PointLight(0xffd9b0, 8, 12, 2)
@@ -977,7 +1275,10 @@ function SigleEnVolume({ progression, section }: { readonly progression: React.R
           }
         }
         const observateur = new MutationObserver(suivreLeTheme)
-        observateur.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] })
+        observateur.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['data-theme', 'class', 'style'],
+        })
         const systeme = window.matchMedia('(prefers-color-scheme: dark)')
         systeme.addEventListener('change', suivreLeTheme)
         suivreLeTheme()
@@ -1031,11 +1332,22 @@ function SigleEnVolume({ progression, section }: { readonly progression: React.R
 /* ============================ Les chiffres ============================= */
 
 /** Un nombre qui compte a l entree dans le champ, et se resout d un flou. */
-function Nombre({ valeur, quoi, delai }: { readonly valeur: number; readonly quoi: string; readonly delai: number }): ReactElement {
+function Nombre({
+  valeur,
+  quoi,
+  delai,
+}: {
+  readonly valeur: number
+  readonly quoi: string
+  readonly delai: number
+}): ReactElement {
   const { reduced } = useMotionState()
   const [ref, vu] = useVu(0.4)
   return (
-    <div ref={ref} className="o-flex o-w-full o-flex-col o-items-center o-gap-4 o-text-center">
+    <div
+      ref={ref}
+      className="o-flex o-w-full o-flex-col o-items-center o-gap-4 o-text-center"
+    >
       <dt
         className="o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
         style={{
@@ -1044,10 +1356,22 @@ function Nombre({ valeur, quoi, delai }: { readonly valeur: number; readonly quo
           lineHeight: 1,
           opacity: vu ? 1 : 0.15,
           filter: vu || reduced ? 'none' : 'blur(0.75rem)',
-          transition: reduced ? 'opacity 300ms ease' : `opacity 900ms ease ${String(delai)}ms, filter 1500ms cubic-bezier(0.22, 1, 0.36, 1) ${String(delai)}ms`,
+          transition: reduced
+            ? 'opacity 300ms ease'
+            : `opacity 900ms ease ${String(delai)}ms, filter 1500ms cubic-bezier(0.22, 1, 0.36, 1) ${String(delai)}ms`,
         }}
       >
-        {vu ? <CountUp value={valeur} duration={1500} delay={delai} declenchement="montage" locale="fr-FR" /> : <span>{valeur}</span>}
+        {vu ? (
+          <CountUp
+            value={valeur}
+            duration={1500}
+            delay={delai}
+            declenchement="montage"
+            locale="fr-FR"
+          />
+        ) : (
+          <span>{valeur}</span>
+        )}
       </dt>
       <dd className="o-m-0 o-text-lg o-text-zinc-950 dark:o-text-zinc-50">{quoi}</dd>
     </div>
@@ -1064,9 +1388,12 @@ export default function Page(): ReactElement {
   // Le compteur tient au moins le temps de la source, puis le rideau part.
   const [pret, setPret] = useState(false)
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      setPret(true)
-    }, reduced ? RIDEAU_REDUIT_MS : RIDEAU_MINIMUM_MS)
+    const id = window.setTimeout(
+      () => {
+        setPret(true)
+      },
+      reduced ? RIDEAU_REDUIT_MS : RIDEAU_MINIMUM_MS,
+    )
     return () => {
       window.clearTimeout(id)
     }
@@ -1107,9 +1434,17 @@ export default function Page(): ReactElement {
     (p) => {
       progression.current = p
     },
-    { element: achatElement, start: 'top bottom', end: 'bottom top', name: 'sigle au defilement' },
+    {
+      element: achatElement,
+      start: 'top bottom',
+      end: 'bottom top',
+      name: 'sigle au defilement',
+    },
   )
-  const sigle = useMemo(() => <SigleEnVolume progression={progression} section={achat} />, [])
+  const sigle = useMemo(
+    () => <SigleEnVolume progression={progression} section={achat} />,
+    [],
+  )
 
   // `new Map` sans annotation prend pour type de cle l union des cases
   // ecrites — 0 | 1 | 3 | 5 | 7 | 8 — alors qu on l interroge avec le rang
@@ -1117,14 +1452,29 @@ export default function Page(): ReactElement {
   const parCase = new Map<number, (typeof ACQUEREURS.profils)[number]>(
     ACQUEREURS.profils.map((profil) => [profil.case, profil]),
   )
-  const ordre: readonly number[] = ACQUEREURS.profils.map((profil) => profil.case).sort((a, b) => a - b)
+  const ordre: readonly number[] = ACQUEREURS.profils
+    .map((profil) => profil.case)
+    .sort((a, b) => a - b)
 
-  const titreAffiche: CSSProperties = { ...affiche('l', 300), fontSize: 'clamp(2.75rem, 7.2vw, 6.75rem)', letterSpacing: '-0.03em', lineHeight: 1 }
-  const grandCorps: CSSProperties = { ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.5vw, 2.25rem)', letterSpacing: '-0.015em', lineHeight: 1.2 }
+  const titreAffiche: CSSProperties = {
+    ...affiche('l', 300),
+    fontSize: 'clamp(2.75rem, 7.2vw, 6.75rem)',
+    letterSpacing: '-0.03em',
+    lineHeight: 1,
+  }
+  const grandCorps: CSSProperties = {
+    ...affiche('m', 300),
+    fontSize: 'clamp(1.5rem, 2.5vw, 2.25rem)',
+    letterSpacing: '-0.015em',
+    lineHeight: 1.2,
+  }
 
   return (
     <Porte forme="compteur" marque="Belvedere" sombre={false} pret={pret}>
-      <div className="o-relative o-bg-white o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-relative o-bg-white o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50"
+        style={polices}
+      >
         <Pastille />
 
         <main id="haut" className="o-relative">
@@ -1135,7 +1485,11 @@ export default function Page(): ReactElement {
             geant dont les lettres s ecartent au defilement, la maison qui passe
             devant. La copie par-dessus.
           */}
-          <section aria-labelledby="bv-titre" className="o-relative o-isolate o-flex o-flex-col o-items-center o-overflow-hidden o-px-5 o-pt-40 md:o-pt-48" style={{ ...crepuscule(), minHeight: `max(760px, calc(1.62 * ${ECRAN}))` }}>
+          <section
+            aria-labelledby="bv-titre"
+            className="o-relative o-isolate o-flex o-flex-col o-items-center o-overflow-hidden o-px-5 o-pt-40 md:o-pt-48"
+            style={{ ...crepuscule(), minHeight: `max(760px, calc(1.62 * ${ECRAN}))` }}
+          >
             <Eclate
               mot={HEROS.motMarque}
               haut={220}
@@ -1152,24 +1506,49 @@ export default function Page(): ReactElement {
                 maskImage: 'linear-gradient(to bottom, #000 0%, transparent 82%)',
                 WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, transparent 82%)',
                 opacity: pret ? 1 : 0,
-                transition: reduced ? 'opacity 400ms ease' : `opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1) ${String(ENTREE.motMarque)}ms`,
+                transition: reduced
+                  ? 'opacity 400ms ease'
+                  : `opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1) ${String(ENTREE.motMarque)}ms`,
               }}
             />
 
             <div className="o-relative o-z-20 o-flex o-max-w-5xl o-flex-col o-items-center o-text-center">
-              <h1 id="bv-titre" aria-label={`${HEROS.eteint} ${HEROS.allume}`} className="o-m-0 o-text-balance" style={titreAffiche}>
+              <h1
+                id="bv-titre"
+                aria-label={`${HEROS.eteint} ${HEROS.allume}`}
+                className="o-m-0 o-text-balance"
+                style={titreAffiche}
+              >
                 {HEROS.eteint.split(' ').map((mot, rang) => (
-                  <Surgit key={`e-${String(rang)}`} as="span" delai={ENTREE.titre + rang * 60} distance={22} className="o-inline-block" style={{ marginRight: '0.24em', color: 'rgba(255, 255, 255, 0.62)' }}>
+                  <Surgit
+                    key={`e-${String(rang)}`}
+                    as="span"
+                    delai={ENTREE.titre + rang * 60}
+                    distance={22}
+                    className="o-inline-block"
+                    style={{ marginRight: '0.24em', color: 'rgba(255, 255, 255, 0.62)' }}
+                  >
                     <span aria-hidden="true">{mot}</span>
                   </Surgit>
                 ))}
                 {HEROS.allume.split(' ').map((mot, rang) => (
-                  <Surgit key={`a-${String(rang)}`} as="span" delai={ENTREE.titre + (3 + rang) * 60} distance={22} className="o-inline-block" style={{ marginRight: '0.24em', color: '#ffffff' }}>
+                  <Surgit
+                    key={`a-${String(rang)}`}
+                    as="span"
+                    delai={ENTREE.titre + (3 + rang) * 60}
+                    distance={22}
+                    className="o-inline-block"
+                    style={{ marginRight: '0.24em', color: '#ffffff' }}
+                  >
                     <span aria-hidden="true">{mot}</span>
                   </Surgit>
                 ))}
               </h1>
-              <Surgit as="p" delai={ENTREE.sousTitre} className="o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-snug o-text-white">
+              <Surgit
+                as="p"
+                delai={ENTREE.sousTitre}
+                className="o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-snug o-text-white"
+              >
                 {HEROS.sousTitre}
               </Surgit>
               <Surgit delai={ENTREE.action} className="o-mt-8">
@@ -1182,15 +1561,39 @@ export default function Page(): ReactElement {
             </div>
 
             {/* Le sol de la vallee, entre le mot-marque et la maison. */}
-            <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-10" style={{ height: '46%', backgroundImage: SOL }} />
+            <div
+              aria-hidden="true"
+              className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-10"
+              style={{ height: '46%', backgroundImage: SOL }}
+            />
 
-            <div className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-10 o-w-full" style={{ transform: 'translateX(-50%)', width: 'min(92vw, 1120px)', opacity: pret ? 1 : 0, transition: reduced ? 'opacity 400ms ease' : `opacity 1200ms cubic-bezier(0.16, 1, 0.3, 1) ${String(ENTREE.motMarque)}ms` }}>
+            <div
+              className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-10 o-w-full"
+              style={{
+                transform: 'translateX(-50%)',
+                width: 'min(92vw, 1120px)',
+                opacity: pret ? 1 : 0,
+                transition: reduced
+                  ? 'opacity 400ms ease'
+                  : `opacity 1200ms cubic-bezier(0.16, 1, 0.3, 1) ${String(ENTREE.motMarque)}ms`,
+              }}
+            >
               <Parallaxe vitesse={-0.12} glisse={0.55}>
-                <Maison mode="rendu" prefixe="bv-heros" className="o-block o-w-full" style={{ marginBottom: '-2%' }} label="La maison du Belvedere eclairee de l interieur au crepuscule, au-dessus de la vallee." />
+                <Maison
+                  mode="rendu"
+                  prefixe="bv-heros"
+                  className="o-block o-w-full"
+                  style={{ marginBottom: '-2%' }}
+                  label="La maison du Belvedere eclairee de l interieur au crepuscule, au-dessus de la vallee."
+                />
               </Parallaxe>
             </div>
 
-            <Surgit as="p" delai={ENTREE.legende} className="bv-bande o-absolute o-bottom-10 o-z-20 o-m-0 o-text-center o-text-base o-leading-snug o-text-white md:o-text-lg">
+            <Surgit
+              as="p"
+              delai={ENTREE.legende}
+              className="bv-bande o-absolute o-bottom-10 o-z-20 o-m-0 o-text-center o-text-base o-leading-snug o-text-white md:o-text-lg"
+            >
               {HEROS.legende[0]}
               <br />
               {HEROS.legende[1]}
@@ -1200,13 +1603,21 @@ export default function Page(): ReactElement {
           {/*
             ----- La maison ------------------------------------------------------
           */}
-          <section id="maison" aria-labelledby="bv-maison" className="o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28">
+          <section
+            id="maison"
+            aria-labelledby="bv-maison"
+            className="o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28"
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-gap-10">
               <Arrive delai={0} distance={16} className="md:o-col-span-4">
                 <Surtitre>{MAISON.surtitre}</Surtitre>
               </Arrive>
               <div className="md:o-col-span-8">
-                <TitreEnVue as="h2" className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={grandCorps}>
+                <TitreEnVue
+                  as="h2"
+                  className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                  style={grandCorps}
+                >
                   {MAISON.corps}
                 </TitreEnVue>
                 <span id="bv-maison" className="o-sr-only">
@@ -1221,15 +1632,26 @@ export default function Page(): ReactElement {
               {MAISON.misesEnAvant.map((mise, rang) => (
                 <Arrive key={mise.titre} delai={rang * 90} className="md:o-col-span-4">
                   <div className="o-flex o-flex-col o-items-start">
-                    <span className="o-relative o-flex o-shrink-0 o-items-center o-justify-center o-rounded-lg o-bg-zinc-100 o-text-zinc-950 dark:o-bg-zinc-900 dark:o-text-zinc-50" style={{ width: 72, height: 72 }}>
+                    <span
+                      className="o-relative o-flex o-shrink-0 o-items-center o-justify-center o-rounded-lg o-bg-zinc-100 o-text-zinc-950 dark:o-bg-zinc-900 dark:o-text-zinc-50"
+                      style={{ width: 72, height: 72 }}
+                    >
                       <Glyphe nom={mise.glyphe} />
                     </span>
-                    <p className="o-m-0 o-mt-8 o-text-xl o-text-zinc-950 dark:o-text-zinc-50">{mise.titre}</p>
-                    <p className="o-m-0 o-mt-3 o-max-w-sm o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">{mise.texte}</p>
+                    <p className="o-m-0 o-mt-8 o-text-xl o-text-zinc-950 dark:o-text-zinc-50">
+                      {mise.titre}
+                    </p>
+                    <p className="o-m-0 o-mt-3 o-max-w-sm o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">
+                      {mise.texte}
+                    </p>
                   </div>
                 </Arrive>
               ))}
-              <Arrive delai={180} distance={16} className="md:o-col-span-4 md:o-flex md:o-justify-end">
+              <Arrive
+                delai={180}
+                distance={16}
+                className="md:o-col-span-4 md:o-flex md:o-justify-end"
+              >
                 <Bouton href="#visiter" className="o-w-full md:o-w-80">
                   {MAISON.action}
                 </Bouton>
@@ -1239,17 +1661,35 @@ export default function Page(): ReactElement {
             <div className="o-mt-12 o-grid o-gap-4 md:o-grid-cols-12">
               {/* La maison au crepuscule, et la citation posee dessus. */}
               <Arrive className="o-min-w-0 md:o-col-span-5">
-                <figure className="o-relative o-isolate o-m-0 o-overflow-hidden o-rounded-lg" style={{ ...crepuscule(), aspectRatio: '561 / 683' }}>
-                  <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0" style={{ height: '40%', backgroundImage: SOL }} />
-                  <div className="o-absolute o-inset-x-0 o-bottom-0 o-z-0" style={{ bottom: '4%' }}>
+                <figure
+                  className="o-relative o-isolate o-m-0 o-overflow-hidden o-rounded-lg"
+                  style={{ ...crepuscule(), aspectRatio: '561 / 683' }}
+                >
+                  <div
+                    aria-hidden="true"
+                    className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0"
+                    style={{ height: '40%', backgroundImage: SOL }}
+                  />
+                  <div
+                    className="o-absolute o-inset-x-0 o-bottom-0 o-z-0"
+                    style={{ bottom: '4%' }}
+                  >
                     <Parallaxe vitesse={0.1} glisse={0.6}>
-                      <Maison mode="rendu" prefixe="bv-figure" className="o-block o-w-full" style={{ transform: 'scale(1.35)', transformOrigin: '50% 100%' }} label="La maison du Belvedere au crepuscule, ses baies eclairees de l interieur." />
+                      <Maison
+                        mode="rendu"
+                        prefixe="bv-figure"
+                        className="o-block o-w-full"
+                        style={{ transform: 'scale(1.35)', transformOrigin: '50% 100%' }}
+                        label="La maison du Belvedere au crepuscule, ses baies eclairees de l interieur."
+                      />
                     </Parallaxe>
                   </div>
                   <figcaption className="bv-carton o-absolute o-bottom-4 o-z-10 o-rounded-lg o-bg-white o-p-5 o-text-zinc-950 md:o-bottom-8 md:o-left-8 md:o-w-80 md:o-p-7">
                     <blockquote className="o-m-0 o-pr-8">
                       <p className="o-m-0 o-text-lg o-leading-snug">{MAISON.citation}</p>
-                      <p className="o-m-0 o-mt-3 o-text-sm o-font-light o-leading-snug o-text-zinc-700">{MAISON.signature}</p>
+                      <p className="o-m-0 o-mt-3 o-text-sm o-font-light o-leading-snug o-text-zinc-700">
+                        {MAISON.signature}
+                      </p>
                     </blockquote>
                     <Guillemet className="o-pointer-events-none o-absolute o-right-6 o-top-6 -o-z-10 o-text-zinc-300" />
                   </figcaption>
@@ -1266,12 +1706,21 @@ export default function Page(): ReactElement {
           {/*
             ----- Les chiffres cles ----------------------------------------------
           */}
-          <section id="chiffres" aria-labelledby="bv-chiffres" className="o-px-5 o-py-20 o-text-center md:o-py-28">
+          <section
+            id="chiffres"
+            aria-labelledby="bv-chiffres"
+            className="o-px-5 o-py-20 o-text-center md:o-py-28"
+          >
             <Arrive distance={16} className="o-flex o-justify-center">
               <Surtitre>{CHIFFRES.surtitre}</Surtitre>
             </Arrive>
             <div className="o-mx-auto o-mt-6 o-max-w-3xl">
-              <TitreEnVue as="h2" cadence={35} className="o-m-0 o-text-balance o-text-zinc-950 dark:o-text-zinc-50" style={{ ...grandCorps, textAlign: 'center' }}>
+              <TitreEnVue
+                as="h2"
+                cadence={35}
+                className="o-m-0 o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
+                style={{ ...grandCorps, textAlign: 'center' }}
+              >
                 {CHIFFRES.titre}
               </TitreEnVue>
               <span id="bv-chiffres" className="o-sr-only">
@@ -1279,11 +1728,18 @@ export default function Page(): ReactElement {
               </span>
             </div>
             <Arrive delai={120} distance={16}>
-              <p className="o-mx-auto o-mt-5 o-max-w-md o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">{CHIFFRES.sousTitre}</p>
+              <p className="o-mx-auto o-mt-5 o-max-w-md o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">
+                {CHIFFRES.sousTitre}
+              </p>
             </Arrive>
             <dl className="o-mx-auto o-mt-16 o-flex o-max-w-5xl o-flex-col o-items-center o-gap-10 sm:o-flex-row sm:o-items-start sm:o-justify-center sm:o-gap-6">
               {CHIFFRES.nombres.map((nombre, rang) => (
-                <Nombre key={nombre.quoi} valeur={nombre.valeur} quoi={nombre.quoi} delai={rang * 110} />
+                <Nombre
+                  key={nombre.quoi}
+                  valeur={nombre.valeur}
+                  quoi={nombre.quoi}
+                  delai={rang * 110}
+                />
               ))}
             </dl>
           </section>
@@ -1301,14 +1757,34 @@ export default function Page(): ReactElement {
             onPointerMove={pointeurFin ? suivre : undefined}
             onPointerLeave={pointeurFin ? quitter : undefined}
             className="o-relative o-isolate o-flex o-scroll-mt-24 o-flex-col o-items-center o-overflow-hidden o-px-5 o-pb-40 o-pt-20 md:o-pt-28"
-            style={{ ...crepuscule(), minHeight: `calc(1.05 * ${ECRAN})`, '--bv-mx': '-1000px', '--bv-my': '-1000px' } as CSSProperties}
+            style={
+              {
+                ...crepuscule(),
+                minHeight: `calc(1.05 * ${ECRAN})`,
+                '--bv-mx': '-1000px',
+                '--bv-my': '-1000px',
+              } as CSSProperties
+            }
           >
-            <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0" style={{ height: '40%', backgroundImage: SOL }} />
+            <div
+              aria-hidden="true"
+              className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0"
+              style={{ height: '40%', backgroundImage: SOL }}
+            />
 
-            <div className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-0" style={{ transform: 'translateX(-50%)', width: 'min(124vw, 1500px)' }}>
+            <div
+              className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-0"
+              style={{ transform: 'translateX(-50%)', width: 'min(124vw, 1500px)' }}
+            >
               <Parallaxe vitesse={0.08} glisse={0.6}>
                 <div className="o-relative">
-                  <Maison mode="trait" prefixe="bv-lieu-trait" vallee className="o-block o-w-full o-text-white" style={{ marginBottom: '-3%' }} />
+                  <Maison
+                    mode="trait"
+                    prefixe="bv-lieu-trait"
+                    vallee
+                    className="o-block o-w-full o-text-white"
+                    style={{ marginBottom: '-3%' }}
+                  />
                   <Maison
                     mode="rendu"
                     prefixe="bv-lieu"
@@ -1316,8 +1792,12 @@ export default function Page(): ReactElement {
                     className="o-absolute o-inset-0 o-block o-w-full"
                     style={{
                       marginBottom: '-3%',
-                      maskImage: pointeurFin ? 'radial-gradient(circle 190px at var(--bv-mx) var(--bv-my), transparent 0 58%, #000 100%)' : undefined,
-                      WebkitMaskImage: pointeurFin ? 'radial-gradient(circle 190px at var(--bv-mx) var(--bv-my), transparent 0 58%, #000 100%)' : undefined,
+                      maskImage: pointeurFin
+                        ? 'radial-gradient(circle 190px at var(--bv-mx) var(--bv-my), transparent 0 58%, #000 100%)'
+                        : undefined,
+                      WebkitMaskImage: pointeurFin
+                        ? 'radial-gradient(circle 190px at var(--bv-mx) var(--bv-my), transparent 0 58%, #000 100%)'
+                        : undefined,
                     }}
                     label="La maison du Belvedere au crepuscule, la crete de la vallee derriere."
                   />
@@ -1329,7 +1809,12 @@ export default function Page(): ReactElement {
               <Surtitre sombre>{SITUATION.surtitre}</Surtitre>
             </Arrive>
             <div className="o-relative o-z-10 o-mx-auto o-mt-6 o-max-w-5xl">
-              <TitreEnVue as="h2" cadence={18} className="o-m-0 o-text-balance o-text-white" style={{ ...grandCorps, textAlign: 'center' }}>
+              <TitreEnVue
+                as="h2"
+                cadence={18}
+                className="o-m-0 o-text-balance o-text-white"
+                style={{ ...grandCorps, textAlign: 'center' }}
+              >
                 {SITUATION.corps}
               </TitreEnVue>
               <span id="bv-lieu" className="o-sr-only">
@@ -1370,7 +1855,9 @@ export default function Page(): ReactElement {
                 </Surtitre>
               </Arrive>
               <Arrive delai={100} distance={16} className="md:o-col-span-5">
-                <p className="o-m-0 o-max-w-md o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">{ACQUEREURS.intro}</p>
+                <p className="o-m-0 o-max-w-md o-text-base o-font-light o-leading-snug o-text-zinc-800 dark:o-text-zinc-300">
+                  {ACQUEREURS.intro}
+                </p>
               </Arrive>
             </div>
 
@@ -1378,19 +1865,39 @@ export default function Page(): ReactElement {
               {Array.from({ length: 9 }, (_, caseRang) => {
                 const profil = parCase.get(caseRang)
                 if (profil === undefined) {
-                  return <div key={caseRang} aria-hidden="true" className="o-hidden md:o-block" />
+                  return (
+                    <div
+                      key={caseRang}
+                      aria-hidden="true"
+                      className="o-hidden md:o-block"
+                    />
+                  )
                 }
                 const delai = Math.max(0, ordre.indexOf(caseRang)) * 110
                 return (
-                  <article key={caseRang} className={`o-flex o-flex-col o-p-6 md:o-p-8 ${verre(false)}`} style={{ minHeight: 'clamp(15rem, 26vw, 28rem)', borderRadius: 10 }}>
-                    <Arrive delai={delai} className="o-flex o-h-full o-grow o-flex-col o-justify-between o-gap-8">
+                  <article
+                    key={caseRang}
+                    className={`o-flex o-flex-col o-p-6 md:o-p-8 ${verre(false)}`}
+                    style={{ minHeight: 'clamp(15rem, 26vw, 28rem)', borderRadius: 10 }}
+                  >
+                    <Arrive
+                      delai={delai}
+                      className="o-flex o-h-full o-grow o-flex-col o-justify-between o-gap-8"
+                    >
                       <div className="o-flex o-flex-col o-gap-6">
-                        <p className="o-m-0 o-text-lg o-text-zinc-500 dark:o-text-zinc-400">{profil.rang}</p>
-                        <h3 className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={grandCorps}>
+                        <p className="o-m-0 o-text-lg o-text-zinc-500 dark:o-text-zinc-400">
+                          {profil.rang}
+                        </p>
+                        <h3
+                          className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                          style={grandCorps}
+                        >
                           {profil.titre}
                         </h3>
                       </div>
-                      <p className="o-m-0 o-text-lg o-leading-snug o-text-zinc-950 dark:o-text-zinc-50">{profil.texte}</p>
+                      <p className="o-m-0 o-text-lg o-leading-snug o-text-zinc-950 dark:o-text-zinc-50">
+                        {profil.texte}
+                      </p>
                     </Arrive>
                   </article>
                 )
@@ -1401,25 +1908,56 @@ export default function Page(): ReactElement {
           {/*
             ----- Le contact -----------------------------------------------------
           */}
-          <section id="visiter" aria-labelledby="bv-visiter" className="o-relative o-isolate o-flex o-scroll-mt-24 o-flex-col o-items-center o-overflow-hidden o-px-5 o-pb-16 o-pt-20 md:o-pb-20 md:o-pt-24" style={{ ...crepuscule(), minHeight: ECRAN }}>
-            <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0" style={{ height: '50%', backgroundImage: SOL }} />
-            <div className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-0" style={{ transform: 'translateX(-50%)', width: 'min(110vw, 1400px)' }}>
+          <section
+            id="visiter"
+            aria-labelledby="bv-visiter"
+            className="o-relative o-isolate o-flex o-scroll-mt-24 o-flex-col o-items-center o-overflow-hidden o-px-5 o-pb-16 o-pt-20 md:o-pb-20 md:o-pt-24"
+            style={{ ...crepuscule(), minHeight: ECRAN }}
+          >
+            <div
+              aria-hidden="true"
+              className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-0"
+              style={{ height: '50%', backgroundImage: SOL }}
+            />
+            <div
+              className="o-pointer-events-none o-absolute o-bottom-0 o-left-1/2 o-z-0"
+              style={{ transform: 'translateX(-50%)', width: 'min(110vw, 1400px)' }}
+            >
               <Parallaxe vitesse={0.08} glisse={0.6}>
-                <Maison mode="rendu" prefixe="bv-contact" vallee className="o-block o-w-full" style={{ marginBottom: '-2%' }} label="La maison entiere au crepuscule, eclairee de l interieur." />
+                <Maison
+                  mode="rendu"
+                  prefixe="bv-contact"
+                  vallee
+                  className="o-block o-w-full"
+                  style={{ marginBottom: '-2%' }}
+                  label="La maison entiere au crepuscule, eclairee de l interieur."
+                />
               </Parallaxe>
             </div>
 
             <Arrive distance={16} className="o-relative o-z-10 o-flex o-justify-center">
               <Surtitre sombre>{CONTACT.surtitre}</Surtitre>
             </Arrive>
-            <Arrive delai={80} className="o-relative o-z-10 o-mt-6 o-max-w-5xl o-text-center">
+            <Arrive
+              delai={80}
+              className="o-relative o-z-10 o-mt-6 o-max-w-5xl o-text-center"
+            >
               <h2 id="bv-visiter" className="o-m-0 o-text-balance" style={titreAffiche}>
-                <span style={{ color: 'rgba(255, 255, 255, 0.62)' }}>{CONTACT.eteint}</span> <span className="o-text-white">{CONTACT.allume}</span>
+                <span style={{ color: 'rgba(255, 255, 255, 0.62)' }}>
+                  {CONTACT.eteint}
+                </span>{' '}
+                <span className="o-text-white">{CONTACT.allume}</span>
               </h2>
             </Arrive>
 
-            <Arrive delai={160} className="o-relative o-z-10 o-mt-16 o-w-full o-max-w-7xl md:o-mt-24">
-              <div className="o-rounded-lg o-bg-white-80 o-p-6 o-text-zinc-950 o-backdrop-blur-2xl md:o-p-8" style={{ borderRadius: 10 }}>
+            <Arrive
+              delai={160}
+              className="o-relative o-z-10 o-mt-16 o-w-full o-max-w-7xl md:o-mt-24"
+            >
+              <div
+                className="o-rounded-lg o-bg-white-80 o-p-6 o-text-zinc-950 o-backdrop-blur-2xl md:o-p-8"
+                style={{ borderRadius: 10 }}
+              >
                 <p className="o-m-0 o-max-w-4xl o-text-zinc-950" style={grandCorps}>
                   {CONTACT.corps}
                 </p>
@@ -1431,7 +1969,10 @@ export default function Page(): ReactElement {
                 >
                   <div className="o-flex o-flex-col o-gap-6 md:o-flex-row md:o-items-center md:o-gap-8">
                     {CONTACT.champs.map((champ) => (
-                      <div key={champ.nom} className="o-flex o-flex-1 o-items-center o-border-b o-border-zinc-950 o-pb-3">
+                      <div
+                        key={champ.nom}
+                        className="o-flex o-flex-1 o-items-center o-border-b o-border-zinc-950 o-pb-3"
+                      >
                         <label htmlFor={`bv-${champ.nom}`} className="o-sr-only">
                           {champ.etiquette}
                         </label>
@@ -1465,10 +2006,16 @@ export default function Page(): ReactElement {
             </span>
             <span>Un mandat par bien, pas deux</span>
             <span className="o-flex o-flex-wrap o-items-center o-gap-4">
-              <a href="#haut" className="o-no-underline o-text-zinc-600 hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50">
+              <a
+                href="#haut"
+                className="o-no-underline o-text-zinc-600 hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50"
+              >
                 Mentions legales
               </a>
-              <a href="#haut" className="o-no-underline o-text-zinc-600 hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50">
+              <a
+                href="#haut"
+                className="o-no-underline o-text-zinc-600 hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50"
+              >
                 Honoraires
               </a>
               <span>© 2026 Belvedere</span>
@@ -1484,9 +2031,21 @@ export default function Page(): ReactElement {
 function Planche(): ReactElement {
   const [ref, vu] = useVu(0.35)
   return (
-    <figure ref={ref} className="o-relative o-m-0 o-flex o-items-center o-justify-center o-overflow-hidden o-rounded-lg o-bg-zinc-100 o-p-8 o-text-zinc-950 dark:o-bg-zinc-900 dark:o-text-zinc-50 md:o-p-12" style={{ aspectRatio: '789 / 683' }}>
-      <Maison mode="trait" prefixe="bv-planche" dessine={vu} className="o-block o-w-full" label={MAISON.planche} />
-      <figcaption className="o-absolute o-bottom-4 o-left-6 o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">{MAISON.planche}</figcaption>
+    <figure
+      ref={ref}
+      className="o-relative o-m-0 o-flex o-items-center o-justify-center o-overflow-hidden o-rounded-lg o-bg-zinc-100 o-p-8 o-text-zinc-950 dark:o-bg-zinc-900 dark:o-text-zinc-50 md:o-p-12"
+      style={{ aspectRatio: '789 / 683' }}
+    >
+      <Maison
+        mode="trait"
+        prefixe="bv-planche"
+        dessine={vu}
+        className="o-block o-w-full"
+        label={MAISON.planche}
+      />
+      <figcaption className="o-absolute o-bottom-4 o-left-6 o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
+        {MAISON.planche}
+      </figcaption>
     </figure>
   )
 }

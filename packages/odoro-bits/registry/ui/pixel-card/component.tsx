@@ -196,7 +196,10 @@ export function PixelCard({
     const subscription = clock.subscribe(
       ({ delta }) => {
         const step = delta * (1000 / Math.max(duration, 1))
-        progress = target > progress ? Math.min(target, progress + step) : Math.max(target, progress - step)
+        progress =
+          target > progress
+            ? Math.min(target, progress + step)
+            : Math.max(target, progress - step)
         draw()
         // Arrive au repos, la boucle n'a plus rien a dessiner : elle se
         // suspend, et reprend au prochain survol.

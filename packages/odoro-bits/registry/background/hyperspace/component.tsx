@@ -63,11 +63,7 @@ export interface HyperspaceOwnProps {
 export type HyperspaceProps = Customisable<HyperspaceOwnProps>
 
 /** Tokens employes par defaut : le fond, le corps des trainees, leur tete. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-indigo-300',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-indigo-300', '--o-theme-fg'] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
 const DEFAULT_FALLBACK =

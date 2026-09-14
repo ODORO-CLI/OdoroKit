@@ -255,7 +255,11 @@ export function CityBlocks({
     const [bg, low, high] = colors.map((token) => readTokenColour(token, host))
     paint(ville, low, high)
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

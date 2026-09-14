@@ -153,7 +153,11 @@ export function ElectricBorder({
   // Le rectangle est rentre d'une demi-epaisseur : son rayon l'est aussi.
   const rx = Math.max(0, radius - thickness / 2)
 
-  const trace = (kind: 'halo' | 'core' | 'arc', dash?: string, back = false): ReactElement => (
+  const trace = (
+    kind: 'halo' | 'core' | 'arc',
+    dash?: string,
+    back = false,
+  ): ReactElement => (
     <rect
       data-o-elec-trace={kind}
       data-o-elec-back={back ? '' : undefined}

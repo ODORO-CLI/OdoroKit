@@ -228,7 +228,10 @@ export function StaggeredMenu({
     if (!isOpen) return
 
     const wait = reduced ? 0 : panelDelay + 400
-    const timer = window.setTimeout(() => links()[0]?.focus({ preventScroll: true }), wait)
+    const timer = window.setTimeout(
+      () => links()[0]?.focus({ preventScroll: true }),
+      wait,
+    )
 
     const root = document.documentElement
     const previous = root.style.overflow
@@ -243,10 +246,11 @@ export function StaggeredMenu({
       // est maintenant. Les copier a l'ouverture de l'effet, comme la regle le
       // suggere, rendrait le focus a un noeud qui n'est peut-etre plus dans le
       // document.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      /* eslint-disable react-hooks/exhaustive-deps */
       const host = hostRef.current
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      if (host !== null && host.contains(document.activeElement)) triggerRef.current?.focus()
+      if (host !== null && host.contains(document.activeElement))
+        triggerRef.current?.focus()
+      /* eslint-enable react-hooks/exhaustive-deps */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, contained, reduced])
@@ -263,7 +267,9 @@ export function StaggeredMenu({
     // Tab tourne entre le bouton et le contenu du voile : rien derriere le
     // menu n'est atteignable tant qu'il est ouvert.
     if (event.key === 'Tab') {
-      const inside = Array.from(veilRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])
+      const inside = Array.from(
+        veilRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+      )
       const ring = [triggerRef.current, ...inside].filter(
         (element): element is HTMLElement => element !== null,
       )
@@ -334,7 +340,10 @@ export function StaggeredMenu({
             }
           />
         ))}
-        <div data-o-stag-panel="" style={{ '--o-stag-delay': `${String(panelDelay)}ms` } as CSSProperties}>
+        <div
+          data-o-stag-panel=""
+          style={{ '--o-stag-delay': `${String(panelDelay)}ms` } as CSSProperties}
+        >
           <nav aria-label={label}>
             <ul>
               {items.map((item, index) => {
@@ -345,7 +354,9 @@ export function StaggeredMenu({
                 const content = (
                   <>
                     <small aria-hidden="true">{String(index + 1).padStart(2, '0')}</small>
-                    {item.icon !== undefined && <span aria-hidden="true">{item.icon}</span>}
+                    {item.icon !== undefined && (
+                      <span aria-hidden="true">{item.icon}</span>
+                    )}
                     {item.label}
                   </>
                 )
@@ -388,7 +399,11 @@ export function StaggeredMenu({
           {footer !== undefined && (
             <div
               data-o-stag-footer=""
-              style={{ '--o-stag-delay': `${String(panelDelay + 200 + items.length * linkDelay)}ms` } as CSSProperties}
+              style={
+                {
+                  '--o-stag-delay': `${String(panelDelay + 200 + items.length * linkDelay)}ms`,
+                } as CSSProperties
+              }
             >
               {footer}
             </div>

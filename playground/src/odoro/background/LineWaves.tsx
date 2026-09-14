@@ -67,11 +67,7 @@ export interface LineWavesOwnProps {
 export type LineWavesProps = Customisable<LineWavesOwnProps>
 
 /** Tokens employes par defaut : le fond, l'encre, l'eclat des cretes. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-fg',
-  '--o-palette-brand-500',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

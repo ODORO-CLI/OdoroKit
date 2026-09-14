@@ -271,7 +271,11 @@ export function TorusKnot({
     live.wire.color.setRGB(line?.[0] ?? 0, line?.[1] ?? 0, line?.[2] ?? 0)
     live.spark.color.setRGB(spark?.[0] ?? 0, spark?.[1] ?? 0, spark?.[2] ?? 0)
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

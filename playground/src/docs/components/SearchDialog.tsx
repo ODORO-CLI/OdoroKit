@@ -123,7 +123,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
       style={{ marginInline: 'auto' }}
     >
       <div className="o-relative o-flex o-items-center o-gap-3 o-px-5">
-        <span aria-hidden="true" className="rc-filet o-absolute o-inset-x-0 o-bottom-0 o-h-px" />
+        <span
+          aria-hidden="true"
+          className="rc-filet o-absolute o-inset-x-0 o-bottom-0 o-h-px"
+        />
         <Icon
           icon={Search}
           size={17}
@@ -210,7 +213,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps): ReactElement
 
       {/* Le pied : ce que font les touches, en mono, sur un filet. */}
       <div className="o-relative o-flex o-items-center o-gap-5 o-px-5 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-        <span aria-hidden="true" className="rc-filet o-absolute o-inset-x-0 o-top-0 o-h-px" />
+        <span
+          aria-hidden="true"
+          className="rc-filet o-absolute o-inset-x-0 o-top-0 o-h-px"
+        />
         <span>Haut / bas pour choisir</span>
         <span>Entrée pour ouvrir</span>
         <span className="o-ml-auto o-tabular-nums">{results.length} résultats</span>

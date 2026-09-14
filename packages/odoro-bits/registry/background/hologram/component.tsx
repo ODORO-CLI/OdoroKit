@@ -65,11 +65,7 @@ export interface HologramOwnProps {
 export type HologramProps = Customisable<HologramOwnProps>
 
 /** Tokens employes par defaut. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-cyan-500',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-cyan-500', '--o-theme-fg'] as const
 
 /** Repli par defaut : un halo fige, dans les memes tons. */
 const DEFAULT_POSTER =
@@ -215,8 +211,12 @@ export function Hologram({
         depthWrite: false,
         uniforms: {
           uTime: { value: 0 },
-          uLine: { value: new three.Color(line?.[0] ?? 0, line?.[1] ?? 0, line?.[2] ?? 0) },
-          uScan: { value: new three.Color(scan?.[0] ?? 0, scan?.[1] ?? 0, scan?.[2] ?? 0) },
+          uLine: {
+            value: new three.Color(line?.[0] ?? 0, line?.[1] ?? 0, line?.[2] ?? 0),
+          },
+          uScan: {
+            value: new three.Color(scan?.[0] ?? 0, scan?.[1] ?? 0, scan?.[2] ?? 0),
+          },
           uScanPos: { value: 0 },
           uFlick: { value: 1 },
           uOpacity: { value: 0.75 },
@@ -231,7 +231,11 @@ export function Hologram({
         const phi = (m / meridianCount) * Math.PI
         for (const latitude of latitudes) {
           const r = Math.cos(latitude) * RADIUS
-          dotPositions.push(Math.cos(phi) * r, Math.sin(latitude) * RADIUS, Math.sin(phi) * r)
+          dotPositions.push(
+            Math.cos(phi) * r,
+            Math.sin(latitude) * RADIUS,
+            Math.sin(phi) * r,
+          )
         }
       }
       const dotGeometry = new three.BufferGeometry()

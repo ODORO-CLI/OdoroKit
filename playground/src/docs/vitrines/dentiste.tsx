@@ -90,13 +90,48 @@ interface Acte {
 }
 
 const ACTES = {
-  composite1: { code: 'HBMD038', libelle: 'Composite, une face', honoraire: 26.97, base: 26.97 },
-  composite2: { code: 'HBMD053', libelle: 'Composite, deux faces', honoraire: 45.38, base: 45.38 },
-  composite3: { code: 'HBMD049', libelle: 'Composite, trois faces', honoraire: 64.89, base: 64.89 },
-  radiculaire: { code: 'HBFD001', libelle: 'Traitement radiculaire', honoraire: 81.94, base: 81.94 },
-  couronne: { code: 'HBLD038', libelle: 'Couronne ceramo-metallique', honoraire: 500, base: 120 },
-  implant: { code: 'hors nomenclature', libelle: 'Implant et pilier', honoraire: 950, base: 0 },
-  avulsion: { code: 'HBGD036', libelle: 'Avulsion de dent de sagesse', honoraire: 33.44, base: 33.44 },
+  composite1: {
+    code: 'HBMD038',
+    libelle: 'Composite, une face',
+    honoraire: 26.97,
+    base: 26.97,
+  },
+  composite2: {
+    code: 'HBMD053',
+    libelle: 'Composite, deux faces',
+    honoraire: 45.38,
+    base: 45.38,
+  },
+  composite3: {
+    code: 'HBMD049',
+    libelle: 'Composite, trois faces',
+    honoraire: 64.89,
+    base: 64.89,
+  },
+  radiculaire: {
+    code: 'HBFD001',
+    libelle: 'Traitement radiculaire',
+    honoraire: 81.94,
+    base: 81.94,
+  },
+  couronne: {
+    code: 'HBLD038',
+    libelle: 'Couronne ceramo-metallique',
+    honoraire: 500,
+    base: 120,
+  },
+  implant: {
+    code: 'hors nomenclature',
+    libelle: 'Implant et pilier',
+    honoraire: 950,
+    base: 0,
+  },
+  avulsion: {
+    code: 'HBGD036',
+    libelle: 'Avulsion de dent de sagesse',
+    honoraire: 33.44,
+    base: 33.44,
+  },
 } as const satisfies Readonly<Record<string, Acte>>
 
 /** Le nom d un acte du bareme. */
@@ -112,10 +147,30 @@ const SOCLE: Acte = {
 
 /** Les niveaux de mutuelle, en part de la base de remboursement. */
 const MUTUELLES = [
-  { cle: 'aucune', mot: 'Aucune', part: 0, note: 'Vous reglez tout ce que l assurance maladie ne prend pas.' },
-  { cle: '100', mot: '100 % BR', part: 1, note: 'Le contrat complete jusqu a la base de remboursement, pas au-dela.' },
-  { cle: '200', mot: '200 % BR', part: 2, note: 'Le contrat couvre deux fois la base : une couronne commence a etre tenue.' },
-  { cle: '300', mot: '300 % BR', part: 3, note: 'Trois fois la base. Au-dela, il n y a plus grand-chose a couvrir.' },
+  {
+    cle: 'aucune',
+    mot: 'Aucune',
+    part: 0,
+    note: 'Vous reglez tout ce que l assurance maladie ne prend pas.',
+  },
+  {
+    cle: '100',
+    mot: '100 % BR',
+    part: 1,
+    note: 'Le contrat complete jusqu a la base de remboursement, pas au-dela.',
+  },
+  {
+    cle: '200',
+    mot: '200 % BR',
+    part: 2,
+    note: 'Le contrat couvre deux fois la base : une couronne commence a etre tenue.',
+  },
+  {
+    cle: '300',
+    mot: '300 % BR',
+    part: 3,
+    note: 'Trois fois la base. Au-dela, il n y a plus grand-chose a couvrir.',
+  },
 ] as const
 
 /** Le releve d un acte, une fois la mutuelle choisie. */
@@ -376,8 +431,22 @@ function Coupe(): ReactElement {
           fill={encre()}
           opacity="0.9"
         />
-        <path d="M104 180 C96 230 98 300 101 356" fill="none" stroke={encre()} strokeWidth="3.5" strokeLinecap="round" opacity="0.9" />
-        <path d="M128 180 C136 230 140 300 168 356" fill="none" stroke={encre()} strokeWidth="3.5" strokeLinecap="round" opacity="0.9" />
+        <path
+          d="M104 180 C96 230 98 300 101 356"
+          fill="none"
+          stroke={encre()}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+        <path
+          d="M128 180 C136 230 140 300 168 356"
+          fill="none"
+          stroke={encre()}
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
       </g>
 
       {/* Le trait qui se dessine par-dessus : le contour de la couronne. */}
@@ -406,7 +475,11 @@ function Coupe(): ReactElement {
             y={e.y}
             fontSize="12"
             fill="var(--o-theme-muted)"
-            style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.14em' }}
+            style={{
+              fontFamily: 'var(--o-font-mono)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.14em',
+            }}
           >
             {e.mot}
           </text>
@@ -452,7 +525,11 @@ function DentDessinee({
     : soignable
       ? accentDoux(300, 42)
       : 'var(--o-theme-bg)'
-  const contour = choisie ? encre() : soignable ? accentDoux(700, 55) : accentDoux(700, 26)
+  const contour = choisie
+    ? encre()
+    : soignable
+      ? accentDoux(700, 55)
+      : accentDoux(700, 26)
 
   return (
     <g
@@ -530,14 +607,23 @@ function Schema({
   const basses = useMemo(() => poser(BAS, false), [])
 
   return (
-    <svg viewBox="0 0 660 516" className="o-h-auto o-w-full" role="group" aria-label="Schema dentaire : trente-deux dents a choisir">
+    <svg
+      viewBox="0 0 660 516"
+      className="o-h-auto o-w-full"
+      role="group"
+      aria-label="Schema dentaire : trente-deux dents a choisir"
+    >
       <text
         x="330"
         y="22"
         textAnchor="middle"
         fontSize="12"
         fill="var(--o-theme-muted)"
-        style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.18em' }}
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.18em',
+        }}
       >
         Maxillaire
       </text>
@@ -547,12 +633,21 @@ function Schema({
         textAnchor="middle"
         fontSize="12"
         fill="var(--o-theme-muted)"
-        style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.18em' }}
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.18em',
+        }}
       >
         Mandibule
       </text>
       {/* Le plan sagittal : la moitie droite du patient est a gauche. */}
-      <path d="M330 38 V486" stroke={accentDoux(700, 16)} strokeWidth="1" strokeDasharray="4 8" />
+      <path
+        d="M330 38 V486"
+        stroke={accentDoux(700, 16)}
+        strokeWidth="1"
+        strokeDasharray="4 8"
+      />
 
       {[...hautes, ...basses].map((place) => (
         <text
@@ -637,18 +732,37 @@ function PlanCote(): ReactElement {
       aria-label="Plan cote du cabinet : accueil de 22 metres carres, trois salles de soin de 16, 14 et 14 metres carres, une sterilisation de 9 metres carres, entree de plain-pied"
     >
       {/* Les murs porteurs, puis les cloisons. */}
-      <rect x="40" y="64" width="760" height="276" fill="none" stroke={accentDoux(800, 62)} strokeWidth="3" />
-      <path d="M330 64 V340 M560 64 V340 M330 202 H800" stroke={accentDoux(800, 62)} strokeWidth="3" fill="none" />
+      <rect
+        x="40"
+        y="64"
+        width="760"
+        height="276"
+        fill="none"
+        stroke={accentDoux(800, 62)}
+        strokeWidth="3"
+      />
+      <path
+        d="M330 64 V340 M560 64 V340 M330 202 H800"
+        stroke={accentDoux(800, 62)}
+        strokeWidth="3"
+        fill="none"
+      />
 
       {/* Les portes : un arc de debattement, comme sur un vrai plan. */}
-      {([
-        [330, 104, 1],
-        [330, 262, 1],
-        [560, 116, 1],
-        [560, 274, 1],
-      ] as const).map(([x, y, sens]) => (
+      {(
+        [
+          [330, 104, 1],
+          [330, 262, 1],
+          [560, 116, 1],
+          [560, 274, 1],
+        ] as const
+      ).map(([x, y, sens]) => (
         <g key={`${String(x)}-${String(y)}`}>
-          <path d={`M${String(x)} ${String(y)} v34`} stroke="var(--o-theme-bg)" strokeWidth="4" />
+          <path
+            d={`M${String(x)} ${String(y)} v34`}
+            stroke="var(--o-theme-bg)"
+            strokeWidth="4"
+          />
           <path
             d={`M${String(x)} ${String(y)} a34 34 0 0 ${sens === 1 ? '1' : '0'} 34 34`}
             fill="none"
@@ -672,7 +786,11 @@ function PlanCote(): ReactElement {
             textAnchor="middle"
             fontSize="13"
             fill="var(--o-theme-fg)"
-            style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.12em' }}
+            style={{
+              fontFamily: 'var(--o-font-mono)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+            }}
           >
             {piece.mot}
           </text>
@@ -719,7 +837,9 @@ function Devis({
   readonly part: number
   readonly mutuelle: string
 }): ReactElement {
-  const releves = lignes.map(([code, acte]) => [code, acte, calculer(acte, part)] as const)
+  const releves = lignes.map(
+    ([code, acte]) => [code, acte, calculer(acte, part)] as const,
+  )
   const total = releves.reduce(
     (somme, [, , releve]) => ({
       honoraire: somme.honoraire + releve.honoraire,
@@ -736,21 +856,51 @@ function Devis({
         Devis — cabinet Emaille, tarifs 2026
       </p>
 
-      <table className="o-mt-7 o-w-full o-text-left" style={{ borderCollapse: 'collapse' }}>
-        <caption className="o-sr-only">Les actes retenus, avec leur remboursement et le reste a charge</caption>
+      <table
+        className="o-mt-7 o-w-full o-text-left"
+        style={{ borderCollapse: 'collapse' }}
+      >
+        <caption className="o-sr-only">
+          Les actes retenus, avec leur remboursement et le reste a charge
+        </caption>
         <thead>
           <tr className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-400">
-            <th scope="col" className="o-border-b o-border-white-10 o-pb-2 o-font-normal">Acte</th>
-            <th scope="col" className="o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal">Honoraire</th>
-            <th scope="col" className="max-sm:o-hidden o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal">Maladie</th>
-            <th scope="col" className="max-sm:o-hidden o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal">Mutuelle</th>
-            <th scope="col" className="o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal">Reste</th>
+            <th scope="col" className="o-border-b o-border-white-10 o-pb-2 o-font-normal">
+              Acte
+            </th>
+            <th
+              scope="col"
+              className="o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal"
+            >
+              Honoraire
+            </th>
+            <th
+              scope="col"
+              className="max-sm:o-hidden o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal"
+            >
+              Maladie
+            </th>
+            <th
+              scope="col"
+              className="max-sm:o-hidden o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal"
+            >
+              Mutuelle
+            </th>
+            <th
+              scope="col"
+              className="o-border-b o-border-white-10 o-pb-2 o-pl-5 o-text-right o-font-normal"
+            >
+              Reste
+            </th>
           </tr>
         </thead>
         <tbody>
           {releves.map(([code, acte, releve]) => (
             <tr key={`${code}-${acte.code}`} className="o-align-top">
-              <th scope="row" className="o-border-b o-border-white-10 o-py-3 o-pr-3 o-font-normal">
+              <th
+                scope="row"
+                className="o-border-b o-border-white-10 o-py-3 o-pr-3 o-font-normal"
+              >
                 <span className="o-block o-text-sm o-text-slate-50">{acte.libelle}</span>
                 <span className="o-block o-font-mono o-text-xs o-text-slate-400">
                   {code === 'socle' ? acte.code : `Dent ${code} — ${acte.code}`}
@@ -784,14 +934,19 @@ function Devis({
           <p
             className="o-m-0 o-mt-2 o-tabular-nums o-text-slate-50"
             aria-live="polite"
-            style={{ ...affiche('m', 300), fontSize: 'clamp(2.5rem, 6vw, 4.25rem)', lineHeight: 0.9 }}
+            style={{
+              ...affiche('m', 300),
+              fontSize: 'clamp(2.5rem, 6vw, 4.25rem)',
+              lineHeight: 0.9,
+            }}
           >
             {euros(total.reste)}
           </p>
         </div>
         <p className="o-m-0 o-max-w-xs o-text-xs o-leading-relaxed o-text-slate-400">
-          Sur {euros(total.honoraire)} d honoraires. L assurance maladie en prend {euros(total.maladie)},
-          la mutuelle {mutuelle.toLowerCase() === 'aucune' ? 'rien' : euros(total.mutuelle)}.
+          Sur {euros(total.honoraire)} d honoraires. L assurance maladie en prend{' '}
+          {euros(total.maladie)}, la mutuelle{' '}
+          {mutuelle.toLowerCase() === 'aucune' ? 'rien' : euros(total.mutuelle)}.
         </p>
       </div>
     </div>
@@ -891,10 +1046,7 @@ function Frise(): ReactElement {
         laisse a `auto` par la cascade, la bande avalerait la molette et la
         page se figerait sous le pointeur.
       */}
-      <div
-        className="o-mt-5 o-overflow-x-auto o-pb-3"
-        style={{ overflowY: 'hidden' }}
-      >
+      <div className="o-mt-5 o-overflow-x-auto o-pb-3" style={{ overflowY: 'hidden' }}>
         <ul className="o-m-0 o-flex o-w-max o-list-none o-items-end o-gap-1 o-p-0">
           {JOURNEE.map((creneau) => {
             const choisi = pris === creneau.heure
@@ -922,14 +1074,24 @@ function Frise(): ReactElement {
                     className="o-flex o-h-28 o-w-20 o-cursor-pointer o-flex-col o-justify-end o-rounded-md o-border-w-1 o-p-2 o-text-left o-transition-colors focus:o-ring"
                     style={
                       choisi
-                        ? { backgroundColor: encre(), borderColor: encre(), color: 'var(--o-theme-bg)' }
-                        : { backgroundColor: 'transparent', borderColor: accentDoux(700, 45), color: 'inherit' }
+                        ? {
+                            backgroundColor: encre(),
+                            borderColor: encre(),
+                            color: 'var(--o-theme-bg)',
+                          }
+                        : {
+                            backgroundColor: 'transparent',
+                            borderColor: accentDoux(700, 45),
+                            color: 'inherit',
+                          }
                     }
                   >
                     <span className="o-block o-text-xs o-font-semibold o-leading-relaxed">
                       {choisi ? 'Retenu' : 'Libre'}
                     </span>
-                    <span className="o-mt-1 o-block o-font-mono o-text-xs o-tabular-nums">{creneau.heure}</span>
+                    <span className="o-mt-1 o-block o-font-mono o-text-xs o-tabular-nums">
+                      {creneau.heure}
+                    </span>
                   </button>
                 )}
               </li>
@@ -953,16 +1115,29 @@ function Frise(): ReactElement {
 /* ============================ Le pied ================================== */
 
 /** Un pictogramme dessine du pied : P27. */
-function Picto({ dessin, titre, texte }: { readonly dessin: ReactElement; readonly titre: string; readonly texte: string }): ReactElement {
+function Picto({
+  dessin,
+  titre,
+  texte,
+}: {
+  readonly dessin: ReactElement
+  readonly titre: string
+  readonly texte: string
+}): ReactElement {
   return (
     <div>
       <svg viewBox="0 0 64 64" className="o-h-14 o-w-14" role="img" aria-label={titre}>
         {dessin}
       </svg>
-      <p className="o-m-0 o-mt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+      <p
+        className="o-m-0 o-mt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: encreSurSombre() }}
+      >
         {titre}
       </p>
-      <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-slate-300">{texte}</p>
+      <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-slate-300">
+        {texte}
+      </p>
     </div>
   )
 }
@@ -981,10 +1156,11 @@ const QUESTIONS = [
     question: 'Pourquoi une couronne a 500 € n est-elle remboursee que sur 120 ?',
     answer: (
       <p className="o-m-0">
-        Parce que ce sont deux nombres qui ne mesurent pas la meme chose. 500 € est l honoraire, plafonne par la
-        convention pour cette couronne. 120 € est la base de remboursement, fixee par l assurance maladie et
-        inchangee depuis longtemps. Elle rembourse 70 % de la base, soit 84 €. Le reste depend de votre contrat, et
-        c est ce que le schema du haut de page vous montre.
+        Parce que ce sont deux nombres qui ne mesurent pas la meme chose. 500 € est l
+        honoraire, plafonne par la convention pour cette couronne. 120 € est la base de
+        remboursement, fixee par l assurance maladie et inchangee depuis longtemps. Elle
+        rembourse 70 % de la base, soit 84 €. Le reste depend de votre contrat, et c est
+        ce que le schema du haut de page vous montre.
       </p>
     ),
   },
@@ -992,9 +1168,10 @@ const QUESTIONS = [
     question: 'Faites-vous des devis avant de commencer ?',
     answer: (
       <p className="o-m-0">
-        Toujours, et pour tout ce qui depasse le soin conservateur. Le devis est remis en main propre, il est valable
-        six mois, et rien n est commence avant que vous l ayez signe. Si un acte se revele inutile en cours de
-        traitement, il est retire du devis, pas facture.
+        Toujours, et pour tout ce qui depasse le soin conservateur. Le devis est remis en
+        main propre, il est valable six mois, et rien n est commence avant que vous l ayez
+        signe. Si un acte se revele inutile en cours de traitement, il est retire du
+        devis, pas facture.
       </p>
     ),
   },
@@ -1002,9 +1179,10 @@ const QUESTIONS = [
     question: 'Et si j ai mal ce matin ?',
     answer: (
       <p className="o-m-0">
-        Deux creneaux sont gardes chaque jour, a 08:00 et a 18:30, et ils ne sont jamais ouverts a la reservation en
-        ligne. Appelez avant 09:00 : vous serez vu dans la journee, ou oriente vers le service d urgence du centre
-        hospitalier si cela releve de lui.
+        Deux creneaux sont gardes chaque jour, a 08:00 et a 18:30, et ils ne sont jamais
+        ouverts a la reservation en ligne. Appelez avant 09:00 : vous serez vu dans la
+        journee, ou oriente vers le service d urgence du centre hospitalier si cela releve
+        de lui.
       </p>
     ),
   },
@@ -1012,9 +1190,10 @@ const QUESTIONS = [
     question: 'Prenez-vous la carte Vitale et le tiers payant ?',
     answer: (
       <p className="o-m-0">
-        Oui pour la carte Vitale, et oui pour le tiers payant sur la part de l assurance maladie. Sur la part
-        mutuelle, cela depend de votre organisme : nous le verifions a l accueil au premier rendez-vous, et nous
-        vous le disons avant les soins, pas apres.
+        Oui pour la carte Vitale, et oui pour le tiers payant sur la part de l assurance
+        maladie. Sur la part mutuelle, cela depend de votre organisme : nous le verifions
+        a l accueil au premier rendez-vous, et nous vous le disons avant les soins, pas
+        apres.
       </p>
     ),
   },
@@ -1025,7 +1204,9 @@ export default function Page(): ReactElement {
   useFeuilleDentiste()
   const { reduced } = useMotionState()
   const [choisies, setChoisies] = useState<ReadonlySet<string>>(() => new Set(DEPART))
-  const [dite, setDite] = useState('Dent 16, premiere molaire : couronne ceramo-metallique, retenue au devis.')
+  const [dite, setDite] = useState(
+    'Dent 16, premiere molaire : couronne ceramo-metallique, retenue au devis.',
+  )
   const [niveau, setNiveau] = useState<string>('200')
 
   const basculer = useCallback((code: string) => {
@@ -1043,7 +1224,9 @@ export default function Page(): ReactElement {
         setDite(`Dent ${dent.code}, ${dent.nom} : ${acte.libelle} retiree du devis.`)
       } else {
         suivantes.add(code)
-        setDite(`Dent ${dent.code}, ${dent.nom} : ${acte.libelle}, ${euros(acte.honoraire)}, ajoutee au devis.`)
+        setDite(
+          `Dent ${dent.code}, ${dent.nom} : ${acte.libelle}, ${euros(acte.honoraire)}, ajoutee au devis.`,
+        )
       }
       return suivantes
     })
@@ -1062,7 +1245,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="iris" marque="Emaille" sombre={false}>
-      <div className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100" style={polices}>
+      <div
+        className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100"
+        style={polices}
+      >
         <BarreFilet
           marque="Emaille"
           liens={NAVIGATION}
@@ -1084,22 +1270,38 @@ export default function Page(): ReactElement {
           <div className="o-mx-auto o-grid o-max-w-7xl o-items-center o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-7">
               <Surgit>
-                <Etiquette sombre={false}>Cabinet dentaire — conventionne secteur 1</Etiquette>
+                <Etiquette sombre={false}>
+                  Cabinet dentaire — conventionne secteur 1
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-7 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...affiche('xl', 300), fontSize: 'clamp(3.25rem, 13vw, 11rem)', lineHeight: 0.86 }}
+                style={{
+                  ...affiche('xl', 300),
+                  fontSize: 'clamp(3.25rem, 13vw, 11rem)',
+                  lineHeight: 0.86,
+                }}
               >
                 Emaille
               </TitreVague>
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Trois praticiens, trois fauteuils, et le prix affiche avant le soin. Cliquez une dent : le devis se
-                fait devant vous.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-8 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+              >
+                Trois praticiens, trois fauteuils, et le prix affiche avant le soin.
+                Cliquez une dent : le devis se fait devant vous.
               </Surgit>
               <Surgit delai={640} className="o-mt-9">
                 <Actions
-                  pleine={['#bouche', <>Ouvrir le schema <Icon icon={ArrowRight} size={15} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#bouche',
+                    <>
+                      Ouvrir le schema{' '}
+                      <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#creneaux', 'Voir les creneaux']}
                   sombre={false}
                 />
@@ -1110,13 +1312,20 @@ export default function Page(): ReactElement {
                 argument, c est le soin le plus demande de la semaine et son
                 reste a charge reel.
               */}
-              <Surgit delai={760} className="o-mt-12 o-inline-block o-max-w-sm o-rounded-2xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-5">
+              <Surgit
+                delai={760}
+                className="o-mt-12 o-inline-block o-max-w-sm o-rounded-2xl o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-p-5"
+              >
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
                   Le plus demande cette semaine
                 </p>
                 <p className="o-m-0 o-mt-3 o-text-base o-text-zinc-900 dark:o-text-zinc-100">
-                  Bilan, radiographies et detartrage — {euros(SOCLE.honoraire)}. Avec une mutuelle a 200 % BR, il
-                  vous reste <span style={{ color: encre() }}>{euros(calculer(SOCLE, 2).reste)}</span> a payer.
+                  Bilan, radiographies et detartrage — {euros(SOCLE.honoraire)}. Avec une
+                  mutuelle a 200 % BR, il vous reste{' '}
+                  <span style={{ color: encre() }}>
+                    {euros(calculer(SOCLE, 2).reste)}
+                  </span>{' '}
+                  a payer.
                 </p>
               </Surgit>
             </div>
@@ -1131,42 +1340,67 @@ export default function Page(): ReactElement {
 
         <main>
           {/* ================= La coupe sombre : le manifeste ============= */}
-          <section aria-labelledby="manifeste-titre" className="o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={nuit('slate')}>
+          <section
+            aria-labelledby="manifeste-titre"
+            className="o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+            style={nuit('slate')}
+          >
             <div className="o-mx-auto o-max-w-5xl">
               <Indice rang="01">Ce qu on vous doit</Indice>
               <h2
                 id="manifeste-titre"
                 className="o-m-0 o-mt-10 o-text-slate-50"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 4.4vw, 4rem)', lineHeight: 1.06 }}
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.9rem, 4.4vw, 4rem)',
+                  lineHeight: 1.06,
+                }}
               >
-                <span className="o-text-slate-500">Un soin ne fait pas peur parce qu il fait mal. Il fait peur </span>
+                <span className="o-text-slate-500">
+                  Un soin ne fait pas peur parce qu il fait mal. Il fait peur{' '}
+                </span>
                 parce que{' '}
-                <HighlightSweep colour={accentDoux(500, 70)} thickness={0.42} duration={900}>
+                <HighlightSweep
+                  colour={accentDoux(500, 70)}
+                  thickness={0.42}
+                  duration={900}
+                >
                   personne ne dit ce qu il coute
                 </HighlightSweep>
                 .
               </h2>
               <p className="o-m-0 o-mt-10 o-max-w-2xl o-text-base o-leading-relaxed o-text-slate-300">
-                Alors nous l affichons. Le schema qui suit est celui d un bilan reel : neuf dents a reprendre, chacune
-                avec son acte, son code, son honoraire et sa base de remboursement. Vous pouvez en retirer, en ajouter,
-                changer de mutuelle. Le nombre du bas ne ment pas.
+                Alors nous l affichons. Le schema qui suit est celui d un bilan reel :
+                neuf dents a reprendre, chacune avec son acte, son code, son honoraire et
+                sa base de remboursement. Vous pouvez en retirer, en ajouter, changer de
+                mutuelle. Le nombre du bas ne ment pas.
               </p>
               <p className="o-m-0 o-mt-12 o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-400">
-                Convention nationale des chirurgiens-dentistes — tarifs au 1er janvier 2026
+                Convention nationale des chirurgiens-dentistes — tarifs au 1er janvier
+                2026
               </p>
             </div>
           </section>
 
           {/* ================= Le mecanisme : la bouche =================== */}
-          <section id="bouche" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="bouche"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Reveal>
-                <Indice rang="02" sombre={false}>La bouche</Indice>
+                <Indice rang="02" sombre={false}>
+                  La bouche
+                </Indice>
               </Reveal>
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.98 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 0.98,
+                  }}
                 >
                   Trente-deux dents, neuf a reprendre.
                 </h2>
@@ -1186,7 +1420,11 @@ export default function Page(): ReactElement {
                         className="o-inline-flex o-cursor-pointer o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-font-semibold o-transition-colors"
                         style={
                           actif
-                            ? { backgroundColor: encre(), borderColor: encre(), color: 'var(--o-theme-bg)' }
+                            ? {
+                                backgroundColor: encre(),
+                                borderColor: encre(),
+                                color: 'var(--o-theme-bg)',
+                              }
                             : { borderColor: accentDoux(700, 40) }
                         }
                       >
@@ -1230,8 +1468,16 @@ export default function Page(): ReactElement {
                       </p>
                       <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-col o-gap-4 o-p-0">
                         {[
-                          ['retenue', 'Retenue au devis', 'Cliquez de nouveau pour la retirer.'],
-                          ['soin', 'Un soin a prevoir', 'Relevee au bilan du 4 septembre.'],
+                          [
+                            'retenue',
+                            'Retenue au devis',
+                            'Cliquez de nouveau pour la retirer.',
+                          ],
+                          [
+                            'soin',
+                            'Un soin a prevoir',
+                            'Relevee au bilan du 4 septembre.',
+                          ],
                           ['saine', 'Saine', 'Rien a faire, et nous ne le ferons pas.'],
                           ['absente', 'Absente', 'La 46 a ete extraite en 2019.'],
                         ].map(([cle, titre, texte]) => (
@@ -1243,15 +1489,29 @@ export default function Page(): ReactElement {
                                 cle === 'retenue'
                                   ? { backgroundColor: encre(), borderColor: encre() }
                                   : cle === 'soin'
-                                    ? { backgroundColor: accentDoux(300, 42), borderColor: accentDoux(700, 55) }
+                                    ? {
+                                        backgroundColor: accentDoux(300, 42),
+                                        borderColor: accentDoux(700, 55),
+                                      }
                                     : cle === 'saine'
-                                      ? { backgroundColor: 'transparent', borderColor: accentDoux(700, 26) }
-                                      : { backgroundColor: 'transparent', borderColor: accentDoux(700, 55), borderStyle: 'dashed' }
+                                      ? {
+                                          backgroundColor: 'transparent',
+                                          borderColor: accentDoux(700, 26),
+                                        }
+                                      : {
+                                          backgroundColor: 'transparent',
+                                          borderColor: accentDoux(700, 55),
+                                          borderStyle: 'dashed',
+                                        }
                               }
                             />
                             <span className="o-block">
-                              <span className="o-block o-text-sm o-font-semibold o-text-zinc-900 dark:o-text-zinc-100">{titre}</span>
-                              <span className="o-block o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{texte}</span>
+                              <span className="o-block o-text-sm o-font-semibold o-text-zinc-900 dark:o-text-zinc-100">
+                                {titre}
+                              </span>
+                              <span className="o-block o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                                {texte}
+                              </span>
                             </span>
                           </li>
                         ))}
@@ -1259,7 +1519,9 @@ export default function Page(): ReactElement {
                     </div>
                   </div>
                 }
-                devis={<Devis lignes={lignes} part={mutuelle.part} mutuelle={mutuelle.mot} />}
+                devis={
+                  <Devis lignes={lignes} part={mutuelle.part} mutuelle={mutuelle.mot} />
+                }
               />
 
               <p
@@ -1269,22 +1531,33 @@ export default function Page(): ReactElement {
                 {dite}
               </p>
               <p className="o-m-0 o-mt-4 o-max-w-3xl o-text-sm o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                Naviguez au clavier : la tabulation passe de dent en dent, Entree ou la barre d espace l ajoute au
-                devis. Les dents saines se disent, elles ne s ajoutent pas.
+                Naviguez au clavier : la tabulation passe de dent en dent, Entree ou la
+                barre d espace l ajoute au devis. Les dents saines se disent, elles ne s
+                ajoutent pas.
               </p>
             </div>
           </section>
 
           {/* ================= Le cabinet, en plan cote =================== */}
-          <section id="cabinet" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(200, 16) }}>
+          <section
+            id="cabinet"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            style={{ backgroundColor: accentDoux(200, 16) }}
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
-                <Indice rang="03" sombre={false}>Le cabinet</Indice>
+                <Indice rang="03" sombre={false}>
+                  Le cabinet
+                </Indice>
               </Reveal>
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.98 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 0.98,
+                  }}
                 >
                   Soixante-quinze metres carres, et zero marche.
                 </h2>
@@ -1295,21 +1568,29 @@ export default function Page(): ReactElement {
                 </div>
               </Reveal>
               <p className="o-m-0 o-mt-8 o-max-w-2xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Plan releve a la livraison, en juin 2024. La salle 3 est equipee pour le fauteuil roulant : la porte
-                fait 1,05 m et le transfert se fait par la gauche.
+                Plan releve a la livraison, en juin 2024. La salle 3 est equipee pour le
+                fauteuil roulant : la porte fait 1,05 m et le transfert se fait par la
+                gauche.
               </p>
             </div>
           </section>
 
           {/* ================= Le deroule, en chapitres collants ========== */}
-          <div id="deroule" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <div
+            id="deroule"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-flex o-max-w-6xl o-flex-col o-gap-20">
               <Chapitre
                 indice="(04) — Le deroule"
                 titre={
                   <h2
                     className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Quatre rendez-vous, pas un de plus.
                   </h2>
@@ -1318,26 +1599,56 @@ export default function Page(): ReactElement {
               >
                 <ol className="o-m-0 o-list-none o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-p-0">
                   {[
-                    ['Seance 1', '45 min', 'Bilan, quatre radiographies retro-alveolaires, detartrage des deux arcades. Le devis est imprime a la fin de la seance.'],
-                    ['Seance 2', '60 min', 'Traitement radiculaire de la 36, sous digue. Une seule seance : nous ne rouvrons pas une dent sans raison.'],
-                    ['Seance 3', '45 min', 'Composites sur la 26 et la 11. Empreinte optique de la 16 pour la couronne.'],
-                    ['Seance 4', '30 min', 'Pose de la couronne, reglage de l occlusion, controle a huit jours.'],
+                    [
+                      'Seance 1',
+                      '45 min',
+                      'Bilan, quatre radiographies retro-alveolaires, detartrage des deux arcades. Le devis est imprime a la fin de la seance.',
+                    ],
+                    [
+                      'Seance 2',
+                      '60 min',
+                      'Traitement radiculaire de la 36, sous digue. Une seule seance : nous ne rouvrons pas une dent sans raison.',
+                    ],
+                    [
+                      'Seance 3',
+                      '45 min',
+                      'Composites sur la 26 et la 11. Empreinte optique de la 16 pour la couronne.',
+                    ],
+                    [
+                      'Seance 4',
+                      '30 min',
+                      'Pose de la couronne, reglage de l occlusion, controle a huit jours.',
+                    ],
                   ].map(([quand, duree, quoi], rang) => (
-                    <li key={quand} className="o-grid o-gap-4 o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-py-7 md:o-grid-cols-12">
+                    <li
+                      key={quand}
+                      className="o-grid o-gap-4 o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-py-7 md:o-grid-cols-12"
+                    >
                       <p className="o-m-0 md:o-col-span-3">
                         <span
                           className="o-block o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
-                          style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 4vw, 3.25rem)', lineHeight: 0.9 }}
+                          style={{
+                            ...affiche('m', 300),
+                            fontSize: 'clamp(2.25rem, 4vw, 3.25rem)',
+                            lineHeight: 0.9,
+                          }}
                         >
                           {String(rang + 1).padStart(2, '0')}
                         </span>
-                        <span className="o-mt-2 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                        <span
+                          className="o-mt-2 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encre() }}
+                        >
                           {duree}
                         </span>
                       </p>
                       <div className="md:o-col-span-9">
-                        <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">{quand}</h3>
-                        <p className="o-m-0 o-mt-3 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{quoi}</p>
+                        <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
+                          {quand}
+                        </h3>
+                        <p className="o-m-0 o-mt-3 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                          {quoi}
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -1349,7 +1660,11 @@ export default function Page(): ReactElement {
                 titre={
                   <h2
                     className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Celles qu on nous pose a l accueil.
                   </h2>
@@ -1362,15 +1677,25 @@ export default function Page(): ReactElement {
           </div>
 
           {/* ================= L appel : la frise de la journee =========== */}
-          <section id="creneaux" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-24" style={{ backgroundColor: accentDoux(200, 16) }}>
+          <section
+            id="creneaux"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-24"
+            style={{ backgroundColor: accentDoux(200, 16) }}
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
-                <Indice rang="06" sombre={false}>Prendre rendez-vous</Indice>
+                <Indice rang="06" sombre={false}>
+                  Prendre rendez-vous
+                </Indice>
               </Reveal>
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mb-12 o-mt-6 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.98 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 0.98,
+                  }}
                 >
                   Une journee, vingt-deux cases, sept libres.
                 </h2>
@@ -1388,7 +1713,13 @@ export default function Page(): ReactElement {
                 titre="On repare avant de remplacer"
                 texte="Une dent devitalisee et couronnee tient vingt ans. Un implant ne rattrape jamais une dent qu on aurait pu garder."
                 dessin={
-                  <g fill="none" stroke={accent(400)} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <g
+                    fill="none"
+                    stroke={accent(400)}
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M14 24c0-9 6-14 11-14 3 0 4 2 7 2s4-2 7-2c5 0 11 5 11 14 0 8-3 12-5 20-1 6-2 12-5 12s-3-9-5-15c-1-3-4-3-5 0-2 6-2 15-5 15s-4-6-5-12c-2-8-11-12-11-20Z" />
                     <path d="M26 22c4-2 8-2 12 0" />
                   </g>
@@ -1398,7 +1729,13 @@ export default function Page(): ReactElement {
                 titre="Du lundi au samedi matin"
                 texte="08:00 a 19:00 en semaine, 08:00 a 12:30 le samedi. Deux creneaux d urgence gardes chaque jour, jamais ouverts en ligne."
                 dessin={
-                  <g fill="none" stroke={accent(400)} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <g
+                    fill="none"
+                    stroke={accent(400)}
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <circle cx="32" cy="32" r="22" />
                     <path d="M32 17v16l11 7" />
                     <path d="M32 10v4M32 50v4M10 32h4M50 32h4" />
@@ -1409,7 +1746,13 @@ export default function Page(): ReactElement {
                 titre="Tramway B, arret Palais"
                 texte="Deux minutes a pied. Stationnement minute sur la place, et un arret depose-minute devant la porte."
                 dessin={
-                  <g fill="none" stroke={accent(400)} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <g
+                    fill="none"
+                    stroke={accent(400)}
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <rect x="17" y="10" width="30" height="34" rx="6" />
                     <path d="M21 20h22M22 32h6M36 32h6" />
                     <path d="M24 44l-5 10M40 44l5 10M14 54h36" />
@@ -1420,7 +1763,13 @@ export default function Page(): ReactElement {
                 titre="De plain-pied"
                 texte="Aucune marche a l entree, porte de 1,05 m, salle 3 amenagee pour le transfert depuis un fauteuil roulant."
                 dessin={
-                  <g fill="none" stroke={accent(400)} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <g
+                    fill="none"
+                    stroke={accent(400)}
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <circle cx="38" cy="11" r="5" />
                     <path d="M38 18v9h11l4 15h-6" />
                     <path d="M38 27H27" />
@@ -1447,9 +1796,10 @@ export default function Page(): ReactElement {
               </p>
             </div>
             <p className="o-m-0 o-mt-8 o-text-xs o-leading-relaxed o-text-slate-400">
-              © 2026 — Les honoraires affiches sont ceux de la convention nationale des chirurgiens-dentistes, tarifs
-              au 1er janvier 2026. Le calcul de remboursement est indicatif : votre contrat de mutuelle fait foi.
-              Mentions legales · Donnees personnelles · Accessibilite : partiellement conforme.
+              © 2026 — Les honoraires affiches sont ceux de la convention nationale des
+              chirurgiens-dentistes, tarifs au 1er janvier 2026. Le calcul de
+              remboursement est indicatif : votre contrat de mutuelle fait foi. Mentions
+              legales · Donnees personnelles · Accessibilite : partiellement conforme.
             </p>
           </div>
         </footer>

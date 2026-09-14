@@ -215,14 +215,21 @@ function Relief({
   readonly repetitions: number
 }): ReactElement {
   return (
-    <div aria-hidden="true" className="o-absolute o-bottom-0 o-left-0 o-flex" style={{ width: largeur, height: hauteur }}>
+    <div
+      aria-hidden="true"
+      className="o-absolute o-bottom-0 o-left-0 o-flex"
+      style={{ width: largeur, height: hauteur }}
+    >
       {Array.from({ length: repetitions }, (_, rang) => (
         <svg
           key={rang}
           viewBox="0 0 1200 300"
           preserveAspectRatio="none"
           className="o-h-full o-shrink-0"
-          style={{ width: `${(100 / repetitions).toFixed(4)}%`, transform: rang % 2 === 1 ? 'scaleX(-1)' : undefined }}
+          style={{
+            width: `${(100 / repetitions).toFixed(4)}%`,
+            transform: rang % 2 === 1 ? 'scaleX(-1)' : undefined,
+          }}
         >
           <path d={chemin} fill={couleur} />
         </svg>
@@ -232,11 +239,14 @@ function Relief({
 }
 
 /** Les cretes lointaines. */
-const CRETES = 'M0 300V168l84-52 76 46 92-84 118 74 96-38 104 58 88-72 122 66 92-40 114 62 114-46v158Z'
+const CRETES =
+  'M0 300V168l84-52 76 46 92-84 118 74 96-38 104 58 88-72 122 66 92-40 114 62 114-46v158Z'
 /** Les collines de second plan. */
-const COLLINES = 'M0 300V196l128 34 122-58 136 44 118-52 146 62 132-46 126 54 148-38 144 46v58Z'
+const COLLINES =
+  'M0 300V196l128 34 122-58 136 44 118-52 146 62 132-46 126 54 148-38 144 46v58Z'
 /** La ligne d arbres. */
-const ARBRES = 'M0 300V252l40-30 22 30 34-46 26 46 44-28 30 28 46-40 28 40 40-24 26 24 48-38 26 38 44-30 30 30 46-44 28 44 40-26 28 26 46-36 28 36 44-28 26 28 48-40 28 40 44-26 28 26 46-38 26 38 44-30 30 30 46-42 28 42 40-24 24 24v42Z'
+const ARBRES =
+  'M0 300V252l40-30 22 30 34-46 26 46 44-28 30 28 46-40 28 40 40-24 26 24 48-38 26 38 44-30 30 30 46-44 28 44 40-26 28 26 46-36 28 36 44-28 26 28 48-40 28 40 44-26 28 26 46-38 26 38 44-30 30 30 46-42 28 42 40-24 24 24v42Z'
 
 /* ============================ Le velo ================================== */
 
@@ -245,11 +255,33 @@ const ARBRES = 'M0 300V252l40-30 22 30 34-46 26 46 44-28 30 28 46-40 28 40 40-24
  * elles accelerent avec la molette et continuent avec la glisse, parce que
  * `--p` continue de couler.
  */
-function Machine({ largeur, cadre, jante }: { readonly largeur: number; readonly cadre: string; readonly jante: string }): ReactElement {
+function Machine({
+  largeur,
+  cadre,
+  jante,
+}: {
+  readonly largeur: number
+  readonly cadre: string
+  readonly jante: string
+}): ReactElement {
   const roue = (cx: number): ReactElement => (
-    <g style={{ transform: `rotate(calc(var(--p, 0) * 2880deg))`, transformOrigin: `${String(cx)}px 148px`, transformBox: 'view-box' }}>
+    <g
+      style={{
+        transform: `rotate(calc(var(--p, 0) * 2880deg))`,
+        transformOrigin: `${String(cx)}px 148px`,
+        transformBox: 'view-box',
+      }}
+    >
       <circle cx={cx} cy={148} r={54} fill="none" stroke={jante} strokeWidth="7" />
-      <circle cx={cx} cy={148} r={46} fill="none" stroke={jante} strokeWidth="1.5" opacity="0.5" />
+      <circle
+        cx={cx}
+        cy={148}
+        r={46}
+        fill="none"
+        stroke={jante}
+        strokeWidth="1.5"
+        opacity="0.5"
+      />
       {Array.from({ length: 12 }, (_, rang) => {
         const angle = (rang * Math.PI) / 6
         return (
@@ -282,9 +314,22 @@ function Machine({ largeur, cadre, jante }: { readonly largeur: number; readonly
         strokeLinejoin="round"
       />
       {/* La fourche, le cintre, la selle. */}
-      <path d="M246 62 L262 40 M262 40 L292 40 M262 40 L240 46" stroke={cadre} strokeWidth="6" strokeLinecap="round" />
+      <path
+        d="M246 62 L262 40 M262 40 L292 40 M262 40 L240 46"
+        stroke={cadre}
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
       <path d="M118 36 L166 36" stroke={cadre} strokeWidth="8" strokeLinecap="round" />
-      <circle cx={192} cy={148} r={20} fill="none" stroke={cadre} strokeWidth="4" opacity="0.85" />
+      <circle
+        cx={192}
+        cy={148}
+        r={20}
+        fill="none"
+        stroke={cadre}
+        strokeWidth="4"
+        opacity="0.85"
+      />
       <path d="M192 128 L206 156" stroke={cadre} strokeWidth="5" strokeLinecap="round" />
     </svg>
   )
@@ -301,14 +346,36 @@ function Panneau({ rang }: { readonly rang: number }): ReactElement {
         className="o-max-w-sm o-rounded-2xl o-border-w-1 o-p-6 o-shadow-xl"
         style={{ borderColor: accentDoux(700, 24), backgroundColor: 'var(--o-theme-bg)' }}
       >
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+        <p
+          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: encre() }}
+        >
           Kilometre {portion.depart} — {portion.altitude} m
         </p>
-        <h3 className="o-m-0 o-mt-3" style={{ color: 'var(--o-theme-fg)', ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3rem)' }}>
-          <Shuffle duration={520} step={26}>{portion.nom}</Shuffle>
+        <h3
+          className="o-m-0 o-mt-3"
+          style={{
+            color: 'var(--o-theme-fg)',
+            ...affiche('m', 300),
+            fontSize: 'clamp(1.75rem, 3.2vw, 3rem)',
+          }}
+        >
+          <Shuffle duration={520} step={26}>
+            {portion.nom}
+          </Shuffle>
         </h3>
-        <p className="o-m-0 o-mt-4 o-text-sm o-font-medium" style={{ color: 'var(--o-theme-fg)' }}>{portion.piece}</p>
-        <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed" style={{ color: 'var(--o-theme-muted)' }}>{portion.texte}</p>
+        <p
+          className="o-m-0 o-mt-4 o-text-sm o-font-medium"
+          style={{ color: 'var(--o-theme-fg)' }}
+        >
+          {portion.piece}
+        </p>
+        <p
+          className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed"
+          style={{ color: 'var(--o-theme-muted)' }}
+        >
+          {portion.texte}
+        </p>
       </div>
     </div>
   )
@@ -323,7 +390,11 @@ const NAVIGATION = [
 ] as const
 
 /** Les modeles proposes a l essai. */
-const MODELES = ['Meridien 01 — route', 'Meridien 03 — gravel', 'Meridien 05 — randonneuse'] as const
+const MODELES = [
+  'Meridien 01 — route',
+  'Meridien 03 — gravel',
+  'Meridien 05 — randonneuse',
+] as const
 
 export default function Page(): ReactElement {
   const polices = usePolices('manrope')
@@ -337,7 +408,8 @@ export default function Page(): ReactElement {
 
   const rouler = (p: number): void => {
     const parcouru = distanceA(p)
-    if (km.current !== null) km.current.textContent = parcouru.toFixed(1).replace('.', ',')
+    if (km.current !== null)
+      km.current.textContent = parcouru.toFixed(1).replace('.', ',')
     if (metres.current !== null) metres.current.textContent = String(altitudeA(parcouru))
     const rang = portionA(p)
     const portion = PORTIONS[rang] ?? PORTIONS[0]
@@ -354,7 +426,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="trou" marque="Meridien" sombre={false}>
-      <div className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L ouverture : la machine, a l arret ========== */}
         <header
           className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden"
@@ -363,13 +438,22 @@ export default function Page(): ReactElement {
           <div
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
-            style={{ background: `linear-gradient(to bottom, ${accentDoux(200, 46)}, transparent 62%)` }}
+            style={{
+              background: `linear-gradient(to bottom, ${accentDoux(200, 46)}, transparent 62%)`,
+            }}
           />
-          <BarreCoins marque="Meridien" liens={NAVIGATION} droite="Saint-Etienne — depuis 1978" sombre={false} />
+          <BarreCoins
+            marque="Meridien"
+            liens={NAVIGATION}
+            droite="Saint-Etienne — depuis 1978"
+            sombre={false}
+          />
 
           <div className="o-relative o-z-10 o-px-6 md:o-px-10">
             <Surgit>
-              <Etiquette sombre={false}>Cadres en acier, brases a la main — sur mesure en 9 semaines</Etiquette>
+              <Etiquette sombre={false}>
+                Cadres en acier, brases a la main — sur mesure en 9 semaines
+              </Etiquette>
             </Surgit>
             <TitreVague
               delai={120}
@@ -381,20 +465,35 @@ export default function Page(): ReactElement {
           </div>
 
           <div className="o-relative o-z-10 o-flex o-flex-wrap o-items-end o-justify-between o-gap-8 o-px-6 o-pb-10 md:o-px-10">
-            <Surgit delai={520} as="p" className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-              Pas en vitrine, pas sur une fiche : dans une rampe a neuf pour cent, au bout de quatre heures. Alors faites la sortie — cette page est la sortie.
+            <Surgit
+              delai={520}
+              as="p"
+              className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+            >
+              Pas en vitrine, pas sur une fiche : dans une rampe a neuf pour cent, au bout
+              de quatre heures. Alors faites la sortie — cette page est la sortie.
             </Surgit>
             <Surgit delai={640}>
               <Actions
                 sombre={false}
-                pleine={['#sortie', <>Partir pour 128 km <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]}
+                pleine={[
+                  '#sortie',
+                  <>
+                    Partir pour 128 km{' '}
+                    <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  </>,
+                ]}
                 fantome={['#essai', 'Essayer un velo']}
               />
             </Surgit>
           </div>
 
           {/* La machine, posee sur la ligne de sol de l ouverture. */}
-          <Surgit delai={340} className="o-relative o-z-10 o-flex o-justify-center o-overflow-hidden o-border-t o-px-6" style={{ borderColor: accentDoux(700, 18) }}>
+          <Surgit
+            delai={340}
+            className="o-relative o-z-10 o-flex o-justify-center o-overflow-hidden o-border-t o-px-6"
+            style={{ borderColor: accentDoux(700, 18) }}
+          >
             <div className="o-pointer-events-none o-py-8">
               <Machine largeur={640} cadre={accent(600)} jante="currentColor" />
             </div>
@@ -419,7 +518,10 @@ export default function Page(): ReactElement {
               <div
                 aria-hidden="true"
                 className="o-absolute o-inset-0"
-                style={{ backgroundColor: 'var(--o-theme-bg)', background: `linear-gradient(to bottom, ${accentDoux(400, 46)} 0%, ${accentDoux(200, 34)} 52%, ${accentDoux(100, 20)} 100%)` }}
+                style={{
+                  backgroundColor: 'var(--o-theme-bg)',
+                  background: `linear-gradient(to bottom, ${accentDoux(400, 46)} 0%, ${accentDoux(200, 34)} 52%, ${accentDoux(100, 20)} 100%)`,
+                }}
               />
             </Couche>
 
@@ -435,34 +537,61 @@ export default function Page(): ReactElement {
                   data-o-ve-nuage=""
                   aria-hidden="true"
                   className="o-absolute o-block o-rounded-full"
-                  style={{
-                    top: nuage.haut,
-                    left: '100%',
-                    width: nuage.taille,
-                    height: nuage.taille * 0.24,
-                    background: 'color-mix(in oklab, white 52%, transparent)',
-                    filter: 'blur(12px)',
-                    '--o-ve-duree': `${String(nuage.duree)}s`,
-                    '--o-ve-delai': `${String(nuage.delai)}s`,
-                  } as CSSProperties}
+                  style={
+                    {
+                      top: nuage.haut,
+                      left: '100%',
+                      width: nuage.taille,
+                      height: nuage.taille * 0.24,
+                      background: 'color-mix(in oklab, white 52%, transparent)',
+                      filter: 'blur(12px)',
+                      '--o-ve-duree': `${String(nuage.duree)}s`,
+                      '--o-ve-delai': `${String(nuage.delai)}s`,
+                    } as CSSProperties
+                  }
                 />
               ))}
             </Couche>
 
             <Couche profondeur={0.22}>
-              <Relief couleur={accentDoux(800, 22)} chemin={CRETES} largeur="220vw" hauteur="64%" repetitions={2} />
+              <Relief
+                couleur={accentDoux(800, 22)}
+                chemin={CRETES}
+                largeur="220vw"
+                hauteur="64%"
+                repetitions={2}
+              />
             </Couche>
             <Couche profondeur={0.45}>
-              <Relief couleur={accentDoux(700, 34)} chemin={COLLINES} largeur="320vw" hauteur="48%" repetitions={3} />
+              <Relief
+                couleur={accentDoux(700, 34)}
+                chemin={COLLINES}
+                largeur="320vw"
+                hauteur="48%"
+                repetitions={3}
+              />
             </Couche>
             <Couche profondeur={0.75} derive={12}>
-              <Relief couleur={accentDoux(900, 46)} chemin={ARBRES} largeur="440vw" hauteur="34%" repetitions={4} />
+              <Relief
+                couleur={accentDoux(900, 46)}
+                chemin={ARBRES}
+                largeur="440vw"
+                hauteur="34%"
+                repetitions={4}
+              />
             </Couche>
 
             {/* La route, et la bande qui file dessous. */}
             <Couche profondeur={1}>
-              <div aria-hidden="true" className="o-absolute o-bottom-0 o-left-0" style={{ width: '540vw', height: '24%' }}>
-                <div className="o-h-full o-w-full" style={{ backgroundColor: 'var(--o-palette-zinc-800)' }} />
+              <div
+                aria-hidden="true"
+                className="o-absolute o-bottom-0 o-left-0"
+                style={{ width: '540vw', height: '24%' }}
+              >
+                <div
+                  className="o-h-full o-w-full"
+                  style={{ backgroundColor: 'var(--o-palette-zinc-800)' }}
+                />
                 <div
                   className="o-absolute o-left-0 o-w-full"
                   style={{
@@ -476,7 +605,10 @@ export default function Page(): ReactElement {
 
             {/* Le velo : il ne se deplace pas, c est le monde qui passe. */}
             <Couche profondeur={0}>
-              <div className="o-absolute o-bottom-0 o-left-0 o-flex o-w-full o-items-end o-justify-center" style={{ height: '36%' }}>
+              <div
+                className="o-absolute o-bottom-0 o-left-0 o-flex o-w-full o-items-end o-justify-center"
+                style={{ height: '36%' }}
+              >
                 <div data-o-ve-cahot="" className="o-text-zinc-100">
                   <Machine largeur={420} cadre={accent(600)} jante="currentColor" />
                 </div>
@@ -486,22 +618,42 @@ export default function Page(): ReactElement {
             {/* Le compteur, et le profil de la sortie. */}
             <div className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-0 o-z-40 o-p-6 md:o-p-10">
               <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-                <div className="o-flex o-items-end o-gap-6 o-rounded-2xl o-px-5 o-py-4" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
-                  <p className="o-m-0 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)' }}>
-                    <span ref={km} aria-hidden="true">0,0</span>
+                <div
+                  className="o-flex o-items-end o-gap-6 o-rounded-2xl o-px-5 o-py-4"
+                  style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+                >
+                  <p
+                    className="o-m-0 o-tabular-nums o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)',
+                    }}
+                  >
+                    <span ref={km} aria-hidden="true">
+                      0,0
+                    </span>
                     <span className="o-ml-1 o-text-sm">km</span>
                   </p>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300" aria-hidden="true">
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300"
+                    aria-hidden="true"
+                  >
                     <span ref={metres}>210</span> m d altitude
                     <br />
                     pente <span ref={pente}>+0,5</span> %
                   </p>
-                  <p className="o-sr-only">Portion en cours : {PORTIONS[portionLue]?.nom ?? ''}</p>
+                  <p className="o-sr-only">
+                    Portion en cours : {PORTIONS[portionLue]?.nom ?? ''}
+                  </p>
                 </div>
 
                 {/* Le profil : une ligne, et un curseur qui avance avec vous. */}
                 <div className="o-relative o-h-14 o-w-full o-max-w-md" aria-hidden="true">
-                  <svg viewBox="0 0 400 60" preserveAspectRatio="none" className="o-h-full o-w-full">
+                  <svg
+                    viewBox="0 0 400 60"
+                    preserveAspectRatio="none"
+                    className="o-h-full o-w-full"
+                  >
                     <path
                       d="M0 52 L106 44 L190 14 L244 6 L325 40 L400 50"
                       fill="none"
@@ -509,7 +661,10 @@ export default function Page(): ReactElement {
                       strokeWidth="3"
                       strokeLinejoin="round"
                     />
-                    <path d="M0 52 L106 44 L190 14 L244 6 L325 40 L400 50 L400 60 L0 60Z" fill={accentDoux(300, 55)} />
+                    <path
+                      d="M0 52 L106 44 L190 14 L244 6 L325 40 L400 50 L400 60 L0 60Z"
+                      fill={accentDoux(300, 55)}
+                    />
                   </svg>
                   <span
                     ref={curseur}
@@ -523,29 +678,66 @@ export default function Page(): ReactElement {
         </div>
 
         {/* ================= L atelier ==================================== */}
-        <section id="atelier" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="atelier"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
-              <Indice rang="01" sombre={false}>L atelier</Indice>
+              <Indice rang="01" sombre={false}>
+                L atelier
+              </Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}
+              >
                 Neuf semaines, quatre paires de mains.
               </h2>
             </Reveal>
 
             <ol className="o-m-0 o-mt-16 o-list-none o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-p-0">
               {[
-                ['Semaine 1', 'La prise de cotes', 'Une heure sur le banc de mesure, et une sortie avec vous si vous etes a moins de deux heures de Saint-Etienne.'],
-                ['Semaine 2 a 4', 'Le dessin et la coupe', 'Le plan est envoye avant la coupe. Tant qu il n est pas signe, aucun tube n est touche.'],
-                ['Semaine 5 a 7', 'Le brasage', 'A l argent, a 620 degres, dans un gabarit reglable. Chaque jonction est limee a la main, sans mastic.'],
-                ['Semaine 8', 'La peinture', 'Deux couches et un vernis, cuits a 80 degres. La teinte est libre ; nous refusons les logos d autres marques.'],
-                ['Semaine 9', 'Le montage et la livraison', 'Roues tendues, transmission reglee, fiche de tension jointe. Le velo part monte, pas en carton.'],
+                [
+                  'Semaine 1',
+                  'La prise de cotes',
+                  'Une heure sur le banc de mesure, et une sortie avec vous si vous etes a moins de deux heures de Saint-Etienne.',
+                ],
+                [
+                  'Semaine 2 a 4',
+                  'Le dessin et la coupe',
+                  'Le plan est envoye avant la coupe. Tant qu il n est pas signe, aucun tube n est touche.',
+                ],
+                [
+                  'Semaine 5 a 7',
+                  'Le brasage',
+                  'A l argent, a 620 degres, dans un gabarit reglable. Chaque jonction est limee a la main, sans mastic.',
+                ],
+                [
+                  'Semaine 8',
+                  'La peinture',
+                  'Deux couches et un vernis, cuits a 80 degres. La teinte est libre ; nous refusons les logos d autres marques.',
+                ],
+                [
+                  'Semaine 9',
+                  'Le montage et la livraison',
+                  'Roues tendues, transmission reglee, fiche de tension jointe. Le velo part monte, pas en carton.',
+                ],
               ].map(([quand, quoi, comment]) => (
-                <li key={quand} className="o-grid o-items-baseline o-gap-3 o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-py-7 md:o-grid-cols-12 md:o-gap-10">
-                  <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-2">{quand}</span>
-                  <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-col-span-4">{quoi}</h3>
-                  <p className="o-m-0 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-6">{comment}</p>
+                <li
+                  key={quand}
+                  className="o-grid o-items-baseline o-gap-3 o-border-b o-border-zinc-200 dark:o-border-zinc-800 o-py-7 md:o-grid-cols-12 md:o-gap-10"
+                >
+                  <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-2">
+                    {quand}
+                  </span>
+                  <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-col-span-4">
+                    {quoi}
+                  </h3>
+                  <p className="o-m-0 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-6">
+                    {comment}
+                  </p>
                 </li>
               ))}
             </ol>
@@ -553,15 +745,28 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= L essai : le seul appel ====================== */}
-        <section id="essai" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(500, 10) }}>
+        <section
+          id="essai"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ backgroundColor: accentDoux(500, 10) }}
+        >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-6">
-              <Indice rang="02" sombre={false}>Essayer</Indice>
-              <h2 className="o-m-0 o-mt-6 o-max-w-md o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)' }}>
+              <Indice rang="02" sombre={false}>
+                Essayer
+              </Indice>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-md o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)',
+                }}
+              >
                 Prenez-en un pour la journee.
               </h2>
               <p className="o-m-0 o-mt-5 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
-                Trois velos d essai, en trois tailles, gardes a l atelier. Vous partez a 9 h, vous rendez a 18 h, et le col du Grand Bois est a onze kilometres.
+                Trois velos d essai, en trois tailles, gardes a l atelier. Vous partez a 9
+                h, vous rendez a 18 h, et le col du Grand Bois est a onze kilometres.
               </p>
               <p className="o-m-0 o-mt-6 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
                 <Icon icon={Wrench} size={14} aria-hidden="true" />
@@ -595,24 +800,30 @@ export default function Page(): ReactElement {
                   Le jour
                 </legend>
                 <div className="o-flex o-flex-wrap o-gap-2">
-                  {['Samedi 19', 'Dimanche 20', 'Samedi 26', 'Dimanche 27'].map((date) => {
-                    const choisi = date === jour
-                    return (
-                      <button
-                        key={date}
-                        type="button"
-                        aria-pressed={choisi}
-                        onClick={() => {
-                          setJour(date)
-                          setEnvoye(false)
-                        }}
-                        className="o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-transition-colors focus:o-ring"
-                        style={choisi ? { ...aplat(), borderColor: 'transparent' } : { borderColor: accentDoux(700, 30) }}
-                      >
-                        {date} septembre
-                      </button>
-                    )
-                  })}
+                  {['Samedi 19', 'Dimanche 20', 'Samedi 26', 'Dimanche 27'].map(
+                    (date) => {
+                      const choisi = date === jour
+                      return (
+                        <button
+                          key={date}
+                          type="button"
+                          aria-pressed={choisi}
+                          onClick={() => {
+                            setJour(date)
+                            setEnvoye(false)
+                          }}
+                          className="o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-transition-colors focus:o-ring"
+                          style={
+                            choisi
+                              ? { ...aplat(), borderColor: 'transparent' }
+                              : { borderColor: accentDoux(700, 30) }
+                          }
+                        >
+                          {date} septembre
+                        </button>
+                      )
+                    },
+                  )}
                 </div>
               </fieldset>
 
@@ -620,7 +831,14 @@ export default function Page(): ReactElement {
                 type="submit"
                 disabled={jour === ''}
                 className="o-inline-flex o-w-fit o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-transition-transform hover:o-scale-105 focus:o-ring"
-                style={jour === '' ? { backgroundColor: 'var(--o-theme-line)', color: 'var(--o-theme-muted)' } : aplat()}
+                style={
+                  jour === ''
+                    ? {
+                        backgroundColor: 'var(--o-theme-line)',
+                        color: 'var(--o-theme-muted)',
+                      }
+                    : aplat()
+                }
               >
                 Reserver l essai
                 <Icon icon={ArrowRight} size={16} aria-hidden="true" />
@@ -628,12 +846,17 @@ export default function Page(): ReactElement {
 
               <p aria-live="polite" className="o-m-0 o-text-sm">
                 {envoye ? (
-                  <span className="o-inline-flex o-items-center o-gap-2 o-font-medium" style={{ color: encre() }}>
+                  <span
+                    className="o-inline-flex o-items-center o-gap-2 o-font-medium"
+                    style={{ color: encre() }}
+                  >
                     <Icon icon={Check} size={15} aria-hidden="true" />
                     {modele}, {jour} septembre a 9 h. On vous rappelle pour la taille.
                   </span>
                 ) : (
-                  <span className="o-text-zinc-600 dark:o-text-zinc-400">Choisissez un jour pour confirmer.</span>
+                  <span className="o-text-zinc-600 dark:o-text-zinc-400">
+                    Choisissez un jour pour confirmer.
+                  </span>
                 )}
               </p>
             </form>
@@ -648,30 +871,111 @@ export default function Page(): ReactElement {
                 14 rue des Aciers, Saint-Etienne — quartier du Soleil
               </p>
               {/* Un plan dessine, pas une carte chargee : trois rues suffisent. */}
-              <svg viewBox="0 0 620 260" className="o-mt-5 o-w-full" aria-label="Plan d acces a l atelier, rue des Aciers a Saint-Etienne">
-                <rect x="0" y="0" width="620" height="260" fill={accentDoux(500, 7)} rx="16" />
-                <path d="M0 176h620M214 0v260M420 0v260" stroke="currentColor" strokeWidth="10" opacity="0.12" />
-                <path d="M0 96h620" stroke="currentColor" strokeWidth="5" opacity="0.12" />
+              <svg
+                viewBox="0 0 620 260"
+                className="o-mt-5 o-w-full"
+                aria-label="Plan d acces a l atelier, rue des Aciers a Saint-Etienne"
+              >
+                <rect
+                  x="0"
+                  y="0"
+                  width="620"
+                  height="260"
+                  fill={accentDoux(500, 7)}
+                  rx="16"
+                />
+                <path
+                  d="M0 176h620M214 0v260M420 0v260"
+                  stroke="currentColor"
+                  strokeWidth="10"
+                  opacity="0.12"
+                />
+                <path
+                  d="M0 96h620"
+                  stroke="currentColor"
+                  strokeWidth="5"
+                  opacity="0.12"
+                />
                 <circle cx={306} cy={176} r={11} fill={accent(600)} />
-                <text x={322} y={168} fontSize="15" fill="currentColor" fontFamily="var(--o-font-mono)">Atelier</text>
-                <text x={16} y={112} fontSize="13" fill="currentColor" opacity="0.6" fontFamily="var(--o-font-mono)">Rue Bergson</text>
-                <text x={230} y={30} fontSize="13" fill="currentColor" opacity="0.6" fontFamily="var(--o-font-mono)">Bd Thiers</text>
-                <text x={16} y={204} fontSize="13" fill="currentColor" opacity="0.6" fontFamily="var(--o-font-mono)">Rue des Aciers</text>
-                <text x={436} y={30} fontSize="13" fill="currentColor" opacity="0.6" fontFamily="var(--o-font-mono)">Tram T1 — Bellevue</text>
+                <text
+                  x={322}
+                  y={168}
+                  fontSize="15"
+                  fill="currentColor"
+                  fontFamily="var(--o-font-mono)"
+                >
+                  Atelier
+                </text>
+                <text
+                  x={16}
+                  y={112}
+                  fontSize="13"
+                  fill="currentColor"
+                  opacity="0.6"
+                  fontFamily="var(--o-font-mono)"
+                >
+                  Rue Bergson
+                </text>
+                <text
+                  x={230}
+                  y={30}
+                  fontSize="13"
+                  fill="currentColor"
+                  opacity="0.6"
+                  fontFamily="var(--o-font-mono)"
+                >
+                  Bd Thiers
+                </text>
+                <text
+                  x={16}
+                  y={204}
+                  fontSize="13"
+                  fill="currentColor"
+                  opacity="0.6"
+                  fontFamily="var(--o-font-mono)"
+                >
+                  Rue des Aciers
+                </text>
+                <text
+                  x={436}
+                  y={30}
+                  fontSize="13"
+                  fill="currentColor"
+                  opacity="0.6"
+                  fontFamily="var(--o-font-mono)"
+                >
+                  Tram T1 — Bellevue
+                </text>
               </svg>
             </div>
 
             <div className="o-grid o-gap-8 sm:o-grid-cols-2 md:o-col-span-5">
               {[
-                { titre: 'Les velos', liens: ['Meridien 01 — route', 'Meridien 03 — gravel', 'Meridien 05 — randonneuse', 'Cadres nus'] },
-                { titre: 'La maison', liens: ['L atelier', 'La garantie a vie', 'Reparations', 'Nous ecrire'] },
+                {
+                  titre: 'Les velos',
+                  liens: [
+                    'Meridien 01 — route',
+                    'Meridien 03 — gravel',
+                    'Meridien 05 — randonneuse',
+                    'Cadres nus',
+                  ],
+                },
+                {
+                  titre: 'La maison',
+                  liens: ['L atelier', 'La garantie a vie', 'Reparations', 'Nous ecrire'],
+                },
               ].map((colonne) => (
                 <nav key={colonne.titre} aria-label={colonne.titre}>
-                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{colonne.titre}</h2>
+                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    {colonne.titre}
+                  </h2>
                   <ul className="o-m-0 o-mt-4 o-list-none o-space-y-2 o-p-0">
                     {colonne.liens.map((lien) => (
                       <li key={lien}>
-                        <a href="#sortie" className="o-text-sm o-text-zinc-700 dark:o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring">
+                        <a
+                          href="#sortie"
+                          className="o-text-sm o-text-zinc-700 dark:o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring"
+                        >
                           {lien}
                         </a>
                       </li>
@@ -692,7 +996,8 @@ export default function Page(): ReactElement {
             </div>
           </div>
           <p className="o-mx-auto o-mt-12 o-max-w-6xl o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-            Meridien Cycles SARL — RCS Saint-Etienne 402 118 663 — garantie a vie sur le cadre, premier proprietaire — © 2026
+            Meridien Cycles SARL — RCS Saint-Etienne 402 118 663 — garantie a vie sur le
+            cadre, premier proprietaire — © 2026
           </p>
         </footer>
       </div>

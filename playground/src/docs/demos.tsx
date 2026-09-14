@@ -184,11 +184,7 @@ import {
   PosterDemo,
   ScrollProgressDemo,
 } from './demos-hooks.jsx'
-import {
-  CounterGateDemo,
-  CursorHaloDemo,
-  CurtainWipeDemo,
-} from './demos-loaders.jsx'
+import { CounterGateDemo, CursorHaloDemo, CurtainWipeDemo } from './demos-loaders.jsx'
 import type {
   AtelierControl,
   AtelierFrame,
@@ -814,7 +810,9 @@ function CodeDemo({ length, masked }: { length: number; masked: boolean }): Reac
         onComplete={setComplet}
       />
       <p className="o-text-sm o-opacity-70 o-tabular-nums">
-        {complet === null ? `Saisi : ${code === '' ? '—' : code}` : `Complet : ${complet}`}
+        {complet === null
+          ? `Saisi : ${code === '' ? '—' : code}`
+          : `Complet : ${complet}`}
       </p>
     </div>
   )
@@ -849,8 +847,8 @@ function RevealMaskDemo({
           <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-50">Numéro 12</p>
           <h4 className="o-mt-1 o-text-lg o-font-semibold">Collection printemps</h4>
           <p className="o-mt-2 o-text-sm o-opacity-70">
-            Les bandes se retirent en cascade, puis la surcouche quitte le DOM :
-            il ne reste rien au-dessus du contenu.
+            Les bandes se retirent en cascade, puis la surcouche quitte le DOM : il ne
+            reste rien au-dessus du contenu.
           </p>
         </div>
       </RevealMask>
@@ -993,11 +991,7 @@ const VORTEX_TOKENS = [
   '--o-palette-brand-600',
   '--o-palette-amber-300',
 ] as const
-const DOT_MATRIX_TOKENS = [
-  '--o-theme-fg',
-  '--o-theme-muted',
-  '--o-theme-bg',
-] as const
+const DOT_MATRIX_TOKENS = ['--o-theme-fg', '--o-theme-muted', '--o-theme-bg'] as const
 const ORBITAL_SPHERE_TOKENS = [
   '--o-palette-violet-500',
   '--o-palette-violet-300',
@@ -1017,24 +1011,48 @@ const SHINY_BUTTON_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-brand-300',
 ] as const
-const PEARL_BUTTON_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-fg',
-  '--o-theme-surface',
-] as const
+const PEARL_BUTTON_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-theme-surface'] as const
 const HOVER_REVEAL_TOKENS = ['--o-palette-brand-600', '--o-theme-fg'] as const
 const CARD_FORM_TOKENS = ['--o-palette-fuchsia-500', '--o-palette-brand-500'] as const
 const BOOK_SHELF_TOKENS = ['--o-palette-stone-700', '--o-theme-surface'] as const
 
 /** Tokens par defaut des nouveaux fonds en shader, pour le repli du nuancier. */
-const NEBULA_TOKENS = ['--o-theme-bg', '--o-palette-violet-500', '--o-palette-rose-300'] as const
-const FIREFLIES_TOKENS = ['--o-theme-bg', '--o-palette-amber-300', '--o-palette-lime-300'] as const
-const RIBBONS_TOKENS = ['--o-theme-bg', '--o-palette-teal-400', '--o-palette-sky-300'] as const
+const NEBULA_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-500',
+  '--o-palette-rose-300',
+] as const
+const FIREFLIES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-300',
+  '--o-palette-lime-300',
+] as const
+const RIBBONS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-teal-400',
+  '--o-palette-sky-300',
+] as const
 const SMOKE_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-theme-fg'] as const
-const RIPPLES_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-palette-teal-300'] as const
-const SCANLINES_TOKENS = ['--o-theme-bg', '--o-palette-green-400', '--o-palette-emerald-200'] as const
-const WARP_TOKENS = ['--o-theme-bg', '--o-palette-blue-300', '--o-palette-violet-400'] as const
-const INTERFERENCE_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-400', '--o-palette-cyan-300'] as const
+const RIPPLES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-400',
+  '--o-palette-teal-300',
+] as const
+const SCANLINES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-green-400',
+  '--o-palette-emerald-200',
+] as const
+const WARP_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-blue-300',
+  '--o-palette-violet-400',
+] as const
+const INTERFERENCE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-fuchsia-400',
+  '--o-palette-cyan-300',
+] as const
 
 /** Tokens par defaut de la deuxieme fournee de fonds en shader. */
 const LIGHTNING_TOKENS = [
@@ -1077,11 +1095,7 @@ const DUNES_TOKENS = [
   '--o-palette-orange-600',
   '--o-palette-amber-300',
 ] as const
-const SNOW_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-sky-300',
-  '--o-theme-fg',
-] as const
+const SNOW_TOKENS = ['--o-theme-bg', '--o-palette-sky-300', '--o-theme-fg'] as const
 const CURRENTS_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-400',
@@ -1089,16 +1103,48 @@ const CURRENTS_TOKENS = [
 ] as const
 
 /** Tokens par defaut des fonds reactifs au pointeur. */
-const TORCH_TOKENS = ['--o-theme-bg', '--o-palette-amber-400', '--o-palette-orange-200'] as const
-const CLICK_WAVES_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-palette-sky-200'] as const
-const MAGNET_GRID_TOKENS = ['--o-theme-bg', '--o-palette-indigo-400', '--o-palette-sky-300'] as const
-const WAKE_TOKENS = ['--o-theme-bg', '--o-palette-teal-400', '--o-palette-emerald-200'] as const
-const VEIL_PARALLAX_TOKENS = ['--o-theme-bg', '--o-palette-purple-400', '--o-palette-pink-300'] as const
-const INK_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-500', '--o-palette-cyan-400'] as const
-const COMET_TOKENS = ['--o-theme-bg', '--o-palette-violet-400', '--o-palette-amber-200'] as const
+const TORCH_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-400',
+  '--o-palette-orange-200',
+] as const
+const CLICK_WAVES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-400',
+  '--o-palette-sky-200',
+] as const
+const MAGNET_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-indigo-400',
+  '--o-palette-sky-300',
+] as const
+const WAKE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-teal-400',
+  '--o-palette-emerald-200',
+] as const
+const VEIL_PARALLAX_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-purple-400',
+  '--o-palette-pink-300',
+] as const
+const INK_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-fuchsia-500',
+  '--o-palette-cyan-400',
+] as const
+const COMET_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-400',
+  '--o-palette-amber-200',
+] as const
 
 /** Tokens par defaut de la maree : le fond, la houle, les cretes. */
-const TIDE_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-fuchsia-300'] as const
+const TIDE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-fuchsia-300',
+] as const
 
 /** Les demonstrations, indexees par identifiant d'entree. */
 const PARTICLE_FIELD_TOKENS = [
@@ -1106,14 +1152,22 @@ const PARTICLE_FIELD_TOKENS = [
   '--o-theme-muted',
   '--o-palette-brand-500',
 ] as const
-const HYPERSPACE_TOKENS = ['--o-theme-bg', '--o-palette-indigo-300', '--o-theme-fg'] as const
+const HYPERSPACE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-indigo-300',
+  '--o-theme-fg',
+] as const
 const GALAXY_SPIRAL_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-400',
   '--o-palette-amber-200',
 ] as const
 const SWARM_TOKENS = ['--o-theme-bg', '--o-palette-brand-500'] as const
-const CONSTELLATION_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
+const CONSTELLATION_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
 const EMBERS_TOKENS = [
   '--o-theme-bg',
   '--o-palette-orange-500',
@@ -1124,8 +1178,16 @@ const FIREWORKS_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-amber-200',
 ] as const
-const DUST_TOKENS = ['--o-theme-bg', '--o-palette-amber-300', '--o-palette-amber-100'] as const
-const POLLEN_TOKENS = ['--o-theme-bg', '--o-palette-lime-400', '--o-palette-amber-300'] as const
+const DUST_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-300',
+  '--o-palette-amber-100',
+] as const
+const POLLEN_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-lime-400',
+  '--o-palette-amber-300',
+] as const
 const ORBIT_RINGS_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
@@ -1139,22 +1201,62 @@ const CHROMA_TOKENS = [
   '--o-palette-emerald-500',
 ] as const
 
-const LINE_WAVES_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
+const LINE_WAVES_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
 const SLICED_WAVES_TOKENS = [
   '--o-theme-bg',
   '--o-palette-violet-500',
   '--o-palette-violet-200',
 ] as const
-const FLOATING_LINES_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-400'] as const
-const WEB_THREADS_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-brand-500'] as const
-const STRANDS_TOKENS = ['--o-theme-bg', '--o-palette-teal-700', '--o-palette-teal-300'] as const
-const SINE_GRID_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-brand-500'] as const
-const AUDIO_BARS_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-amber-300'] as const
-const OSCILLOSCOPE_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-green-400'] as const
-const SEISMOGRAPH_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
-const SONAR_TOKENS = ['--o-theme-bg', '--o-palette-emerald-500', '--o-palette-emerald-200'] as const
+const FLOATING_LINES_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-sky-400',
+] as const
+const WEB_THREADS_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-brand-500',
+] as const
+const STRANDS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-teal-700',
+  '--o-palette-teal-300',
+] as const
+const SINE_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-brand-500',
+] as const
+const AUDIO_BARS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-amber-300',
+] as const
+const OSCILLOSCOPE_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-green-400',
+] as const
+const SEISMOGRAPH_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
+const SONAR_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-emerald-500',
+  '--o-palette-emerald-200',
+] as const
 
-const METABALLS_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-theme-fg'] as const
+const METABALLS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-theme-fg',
+] as const
 const LAVA_LAMP_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
@@ -1180,13 +1282,21 @@ const WATERCOLOR_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-sky-400',
 ] as const
-const MARBLE_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-amber-400'] as const
+const MARBLE_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-amber-400',
+] as const
 const OIL_SLICK_TOKENS = [
   '--o-theme-bg',
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
-const FERROFLUID_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
+const FERROFLUID_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
 const BALLPIT_TOKENS = [
   '--o-palette-brand-500',
   '--o-palette-fuchsia-500',
@@ -1205,30 +1315,78 @@ const CARDNAV_TOKENS = [
 ] as const
 const STAGGERED_TOKENS = ['--o-palette-brand-500', '--o-theme-fg'] as const
 
-const CUBES_TOKENS = ['--o-theme-bg', '--o-palette-violet-500', '--o-palette-brand-500'] as const
-const ISOMETRIC_GRID_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
-const VORONOI_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-palette-violet-500'] as const
-const TRUCHET_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-teal-400'] as const
+const CUBES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-500',
+  '--o-palette-brand-500',
+] as const
+const ISOMETRIC_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
+const VORONOI_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-400',
+  '--o-palette-violet-500',
+] as const
+const TRUCHET_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-teal-400',
+] as const
 const MAZE_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
-const SHAPE_GRID_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-sky-400'] as const
+const SHAPE_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-sky-400',
+] as const
 const PIXEL_BLAST_TOKENS = [
   '--o-theme-bg',
   '--o-palette-brand-500',
   '--o-palette-yellow-300',
 ] as const
-const DITHER_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-indigo-500'] as const
+const DITHER_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-indigo-500',
+] as const
 const ACID_SQUARES_TOKENS = [
   '--o-theme-bg',
   '--o-palette-lime-400',
   '--o-palette-fuchsia-500',
 ] as const
-const TILES_FLIP_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-teal-400'] as const
+const TILES_FLIP_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-teal-400',
+] as const
 
-const GRID_SCAN_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-cyan-400'] as const
-const GRID_DISTORTION_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-brand-500'] as const
-const GRID_MOTION_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-brand-500'] as const
-const HEX_WAVE_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-amber-400'] as const
-const TRIANGLES_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-violet-500'] as const
+const GRID_SCAN_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-cyan-400',
+] as const
+const GRID_DISTORTION_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-brand-500',
+] as const
+const GRID_MOTION_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-brand-500',
+] as const
+const HEX_WAVE_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-amber-400',
+] as const
+const TRIANGLES_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-violet-500',
+] as const
 const TERRAIN_WIREFRAME_TOKENS = [
   '--o-theme-bg',
   '--o-palette-teal-500',
@@ -1244,19 +1402,67 @@ const WORMHOLE_TOKENS = [
   '--o-palette-fuchsia-500',
   '--o-palette-cyan-400',
 ] as const
-const NIGHT_DRIVE_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-amber-400'] as const
-const LED_WALL_TOKENS = ['--o-theme-bg', '--o-palette-rose-500', '--o-palette-amber-300'] as const
+const NIGHT_DRIVE_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-amber-400',
+] as const
+const LED_WALL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-rose-500',
+  '--o-palette-amber-300',
+] as const
 
-const LIGHT_PILLAR_TOKENS = ['--o-theme-bg', '--o-palette-sky-400', '--o-palette-amber-200'] as const
-const PRISM_TOKENS = ['--o-theme-bg', '--o-palette-violet-500', '--o-palette-amber-400'] as const
-const PRISMATIC_BURST_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-500', '--o-palette-cyan-400'] as const
-const IRIDESCENCE_TOKENS = ['--o-theme-bg', '--o-palette-pink-300', '--o-palette-teal-300'] as const
-const LIQUID_CHROME_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-sky-400'] as const
-const MOLTEN_METAL_TOKENS = ['--o-theme-bg', '--o-palette-red-600', '--o-palette-amber-300'] as const
-const GRADIENT_BLINDS_TOKENS = ['--o-theme-bg', '--o-palette-orange-400', '--o-palette-rose-500'] as const
-const GRAINIENT_TOKENS = ['--o-theme-bg', '--o-palette-violet-400', '--o-palette-orange-300'] as const
-const GRADIENT_WAVES_TOKENS = ['--o-theme-bg', '--o-palette-indigo-400', '--o-palette-cyan-300'] as const
-const COLOR_BENDS_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-violet-500'] as const
+const LIGHT_PILLAR_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-400',
+  '--o-palette-amber-200',
+] as const
+const PRISM_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-500',
+  '--o-palette-amber-400',
+] as const
+const PRISMATIC_BURST_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-fuchsia-500',
+  '--o-palette-cyan-400',
+] as const
+const IRIDESCENCE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-pink-300',
+  '--o-palette-teal-300',
+] as const
+const LIQUID_CHROME_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-sky-400',
+] as const
+const MOLTEN_METAL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-red-600',
+  '--o-palette-amber-300',
+] as const
+const GRADIENT_BLINDS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-orange-400',
+  '--o-palette-rose-500',
+] as const
+const GRAINIENT_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-400',
+  '--o-palette-orange-300',
+] as const
+const GRADIENT_WAVES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-indigo-400',
+  '--o-palette-cyan-300',
+] as const
+const COLOR_BENDS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-violet-500',
+] as const
 
 const SPECULAR_TOKENS = [
   '--o-palette-brand-600',
@@ -1266,55 +1472,207 @@ const SPECULAR_TOKENS = [
 const LIQUID_GLASS_TOKENS = ['--o-palette-brand-500', '--o-palette-white'] as const
 const ELECTRIC_TOKENS = ['--o-palette-sky-400', '--o-palette-white'] as const
 
-const CODE_RAIN_TOKENS = ['--o-theme-bg', '--o-palette-green-500', '--o-theme-fg'] as const
-const FAULTY_TERMINAL_TOKENS = ['--o-theme-bg', '--o-palette-amber-500', '--o-theme-fg'] as const
-const CRT_WARP_TOKENS = ['--o-theme-bg', '--o-palette-teal-500', '--o-palette-orange-400'] as const
-const GLITCH_BLOCKS_TOKENS = ['--o-theme-bg', '--o-palette-violet-500', '--o-palette-cyan-400'] as const
-const PIXEL_SORT_TOKENS = ['--o-theme-bg', '--o-palette-sky-500', '--o-palette-rose-400'] as const
-const CIRCUIT_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-emerald-400'] as const
-const DATA_STREAM_TOKENS = ['--o-theme-bg', '--o-palette-blue-500', '--o-theme-fg'] as const
+const CODE_RAIN_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-green-500',
+  '--o-theme-fg',
+] as const
+const FAULTY_TERMINAL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-500',
+  '--o-theme-fg',
+] as const
+const CRT_WARP_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-teal-500',
+  '--o-palette-orange-400',
+] as const
+const GLITCH_BLOCKS_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-500',
+  '--o-palette-cyan-400',
+] as const
+const PIXEL_SORT_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-500',
+  '--o-palette-rose-400',
+] as const
+const CIRCUIT_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-emerald-400',
+] as const
+const DATA_STREAM_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-blue-500',
+  '--o-theme-fg',
+] as const
 const HOLOGRAM_TOKENS = ['--o-theme-bg', '--o-palette-cyan-500', '--o-theme-fg'] as const
-const ASCII_FIELD_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-brand-500'] as const
-const VHS_TRACKING_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-500', '--o-palette-cyan-400'] as const
+const ASCII_FIELD_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-brand-500',
+] as const
+const VHS_TRACKING_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-fuchsia-500',
+  '--o-palette-cyan-400',
+] as const
 
-const DARK_VEIL_TOKENS = ['--o-theme-bg', '--o-palette-violet-500', '--o-palette-indigo-950'] as const
-const LIGHTFALL_TOKENS = ['--o-theme-bg', '--o-palette-sky-500', '--o-palette-cyan-300'] as const
+const DARK_VEIL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-violet-500',
+  '--o-palette-indigo-950',
+] as const
+const LIGHTFALL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-500',
+  '--o-palette-cyan-300',
+] as const
 const VOLUMETRIC_RAYS_TOKENS = [
   '--o-theme-bg',
   '--o-palette-amber-300',
   '--o-palette-orange-500',
 ] as const
-const LENS_FLARE_TOKENS = ['--o-theme-bg', '--o-palette-amber-400', '--o-palette-sky-400'] as const
-const NEON_GRID_TOKENS = ['--o-theme-bg', '--o-palette-fuchsia-500', '--o-palette-amber-400'] as const
-const HALO_PULSE_TOKENS = ['--o-theme-bg', '--o-palette-teal-400', '--o-palette-brand-500'] as const
-const CLOUD_LAYER_TOKENS = ['--o-theme-bg', '--o-palette-slate-400', '--o-palette-sky-100'] as const
-const FOG_DRIFT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-300'] as const
-const UNDERWATER_TOKENS = ['--o-theme-bg', '--o-palette-cyan-300', '--o-palette-sky-600'] as const
-const FIRE_TOKENS = ['--o-theme-bg', '--o-palette-orange-500', '--o-palette-yellow-300'] as const
+const LENS_FLARE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-400',
+  '--o-palette-sky-400',
+] as const
+const NEON_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-fuchsia-500',
+  '--o-palette-amber-400',
+] as const
+const HALO_PULSE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-teal-400',
+  '--o-palette-brand-500',
+] as const
+const CLOUD_LAYER_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-slate-400',
+  '--o-palette-sky-100',
+] as const
+const FOG_DRIFT_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-sky-300',
+] as const
+const UNDERWATER_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-300',
+  '--o-palette-sky-600',
+] as const
+const FIRE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-orange-500',
+  '--o-palette-yellow-300',
+] as const
 
-const FLOW_FIELD_TOKENS = ['--o-theme-bg', '--o-palette-sky-400', '--o-palette-amber-300'] as const
-const MAGNETIC_LINES_TOKENS = ['--o-theme-bg', '--o-palette-rose-400', '--o-palette-amber-300'] as const
-const ELECTRIC_FIELD_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-theme-fg'] as const
-const PLASMA_BALL_TOKENS = ['--o-theme-bg', '--o-palette-purple-500', '--o-palette-pink-300'] as const
-const WATER_SURFACE_TOKENS = ['--o-theme-bg', '--o-palette-sky-600', '--o-palette-sky-200'] as const
-const SAND_FLOW_TOKENS = ['--o-theme-bg', '--o-palette-amber-500', '--o-palette-yellow-200'] as const
-const WIND_FIELD_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-emerald-400'] as const
-const PARTICLE_SPHERE_TOKENS = ['--o-theme-bg', '--o-palette-cyan-400', '--o-palette-amber-400'] as const
-const JELLY_TOKENS = ['--o-theme-bg', '--o-palette-lime-500', '--o-palette-lime-200'] as const
-const CRYSTAL_TOKENS = ['--o-theme-bg', '--o-palette-sky-300', '--o-palette-violet-400'] as const
+const FLOW_FIELD_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-400',
+  '--o-palette-amber-300',
+] as const
+const MAGNETIC_LINES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-rose-400',
+  '--o-palette-amber-300',
+] as const
+const ELECTRIC_FIELD_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-400',
+  '--o-theme-fg',
+] as const
+const PLASMA_BALL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-purple-500',
+  '--o-palette-pink-300',
+] as const
+const WATER_SURFACE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-600',
+  '--o-palette-sky-200',
+] as const
+const SAND_FLOW_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-amber-500',
+  '--o-palette-yellow-200',
+] as const
+const WIND_FIELD_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-emerald-400',
+] as const
+const PARTICLE_SPHERE_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-cyan-400',
+  '--o-palette-amber-400',
+] as const
+const JELLY_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-lime-500',
+  '--o-palette-lime-200',
+] as const
+const CRYSTAL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-300',
+  '--o-palette-violet-400',
+] as const
 
 const GLOW_CURSOR_COLOR = 'var(--o-palette-brand-500)'
 
-const SPLASH_CURSOR_TOKENS = ['--o-theme-bg', '--o-palette-rose-500', '--o-palette-amber-400'] as const
-const CURSOR_GRID_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-sky-400'] as const
-const PIXEL_TRAIL_TOKENS = ['--o-theme-bg', '--o-palette-indigo-400', '--o-palette-pink-300'] as const
-const GHOST_FIBERS_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-cyan-300'] as const
-const EYE_FOLLOW_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
-const METALLIC_PAINT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-amber-200'] as const
-const ELASTIC_MESH_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-violet-400'] as const
-const FLOATING_SHAPES_TOKENS = ['--o-theme-bg', '--o-palette-brand-500', '--o-palette-purple-400'] as const
-const TORUS_KNOT_TOKENS = ['--o-theme-bg', '--o-palette-emerald-400', '--o-palette-lime-400'] as const
-const DNA_HELIX_TOKENS = ['--o-theme-bg', '--o-palette-sky-400', '--o-palette-rose-400'] as const
+const SPLASH_CURSOR_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-rose-500',
+  '--o-palette-amber-400',
+] as const
+const CURSOR_GRID_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-sky-400',
+] as const
+const PIXEL_TRAIL_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-indigo-400',
+  '--o-palette-pink-300',
+] as const
+const GHOST_FIBERS_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-cyan-300',
+] as const
+const EYE_FOLLOW_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-fg',
+  '--o-palette-brand-500',
+] as const
+const METALLIC_PAINT_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-amber-200',
+] as const
+const ELASTIC_MESH_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-line',
+  '--o-palette-violet-400',
+] as const
+const FLOATING_SHAPES_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-brand-500',
+  '--o-palette-purple-400',
+] as const
+const TORUS_KNOT_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-emerald-400',
+  '--o-palette-lime-400',
+] as const
+const DNA_HELIX_TOKENS = [
+  '--o-theme-bg',
+  '--o-palette-sky-400',
+  '--o-palette-rose-400',
+] as const
 
 const RIPPLE_TOKENS = [
   '--o-theme-bg',
@@ -1402,7 +1760,11 @@ const SC1_COMPARATIF_COLONNES = [
   { name: 'Agence', note: 'Sans plafond' },
 ] as const
 const SC1_COMPARATIF_LIGNES = [
-  { group: 'Registre', label: 'Entrées publiques', values: ['Toutes', 'Toutes', 'Toutes'] },
+  {
+    group: 'Registre',
+    label: 'Entrées publiques',
+    values: ['Toutes', 'Toutes', 'Toutes'],
+  },
   { group: 'Registre', label: 'Registre prive', values: [false, false, true] },
   { group: 'Registre', label: 'Miroir hors ligne', values: [false, true, true] },
   { group: 'Projets', label: 'Projets suivis', values: ['1', '10', 'Illimite'] },
@@ -2551,8 +2913,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             delay={num(v, 'delay', 0)}
             declenchement="montage"
           >
-            Une ligne n’existe pas dans le DOM : on la lit donc là où elle
-            existe, après la mise en page.
+            Une ligne n’existe pas dans le DOM : on la lit donc là où elle existe, après
+            la mise en page.
           </SplitLines>
         }
       />
@@ -2575,7 +2937,13 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               suffix: str(v, 'suffix', ''),
               legende: 'projets livres',
             },
-            { value: 99.98, from: 90, decimals: 2, suffix: ' %', legende: 'disponibilite' },
+            {
+              value: 99.98,
+              from: 90,
+              decimals: 2,
+              suffix: ' %',
+              legende: 'disponibilite',
+            },
             { value: 42, from: 0, decimals: 0, suffix: '', legende: 'pays couverts' },
           ].map((stat) => (
             <div
@@ -2975,10 +3343,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             ['Diagnostic', 'Chaque refus est explique.'],
             ['Publication', 'Un index et un fichier par entree.'],
           ].map(([titre, texte]) => (
-            <div
-              key={titre}
-              className="o-rounded-lg o-border-w-1 o-border-current o-p-4"
-            >
+            <div key={titre} className="o-rounded-lg o-border-w-1 o-border-current o-p-4">
               <p className="o-text-sm o-font-semibold">{titre}</p>
               <p className="o-mt-1 o-text-xs o-opacity-70">{texte}</p>
             </div>
@@ -3311,7 +3676,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           className="o-w-72"
         >
           <div className="o-rounded-xl o-border-w-1 o-border-current/20 o-bg-white/60 dark:o-bg-zinc-900/60 o-p-6 o-text-left">
-            <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">Registre</p>
+            <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
+              Registre
+            </p>
             <p className="o-mt-2 o-text-xl o-font-semibold o-tracking-tight">
               Soixante-douze entrées
             </p>
@@ -3330,7 +3697,15 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     lead: 'Le compteur se gare sous son plafond tant que rien n’est prêt — decochez « prêt » pour le voir tenir parole.',
     controls: [
       { kind: 'switch', name: 'ready', label: 'pret', value: true },
-      { kind: 'range', name: 'ceiling', label: 'plafond', min: 50, max: 99, step: 1, value: 92 },
+      {
+        kind: 'range',
+        name: 'ceiling',
+        label: 'plafond',
+        min: 50,
+        max: 99,
+        step: 1,
+        value: 92,
+      },
       {
         kind: 'range',
         name: 'minVisibleMs',
@@ -3467,8 +3842,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           <h4 className="o-text-lg o-font-semibold">Cliquez n’importe ou ici</h4>
           <p className="o-mt-2 o-text-sm o-opacity-70">
-            L’onde part du point touche et couvre toute la zone, d’où que parte le
-            clic.
+            L’onde part du point touche et couvre toute la zone, d’où que parte le clic.
           </p>
         </RippleClick>
       </Stage>
@@ -3489,8 +3863,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           <Meteors count={num(v, 'count', 12)} angle={num(v, 'angle', 215)} />
           <h3 className="o-text-2xl o-font-bold o-tracking-tight">Un coin de hero</h3>
           <p className="o-mt-2 o-max-w-sm o-text-sm o-opacity-70">
-            La pluie est decorative : elle est retiree de l’arbre d’accessibilite,
-            et absente sous mouvement réduit.
+            La pluie est decorative : elle est retiree de l’arbre d’accessibilite, et
+            absente sous mouvement réduit.
           </p>
         </div>
       </div>
@@ -3682,7 +4056,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               className="o-w-52 o-border-w-1 o-border-current/20 o-bg-white/80 dark:o-bg-zinc-900/80 o-p-6 o-text-left"
               style={{ borderRadius: `${String(frame.radius)}px` }}
             >
-              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">{titre}</p>
+              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
+                {titre}
+              </p>
               <p className="o-mt-2 o-text-sm">{corps}</p>
             </article>
           ))}
@@ -3695,10 +4071,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     lead: 'Chaque case est un vrai input : collez un code entier, il se repartit tout seul.',
     render: (v) => (
       <Stage>
-        <CodeDemo
-          length={num(v, 'length', 6)}
-          masked={Boolean(v['masked'] ?? false)}
-        />
+        <CodeDemo length={num(v, 'length', 6)} masked={Boolean(v['masked'] ?? false)} />
       </Stage>
     ),
   },
@@ -3960,8 +4333,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           <h4 className="o-text-lg o-font-semibold">Cliquez n’importe ou ici</h4>
           <p className="o-mt-2 o-text-sm o-opacity-70">
-            Les etincelles partent du point touche, jamais du centre. Rien ne
-            part sous mouvement réduit.
+            Les etincelles partent du point touche, jamais du centre. Rien ne part sous
+            mouvement réduit.
           </p>
         </ClickSparks>
       </Stage>
@@ -4004,7 +4377,10 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         thickness={num(v, 'thickness', 2)}
         className="o-absolute o-inset-0 o-flex o-items-center o-justify-between o-p-10"
       >
-        <div data-beam="from" className="o-rounded-xl o-border-w-1 o-border-current o-p-5">
+        <div
+          data-beam="from"
+          className="o-rounded-xl o-border-w-1 o-border-current o-p-5"
+        >
           <h4 className="o-text-sm o-font-semibold">Collecte</h4>
           <p className="o-mt-1 o-text-xs o-opacity-70">data-beam="from"</p>
         </div>
@@ -4046,9 +4422,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           {Array.from({ length: 10 }, (_, index) => (
             <p key={index} className="o-max-w-prose o-text-sm o-opacity-70">
-              Paragraphe {index + 1}. La vitesse est mesuree dans la boucle du
-              moteur, lissee, puis écrite dans deux variables CSS : le transform
-              qui les consomme n’est pose qu’une fois.
+              Paragraphe {index + 1}. La vitesse est mesuree dans la boucle du moteur,
+              lissee, puis écrite dans deux variables CSS : le transform qui les consomme
+              n’est pose qu’une fois.
             </p>
           ))}
         </ScrollVelocity>
@@ -4780,7 +5156,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
                 <span
                   key={tag}
                   className="o-rounded-md o-px-2 o-py-1"
-                  style={{ backgroundColor: 'color-mix(in oklab, currentColor 10%, transparent)' }}
+                  style={{
+                    backgroundColor: 'color-mix(in oklab, currentColor 10%, transparent)',
+                  }}
                 >
                   {tag}
                 </span>
@@ -4805,7 +5183,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">Abonnes</p>
           <p className="o-mt-2 o-text-2xl o-font-semibold o-tabular-nums">4 812</p>
-          <p className="o-mt-2 o-text-sm o-opacity-70">Tournez autour de la carte avec le pointeur.</p>
+          <p className="o-mt-2 o-text-sm o-opacity-70">
+            Tournez autour de la carte avec le pointeur.
+          </p>
         </ReflectiveCard>
       </Stage>
     ),
@@ -4827,7 +5207,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           <div className="o-p-4">
             <p className="o-text-sm o-font-semibold">Planche douze</p>
-            <p className="o-mt-1 o-text-xs o-opacity-70">Traversez l’image d’un geste vif.</p>
+            <p className="o-mt-1 o-text-xs o-opacity-70">
+              Traversez l’image d’un geste vif.
+            </p>
           </div>
         </DecayCard>
       </Stage>
@@ -4858,7 +5240,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
                 borderColor: 'color-mix(in oklab, currentColor 20%, transparent)',
               }}
             >
-              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">{jour}</p>
+              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
+                {jour}
+              </p>
               <p className="o-mt-2 o-text-sm">{tache}</p>
             </article>
           ))}
@@ -4920,7 +5304,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             ['Images', '11 entrees'],
           ].map(([titre, compte]) => (
             <div key={titre} className="o-p-5">
-              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">{titre}</p>
+              <p className="o-text-xs o-uppercase o-tracking-wider o-opacity-60">
+                {titre}
+              </p>
               <p className="o-mt-2 o-text-lg o-font-semibold o-tabular-nums">{compte}</p>
             </div>
           ))}
@@ -6627,9 +7013,15 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             intensity={num(v, 'intensity', 0.8)}
           >
             <div className="o-p-6 o-text-left">
-              <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-50">Accès anticipe</p>
-              <p className="o-mt-1 o-text-lg o-font-semibold">Version 2 en avant-première</p>
-              <p className="o-mt-2 o-text-sm o-opacity-70">Trois semaines avant tout le monde.</p>
+              <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-50">
+                Accès anticipe
+              </p>
+              <p className="o-mt-1 o-text-lg o-font-semibold">
+                Version 2 en avant-première
+              </p>
+              <p className="o-mt-2 o-text-sm o-opacity-70">
+                Trois semaines avant tout le monde.
+              </p>
             </div>
           </ElectricBorder>
           <ElectricBorder
@@ -7441,7 +7833,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     lead: 'Un rabat vu de face qui bascule, c’est le même triangle retourne autour de sa charniere : une symetrie verticale suffit, sans perspective. La lettre est découpée sur cette ligne.',
     render: (v, frame) => (
       <Stage>
-        <Envelope size={num(v, 'size', 64)} speed={num(v, 'speed', 2600)} color={frame.color} />
+        <Envelope
+          size={num(v, 'size', 64)}
+          speed={num(v, 'speed', 2600)}
+          color={frame.color}
+        />
       </Stage>
     ),
   },
@@ -7450,7 +7846,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     lead: 'L’avion et sa traînée sortent de la même table d’echantillons : l’un avance en paramètre, l’autre en longueur d’arc, et les deux ne peuvent plus deriver. Le cap vient de la dérivée.',
     render: (v, frame) => (
       <Stage>
-        <PaperPlane size={num(v, 'size', 80)} speed={num(v, 'speed', 2600)} color={frame.color} />
+        <PaperPlane
+          size={num(v, 'size', 80)}
+          speed={num(v, 'speed', 2600)}
+          color={frame.color}
+        />
       </Stage>
     ),
   },
@@ -7459,7 +7859,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     lead: 'Arrivee en freinant, appui, puis départ en accelerant jusqu’à sortir du cadre : deux gestes distincts, pas un yo-yo. La flamme s’allonge au rythme du cycle et vacille quatorze fois plus vite.',
     render: (v, frame) => (
       <Stage>
-        <Rocket size={num(v, 'size', 72)} speed={num(v, 'speed', 2200)} color={frame.color} />
+        <Rocket
+          size={num(v, 'size', 72)}
+          speed={num(v, 'speed', 2200)}
+          color={frame.color}
+        />
       </Stage>
     ),
   },
@@ -7684,7 +8088,15 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         value: 0,
         unit: 'ms',
       },
-      { kind: 'range', name: 'max', label: 'Visibles', min: 1, max: 6, step: 1, value: 3 },
+      {
+        kind: 'range',
+        name: 'max',
+        label: 'Visibles',
+        min: 1,
+        max: 6,
+        step: 1,
+        value: 3,
+      },
       {
         kind: 'choice',
         name: 'side',
@@ -7739,13 +8151,23 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           open
           label="Commandes"
           commands={[
-            { id: 'nouveau', label: 'Nouveau document', group: 'Fichier', hint: 'Ctrl N' },
+            {
+              id: 'nouveau',
+              label: 'Nouveau document',
+              group: 'Fichier',
+              hint: 'Ctrl N',
+            },
             { id: 'ouvrir', label: 'Ouvrir un projet', group: 'Fichier', hint: 'Ctrl O' },
             { id: 'exporter', label: 'Exporter en PDF', group: 'Fichier' },
             { id: 'renommer', label: 'Renommer la page', group: 'Edition', hint: 'F2' },
             { id: 'dupliquer', label: 'Dupliquer la section', group: 'Edition' },
             { id: 'theme', label: 'Basculer le thème sombre', group: 'Affichage' },
-            { id: 'raccourcis', label: 'Voir les raccourcis', group: 'Affichage', hint: '?' },
+            {
+              id: 'raccourcis',
+              label: 'Voir les raccourcis',
+              group: 'Affichage',
+              hint: '?',
+            },
           ]}
           className="o-text-left o-text-zinc-900 dark:o-text-zinc-50"
           style={{ position: 'absolute', padding: '2rem 1rem 1rem' }}
@@ -7912,7 +8334,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             shift={num(v, 'shift', 14)}
           >
             <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-70">Journal</p>
-            <p className="o-text-lg o-font-semibold">Trois pieces arrivent dans l’ordre</p>
+            <p className="o-text-lg o-font-semibold">
+              Trois pieces arrivent dans l’ordre
+            </p>
             <p className="o-text-sm o-leading-relaxed o-opacity-70">
               Chaque section paraît un peu après la précédente : le fondu se joue une
               fois, puis se tient. Rien n’est simule, le texte est la dès le départ.
@@ -7939,8 +8363,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             <div className="o-flex o-flex-col o-gap-3 o-p-4">
               <p className="o-text-lg o-font-semibold">Le contenu etait déjà la</p>
               <p className="o-text-sm o-leading-relaxed o-opacity-70">
-                Il attendait derrière le substitut, avec sa hauteur reelle. La demo
-                rejoue le cycle en boucle pour montrer le passage.
+                Il attendait derrière le substitut, avec sa hauteur reelle. La demo rejoue
+                le cycle en boucle pour montrer le passage.
               </p>
             </div>
           </LazyBlock>
@@ -8033,9 +8457,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             duration={num(v, 'duration', 620)}
             step={num(v, 'step', 40)}
             perspective={num(v, 'perspective', 420)}
-            declenchement={
-              str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'
-            }
+            declenchement={str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'}
           >
             Un titre qui accroche
           </FoldText>
@@ -8100,9 +8522,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             step={num(v, 'step', 5)}
             duration={num(v, 'duration', 1400)}
             spread={num(v, 'spread', 600)}
-            declenchement={
-              str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'
-            }
+            declenchement={str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'}
           >
             Un titre qui accroche
           </ParticleText>
@@ -8125,9 +8545,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             duration={num(v, 'duration', 800)}
             step={num(v, 'step', 35)}
             tilt={num(v, 'tilt', 20)}
-            declenchement={
-              str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'
-            }
+            declenchement={str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'}
           >
             Un titre qui accroche
           </Shuffle>
@@ -8191,7 +8609,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         className="o-absolute o-inset-0 o-flex o-flex-col o-items-center o-justify-center o-gap-2 o-text-center"
       >
         <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-70">Studio Odoro</p>
-        <h4 className="o-text-lg o-font-semibold">Promenez le pointeur, puis arretez-vous</h4>
+        <h4 className="o-text-lg o-font-semibold">
+          Promenez le pointeur, puis arretez-vous
+        </h4>
         <p className="o-max-w-sm o-text-sm o-opacity-70">
           La queue traine moins fort que la tête : c’est tout l’etirement.
         </p>
@@ -8231,8 +8651,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       >
         <h4 className="o-text-lg o-font-semibold">Dessinez une boucle</h4>
         <p className="o-max-w-sm o-text-sm o-opacity-70">
-          Les fantomes passent là où le pointeur est passe, pas par le plus
-          court chemin.
+          Les fantomes passent là où le pointeur est passe, pas par le plus court chemin.
         </p>
       </GhostCursor>
     ),
@@ -8249,11 +8668,13 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         color={str(v, 'color', GLOW_CURSOR_COLOR)}
         className="o-absolute o-inset-0 o-flex o-flex-col o-items-center o-justify-center o-gap-3 o-text-center"
       >
-        <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-70">Sortie de version</p>
+        <p className="o-text-xs o-uppercase o-tracking-wide o-opacity-70">
+          Sortie de version
+        </p>
         <h4 className="o-text-lg o-font-semibold">Odoro 2.0 arrive en janvier</h4>
         <p className="o-max-w-md o-text-sm o-leading-relaxed o-opacity-70">
-          Balayez vite le cadre : la lueur s’etire, et retrouve son rond dès que
-          la main ralentit.
+          Balayez vite le cadre : la lueur s’etire, et retrouve son rond dès que la main
+          ralentit.
         </p>
       </GlowCursor>
     ),
@@ -8273,8 +8694,8 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         >
           <h4 className="o-text-lg o-font-semibold">Cliquez n’importe ou ici</h4>
           <p className="o-mt-2 o-text-sm o-opacity-70">
-            La couronne part du point touche, les gouttes retombent selon leur
-            poids. Rien ne part sous mouvement réduit.
+            La couronne part du point touche, les gouttes retombent selon leur poids. Rien
+            ne part sous mouvement réduit.
           </p>
         </SplashPointer>
       </Stage>
@@ -8295,8 +8716,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
       >
         <h4 className="o-text-lg o-font-semibold">Traversez le cadre, puis posez-vous</h4>
         <p className="o-max-w-sm o-text-sm o-opacity-70">
-          La dispersion n’est pas animee : c’est la vitesse de la main qui la
-          produit.
+          La dispersion n’est pas animee : c’est la vitesse de la main qui la produit.
         </p>
       </SwarmCursor>
     ),
@@ -8587,7 +9007,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           axis={str(v, 'axis', 'horizontal') as 'horizontal' | 'vertical'}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 900)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8604,7 +9026,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           turn={num(v, 'turn', 26)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 1000)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8621,7 +9045,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           slant={num(v, 'slant', 14)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 800)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8638,7 +9064,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           stagger={num(v, 'stagger', 55)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 700)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8656,7 +9084,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           spreadMs={num(v, 'spreadMs', 700)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 420)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8672,7 +9102,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           segments={num(v, 'segments', 20)}
           holdMs={num(v, 'holdMs', 1600)}
           exitMs={num(v, 'exitMs', 850)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8689,7 +9121,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           stagger={num(v, 'stagger', 32)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 750)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8706,7 +9140,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           depth={num(v, 'depth', 900)}
           holdMs={num(v, 'holdMs', 1200)}
           exitMs={num(v, 'exitMs', 900)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8722,7 +9158,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           blurPx={num(v, 'blurPx', 0)}
           holdMs={num(v, 'holdMs', 1000)}
           exitMs={num(v, 'exitMs', 700)}
-          label={<span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>}
+          label={
+            <span className="o-text-2xl o-font-semibold o-tracking-tight">Odoro</span>
+          }
         />
       </CadreRideau>
     ),
@@ -8964,10 +9402,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
         <StickerPeel
           corner={
             str(v, 'corner', 'top-right') as
-              | 'top-right'
-              | 'top-left'
-              | 'bottom-right'
-              | 'bottom-left'
+              'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
           }
           size={num(v, 'size', 72)}
           duration={num(v, 'duration', 420)}
@@ -9007,11 +9442,56 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     height: 'o-h-96',
     lead: 'Poussez le ruban au doigt ou a la molette : le glisser, l’inertie et le calage sont ceux du navigateur, seule la courbe du cylindre est peinte. Les fleches avancent d’une image, et seule celle du centre porte sa legende.',
     controls: [
-      { kind: 'range', name: 'width', label: 'Largeur', min: 120, max: 480, step: 10, value: 220, unit: 'px' },
-      { kind: 'range', name: 'height', label: 'Hauteur', min: 140, max: 560, step: 10, value: 240, unit: 'px' },
-      { kind: 'range', name: 'gap', label: 'Ecart', min: 0, max: 80, step: 4, value: 24, unit: 'px' },
-      { kind: 'range', name: 'curve', label: 'Courbure', min: 0, max: 60, step: 1, value: 26, unit: 'deg' },
-      { kind: 'range', name: 'depth', label: 'Recul', min: 0, max: 400, step: 10, value: 120, unit: 'px' },
+      {
+        kind: 'range',
+        name: 'width',
+        label: 'Largeur',
+        min: 120,
+        max: 480,
+        step: 10,
+        value: 220,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'height',
+        label: 'Hauteur',
+        min: 140,
+        max: 560,
+        step: 10,
+        value: 240,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'gap',
+        label: 'Ecart',
+        min: 0,
+        max: 80,
+        step: 4,
+        value: 24,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'curve',
+        label: 'Courbure',
+        min: 0,
+        max: 60,
+        step: 1,
+        value: 26,
+        unit: 'deg',
+      },
+      {
+        kind: 'range',
+        name: 'depth',
+        label: 'Recul',
+        min: 0,
+        max: 400,
+        step: 10,
+        value: 120,
+        unit: 'px',
+      },
     ],
     render: (v) => (
       <div className="o-absolute o-inset-0 o-flex o-items-center">
@@ -9032,10 +9512,45 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     height: 'o-h-96',
     lead: 'Tirez dans le cadre, ou tournez aux fleches : chaque image porte une transformation fixe, et la boucle n’écrit que la rotation du dome entier. Ce qui passe derrière disparaît par sa face cachee, sans un calcul.',
     controls: [
-      { kind: 'range', name: 'radius', label: 'Rayon', min: 220, max: 900, step: 20, value: 300, unit: 'px' },
-      { kind: 'range', name: 'columns', label: 'Par rangee', min: 3, max: 12, step: 1, value: 6 },
-      { kind: 'range', name: 'pitch', label: 'Entre rangees', min: 10, max: 60, step: 2, value: 34, unit: 'deg' },
-      { kind: 'range', name: 'tile', label: 'Image', min: 100, max: 320, step: 10, value: 130, unit: 'px' },
+      {
+        kind: 'range',
+        name: 'radius',
+        label: 'Rayon',
+        min: 220,
+        max: 900,
+        step: 20,
+        value: 300,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'columns',
+        label: 'Par rangee',
+        min: 3,
+        max: 12,
+        step: 1,
+        value: 6,
+      },
+      {
+        kind: 'range',
+        name: 'pitch',
+        label: 'Entre rangees',
+        min: 10,
+        max: 60,
+        step: 2,
+        value: 34,
+        unit: 'deg',
+      },
+      {
+        kind: 'range',
+        name: 'tile',
+        label: 'Image',
+        min: 100,
+        max: 320,
+        step: 10,
+        value: 130,
+        unit: 'px',
+      },
     ],
     render: (v) =>
       fill(
@@ -9054,11 +9569,55 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     height: 'o-h-96',
     lead: 'Une affiche de devant, les autres rangees derrière elle. Les boutons, les fleches et le glisser changent de cran ; pendant le geste, c’est le plateau entier qui suit le doigt, une transformation et pas une par affiche.',
     controls: [
-      { kind: 'range', name: 'width', label: 'Largeur', min: 120, max: 520, step: 10, value: 160, unit: 'px' },
-      { kind: 'range', name: 'spread', label: 'Ecart', min: 0, max: 200, step: 2, value: 70, unit: 'px' },
-      { kind: 'range', name: 'depth', label: 'Recul', min: 0, max: 400, step: 10, value: 120, unit: 'px' },
-      { kind: 'range', name: 'tilt', label: 'Trois quarts', min: 0, max: 70, step: 1, value: 32, unit: 'deg' },
-      { kind: 'range', name: 'visible', label: 'Visibles', min: 1, max: 6, step: 1, value: 3 },
+      {
+        kind: 'range',
+        name: 'width',
+        label: 'Largeur',
+        min: 120,
+        max: 520,
+        step: 10,
+        value: 160,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'spread',
+        label: 'Ecart',
+        min: 0,
+        max: 200,
+        step: 2,
+        value: 70,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'depth',
+        label: 'Recul',
+        min: 0,
+        max: 400,
+        step: 10,
+        value: 120,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'tilt',
+        label: 'Trois quarts',
+        min: 0,
+        max: 70,
+        step: 1,
+        value: 32,
+        unit: 'deg',
+      },
+      {
+        kind: 'range',
+        name: 'visible',
+        label: 'Visibles',
+        min: 1,
+        max: 6,
+        step: 1,
+        value: 3,
+      },
     ],
     render: (v) => (
       <Stage>
@@ -9080,11 +9639,56 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     height: 'o-h-96',
     lead: 'Faites defiler dans le cadre : l’affiche arrive du fond en s’inclinant, se pose de face au milieu, puis file vers vous en s’effacant. La lucarne qui défile sert de référence, pas la fenêtre.',
     controls: [
-      { kind: 'range', name: 'width', label: 'Affiche', min: 160, max: 600, step: 10, value: 190, unit: 'px' },
-      { kind: 'range', name: 'depth', label: 'Fond', min: 0, max: 900, step: 20, value: 420, unit: 'px' },
-      { kind: 'range', name: 'tilt', label: 'Inclinaison', min: 0, max: 60, step: 1, value: 22, unit: 'deg' },
-      { kind: 'range', name: 'drift', label: 'Écart lateral', min: 0, max: 240, step: 10, value: 60, unit: 'px' },
-      { kind: 'range', name: 'gap', label: 'Espacement', min: 0, max: 320, step: 8, value: 56, unit: 'px' },
+      {
+        kind: 'range',
+        name: 'width',
+        label: 'Affiche',
+        min: 160,
+        max: 600,
+        step: 10,
+        value: 190,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'depth',
+        label: 'Fond',
+        min: 0,
+        max: 900,
+        step: 20,
+        value: 420,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'tilt',
+        label: 'Inclinaison',
+        min: 0,
+        max: 60,
+        step: 1,
+        value: 22,
+        unit: 'deg',
+      },
+      {
+        kind: 'range',
+        name: 'drift',
+        label: 'Écart lateral',
+        min: 0,
+        max: 240,
+        step: 10,
+        value: 60,
+        unit: 'px',
+      },
+      {
+        kind: 'range',
+        name: 'gap',
+        label: 'Espacement',
+        min: 0,
+        max: 320,
+        step: 8,
+        value: 56,
+        unit: 'px',
+      },
     ],
     render: (v) => (
       <Scroller>
@@ -9362,7 +9966,9 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               title: 'Le code vous appartient',
               cols: 2,
               featured: true,
-              body: <p>Les fichiers sont copies dans le projet, jamais liés a un paquet.</p>,
+              body: (
+                <p>Les fichiers sont copies dans le projet, jamais liés a un paquet.</p>
+              ),
             },
             {
               id: 'repli',
@@ -9522,7 +10128,11 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
           rotation={num(v, 'rotation', 22)}
           scale={num(v, 'scale', 0.86)}
         >
-          <img src={SAMPLE} alt="" className="o-h-52 o-w-full o-object-cover o-rounded-xl" />
+          <img
+            src={SAMPLE}
+            alt=""
+            className="o-h-52 o-w-full o-object-cover o-rounded-xl"
+          />
         </ContainerScroll>
       </Scroller>
     ),
@@ -9635,10 +10245,22 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               dateTime: '2026-03-12',
               summary: 'Douze sections entrent au registre.',
               notes: [
-                { kind: 'ajout', text: 'Mur de temoignages, grille bento, onglets de fonctionnalites.' },
-                { kind: 'ajout', text: 'Frise verticale dont le trait suit le defilement.' },
-                { kind: 'evolution', text: 'Les sections prennent leurs neutres dans les variables de theme.' },
-                { kind: 'correction', text: 'La boucle du mur ne saute plus d un demi-espace par tour.' },
+                {
+                  kind: 'ajout',
+                  text: 'Mur de temoignages, grille bento, onglets de fonctionnalites.',
+                },
+                {
+                  kind: 'ajout',
+                  text: 'Frise verticale dont le trait suit le defilement.',
+                },
+                {
+                  kind: 'evolution',
+                  text: 'Les sections prennent leurs neutres dans les variables de theme.',
+                },
+                {
+                  kind: 'correction',
+                  text: 'La boucle du mur ne saute plus d un demi-espace par tour.',
+                },
               ],
             },
             {
@@ -9646,8 +10268,14 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               date: '2 fevrier 2026',
               dateTime: '2026-02-02',
               notes: [
-                { kind: 'correction', text: 'La barre de progression retrouve sa cible posee plus loin dans l arbre.' },
-                { kind: 'correction', text: 'Le compteur formate a nouveau selon la langue du navigateur.' },
+                {
+                  kind: 'correction',
+                  text: 'La barre de progression retrouve sa cible posee plus loin dans l arbre.',
+                },
+                {
+                  kind: 'correction',
+                  text: 'Le compteur formate a nouveau selon la langue du navigateur.',
+                },
               ],
             },
             {
@@ -9656,9 +10284,18 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
               dateTime: '2026-01-14',
               summary: 'La validation devient un script, et non plus seulement un test.',
               notes: [
-                { kind: 'ajout', text: 'Un cout eleve sans repli declare est desormais refuse.' },
-                { kind: 'evolution', text: 'Les messages de refus disent quoi corriger, pas seulement quoi est faux.' },
-                { kind: 'retrait', text: 'L ancien format d index, remplace par la version 1.' },
+                {
+                  kind: 'ajout',
+                  text: 'Un cout eleve sans repli declare est desormais refuse.',
+                },
+                {
+                  kind: 'evolution',
+                  text: 'Les messages de refus disent quoi corriger, pas seulement quoi est faux.',
+                },
+                {
+                  kind: 'retrait',
+                  text: 'L ancien format d index, remplace par la version 1.',
+                },
               ],
             },
           ]}
@@ -9740,9 +10377,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             interval={num(v, 'interval', 90)}
             step={num(v, 'step', 60)}
             largeur={num(v, 'largeur', 0.72)}
-            declenchement={
-              str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'
-            }
+            declenchement={str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'}
           >
             Un titre qui accroche
           </SplitFlap>
@@ -9933,9 +10568,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
             width={num(v, 'width', 280)}
             thickness={num(v, 'thickness', 5)}
             duration={num(v, 'duration', 1800)}
-            declenchement={
-              str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'
-            }
+            declenchement={str(v, 'declenchement', 'vue') as 'montage' | 'vue' | 'survol'}
           >
             Odoro
           </HandWritten>

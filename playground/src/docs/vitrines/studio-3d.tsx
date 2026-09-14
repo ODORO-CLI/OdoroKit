@@ -77,21 +77,24 @@ const ACTES: readonly Acte[] = [
   {
     rang: 'I',
     titre: 'Le cadrage',
-    texte: 'Deux semaines pour ecrire ce que le produit doit faire, et ce qu il ne fera pas. Le document tient en huit pages et il est signe des deux cotes.',
+    texte:
+      'Deux semaines pour ecrire ce que le produit doit faire, et ce qu il ne fera pas. Le document tient en huit pages et il est signe des deux cotes.',
     etiquettes: ['Recherche', 'Strategie', 'Ecriture'],
     cote: 'gauche',
   },
   {
     rang: 'II',
     titre: 'La fabrication',
-    texte: 'Systeme de composants, ecrans, mouvements, scenes. Une livraison par semaine, jouable, jamais une planche figee.',
+    texte:
+      'Systeme de composants, ecrans, mouvements, scenes. Une livraison par semaine, jouable, jamais une planche figee.',
     etiquettes: ['Systeme', 'Interfaces', 'Mouvement', 'Temps reel'],
     cote: 'droite',
   },
   {
     rang: 'III',
     titre: 'La livraison',
-    texte: 'Le code est le livrable. Vos equipes le recoivent avec sa documentation, ses tests, et deux mois de presence.',
+    texte:
+      'Le code est le livrable. Vos equipes le recoivent avec sa documentation, ses tests, et deux mois de presence.',
     etiquettes: ['Code', 'Documentation', 'Passation'],
     cote: 'centre',
   },
@@ -137,19 +140,45 @@ function Rail({ acte }: { readonly acte: number }): ReactElement {
     <div className="o-hidden o-shrink-0 o-flex-col o-gap-8 md:o-flex" aria-hidden="true">
       <ol className="o-m-0 o-flex o-list-none o-flex-col o-gap-6 o-p-0">
         {ACTES.map((a, rang) => (
-          <li key={a.rang} className="o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+          <li
+            key={a.rang}
+            className="o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          >
             <span
               className="o-block o-h-px o-transition-all"
-              style={{ backgroundColor: rang <= acte ? encreSurSombre() : 'color-mix(in oklab, white 22%, transparent)', width: rang === acte ? '3rem' : '1.75rem' }}
+              style={{
+                backgroundColor:
+                  rang <= acte
+                    ? encreSurSombre()
+                    : 'color-mix(in oklab, white 22%, transparent)',
+                width: rang === acte ? '3rem' : '1.75rem',
+              }}
             />
-            <span style={{ color: rang === acte ? encreSurSombre() : 'var(--o-palette-zinc-500)' }}>{a.rang}</span>
+            <span
+              style={{
+                color: rang === acte ? encreSurSombre() : 'var(--o-palette-zinc-500)',
+              }}
+            >
+              {a.rang}
+            </span>
           </li>
         ))}
       </ol>
-      <div className="o-relative o-h-28 o-overflow-hidden o-rounded-full" style={{ width: 2, backgroundColor: 'color-mix(in oklab, white 16%, transparent)' }}>
+      <div
+        className="o-relative o-h-28 o-overflow-hidden o-rounded-full"
+        style={{
+          width: 2,
+          backgroundColor: 'color-mix(in oklab, white 16%, transparent)',
+        }}
+      >
         <span
           className="o-absolute o-inset-x-0 o-top-0 o-block"
-          style={{ height: 'calc(var(--p, 0) * 100%)', backgroundColor: encreSurSombre() } as CSSProperties}
+          style={
+            {
+              height: 'calc(var(--p, 0) * 100%)',
+              backgroundColor: encreSurSombre(),
+            } as CSSProperties
+          }
         />
       </div>
     </div>
@@ -165,17 +194,42 @@ export default function Page(): ReactElement {
       <div className="o-relative" style={{ ...nuit('zinc'), ...polices }}>
         {/* Le vide, colle derriere toute la page. Une seule surface WebGL. */}
         <div className="o-pointer-events-none o-fixed o-inset-0 o-z-0">
-          <ParticleSphere className="o-absolute o-inset-0" points={4200} size={2.2} rpm={0.8} colors={['--o-theme-bg', '--o-vitrine-300', '--o-vitrine-500']} poster="o-bg-zinc-950" />
-          <div aria-hidden="true" className="o-absolute o-inset-0" style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 70%, var(--o-palette-zinc-950) 100%)' }} />
+          <ParticleSphere
+            className="o-absolute o-inset-0"
+            points={4200}
+            size={2.2}
+            rpm={0.8}
+            colors={['--o-theme-bg', '--o-vitrine-300', '--o-vitrine-500']}
+            poster="o-bg-zinc-950"
+          />
+          <div
+            aria-hidden="true"
+            className="o-absolute o-inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse at 50% 50%, transparent 30%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 70%, var(--o-palette-zinc-950) 100%)',
+            }}
+          />
           <Grain opacite={0.08} />
         </div>
 
-        <BarreGelule marque="Manifeste" liens={[['#actes', 'Les actes'], ['#chiffres', 'Le studio'], ['#ecrire', 'Dire bonjour']]} action={['#ecrire', 'Commencer un projet']} />
+        <BarreGelule
+          marque="Manifeste"
+          liens={[
+            ['#actes', 'Les actes'],
+            ['#chiffres', 'Le studio'],
+            ['#ecrire', 'Dire bonjour'],
+          ]}
+          action={['#ecrire', 'Commencer un projet']}
+        />
 
         {/* ================= L ouverture : deux mots autour de l objet ==
             La hauteur retire les barres de la documentation : les deux mots,
             les gelules et la note tiennent alors dans un seul ecran. */}
-        <header className="o-relative o-z-10 o-flex o-flex-col o-justify-between o-px-6 o-pb-10 o-pt-28 md:o-px-10" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-z-10 o-flex o-flex-col o-justify-between o-px-6 o-pb-10 o-pt-28 md:o-px-10"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <div className="o-flex o-justify-center">
             <Surgit>
               <Etiquette>Studio de design augmente — Paris, Montreal</Etiquette>
@@ -185,25 +239,67 @@ export default function Page(): ReactElement {
           {/* Les deux mots se rangent de part et d autre du vide : ils ne sont
               pas centres, c est l objet qui l est. */}
           <div className="o-flex o-flex-col o-items-center o-gap-4 md:o-flex-row md:o-items-baseline md:o-justify-between md:o-gap-10">
-            <Surgit delai={200} as="h1" className="o-m-0 o-uppercase o-text-zinc-50" style={{ ...affiche('l', 300), letterSpacing: '0.16em', fontSize: 'clamp(2rem, 5.6vw, 5.5rem)', lineHeight: 1 }}>
+            <Surgit
+              delai={200}
+              as="h1"
+              className="o-m-0 o-uppercase o-text-zinc-50"
+              style={{
+                ...affiche('l', 300),
+                letterSpacing: '0.16em',
+                fontSize: 'clamp(2rem, 5.6vw, 5.5rem)',
+                lineHeight: 1,
+              }}
+            >
               Imagine
             </Surgit>
-            <Surgit delai={340} as="p" className="o-m-0 o-uppercase o-text-zinc-50" style={{ ...affiche('l', 300), letterSpacing: '0.16em', fontSize: 'clamp(2rem, 5.6vw, 5.5rem)', lineHeight: 1 }}>
+            <Surgit
+              delai={340}
+              as="p"
+              className="o-m-0 o-uppercase o-text-zinc-50"
+              style={{
+                ...affiche('l', 300),
+                letterSpacing: '0.16em',
+                fontSize: 'clamp(2rem, 5.6vw, 5.5rem)',
+                lineHeight: 1,
+              }}
+            >
               Manifeste
             </Surgit>
           </div>
 
           <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
             <Surgit delai={520} className="o-flex o-flex-wrap o-gap-2">
-              {['IA generative', 'Systemes de mouvement', 'Temps reel', 'Identite'].map((m) => (
-                <span key={m} className="o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200 o-backdrop-blur-md">{m}</span>
-              ))}
+              {['IA generative', 'Systemes de mouvement', 'Temps reel', 'Identite'].map(
+                (m) => (
+                  <span
+                    key={m}
+                    className="o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200 o-backdrop-blur-md"
+                  >
+                    {m}
+                  </span>
+                ),
+              )}
             </Surgit>
-            <Surgit delai={600} as="p" className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-text-right">
-              Design, systemes et interfaces vivantes.<br />La machine est un instrument.
+            <Surgit
+              delai={600}
+              as="p"
+              className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-text-right"
+            >
+              Design, systemes et interfaces vivantes.
+              <br />
+              La machine est un instrument.
             </Surgit>
             <Surgit delai={680}>
-              <Actions pleine={['#ecrire', <>Commencer un projet <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#actes', 'Voir le travail']} />
+              <Actions
+                pleine={[
+                  '#ecrire',
+                  <>
+                    Commencer un projet{' '}
+                    <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  </>,
+                ]}
+                fantome={['#actes', 'Voir le travail']}
+              />
             </Surgit>
           </div>
         </header>
@@ -213,12 +309,20 @@ export default function Page(): ReactElement {
               La scene reste collee pendant trois ecrans et demi ; seul le
               panneau change, et il ne se pose jamais deux fois au meme
               endroit. */}
-          <section id="actes" className="o-relative o-z-10 o-scroll-mt-24" aria-label="Les trois actes d un projet">
+          <section
+            id="actes"
+            className="o-relative o-z-10 o-scroll-mt-24"
+            aria-label="Les trois actes d un projet"
+          >
             <Epingle ecrans={3.6} actes={3}>
               {(acte) => {
                 const a = ACTES[acte] ?? ACTES[0]
                 if (a === undefined) return null
-                const place = { gauche: 'o-justify-start', centre: 'o-justify-center', droite: 'o-justify-end' }[a.cote]
+                const place = {
+                  gauche: 'o-justify-start',
+                  centre: 'o-justify-center',
+                  droite: 'o-justify-end',
+                }[a.cote]
                 return (
                   <div className="o-mx-auto o-flex o-h-full o-max-w-7xl o-items-center o-gap-8 o-px-6 o-py-10 md:o-px-10">
                     <Rail acte={acte} />
@@ -245,15 +349,30 @@ export default function Page(): ReactElement {
                           </OrbitingDots>
                         </div>
 
-                        <h2 className="o-m-0 o-mt-6 o-text-zinc-50" style={affiche('m', 300)}>
-                          <DecodeText key={a.rang} as="span" trigger="mount" duration={900}>
+                        <h2
+                          className="o-m-0 o-mt-6 o-text-zinc-50"
+                          style={affiche('m', 300)}
+                        >
+                          <DecodeText
+                            key={a.rang}
+                            as="span"
+                            trigger="mount"
+                            duration={900}
+                          >
                             {a.titre}
                           </DecodeText>
                         </h2>
-                        <p className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-300">{a.texte}</p>
+                        <p className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-300">
+                          {a.texte}
+                        </p>
                         <ul className="o-m-0 o-mt-6 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
                           {a.etiquettes.map((e) => (
-                            <li key={e} className="o-rounded-full o-border-w-1 o-border-white-20 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">{e}</li>
+                            <li
+                              key={e}
+                              className="o-rounded-full o-border-w-1 o-border-white-20 o-px-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200"
+                            >
+                              {e}
+                            </li>
                           ))}
                         </ul>
                       </SpotlightCard>
@@ -276,7 +395,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= C1 : quatre nombres en verre ================= */}
-          <section id="chiffres" className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-pb-24 o-pt-10 md:o-px-10 md:o-pb-32">
+          <section
+            id="chiffres"
+            className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-pb-24 o-pt-10 md:o-px-10 md:o-pb-32"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Indice rang="04">Le studio</Indice>
               <div className="o-mt-8">
@@ -294,7 +416,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= A12 : l adresse en clair, soulignee, avec ↗ === */}
-          <section id="ecrire" className="o-relative o-z-10 o-flex o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-28 o-text-center md:o-py-40">
+          <section
+            id="ecrire"
+            className="o-relative o-z-10 o-flex o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-28 o-text-center md:o-py-40"
+          >
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
               Ecrivez ce que vous voulez rendre visible
             </p>
@@ -310,30 +435,53 @@ export default function Page(): ReactElement {
               }}
             >
               bonjour@manifeste.studio
-              <Icon icon={ArrowUpRight} size={30} aria-hidden="true" className="o-ml-3 o-inline-block o-align-baseline" />
+              <Icon
+                icon={ArrowUpRight}
+                size={30}
+                aria-hidden="true"
+                className="o-ml-3 o-inline-block o-align-baseline"
+              />
             </a>
             <p className="o-m-0 o-mt-10 o-max-w-md o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-              Reponse sous trois jours, avec un premier cadrage d une page.<br />Pas de devis avant de s etre parle.
+              Reponse sous trois jours, avec un premier cadrage d une page.
+              <br />
+              Pas de devis avant de s etre parle.
             </p>
           </section>
         </main>
 
         {/* ================= P9 : les horloges des deux villes ============= */}
-        <footer className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-8 o-pt-12 md:o-px-10" style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-zinc-950) 86%, transparent)' }}>
+        <footer
+          className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-8 o-pt-12 md:o-px-10"
+          style={{
+            backgroundColor:
+              'color-mix(in oklab, var(--o-palette-zinc-950) 86%, transparent)',
+          }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             {/* Une ville par ligne, pas une colonne : l heure a gauche, le
                 point exact au milieu, ce qu on y fait a droite. */}
             <dl className="o-m-0">
               {VILLES.map((v) => (
-                <div key={v.ville} className="o-grid o-gap-x-8 o-gap-y-3 o-border-b o-border-white-10 o-py-7 md:o-grid-cols-12 md:o-items-baseline">
-                  <dt className="o-m-0 o-font-mono o-uppercase o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-col-span-5" style={{ fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)' }}>
+                <div
+                  key={v.ville}
+                  className="o-grid o-gap-x-8 o-gap-y-3 o-border-b o-border-white-10 o-py-7 md:o-grid-cols-12 md:o-items-baseline"
+                >
+                  <dt
+                    className="o-m-0 o-font-mono o-uppercase o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-col-span-5"
+                    style={{ fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)' }}
+                  >
                     <Horloge ville={v.ville} fuseau={v.fuseau} />
                   </dt>
                   <dd className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-4">
                     {v.adresse.split('\n').map((ligne) => (
-                      <span key={ligne} className="o-block">{ligne}</span>
+                      <span key={ligne} className="o-block">
+                        {ligne}
+                      </span>
                     ))}
-                    <span className="o-mt-1 o-block" style={{ color: encreSurSombre() }}>{v.coordonnees}</span>
+                    <span className="o-mt-1 o-block" style={{ color: encreSurSombre() }}>
+                      {v.coordonnees}
+                    </span>
                   </dd>
                   <dd className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-3 md:o-text-right">
                     {v.quoi}
@@ -346,7 +494,13 @@ export default function Page(): ReactElement {
               <span>Manifeste SAS — RCS Paris 911 002 388</span>
               <nav aria-label="Pied de page" className="o-flex o-flex-wrap o-gap-6">
                 {PIED_LIENS.map(([href, mot]) => (
-                  <a key={mot} href={href} className="o-no-underline o-text-zinc-400 o-transition-colors hover:o-text-zinc-50 focus:o-ring">{mot}</a>
+                  <a
+                    key={mot}
+                    href={href}
+                    className="o-no-underline o-text-zinc-400 o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                  >
+                    {mot}
+                  </a>
                 ))}
               </nav>
               <span>© 2026 Manifeste</span>

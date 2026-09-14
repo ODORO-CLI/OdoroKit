@@ -99,8 +99,13 @@ export interface KeyboardListResult {
  * </ul>
  */
 export function useKeyboardList(options: KeyboardListOptions): KeyboardListResult {
-  const { count, orientation = 'verticale', boucle = true, initial = 0, onValider } =
-    options
+  const {
+    count,
+    orientation = 'verticale',
+    boucle = true,
+    initial = 0,
+    onValider,
+  } = options
 
   const [brut, setBrut] = useState(initial)
 

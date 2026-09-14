@@ -104,7 +104,10 @@ export function ClickSparks({
 
         const animation = spark.animate(
           [
-            { transform: `rotate(${String(angle)}deg) translateX(0) scaleX(1)`, opacity: 1 },
+            {
+              transform: `rotate(${String(angle)}deg) translateX(0) scaleX(1)`,
+              opacity: 1,
+            },
             {
               transform: `rotate(${String(angle)}deg) translateX(${String(Math.round(reach))}px) scaleX(0.4)`,
               opacity: 0,

@@ -113,7 +113,9 @@ const ICONES_PAR_CLE: Readonly<Record<string, IconData>> = Object.fromEntries(
 function SectionIcon({ title }: { title: string }): ReactElement {
   // 1.8 plutot que le 2 du jeu : a quinze pixels, le trait nominal empate les
   // traces les plus denses.
-  return <Icon icon={ICONES_PAR_CLE[cleDIcone(title)] ?? Circle} size={15} strokeWidth={1.8} />
+  return (
+    <Icon icon={ICONES_PAR_CLE[cleDIcone(title)] ?? Circle} size={15} strokeWidth={1.8} />
+  )
 }
 
 /* -------------------------------------------------------------------------- */
@@ -231,7 +233,10 @@ function SectionBlock({
         }}
       >
         <div className="o-overflow-hidden" style={{ minHeight: 0 }}>
-          <div className="o-flex o-flex-col o-pb-2 o-pt-1" style={{ marginLeft: '0.45rem' }}>
+          <div
+            className="o-flex o-flex-col o-pb-2 o-pt-1"
+            style={{ marginLeft: '0.45rem' }}
+          >
             {(section.pages ?? []).map((page) => (
               <ItemLink key={page.path} page={page} onNavigate={onNavigate} />
             ))}
@@ -380,7 +385,13 @@ export function LogoMark({
   style?: CSSProperties
 }): ReactElement {
   return (
-    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true" className={className} style={style}>
+    <svg
+      viewBox="0 0 100 100"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+      style={style}
+    >
       <path
         d="M20.25 20.25H50a29.75 29.75 0 1 1-29.75 29.75Z"
         stroke="currentColor"
@@ -529,9 +540,7 @@ function TopLink({
       to={to}
       aria-current={active ? 'true' : undefined}
       className={`o-rounded-full o-px-4 o-py-2 o-text-base o-no-underline o-transition-colors ${
-        active
-          ? 'db-actif o-font-medium o-text-zinc-950 dark:o-text-white'
-          : ENCRE_GELULE
+        active ? 'db-actif o-font-medium o-text-zinc-950 dark:o-text-white' : ENCRE_GELULE
       }`}
     >
       {label}
@@ -624,7 +633,9 @@ export function Shell({ children }: { children?: ReactNode }): ReactElement {
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <span className="o-hidden 2xl:o-block 2xl:o-flex-1 2xl:o-text-left">Rechercher...</span>
+        <span className="o-hidden 2xl:o-block 2xl:o-flex-1 2xl:o-text-left">
+          Rechercher...
+        </span>
         <kbd className="o-hidden 2xl:o-inline-block o-shrink-0 o-whitespace-nowrap o-rounded-sm o-border-w-1 o-px-1.5 o-py-0.5 o-font-mono o-text-xs db-gelule o-text-zinc-500 dark:o-text-zinc-400">
           Ctrl K
         </kbd>

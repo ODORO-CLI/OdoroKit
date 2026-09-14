@@ -26,12 +26,7 @@
  */
 
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
-import {
-  useMemo,
-  type CSSProperties,
-  type ElementType,
-  type ReactElement,
-} from 'react'
+import { useMemo, type CSSProperties, type ElementType, type ReactElement } from 'react'
 
 import { useInView } from '@registre/hooks/useInView'
 

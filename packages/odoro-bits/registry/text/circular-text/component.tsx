@@ -125,11 +125,7 @@ export function CircularText({
         <defs>
           {/* Un cercle de rayon 38 : assez de marge pour que les lettres ne
               sortent pas de la boite quand la police deborde du trace. */}
-          <path
-            id={pathId}
-            d="M 50 12 a 38 38 0 1 1 -0.01 0"
-            fill="none"
-          />
+          <path id={pathId} d="M 50 12 a 38 38 0 1 1 -0.01 0" fill="none" />
         </defs>
         <text fill="currentColor" fontSize="11" letterSpacing="1.5">
           <textPath href={`#${pathId}`}>{children}</textPath>

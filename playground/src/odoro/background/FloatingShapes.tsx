@@ -126,7 +126,11 @@ export function FloatingShapes({
   const settings = useRef({ speed, parallax })
   settings.current = { speed, parallax }
 
-  const pointer = usePointerDamped({ host, speed: 2.5, name: 'floating-shapes : pointeur' })
+  const pointer = usePointerDamped({
+    host,
+    speed: 2.5,
+    name: 'floating-shapes : pointeur',
+  })
 
   const { ref, ready, refused } = useScene<HTMLDivElement>({
     name: 'formes-flottantes',
@@ -260,7 +264,11 @@ export function FloatingShapes({
     paint(live.solid, full)
     paint(live.wire, wired)
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

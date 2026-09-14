@@ -93,22 +93,22 @@ tient que son plancher et le contenu arrive sans translation.
 Une page marketplace enchaine huit a dix-huit sections prises dans ce
 vocabulaire, et pas ailleurs :
 
-| section | forme | vu chez |
-|---|---|---|
-| bande de logos | six marques en gris, fondues aux bords | Sentira, Portfolite, Rescale, Nubo, Salonix |
-| manifeste | une phrase de 40-64 px, moitie eteinte, alignee a droite sur deux colonnes | Spector, Fuel, Aerra |
-| liste numerotee | `01 02 03` en 120 px a gauche, titre + photo a droite | Fuel, Salonix, Sentira |
-| grille de photos | trois ou quatre colonnes, legendes en mono, sans cartes | Gallary, Nordframe, Spector, Miles |
-| mosaique bento | tuiles inegales, une mise en avant, fond de surface | Rescale, Nubo, Portfolite, Tenora |
-| chiffres | quatre nombres en 64-96 px sur filets, mot en mono dessous | Spector, Nubo, Salonix, Altitude |
-| cartes de verre | `blur-xl` + `white-10` + bord `white-20`, 3x3 avec cases vides | Aerra, Vesper, Creatie |
-| temoignages | portraits ronds, citation en 24 px, colonnes ou defilement | Sentira, Rescale, Portfolite |
-| tarifs | trois cartes, une sombre mise en avant, le prix en 64 px | Fuel, Nubo, Rescale |
-| processus | etapes en gelules numerotees ou en orbes | Sentira, Rescale, Portfolite |
-| questions | accordeon a filets, sans cartes | Nubo, Vesper, Baseline |
-| maquettes produit | ecran ou objet en rendu, dans un cadre sombre | Sentira, Miles, Rescale, Lumen |
-| appel final | « LET S TALK », « On commence ? » en 120 px, une gelule | Gallary, Salonix, Nordframe |
-| pied | mot-marque geant + colonnes en mono + `© 2026` | Nordframe, Miles, Fuel |
+| section           | forme                                                                      | vu chez                                     |
+| ----------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
+| bande de logos    | six marques en gris, fondues aux bords                                     | Sentira, Portfolite, Rescale, Nubo, Salonix |
+| manifeste         | une phrase de 40-64 px, moitie eteinte, alignee a droite sur deux colonnes | Spector, Fuel, Aerra                        |
+| liste numerotee   | `01 02 03` en 120 px a gauche, titre + photo a droite                      | Fuel, Salonix, Sentira                      |
+| grille de photos  | trois ou quatre colonnes, legendes en mono, sans cartes                    | Gallary, Nordframe, Spector, Miles          |
+| mosaique bento    | tuiles inegales, une mise en avant, fond de surface                        | Rescale, Nubo, Portfolite, Tenora           |
+| chiffres          | quatre nombres en 64-96 px sur filets, mot en mono dessous                 | Spector, Nubo, Salonix, Altitude            |
+| cartes de verre   | `blur-xl` + `white-10` + bord `white-20`, 3x3 avec cases vides             | Aerra, Vesper, Creatie                      |
+| temoignages       | portraits ronds, citation en 24 px, colonnes ou defilement                 | Sentira, Rescale, Portfolite                |
+| tarifs            | trois cartes, une sombre mise en avant, le prix en 64 px                   | Fuel, Nubo, Rescale                         |
+| processus         | etapes en gelules numerotees ou en orbes                                   | Sentira, Rescale, Portfolite                |
+| questions         | accordeon a filets, sans cartes                                            | Nubo, Vesper, Baseline                      |
+| maquettes produit | ecran ou objet en rendu, dans un cadre sombre                              | Sentira, Miles, Rescale, Lumen              |
+| appel final       | « LET S TALK », « On commence ? » en 120 px, une gelule                    | Gallary, Salonix, Nordframe                 |
+| pied              | mot-marque geant + colonnes en mono + `© 2026`                             | Nordframe, Miles, Fuel                      |
 
 ## 9. Les details qui font le prix
 

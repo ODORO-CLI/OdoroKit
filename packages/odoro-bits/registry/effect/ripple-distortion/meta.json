@@ -18,14 +18,8 @@
     }
   ],
   "dependencies": [],
-  "registryDependencies": [
-    "hooks/use-pointer-damped"
-  ],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-theme-surface",
-    "--o-palette-brand-500"
-  ],
+  "registryDependencies": ["hooks/use-pointer-damped"],
+  "tokens": ["--o-theme-bg", "--o-theme-surface", "--o-palette-brand-500"],
   "props": [
     {
       "name": "speed",

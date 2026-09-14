@@ -40,7 +40,13 @@
 
 import { Icon } from '@odoro-cli/icons'
 import { Clapperboard, Download, Gauge, Play, Subtitles } from '@odoro-cli/icons/filaire'
-import { useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { AudioBars } from '@/odoro/background/AudioBars.jsx'
 import { GradualBlur } from '@/odoro/effect/GradualBlur.jsx'
@@ -127,15 +133,69 @@ interface Chapitre {
  * de ces nombres-la, et d aucun autre.
  */
 const CHAPITRES: readonly Chapitre[] = [
-  { rang: 1, titre: 'Generique', debut: 0, duree: 48, note: 'Carton, titre, mention du fonds de soutien.' },
-  { rang: 2, titre: 'Le chiffon et la cuve', debut: 48, duree: 372, note: 'Le tri des chiffons, le pourrissoir, la pile a maillets.' },
-  { rang: 3, titre: 'La forme et le vergeur', debut: 420, duree: 330, note: 'Le geste de puise, l egouttage, la marque du filigrane.' },
-  { rang: 4, titre: 'Le couchage', debut: 750, duree: 258, note: 'La feuille passe de la forme au feutre, sans un pli.' },
-  { rang: 5, titre: 'La presse', debut: 1008, duree: 426, note: 'La porse, les six tours de vis, l eau qui part.' },
-  { rang: 6, titre: 'Le sechoir', debut: 1434, duree: 312, note: 'Les cordes de crin, quatre jours a l ombre.' },
-  { rang: 7, titre: 'L encollage', debut: 1746, duree: 276, note: 'La gelatine, le bain, l essorage a la main.' },
-  { rang: 8, titre: 'Le calandrage', debut: 2022, duree: 324, note: 'Le lissage au marteau, puis au cylindre.' },
-  { rang: 9, titre: 'Le tri et la signature', debut: 2346, duree: 192, note: 'Les feuilles fautives partent au rebut, les autres au paquet.' },
+  {
+    rang: 1,
+    titre: 'Generique',
+    debut: 0,
+    duree: 48,
+    note: 'Carton, titre, mention du fonds de soutien.',
+  },
+  {
+    rang: 2,
+    titre: 'Le chiffon et la cuve',
+    debut: 48,
+    duree: 372,
+    note: 'Le tri des chiffons, le pourrissoir, la pile a maillets.',
+  },
+  {
+    rang: 3,
+    titre: 'La forme et le vergeur',
+    debut: 420,
+    duree: 330,
+    note: 'Le geste de puise, l egouttage, la marque du filigrane.',
+  },
+  {
+    rang: 4,
+    titre: 'Le couchage',
+    debut: 750,
+    duree: 258,
+    note: 'La feuille passe de la forme au feutre, sans un pli.',
+  },
+  {
+    rang: 5,
+    titre: 'La presse',
+    debut: 1008,
+    duree: 426,
+    note: 'La porse, les six tours de vis, l eau qui part.',
+  },
+  {
+    rang: 6,
+    titre: 'Le sechoir',
+    debut: 1434,
+    duree: 312,
+    note: 'Les cordes de crin, quatre jours a l ombre.',
+  },
+  {
+    rang: 7,
+    titre: 'L encollage',
+    debut: 1746,
+    duree: 276,
+    note: 'La gelatine, le bain, l essorage a la main.',
+  },
+  {
+    rang: 8,
+    titre: 'Le calandrage',
+    debut: 2022,
+    duree: 324,
+    note: 'Le lissage au marteau, puis au cylindre.',
+  },
+  {
+    rang: 9,
+    titre: 'Le tri et la signature',
+    debut: 2346,
+    duree: 192,
+    note: 'Les feuilles fautives partent au rebut, les autres au paquet.',
+  },
 ]
 
 /** La duree du film, en secondes. */
@@ -257,7 +317,11 @@ function Vignette({ chapitre }: { readonly chapitre: Chapitre }): ReactElement {
         <path key={y} d={`M84 ${String(y)}h152`} />
       ))}
       {[100, 140, 180, 220].map((x) => (
-        <path key={x} d={`M${String(x)} 72v22M${String(x - 12)} 96v22M${String(x)} 120v20`} opacity="0.7" />
+        <path
+          key={x}
+          d={`M${String(x)} 72v22M${String(x - 12)} 96v22M${String(x)} 120v20`}
+          opacity="0.7"
+        />
       ))}
     </g>,
     <g key="m7" {...trait}>
@@ -277,23 +341,69 @@ function Vignette({ chapitre }: { readonly chapitre: Chapitre }): ReactElement {
     </g>,
   ]
   return (
-    <svg viewBox="0 0 320 200" aria-hidden="true" className="o-w-full" style={{ color: ENCRE }}>
+    <svg
+      viewBox="0 0 320 200"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ color: ENCRE }}
+    >
       {/* La fenetre de pellicule, et ses perforations. */}
       <rect x="0" y="0" width="320" height="200" fill={accentDoux(500, 10)} />
       {[10, 46, 82, 118, 154, 190, 226, 262, 298].map((x) => (
         <g key={x}>
-          <rect x={x} y="6" width="14" height="10" rx="2" fill="none" stroke="currentColor" strokeOpacity="0.45" />
-          <rect x={x} y="184" width="14" height="10" rx="2" fill="none" stroke="currentColor" strokeOpacity="0.45" />
+          <rect
+            x={x}
+            y="6"
+            width="14"
+            height="10"
+            rx="2"
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity="0.45"
+          />
+          <rect
+            x={x}
+            y="184"
+            width="14"
+            height="10"
+            rx="2"
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity="0.45"
+          />
         </g>
       ))}
-      <rect x="8" y="24" width="304" height="152" fill="none" stroke="currentColor" strokeOpacity="0.3" />
+      <rect
+        x="8"
+        y="24"
+        width="304"
+        height="152"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.3"
+      />
       <g style={{ color: ENCRE, opacity: 0.85 }} transform="translate(0, 6)">
         {motifs[chapitre.rang - 1]}
       </g>
-      <text x="20" y="46" className="o-font-mono" fontSize="12" fill="currentColor" fillOpacity="0.8">
+      <text
+        x="20"
+        y="46"
+        className="o-font-mono"
+        fontSize="12"
+        fill="currentColor"
+        fillOpacity="0.8"
+      >
         {String(chapitre.rang).padStart(2, '0')}
       </text>
-      <text x="300" y="46" textAnchor="end" className="o-font-mono" fontSize="12" fill="currentColor" fillOpacity="0.8">
+      <text
+        x="300"
+        y="46"
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="12"
+        fill="currentColor"
+        fillOpacity="0.8"
+      >
         {horloge(chapitre.debut)}
       </text>
     </svg>
@@ -340,7 +450,11 @@ function Frise(): ReactElement {
         </div>
 
         {/* La frise : chaque chapitre occupe sa part exacte de la duree. */}
-        <div role="group" aria-label="Les chapitres du film" className="o-mt-4 o-flex o-w-full o-gap-px">
+        <div
+          role="group"
+          aria-label="Les chapitres du film"
+          className="o-mt-4 o-flex o-w-full o-gap-px"
+        >
           {CHAPITRES.map((c) => {
             const actif = c.rang === rang
             return (
@@ -372,7 +486,11 @@ function Frise(): ReactElement {
         </div>
         <div aria-hidden="true" className="o-mt-1 o-flex o-w-full o-gap-px">
           {CHAPITRES.map((c) => (
-            <span key={c.rang} className="o-block o-font-mono o-text-xs o-tabular-nums o-text-zinc-500" style={{ flexGrow: c.duree, flexBasis: 0, overflow: 'hidden' }}>
+            <span
+              key={c.rang}
+              className="o-block o-font-mono o-text-xs o-tabular-nums o-text-zinc-500"
+              style={{ flexGrow: c.duree, flexBasis: 0, overflow: 'hidden' }}
+            >
               {String(c.rang).padStart(2, '0')}
             </span>
           ))}
@@ -383,23 +501,33 @@ function Frise(): ReactElement {
             <Vignette chapitre={chapitre} />
           </div>
           <div className="o-min-w-0 md:o-col-span-7">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
-              Chapitre {String(chapitre.rang).padStart(2, '0')} — {horloge(chapitre.duree)}
+            <p
+              className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              style={{ color: ENCRE }}
+            >
+              Chapitre {String(chapitre.rang).padStart(2, '0')} —{' '}
+              {horloge(chapitre.duree)}
             </p>
             <h3 className="o-m-0 o-mt-3 o-text-balance o-text-2xl o-font-semibold o-tracking-tight o-text-zinc-50 md:o-text-3xl">
               {chapitre.titre}
             </h3>
-            <p className="o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-400">{chapitre.note}</p>
+            <p className="o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-400">
+              {chapitre.note}
+            </p>
 
             <dl className="o-m-0 o-mt-7 o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-5">
-              {([
-                ['Ce chapitre', mega(calculs.poidsChapitre)],
-                ['Le film entier', mega(calculs.poidsFilm)],
-                ['Six secondes d avance', `${une(calculs.tampon)} s`],
-                ['Avant la premiere image', `${une(calculs.demarrage)} s`],
-              ] as const).map(([quoi, valeur], place) => (
+              {(
+                [
+                  ['Ce chapitre', mega(calculs.poidsChapitre)],
+                  ['Le film entier', mega(calculs.poidsFilm)],
+                  ['Six secondes d avance', `${une(calculs.tampon)} s`],
+                  ['Avant la premiere image', `${une(calculs.demarrage)} s`],
+                ] as const
+              ).map(([quoi, valeur], place) => (
                 <div key={quoi}>
-                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
+                  <dt className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                    {quoi}
+                  </dt>
                   <dd
                     className="o-m-0 o-mt-1 o-font-mono o-text-xl o-tabular-nums o-tracking-tight"
                     style={place === 0 ? { color: ENCRE } : undefined}
@@ -410,8 +538,13 @@ function Frise(): ReactElement {
               ))}
             </dl>
 
-            <p className="o-m-0 o-mt-7 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400" style={{ borderColor: FILET }}>
-              {horloge(chapitre.duree)} x ({une(qualite.debit)} + 0,128 Mb/s) / 8 = {mega(calculs.poidsChapitre)}. La piste sonore est comptee : elle ne change pas avec la qualite, et c est elle qui domine en 240p.
+            <p
+              className="o-m-0 o-mt-7 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400"
+              style={{ borderColor: FILET }}
+            >
+              {horloge(chapitre.duree)} x ({une(qualite.debit)} + 0,128 Mb/s) / 8 ={' '}
+              {mega(calculs.poidsChapitre)}. La piste sonore est comptee : elle ne change
+              pas avec la qualite, et c est elle qui domine en 240p.
             </p>
           </div>
         </div>
@@ -431,7 +564,9 @@ function Frise(): ReactElement {
             value={debit}
             onChange={setDebit}
             showValue={false}
-            leading={<Icon icon={Gauge} size={16} style={{ color: ENCRE }} aria-hidden="true" />}
+            leading={
+              <Icon icon={Gauge} size={16} style={{ color: ENCRE }} aria-hidden="true" />
+            }
           />
         </div>
         <p className="o-m-0 o-mt-3 o-font-mono o-text-sm o-tabular-nums o-text-zinc-300">
@@ -454,10 +589,17 @@ function Frise(): ReactElement {
  * le plafond du spectateur tombe souvent entre deux, et qu au-dessus de ce
  * plafond tout est hors de portee.
  */
-function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly retenue: Qualite }): ReactElement {
+function EchelleDebits({
+  debit,
+  retenue,
+}: {
+  readonly debit: number
+  readonly retenue: Qualite
+}): ReactElement {
   const { ref, vu } = useInView<SVGSVGElement>({ amount: 0.3 })
   const hauteur = 430
-  const ordonnee = (valeur: number): number => 34 + (1 - Math.min(valeur, ECHELLE_HAUT) / ECHELLE_HAUT) * (hauteur - 82)
+  const ordonnee = (valeur: number): number =>
+    34 + (1 - Math.min(valeur, ECHELLE_HAUT) / ECHELLE_HAUT) * (hauteur - 82)
   const plafond = Math.min(debit * 0.75, ECHELLE_HAUT)
   const gris: CSSProperties = { color: 'var(--o-palette-zinc-500)' }
 
@@ -482,7 +624,16 @@ function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly re
       style={{ maxWidth: 340 }}
     >
       {/* La colonne graduee : un trait, et ses reperes tous les deux Mb/s. */}
-      <line x1="52" y1="26" x2="52" y2={hauteur - 40} stroke="currentColor" strokeWidth="1.4" opacity="0.5" style={gris} />
+      <line
+        x1="52"
+        y1="26"
+        x2="52"
+        y2={hauteur - 40}
+        stroke="currentColor"
+        strokeWidth="1.4"
+        opacity="0.5"
+        style={gris}
+      />
       {[0, 2, 4, 6, 8, 10, 12, 14, 16, 18].map((valeur) => (
         <g key={valeur}>
           <line
@@ -496,19 +647,49 @@ function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly re
             style={gris}
           />
           {valeur % 6 === 0 && (
-            <text x="34" y={ordonnee(valeur) + 4} textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+            <text
+              x="34"
+              y={ordonnee(valeur) + 4}
+              textAnchor="end"
+              className="o-font-mono"
+              fontSize="10"
+              fill="currentColor"
+              style={gris}
+            >
               {valeur}
             </text>
           )}
         </g>
       ))}
-      <text x="40" y="16" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="40"
+        y="16"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         Mb/s
       </text>
 
       {/* Le plafond du spectateur : trois quarts de sa bande, pose sous tout. */}
-      <line x1="40" y1={ordonnee(plafond)} x2="312" y2={ordonnee(plafond)} stroke={ENCRE} strokeWidth="1.1" strokeDasharray="5 5" opacity="0.85" />
-      <text x="57" y={ordonnee(plafond) - 6} className="o-font-mono" fontSize="9.5" fill={ENCRE}>
+      <line
+        x1="40"
+        y1={ordonnee(plafond)}
+        x2="312"
+        y2={ordonnee(plafond)}
+        stroke={ENCRE}
+        strokeWidth="1.1"
+        strokeDasharray="5 5"
+        opacity="0.85"
+      />
+      <text
+        x="57"
+        y={ordonnee(plafond) - 6}
+        className="o-font-mono"
+        fontSize="9.5"
+        fill={ENCRE}
+      >
         plafond
       </text>
 
@@ -520,7 +701,13 @@ function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly re
         const horsPortee = qualite.debit + SON > plafond
         const teinte = elue ? ENCRE : 'currentColor'
         return (
-          <g key={qualite.nom} style={{ opacity: vu ? 1 : 0, transition: `opacity 500ms ease ${String(rang * 70)}ms` }}>
+          <g
+            key={qualite.nom}
+            style={{
+              opacity: vu ? 1 : 0,
+              transition: `opacity 500ms ease ${String(rang * 70)}ms`,
+            }}
+          >
             <path
               d={`M52 ${String(vrai)}H84L100 ${String(pose)}H${String(elue ? 120 : 112)}`}
               fill="none"
@@ -566,7 +753,14 @@ function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly re
         )
       })}
 
-      <text x="14" y={hauteur - 12} className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="14"
+        y={hauteur - 12}
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         {retenue.definition} — ce que le lecteur prendrait
       </text>
     </svg>
@@ -585,9 +779,9 @@ function EchelleDebits({ debit, retenue }: { readonly debit: number; readonly re
  * changement de qualite n aurait rien a expliquer.
  */
 const MESURES: readonly number[] = [
-  9.4, 9.8, 9.1, 9.6, 10.2, 9.9, 9.3, 8.8, 7.4, 5.2, 3.1, 1.8, 1.2, 0.9, 1.1, 1.6, 2.4, 3.6, 4.8,
-  5.6, 6.1, 6.4, 6.2, 6.8, 7.3, 7.9, 8.4, 8.1, 8.6, 9.0, 9.2, 8.7, 9.1, 9.5, 9.3, 9.7, 9.4, 9.8,
-  10.1, 9.6,
+  9.4, 9.8, 9.1, 9.6, 10.2, 9.9, 9.3, 8.8, 7.4, 5.2, 3.1, 1.8, 1.2, 0.9, 1.1, 1.6, 2.4,
+  3.6, 4.8, 5.6, 6.1, 6.4, 6.2, 6.8, 7.3, 7.9, 8.4, 8.1, 8.6, 9.0, 9.2, 8.7, 9.1, 9.5,
+  9.3, 9.7, 9.4, 9.8, 10.1, 9.6,
 ]
 
 /**
@@ -607,13 +801,32 @@ function FigureSegments(): ReactElement {
   const y = (valeur: number): number => 150 - (Math.min(valeur, 12) / 12) * 108
 
   // La qualite servie suit la mesure du segment precedent, jamais la sienne.
-  const servies = MESURES.map((_, place) => qualitePour(MESURES[Math.max(0, place - 1)] ?? 1))
-  const courbe = MESURES.map((valeur, place) => `${place === 0 ? 'M' : 'L'}${String(56 + place * pas)} ${String(y(valeur))}`).join(' ')
+  const servies = MESURES.map((_, place) =>
+    qualitePour(MESURES[Math.max(0, place - 1)] ?? 1),
+  )
+  const courbe = MESURES.map(
+    (valeur, place) =>
+      `${place === 0 ? 'M' : 'L'}${String(56 + place * pas)} ${String(y(valeur))}`,
+  ).join(' ')
 
   return (
-    <svg ref={ref} viewBox="0 0 1000 300" aria-hidden="true" className="o-w-full" style={{ minWidth: 760 }}>
-      <text x="56" y="24" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
-        debit mesure, segment par segment — quarante segments de quatre secondes, soit 2:40 de lecture
+    <svg
+      ref={ref}
+      viewBox="0 0 1000 300"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 760 }}
+    >
+      <text
+        x="56"
+        y="24"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
+        debit mesure, segment par segment — quarante segments de quatre secondes, soit
+        2:40 de lecture
       </text>
 
       {/* Le debit, en courbe. */}
@@ -629,11 +842,36 @@ function FigureSegments(): ReactElement {
           transition: 'stroke-dashoffset 1800ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       />
-      <line x1="56" y1="150" x2={String(56 + large)} y2="150" stroke="currentColor" strokeWidth="1" opacity="0.4" style={gris} />
-      <text x="42" y={y(12) + 4} textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <line
+        x1="56"
+        y1="150"
+        x2={String(56 + large)}
+        y2="150"
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.4"
+        style={gris}
+      />
+      <text
+        x="42"
+        y={y(12) + 4}
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         12
       </text>
-      <text x="42" y="154" textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="42"
+        y="154"
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         0
       </text>
 
@@ -658,17 +896,55 @@ function FigureSegments(): ReactElement {
           />
         )
       })}
-      <text x="56" y="170" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="56"
+        y="170"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         qualite servie — la case est d autant plus pleine que la definition est haute
       </text>
 
       {/* Les deux moments qui font la figure. */}
-      <path d={`M${String(56 + 9 * pas)} 214v22h120`} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 5" opacity="0.7" style={gris} />
-      <text x={String(56 + 9 * pas + 126)} y="240" className="o-font-mono" fontSize="10.5" fill="currentColor" style={{ color: ENCRE }}>
+      <path
+        d={`M${String(56 + 9 * pas)} 214v22h120`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="4 5"
+        opacity="0.7"
+        style={gris}
+      />
+      <text
+        x={String(56 + 9 * pas + 126)}
+        y="240"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={{ color: ENCRE }}
+      >
         la qualite tombe un segment avant le creux
       </text>
-      <path d={`M${String(56 + 26 * pas)} 214v44h100`} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 5" opacity="0.7" style={gris} />
-      <text x={String(56 + 26 * pas + 106)} y="262" textAnchor="end" className="o-font-mono" fontSize="10.5" fill="currentColor" style={{ color: ENCRE }}>
+      <path
+        d={`M${String(56 + 26 * pas)} 214v44h100`}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="4 5"
+        opacity="0.7"
+        style={gris}
+      />
+      <text
+        x={String(56 + 26 * pas + 106)}
+        y="262"
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={{ color: ENCRE }}
+      >
         et remonte barreau par barreau
       </text>
     </svg>
@@ -686,13 +962,55 @@ const STATIONS: readonly {
   readonly texte: string
   readonly mesure: string
 }[] = [
-  { rang: '01', nom: 'Le depot', texte: 'Le fichier arrive par morceaux de huit megaoctets, reprenables. Un depot coupe a 60 % repart ou il s est arrete, pas au debut.', mesure: 'jusqu a 240 Go' },
-  { rang: '02', nom: 'La sonde', texte: 'Codec, definition, cadence, profondeur, pistes sonores, sous-titres incrustes. Ce qui est illisible est refuse tout de suite, avec la raison.', mesure: '1,2 s' },
-  { rang: '03', nom: 'La coupe', texte: 'Le film est decoupe en segments de quatre secondes, alignes sur les images cles. C est l alignement qui permet de changer de qualite sans coupure.', mesure: '4,000 s par segment' },
-  { rang: '04', nom: 'Les sept encodages', texte: 'Sept qualites, menees de front sur autant de machines. Le film de quarante-deux minutes est pret en onze minutes, et non en sept fois sa duree.', mesure: '11 min' },
-  { rang: '05', nom: 'L empaquetage', texte: 'Deux manifestes, un par format de diffusion, qui decrivent les memes segments. Aucun fichier n est encode deux fois pour cela.', mesure: 'HLS et DASH' },
-  { rang: '06', nom: 'Le controle', texte: 'Une mesure de qualite percue par qualite, et une comparaison image a image avec la source. Sous le seuil, le barreau est reencode plus haut.', mesure: 'VMAF 93 median' },
-  { rang: '07', nom: 'La diffusion', texte: 'Les segments partent sur les points de presence. Le premier spectateur d une region attend cent millisecondes de plus que les suivants.', mesure: '38 points de presence' },
+  {
+    rang: '01',
+    nom: 'Le depot',
+    texte:
+      'Le fichier arrive par morceaux de huit megaoctets, reprenables. Un depot coupe a 60 % repart ou il s est arrete, pas au debut.',
+    mesure: 'jusqu a 240 Go',
+  },
+  {
+    rang: '02',
+    nom: 'La sonde',
+    texte:
+      'Codec, definition, cadence, profondeur, pistes sonores, sous-titres incrustes. Ce qui est illisible est refuse tout de suite, avec la raison.',
+    mesure: '1,2 s',
+  },
+  {
+    rang: '03',
+    nom: 'La coupe',
+    texte:
+      'Le film est decoupe en segments de quatre secondes, alignes sur les images cles. C est l alignement qui permet de changer de qualite sans coupure.',
+    mesure: '4,000 s par segment',
+  },
+  {
+    rang: '04',
+    nom: 'Les sept encodages',
+    texte:
+      'Sept qualites, menees de front sur autant de machines. Le film de quarante-deux minutes est pret en onze minutes, et non en sept fois sa duree.',
+    mesure: '11 min',
+  },
+  {
+    rang: '05',
+    nom: 'L empaquetage',
+    texte:
+      'Deux manifestes, un par format de diffusion, qui decrivent les memes segments. Aucun fichier n est encode deux fois pour cela.',
+    mesure: 'HLS et DASH',
+  },
+  {
+    rang: '06',
+    nom: 'Le controle',
+    texte:
+      'Une mesure de qualite percue par qualite, et une comparaison image a image avec la source. Sous le seuil, le barreau est reencode plus haut.',
+    mesure: 'VMAF 93 median',
+  },
+  {
+    rang: '07',
+    nom: 'La diffusion',
+    texte:
+      'Les segments partent sur les points de presence. Le premier spectateur d une region attend cent millisecondes de plus que les suivants.',
+    mesure: '38 points de presence',
+  },
 ]
 
 /* ------------------------------------------------------------------------ */
@@ -700,18 +1018,22 @@ const STATIONS: readonly {
 /* ------------------------------------------------------------------------ */
 
 /** Un bloc du generique. */
-const GENERIQUE: readonly { readonly role: string; readonly noms: readonly string[] }[] = [
-  { role: 'Plateforme', noms: ['Bobine'] },
-  { role: 'Direction', noms: ['Salome Verchant'] },
-  { role: 'Chaine d encodage', noms: ['Tarek Boulanger', 'Lea Nardi', 'Come Ravel'] },
-  { role: 'Lecteur et accessibilite', noms: ['Ines Delaunay', 'Hugo Vaury'] },
-  { role: 'Diffusion', noms: ['Bastien Lecointre', 'Nadia Toussaint'] },
-  { role: 'Assistance', noms: ['Claire Benali', 'Marc Arsac'] },
-  { role: 'Tourne a', noms: ['Lyon, Villeurbanne'] },
-  { role: 'Avec le concours de', noms: ['Le moulin a papier de Brousses', 'La cinematheque de Bourgogne'] },
-  { role: 'Sous licence', noms: ['AV1, H.264, HEVC', 'Polices Oswald et Barlow'] },
-  { role: 'Hebergement', noms: ['Gravelines et Strasbourg'] },
-]
+const GENERIQUE: readonly { readonly role: string; readonly noms: readonly string[] }[] =
+  [
+    { role: 'Plateforme', noms: ['Bobine'] },
+    { role: 'Direction', noms: ['Salome Verchant'] },
+    { role: 'Chaine d encodage', noms: ['Tarek Boulanger', 'Lea Nardi', 'Come Ravel'] },
+    { role: 'Lecteur et accessibilite', noms: ['Ines Delaunay', 'Hugo Vaury'] },
+    { role: 'Diffusion', noms: ['Bastien Lecointre', 'Nadia Toussaint'] },
+    { role: 'Assistance', noms: ['Claire Benali', 'Marc Arsac'] },
+    { role: 'Tourne a', noms: ['Lyon, Villeurbanne'] },
+    {
+      role: 'Avec le concours de',
+      noms: ['Le moulin a papier de Brousses', 'La cinematheque de Bourgogne'],
+    },
+    { role: 'Sous licence', noms: ['AV1, H.264, HEVC', 'Polices Oswald et Barlow'] },
+    { role: 'Hebergement', noms: ['Gravelines et Strasbourg'] },
+  ]
 
 /** L identifiant de la feuille du generique. */
 const FEUILLE = 'odoro-bobine-generique'
@@ -746,12 +1068,20 @@ function Generique(): ReactElement {
   poserFeuille()
 
   const colonne = (double: boolean): ReactElement => (
-    <div aria-hidden={double ? true : undefined} className="o-flex o-flex-col o-items-center o-gap-9 o-py-10">
+    <div
+      aria-hidden={double ? true : undefined}
+      className="o-flex o-flex-col o-items-center o-gap-9 o-py-10"
+    >
       {GENERIQUE.map((bloc) => (
         <div key={`${bloc.role}-${String(double)}`} className="o-text-center">
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{bloc.role}</p>
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+            {bloc.role}
+          </p>
           {bloc.noms.map((nom) => (
-            <p key={nom} className="o-m-0 o-mt-1.5 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-100">
+            <p
+              key={nom}
+              className="o-m-0 o-mt-1.5 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-100"
+            >
               {nom}
             </p>
           ))}
@@ -767,8 +1097,10 @@ function Generique(): ReactElement {
       className="o-relative o-overflow-hidden"
       style={{
         height: 'clamp(360px, 46vh, 520px)',
-        maskImage: 'linear-gradient(to bottom, transparent, black 16%, black 84%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 16%, black 84%, transparent)',
+        maskImage:
+          'linear-gradient(to bottom, transparent, black 16%, black 84%, transparent)',
+        WebkitMaskImage:
+          'linear-gradient(to bottom, transparent, black 16%, black 84%, transparent)',
       }}
     >
       <div data-o-bobine-roule="">
@@ -790,11 +1122,20 @@ export default function Page(): ReactElement {
   return (
     <Porte forme="iris" marque="Bobine">
       <div className="o-text-zinc-100" style={{ ...polices, ...nuit('zinc') }}>
-        <BarreGelule marque="Bobine" liens={LIENS} action={['#essai', 'Deposer un film']} sombre />
+        <BarreGelule
+          marque="Bobine"
+          liens={LIENS}
+          action={['#essai', 'Deposer un film']}
+          sombre
+        />
 
         <main>
           {/* =============== L affiche ===================================== */}
-          <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden">
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden"
+          >
             <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0">
               <AudioBars
                 className="o-absolute o-inset-0"
@@ -819,7 +1160,9 @@ export default function Page(): ReactElement {
             <div className="o-relative o-z-20 o-px-6 o-pb-24 o-pt-40 md:o-px-8 md:o-pb-32 md:o-pt-48">
               <div className="o-mx-auto o-max-w-7xl">
                 <Surgit delai={40}>
-                  <Etiquette sombre>Video pour les editeurs — depot, encodage, lecteur</Etiquette>
+                  <Etiquette sombre>
+                    Video pour les editeurs — depot, encodage, lecteur
+                  </Etiquette>
                 </Surgit>
 
                 <Surgit delai={180} distance={40} className="o-mt-8 o-select-none">
@@ -836,17 +1179,29 @@ export default function Page(): ReactElement {
                   </DepthText>
                 </Surgit>
 
-                <div className="o-mt-10 o-grid o-gap-10 o-border-t o-pt-10 md:o-grid-cols-12" style={{ borderColor: FILET }}>
+                <div
+                  className="o-mt-10 o-grid o-gap-10 o-border-t o-pt-10 md:o-grid-cols-12"
+                  style={{ borderColor: FILET }}
+                >
                   <TitreVague
                     delai={420}
                     cadence={62}
                     className="o-m-0 o-text-balance o-text-zinc-50 md:o-col-span-7"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3.5rem)' }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.4vw, 3.5rem)',
+                    }}
                   >
                     Un film, sept qualites, et le poids de chacune.
                   </TitreVague>
-                  <Surgit delai={560} as="p" className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                    Deposez le fichier tel qu il sort du montage. Bobine le sonde, le coupe en segments de quatre secondes, l encode sept fois, et sert au spectateur ce que sa ligne peut porter — pas davantage.
+                  <Surgit
+                    delai={560}
+                    as="p"
+                    className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5"
+                  >
+                    Deposez le fichier tel qu il sort du montage. Bobine le sonde, le
+                    coupe en segments de quatre secondes, l encode sept fois, et sert au
+                    spectateur ce que sa ligne peut porter — pas davantage.
                   </Surgit>
                 </div>
               </div>
@@ -865,33 +1220,59 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Le ruban des formats ========================== */}
-          <div className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8" style={{ borderColor: FILET }}>
+          <div
+            className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8"
+            style={{ borderColor: FILET }}
+          >
             <ul className="o-m-0 o-mx-auto o-flex o-max-w-7xl o-list-none o-flex-wrap o-items-center o-gap-x-9 o-gap-y-3 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-              {['HLS', 'DASH', 'AV1', 'H.264', 'HEVC', 'WebVTT', 'Chapitres', 'Audiodescription'].map((mot) => (
+              {[
+                'HLS',
+                'DASH',
+                'AV1',
+                'H.264',
+                'HEVC',
+                'WebVTT',
+                'Chapitres',
+                'Audiodescription',
+              ].map((mot) => (
                 <li key={mot}>{mot}</li>
               ))}
-              <li className="o-ml-auto o-normal-case o-tracking-normal o-text-zinc-400">Un seul depot, tout le reste suit.</li>
+              <li className="o-ml-auto o-normal-case o-tracking-normal o-text-zinc-400">
+                Un seul depot, tout le reste suit.
+              </li>
             </ul>
           </div>
 
           {/* =============== (01) La frise ================================= */}
-          <section id="frise" aria-labelledby="frise-titre" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+          <section
+            id="frise"
+            aria-labelledby="frise-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     (01) — Le chapitrage
                   </p>
                   <h2
                     id="frise-titre"
                     className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                    }}
                   >
                     Prenez un chapitre. Reglez la ligne.
                   </h2>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                  Les neuf chapitres occupent leur part exacte de la duree. Le curseur, lui, joue la ligne du spectateur : c est elle qui decide de la qualite, et donc du poids.
+                  Les neuf chapitres occupent leur part exacte de la duree. Le curseur,
+                  lui, joue la ligne du spectateur : c est elle qui decide de la qualite,
+                  et donc du poids.
                 </p>
               </div>
 
@@ -910,21 +1291,29 @@ export default function Page(): ReactElement {
           >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   Figure 01
                 </p>
                 <h2
                   id="segments-titre"
                   className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
                 >
                   Le tunnel, vu du lecteur.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  Quarante segments de quatre secondes. Au-dessus, ce que la ligne portait vraiment ; en dessous, la qualite servie, case par case.
+                  Quarante segments de quatre secondes. Au-dessus, ce que la ligne portait
+                  vraiment ; en dessous, la qualite servie, case par case.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  La descente est brutale, la remontee est prudente : un lecteur qui remonterait aussi vite qu il descend passerait son temps a se tromper.
+                  La descente est brutale, la remontee est prudente : un lecteur qui
+                  remonterait aussi vite qu il descend passerait son temps a se tromper.
                 </p>
               </div>
 
@@ -933,30 +1322,47 @@ export default function Page(): ReactElement {
                   <FigureSegments />
                 </div>
                 <p className="o-sr-only">
-                  Le debit mesure part de dix megabits par seconde, tombe sous un megabit au douzieme segment, puis remonte en vingt segments. La qualite servie suit avec un segment de retard.
+                  Le debit mesure part de dix megabits par seconde, tombe sous un megabit
+                  au douzieme segment, puis remonte en vingt segments. La qualite servie
+                  suit avec un segment de retard.
                 </p>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400" style={{ borderColor: FILET }}>
-                  Figure 01 — deux minutes quarante de lecture, dans un train. La courbe est le debit mesure ; les cases, la qualite servie au segment suivant.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400"
+                  style={{ borderColor: FILET }}
+                >
+                  Figure 01 — deux minutes quarante de lecture, dans un train. La courbe
+                  est le debit mesure ; les cases, la qualite servie au segment suivant.
                 </figcaption>
               </figure>
             </div>
           </section>
 
           {/* =============== M-rail : la chaine d encodage ================== */}
-          <section id="chaine" aria-labelledby="chaine-titre" className="o-scroll-mt-24 o-border-t" style={{ borderColor: FILET }}>
+          <section
+            id="chaine"
+            aria-labelledby="chaine-titre"
+            className="o-scroll-mt-24 o-border-t"
+            style={{ borderColor: FILET }}
+          >
             <Rail
               ecrans={3.2}
               entete={
                 <div className="o-px-6 o-pb-6 o-pt-10 md:o-px-8">
                   <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-end o-justify-between o-gap-6">
                     <div>
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: ENCRE }}
+                      >
                         (02) — La chaine
                       </p>
                       <h2
                         id="chaine-titre"
                         className="o-m-0 o-mt-4 o-text-balance o-text-zinc-50"
-                        style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 3rem)' }}
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(1.6rem, 3vw, 3rem)',
+                        }}
                       >
                         Du depot a la premiere image.
                       </h2>
@@ -977,15 +1383,23 @@ export default function Page(): ReactElement {
                   style={{ width: 'min(84vw, 440px)', borderLeft: `1px solid ${FILET}` }}
                 >
                   <div>
-                    <p className="o-m-0 o-tabular-nums" style={{ ...affiche('l', 300), color: accent(500) }}>
+                    <p
+                      className="o-m-0 o-tabular-nums"
+                      style={{ ...affiche('l', 300), color: accent(500) }}
+                    >
                       {station.rang}
                     </p>
                     <h3 className="o-m-0 o-mt-6 o-text-balance o-text-2xl o-font-semibold o-tracking-tight o-text-zinc-50">
                       {station.nom}
                     </h3>
-                    <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">{station.texte}</p>
+                    <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
+                      {station.texte}
+                    </p>
                   </div>
-                  <p className="o-m-0 o-mt-10 o-border-t o-pt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ borderColor: FILET, color: ENCRE }}>
+                  <p
+                    className="o-m-0 o-mt-10 o-border-t o-pt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ borderColor: FILET, color: ENCRE }}
+                  >
                     {station.mesure}
                   </p>
                 </article>
@@ -994,7 +1408,11 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== La coupe claire : une phrase, un ecran ========= */}
-          <section aria-labelledby="phrase-titre" className="o-px-6 o-py-32 md:o-px-8 md:o-py-44" style={JOUR}>
+          <section
+            aria-labelledby="phrase-titre"
+            className="o-px-6 o-py-32 md:o-px-8 md:o-py-44"
+            style={JOUR}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 md:o-col-span-3">
                 Ce que nous ne faisons pas
@@ -1005,36 +1423,62 @@ export default function Page(): ReactElement {
                 </h2>
                 <p
                   className="o-m-0 o-max-w-4xl o-text-balance"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)', lineHeight: 1.1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)',
+                    lineHeight: 1.1,
+                  }}
                 >
-                  <span className="o-text-zinc-500">Aucune recommandation, aucun suivi du spectateur, aucune publicite avant votre film. </span>
-                  <span className="o-text-zinc-950">Votre audience ne nous appartient pas, et nous n avons rien a en tirer.</span>
+                  <span className="o-text-zinc-500">
+                    Aucune recommandation, aucun suivi du spectateur, aucune publicite
+                    avant votre film.{' '}
+                  </span>
+                  <span className="o-text-zinc-950">
+                    Votre audience ne nous appartient pas, et nous n avons rien a en
+                    tirer.
+                  </span>
                 </p>
-                <p className="o-mt-10 o-max-w-xl o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600" style={{ borderTop: `1px solid ${FILET_JOUR}`, paddingTop: '1rem' }}>
-                  Le lecteur n emet rien vers un tiers. Le journal de lecture reste chez vous, et il tient en cinq colonnes : le moment, le chapitre, la qualite servie, les changements, les arrets.
+                <p
+                  className="o-mt-10 o-max-w-xl o-font-mono o-text-xs o-leading-relaxed o-text-zinc-600"
+                  style={{ borderTop: `1px solid ${FILET_JOUR}`, paddingTop: '1rem' }}
+                >
+                  Le lecteur n emet rien vers un tiers. Le journal de lecture reste chez
+                  vous, et il tient en cinq colonnes : le moment, le chapitre, la qualite
+                  servie, les changements, les arrets.
                 </p>
               </div>
             </div>
           </section>
 
           {/* =============== (03) Ce qui part avec la video ================= */}
-          <section id="livraison" aria-labelledby="livraison-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="livraison"
+            aria-labelledby="livraison-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     (03) — Ce qui part
                   </p>
                   <h2
                     id="livraison-titre"
                     className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                    }}
                   >
                     Quatre choses sortent avec le film.
                   </h2>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                  Elles sont produites au depot, pas commandees ensuite. Aucune n est une option payante.
+                  Elles sont produites au depot, pas commandees ensuite. Aucune n est une
+                  option payante.
                 </p>
               </div>
 
@@ -1044,19 +1488,23 @@ export default function Page(): ReactElement {
                   lignes={[
                     {
                       titre: 'Les chapitres',
-                      texte: 'Lus depuis les marqueurs du montage quand le fichier en porte, sinon proposes d apres les coupes detectees. Ils partent dans le manifeste, dans le lecteur, et dans le flux de publication.',
+                      texte:
+                        'Lus depuis les marqueurs du montage quand le fichier en porte, sinon proposes d apres les coupes detectees. Ils partent dans le manifeste, dans le lecteur, et dans le flux de publication.',
                     },
                     {
                       titre: 'Les sous-titres',
-                      texte: 'Une transcription horodatee, puis une relecture humaine facturee au quart d heure. Le fichier est un WebVTT ordinaire, que vous emportez.',
+                      texte:
+                        'Une transcription horodatee, puis une relecture humaine facturee au quart d heure. Le fichier est un WebVTT ordinaire, que vous emportez.',
                     },
                     {
                       titre: 'Les vignettes',
-                      texte: 'Une image toutes les deux secondes, en planche unique, pour l apercu au survol de la frise. Douze kilooctets pour un film de quarante minutes.',
+                      texte:
+                        'Une image toutes les deux secondes, en planche unique, pour l apercu au survol de la frise. Douze kilooctets pour un film de quarante minutes.',
                     },
                     {
                       titre: 'Le journal de lecture',
-                      texte: 'Cinq colonnes, une ligne par session, exportable. Ni identifiant de spectateur, ni empreinte de navigateur : nous ne saurions pas les produire.',
+                      texte:
+                        'Cinq colonnes, une ligne par session, exportable. Ni identifiant de spectateur, ni empreinte de navigateur : nous ne saurions pas les produire.',
                     },
                   ]}
                 />
@@ -1067,13 +1515,26 @@ export default function Page(): ReactElement {
           {/* =============== A25 : un bouton, toute la largeur ==============
               Pas d appel encadre, pas de gelule centree : le bouton est la
               bande, du bord gauche au bord droit. */}
-          <section id="essai" aria-labelledby="essai-titre" className="o-scroll-mt-24 o-border-t o-px-6 o-pb-8 o-pt-24 md:o-px-8 md:o-pt-32" style={{ borderColor: FILET }}>
+          <section
+            id="essai"
+            aria-labelledby="essai-titre"
+            className="o-scroll-mt-24 o-border-t o-px-6 o-pb-8 o-pt-24 md:o-px-8 md:o-pt-32"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-max-w-7xl">
-              <h2 id="essai-titre" className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+              <h2
+                id="essai-titre"
+                className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                }}
+              >
                 Le premier film est encode ce soir.
               </h2>
               <p className="o-mt-5 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400">
-                Deux cents gigaoctets de depot, sans engagement, sans carte. Vous repartez avec les fichiers si cela ne vous convient pas.
+                Deux cents gigaoctets de depot, sans engagement, sans carte. Vous repartez
+                avec les fichiers si cela ne vous convient pas.
               </p>
             </div>
           </section>
@@ -1082,7 +1543,10 @@ export default function Page(): ReactElement {
             className="o-block o-w-full o-px-6 o-py-10 o-text-center o-no-underline o-transition-opacity hover:o-opacity-90 focus:o-ring md:o-py-14"
             style={{ backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)' }}
           >
-            <span className="o-inline-flex o-items-center o-gap-4 o-text-balance" style={{ ...affiche('m', 700), fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}>
+            <span
+              className="o-inline-flex o-items-center o-gap-4 o-text-balance"
+              style={{ ...affiche('m', 700), fontSize: 'clamp(1.75rem, 5vw, 4.5rem)' }}
+            >
               <Icon icon={Play} size={40} aria-hidden="true" />
               Deposer un film
             </span>
@@ -1105,19 +1569,31 @@ export default function Page(): ReactElement {
           </GradualBlur>
 
           <div className="o-px-6 o-pb-10 md:o-px-8">
-            <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" style={{ borderColor: FILET }}>
+            <div
+              className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+              style={{ borderColor: FILET }}
+            >
               <span className="o-inline-flex o-items-center o-gap-2">
                 <Icon icon={Subtitles} size={13} aria-hidden="true" />
                 Sous-titres sur chaque film
               </span>
-              <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
-                {([
-                  ['#livraison', 'Formats acceptes'],
-                  ['#chaine', 'Etat du service'],
-                  ['#segments', 'Documentation du lecteur'],
-                  ['#essai', 'Nous ecrire'],
-                ] as const).map(([cible, mot]) => (
-                  <a key={mot} href={cible} className="o-no-underline o-text-zinc-400 hover:o-text-zinc-100 o-transition-colors focus:o-ring">
+              <nav
+                aria-label="Mentions"
+                className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2"
+              >
+                {(
+                  [
+                    ['#livraison', 'Formats acceptes'],
+                    ['#chaine', 'Etat du service'],
+                    ['#segments', 'Documentation du lecteur'],
+                    ['#essai', 'Nous ecrire'],
+                  ] as const
+                ).map(([cible, mot]) => (
+                  <a
+                    key={mot}
+                    href={cible}
+                    className="o-no-underline o-text-zinc-400 hover:o-text-zinc-100 o-transition-colors focus:o-ring"
+                  >
                     {mot}
                   </a>
                 ))}

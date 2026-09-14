@@ -253,10 +253,26 @@ const DISQUES: readonly [Disque, ...Disque[]] = [
 const INTERCALAIRES = [
   { cle: 'tous', titre: 'Tout le bac', sous: 'Neuf disques d occasion, tous ecoutes' },
   { cle: 'jazz', titre: 'Jazz spirituel', sous: 'France et Mediterranee, 1968 a 1980' },
-  { cle: 'post-punk', titre: 'Post-punk FR', sous: 'Pressages independants, 1979 a 1986' },
-  { cle: 'local', titre: 'Marseille', sous: 'Ce qui a ete grave a moins de vingt kilometres' },
-  { cle: 'fanfare', titre: 'Fanfares et cuivres', sous: 'Le bac que personne ne regarde et qu on defend' },
-  { cle: 'un-euro', titre: 'Le bac a un euro', sous: 'Dehors, sous l auvent, sans garantie' },
+  {
+    cle: 'post-punk',
+    titre: 'Post-punk FR',
+    sous: 'Pressages independants, 1979 a 1986',
+  },
+  {
+    cle: 'local',
+    titre: 'Marseille',
+    sous: 'Ce qui a ete grave a moins de vingt kilometres',
+  },
+  {
+    cle: 'fanfare',
+    titre: 'Fanfares et cuivres',
+    sous: 'Le bac que personne ne regarde et qu on defend',
+  },
+  {
+    cle: 'un-euro',
+    titre: 'Le bac a un euro',
+    sous: 'Dehors, sous l auvent, sans garantie',
+  },
 ] as const
 
 /** Les cotes du disquaire, telles qu elles sont ecrites sur chaque pochette. */
@@ -285,7 +301,15 @@ function Pochette({ disque }: { readonly disque: Disque }): ReactElement {
     bandes: (
       <>
         {[0, 1, 2, 3, 4].map((rang) => (
-          <rect key={rang} x="0" y={26 + rang * 34} width="300" height={12 + rang * 3} fill={trait} opacity={0.9 - rang * 0.12} />
+          <rect
+            key={rang}
+            x="0"
+            y={26 + rang * 34}
+            width="300"
+            height={12 + rang * 3}
+            fill={trait}
+            opacity={0.9 - rang * 0.12}
+          />
         ))}
       </>
     ),
@@ -300,7 +324,15 @@ function Pochette({ disque }: { readonly disque: Disque }): ReactElement {
       <>
         <path d="M0 300 150 40 300 300Z" fill={trait} opacity="0.92" />
         <path d="M0 300 110 120 220 300Z" fill={fond} opacity="0.45" />
-        <rect x="24" y="24" width="252" height="252" fill="none" stroke={trait} strokeWidth="3" />
+        <rect
+          x="24"
+          y="24"
+          width="252"
+          height="252"
+          fill="none"
+          stroke={trait}
+          strokeWidth="3"
+        />
       </>
     ),
     grille: (
@@ -340,7 +372,12 @@ function Pochette({ disque }: { readonly disque: Disque }): ReactElement {
  */
 function DisqueDessine(): ReactElement {
   return (
-    <svg viewBox="0 0 460 460" className="o-h-full o-w-full" aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 460 460"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+    >
       <defs>
         <radialGradient id="o-sillon-brillant" cx="38%" cy="30%" r="72%">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="0.26" />
@@ -350,22 +387,71 @@ function DisqueDessine(): ReactElement {
       </defs>
       {/* Le plateau. */}
       <ellipse cx="230" cy="252" rx="196" ry="150" fill={accentDoux(950, 90)} />
-      <ellipse cx="230" cy="246" rx="196" ry="150" fill="none" stroke={accent(700)} strokeWidth="2" opacity="0.6" />
+      <ellipse
+        cx="230"
+        cy="246"
+        rx="196"
+        ry="150"
+        fill="none"
+        stroke={accent(700)}
+        strokeWidth="2"
+        opacity="0.6"
+      />
       {/* Le disque. */}
       <ellipse cx="230" cy="240" rx="172" ry="132" fill="var(--o-palette-zinc-950)" />
       <ellipse cx="230" cy="240" rx="172" ry="132" fill="url(#o-sillon-brillant)" />
       {[152, 134, 116, 98, 80].map((r) => (
-        <ellipse key={r} cx="230" cy="240" rx={r} ry={r * 0.767} fill="none" stroke={accent(200)} strokeWidth="0.9" opacity="0.16" />
+        <ellipse
+          key={r}
+          cx="230"
+          cy="240"
+          rx={r}
+          ry={r * 0.767}
+          fill="none"
+          stroke={accent(200)}
+          strokeWidth="0.9"
+          opacity="0.16"
+        />
       ))}
       {/* L etiquette et l axe. */}
       <ellipse cx="230" cy="240" rx="58" ry="45" fill={accent(500)} />
-      <ellipse cx="230" cy="240" rx="58" ry="45" fill="none" stroke={accent(700)} strokeWidth="1.6" />
+      <ellipse
+        cx="230"
+        cy="240"
+        rx="58"
+        ry="45"
+        fill="none"
+        stroke={accent(700)}
+        strokeWidth="1.6"
+      />
       <ellipse cx="230" cy="240" rx="6" ry="5" fill="var(--o-palette-zinc-950)" />
-      <path d="M196 230h68M196 250h52" stroke={accent(900)} strokeWidth="2.4" opacity="0.6" />
+      <path
+        d="M196 230h68M196 250h52"
+        stroke={accent(900)}
+        strokeWidth="2.4"
+        opacity="0.6"
+      />
       {/* Le bras et la cellule. */}
-      <circle cx="396" cy="150" r="20" fill={accentDoux(800, 80)} stroke={accent(300)} strokeWidth="1.6" />
-      <path d="M396 150 264 214" stroke={accent(200)} strokeWidth="7" strokeLinecap="round" />
-      <path d="M264 214l-16 16" stroke={accent(200)} strokeWidth="10" strokeLinecap="round" />
+      <circle
+        cx="396"
+        cy="150"
+        r="20"
+        fill={accentDoux(800, 80)}
+        stroke={accent(300)}
+        strokeWidth="1.6"
+      />
+      <path
+        d="M396 150 264 214"
+        stroke={accent(200)}
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M264 214l-16 16"
+        stroke={accent(200)}
+        strokeWidth="10"
+        strokeLinecap="round"
+      />
       <circle cx="246" cy="232" r="5" fill={accent(400)} />
     </svg>
   )
@@ -387,7 +473,8 @@ export default function Page(): ReactElement {
 
   const [intercalaire, setIntercalaire] = useState<string>('tous')
   const bac = useMemo(
-    () => (intercalaire === 'tous' ? DISQUES : DISQUES.filter((d) => d.bac === intercalaire)),
+    () =>
+      intercalaire === 'tous' ? DISQUES : DISQUES.filter((d) => d.bac === intercalaire),
     [intercalaire],
   )
 
@@ -460,7 +547,10 @@ export default function Page(): ReactElement {
     if (el === null) return
     const enfant = el.querySelectorAll<HTMLElement>('[data-pochette]')[rang]
     if (enfant === undefined) return
-    el.scrollTo({ left: enfant.offsetLeft + enfant.offsetWidth / 2 - el.clientWidth / 2, behavior: reduced ? 'auto' : 'smooth' })
+    el.scrollTo({
+      left: enfant.offsetLeft + enfant.offsetWidth / 2 - el.clientWidth / 2,
+      behavior: reduced ? 'auto' : 'smooth',
+    })
   }
 
   /*
@@ -541,13 +631,20 @@ export default function Page(): ReactElement {
           }
 
           const formeEtiquette = new three.CylinderGeometry(0.54, 0.54, 0.042, 64, 1)
-          const matiereEtiquette = new three.MeshStandardMaterial({ color: etiquette, roughness: 0.85 })
+          const matiereEtiquette = new three.MeshStandardMaterial({
+            color: etiquette,
+            roughness: 0.85,
+          })
           const pastille = new three.Mesh(formeEtiquette, matiereEtiquette)
           pastille.position.y = 0.004
           plateau.add(pastille)
 
           const formeAxe = new three.CylinderGeometry(0.035, 0.035, 0.2, 20)
-          const matiereChrome = new three.MeshStandardMaterial({ color: chrome, metalness: 0.92, roughness: 0.18 })
+          const matiereChrome = new three.MeshStandardMaterial({
+            color: chrome,
+            metalness: 0.92,
+            roughness: 0.18,
+          })
           const axe = new three.Mesh(formeAxe, matiereChrome)
           axe.position.y = 0.09
           plateau.add(axe)
@@ -572,7 +669,12 @@ export default function Page(): ReactElement {
           // Une forme metallique sans lumiere de contour ni lampe de dessous
           // est une tache noire : c est le defaut qu il faut eviter ici plus
           // qu ailleurs, le vinyle etant noir par definition.
-          eclairer(contexte, { cle: 0xfff3e4, remplissage: 0x7d8ec4, contour: 0xffffff, force: 1.5 })
+          eclairer(contexte, {
+            cle: 0xfff3e4,
+            remplissage: 0x7d8ec4,
+            contour: 0xffffff,
+            force: 1.5,
+          })
           const dessous = new three.PointLight(0xffd9b0, 34, 14, 2)
           dessous.position.set(0.2, -2.1, 2.2)
           const rasante = new three.PointLight(0xffffff, 30, 16, 2)
@@ -610,15 +712,24 @@ export default function Page(): ReactElement {
     [],
   )
 
-  const enPile = pile.map((cle) => DISQUES.find((d) => d.cle === cle)).filter((d): d is Disque => d !== undefined)
+  const enPile = pile
+    .map((cle) => DISQUES.find((d) => d.cle === cle))
+    .filter((d): d is Disque => d !== undefined)
 
   return (
     <Porte forme="zoom" marque="Sillon Noir">
-      <div className="o-relative o-overflow-hidden" style={{ ...polices, ...nuit('zinc') }}>
+      <div
+        className="o-relative o-overflow-hidden"
+        style={{ ...polices, ...nuit('zinc') }}
+      >
         {/*
           ----- L ouverture : le microsillon en volume --------------------------
         */}
-        <section id="haut" className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
+        <section
+          id="haut"
+          className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden"
+          style={{ minHeight: ECRAN }}
+        >
           {/* Le fond n est pas une scene : l objet a pris la seule surface. */}
           <div
             aria-hidden="true"
@@ -634,11 +745,18 @@ export default function Page(): ReactElement {
           <div
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
-            style={{ background: 'linear-gradient(to top, var(--o-palette-zinc-950) 2%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 42%, transparent 78%)' }}
+            style={{
+              background:
+                'linear-gradient(to top, var(--o-palette-zinc-950) 2%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 42%, transparent 78%)',
+            }}
           />
           <Grain opacite={0.07} />
 
-          <BarreGelule marque="Sillon Noir" liens={NAVIGATION} action={['#bac', 'Feuilleter']} />
+          <BarreGelule
+            marque="Sillon Noir"
+            liens={NAVIGATION}
+            action={['#bac', 'Feuilleter']}
+          />
 
           <div className="o-relative o-z-20 o-mx-auto o-flex o-w-full o-max-w-7xl o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-32 md:o-px-10">
             <Surgit>
@@ -648,17 +766,33 @@ export default function Page(): ReactElement {
               delai={140}
               cadence={80}
               className="o-m-0 o-mt-7 o-max-w-4xl o-text-zinc-50"
-              style={{ ...affiche('l', 800), fontSize: 'clamp(2.25rem, 6.6vw, 6rem)', letterSpacing: '-0.045em' }}
+              style={{
+                ...affiche('l', 800),
+                fontSize: 'clamp(2.25rem, 6.6vw, 6rem)',
+                letterSpacing: '-0.045em',
+              }}
             >
               Tout a deja ete ecoute.
             </TitreVague>
             <div className="o-mt-9 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-              <Surgit delai={560} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6">
-Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaque pochette. La platine du comptoir est a vous : nous ne vendons rien que nous n ayons pose dessus.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6"
+              >
+                Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon
+                dans chaque pochette. La platine du comptoir est a vous : nous ne vendons
+                rien que nous n ayons pose dessus.
               </Surgit>
               <Surgit delai={680} className="md:o-col-span-6 md:o-flex md:o-justify-end">
                 <Actions
-                  pleine={['#bac', <>Feuilleter le bac <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#bac',
+                    <>
+                      Feuilleter le bac{' '}
+                      <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#intercalaires', 'Les bacs']}
                 />
               </Surgit>
@@ -685,7 +819,11 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
               <Indice rang="01">Les bacs</Indice>
               <h2
                 className="o-m-0 o-mt-4 o-max-w-3xl o-text-zinc-50"
-                style={{ ...affiche('m', 800), fontSize: 'clamp(1.6rem, 3.6vw, 3rem)', letterSpacing: '-0.04em' }}
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(1.6rem, 3.6vw, 3rem)',
+                  letterSpacing: '-0.04em',
+                }}
               >
                 Poussez un intercalaire, le bac se refait.
               </h2>
@@ -694,9 +832,16 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
         >
           {INTERCALAIRES.map((carte) => {
             const actif = carte.cle === intercalaire
-            const compte = carte.cle === 'tous' ? DISQUES.length : DISQUES.filter((d) => d.bac === carte.cle).length
+            const compte =
+              carte.cle === 'tous'
+                ? DISQUES.length
+                : DISQUES.filter((d) => d.bac === carte.cle).length
             return (
-              <div key={carte.cle} className="o-shrink-0 o-px-4" style={{ width: 'min(74vw, 22rem)' }}>
+              <div
+                key={carte.cle}
+                className="o-shrink-0 o-px-4"
+                style={{ width: 'min(74vw, 22rem)' }}
+              >
                 <button
                   type="button"
                   aria-pressed={actif}
@@ -709,20 +854,43 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                   style={
                     actif
                       ? { ...aplat(), borderColor: 'transparent' }
-                      : { borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(900, 26), color: 'var(--o-theme-fg)' }
+                      : {
+                          borderColor: 'var(--o-theme-line)',
+                          backgroundColor: accentDoux(900, 26),
+                          color: 'var(--o-theme-fg)',
+                        }
                   }
                 >
-                  <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ opacity: 0.75 }}>
+                  <span
+                    className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ opacity: 0.75 }}
+                  >
                     Intercalaire
                   </span>
-                  <span className="o-mt-14 o-block" style={{ ...affiche('m', 800), fontSize: 'clamp(1.4rem, 2.6vw, 2.2rem)', letterSpacing: '-0.035em', lineHeight: 1.02 }}>
+                  <span
+                    className="o-mt-14 o-block"
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(1.4rem, 2.6vw, 2.2rem)',
+                      letterSpacing: '-0.035em',
+                      lineHeight: 1.02,
+                    }}
+                  >
                     {carte.titre}
                   </span>
-                  <span className="o-mt-4 o-block o-text-sm o-leading-relaxed" style={{ opacity: 0.85 }}>
+                  <span
+                    className="o-mt-4 o-block o-text-sm o-leading-relaxed"
+                    style={{ opacity: 0.85 }}
+                  >
                     {carte.sous}
                   </span>
-                  <span className="o-mt-6 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ opacity: 0.75 }}>
-                    {compte === 0 ? 'Bac vide aujourd hui' : `${String(compte)} pochettes`}
+                  <span
+                    className="o-mt-6 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ opacity: 0.75 }}
+                  >
+                    {compte === 0
+                      ? 'Bac vide aujourd hui'
+                      : `${String(compte)} pochettes`}
                   </span>
                 </button>
               </div>
@@ -733,16 +901,24 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
         {/*
           ----- Le mecanisme : le bac ------------------------------------------
         */}
-        <section id="bac" className="o-relative o-z-10 o-scroll-mt-24 o-border-t o-border-white-10 o-py-16 md:o-py-24">
+        <section
+          id="bac"
+          className="o-relative o-z-10 o-scroll-mt-24 o-border-t o-border-white-10 o-py-16 md:o-py-24"
+        >
           <div className="o-mx-auto o-max-w-7xl o-px-6 md:o-px-10">
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-7">
                 <Indice rang="02">Feuilleter</Indice>
                 <h2
                   className="o-m-0 o-mt-5 o-max-w-2xl o-text-zinc-50"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)', letterSpacing: '-0.04em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)',
+                    letterSpacing: '-0.04em',
+                  }}
                 >
-                  {INTERCALAIRES.find((i) => i.cle === intercalaire)?.titre ?? 'Tout le bac'}
+                  {INTERCALAIRES.find((i) => i.cle === intercalaire)?.titre ??
+                    'Tout le bac'}
                 </h2>
               </div>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-5 md:o-text-right">
@@ -755,7 +931,8 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
 
           {bac.length === 0 ? (
             <p className="o-mx-auto o-mt-12 o-max-w-7xl o-px-6 o-text-lg o-text-zinc-300 md:o-px-10">
-              Ce bac est dehors, sous l auvent, et il ne tient pas dans cette page. Un euro piece, sans garantie, et on ne reprend pas.
+              Ce bac est dehors, sous l auvent, et il ne tient pas dans cette page. Un
+              euro piece, sans garantie, et on ne reprend pas.
             </p>
           ) : (
             <>
@@ -779,7 +956,11 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                 style={{ scrollSnapType: 'x mandatory', perspective: '1200px' }}
               >
                 {/* Deux cales, pour que la premiere et la derniere pochette atteignent le centre. */}
-                <span aria-hidden="true" className="o-shrink-0" style={{ width: 'calc(50vw - 11rem)' }} />
+                <span
+                  aria-hidden="true"
+                  className="o-shrink-0"
+                  style={{ width: 'calc(50vw - 11rem)' }}
+                />
                 {bac.map((d, rang) => (
                   <button
                     key={d.cle}
@@ -794,7 +975,9 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                       width: 'min(64vw, 20rem)',
                       aspectRatio: '1 / 1',
                       boxShadow: '0 30px 60px -30px rgba(0,0,0,0.9)',
-                      transition: reduced ? undefined : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+                      transition: reduced
+                        ? undefined
+                        : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)',
                     }}
                   >
                     <Pochette disque={d} />
@@ -803,39 +986,74 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                     </span>
                   </button>
                 ))}
-                <span aria-hidden="true" className="o-shrink-0" style={{ width: 'calc(50vw - 11rem)' }} />
+                <span
+                  aria-hidden="true"
+                  className="o-shrink-0"
+                  style={{ width: 'calc(50vw - 11rem)' }}
+                />
               </div>
 
               {/* La fiche du disque de face. */}
               <div className="o-mx-auto o-mt-10 o-grid o-max-w-7xl o-gap-10 o-px-6 md:o-grid-cols-12 md:o-px-10">
                 <div className="md:o-col-span-7">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     {courant.label} · {courant.annee} · {courant.format}
                   </p>
                   <h3
                     className="o-m-0 o-mt-4 o-text-zinc-50"
-                    style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4.4vw, 3.5rem)', letterSpacing: '-0.04em', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(1.75rem, 4.4vw, 3.5rem)',
+                      letterSpacing: '-0.04em',
+                      lineHeight: 1,
+                    }}
                   >
                     {courant.titre}
                   </h3>
-                  <p className="o-m-0 o-mt-3 o-text-lg o-text-zinc-300">{courant.artiste}</p>
-                  <p className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">{courant.mot}</p>
+                  <p className="o-m-0 o-mt-3 o-text-lg o-text-zinc-300">
+                    {courant.artiste}
+                  </p>
+                  <p className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
+                    {courant.mot}
+                  </p>
                   <dl className="o-m-0 o-mt-8 o-border-t o-border-white-10">
                     {(
                       [
                         ['Etat', courant.etat],
                         ['Matrice', courant.matrice],
-                        ['Bac', INTERCALAIRES.find((i) => i.cle === courant.bac)?.titre ?? courant.bac],
+                        [
+                          'Bac',
+                          INTERCALAIRES.find((i) => i.cle === courant.bac)?.titre ??
+                            courant.bac,
+                        ],
                       ] as const
                     ).map(([quoi, valeur]) => (
-                      <div key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3.5 sm:o-grid-cols-12">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-3">{quoi}</dt>
-                        <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-200 sm:o-col-span-9">{valeur}</dd>
+                      <div
+                        key={quoi}
+                        className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3.5 sm:o-grid-cols-12"
+                      >
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-3">
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-200 sm:o-col-span-9">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
                   <p className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-center o-gap-5">
-                    <span style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 3.4vw, 2.75rem)', color: encreSurSombre() }}>{courant.prix}</span>
+                    <span
+                      style={{
+                        ...affiche('m', 800),
+                        fontSize: 'clamp(1.75rem, 3.4vw, 2.75rem)',
+                        color: encreSurSombre(),
+                      }}
+                    >
+                      {courant.prix}
+                    </span>
                     <button
                       type="button"
                       onClick={() => {
@@ -858,7 +1076,11 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                     <InertiaDrag friction={7} spring={110} className="o-inline-block">
                       <span
                         className="o-block o-cursor-grab o-overflow-hidden o-rounded-sm"
-                        style={{ width: 'min(60vw, 16rem)', aspectRatio: '1 / 1', boxShadow: '0 24px 48px -24px rgba(0,0,0,0.95)' }}
+                        style={{
+                          width: 'min(60vw, 16rem)',
+                          aspectRatio: '1 / 1',
+                          boxShadow: '0 24px 48px -24px rgba(0,0,0,0.95)',
+                        }}
                       >
                         <Pochette disque={courant} />
                       </span>
@@ -876,10 +1098,14 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
         {/*
           ----- Un ecran de texte seul ------------------------------------------
         */}
-        <section className="o-relative o-z-10 o-flex o-items-center o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={{ backgroundColor: accentDoux(900, 22) }}>
+        <section
+          className="o-relative o-z-10 o-flex o-items-center o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+          style={{ backgroundColor: accentDoux(900, 22) }}
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
             <Manifeste eteint="Un disque d occasion a deja plu a quelqu un, et c est la seule recommandation qui vaille.">
-              Le reste — les avis, les etoiles, les listes — n a jamais fait tourner un plateau.
+              Le reste — les avis, les etoiles, les listes — n a jamais fait tourner un
+              plateau.
             </Manifeste>
           </div>
         </section>
@@ -887,22 +1113,34 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
         {/*
           ----- La pile d ecoute, qu on remet dans l ordre (A21) ----------------
         */}
-        <section id="pile" className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="pile"
+          className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-5">
               <Indice rang="03">La pile</Indice>
               <h2
                 className="o-m-0 o-mt-5 o-max-w-md o-text-zinc-50"
-                style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', letterSpacing: '-0.04em' }}
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                  letterSpacing: '-0.04em',
+                }}
               >
                 <EchoText as="span" copies={2} lag={200} spread={1.4}>
                   Sillon Noir
                 </EchoText>
               </h2>
               <p className="o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">
-                Ce que vous mettez de cote en feuilletant arrive ici. Remettez-le dans l ordre ou vous voulez l ecouter : c est l ordre dans lequel nous poserons les disques sur la platine du comptoir.
+                Ce que vous mettez de cote en feuilletant arrive ici. Remettez-le dans l
+                ordre ou vous voulez l ecouter : c est l ordre dans lequel nous poserons
+                les disques sur la platine du comptoir.
               </p>
-              <p className="o-m-0 o-mt-8 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+              <p
+                className="o-m-0 o-mt-8 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                style={{ color: encreSurSombre() }}
+              >
                 <Icon icon={Music} size={14} aria-hidden="true" />
                 Ecoute libre, sans achat, sans limite
               </p>
@@ -911,7 +1149,8 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
             <div className="o-min-w-0 md:o-col-span-7">
               {enPile.length === 0 ? (
                 <p className="o-m-0 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-8 o-text-base o-leading-relaxed o-text-zinc-400">
-                  La pile est vide. Feuilletez le bac et mettez-en de cote : trois ou quatre, c est ce qu on ecoute en une visite.
+                  La pile est vide. Feuilletez le bac et mettez-en de cote : trois ou
+                  quatre, c est ce qu on ecoute en une visite.
                 </p>
               ) : (
                 <SortableList
@@ -932,7 +1171,10 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
         {/*
           ----- Le pied de catalogue (P23) -------------------------------------
         */}
-        <footer id="catalogue" className="o-relative o-z-10 o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-pb-12 o-pt-16 md:o-px-10">
+        <footer
+          id="catalogue"
+          className="o-relative o-z-10 o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-pb-12 o-pt-16 md:o-px-10"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <p className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
               <Icon icon={Disc} size={14} aria-hidden="true" />
@@ -941,22 +1183,47 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
 
             {/* Les references, en tableau de catalogue. */}
             <div className="o-mt-8 o-overflow-x-auto">
-              <table className="o-w-full o-text-left o-font-mono o-text-xs" style={{ borderCollapse: 'collapse', minWidth: 640 }}>
-                <caption className="o-sr-only">Les references du bac, avec leur format, leur cote et leur prix</caption>
+              <table
+                className="o-w-full o-text-left o-font-mono o-text-xs"
+                style={{ borderCollapse: 'collapse', minWidth: 640 }}
+              >
+                <caption className="o-sr-only">
+                  Les references du bac, avec leur format, leur cote et leur prix
+                </caption>
                 <thead>
                   <tr className="o-border-b o-border-white-20 o-uppercase o-tracking-widest o-text-zinc-400">
-                    <th scope="col" className="o-py-3 o-pr-6">Reference</th>
-                    <th scope="col" className="o-py-3 o-pr-6">Artiste et titre</th>
-                    <th scope="col" className="o-py-3 o-pr-6">Format</th>
-                    <th scope="col" className="o-py-3 o-pr-6">Cote</th>
-                    <th scope="col" className="o-py-3">Prix</th>
+                    <th scope="col" className="o-py-3 o-pr-6">
+                      Reference
+                    </th>
+                    <th scope="col" className="o-py-3 o-pr-6">
+                      Artiste et titre
+                    </th>
+                    <th scope="col" className="o-py-3 o-pr-6">
+                      Format
+                    </th>
+                    <th scope="col" className="o-py-3 o-pr-6">
+                      Cote
+                    </th>
+                    <th scope="col" className="o-py-3">
+                      Prix
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {DISQUES.map((d) => (
-                    <tr key={d.cle} className="o-border-b o-border-white-10 o-text-zinc-300">
-                      <td className="o-whitespace-nowrap o-py-3 o-pr-6" style={{ color: encreSurSombre() }}>{d.matrice}</td>
-                      <td className="o-py-3 o-pr-6 o-text-zinc-100">{d.artiste} — {d.titre}</td>
+                    <tr
+                      key={d.cle}
+                      className="o-border-b o-border-white-10 o-text-zinc-300"
+                    >
+                      <td
+                        className="o-whitespace-nowrap o-py-3 o-pr-6"
+                        style={{ color: encreSurSombre() }}
+                      >
+                        {d.matrice}
+                      </td>
+                      <td className="o-py-3 o-pr-6 o-text-zinc-100">
+                        {d.artiste} — {d.titre}
+                      </td>
                       <td className="o-whitespace-nowrap o-py-3 o-pr-6">{d.format}</td>
                       <td className="o-py-3 o-pr-6">{d.etat}</td>
                       <td className="o-whitespace-nowrap o-py-3">{d.prix}</td>
@@ -969,9 +1236,19 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
             {/* L echelle des cotes, comme au dos du bac. */}
             <dl className="o-m-0 o-mt-12 o-grid o-gap-x-8 o-gap-y-3 sm:o-grid-cols-2 lg:o-grid-cols-3">
               {COTES.map(([code, dit]) => (
-                <div key={code} className="o-flex o-gap-4 o-border-t o-border-white-10 o-py-3">
-                  <dt className="o-w-10 o-shrink-0 o-font-mono o-text-sm o-font-bold" style={{ color: encreSurSombre() }}>{code}</dt>
-                  <dd className="o-m-0 o-text-xs o-leading-relaxed o-text-zinc-400">{dit}</dd>
+                <div
+                  key={code}
+                  className="o-flex o-gap-4 o-border-t o-border-white-10 o-py-3"
+                >
+                  <dt
+                    className="o-w-10 o-shrink-0 o-font-mono o-text-sm o-font-bold"
+                    style={{ color: encreSurSombre() }}
+                  >
+                    {code}
+                  </dt>
+                  <dd className="o-m-0 o-text-xs o-leading-relaxed o-text-zinc-400">
+                    {dit}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -979,7 +1256,10 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
             <p className="o-m-0 o-mt-12 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
               <span>© 2026 Sillon Noir — 44 cours Julien, 13006 Marseille</span>
               <span>Rachat de collections sur rendez-vous — 04 91 42 60 18</span>
-              <a href="#haut" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">
+              <a
+                href="#haut"
+                className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+              >
                 Remonter ↑
               </a>
             </p>
@@ -988,7 +1268,10 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
 
         {/* La pile flottante, en bas a gauche : ce qu on emporte au comptoir. */}
         {enPile.length > 0 && (
-          <div className="o-fixed o-bottom-4 o-left-4 o-z-40" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
+          <div
+            className="o-fixed o-bottom-4 o-left-4 o-z-40"
+            style={{ maxWidth: 'calc(100vw - 2rem)' }}
+          >
             <button
               type="button"
               aria-expanded={pileOuverte}
@@ -1004,15 +1287,26 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
             {pileOuverte && (
               <div
                 className="o-mt-3 o-w-72 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-4 o-shadow-xl"
-                style={{ maxWidth: 'calc(100vw - 2rem)', backgroundColor: 'var(--o-palette-zinc-950)' }}
+                style={{
+                  maxWidth: 'calc(100vw - 2rem)',
+                  backgroundColor: 'var(--o-palette-zinc-950)',
+                }}
               >
                 <ul className="o-m-0 o-list-none o-p-0">
                   {enPile.map((d) => (
-                    <li key={d.cle} className="o-flex o-items-center o-gap-3 o-border-b o-border-white-10 o-py-2">
-                      <span aria-hidden="true" className="o-size-8 o-shrink-0 o-overflow-hidden o-rounded-sm">
+                    <li
+                      key={d.cle}
+                      className="o-flex o-items-center o-gap-3 o-border-b o-border-white-10 o-py-2"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-size-8 o-shrink-0 o-overflow-hidden o-rounded-sm"
+                      >
                         <Pochette disque={d} />
                       </span>
-                      <span className="o-min-w-0 o-grow o-truncate o-text-xs o-text-zinc-200">{d.titre}</span>
+                      <span className="o-min-w-0 o-grow o-truncate o-text-xs o-text-zinc-200">
+                        {d.titre}
+                      </span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1026,7 +1320,11 @@ Tout est d occasion, rien n est neuf, et une cote est ecrite au crayon dans chaq
                     </li>
                   ))}
                 </ul>
-                <a href="#pile" className="o-mt-3 o-block o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-no-underline focus:o-ring" style={{ color: encreSurSombre() }}>
+                <a
+                  href="#pile"
+                  className="o-mt-3 o-block o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-no-underline focus:o-ring"
+                  style={{ color: encreSurSombre() }}
+                >
                   Remettre dans l ordre
                 </a>
               </div>

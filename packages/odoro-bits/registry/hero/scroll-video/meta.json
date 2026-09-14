@@ -15,7 +15,12 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-duration-slow", "--o-duration-slower", "--o-ease-entrance", "--o-ease-exit"],
+  "tokens": [
+    "--o-duration-slow",
+    "--o-duration-slower",
+    "--o-ease-entrance",
+    "--o-ease-exit"
+  ],
   "props": [
     {
       "name": "src",

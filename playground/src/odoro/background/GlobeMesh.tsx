@@ -101,7 +101,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut. */
-const DEFAULT_POSTER = 'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-50 dark:o-to-zinc-950'
+const DEFAULT_POSTER =
+  'o-bg-gradient-to-br o-from-zinc-100 dark:o-from-zinc-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /** Distance de la cage au nuage de points. */
 const CAGE = 1.18

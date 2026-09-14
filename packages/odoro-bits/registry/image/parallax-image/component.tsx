@@ -103,8 +103,7 @@ export function ParallaxImage({
 
         const box = frame.getBoundingClientRect()
         const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
-        const viewHeight =
-          scroller === null ? window.innerHeight : scroller.clientHeight
+        const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
 
         // Progression de la traversee : 0 quand le cadre entre par le bas,
         // 1 quand il sort par le haut, ramenee a [-1, 1] pour que l'image

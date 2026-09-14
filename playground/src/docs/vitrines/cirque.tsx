@@ -34,7 +34,14 @@ import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
 import { Reveal, useInView } from '@odoro-cli/libs/motion'
-import { useEffect, useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { FloatingShapes } from '@/odoro/background/FloatingShapes.jsx'
 import { WarpText } from '@/odoro/text/WarpText.jsx'
@@ -73,70 +80,80 @@ const ETAPES = [
   {
     rang: '01',
     titre: 'Le piquetage',
-    texte: 'On trace le cercle a la corde depuis le centre. Vingt-quatre reperes, un tous les quinze degres, et la porte toujours dos au vent dominant.',
+    texte:
+      'On trace le cercle a la corde depuis le centre. Vingt-quatre reperes, un tous les quinze degres, et la porte toujours dos au vent dominant.',
     equipe: '2 personnes',
     minutes: 45,
   },
   {
     rang: '02',
     titre: 'Les ancrages',
-    texte: 'Douze pieux de 1,20 m battus au mouton hydraulique. Sur un sol gorge d eau on double, et on perd une heure : c est la seule etape qui depend du ciel.',
+    texte:
+      'Douze pieux de 1,20 m battus au mouton hydraulique. Sur un sol gorge d eau on double, et on perd une heure : c est la seule etape qui depend du ciel.',
     equipe: '4 personnes',
     minutes: 110,
   },
   {
     rang: '03',
     titre: 'Le mat de centre',
-    texte: 'Onze metres d aluminium en trois troncons, monte au treuil depuis sa base. Une fois debout, plus rien ne le fera bouger de la journee.',
+    texte:
+      'Onze metres d aluminium en trois troncons, monte au treuil depuis sa base. Une fois debout, plus rien ne le fera bouger de la journee.',
     equipe: '5 personnes',
     minutes: 60,
   },
   {
     rang: '04',
     titre: 'Les mats de peripherie',
-    texte: 'Six mats couches en etoile, tete vers le centre, pieds sur leurs ancrages. On ne les leve pas encore : la toile doit passer par-dessus.',
+    texte:
+      'Six mats couches en etoile, tete vers le centre, pieds sur leurs ancrages. On ne les leve pas encore : la toile doit passer par-dessus.',
     equipe: '4 personnes',
     minutes: 40,
   },
   {
     rang: '05',
     titre: 'La toile au sol',
-    texte: 'Quatre cent dix metres carres deroules a plat autour du mat, coutures vers le haut. C est le moment ou l on voit si la bache a souffert de la derniere ville.',
+    texte:
+      'Quatre cent dix metres carres deroules a plat autour du mat, coutures vers le haut. C est le moment ou l on voit si la bache a souffert de la derniere ville.',
     equipe: '6 personnes',
     minutes: 55,
   },
   {
     rang: '06',
     titre: 'Le lacage',
-    texte: 'Huit pans laces l un a l autre, a la main, trois cents oeillets. Un lacage trop serre au sol se paie au levage : la toile ne monte plus droit.',
+    texte:
+      'Huit pans laces l un a l autre, a la main, trois cents oeillets. Un lacage trop serre au sol se paie au levage : la toile ne monte plus droit.',
     equipe: '6 personnes',
     minutes: 70,
   },
   {
     rang: '07',
     titre: 'Le levage',
-    texte: 'La couronne monte le long du mat, et la toile avec elle. Deux minutes de treuil, et personne ne parle : c est la seule etape ou tout le monde regarde la meme chose.',
+    texte:
+      'La couronne monte le long du mat, et la toile avec elle. Deux minutes de treuil, et personne ne parle : c est la seule etape ou tout le monde regarde la meme chose.',
     equipe: '7 personnes',
     minutes: 15,
   },
   {
     rang: '08',
     titre: 'Les mats releves',
-    texte: 'Les six mats de peripherie se redressent un a un, dans le sens des aiguilles. Le chapiteau prend sa forme en quarante minutes.',
+    texte:
+      'Les six mats de peripherie se redressent un a un, dans le sens des aiguilles. Le chapiteau prend sa forme en quarante minutes.',
     equipe: '6 personnes',
     minutes: 40,
   },
   {
     rang: '09',
     titre: 'Les haubans',
-    texte: 'Douze haubans tendus au palan, puis retendus une heure plus tard : une toile neuve travaille encore, et une toile detendue claque toute la nuit.',
+    texte:
+      'Douze haubans tendus au palan, puis retendus une heure plus tard : une toile neuve travaille encore, et une toile detendue claque toute la nuit.',
     equipe: '3 personnes',
     minutes: 50,
   },
   {
     rang: '10',
     titre: 'La piste et les gradins',
-    texte: 'Treize metres de piste, deux cent quarante places en gradin, le tapis, et le fanion en dernier. On ouvre trois heures apres.',
+    texte:
+      'Treize metres de piste, deux cent quarante places en gradin, le tapis, et le fanion en dernier. On ouvre trois heures apres.',
     equipe: '8 personnes',
     minutes: 135,
   },
@@ -226,9 +243,27 @@ function Chapiteau(): ReactElement {
       </g>
 
       {/* 03 — le mat de centre, qui pousse depuis sa base. */}
-      <g style={{ ...apparait(3), transformOrigin: '600px 560px', transform: `scaleY(${part(3, 0.01)})` }}>
-        <path d="M600 560V142" stroke={accentDoux(200, 80)} strokeWidth="8" strokeLinecap="round" />
-        <circle cx="600" cy="138" r="12" fill="none" stroke={accent(400)} strokeWidth="4" />
+      <g
+        style={{
+          ...apparait(3),
+          transformOrigin: '600px 560px',
+          transform: `scaleY(${part(3, 0.01)})`,
+        }}
+      >
+        <path
+          d="M600 560V142"
+          stroke={accentDoux(200, 80)}
+          strokeWidth="8"
+          strokeLinecap="round"
+        />
+        <circle
+          cx="600"
+          cy="138"
+          r="12"
+          fill="none"
+          stroke={accent(400)}
+          strokeWidth="4"
+        />
       </g>
 
       {/* 04 — les mats couches, tete vers le centre. */}
@@ -246,7 +281,15 @@ function Chapiteau(): ReactElement {
 
       {/* 05 et 06 — la toile au sol, puis ses coutures lacees. */}
       <g style={{ opacity: `calc(${part(5)} - ${part(7, 0.02)})` }}>
-        <ellipse cx="600" cy="546" rx="392" ry="58" fill={accentDoux(700, 22)} stroke={trait} strokeWidth="1.5" />
+        <ellipse
+          cx="600"
+          cy="546"
+          rx="392"
+          ry="58"
+          fill={accentDoux(700, 22)}
+          stroke={trait}
+          strokeWidth="1.5"
+        />
         <g style={apparait(6)}>
           {[0, 1, 2, 3, 4, 5, 6, 7].map((rang) => {
             const angle = (rang / 8) * Math.PI * 2
@@ -270,7 +313,13 @@ function Chapiteau(): ReactElement {
           transform: `translate3d(0, calc((1 - ${part(7, 0.015)}) * 320px), 0)`,
         }}
       >
-        <path d={TOILE} fill={accentDoux(700, 30)} stroke={accent(400)} strokeWidth="2.5" strokeLinejoin="round" />
+        <path
+          d={TOILE}
+          fill={accentDoux(700, 30)}
+          stroke={accent(400)}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
         {/* Les huit pans, tires de la couronne vers le bord. */}
         {[-1, -0.72, -0.42, -0.14, 0.14, 0.42, 0.72, 1].map((u) => (
           <path
@@ -291,7 +340,10 @@ function Chapiteau(): ReactElement {
             stroke={accentDoux(200, 80)}
             strokeWidth="5"
             strokeLinecap="round"
-            style={{ transformOrigin: `${String(x)}px 560px`, transform: `scaleY(${part(8, rang * 0.006)})` }}
+            style={{
+              transformOrigin: `${String(x)}px 560px`,
+              transform: `scaleY(${part(8, rang * 0.006)})`,
+            }}
           />
         ))}
       </g>
@@ -310,9 +362,31 @@ function Chapiteau(): ReactElement {
 
       {/* 10 — la piste, les gradins, la porte, le fanion. */}
       <g style={apparait(10)}>
-        <ellipse cx="600" cy="556" rx="150" ry="26" fill="none" stroke={accent(500)} strokeWidth="3" />
-        <ellipse cx="600" cy="556" rx="292" ry="46" fill="none" stroke={trait} strokeWidth="1.4" strokeDasharray="8 9" />
-        <path d="M544 560v-92a56 56 0 0 1 112 0v92" fill={accentDoux(900, 60)} stroke={accent(400)} strokeWidth="2" />
+        <ellipse
+          cx="600"
+          cy="556"
+          rx="150"
+          ry="26"
+          fill="none"
+          stroke={accent(500)}
+          strokeWidth="3"
+        />
+        <ellipse
+          cx="600"
+          cy="556"
+          rx="292"
+          ry="46"
+          fill="none"
+          stroke={trait}
+          strokeWidth="1.4"
+          strokeDasharray="8 9"
+        />
+        <path
+          d="M544 560v-92a56 56 0 0 1 112 0v92"
+          fill={accentDoux(900, 60)}
+          stroke={accent(400)}
+          strokeWidth="2"
+        />
         <path d="M600 138l86 -20-86 -22z" fill={accent(500)} />
       </g>
     </svg>
@@ -329,7 +403,15 @@ function Chapiteau(): ReactElement {
  * son voisin de gauche — c est ce decalage qui fait l objet mecanique plutot
  * qu une suite de nombres qui changent.
  */
-function Rouleau({ chiffre, rang, lance }: { readonly chiffre: number; readonly rang: number; readonly lance: boolean }): ReactElement {
+function Rouleau({
+  chiffre,
+  rang,
+  lance,
+}: {
+  readonly chiffre: number
+  readonly rang: number
+  readonly lance: boolean
+}): ReactElement {
   const { reduced } = useMotionState()
   // Sous mouvement reduit la valeur est posee telle quelle : elle n attend
   // meme pas d entrer dans le champ, elle est deja la.
@@ -350,11 +432,17 @@ function Rouleau({ chiffre, rang, lance }: { readonly chiffre: number; readonly 
         className="o-absolute o-inset-x-0 o-top-0 o-block o-text-center"
         style={{
           transform: `translate3d(0, ${String(pose ? -(tours % 10) * 1.15 - Math.floor(tours / 10) * 11.5 : 0)}em, 0)`,
-          transition: reduced ? undefined : `transform ${String(2400 + rang * 260)}ms cubic-bezier(0.2, 0.8, 0.2, 1)`,
+          transition: reduced
+            ? undefined
+            : `transform ${String(2400 + rang * 260)}ms cubic-bezier(0.2, 0.8, 0.2, 1)`,
         }}
       >
         {Array.from({ length: tours + 2 }, (_, i) => (
-          <span key={i} className="o-block" style={{ height: '1.15em', lineHeight: '1.15em' }}>
+          <span
+            key={i}
+            className="o-block"
+            style={{ height: '1.15em', lineHeight: '1.15em' }}
+          >
             {i % 10}
           </span>
         ))}
@@ -364,22 +452,38 @@ function Rouleau({ chiffre, rang, lance }: { readonly chiffre: number; readonly 
 }
 
 /** Le compteur : une valeur, ses rouleaux, et ce qu elle compte. */
-function Compteur({ valeur, quoi, note }: { readonly valeur: number; readonly quoi: string; readonly note: string }): ReactElement {
+function Compteur({
+  valeur,
+  quoi,
+  note,
+}: {
+  readonly valeur: number
+  readonly quoi: string
+  readonly note: string
+}): ReactElement {
   const [hote, vu] = useInView<HTMLDivElement>({ threshold: 0.4, once: true })
   const chiffres = String(valeur).padStart(6, '0').split('').map(Number)
   return (
     <div ref={hote}>
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</p>
+      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+        {quoi}
+      </p>
       <p
         className="o-m-0 o-mt-4 o-flex o-gap-1"
-        style={{ ...affiche('m', 700), fontSize: 'clamp(2.25rem, 6vw, 5rem)', color: 'var(--o-palette-zinc-50)' }}
+        style={{
+          ...affiche('m', 700),
+          fontSize: 'clamp(2.25rem, 6vw, 5rem)',
+          color: 'var(--o-palette-zinc-50)',
+        }}
       >
         <span className="o-sr-only">{valeur.toLocaleString('fr-FR')}</span>
         {chiffres.map((chiffre, rang) => (
           <Rouleau key={rang} chiffre={chiffre} rang={rang} lance={vu} />
         ))}
       </p>
-      <p className="o-m-0 o-mt-4 o-max-w-xs o-text-sm o-leading-relaxed o-text-zinc-400">{note}</p>
+      <p className="o-m-0 o-mt-4 o-max-w-xs o-text-sm o-leading-relaxed o-text-zinc-400">
+        {note}
+      </p>
     </div>
   )
 }
@@ -387,10 +491,20 @@ function Compteur({ valeur, quoi, note }: { readonly valeur: number; readonly qu
 /* ============================ L escalier de pixels ===================== */
 
 /** La couture de Tenora : une marche de carres, pas un trait. */
-function Escalier({ vers, hauteur = 12 }: { readonly vers: string; readonly hauteur?: number }): ReactElement {
+function Escalier({
+  vers,
+  hauteur = 12,
+}: {
+  readonly vers: string
+  readonly hauteur?: number
+}): ReactElement {
   const rangees = 5
   return (
-    <div aria-hidden="true" className="o-relative o-overflow-hidden" style={{ height: hauteur * rangees }}>
+    <div
+      aria-hidden="true"
+      className="o-relative o-overflow-hidden"
+      style={{ height: hauteur * rangees }}
+    >
       {Array.from({ length: rangees }, (_, r) => (
         <div key={r} className="o-flex" style={{ height: hauteur }}>
           {Array.from({ length: 40 }, (_, c) => (
@@ -421,17 +535,37 @@ const NUMEROS: readonly {
     nom: 'Le fil, a trois',
     discipline: 'Fil souple',
     duree: '9 min',
-    texte: 'Un fil de six metres, trois corps dessus, et aucun balancier. Le numero se joue sans musique : on entend le fil.',
+    texte:
+      'Un fil de six metres, trois corps dessus, et aucun balancier. Le numero se joue sans musique : on entend le fil.',
     colonnes: 6,
   },
-  { nom: 'Mat chinois', discipline: 'Mat', duree: '7 min', texte: 'Neuf metres, une descente en chute libre arretee a un metre du tapis.', colonnes: 2 },
-  { nom: 'Portes', discipline: 'Main a main', duree: '11 min', texte: 'Douze portes enchainees sans repose au sol.', colonnes: 2 },
-  { nom: 'La roue', discipline: 'Roue Cyr', duree: '6 min', texte: 'Une roue, un cercle de piste, et la meme vitesse du debut a la fin.', colonnes: 2 },
+  {
+    nom: 'Mat chinois',
+    discipline: 'Mat',
+    duree: '7 min',
+    texte: 'Neuf metres, une descente en chute libre arretee a un metre du tapis.',
+    colonnes: 2,
+  },
+  {
+    nom: 'Portes',
+    discipline: 'Main a main',
+    duree: '11 min',
+    texte: 'Douze portes enchainees sans repose au sol.',
+    colonnes: 2,
+  },
+  {
+    nom: 'La roue',
+    discipline: 'Roue Cyr',
+    duree: '6 min',
+    texte: 'Une roue, un cercle de piste, et la meme vitesse du debut a la fin.',
+    colonnes: 2,
+  },
   {
     nom: 'Final — la bascule',
     discipline: 'Bascule coreenne',
     duree: '13 min',
-    texte: 'Sept personnes, une bascule, et un triple qui n est pas garanti : il tombe une fois sur quatre, et on le laisse tomber.',
+    texte:
+      'Sept personnes, une bascule, et un triple qui n est pas garanti : il tombe une fois sur quatre, et on le laisse tomber.',
     colonnes: 4,
   },
 ]
@@ -455,7 +589,10 @@ function Rebours(): ReactElement {
 
   if (reste <= 0) {
     return (
-      <p className="o-m-0 o-text-zinc-300" style={{ ...affiche('m', 700), fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}>
+      <p
+        className="o-m-0 o-text-zinc-300"
+        style={{ ...affiche('m', 700), fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}
+      >
         Les reservations sont closes. Le chapiteau se demonte lundi.
       </p>
     )
@@ -475,11 +612,18 @@ function Rebours(): ReactElement {
         <div key={quoi} className="o-min-w-0">
           <dt
             className="o-tabular-nums"
-            style={{ ...affiche('m', 700), fontSize: 'clamp(2.5rem, 7vw, 5.5rem)', lineHeight: 0.86, color: 'var(--o-palette-zinc-50)' }}
+            style={{
+              ...affiche('m', 700),
+              fontSize: 'clamp(2.5rem, 7vw, 5.5rem)',
+              lineHeight: 0.86,
+              color: 'var(--o-palette-zinc-50)',
+            }}
           >
             {String(valeur).padStart(2, '0')}
           </dt>
-          <dd className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dd>
+          <dd className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            {quoi}
+          </dd>
         </div>
       ))}
     </dl>
@@ -516,7 +660,10 @@ export default function Page(): ReactElement {
     <Porte forme="iris" marque="Chapiteau">
       <div className="o-relative" style={{ ...nuit('zinc'), ...polices }}>
         {/* ================= L ouverture : les formes qui flottent ======== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <FloatingShapes
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
@@ -529,16 +676,24 @@ export default function Page(): ReactElement {
           <div
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
-            style={{ background: `radial-gradient(120% 78% at 50% 106%, ${accentDoux(700, 46)} 0%, transparent 64%)` }}
+            style={{
+              background: `radial-gradient(120% 78% at 50% 106%, ${accentDoux(700, 46)} 0%, transparent 64%)`,
+            }}
           />
           <div
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-10"
-            style={{ background: `radial-gradient(46% 34% at 50% 44%, ${accentDoux(950, 94)} 0%, transparent 76%)` }}
+            style={{
+              background: `radial-gradient(46% 34% at 50% 44%, ${accentDoux(950, 94)} 0%, transparent 76%)`,
+            }}
           />
           <Grain opacite={0.07} />
 
-          <BarreCoins marque="Chapiteau" liens={NAVIGATION} droite="Cirque contemporain — en tournee" />
+          <BarreCoins
+            marque="Chapiteau"
+            liens={NAVIGATION}
+            droite="Cirque contemporain — en tournee"
+          />
 
           <div className="o-relative o-z-20 o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-12 o-pt-10 md:o-px-10">
             <div className="o-text-center">
@@ -551,15 +706,28 @@ export default function Page(): ReactElement {
                 inclinaison={7}
                 course={1.2}
                 className="o-m-0 o-mt-8 o-uppercase o-text-zinc-50"
-                style={{ ...affiche('xl', 700), fontSize: 'clamp(2.75rem, 13vw, 12rem)', lineHeight: 0.86, letterSpacing: '-0.045em' }}
+                style={{
+                  ...affiche('xl', 700),
+                  fontSize: 'clamp(2.75rem, 13vw, 12rem)',
+                  lineHeight: 0.86,
+                  letterSpacing: '-0.045em',
+                }}
               >
                 Chapiteau
               </WarpText>
-              <Surgit delai={480} as="p" className="o-mx-auto o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-300">
-                Une toile de quatre cent dix metres carres, montee en huit heures, et un spectacle qui ne tient qu au sol sur lequel on l a plantee.
+              <Surgit
+                delai={480}
+                as="p"
+                className="o-mx-auto o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-300"
+              >
+                Une toile de quatre cent dix metres carres, montee en huit heures, et un
+                spectacle qui ne tient qu au sol sur lequel on l a plantee.
               </Surgit>
               <Surgit delai={600} className="o-mt-9 o-flex o-justify-center">
-                <Actions pleine={['#venir', 'Reserver a Nancy']} fantome={['#montage', 'Voir le montage']} />
+                <Actions
+                  pleine={['#venir', 'Reserver a Nancy']}
+                  fantome={['#montage', 'Voir le montage']}
+                />
               </Surgit>
             </div>
 
@@ -571,7 +739,11 @@ export default function Page(): ReactElement {
               >
                 On monte le mardi, on joue du jeudi au dimanche, on demonte le lundi.
               </TitreVague>
-              <Surgit delai={760} as="p" className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-text-right">
+              <Surgit
+                delai={760}
+                as="p"
+                className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-text-right"
+              >
                 Prairie de la Meurthe, Nancy
                 <br />
                 <span style={{ color: encreSurSombre() }}>Jusqu au 4 octobre</span>
@@ -590,7 +762,12 @@ export default function Page(): ReactElement {
               actes={ETAPES.length}
               course={70}
               glisse={0.78}
-              style={{ '--p': reduced ? 1 : 0, backgroundColor: accentDoux(950, 80) } as CSSProperties}
+              style={
+                {
+                  '--p': reduced ? 1 : 0,
+                  backgroundColor: accentDoux(950, 80),
+                } as CSSProperties
+              }
               hud={(acte: number) => {
                 const etape = ETAPES[acte] ?? ETAPES[0]
                 return (
@@ -602,13 +779,30 @@ export default function Page(): ReactElement {
                       </p>
                     </div>
                     <div className="o-max-w-md">
-                      <p className="o-m-0 o-tabular-nums" style={{ ...affiche('m', 700), fontSize: 'clamp(3rem, 9vw, 7rem)', lineHeight: 0.8, color: accent(400) }}>
+                      <p
+                        className="o-m-0 o-tabular-nums"
+                        style={{
+                          ...affiche('m', 700),
+                          fontSize: 'clamp(3rem, 9vw, 7rem)',
+                          lineHeight: 0.8,
+                          color: accent(400),
+                        }}
+                      >
                         {etape.rang}
                       </p>
-                      <h2 className="o-m-0 o-mt-3 o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)', lineHeight: 0.95 }}>
+                      <h2
+                        className="o-m-0 o-mt-3 o-text-zinc-50"
+                        style={{
+                          ...affiche('m', 700),
+                          fontSize: 'clamp(1.5rem, 3.4vw, 2.75rem)',
+                          lineHeight: 0.95,
+                        }}
+                      >
                         {etape.titre}
                       </h2>
-                      <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">{etape.texte}</p>
+                      <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">
+                        {etape.texte}
+                      </p>
                     </div>
                   </div>
                 )
@@ -617,12 +811,22 @@ export default function Page(): ReactElement {
               <Couche profondeur={0}>
                 <div
                   className="o-absolute o-inset-0"
-                  style={{ background: `linear-gradient(180deg, ${accentDoux(950, 92)} 0%, ${accentDoux(800, 34)} 68%, ${accentDoux(700, 44)} 100%)` }}
+                  style={{
+                    background: `linear-gradient(180deg, ${accentDoux(950, 92)} 0%, ${accentDoux(800, 34)} 68%, ${accentDoux(700, 44)} 100%)`,
+                  }}
                 />
               </Couche>
               <Couche profondeur={0.08} derive={16}>
-                <svg viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/3 o-w-full">
-                  <path d="M0 300V196c120-26 180 14 300-16s180-48 300-20 200 44 300 22 200-42 300-28v144z" fill={accentDoux(900, 52)} />
+                <svg
+                  viewBox="0 0 1200 300"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="o-absolute o-inset-x-0 o-bottom-0 o-h-1/3 o-w-full"
+                >
+                  <path
+                    d="M0 300V196c120-26 180 14 300-16s180-48 300-20 200 44 300 22 200-42 300-28v144z"
+                    fill={accentDoux(900, 52)}
+                  />
                 </svg>
               </Couche>
               <Couche profondeur={0.06}>
@@ -634,47 +838,106 @@ export default function Page(): ReactElement {
               </Couche>
               <Couche profondeur={0.24} derive={30}>
                 {/* Les caravanes, garees au bord du terrain. */}
-                <svg viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-h-16 o-w-full">
+                <svg
+                  viewBox="0 0 1200 200"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="o-absolute o-inset-x-0 o-bottom-0 o-h-16 o-w-full"
+                >
                   {[80, 250, 940, 1080].map((x) => (
                     <g key={x}>
-                      <rect x={x} y="110" width="126" height="56" rx="8" fill={accentDoux(900, 70)} stroke={accentDoux(300, 30)} strokeWidth="1.5" />
-                      <circle cx={x + 30} cy="168" r="9" fill="none" stroke={accentDoux(300, 30)} strokeWidth="1.5" />
-                      <circle cx={x + 96} cy="168" r="9" fill="none" stroke={accentDoux(300, 30)} strokeWidth="1.5" />
+                      <rect
+                        x={x}
+                        y="110"
+                        width="126"
+                        height="56"
+                        rx="8"
+                        fill={accentDoux(900, 70)}
+                        stroke={accentDoux(300, 30)}
+                        strokeWidth="1.5"
+                      />
+                      <circle
+                        cx={x + 30}
+                        cy="168"
+                        r="9"
+                        fill="none"
+                        stroke={accentDoux(300, 30)}
+                        strokeWidth="1.5"
+                      />
+                      <circle
+                        cx={x + 96}
+                        cy="168"
+                        r="9"
+                        fill="none"
+                        stroke={accentDoux(300, 30)}
+                        strokeWidth="1.5"
+                      />
                     </g>
                   ))}
                 </svg>
               </Couche>
               <Couche profondeur={0.62} derive={54}>
-                <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-h-20 o-w-full">
-                  <path d="M0 120V54c90 18 150-10 240 6s150 30 240 8 150-30 240-10 150 34 240 12 150-26 240-6v56z" fill={accentDoux(950, 96)} />
+                <svg
+                  viewBox="0 0 1200 120"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="o-absolute o-inset-x-0 o-bottom-0 o-h-20 o-w-full"
+                >
+                  <path
+                    d="M0 120V54c90 18 150-10 240 6s150 30 240 8 150-30 240-10 150 34 240 12 150-26 240-6v56z"
+                    fill={accentDoux(950, 96)}
+                  />
                 </svg>
               </Couche>
             </Profondeur>
           </section>
 
           {/* ================= Le total, et la route ====================== */}
-          <section id="route" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="route"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 md:o-grid-cols-12">
               <div className="o-min-w-0 md:o-col-span-7">
                 <Reveal>
                   <Indice rang="02">La route</Indice>
                 </Reveal>
                 <Reveal delay={80}>
-                  <h2 className="o-m-0 o-mt-6 o-max-w-xl o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)', lineHeight: 0.92 }}>
-                    {journee.heures} h {String(journee.minutes).padStart(2, '0')} de montage, quatre villes, une seule toile.
+                  <h2
+                    className="o-m-0 o-mt-6 o-max-w-xl o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 700),
+                      fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)',
+                      lineHeight: 0.92,
+                    }}
+                  >
+                    {journee.heures} h {String(journee.minutes).padStart(2, '0')} de
+                    montage, quatre villes, une seule toile.
                   </h2>
                 </Reveal>
                 <p className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
-                  C est la somme des dix etapes ci-dessus, sans les pauses. Multipliee par quatre villes et deux mouvements par ville, elle fait la moitie du travail de l annee.
+                  C est la somme des dix etapes ci-dessus, sans les pauses. Multipliee par
+                  quatre villes et deux mouvements par ville, elle fait la moitie du
+                  travail de l annee.
                 </p>
                 <ol className="o-m-0 o-mt-12 o-list-none o-border-t o-border-white-10 o-p-0">
                   {ROUTE.map(([mois, lieu, combien]) => (
-                    <li key={lieu} className="o-grid o-items-baseline o-gap-2 o-border-b o-border-white-10 o-py-5 md:o-grid-cols-12 md:o-gap-6">
-                      <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3" style={{ color: encreSurSombre() }}>
+                    <li
+                      key={lieu}
+                      className="o-grid o-items-baseline o-gap-2 o-border-b o-border-white-10 o-py-5 md:o-grid-cols-12 md:o-gap-6"
+                    >
+                      <span
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3"
+                        style={{ color: encreSurSombre() }}
+                      >
                         {mois}
                       </span>
-                      <span className="o-min-w-0 o-text-lg o-text-zinc-50 md:o-col-span-5">{lieu}</span>
-                      <span className="o-whitespace-nowrap o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-4 md:o-text-right">{combien}</span>
+                      <span className="o-min-w-0 o-text-lg o-text-zinc-50 md:o-col-span-5">
+                        {lieu}
+                      </span>
+                      <span className="o-whitespace-nowrap o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-4 md:o-text-right">
+                        {combien}
+                      </span>
                     </li>
                   ))}
                 </ol>
@@ -682,7 +945,13 @@ export default function Page(): ReactElement {
 
               {/* Le compteur a rouleaux : la forme C17. */}
               <div className="o-min-w-0 md:o-col-span-5">
-                <div className="o-flex o-flex-col o-gap-10 o-p-8" style={{ backgroundColor: accentDoux(950, 76), boxShadow: `inset 0 0 0 1px ${accentDoux(300, 22)}` }}>
+                <div
+                  className="o-flex o-flex-col o-gap-10 o-p-8"
+                  style={{
+                    backgroundColor: accentDoux(950, 76),
+                    boxShadow: `inset 0 0 0 1px ${accentDoux(300, 22)}`,
+                  }}
+                >
                   <Compteur
                     valeur={41208}
                     quoi="Kilometres depuis 2019"
@@ -699,13 +968,24 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= Les numeros, en mosaique inegale ============ */}
-          <section id="numeros" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(950, 84) }}>
+          <section
+            id="numeros"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            style={{ backgroundColor: accentDoux(950, 84) }}
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
                 <Indice rang="03">Le spectacle</Indice>
               </Reveal>
               <Reveal delay={80}>
-                <h2 className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)', lineHeight: 0.92 }}>
+                <h2
+                  className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 700),
+                    fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)',
+                    lineHeight: 0.92,
+                  }}
+                >
                   Cinq numeros, quarante-six minutes, aucun entracte.
                 </h2>
               </Reveal>
@@ -715,23 +995,49 @@ export default function Page(): ReactElement {
                   const contenu: ReactNode = (
                     <div
                       className="o-flex o-h-full o-flex-col o-justify-between o-gap-8 o-p-7"
-                      style={{ backgroundColor: accentDoux(900, 44), minHeight: numero.colonnes >= 4 ? '15rem' : '13rem' }}
+                      style={{
+                        backgroundColor: accentDoux(900, 44),
+                        minHeight: numero.colonnes >= 4 ? '15rem' : '13rem',
+                      }}
                     >
                       <p className="o-m-0 o-flex o-items-baseline o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
                         <span>{numero.discipline}</span>
                         <span style={{ color: encreSurSombre() }}>{numero.duree}</span>
                       </p>
                       <div>
-                        <h3 className="o-m-0 o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: numero.colonnes >= 4 ? 'clamp(1.5rem, 3.2vw, 2.5rem)' : 'clamp(1.2rem, 2vw, 1.6rem)', lineHeight: 0.96 }}>
+                        <h3
+                          className="o-m-0 o-text-zinc-50"
+                          style={{
+                            ...affiche('m', 700),
+                            fontSize:
+                              numero.colonnes >= 4
+                                ? 'clamp(1.5rem, 3.2vw, 2.5rem)'
+                                : 'clamp(1.2rem, 2vw, 1.6rem)',
+                            lineHeight: 0.96,
+                          }}
+                        >
                           {numero.nom}
                         </h3>
-                        <p className="o-m-0 o-mt-3 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-300">{numero.texte}</p>
+                        <p className="o-m-0 o-mt-3 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-300">
+                          {numero.texte}
+                        </p>
                       </div>
                     </div>
                   )
-                  const large = { 2: 'md:o-col-span-2', 4: 'md:o-col-span-4', 6: 'md:o-col-span-6' }[numero.colonnes]
+                  const large = {
+                    2: 'md:o-col-span-2',
+                    4: 'md:o-col-span-4',
+                    6: 'md:o-col-span-6',
+                  }[numero.colonnes]
                   return rang === NUMEROS.length - 1 ? (
-                    <StarBorder key={numero.nom} color="--o-vitrine-400" speed={5200} thickness={1} className={`o-min-w-0 ${large}`} style={{ display: 'block', borderRadius: 0 }}>
+                    <StarBorder
+                      key={numero.nom}
+                      color="--o-vitrine-400"
+                      speed={5200}
+                      thickness={1}
+                      className={`o-min-w-0 ${large}`}
+                      style={{ display: 'block', borderRadius: 0 }}
+                    >
                       {contenu}
                     </StarBorder>
                   ) : (
@@ -745,13 +1051,23 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= A19 : le compte a rebours =================== */}
-          <section id="venir" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="venir"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
                 <Indice rang="04">Avant la cloture</Indice>
               </Reveal>
               <Reveal delay={80}>
-                <h2 className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)', lineHeight: 0.92 }}>
+                <h2
+                  className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 700),
+                    fontSize: 'clamp(1.85rem, 4.4vw, 3.5rem)',
+                    lineHeight: 0.92,
+                  }}
+                >
                   La toile tombe le 5 octobre au matin.
                 </h2>
               </Reveal>
@@ -759,7 +1075,9 @@ export default function Page(): ReactElement {
                 <Rebours />
               </div>
               <p className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300">
-                Douze representations a Nancy, puis le chapiteau se demonte et part en garde jusqu en avril. Tarif unique a dix-huit euros, douze pour les moins de seize ans.
+                Douze representations a Nancy, puis le chapiteau se demonte et part en
+                garde jusqu en avril. Tarif unique a dix-huit euros, douze pour les moins
+                de seize ans.
               </p>
               <p className="o-m-0 o-mt-9">
                 <a
@@ -767,7 +1085,8 @@ export default function Page(): ReactElement {
                   className="o-inline-flex o-items-center o-gap-3 o-rounded-full o-px-8 o-py-4 o-text-base o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
                   style={aplat()}
                 >
-                  Reserver une place <Icon icon={ArrowRight} size={17} aria-hidden="true" />
+                  Reserver une place{' '}
+                  <Icon icon={ArrowRight} size={17} aria-hidden="true" />
                 </a>
               </p>
             </div>
@@ -775,7 +1094,10 @@ export default function Page(): ReactElement {
         </main>
 
         {/* ================= P46 : le pied en etiquette de bagage ========= */}
-        <footer className="o-px-6 o-pb-16 o-pt-20 md:o-px-10" style={{ backgroundColor: accentDoux(950, 88) }}>
+        <footer
+          className="o-px-6 o-pb-16 o-pt-20 md:o-px-10"
+          style={{ backgroundColor: accentDoux(950, 88) }}
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <div className="o-flex o-flex-wrap o-items-start o-gap-10">
               {/* L etiquette, avec son oeillet et sa ficelle. */}
@@ -787,9 +1109,15 @@ export default function Page(): ReactElement {
                   clipPath: 'polygon(0 8%, 14% 0, 100% 0, 100% 100%, 14% 100%, 0 92%)',
                 }}
               >
-                <span aria-hidden="true" className="o-absolute o-left-4 o-top-1/2 o-block o-size-3 o-rounded-full" style={{ boxShadow: `0 0 0 2px ${accentDoux(300, 46)}` }} />
+                <span
+                  aria-hidden="true"
+                  className="o-absolute o-left-4 o-top-1/2 o-block o-size-3 o-rounded-full"
+                  style={{ boxShadow: `0 0 0 2px ${accentDoux(300, 46)}` }}
+                />
                 <div className="o-pl-8">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Chapiteau — compagnie itinerante</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Chapiteau — compagnie itinerante
+                  </p>
                   <dl className="o-m-0 o-mt-5">
                     {[
                       ['De', 'Brest, plateau des Capucins'],
@@ -798,9 +1126,16 @@ export default function Page(): ReactElement {
                       ['Masse', '18,4 t dont 1,9 t de toile'],
                       ['Retour', 'Avril 2027'],
                     ].map(([quoi, valeur]) => (
-                      <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-white-10 o-py-2">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
-                        <dd className="o-m-0 o-text-right o-font-mono o-text-xs o-text-zinc-50">{valeur}</dd>
+                      <div
+                        key={quoi}
+                        className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-white-10 o-py-2"
+                      >
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-text-right o-font-mono o-text-xs o-text-zinc-50">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
@@ -808,10 +1143,21 @@ export default function Page(): ReactElement {
               </div>
 
               <div className="o-min-w-0 o-grow">
-                <p className="o-m-0" style={{ ...affiche('m', 700), fontSize: 'clamp(2rem, 7vw, 5rem)', lineHeight: 0.86, color: accentDoux(300, 70) }}>
+                <p
+                  className="o-m-0"
+                  style={{
+                    ...affiche('m', 700),
+                    fontSize: 'clamp(2rem, 7vw, 5rem)',
+                    lineHeight: 0.86,
+                    color: accentDoux(300, 70),
+                  }}
+                >
                   Chapiteau
                 </p>
-                <nav aria-label="Pied de page" className="o-mt-8 o-flex o-flex-wrap o-gap-x-8 o-gap-y-3">
+                <nav
+                  aria-label="Pied de page"
+                  className="o-mt-8 o-flex o-flex-wrap o-gap-x-8 o-gap-y-3"
+                >
                   {[
                     ['#montage', 'Le montage'],
                     ['#numeros', 'Le spectacle'],
@@ -834,7 +1180,8 @@ export default function Page(): ReactElement {
                     className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-uppercase o-tracking-widest o-no-underline focus:o-ring"
                     style={{ color: encreSurSombre() }}
                   >
-                    route@chapiteau-cie.fr <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                    route@chapiteau-cie.fr{' '}
+                    <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                   </a>
                 </p>
                 <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500">

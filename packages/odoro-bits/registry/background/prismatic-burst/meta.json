@@ -19,11 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-palette-fuchsia-500",
-    "--o-palette-cyan-400"
-  ],
+  "tokens": ["--o-theme-bg", "--o-palette-fuchsia-500", "--o-palette-cyan-400"],
   "props": [
     {
       "name": "x",

@@ -27,13 +27,7 @@
  */
 
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactElement,
-} from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactElement } from 'react'
 
 /** Proprietes propres au composant. */
 export interface CopyButtonOwnProps {

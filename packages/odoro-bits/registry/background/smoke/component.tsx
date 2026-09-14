@@ -61,11 +61,7 @@ export interface SmokeOwnProps {
 export type SmokeProps = Customisable<SmokeOwnProps>
 
 /** Tokens employes par defaut : le fond, le corps de la fumee, ses cretes. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-muted',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-theme-fg'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

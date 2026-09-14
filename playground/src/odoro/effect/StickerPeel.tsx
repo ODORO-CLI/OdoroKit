@@ -32,12 +32,7 @@
  */
 
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
-import {
-  useState,
-  type CSSProperties,
-  type ReactElement,
-  type ReactNode,
-} from 'react'
+import { useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
 
 /** Coin qui se souleve. */
 export type PeelCorner = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
@@ -78,7 +73,8 @@ interface CornerShape {
 /** Les quatre coins, ecrits une fois. */
 const CORNERS: Readonly<Record<PeelCorner, CornerShape>> = {
   'top-right': {
-    content: (cut) => `polygon(0 0, calc(100% - ${cut}) 0, 100% ${cut}, 100% 100%, 0 100%)`,
+    content: (cut) =>
+      `polygon(0 0, calc(100% - ${cut}) 0, 100% ${cut}, 100% 100%, 0 100%)`,
     box: { top: 0, right: 0 },
     flap: 'polygon(0 0, 100% 0, 100% 100%)',
     angle: '225deg',

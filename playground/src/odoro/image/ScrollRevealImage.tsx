@@ -167,8 +167,7 @@ export function ScrollRevealImage({
       () => {
         const box = frame.getBoundingClientRect()
         const viewTop = scroller === null ? 0 : scroller.getBoundingClientRect().top
-        const viewHeight =
-          scroller === null ? window.innerHeight : scroller.clientHeight
+        const viewHeight = scroller === null ? window.innerHeight : scroller.clientHeight
 
         // Traversee : zero quand le cadre entre par le bas, un quand il sort
         // par le haut.

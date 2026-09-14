@@ -168,7 +168,8 @@ export function WordFlip({
   const lineHeight = size * LINE
   // Le rayon qui referme le polygone : deux faces sont dos a dos, sans
   // epaisseur ; au-dela, chaque face est a la distance de l'apotheme.
-  const radius = faces.length === 2 ? 0 : lineHeight / 2 / Math.tan(Math.PI / faces.length)
+  const radius =
+    faces.length === 2 ? 0 : lineHeight / 2 / Math.tan(Math.PI / faces.length)
   const longest = faces.reduce((a, b) => (b.length > a.length ? b : a), '')
 
   const loaderStyle = {

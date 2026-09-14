@@ -52,7 +52,13 @@ import { Icon } from '@odoro-cli/icons'
 import { Sun } from '@odoro-cli/icons/filaire'
 import { Stagger, useInView } from '@odoro-cli/libs/motion'
 import { Input, Select } from '@odoro-cli/libs/ui'
-import { useEffect, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { WaterSurface } from '@/odoro/background/WaterSurface.jsx'
 import { Frame } from '@/odoro/image/Frame.jsx'
@@ -104,7 +110,11 @@ const LUEUR_CRIQUE: CSSProperties = {
 }
 
 /** La voix d affichage : Cormorant, en 300. */
-const SERIF: CSSProperties = { fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300, letterSpacing: '-0.02em' }
+const SERIF: CSSProperties = {
+  fontFamily: 'var(--o-vitrine-affichage)',
+  fontWeight: 300,
+  letterSpacing: '-0.02em',
+}
 
 /** Les liens du bandeau. */
 const LIENS: readonly (readonly [string, string])[] = [
@@ -140,63 +150,135 @@ interface Chambre {
 /** Les douze chambres, du rez-de-chaussee au dernier etage. */
 const CHAMBRES: readonly Chambre[] = [
   {
-    nom: 'Tamaris', surface: 18, vue: 'Jardin de cistes', categorie: 'jardin',
-    lits: 'Un lit de 140', capacite: 2, prix: 145,
-    prises: [['2026-09-12', '2026-09-19'], ['2026-10-02', '2026-10-06']],
+    nom: 'Tamaris',
+    surface: 18,
+    vue: 'Jardin de cistes',
+    categorie: 'jardin',
+    lits: 'Un lit de 140',
+    capacite: 2,
+    prix: 145,
+    prises: [
+      ['2026-09-12', '2026-09-19'],
+      ['2026-10-02', '2026-10-06'],
+    ],
   },
   {
-    nom: 'Criste', surface: 19, vue: 'Jardin de cistes', categorie: 'jardin',
-    lits: 'Deux lits de 90', capacite: 2, prix: 145,
+    nom: 'Criste',
+    surface: 19,
+    vue: 'Jardin de cistes',
+    categorie: 'jardin',
+    lits: 'Deux lits de 90',
+    capacite: 2,
+    prix: 145,
     prises: [['2026-09-05', '2026-09-12']],
   },
   {
-    nom: 'Salicorne', surface: 21, vue: 'Cour interieure', categorie: 'cour',
-    lits: 'Un lit de 160', capacite: 2, prix: 165,
-    prises: [['2026-09-16', '2026-09-23'], ['2026-10-10', '2026-10-17']],
+    nom: 'Salicorne',
+    surface: 21,
+    vue: 'Cour interieure',
+    categorie: 'cour',
+    lits: 'Un lit de 160',
+    capacite: 2,
+    prix: 165,
+    prises: [
+      ['2026-09-16', '2026-09-23'],
+      ['2026-10-10', '2026-10-17'],
+    ],
   },
   {
-    nom: 'Oyat', surface: 22, vue: 'Cour interieure', categorie: 'cour',
-    lits: 'Un lit de 160', capacite: 2, prix: 165,
+    nom: 'Oyat',
+    surface: 22,
+    vue: 'Cour interieure',
+    categorie: 'cour',
+    lits: 'Un lit de 160',
+    capacite: 2,
+    prix: 165,
     prises: [['2026-09-26', '2026-10-03']],
   },
   {
-    nom: 'Immortelle', surface: 24, vue: 'Mer, laterale', categorie: 'mer',
-    lits: 'Un lit de 160', capacite: 2, prix: 195,
+    nom: 'Immortelle',
+    surface: 24,
+    vue: 'Mer, laterale',
+    categorie: 'mer',
+    lits: 'Un lit de 160',
+    capacite: 2,
+    prix: 195,
     prises: [['2026-09-19', '2026-09-26']],
   },
   {
-    nom: 'Astragale', surface: 24, vue: 'Mer, laterale', categorie: 'mer',
-    lits: 'Un lit de 160', capacite: 2, prix: 195,
-    prises: [['2026-09-08', '2026-09-15'], ['2026-09-29', '2026-10-04']],
+    nom: 'Astragale',
+    surface: 24,
+    vue: 'Mer, laterale',
+    categorie: 'mer',
+    lits: 'Un lit de 160',
+    capacite: 2,
+    prix: 195,
+    prises: [
+      ['2026-09-08', '2026-09-15'],
+      ['2026-09-29', '2026-10-04'],
+    ],
   },
   {
-    nom: 'Pin parasol', surface: 27, vue: 'Mer, plein sud', categorie: 'mer',
-    lits: 'Un lit de 180', capacite: 2, prix: 235,
+    nom: 'Pin parasol',
+    surface: 27,
+    vue: 'Mer, plein sud',
+    categorie: 'mer',
+    lits: 'Un lit de 180',
+    capacite: 2,
+    prix: 235,
     prises: [['2026-09-14', '2026-09-20']],
   },
   {
-    nom: 'Genevrier', surface: 28, vue: 'Mer, plein sud', categorie: 'mer',
-    lits: 'Un lit de 180', capacite: 2, prix: 235,
+    nom: 'Genevrier',
+    surface: 28,
+    vue: 'Mer, plein sud',
+    categorie: 'mer',
+    lits: 'Un lit de 180',
+    capacite: 2,
+    prix: 235,
     prises: [['2026-10-01', '2026-10-08']],
   },
   {
-    nom: 'Arbousier', surface: 31, vue: 'Mer et crique', categorie: 'mer',
-    lits: 'Un lit de 180, balcon', capacite: 2, prix: 280,
-    prises: [['2026-09-11', '2026-09-18'], ['2026-09-24', '2026-09-28']],
+    nom: 'Arbousier',
+    surface: 31,
+    vue: 'Mer et crique',
+    categorie: 'mer',
+    lits: 'Un lit de 180, balcon',
+    capacite: 2,
+    prix: 280,
+    prises: [
+      ['2026-09-11', '2026-09-18'],
+      ['2026-09-24', '2026-09-28'],
+    ],
   },
   {
-    nom: 'Lentisque', surface: 32, vue: 'Mer et crique', categorie: 'mer',
-    lits: 'Un lit de 180, balcon', capacite: 2, prix: 280,
+    nom: 'Lentisque',
+    surface: 32,
+    vue: 'Mer et crique',
+    categorie: 'mer',
+    lits: 'Un lit de 180, balcon',
+    capacite: 2,
+    prix: 280,
     prises: [['2026-09-19', '2026-09-22']],
   },
   {
-    nom: 'Cap Fenouil', surface: 38, vue: 'Panoramique, terrasse', categorie: 'panoramique',
-    lits: 'Un lit de 180, canape-lit', capacite: 3, prix: 340,
+    nom: 'Cap Fenouil',
+    surface: 38,
+    vue: 'Panoramique, terrasse',
+    categorie: 'panoramique',
+    lits: 'Un lit de 180, canape-lit',
+    capacite: 3,
+    prix: 340,
     prises: [['2026-09-04', '2026-09-11']],
   },
   {
-    nom: 'Le Phare', surface: 44, vue: 'Panoramique, terrasse', categorie: 'panoramique',
-    lits: 'Deux chambres, 4 personnes', capacite: 4, prix: 420,
+    nom: 'Le Phare',
+    surface: 44,
+    vue: 'Panoramique, terrasse',
+    categorie: 'panoramique',
+    lits: 'Deux chambres, 4 personnes',
+    capacite: 4,
+    prix: 420,
     prises: [['2026-10-16', '2026-10-24']],
   },
 ]
@@ -369,8 +451,11 @@ function Tirage({
         className="o-relative o-overflow-hidden"
         style={{
           aspectRatio: ratio,
-          clipPath: reduced || ouvert ? 'inset(0 0 0 0)' : (DECOUPES[depuis] ?? DECOUPES['bas']),
-          transition: reduced ? undefined : 'clip-path 1200ms cubic-bezier(0.22, 1, 0.36, 1)',
+          clipPath:
+            reduced || ouvert ? 'inset(0 0 0 0)' : (DECOUPES[depuis] ?? DECOUPES['bas']),
+          transition: reduced
+            ? undefined
+            : 'clip-path 1200ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
         <Parallaxe
@@ -379,7 +464,13 @@ function Tirage({
           className="o-absolute"
           style={{ left: 0, right: 0, top: DEBORD, bottom: DEBORD }}
         >
-          <img src={src} alt={alt} loading="lazy" decoding="async" className="o-size-full o-object-cover" />
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            className="o-size-full o-object-cover"
+          />
         </Parallaxe>
       </div>
     </div>
@@ -399,7 +490,15 @@ function TitreChambres(): ReactElement {
   return (
     <div ref={ref}>
       {vu ? (
-        <SplitReveal as="h2" by="words" stagger={70} duration={800} distance={28} className={classe} style={style}>
+        <SplitReveal
+          as="h2"
+          by="words"
+          stagger={70}
+          duration={800}
+          distance={28}
+          className={classe}
+          style={style}
+        >
           Douze clefs, douze plans, aucun numero.
         </SplitReveal>
       ) : (
@@ -453,23 +552,77 @@ export default function Page(): ReactElement {
   )
 
   const crique = [
-    { ...media('tamaris-crique-1', 'La crique vue depuis l escalier de l hotel', 600, 450), caption: 'L escalier, 68 marches' },
-    { ...media('tamaris-crique-2', 'Eau claire sur galets blancs, au petit matin', 600, 450), caption: 'Sept heures, avant les baigneurs' },
-    { ...media('tamaris-crique-3', 'Pins parasols penches au-dessus de l eau', 600, 450), caption: 'Les pins du surplomb' },
-    { ...media('tamaris-crique-4', 'Une annexe amarree dans la crique', 600, 450), caption: 'Mouillage, l ete' },
-    { ...media('tamaris-crique-5', 'Rochers plats ou l on pose sa serviette', 600, 450), caption: 'Les dalles, cote ouest' },
-    { ...media('tamaris-crique-6', 'Coucher de soleil sur la pointe rocheuse', 600, 450), caption: 'La pointe, vingt heures' },
-    { ...media('tamaris-crique-7', 'Fonds de posidonies vus en apnee', 600, 450), caption: 'Posidonies, quatre metres' },
-    { ...media('tamaris-crique-8', 'Sentier du littoral longeant la falaise', 600, 450), caption: 'Le sentier, vers Port d Alon' },
-    { ...media('tamaris-crique-9', 'Cabanon de pecheur au bout de la crique', 600, 450), caption: 'Le cabanon de Bruno' },
-    { ...media('tamaris-crique-10', 'Serviettes sechant sur un muret de pierre seche', 600, 450), caption: 'Le muret, midi' },
-    { ...media('tamaris-crique-11', 'Vue plongeante sur l eau turquoise', 600, 450), caption: 'Depuis la terrasse haute' },
-    { ...media('tamaris-crique-12', 'Barque bleue tiree sur les galets', 600, 450), caption: 'La barque de la maison' },
+    {
+      ...media(
+        'tamaris-crique-1',
+        'La crique vue depuis l escalier de l hotel',
+        600,
+        450,
+      ),
+      caption: 'L escalier, 68 marches',
+    },
+    {
+      ...media(
+        'tamaris-crique-2',
+        'Eau claire sur galets blancs, au petit matin',
+        600,
+        450,
+      ),
+      caption: 'Sept heures, avant les baigneurs',
+    },
+    {
+      ...media('tamaris-crique-3', 'Pins parasols penches au-dessus de l eau', 600, 450),
+      caption: 'Les pins du surplomb',
+    },
+    {
+      ...media('tamaris-crique-4', 'Une annexe amarree dans la crique', 600, 450),
+      caption: 'Mouillage, l ete',
+    },
+    {
+      ...media('tamaris-crique-5', 'Rochers plats ou l on pose sa serviette', 600, 450),
+      caption: 'Les dalles, cote ouest',
+    },
+    {
+      ...media('tamaris-crique-6', 'Coucher de soleil sur la pointe rocheuse', 600, 450),
+      caption: 'La pointe, vingt heures',
+    },
+    {
+      ...media('tamaris-crique-7', 'Fonds de posidonies vus en apnee', 600, 450),
+      caption: 'Posidonies, quatre metres',
+    },
+    {
+      ...media('tamaris-crique-8', 'Sentier du littoral longeant la falaise', 600, 450),
+      caption: 'Le sentier, vers Port d Alon',
+    },
+    {
+      ...media('tamaris-crique-9', 'Cabanon de pecheur au bout de la crique', 600, 450),
+      caption: 'Le cabanon de Bruno',
+    },
+    {
+      ...media(
+        'tamaris-crique-10',
+        'Serviettes sechant sur un muret de pierre seche',
+        600,
+        450,
+      ),
+      caption: 'Le muret, midi',
+    },
+    {
+      ...media('tamaris-crique-11', 'Vue plongeante sur l eau turquoise', 600, 450),
+      caption: 'Depuis la terrasse haute',
+    },
+    {
+      ...media('tamaris-crique-12', 'Barque bleue tiree sur les galets', 600, 450),
+      caption: 'La barque de la maison',
+    },
   ]
 
   return (
     <Porte forme="compteur" marque="Les Tamaris">
-      <div className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-100" style={polices}>
+      <div
+        className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-100"
+        style={polices}
+      >
         {/* ================= L ouverture : l escalier, qui recule au defilement ================= */}
         <ZoomDefile
           de={1.1}
@@ -486,64 +639,112 @@ export default function Page(): ReactElement {
           }
         >
           <div className="o-flex o-flex-col" style={{ minHeight: '100vh' }}>
-          <nav
-            aria-label="Navigation principale"
-            className="o-relative o-z-10 o-flex o-flex-wrap o-items-baseline o-gap-x-8 o-gap-y-3 o-px-6 o-pb-16 o-pt-7 md:o-px-10"
-            style={{
-              textShadow: OMBRE,
-              backgroundImage: 'linear-gradient(to bottom, color-mix(in oklab, black 58%, transparent), transparent)',
-            }}
-          >
-            <a href="#registre" className="o-inline-flex o-items-center o-gap-2 o-text-2xl o-tracking-tight o-text-white o-no-underline focus:o-ring" style={SERIF}>
-              <Icon icon={Sun} size={18} style={{ color: ENCRE_CLAIRE }} aria-hidden="true" />
-              Les Tamaris
-            </a>
-            <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">
-              {LIENS.map(([ancre, libelle]) => (
-                <li key={ancre}>
-                  <a href={ancre} className="o-text-stone-100 o-no-underline o-transition-colors hover:o-text-white focus:o-ring">
-                    {libelle}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-100 md:o-ml-auto">
-              <Horloge ville="Saint-Cyr" />
-            </p>
-          </nav>
-
-          <div
-            className="o-relative o-z-10 o-mt-auto o-px-6 o-pb-20 o-pt-40 md:o-px-10 md:o-pb-28"
-            style={{ backgroundImage: 'linear-gradient(to top, color-mix(in oklab, black 88%, transparent), color-mix(in oklab, black 55%, transparent) 55%, transparent)' }}
-          >
-            <Surgit as="p" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-200" style={{ textShadow: OMBRE }}>
-              Saint-Cyr-sur-Mer, Var — depuis 1954
-            </Surgit>
-            <TitreVague delai={120} className="o-m-0 o-mt-5 o-max-w-5xl o-text-white" style={{ ...SERIF, fontSize: 'clamp(3.25rem, 9.5vw, 9.5rem)', lineHeight: 0.9, textShadow: OMBRE }}>
-              Douze chambres au bord d une crique.
-            </TitreVague>
-            <Surgit delai={620} className="o-mt-8 o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-10 o-gap-y-6">
-              <p className="o-m-0 o-max-w-md o-text-lg o-leading-relaxed o-text-stone-100" style={{ textShadow: OMBRE }}>
-                Soixante-huit marches separent la reception de l eau. Pas d ascenseur, pas de piscine, pas de televiseur.
-              </p>
+            <nav
+              aria-label="Navigation principale"
+              className="o-relative o-z-10 o-flex o-flex-wrap o-items-baseline o-gap-x-8 o-gap-y-3 o-px-6 o-pb-16 o-pt-7 md:o-px-10"
+              style={{
+                textShadow: OMBRE,
+                backgroundImage:
+                  'linear-gradient(to bottom, color-mix(in oklab, black 58%, transparent), transparent)',
+              }}
+            >
               <a
                 href="#registre"
-                className="o-inline-block o-text-base o-underline o-underline-offset-8 o-transition-colors hover:o-text-white focus:o-ring"
-                style={{ textShadow: OMBRE, color: ENCRE_CLAIRE }}
+                className="o-inline-flex o-items-center o-gap-2 o-text-2xl o-tracking-tight o-text-white o-no-underline focus:o-ring"
+                style={SERIF}
               >
-                Chercher une chambre libre ↗
+                <Icon
+                  icon={Sun}
+                  size={18}
+                  style={{ color: ENCRE_CLAIRE }}
+                  aria-hidden="true"
+                />
+                Les Tamaris
               </a>
-            </Surgit>
-          </div>
+              <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                {LIENS.map(([ancre, libelle]) => (
+                  <li key={ancre}>
+                    <a
+                      href={ancre}
+                      className="o-text-stone-100 o-no-underline o-transition-colors hover:o-text-white focus:o-ring"
+                    >
+                      {libelle}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-100 md:o-ml-auto">
+                <Horloge ville="Saint-Cyr" />
+              </p>
+            </nav>
+
+            <div
+              className="o-relative o-z-10 o-mt-auto o-px-6 o-pb-20 o-pt-40 md:o-px-10 md:o-pb-28"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to top, color-mix(in oklab, black 88%, transparent), color-mix(in oklab, black 55%, transparent) 55%, transparent)',
+              }}
+            >
+              <Surgit
+                as="p"
+                className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-200"
+                style={{ textShadow: OMBRE }}
+              >
+                Saint-Cyr-sur-Mer, Var — depuis 1954
+              </Surgit>
+              <TitreVague
+                delai={120}
+                className="o-m-0 o-mt-5 o-max-w-5xl o-text-white"
+                style={{
+                  ...SERIF,
+                  fontSize: 'clamp(3.25rem, 9.5vw, 9.5rem)',
+                  lineHeight: 0.9,
+                  textShadow: OMBRE,
+                }}
+              >
+                Douze chambres au bord d une crique.
+              </TitreVague>
+              <Surgit
+                delai={620}
+                className="o-mt-8 o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-10 o-gap-y-6"
+              >
+                <p
+                  className="o-m-0 o-max-w-md o-text-lg o-leading-relaxed o-text-stone-100"
+                  style={{ textShadow: OMBRE }}
+                >
+                  Soixante-huit marches separent la reception de l eau. Pas d ascenseur,
+                  pas de piscine, pas de televiseur.
+                </p>
+                <a
+                  href="#registre"
+                  className="o-inline-block o-text-base o-underline o-underline-offset-8 o-transition-colors hover:o-text-white focus:o-ring"
+                  style={{ textShadow: OMBRE, color: ENCRE_CLAIRE }}
+                >
+                  Chercher une chambre libre ↗
+                </a>
+              </Surgit>
+            </div>
           </div>
         </ZoomDefile>
 
         <main>
           {/* ================= (01) Le registre : le mecanisme tient lieu d appel ================= */}
-          <section id="registre" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+          <section
+            id="registre"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-5xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">(01) — Le registre</p>
-              <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-balance o-text-stone-900 dark:o-text-stone-50" style={{ ...SERIF, fontSize: 'clamp(2rem, 4.2vw, 3.75rem)', lineHeight: 1.02 }}>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                (01) — Le registre
+              </p>
+              <h2
+                className="o-m-0 o-mt-5 o-max-w-3xl o-text-balance o-text-stone-900 dark:o-text-stone-50"
+                style={{
+                  ...SERIF,
+                  fontSize: 'clamp(2rem, 4.2vw, 3.75rem)',
+                  lineHeight: 1.02,
+                }}
+              >
                 Deux dates, et le registre se reduit a ce qui est libre.
               </h2>
 
@@ -604,7 +805,11 @@ export default function Page(): ReactElement {
                 </div>
 
                 <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4">
-                  <p aria-live="polite" className="o-m-0 o-max-w-2xl o-text-base o-italic o-leading-relaxed o-text-stone-700 dark:o-text-stone-200" style={SERIF}>
+                  <p
+                    aria-live="polite"
+                    className="o-m-0 o-max-w-2xl o-text-base o-italic o-leading-relaxed o-text-stone-700 dark:o-text-stone-200"
+                    style={SERIF}
+                  >
                     {!maisonOuverte
                       ? 'La maison est fermee a ces dates : nous ouvrons du 15 mars au 5 novembre. Choisissez une autre semaine.'
                       : nuits <= 0
@@ -628,7 +833,10 @@ export default function Page(): ReactElement {
                 {affichees.map(({ chambre, libre, nuit }) => {
                   const index = CHAMBRES.indexOf(chambre)
                   return (
-                    <li key={chambre.nom} className="o-flex o-items-start o-gap-4 o-border-b o-border-stone-200 o-py-5 dark:o-border-stone-800">
+                    <li
+                      key={chambre.nom}
+                      className="o-flex o-items-start o-gap-4 o-border-b o-border-stone-200 o-py-5 dark:o-border-stone-800"
+                    >
                       <Frame
                         src={photo(`tamaris-chambre-${String(index + 1)}`, 240, 160)}
                         alt={`Chambre ${chambre.nom}, ${String(chambre.surface)} metres carres, vue ${chambre.vue.toLowerCase()}`}
@@ -638,7 +846,10 @@ export default function Page(): ReactElement {
                         className="o-w-20 o-shrink-0"
                       />
                       <div className="o-min-w-0 o-flex-1 md:o-flex md:o-items-baseline md:o-gap-6">
-                        <h3 className="o-m-0 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50 md:o-w-36 md:o-shrink-0" style={SERIF}>
+                        <h3
+                          className="o-m-0 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50 md:o-w-36 md:o-shrink-0"
+                          style={SERIF}
+                        >
                           {chambre.nom}
                         </h3>
                         <dl className="o-m-0 o-mt-2 o-flex o-flex-wrap o-gap-x-5 o-gap-y-1 o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-600 dark:o-text-stone-300 md:o-mt-0 md:o-min-w-0 md:o-flex-1">
@@ -656,11 +867,22 @@ export default function Page(): ReactElement {
                           </div>
                           <div>
                             <dt className="o-sr-only">Disponibilite</dt>
-                            <dd className={libre ? 'o-m-0' : 'o-m-0 o-text-stone-500 dark:o-text-stone-400'}>{libre ? 'Libre' : 'Prise'}</dd>
+                            <dd
+                              className={
+                                libre
+                                  ? 'o-m-0'
+                                  : 'o-m-0 o-text-stone-500 dark:o-text-stone-400'
+                              }
+                            >
+                              {libre ? 'Libre' : 'Prise'}
+                            </dd>
                           </div>
                         </dl>
                         <p className="o-m-0 o-mt-2 o-shrink-0 o-text-right o-tabular-nums md:o-mt-0 md:o-ml-auto">
-                          <span className="o-block o-text-xl" style={{ ...SERIF, color: ENCRE_ACCENT }}>
+                          <span
+                            className="o-block o-text-xl"
+                            style={{ ...SERIF, color: ENCRE_ACCENT }}
+                          >
                             {nuit} € la nuit
                           </span>
                           {libre && nuits > 0 ? (
@@ -676,19 +898,28 @@ export default function Page(): ReactElement {
               </Stagger>
 
               {affichees.length === 0 ? (
-                <p className="o-m-0 o-py-8 o-text-xl o-italic o-text-stone-600 dark:o-text-stone-300" style={SERIF}>
-                  Rien de libre sur ces dates avec ce que vous demandez. Essayez la semaine suivante, ou appelez le 04 94 32 71 08 : il arrive qu une chambre se libere le matin meme.
+                <p
+                  className="o-m-0 o-py-8 o-text-xl o-italic o-text-stone-600 dark:o-text-stone-300"
+                  style={SERIF}
+                >
+                  Rien de libre sur ces dates avec ce que vous demandez. Essayez la
+                  semaine suivante, ou appelez le 04 94 32 71 08 : il arrive qu une
+                  chambre se libere le matin meme.
                 </p>
               ) : null}
 
               <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                Prix par nuit pour deux, hors petit dejeuner et taxe de sejour. Aucune empreinte bancaire : le sejour se regle au depart.
+                Prix par nuit pour deux, hors petit dejeuner et taxe de sejour. Aucune
+                empreinte bancaire : le sejour se regle au depart.
               </p>
             </div>
           </section>
 
           {/* ================= La bande : le tirage le plus lourd de la page ================= */}
-          <figure className="o-relative o-m-0" style={{ backgroundColor: 'var(--o-palette-stone-900)' }}>
+          <figure
+            className="o-relative o-m-0"
+            style={{ backgroundColor: 'var(--o-palette-stone-900)' }}
+          >
             <Tirage
               src={photo('tamaris-crique-11', 2000, 800)}
               alt="Vue plongeante sur l eau turquoise de la crique, depuis la terrasse haute"
@@ -698,13 +929,23 @@ export default function Page(): ReactElement {
               glisse={0.85}
               className="o-w-full"
             />
-            <figcaption className="o-absolute o-bottom-4 o-left-6 o-m-0 o-px-3 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white md:o-left-10" style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-stone-950) 72%, transparent)' }}>
+            <figcaption
+              className="o-absolute o-bottom-4 o-left-6 o-m-0 o-px-3 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white md:o-left-10"
+              style={{
+                backgroundColor:
+                  'color-mix(in oklab, var(--o-palette-stone-950) 72%, transparent)',
+              }}
+            >
               Depuis la terrasse haute, sept heures du matin
             </figcaption>
           </figure>
 
           {/* ================= (02) La crique, sur sa nappe d eau ================= */}
-          <section id="crique" className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden" style={LUEUR_CRIQUE}>
+          <section
+            id="crique"
+            className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden"
+            style={LUEUR_CRIQUE}
+          >
             <WaterSurface
               aria-hidden="true"
               className="o-absolute o-inset-0 o-z-0"
@@ -721,13 +962,23 @@ export default function Page(): ReactElement {
             <div className="o-relative o-z-10 o-mx-auto o-max-w-6xl o-px-6 o-pb-20 o-pt-24 md:o-px-10 md:o-pb-28 md:o-pt-36">
               <div className="o-grid o-items-end o-gap-8 md:o-grid-cols-12">
                 <div className="md:o-col-span-7">
-                  <h2 className="o-m-0 o-inline-block o-rounded-full o-px-7 o-py-3 o-text-3xl o-tracking-tight md:o-text-5xl" style={{ ...SERIF, ...APLAT_PLEIN }}>
+                  <h2
+                    className="o-m-0 o-inline-block o-rounded-full o-px-7 o-py-3 o-text-3xl o-tracking-tight md:o-text-5xl"
+                    style={{ ...SERIF, ...APLAT_PLEIN }}
+                  >
                     La crique du Cap Fenouil
                   </h2>
                 </div>
-                <div className="o-rounded-2xl o-p-6 md:o-col-span-5" style={{ backgroundColor: 'var(--o-theme-surface)' }}>
-                  <p className="o-m-0 o-text-xl o-leading-snug o-text-stone-800 dark:o-text-stone-100" style={SERIF}>
-                    Cent vingt metres de galets blancs entre deux pointes, plein sud-ouest. L eau descend a quatre metres en trois brasses.
+                <div
+                  className="o-rounded-2xl o-p-6 md:o-col-span-5"
+                  style={{ backgroundColor: 'var(--o-theme-surface)' }}
+                >
+                  <p
+                    className="o-m-0 o-text-xl o-leading-snug o-text-stone-800 dark:o-text-stone-100"
+                    style={SERIF}
+                  >
+                    Cent vingt metres de galets blancs entre deux pointes, plein
+                    sud-ouest. L eau descend a quatre metres en trois brasses.
                   </p>
                   <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
                     Masques, palmes et deux kayaks a la reception
@@ -735,7 +986,10 @@ export default function Page(): ReactElement {
                 </div>
               </div>
 
-              <div className="o-mt-8 o-rounded-2xl o-p-3 md:o-p-4" style={{ backgroundColor: 'var(--o-theme-surface)' }}>
+              <div
+                className="o-mt-8 o-rounded-2xl o-p-3 md:o-p-4"
+                style={{ backgroundColor: 'var(--o-theme-surface)' }}
+              >
                 <DomeGallery
                   className="o-w-full o-rounded-xl"
                   style={{ height: '32rem', backgroundColor: 'var(--o-theme-bg)' }}
@@ -754,9 +1008,14 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (03) Les douze chambres : mosaique inegale, chiffres en legende ================= */}
-          <section id="chambres" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+          <section
+            id="chambres"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">(03) — Les douze chambres</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                (03) — Les douze chambres
+              </p>
               <div className="o-mt-5">
                 <TitreChambres />
               </div>
@@ -767,7 +1026,10 @@ export default function Page(): ReactElement {
                   if (place === undefined) return null
                   const decale = index % 3 === 1 ? 'md:o-mt-16' : ''
                   return (
-                    <li key={chambre.nom} className={`o-relative ${COLONNES[place.colonnes]} ${decale}`}>
+                    <li
+                      key={chambre.nom}
+                      className={`o-relative ${COLONNES[place.colonnes]} ${decale}`}
+                    >
                       <div className="o-relative">
                         <Tirage
                           src={photo(`tamaris-chambre-${String(index + 1)}`, 900, 900)}
@@ -778,13 +1040,26 @@ export default function Page(): ReactElement {
                           glisse={place.glisse}
                         />
                         {/* C10 : les deux chiffres, poses sur la photo. */}
-                        <p className="o-pointer-events-none o-absolute o-bottom-3 o-left-3 o-m-0 o-flex o-items-baseline o-gap-3 o-px-3 o-py-1.5" style={{ backgroundColor: 'var(--o-palette-white)', color: 'var(--o-palette-stone-900)' }}>
-                          <span className="o-text-2xl o-tabular-nums" style={SERIF}>{chambre.surface} m2</span>
-                          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">des {chambre.prix} €</span>
+                        <p
+                          className="o-pointer-events-none o-absolute o-bottom-3 o-left-3 o-m-0 o-flex o-items-baseline o-gap-3 o-px-3 o-py-1.5"
+                          style={{
+                            backgroundColor: 'var(--o-palette-white)',
+                            color: 'var(--o-palette-stone-900)',
+                          }}
+                        >
+                          <span className="o-text-2xl o-tabular-nums" style={SERIF}>
+                            {chambre.surface} m2
+                          </span>
+                          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                            des {chambre.prix} €
+                          </span>
                         </p>
                       </div>
                       <div className="o-mt-3 o-flex o-items-baseline o-justify-between o-gap-4">
-                        <h3 className="o-m-0 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50" style={SERIF}>
+                        <h3
+                          className="o-m-0 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50"
+                          style={SERIF}
+                        >
                           {chambre.nom}
                         </h3>
                         <p className="o-m-0 o-text-right o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
@@ -800,22 +1075,44 @@ export default function Page(): ReactElement {
         </main>
 
         {/* ================= P16 : une lettre signee ================= */}
-        <footer id="lettre" className="o-scroll-mt-24 o-border-t o-border-stone-200 o-px-6 o-pb-10 o-pt-20 dark:o-border-stone-800 md:o-px-10 md:o-pt-28">
+        <footer
+          id="lettre"
+          className="o-scroll-mt-24 o-border-t o-border-stone-200 o-px-6 o-pb-10 o-pt-20 dark:o-border-stone-800 md:o-px-10 md:o-pt-28"
+        >
           <div className="o-mx-auto o-max-w-3xl">
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
               Chemin du Cap Fenouil, le 10 septembre 2026
             </p>
-            <p className="o-m-0 o-mt-8 o-text-2xl o-leading-snug o-text-stone-900 dark:o-text-stone-50 md:o-text-3xl" style={SERIF}>
+            <p
+              className="o-m-0 o-mt-8 o-text-2xl o-leading-snug o-text-stone-900 dark:o-text-stone-50 md:o-text-3xl"
+              style={SERIF}
+            >
               Chers hotes,
             </p>
-            <p className="o-m-0 o-mt-5 o-text-2xl o-leading-snug o-text-stone-800 dark:o-text-stone-100 md:o-text-3xl" style={SERIF}>
-              La maison ouvre le 15 mars et ferme le 5 novembre. Il n y a pas de piscine, et il n y en aura pas : la mer est a soixante metres. La table suit la peche de Bruno et ferme le mardi. Nous ne prenons pas d empreinte bancaire, et nous ne retenons rien quand une tempete coupe la route. Pour le reste, appelez-nous : la reception repond de huit heures a vingt et une heures, tous les jours.
+            <p
+              className="o-m-0 o-mt-5 o-text-2xl o-leading-snug o-text-stone-800 dark:o-text-stone-100 md:o-text-3xl"
+              style={SERIF}
+            >
+              La maison ouvre le 15 mars et ferme le 5 novembre. Il n y a pas de piscine,
+              et il n y en aura pas : la mer est a soixante metres. La table suit la peche
+              de Bruno et ferme le mardi. Nous ne prenons pas d empreinte bancaire, et
+              nous ne retenons rien quand une tempete coupe la route. Pour le reste,
+              appelez-nous : la reception repond de huit heures a vingt et une heures,
+              tous les jours.
             </p>
-            <p className="o-m-0 o-mt-10 o-text-3xl o-italic o-text-stone-900 dark:o-text-stone-50 md:o-text-4xl" style={{ ...SERIF, fontStyle: 'italic', color: ENCRE_ACCENT }}>
+            <p
+              className="o-m-0 o-mt-10 o-text-3xl o-italic o-text-stone-900 dark:o-text-stone-50 md:o-text-4xl"
+              style={{ ...SERIF, fontStyle: 'italic', color: ENCRE_ACCENT }}
+            >
               Pierre et Marion Delaunay
             </p>
             <div className="o-mt-16 o-flex o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-stone-200 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-border-stone-800 dark:o-text-stone-400">
-              <a href="tel:+33494327108" className="o-text-stone-700 o-no-underline hover:o-underline dark:o-text-stone-200 focus:o-ring">04 94 32 71 08</a>
+              <a
+                href="tel:+33494327108"
+                className="o-text-stone-700 o-no-underline hover:o-underline dark:o-text-stone-200 focus:o-ring"
+              >
+                04 94 32 71 08
+              </a>
               <span>83270 Saint-Cyr-sur-Mer</span>
               <span>© 2026 Les Tamaris — SARL du Cap Fenouil</span>
             </div>

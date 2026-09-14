@@ -270,84 +270,378 @@ const PLANNING: readonly JourneeCours[] = [
     jour: 'Lundi',
     abrege: 'Lun',
     seances: [
-      { heure: '06h30', nom: 'Reveil force', coach: 'Sofiane Terki', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '12h15', nom: 'Hiit express', coach: 'Lena Brou', salle: 'Studio', duree: '30 min', intensite: 'Tres soutenu' },
-      { heure: '17h30', nom: 'Mobilite hanches', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
-      { heure: '18h30', nom: 'Hyrox, bloc 1', coach: 'Maud Ferrer', salle: 'Cross', duree: '60 min', intensite: 'Tres soutenu' },
-      { heure: '19h30', nom: 'Boxe, fondamentaux', coach: 'Lena Brou', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '20h30', nom: 'Renfort dos', coach: 'Ivan Costa', salle: 'Studio', duree: '45 min', intensite: 'Modere' },
+      {
+        heure: '06h30',
+        nom: 'Reveil force',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '12h15',
+        nom: 'Hiit express',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '17h30',
+        nom: 'Mobilite hanches',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '18h30',
+        nom: 'Hyrox, bloc 1',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '19h30',
+        nom: 'Boxe, fondamentaux',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '20h30',
+        nom: 'Renfort dos',
+        coach: 'Ivan Costa',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
     ],
   },
   {
     jour: 'Mardi',
     abrege: 'Mar',
     seances: [
-      { heure: '06h30', nom: 'Cardio continu', coach: 'Maud Ferrer', salle: 'Mezzanine', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '12h15', nom: 'Core et gainage', coach: 'Ivan Costa', salle: 'Studio', duree: '30 min', intensite: 'Modere' },
-      { heure: '17h30', nom: 'Technique arrache', coach: 'Sofiane Terki', salle: 'Cross', duree: '60 min', intensite: 'Soutenu' },
-      { heure: '18h30', nom: 'Hiit intervalles', coach: 'Lena Brou', salle: 'Studio', duree: '45 min', intensite: 'Tres soutenu' },
-      { heure: '19h30', nom: 'Traineau et sled', coach: 'Maud Ferrer', salle: 'Cross', duree: '45 min', intensite: 'Tres soutenu' },
-      { heure: '20h30', nom: 'Etirements longs', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
+      {
+        heure: '06h30',
+        nom: 'Cardio continu',
+        coach: 'Maud Ferrer',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '12h15',
+        nom: 'Core et gainage',
+        coach: 'Ivan Costa',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '17h30',
+        nom: 'Technique arrache',
+        coach: 'Sofiane Terki',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '18h30',
+        nom: 'Hiit intervalles',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '19h30',
+        nom: 'Traineau et sled',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '45 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '20h30',
+        nom: 'Etirements longs',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
     ],
   },
   {
     jour: 'Mercredi',
     abrege: 'Mer',
     seances: [
-      { heure: '06h30', nom: 'Reveil force', coach: 'Sofiane Terki', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '12h15', nom: 'Boxe, sac', coach: 'Lena Brou', salle: 'Studio', duree: '30 min', intensite: 'Soutenu' },
-      { heure: '17h30', nom: 'Hyrox, bloc 2', coach: 'Maud Ferrer', salle: 'Cross', duree: '60 min', intensite: 'Tres soutenu' },
-      { heure: '18h30', nom: 'Jambes et fessiers', coach: 'Sofiane Terki', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '19h30', nom: 'Hiit express', coach: 'Lena Brou', salle: 'Studio', duree: '30 min', intensite: 'Tres soutenu' },
-      { heure: '20h15', nom: 'Mobilite epaules', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
+      {
+        heure: '06h30',
+        nom: 'Reveil force',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '12h15',
+        nom: 'Boxe, sac',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '17h30',
+        nom: 'Hyrox, bloc 2',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '18h30',
+        nom: 'Jambes et fessiers',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '19h30',
+        nom: 'Hiit express',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '20h15',
+        nom: 'Mobilite epaules',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
     ],
   },
   {
     jour: 'Jeudi',
     abrege: 'Jeu',
     seances: [
-      { heure: '06h30', nom: 'Rameur, seuil', coach: 'Maud Ferrer', salle: 'Mezzanine', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '12h15', nom: 'Core et gainage', coach: 'Ivan Costa', salle: 'Studio', duree: '30 min', intensite: 'Modere' },
-      { heure: '17h30', nom: 'Technique squat', coach: 'Sofiane Terki', salle: 'Cross', duree: '60 min', intensite: 'Soutenu' },
-      { heure: '18h30', nom: 'Boxe, sparring leger', coach: 'Lena Brou', salle: 'Studio', duree: '45 min', intensite: 'Tres soutenu' },
-      { heure: '19h30', nom: 'Hyrox, bloc 3', coach: 'Maud Ferrer', salle: 'Cross', duree: '60 min', intensite: 'Tres soutenu' },
-      { heure: '20h45', nom: 'Retour au calme', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '30 min', intensite: 'Modere' },
+      {
+        heure: '06h30',
+        nom: 'Rameur, seuil',
+        coach: 'Maud Ferrer',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '12h15',
+        nom: 'Core et gainage',
+        coach: 'Ivan Costa',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '17h30',
+        nom: 'Technique squat',
+        coach: 'Sofiane Terki',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '18h30',
+        nom: 'Boxe, sparring leger',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '19h30',
+        nom: 'Hyrox, bloc 3',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '20h45',
+        nom: 'Retour au calme',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '30 min',
+        intensite: 'Modere',
+      },
     ],
   },
   {
     jour: 'Vendredi',
     abrege: 'Ven',
     seances: [
-      { heure: '06h30', nom: 'Reveil force', coach: 'Sofiane Terki', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '12h15', nom: 'Hiit express', coach: 'Lena Brou', salle: 'Studio', duree: '30 min', intensite: 'Tres soutenu' },
-      { heure: '17h30', nom: 'Mobilite complete', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
-      { heure: '18h30', nom: 'Circuit kettlebells', coach: 'Maud Ferrer', salle: 'Cross', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '19h30', nom: 'Boxe, fondamentaux', coach: 'Lena Brou', salle: 'Studio', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '20h30', nom: 'Souleve de terre', coach: 'Sofiane Terki', salle: 'Cross', duree: '45 min', intensite: 'Tres soutenu' },
+      {
+        heure: '06h30',
+        nom: 'Reveil force',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '12h15',
+        nom: 'Hiit express',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '30 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '17h30',
+        nom: 'Mobilite complete',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '18h30',
+        nom: 'Circuit kettlebells',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '19h30',
+        nom: 'Boxe, fondamentaux',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '20h30',
+        nom: 'Souleve de terre',
+        coach: 'Sofiane Terki',
+        salle: 'Cross',
+        duree: '45 min',
+        intensite: 'Tres soutenu',
+      },
     ],
   },
   {
     jour: 'Samedi',
     abrege: 'Sam',
     seances: [
-      { heure: '09h00', nom: 'Hyrox, simulation', coach: 'Maud Ferrer', salle: 'Cross', duree: '60 min', intensite: 'Tres soutenu' },
-      { heure: '10h15', nom: 'Force, seance longue', coach: 'Sofiane Terki', salle: 'Studio', duree: '60 min', intensite: 'Soutenu' },
-      { heure: '11h30', nom: 'Boxe, ouvert a tous', coach: 'Lena Brou', salle: 'Studio', duree: '60 min', intensite: 'Soutenu' },
-      { heure: '14h00', nom: 'Retour de blessure', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '60 min', intensite: 'Modere' },
-      { heure: '15h30', nom: 'Circuit en binome', coach: 'Maud Ferrer', salle: 'Cross', duree: '60 min', intensite: 'Tres soutenu' },
-      { heure: '17h00', nom: 'Mobilite et respiration', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '60 min', intensite: 'Modere' },
+      {
+        heure: '09h00',
+        nom: 'Hyrox, simulation',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '10h15',
+        nom: 'Force, seance longue',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '60 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '11h30',
+        nom: 'Boxe, ouvert a tous',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '60 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '14h00',
+        nom: 'Retour de blessure',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '60 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '15h30',
+        nom: 'Circuit en binome',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '60 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '17h00',
+        nom: 'Mobilite et respiration',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '60 min',
+        intensite: 'Modere',
+      },
     ],
   },
   {
     jour: 'Dimanche',
     abrege: 'Dim',
     seances: [
-      { heure: '09h30', nom: 'Cardio doux', coach: 'Maud Ferrer', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
-      { heure: '10h30', nom: 'Force, technique', coach: 'Sofiane Terki', salle: 'Studio', duree: '60 min', intensite: 'Soutenu' },
-      { heure: '11h45', nom: 'Hiit du dimanche', coach: 'Lena Brou', salle: 'Studio', duree: '45 min', intensite: 'Tres soutenu' },
-      { heure: '15h00', nom: 'Mobilite hanches', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
-      { heure: '16h00', nom: 'Circuit kettlebells', coach: 'Maud Ferrer', salle: 'Cross', duree: '45 min', intensite: 'Soutenu' },
-      { heure: '17h30', nom: 'Etirements longs', coach: 'Ivan Costa', salle: 'Mezzanine', duree: '45 min', intensite: 'Modere' },
+      {
+        heure: '09h30',
+        nom: 'Cardio doux',
+        coach: 'Maud Ferrer',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '10h30',
+        nom: 'Force, technique',
+        coach: 'Sofiane Terki',
+        salle: 'Studio',
+        duree: '60 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '11h45',
+        nom: 'Hiit du dimanche',
+        coach: 'Lena Brou',
+        salle: 'Studio',
+        duree: '45 min',
+        intensite: 'Tres soutenu',
+      },
+      {
+        heure: '15h00',
+        nom: 'Mobilite hanches',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
+      {
+        heure: '16h00',
+        nom: 'Circuit kettlebells',
+        coach: 'Maud Ferrer',
+        salle: 'Cross',
+        duree: '45 min',
+        intensite: 'Soutenu',
+      },
+      {
+        heure: '17h30',
+        nom: 'Etirements longs',
+        coach: 'Ivan Costa',
+        salle: 'Mezzanine',
+        duree: '45 min',
+        intensite: 'Modere',
+      },
     ],
   },
 ]
@@ -482,21 +776,85 @@ const COMPARATIF: readonly {
   readonly critere: string
   readonly valeurs: readonly [string, string, string]
 }[] = [
-  { groupe: 'Acces', critere: 'Amplitude', valeurs: ['5h — minuit', '5h — minuit', '5h — minuit'] },
-  { groupe: 'Acces', critere: 'Les quatre plateaux', valeurs: ['Compris', 'Compris', 'Compris'] },
-  { groupe: 'Acces', critere: 'Cours collectifs', valeurs: ['42 par semaine', '42 par semaine', '42 par semaine'] },
-  { groupe: 'Acces', critere: 'Invite', valeurs: ['Non', 'Un par mois', 'Deux par mois'] },
-  { groupe: 'Acces', critere: 'Autres salles du reseau', valeurs: ['Non', 'Non', 'Trois salles, Paris est'] },
-  { groupe: 'Suivi', critere: 'Bilan de force', valeurs: ['A l entree', 'A l entree, puis tous les 6 mois', 'A l entree, puis tous les 6 mois'] },
-  { groupe: 'Suivi', critere: 'Programme ecrit', valeurs: ['Non', 'Revu tous les 30 jours', 'Un par personne, revu tous les 30 jours'] },
-  { groupe: 'Suivi', critere: 'Seances encadrees', valeurs: ['A l unite, 45 EUR', 'Deux par mois', 'Deux par mois et par personne'] },
-  { groupe: 'Suivi', critere: 'Mesures et photos', valeurs: ['Non', 'Tous les 30 jours', 'Tous les 30 jours'] },
-  { groupe: 'Le contrat', critere: 'Duree d engagement', valeurs: ['Aucune', 'Aucune', 'Aucune'] },
-  { groupe: 'Le contrat', critere: 'Preavis pour arreter', valeurs: ['Aucun', 'Aucun', 'Aucun, pour l un comme pour l autre'] },
-  { groupe: 'Le contrat', critere: 'Frais de dossier', valeurs: ['0 EUR', '0 EUR', '0 EUR'] },
-  { groupe: 'Le contrat', critere: 'Jour de prelevement', valeurs: ['Le 5', 'Le 5', 'Le 5, un seul pour les deux'] },
-  { groupe: 'Le contrat', critere: 'Suspension', valeurs: ['Un mois par an', 'Un mois par an', 'Un mois par an, pour les deux'] },
-  { groupe: 'Le contrat', critere: 'Badge perdu', valeurs: ['8 EUR', 'Offert', 'Offert'] },
+  {
+    groupe: 'Acces',
+    critere: 'Amplitude',
+    valeurs: ['5h — minuit', '5h — minuit', '5h — minuit'],
+  },
+  {
+    groupe: 'Acces',
+    critere: 'Les quatre plateaux',
+    valeurs: ['Compris', 'Compris', 'Compris'],
+  },
+  {
+    groupe: 'Acces',
+    critere: 'Cours collectifs',
+    valeurs: ['42 par semaine', '42 par semaine', '42 par semaine'],
+  },
+  {
+    groupe: 'Acces',
+    critere: 'Invite',
+    valeurs: ['Non', 'Un par mois', 'Deux par mois'],
+  },
+  {
+    groupe: 'Acces',
+    critere: 'Autres salles du reseau',
+    valeurs: ['Non', 'Non', 'Trois salles, Paris est'],
+  },
+  {
+    groupe: 'Suivi',
+    critere: 'Bilan de force',
+    valeurs: [
+      'A l entree',
+      'A l entree, puis tous les 6 mois',
+      'A l entree, puis tous les 6 mois',
+    ],
+  },
+  {
+    groupe: 'Suivi',
+    critere: 'Programme ecrit',
+    valeurs: ['Non', 'Revu tous les 30 jours', 'Un par personne, revu tous les 30 jours'],
+  },
+  {
+    groupe: 'Suivi',
+    critere: 'Seances encadrees',
+    valeurs: ['A l unite, 45 EUR', 'Deux par mois', 'Deux par mois et par personne'],
+  },
+  {
+    groupe: 'Suivi',
+    critere: 'Mesures et photos',
+    valeurs: ['Non', 'Tous les 30 jours', 'Tous les 30 jours'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Duree d engagement',
+    valeurs: ['Aucune', 'Aucune', 'Aucune'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Preavis pour arreter',
+    valeurs: ['Aucun', 'Aucun', 'Aucun, pour l un comme pour l autre'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Frais de dossier',
+    valeurs: ['0 EUR', '0 EUR', '0 EUR'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Jour de prelevement',
+    valeurs: ['Le 5', 'Le 5', 'Le 5, un seul pour les deux'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Suspension',
+    valeurs: ['Un mois par an', 'Un mois par an', 'Un mois par an, pour les deux'],
+  },
+  {
+    groupe: 'Le contrat',
+    critere: 'Badge perdu',
+    valeurs: ['8 EUR', 'Offert', 'Offert'],
+  },
 ]
 
 /** Les horaires d ouverture, larges et affiches en grand. */
@@ -557,9 +915,7 @@ function Bande({
           : 'o-bg-zinc-950 o-border-b'
       }
       style={
-        tone === 'accent'
-          ? TEINTE
-          : { ...ACCENT_CLAIR, borderBottomColor: accent(300) }
+        tone === 'accent' ? TEINTE : { ...ACCENT_CLAIR, borderBottomColor: accent(300) }
       }
     >
       <Marquee speed={34} reverse={reverse} fade={0} className="o-py-2.5">
@@ -683,140 +1039,147 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Fonte">
-    <div className={PAPIER} style={polices}>
-      {/* ---------- La bande du haut ---------- */}
-      <Bande
-        tone="accent"
-        mots={[
-          'Ouvert 5h — minuit',
-          '1520 m2 sur deux niveaux',
-          'Pantin, metro Hoche',
-          '42 cours par semaine',
-          'Une semaine offerte',
-          '14 racks a squat',
-        ]}
-      />
-
-      {/* ---------- L affiche ---------- */}
-      <section
-        id="fonte"
-        className="o-relative o-isolate o-overflow-hidden o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
-      >
-        <ElectricField
-          className="o-absolute o-inset-0 o-z-0"
-          speed={0.45}
-          jitter={0.6}
-          glow={0.35}
-          branches={4}
-          colors={['--o-palette-zinc-950', '--o-vitrine-300', '--o-palette-zinc-100']}
-          fallback="o-bg-zinc-950"
+      <div className={PAPIER} style={polices}>
+        {/* ---------- La bande du haut ---------- */}
+        <Bande
+          tone="accent"
+          mots={[
+            'Ouvert 5h — minuit',
+            '1520 m2 sur deux niveaux',
+            'Pantin, metro Hoche',
+            '42 cours par semaine',
+            'Une semaine offerte',
+            '14 racks a squat',
+          ]}
         />
 
-        {/*
+        {/* ---------- L affiche ---------- */}
+        <section
+          id="fonte"
+          className="o-relative o-isolate o-overflow-hidden o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
+        >
+          <ElectricField
+            className="o-absolute o-inset-0 o-z-0"
+            speed={0.45}
+            jitter={0.6}
+            glow={0.35}
+            branches={4}
+            colors={['--o-palette-zinc-950', '--o-vitrine-300', '--o-palette-zinc-100']}
+            fallback="o-bg-zinc-950"
+          />
+
+          {/*
           Un voile qui ne couvre que la bande centrale, la ou l affiche est
           imprimee : les eclairs restent entiers en haut et en bas, et la
           derniere ligne cesse de se perdre dans le halo.
         */}
-        <div
-          aria-hidden="true"
-          className="o-absolute o-inset-0 o-z-0"
-          style={{
-            background:
-              'linear-gradient(to bottom, transparent 0%, color-mix(in oklab, var(--o-palette-zinc-950) 72%, transparent) 22%, color-mix(in oklab, var(--o-palette-zinc-950) 72%, transparent) 78%, transparent 100%)',
-          }}
-        />
+          <div
+            aria-hidden="true"
+            className="o-absolute o-inset-0 o-z-0"
+            style={{
+              background:
+                'linear-gradient(to bottom, transparent 0%, color-mix(in oklab, var(--o-palette-zinc-950) 72%, transparent) 22%, color-mix(in oklab, var(--o-palette-zinc-950) 72%, transparent) 78%, transparent 100%)',
+            }}
+          />
 
-        <div className="o-relative o-z-10 o-mx-auto o-max-w-7xl o-px-6 o-py-16 o-text-center md:o-py-24">
-          {/*
+          <div className="o-relative o-z-10 o-mx-auto o-max-w-7xl o-px-6 o-py-16 o-text-center md:o-py-24">
+            {/*
             L affiche est montee cachee et se revele a travers le rideau qui
             part : chaque ligne surgit a son tour, du nom au bas de casse.
           */}
-          <h1 style={AFFICHE}>
-            <Surgit
-              as="span"
-              className="o-block o-text-6xl o-font-black o-uppercase o-tracking-tighter sm:o-text-8xl lg:o-text-9xl"
-              style={ACCENT_CLAIR}
-            >
-              Fonte
-            </Surgit>
-            <Surgit as="span" delai={140} className="o-block">
-              <TextPressure
-                className="o-block o-text-3xl o-font-black o-uppercase o-tracking-tighter o-text-zinc-50 sm:o-text-5xl lg:o-text-7xl"
-                graisseBasse={400}
-                graisseHaute={900}
-                chasse={30}
-                rayon={320}
+            <h1 style={AFFICHE}>
+              <Surgit
+                as="span"
+                className="o-block o-text-6xl o-font-black o-uppercase o-tracking-tighter sm:o-text-8xl lg:o-text-9xl"
+                style={ACCENT_CLAIR}
               >
-                SOULEVE PLUS LOURD
-              </TextPressure>
-            </Surgit>
-            <Surgit
-              as="span"
-              delai={280}
-              className="o-mt-3 o-block o-text-lg o-font-black o-uppercase o-tracking-tight o-text-zinc-50 sm:o-text-2xl lg:o-text-4xl"
-            >
-              Salle de fonte — Pantin
-            </Surgit>
-            <Surgit
-              as="span"
-              delai={380}
-              className="o-mt-2 o-block o-text-xs o-font-semibold o-uppercase o-tracking-widest sm:o-text-sm"
-              style={ACCENT_CLAIR}
-            >
-              1520 m2 · 5h — minuit · 7 jours sur 7 · depuis 2018
-            </Surgit>
-          </h1>
-
-          {/* Deux vignettes carrees : l affiche n a aucun coin arrondi. */}
-          <Surgit delai={480} className="o-mt-10 o-flex o-flex-wrap o-justify-center o-gap-3">
-            <a href="#essai" className={BOUTON_ACCENT}>
-              Une semaine offerte
-              <Icon icon={ArrowRight} size={15} />
-            </a>
-            <a href="#tarifs" className={BOUTON_NOIR} style={{ borderWidth: '1px', borderColor: accent(300) }}>
-              Les trois formules
-            </a>
-          </Surgit>
-
-          {/* Les liens de l affiche : une ligne centree, pas une barre collante. */}
-          <nav
-            aria-label="Sections de la page"
-            className="o-mt-10 o-flex o-flex-wrap o-justify-center o-gap-x-8 o-gap-y-3 o-border-t o-border-b o-border-zinc-700 o-py-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
-          >
-            {LIENS.map(([href, libelle]) => (
-              <a
-                key={href}
-                href={href}
-                className="o-no-underline o-text-zinc-300 dark:o-text-zinc-300 hover:o-text-brand-300 dark:hover:o-text-brand-300 o-transition-colors focus:o-ring"
+                Fonte
+              </Surgit>
+              <Surgit as="span" delai={140} className="o-block">
+                <TextPressure
+                  className="o-block o-text-3xl o-font-black o-uppercase o-tracking-tighter o-text-zinc-50 sm:o-text-5xl lg:o-text-7xl"
+                  graisseBasse={400}
+                  graisseHaute={900}
+                  chasse={30}
+                  rayon={320}
+                >
+                  SOULEVE PLUS LOURD
+                </TextPressure>
+              </Surgit>
+              <Surgit
+                as="span"
+                delai={280}
+                className="o-mt-3 o-block o-text-lg o-font-black o-uppercase o-tracking-tight o-text-zinc-50 sm:o-text-2xl lg:o-text-4xl"
               >
-                {libelle}
+                Salle de fonte — Pantin
+              </Surgit>
+              <Surgit
+                as="span"
+                delai={380}
+                className="o-mt-2 o-block o-text-xs o-font-semibold o-uppercase o-tracking-widest sm:o-text-sm"
+                style={ACCENT_CLAIR}
+              >
+                1520 m2 · 5h — minuit · 7 jours sur 7 · depuis 2018
+              </Surgit>
+            </h1>
+
+            {/* Deux vignettes carrees : l affiche n a aucun coin arrondi. */}
+            <Surgit
+              delai={480}
+              className="o-mt-10 o-flex o-flex-wrap o-justify-center o-gap-3"
+            >
+              <a href="#essai" className={BOUTON_ACCENT}>
+                Une semaine offerte
+                <Icon icon={ArrowRight} size={15} />
               </a>
-            ))}
-            <a
-              href="#essai"
-              className="o-no-underline o-underline o-underline-offset-4 o-text-brand-300 dark:o-text-brand-300 focus:o-ring"
+              <a
+                href="#tarifs"
+                className={BOUTON_NOIR}
+                style={{ borderWidth: '1px', borderColor: accent(300) }}
+              >
+                Les trois formules
+              </a>
+            </Surgit>
+
+            {/* Les liens de l affiche : une ligne centree, pas une barre collante. */}
+            <nav
+              aria-label="Sections de la page"
+              className="o-mt-10 o-flex o-flex-wrap o-justify-center o-gap-x-8 o-gap-y-3 o-border-t o-border-b o-border-zinc-700 o-py-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
             >
-              Essai gratuit
-            </a>
-          </nav>
-        </div>
-      </section>
+              {LIENS.map(([href, libelle]) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="o-no-underline o-text-zinc-300 dark:o-text-zinc-300 hover:o-text-brand-300 dark:hover:o-text-brand-300 o-transition-colors focus:o-ring"
+                >
+                  {libelle}
+                </a>
+              ))}
+              <a
+                href="#essai"
+                className="o-no-underline o-underline o-underline-offset-4 o-text-brand-300 dark:o-text-brand-300 focus:o-ring"
+              >
+                Essai gratuit
+              </a>
+            </nav>
+          </div>
+        </section>
 
-      {/* ---------- La bande du bas ---------- */}
-      <Bande
-        tone="encre"
-        reverse
-        mots={[
-          '2140 adherents',
-          '52 paires de dumbbells',
-          'Six coachs sur le plateau',
-          'Zero frais de dossier',
-          'Bilan de force offert',
-          '640 m2 de charges libres',
-        ]}
-      />
+        {/* ---------- La bande du bas ---------- */}
+        <Bande
+          tone="encre"
+          reverse
+          mots={[
+            '2140 adherents',
+            '52 paires de dumbbells',
+            'Six coachs sur le plateau',
+            'Zero frais de dossier',
+            'Bilan de force offert',
+            '640 m2 de charges libres',
+          ]}
+        />
 
-      {/*
+        {/*
         ---------- Le bandeau : la signature de mouvement de la page ----------
 
         Des mots geants qui traversent l affiche sans fin, et qui penchent avec
@@ -824,544 +1187,59 @@ export default function Page(): ReactElement {
         l inclinaison pour qu aucun coin ne decouvre le fond, et la bande est
         coupee net par ses bords.
       */}
-      <div
-        aria-hidden="true"
-        className="o-relative o-overflow-hidden o-bg-zinc-950 o-py-8 md:o-py-12"
-        style={ACCENT_CLAIR}
-      >
-        <div style={{ transform: 'scale(1.12)' }}>
-          <ScrollVelocity strength={0.5} damping={9}>
-            <Bandeau
-              mots={['Squat', 'Traction', 'Traineau', 'Rowing', 'Kettlebell', 'Presse']}
-              separateur="/"
-              vitesse={38}
-              taille="clamp(2.75rem, 10vw, 9rem)"
-            />
-          </ScrollVelocity>
-        </div>
-      </div>
-
-      {/* ---------- Bande 3 : le planning collectif (papier) ---------- */}
-      <section id="cours" aria-labelledby="cours-titre" className={PAPIER}>
-        <div className={CADRE}>
-          <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-            <h2 id="cours-titre" className={TITRE} style={AFFICHE}>
-              Quarante-deux cours.
-              <br />
-              Six par jour.
-            </h2>
-            <p className="o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
-              Aucun ne se reserve : vingt-quatre places, premier arrive. Le badge suffit,
-              et le coach compte les entrees a la porte.
-            </p>
+        <div
+          aria-hidden="true"
+          className="o-relative o-overflow-hidden o-bg-zinc-950 o-py-8 md:o-py-12"
+          style={ACCENT_CLAIR}
+        >
+          <div style={{ transform: 'scale(1.12)' }}>
+            <ScrollVelocity strength={0.5} damping={9}>
+              <Bandeau
+                mots={['Squat', 'Traction', 'Traineau', 'Rowing', 'Kettlebell', 'Presse']}
+                separateur="/"
+                vitesse={38}
+                taille="clamp(2.75rem, 10vw, 9rem)"
+              />
+            </ScrollVelocity>
           </div>
-
-          <div
-            role="tablist"
-            aria-label="Jour du planning"
-            className="o-mt-10 o-flex o-flex-wrap o-gap-2"
-          >
-            {PLANNING.map((item, index) => (
-              <Onglet
-                key={item.jour}
-                actif={index === jourCours}
-                onClick={() => {
-                  setJourCours(index)
-                }}
-              >
-                {item.jour}
-              </Onglet>
-            ))}
-          </div>
-
-          <table className="o-mt-10 o-w-full o-text-left">
-            <caption className="o-text-left o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
-              Cours collectifs du {(journee?.jour ?? '').toLowerCase()}
-            </caption>
-            <thead>
-              <tr className="o-border-b" style={REGLE_BASSE}>
-                <th
-                  scope="col"
-                  className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                >
-                  Heure
-                </th>
-                <th
-                  scope="col"
-                  className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                >
-                  Cours
-                </th>
-                <th
-                  scope="col"
-                  className="max-sm:o-hidden o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                >
-                  Coach
-                </th>
-                <th
-                  scope="col"
-                  className="max-md:o-hidden o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                >
-                  Salle
-                </th>
-                <th
-                  scope="col"
-                  className="o-py-3 o-text-right o-text-xs o-font-black o-uppercase o-tracking-widest"
-                >
-                  Intensite
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {(journee?.seances ?? []).map((seance) => (
-                <tr
-                  key={`${journee?.jour ?? ''}-${seance.heure}`}
-                  className="o-border-b o-border-zinc-300 dark:o-border-zinc-700"
-                >
-                  <th
-                    scope="row"
-                    className="o-py-4 o-pr-4 o-text-xl o-font-black o-tabular-nums o-tracking-tighter"
-                  >
-                    {seance.heure}
-                  </th>
-                  <td className="o-py-4 o-pr-4">
-                    <span className="o-block o-text-sm o-font-bold o-uppercase o-tracking-wide">
-                      {seance.nom}
-                    </span>
-                    <span className="o-block o-text-xs o-text-zinc-600 dark:o-text-zinc-400">
-                      {seance.duree}
-                      <span className="sm:o-hidden"> — {seance.coach}</span>
-                    </span>
-                  </td>
-                  <td className="max-sm:o-hidden o-py-4 o-pr-4 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
-                    {seance.coach}
-                  </td>
-                  <td className="max-md:o-hidden o-py-4 o-pr-4 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
-                    {seance.salle}
-                  </td>
-                  <td className="o-py-4 o-text-right">
-                    <span
-                      className="o-inline-block o-px-2 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
-                      style={
-                        seance.intensite === 'Modere'
-                          ? { backgroundColor: accent(100) }
-                          : seance.intensite === 'Soutenu'
-                            ? { backgroundColor: accent(200) }
-                            : { backgroundColor: accent(300) }
-                      }
-                    >
-                      {seance.intensite}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </section>
 
-      {/* ---------- Bande : les plateaux (teinte) ---------- */}
-      <section id="plateaux" aria-labelledby="plateaux-titre" className={ENCRE} style={TEINTE}>
-        <div className={CADRE}>
-          <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-            <h2 id="plateaux-titre" className={TITRE} style={AFFICHE}>
-              Le materiel,
-              <br />
-              piece par piece
-            </h2>
+        {/* ---------- Bande 3 : le planning collectif (papier) ---------- */}
+        <section id="cours" aria-labelledby="cours-titre" className={PAPIER}>
+          <div className={CADRE}>
+            <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
+              <h2 id="cours-titre" className={TITRE} style={AFFICHE}>
+                Quarante-deux cours.
+                <br />
+                Six par jour.
+              </h2>
+              <p className="o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+                Aucun ne se reserve : vingt-quatre places, premier arrive. Le badge
+                suffit, et le coach compte les entrees a la porte.
+              </p>
+            </div>
+
             <div
               role="tablist"
-              aria-label="Choisir un plateau"
-              className="o-flex o-flex-wrap o-gap-2"
+              aria-label="Jour du planning"
+              className="o-mt-10 o-flex o-flex-wrap o-gap-2"
             >
-              {PLATEAUX.map((item) => (
+              {PLANNING.map((item, index) => (
                 <Onglet
-                  key={item.id}
-                  actif={item.id === plateauId}
+                  key={item.jour}
+                  actif={index === jourCours}
                   onClick={() => {
-                    setPlateauId(item.id)
+                    setJourCours(index)
                   }}
                 >
-                  {item.label}
+                  {item.jour}
                 </Onglet>
               ))}
             </div>
-          </div>
 
-          {plateau === undefined ? null : (
-            <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-2">
-              <div>
-                <img
-                  key={plateau.image}
-                  src={plateau.image}
-                  alt={plateau.alt}
-                  loading="lazy"
-                  className="o-aspect-video o-w-full o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-object-cover"
-                />
-                <p className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-3 o-text-sm">
-                  <span
-                    className="o-px-2.5 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
-                    style={PASTILLE}
-                  >
-                    {plateau.surface}
-                  </span>
-                  <span className="o-text-zinc-700 dark:o-text-zinc-300">
-                    {plateau.baseline}
-                  </span>
-                </p>
-              </div>
-
-              <ul className="o-flex o-list-none o-flex-col">
-                {plateau.materiel.map(([quantite, quoi]) => (
-                  <li
-                    key={quoi}
-                    className="o-flex o-items-baseline o-gap-5 o-border-b o-border-zinc-300 dark:o-border-zinc-700 o-py-4"
-                  >
-                    <span
-                      className="o-w-24 o-shrink-0 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter"
-                      style={ACCENT_ENCRE}
-                    >
-                      {quantite}
-                    </span>
-                    <span className="o-text-sm o-font-medium o-uppercase o-tracking-wide o-text-zinc-800 dark:o-text-zinc-200">
-                      {quoi}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/*
-        ---------- Les compteurs qui roulent, sur l affiche noire ----------
-
-        La forme de chiffres attribuee a cette page. Quatre nombres, et rien
-        d autre : ni pictogramme, ni carte, ni halo. Ce que les formules
-        contiennent est ecrit dessous, d un trait, sans quatre vignettes.
-      */}
-      <section
-        aria-labelledby="chiffres-titre"
-        className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
-      >
-        <div className={CADRE}>
-          <h2 id="chiffres-titre" className={TITRE} style={AFFICHE}>
-            Ce que la salle
-            <br />
-            compte vraiment
-          </h2>
-
-          <dl className="o-mt-14 o-grid o-gap-8 sm:o-grid-cols-2 lg:o-grid-cols-4">
-            <Compteur valeur={1520} suffixe=" m2" quoi="sur deux niveaux" />
-            <Compteur valeur={2140} quoi="adherents actifs" />
-            <Compteur valeur={42} quoi="cours collectifs par semaine" />
-            <Compteur valeur={19} suffixe=" h" quoi="ouvertes chaque jour" />
-          </dl>
-
-          <p
-            className="o-mt-16 o-max-w-4xl o-border-t o-pt-8 o-text-sm o-font-medium o-leading-relaxed o-text-zinc-400"
-            style={REGLE_HAUTE}
-          >
-            Compris dans les trois formules, sans supplement : les quatre plateaux, de
-            5h a minuit · les quarante-deux cours, sans reservation · le bilan de force a
-            l entree, puis tous les six mois · les vestiaires, casiers a code et
-            serviettes lavees sur place.
-          </p>
-        </div>
-      </section>
-
-      {/*
-        ---------- Les coachs : une feuille de match, pas quatre cartes ----------
-
-        Une ligne par coach, le nom en capitales grasses, l anciennete en bout
-        de ligne. Le portrait est une vignette de passage, pas un portrait de
-        carte : c est le nom qui porte, comme sur une affiche de gala.
-      */}
-      <section id="coachs" aria-labelledby="coachs-titre" className={PAPIER}>
-        <div className={CADRE}>
-          <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-            <h2 id="coachs-titre" className={TITRE} style={AFFICHE}>
-              Six coachs.
-              <br />
-              Toujours un sur le plateau.
-            </h2>
-            <p className="o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
-              Ils ne vendent rien. Vous les arretez pour une correction, ils corrigent.
-              Quatre d entre eux sont ici depuis l ouverture.
-            </p>
-          </div>
-
-          <ol className="o-mt-14 o-m-0 o-list-none o-p-0">
-            {COACHS.map((coach, rang) => (
-              <li
-                key={coach.nom}
-                className="o-grid o-items-center o-gap-x-6 o-gap-y-4 o-border-t o-py-7 md:o-grid-cols-12"
-                style={REGLE_HAUTE}
-              >
-                <span
-                  aria-hidden="true"
-                  className="o-text-xs o-font-black o-tabular-nums o-tracking-widest md:o-col-span-1"
-                  style={ACCENT_ENCRE}
-                >
-                  {String(rang + 1).padStart(2, '0')}
-                </span>
-                <img
-                  src={coach.image.src}
-                  alt={coach.image.alt}
-                  width={160}
-                  height={160}
-                  loading="lazy"
-                  className="o-size-14 o-shrink-0 o-object-cover md:o-col-span-1"
-                />
-                <h3
-                  className="o-m-0 o-text-3xl o-font-black o-uppercase o-tracking-tighter md:o-col-span-4 md:o-text-5xl"
-                  style={AFFICHE}
-                >
-                  {coach.nom}
-                </h3>
-                <p className="o-m-0 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-2">
-                  {coach.role}
-                </p>
-                <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-3">
-                  {coach.detail}
-                </p>
-                <span
-                  className="o-text-xs o-font-black o-uppercase o-tracking-widest md:o-col-span-1 md:o-text-right"
-                  style={ACCENT_ENCRE}
-                >
-                  {coach.chiffre}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ---------- Bande : les tarifs et le comparatif (teinte) ---------- */}
-      <section id="tarifs" aria-labelledby="tarifs-titre" className={ENCRE} style={TEINTE}>
-        <div className={CADRE}>
-          <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-            <h2 id="tarifs-titre" className={TITRE} style={AFFICHE}>
-              Trois prix,
-              <br />
-              zero engagement
-            </h2>
-            <p className="o-max-w-sm o-text-sm o-font-medium o-leading-relaxed">
-              Frais de dossier : 0 EUR. Preavis de resiliation : aucun. Le badge est actif
-              dans l heure.
-            </p>
-          </div>
-
-          <ul className="o-mt-14 o-grid o-list-none o-gap-6 lg:o-grid-cols-3">
-            {FORMULES.map((formule) => (
-              <li
-                key={formule.nom}
-                className={
-                  formule.phare
-                    ? 'o-flex o-flex-col o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-bg-zinc-950 o-p-8 o-text-zinc-50 dark:o-text-zinc-50'
-                    : 'o-flex o-flex-col o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-p-8'
-                }
-              >
-                <div className="o-flex o-items-center o-justify-between o-gap-3">
-                  <h3 className="o-text-sm o-font-black o-uppercase o-tracking-widest">
-                    {formule.nom}
-                  </h3>
-                  {formule.phare ? (
-                    <span
-                      className="o-px-2 o-py-0.5 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
-                      style={PASTILLE}
-                    >
-                      Le plus pris
-                    </span>
-                  ) : null}
-                </div>
-                <p className="o-mt-6 o-flex o-items-baseline o-gap-2">
-                  <span
-                    className="o-text-7xl o-font-black o-tabular-nums o-tracking-tighter"
-                    style={formule.phare ? ACCENT_CLAIR : undefined}
-                  >
-                    {formule.prix}
-                  </span>
-                  <span
-                    className={
-                      formule.phare
-                        ? 'o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-300'
-                        : 'o-text-xs o-font-semibold o-uppercase o-tracking-widest'
-                    }
-                  >
-                    EUR
-                    <br />
-                    {formule.unite}
-                  </span>
-                </p>
-                <p
-                  className={
-                    formule.phare
-                      ? 'o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300'
-                      : 'o-mt-4 o-text-sm o-font-medium o-leading-relaxed'
-                  }
-                >
-                  {formule.detail}
-                </p>
-                <ul className="o-mt-8 o-flex o-flex-1 o-list-none o-flex-col o-gap-3 o-text-sm">
-                  {formule.lignes.map((ligne) => (
-                    <li key={ligne} className="o-flex o-items-start o-gap-2.5">
-                      <Icon
-                        icon={Check}
-                        size={16}
-                        className="o-mt-0.5 o-shrink-0"
-                        style={formule.phare ? ACCENT_CLAIR : ACCENT_ENCRE}
-                      />
-                      <span className={formule.phare ? 'o-text-zinc-100' : 'o-font-medium'}>
-                        {ligne}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href="#essai"
-                  className={
-                    formule.phare
-                      ? `o-mt-8 o-w-full ${BOUTON_ACCENT}`
-                      : `o-mt-8 o-w-full ${BOUTON_NOIR}`
-                  }
-                >
-                  Commencer la semaine offerte
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          {/*
-            Le comparatif est un tableau imprime, pas une carte : filets epais,
-            capitales, aucun coin arrondi. Il defile lateralement sous 768 px
-            plutot que d ecraser trois colonnes dans 332 px.
-          */}
-          <h3 className="o-mt-20 o-text-2xl o-font-black o-uppercase o-tracking-tighter md:o-text-3xl">
-            Ce qu il y a vraiment dedans
-          </h3>
-          <div className="o-mt-8 o-max-w-full o-overflow-x-auto">
-            <table className="o-w-full o-min-w-96 o-text-left">
+            <table className="o-mt-10 o-w-full o-text-left">
               <caption className="o-text-left o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
-                Les trois formules, ligne a ligne
-              </caption>
-              <thead>
-                <tr className="o-border-b" style={REGLE_BASSE}>
-                  <th
-                    scope="col"
-                    className="o-py-3 o-pr-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                  >
-                    Critere
-                  </th>
-                  {FORMULES.map((formule) => (
-                    <th
-                      key={formule.nom}
-                      scope="col"
-                      className="o-py-3 o-pr-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
-                    >
-                      {formule.nom}
-                      <span className="o-block o-text-xs o-font-medium o-normal-case o-tracking-normal o-text-zinc-600 dark:o-text-zinc-400">
-                        {formule.prix} EUR {formule.unite}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARATIF.map((ligne, rang) => {
-                  const nouveau = COMPARATIF[rang - 1]?.groupe !== ligne.groupe
-                  return (
-                    <tr
-                      key={ligne.critere}
-                      className="o-border-b o-border-zinc-300 dark:o-border-zinc-700"
-                    >
-                      <th
-                        scope="row"
-                        className="o-py-3.5 o-pr-4 o-align-top o-text-sm o-font-medium"
-                      >
-                        {nouveau ? (
-                          <span
-                            className="o-mb-1 o-block o-text-xs o-font-black o-uppercase o-tracking-widest"
-                            style={ACCENT_ENCRE}
-                          >
-                            {ligne.groupe}
-                          </span>
-                        ) : null}
-                        {ligne.critere}
-                      </th>
-                      {ligne.valeurs.map((valeur, colonne) => (
-                        <td
-                          key={`${ligne.critere}-${String(colonne)}`}
-                          className="o-py-3.5 o-pr-4 o-align-top o-text-sm o-text-zinc-700 dark:o-text-zinc-300"
-                        >
-                          {valeur}
-                        </td>
-                      ))}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Bande : horaires et affluence (papier, sur stries) ---------- */}
-      <section
-        id="horaires"
-        aria-labelledby="horaires-titre"
-        className={`o-relative o-isolate o-overflow-hidden ${PAPIER}`}
-      >
-        {/*
-          La hachure est neutre et non teintee : elle tient sur le papier comme
-          sur l encre, la ou une strie d accent disparaitrait sur l un des deux.
-        */}
-        <Stripes
-          className="o-absolute o-inset-0 o-z-0 o-pointer-events-none"
-          width={4}
-          gap={26}
-          angle={70}
-          color="color-mix(in oklab, var(--o-theme-fg) 9%, transparent)"
-          background="transparent"
-        />
-        <div className={`o-relative o-z-10 ${CADRE}`}>
-          <div className="o-grid o-gap-12 lg:o-grid-cols-2">
-            <div>
-              <h2 id="horaires-titre" className={TITRE} style={AFFICHE}>
-                5h — minuit
-              </h2>
-              <p className="o-mt-6 o-max-w-md o-text-sm o-leading-relaxed">
-                Dix-neuf heures par jour en semaine. Le badge ouvre la porte principale ;
-                a partir de 22h, un veilleur reste sur le plateau. Fermeture annuelle :
-                aucune.
-              </p>
-              <dl className="o-mt-10 o-grid o-gap-6 sm:o-grid-cols-2">
-                <div>
-                  <dt className="o-flex o-items-center o-gap-2 o-text-xs o-font-black o-uppercase o-tracking-widest">
-                    <Icon icon={MapPin} size={14} />
-                    Adresse
-                  </dt>
-                  <dd className="o-mt-2 o-text-sm">
-                    92 avenue Jean Lolive, 93500 Pantin. Metro Hoche, sortie 2.
-                  </dd>
-                </div>
-                <div>
-                  <dt className="o-flex o-items-center o-gap-2 o-text-xs o-font-black o-uppercase o-tracking-widest">
-                    <Icon icon={Timer} size={14} />
-                    Parking
-                  </dt>
-                  <dd className="o-mt-2 o-text-sm">
-                    Quarante places velo sous l auvent, gratuit. Voitures : parking
-                    Lolive, 2 EUR l heure.
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            <table className="o-w-full o-text-left">
-              <caption className="o-text-left o-text-xs o-font-black o-uppercase o-tracking-widest">
-                Horaires de la semaine
+                Cours collectifs du {(journee?.jour ?? '').toLowerCase()}
               </caption>
               <thead>
                 <tr className="o-border-b" style={REGLE_BASSE}>
@@ -1369,456 +1247,974 @@ export default function Page(): ReactElement {
                     scope="col"
                     className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
                   >
-                    Jour
+                    Heure
                   </th>
                   <th
                     scope="col"
                     className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
                   >
-                    Ouverture
+                    Cours
                   </th>
                   <th
                     scope="col"
-                    className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                    className="max-sm:o-hidden o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
                   >
-                    Fermeture
+                    Coach
+                  </th>
+                  <th
+                    scope="col"
+                    className="max-md:o-hidden o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                  >
+                    Salle
+                  </th>
+                  <th
+                    scope="col"
+                    className="o-py-3 o-text-right o-text-xs o-font-black o-uppercase o-tracking-widest"
+                  >
+                    Intensite
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {HORAIRES.map(([jour, debut, fin]) => (
+                {(journee?.seances ?? []).map((seance) => (
                   <tr
-                    key={jour}
-                    className="o-border-b o-border-zinc-400 dark:o-border-zinc-600"
+                    key={`${journee?.jour ?? ''}-${seance.heure}`}
+                    className="o-border-b o-border-zinc-300 dark:o-border-zinc-700"
                   >
                     <th
                       scope="row"
-                      className="o-py-4 o-text-sm o-font-semibold o-uppercase o-tracking-wide"
+                      className="o-py-4 o-pr-4 o-text-xl o-font-black o-tabular-nums o-tracking-tighter"
                     >
-                      {jour}
+                      {seance.heure}
                     </th>
-                    <td className="o-py-4 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter">
-                      {debut}
+                    <td className="o-py-4 o-pr-4">
+                      <span className="o-block o-text-sm o-font-bold o-uppercase o-tracking-wide">
+                        {seance.nom}
+                      </span>
+                      <span className="o-block o-text-xs o-text-zinc-600 dark:o-text-zinc-400">
+                        {seance.duree}
+                        <span className="sm:o-hidden"> — {seance.coach}</span>
+                      </span>
                     </td>
-                    <td className="o-py-4 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter">
-                      {fin}
+                    <td className="max-sm:o-hidden o-py-4 o-pr-4 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
+                      {seance.coach}
+                    </td>
+                    <td className="max-md:o-hidden o-py-4 o-pr-4 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
+                      {seance.salle}
+                    </td>
+                    <td className="o-py-4 o-text-right">
+                      <span
+                        className="o-inline-block o-px-2 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
+                        style={
+                          seance.intensite === 'Modere'
+                            ? { backgroundColor: accent(100) }
+                            : seance.intensite === 'Soutenu'
+                              ? { backgroundColor: accent(200) }
+                              : { backgroundColor: accent(300) }
+                        }
+                      >
+                        {seance.intensite}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+        </section>
 
+        {/* ---------- Bande : les plateaux (teinte) ---------- */}
+        <section
+          id="plateaux"
+          aria-labelledby="plateaux-titre"
+          className={ENCRE}
+          style={TEINTE}
+        >
+          <div className={CADRE}>
+            <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
+              <h2 id="plateaux-titre" className={TITRE} style={AFFICHE}>
+                Le materiel,
+                <br />
+                piece par piece
+              </h2>
+              <div
+                role="tablist"
+                aria-label="Choisir un plateau"
+                className="o-flex o-flex-wrap o-gap-2"
+              >
+                {PLATEAUX.map((item) => (
+                  <Onglet
+                    key={item.id}
+                    actif={item.id === plateauId}
+                    onClick={() => {
+                      setPlateauId(item.id)
+                    }}
+                  >
+                    {item.label}
+                  </Onglet>
+                ))}
+              </div>
+            </div>
+
+            {plateau === undefined ? null : (
+              <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-2">
+                <div>
+                  <img
+                    key={plateau.image}
+                    src={plateau.image}
+                    alt={plateau.alt}
+                    loading="lazy"
+                    className="o-aspect-video o-w-full o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-object-cover"
+                  />
+                  <p className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-3 o-text-sm">
+                    <span
+                      className="o-px-2.5 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
+                      style={PASTILLE}
+                    >
+                      {plateau.surface}
+                    </span>
+                    <span className="o-text-zinc-700 dark:o-text-zinc-300">
+                      {plateau.baseline}
+                    </span>
+                  </p>
+                </div>
+
+                <ul className="o-flex o-list-none o-flex-col">
+                  {plateau.materiel.map(([quantite, quoi]) => (
+                    <li
+                      key={quoi}
+                      className="o-flex o-items-baseline o-gap-5 o-border-b o-border-zinc-300 dark:o-border-zinc-700 o-py-4"
+                    >
+                      <span
+                        className="o-w-24 o-shrink-0 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter"
+                        style={ACCENT_ENCRE}
+                      >
+                        {quantite}
+                      </span>
+                      <span className="o-text-sm o-font-medium o-uppercase o-tracking-wide o-text-zinc-800 dark:o-text-zinc-200">
+                        {quoi}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/*
+        ---------- Les compteurs qui roulent, sur l affiche noire ----------
+
+        La forme de chiffres attribuee a cette page. Quatre nombres, et rien
+        d autre : ni pictogramme, ni carte, ni halo. Ce que les formules
+        contiennent est ecrit dessous, d un trait, sans quatre vignettes.
+      */}
+        <section
+          aria-labelledby="chiffres-titre"
+          className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
+        >
+          <div className={CADRE}>
+            <h2 id="chiffres-titre" className={TITRE} style={AFFICHE}>
+              Ce que la salle
+              <br />
+              compte vraiment
+            </h2>
+
+            <dl className="o-mt-14 o-grid o-gap-8 sm:o-grid-cols-2 lg:o-grid-cols-4">
+              <Compteur valeur={1520} suffixe=" m2" quoi="sur deux niveaux" />
+              <Compteur valeur={2140} quoi="adherents actifs" />
+              <Compteur valeur={42} quoi="cours collectifs par semaine" />
+              <Compteur valeur={19} suffixe=" h" quoi="ouvertes chaque jour" />
+            </dl>
+
+            <p
+              className="o-mt-16 o-max-w-4xl o-border-t o-pt-8 o-text-sm o-font-medium o-leading-relaxed o-text-zinc-400"
+              style={REGLE_HAUTE}
+            >
+              Compris dans les trois formules, sans supplement : les quatre plateaux, de
+              5h a minuit · les quarante-deux cours, sans reservation · le bilan de force
+              a l entree, puis tous les six mois · les vestiaires, casiers a code et
+              serviettes lavees sur place.
+            </p>
+          </div>
+        </section>
+
+        {/*
+        ---------- Les coachs : une feuille de match, pas quatre cartes ----------
+
+        Une ligne par coach, le nom en capitales grasses, l anciennete en bout
+        de ligne. Le portrait est une vignette de passage, pas un portrait de
+        carte : c est le nom qui porte, comme sur une affiche de gala.
+      */}
+        <section id="coachs" aria-labelledby="coachs-titre" className={PAPIER}>
+          <div className={CADRE}>
+            <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
+              <h2 id="coachs-titre" className={TITRE} style={AFFICHE}>
+                Six coachs.
+                <br />
+                Toujours un sur le plateau.
+              </h2>
+              <p className="o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+                Ils ne vendent rien. Vous les arretez pour une correction, ils corrigent.
+                Quatre d entre eux sont ici depuis l ouverture.
+              </p>
+            </div>
+
+            <ol className="o-mt-14 o-m-0 o-list-none o-p-0">
+              {COACHS.map((coach, rang) => (
+                <li
+                  key={coach.nom}
+                  className="o-grid o-items-center o-gap-x-6 o-gap-y-4 o-border-t o-py-7 md:o-grid-cols-12"
+                  style={REGLE_HAUTE}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="o-text-xs o-font-black o-tabular-nums o-tracking-widest md:o-col-span-1"
+                    style={ACCENT_ENCRE}
+                  >
+                    {String(rang + 1).padStart(2, '0')}
+                  </span>
+                  <img
+                    src={coach.image.src}
+                    alt={coach.image.alt}
+                    width={160}
+                    height={160}
+                    loading="lazy"
+                    className="o-size-14 o-shrink-0 o-object-cover md:o-col-span-1"
+                  />
+                  <h3
+                    className="o-m-0 o-text-3xl o-font-black o-uppercase o-tracking-tighter md:o-col-span-4 md:o-text-5xl"
+                    style={AFFICHE}
+                  >
+                    {coach.nom}
+                  </h3>
+                  <p className="o-m-0 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-2">
+                    {coach.role}
+                  </p>
+                  <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-3">
+                    {coach.detail}
+                  </p>
+                  <span
+                    className="o-text-xs o-font-black o-uppercase o-tracking-widest md:o-col-span-1 md:o-text-right"
+                    style={ACCENT_ENCRE}
+                  >
+                    {coach.chiffre}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* ---------- Bande : les tarifs et le comparatif (teinte) ---------- */}
+        <section
+          id="tarifs"
+          aria-labelledby="tarifs-titre"
+          className={ENCRE}
+          style={TEINTE}
+        >
+          <div className={CADRE}>
+            <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
+              <h2 id="tarifs-titre" className={TITRE} style={AFFICHE}>
+                Trois prix,
+                <br />
+                zero engagement
+              </h2>
+              <p className="o-max-w-sm o-text-sm o-font-medium o-leading-relaxed">
+                Frais de dossier : 0 EUR. Preavis de resiliation : aucun. Le badge est
+                actif dans l heure.
+              </p>
+            </div>
+
+            <ul className="o-mt-14 o-grid o-list-none o-gap-6 lg:o-grid-cols-3">
+              {FORMULES.map((formule) => (
+                <li
+                  key={formule.nom}
+                  className={
+                    formule.phare
+                      ? 'o-flex o-flex-col o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-bg-zinc-950 o-p-8 o-text-zinc-50 dark:o-text-zinc-50'
+                      : 'o-flex o-flex-col o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-p-8'
+                  }
+                >
+                  <div className="o-flex o-items-center o-justify-between o-gap-3">
+                    <h3 className="o-text-sm o-font-black o-uppercase o-tracking-widest">
+                      {formule.nom}
+                    </h3>
+                    {formule.phare ? (
+                      <span
+                        className="o-px-2 o-py-0.5 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
+                        style={PASTILLE}
+                      >
+                        Le plus pris
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="o-mt-6 o-flex o-items-baseline o-gap-2">
+                    <span
+                      className="o-text-7xl o-font-black o-tabular-nums o-tracking-tighter"
+                      style={formule.phare ? ACCENT_CLAIR : undefined}
+                    >
+                      {formule.prix}
+                    </span>
+                    <span
+                      className={
+                        formule.phare
+                          ? 'o-text-xs o-font-semibold o-uppercase o-tracking-widest o-text-zinc-300'
+                          : 'o-text-xs o-font-semibold o-uppercase o-tracking-widest'
+                      }
+                    >
+                      EUR
+                      <br />
+                      {formule.unite}
+                    </span>
+                  </p>
+                  <p
+                    className={
+                      formule.phare
+                        ? 'o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300'
+                        : 'o-mt-4 o-text-sm o-font-medium o-leading-relaxed'
+                    }
+                  >
+                    {formule.detail}
+                  </p>
+                  <ul className="o-mt-8 o-flex o-flex-1 o-list-none o-flex-col o-gap-3 o-text-sm">
+                    {formule.lignes.map((ligne) => (
+                      <li key={ligne} className="o-flex o-items-start o-gap-2.5">
+                        <Icon
+                          icon={Check}
+                          size={16}
+                          className="o-mt-0.5 o-shrink-0"
+                          style={formule.phare ? ACCENT_CLAIR : ACCENT_ENCRE}
+                        />
+                        <span
+                          className={formule.phare ? 'o-text-zinc-100' : 'o-font-medium'}
+                        >
+                          {ligne}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="#essai"
+                    className={
+                      formule.phare
+                        ? `o-mt-8 o-w-full ${BOUTON_ACCENT}`
+                        : `o-mt-8 o-w-full ${BOUTON_NOIR}`
+                    }
+                  >
+                    Commencer la semaine offerte
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            {/*
+            Le comparatif est un tableau imprime, pas une carte : filets epais,
+            capitales, aucun coin arrondi. Il defile lateralement sous 768 px
+            plutot que d ecraser trois colonnes dans 332 px.
+          */}
+            <h3 className="o-mt-20 o-text-2xl o-font-black o-uppercase o-tracking-tighter md:o-text-3xl">
+              Ce qu il y a vraiment dedans
+            </h3>
+            <div className="o-mt-8 o-max-w-full o-overflow-x-auto">
+              <table className="o-w-full o-min-w-96 o-text-left">
+                <caption className="o-text-left o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
+                  Les trois formules, ligne a ligne
+                </caption>
+                <thead>
+                  <tr className="o-border-b" style={REGLE_BASSE}>
+                    <th
+                      scope="col"
+                      className="o-py-3 o-pr-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                    >
+                      Critere
+                    </th>
+                    {FORMULES.map((formule) => (
+                      <th
+                        key={formule.nom}
+                        scope="col"
+                        className="o-py-3 o-pr-4 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                      >
+                        {formule.nom}
+                        <span className="o-block o-text-xs o-font-medium o-normal-case o-tracking-normal o-text-zinc-600 dark:o-text-zinc-400">
+                          {formule.prix} EUR {formule.unite}
+                        </span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARATIF.map((ligne, rang) => {
+                    const nouveau = COMPARATIF[rang - 1]?.groupe !== ligne.groupe
+                    return (
+                      <tr
+                        key={ligne.critere}
+                        className="o-border-b o-border-zinc-300 dark:o-border-zinc-700"
+                      >
+                        <th
+                          scope="row"
+                          className="o-py-3.5 o-pr-4 o-align-top o-text-sm o-font-medium"
+                        >
+                          {nouveau ? (
+                            <span
+                              className="o-mb-1 o-block o-text-xs o-font-black o-uppercase o-tracking-widest"
+                              style={ACCENT_ENCRE}
+                            >
+                              {ligne.groupe}
+                            </span>
+                          ) : null}
+                          {ligne.critere}
+                        </th>
+                        {ligne.valeurs.map((valeur, colonne) => (
+                          <td
+                            key={`${ligne.critere}-${String(colonne)}`}
+                            className="o-py-3.5 o-pr-4 o-align-top o-text-sm o-text-zinc-700 dark:o-text-zinc-300"
+                          >
+                            {valeur}
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- Bande : horaires et affluence (papier, sur stries) ---------- */}
+        <section
+          id="horaires"
+          aria-labelledby="horaires-titre"
+          className={`o-relative o-isolate o-overflow-hidden ${PAPIER}`}
+        >
           {/*
+          La hachure est neutre et non teintee : elle tient sur le papier comme
+          sur l encre, la ou une strie d accent disparaitrait sur l un des deux.
+        */}
+          <Stripes
+            className="o-absolute o-inset-0 o-z-0 o-pointer-events-none"
+            width={4}
+            gap={26}
+            angle={70}
+            color="color-mix(in oklab, var(--o-theme-fg) 9%, transparent)"
+            background="transparent"
+          />
+          <div className={`o-relative o-z-10 ${CADRE}`}>
+            <div className="o-grid o-gap-12 lg:o-grid-cols-2">
+              <div>
+                <h2 id="horaires-titre" className={TITRE} style={AFFICHE}>
+                  5h — minuit
+                </h2>
+                <p className="o-mt-6 o-max-w-md o-text-sm o-leading-relaxed">
+                  Dix-neuf heures par jour en semaine. Le badge ouvre la porte principale
+                  ; a partir de 22h, un veilleur reste sur le plateau. Fermeture annuelle
+                  : aucune.
+                </p>
+                <dl className="o-mt-10 o-grid o-gap-6 sm:o-grid-cols-2">
+                  <div>
+                    <dt className="o-flex o-items-center o-gap-2 o-text-xs o-font-black o-uppercase o-tracking-widest">
+                      <Icon icon={MapPin} size={14} />
+                      Adresse
+                    </dt>
+                    <dd className="o-mt-2 o-text-sm">
+                      92 avenue Jean Lolive, 93500 Pantin. Metro Hoche, sortie 2.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="o-flex o-items-center o-gap-2 o-text-xs o-font-black o-uppercase o-tracking-widest">
+                      <Icon icon={Timer} size={14} />
+                      Parking
+                    </dt>
+                    <dd className="o-mt-2 o-text-sm">
+                      Quarante places velo sous l auvent, gratuit. Voitures : parking
+                      Lolive, 2 EUR l heure.
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <table className="o-w-full o-text-left">
+                <caption className="o-text-left o-text-xs o-font-black o-uppercase o-tracking-widest">
+                  Horaires de la semaine
+                </caption>
+                <thead>
+                  <tr className="o-border-b" style={REGLE_BASSE}>
+                    <th
+                      scope="col"
+                      className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                    >
+                      Jour
+                    </th>
+                    <th
+                      scope="col"
+                      className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                    >
+                      Ouverture
+                    </th>
+                    <th
+                      scope="col"
+                      className="o-py-3 o-text-xs o-font-black o-uppercase o-tracking-widest"
+                    >
+                      Fermeture
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {HORAIRES.map(([jour, debut, fin]) => (
+                    <tr
+                      key={jour}
+                      className="o-border-b o-border-zinc-400 dark:o-border-zinc-600"
+                    >
+                      <th
+                        scope="row"
+                        className="o-py-4 o-text-sm o-font-semibold o-uppercase o-tracking-wide"
+                      >
+                        {jour}
+                      </th>
+                      <td className="o-py-4 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter">
+                        {debut}
+                      </td>
+                      <td className="o-py-4 o-text-2xl o-font-black o-tabular-nums o-tracking-tighter">
+                        {fin}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/*
             L affluence par tranche horaire : le tourniquet compte, on affiche.
             Les barres sont un melange de l accent vers le transparent, donc
             visibles sur la bande claire comme sur la bande sombre.
           */}
-          <div className="o-mt-20 o-border-t o-pt-10" style={REGLE_HAUTE}>
-            <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-              <h3 className="o-text-2xl o-font-black o-uppercase o-tracking-tighter md:o-text-3xl">
-                A quelle heure c est plein
-              </h3>
-              <p className="o-max-w-md o-text-sm o-leading-relaxed">
-                Taux d occupation du plateau, releve au tourniquet sur les quatre
-                dernieres semaines. Le creux du{' '}
-                {(releve?.[0] ?? '').toLowerCase()} tombe a {creux} %, la pointe a{' '}
-                {Math.max(...taux)} % entre {TRANCHES[pointe] ?? TRANCHES[5]}.
-              </p>
-            </div>
+            <div className="o-mt-20 o-border-t o-pt-10" style={REGLE_HAUTE}>
+              <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
+                <h3 className="o-text-2xl o-font-black o-uppercase o-tracking-tighter md:o-text-3xl">
+                  A quelle heure c est plein
+                </h3>
+                <p className="o-max-w-md o-text-sm o-leading-relaxed">
+                  Taux d occupation du plateau, releve au tourniquet sur les quatre
+                  dernieres semaines. Le creux du {(releve?.[0] ?? '').toLowerCase()}{' '}
+                  tombe a {creux} %, la pointe a {Math.max(...taux)} % entre{' '}
+                  {TRANCHES[pointe] ?? TRANCHES[5]}.
+                </p>
+              </div>
 
-            <div
-              role="tablist"
-              aria-label="Jour de l affluence"
-              className="o-mt-8 o-flex o-flex-wrap o-gap-2"
-            >
-              {AFFLUENCE.map(([jour], index) => (
-                <Onglet
-                  key={jour}
-                  actif={index === jourAffluence}
-                  onClick={() => {
-                    setJourAffluence(index)
-                  }}
-                >
-                  {jour}
-                </Onglet>
-              ))}
-            </div>
-
-            <ul className="o-mt-10 o-grid o-list-none o-grid-cols-4 o-gap-4 sm:o-grid-cols-8">
-              {taux.map((valeur, index) => (
-                <li key={TRANCHES[index] ?? String(index)} className="o-flex o-flex-col">
-                  <div
-                    className="o-flex o-h-40 o-w-full o-flex-col o-justify-end o-border-b"
-                    style={REGLE_BASSE}
-                    aria-hidden="true"
-                  >
-                    {valeur < 0 ? null : (
-                      <div
-                        className="o-w-full"
-                        style={{
-                          height: `${String(Math.max(valeur, 4))}%`,
-                          backgroundColor: `color-mix(in oklab, ${accent(500)} ${String(
-                            35 + Math.round(valeur * 0.6),
-                          )}%, transparent)`,
-                        }}
-                      />
-                    )}
-                  </div>
-                  <p className="o-mt-3 o-text-xs o-font-black o-uppercase o-tracking-widest">
-                    {valeur < 0 ? 'Ferme' : `${String(valeur)} %`}
-                  </p>
-                  <p className="o-mt-1 o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300">
-                    {TRANCHES[index]}
-                  </p>
-                  <p className="o-sr-only">
-                    {TRANCHES[index]} : {niveau(valeur)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- La bande d appel ---------- */}
-      <Bande
-        tone="encre"
-        mots={[
-          'Une semaine gratuite',
-          'Sans carte bancaire',
-          'Badge actif en dix minutes',
-          'Bilan de force compris',
-          'Passez a l accueil',
-          'Zero preavis',
-        ]}
-      />
-
-      {/* ---------- Bande : l essai gratuit et son formulaire (teinte) ---------- */}
-      <section id="essai" aria-labelledby="essai-titre" className={ENCRE} style={TEINTE}>
-        <div className={CADRE}>
-          <div className="o-grid o-gap-12 lg:o-grid-cols-2">
-            <div>
-              <h2
-                id="essai-titre"
-                className="o-text-5xl o-font-black o-uppercase o-tracking-tighter md:o-text-7xl"
-                style={AFFICHE}
+              <div
+                role="tablist"
+                aria-label="Jour de l affluence"
+                className="o-mt-8 o-flex o-flex-wrap o-gap-2"
               >
-                Une semaine.
-                <br />
-                Gratuite.
-                <br />
-                Sans carte.
-              </h2>
-              <p className="o-mt-8 o-max-w-md o-text-sm o-font-medium o-leading-relaxed">
-                Le badge d essai est actif dix minutes apres votre passage a l accueil,
-                avec une piece d identite. Il ouvre les quatre plateaux, les quarante-deux
-                cours et le vestiaire, pendant sept jours pleins.
-              </p>
-              <ul className="o-mt-10 o-flex o-list-none o-flex-col o-gap-4 o-text-sm">
-                {[
-                  'Aucun moyen de paiement demande',
-                  'Bilan de force compris, sur rendez-vous',
-                  'Un coach vous fait le tour des plateaux',
-                  'Rien ne se transforme en abonnement tout seul',
-                ].map((ligne) => (
-                  <li key={ligne} className="o-flex o-items-start o-gap-3">
-                    <Icon
-                      icon={Check}
-                      size={17}
-                      className="o-mt-0.5 o-shrink-0"
-                      style={ACCENT_ENCRE}
-                    />
-                    <span className="o-font-medium">{ligne}</span>
+                {AFFLUENCE.map(([jour], index) => (
+                  <Onglet
+                    key={jour}
+                    actif={index === jourAffluence}
+                    onClick={() => {
+                      setJourAffluence(index)
+                    }}
+                  >
+                    {jour}
+                  </Onglet>
+                ))}
+              </div>
+
+              <ul className="o-mt-10 o-grid o-list-none o-grid-cols-4 o-gap-4 sm:o-grid-cols-8">
+                {taux.map((valeur, index) => (
+                  <li
+                    key={TRANCHES[index] ?? String(index)}
+                    className="o-flex o-flex-col"
+                  >
+                    <div
+                      className="o-flex o-h-40 o-w-full o-flex-col o-justify-end o-border-b"
+                      style={REGLE_BASSE}
+                      aria-hidden="true"
+                    >
+                      {valeur < 0 ? null : (
+                        <div
+                          className="o-w-full"
+                          style={{
+                            height: `${String(Math.max(valeur, 4))}%`,
+                            backgroundColor: `color-mix(in oklab, ${accent(500)} ${String(
+                              35 + Math.round(valeur * 0.6),
+                            )}%, transparent)`,
+                          }}
+                        />
+                      )}
+                    </div>
+                    <p className="o-mt-3 o-text-xs o-font-black o-uppercase o-tracking-widest">
+                      {valeur < 0 ? 'Ferme' : `${String(valeur)} %`}
+                    </p>
+                    <p className="o-mt-1 o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300">
+                      {TRANCHES[index]}
+                    </p>
+                    <p className="o-sr-only">
+                      {TRANCHES[index]} : {niveau(valeur)}
+                    </p>
                   </li>
                 ))}
               </ul>
             </div>
+          </div>
+        </section>
 
-            <div
-              className="o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-p-6 md:o-p-8"
-            >
-              {envoye ? (
-                <div>
-                  <p
-                    className="o-inline-block o-px-2.5 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
-                    style={PASTILLE}
-                  >
-                    Badge reserve
-                  </p>
-                  <h3
-                    className="o-mt-6 o-text-3xl o-font-black o-uppercase o-tracking-tighter"
-                    style={AFFICHE}
-                  >
-                    C est note, {essai.prenom}.
-                  </h3>
-                  <p className="o-mt-5 o-text-sm o-leading-relaxed">
-                    Votre badge d essai porte le numero{' '}
-                    <span className="o-font-black o-tabular-nums" style={ACCENT_ENCRE}>
-                      {badge}
-                    </span>
-                    . Il vous attend a l accueil le {essai.jour.toLowerCase()}, valable
-                    sept jours a partir de la premiere entree. Nous avons ecrit a{' '}
-                    {essai.courriel}.
-                  </p>
-                  <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
-                    Le coach de permanence vous fera le tour du plateau {'"'}
-                    {essai.plateau.toLowerCase()}
-                    {'"'} en premier. Prevoyez une paire de chaussures propres et une
-                    piece d identite.
-                  </p>
-                  <button
-                    type="button"
-                    className={`o-mt-8 ${BOUTON_NOIR}`}
-                    onClick={() => {
-                      setEnvoye(false)
-                      setFautes({})
+        {/* ---------- La bande d appel ---------- */}
+        <Bande
+          tone="encre"
+          mots={[
+            'Une semaine gratuite',
+            'Sans carte bancaire',
+            'Badge actif en dix minutes',
+            'Bilan de force compris',
+            'Passez a l accueil',
+            'Zero preavis',
+          ]}
+        />
+
+        {/* ---------- Bande : l essai gratuit et son formulaire (teinte) ---------- */}
+        <section
+          id="essai"
+          aria-labelledby="essai-titre"
+          className={ENCRE}
+          style={TEINTE}
+        >
+          <div className={CADRE}>
+            <div className="o-grid o-gap-12 lg:o-grid-cols-2">
+              <div>
+                <h2
+                  id="essai-titre"
+                  className="o-text-5xl o-font-black o-uppercase o-tracking-tighter md:o-text-7xl"
+                  style={AFFICHE}
+                >
+                  Une semaine.
+                  <br />
+                  Gratuite.
+                  <br />
+                  Sans carte.
+                </h2>
+                <p className="o-mt-8 o-max-w-md o-text-sm o-font-medium o-leading-relaxed">
+                  Le badge d essai est actif dix minutes apres votre passage a l accueil,
+                  avec une piece d identite. Il ouvre les quatre plateaux, les
+                  quarante-deux cours et le vestiaire, pendant sept jours pleins.
+                </p>
+                <ul className="o-mt-10 o-flex o-list-none o-flex-col o-gap-4 o-text-sm">
+                  {[
+                    'Aucun moyen de paiement demande',
+                    'Bilan de force compris, sur rendez-vous',
+                    'Un coach vous fait le tour des plateaux',
+                    'Rien ne se transforme en abonnement tout seul',
+                  ].map((ligne) => (
+                    <li key={ligne} className="o-flex o-items-start o-gap-3">
+                      <Icon
+                        icon={Check}
+                        size={17}
+                        className="o-mt-0.5 o-shrink-0"
+                        style={ACCENT_ENCRE}
+                      />
+                      <span className="o-font-medium">{ligne}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="o-border-w-4 o-border-zinc-950 dark:o-border-zinc-50 o-p-6 md:o-p-8">
+                {envoye ? (
+                  <div>
+                    <p
+                      className="o-inline-block o-px-2.5 o-py-1 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-950"
+                      style={PASTILLE}
+                    >
+                      Badge reserve
+                    </p>
+                    <h3
+                      className="o-mt-6 o-text-3xl o-font-black o-uppercase o-tracking-tighter"
+                      style={AFFICHE}
+                    >
+                      C est note, {essai.prenom}.
+                    </h3>
+                    <p className="o-mt-5 o-text-sm o-leading-relaxed">
+                      Votre badge d essai porte le numero{' '}
+                      <span className="o-font-black o-tabular-nums" style={ACCENT_ENCRE}>
+                        {badge}
+                      </span>
+                      . Il vous attend a l accueil le {essai.jour.toLowerCase()}, valable
+                      sept jours a partir de la premiere entree. Nous avons ecrit a{' '}
+                      {essai.courriel}.
+                    </p>
+                    <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+                      Le coach de permanence vous fera le tour du plateau {'"'}
+                      {essai.plateau.toLowerCase()}
+                      {'"'} en premier. Prevoyez une paire de chaussures propres et une
+                      piece d identite.
+                    </p>
+                    <button
+                      type="button"
+                      className={`o-mt-8 ${BOUTON_NOIR}`}
+                      onClick={() => {
+                        setEnvoye(false)
+                        setFautes({})
+                      }}
+                    >
+                      Inscrire quelqu un d autre
+                      <Icon icon={ArrowRight} size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <form
+                    noValidate
+                    onSubmit={(evenement) => {
+                      evenement.preventDefault()
+                      const releves: Record<string, string> = {}
+                      if (essai.prenom.trim() === '') {
+                        releves['prenom'] = 'Il nous faut un prenom pour le badge.'
+                      }
+                      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(essai.courriel.trim())) {
+                        releves['courriel'] =
+                          'Une adresse valide : la confirmation part par courriel.'
+                      }
+                      setFautes(releves)
+                      if (Object.keys(releves).length === 0) setEnvoye(true)
                     }}
                   >
-                    Inscrire quelqu un d autre
-                    <Icon icon={ArrowRight} size={15} />
-                  </button>
-                </div>
-              ) : (
-                <form
-                  noValidate
-                  onSubmit={(evenement) => {
-                    evenement.preventDefault()
-                    const releves: Record<string, string> = {}
-                    if (essai.prenom.trim() === '') {
-                      releves['prenom'] = 'Il nous faut un prenom pour le badge.'
-                    }
-                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(essai.courriel.trim())) {
-                      releves['courriel'] =
-                        'Une adresse valide : la confirmation part par courriel.'
-                    }
-                    setFautes(releves)
-                    if (Object.keys(releves).length === 0) setEnvoye(true)
-                  }}
-                >
-                  <h3 className="o-text-xl o-font-black o-uppercase o-tracking-tight">
-                    Reserver le badge d essai
-                  </h3>
-                  <p className="o-mt-3 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
-                    Deux champs obligatoires, aucun mot de passe, aucun compte a creer.
-                  </p>
+                    <h3 className="o-text-xl o-font-black o-uppercase o-tracking-tight">
+                      Reserver le badge d essai
+                    </h3>
+                    <p className="o-mt-3 o-text-sm o-text-zinc-700 dark:o-text-zinc-300">
+                      Deux champs obligatoires, aucun mot de passe, aucun compte a creer.
+                    </p>
 
-                  <div className="o-mt-8 o-grid o-gap-5 sm:o-grid-cols-2">
-                    <div className="sm:o-col-span-2">
-                      <label className={ETIQUETTE} htmlFor="essai-prenom">
-                        Prenom
-                      </label>
-                      <input
-                        id="essai-prenom"
-                        name="prenom"
-                        type="text"
-                        autoComplete="given-name"
-                        className={CHAMP}
-                        value={essai.prenom}
-                        aria-invalid={fautes['prenom'] === undefined ? undefined : true}
-                        aria-describedby={
-                          fautes['prenom'] === undefined ? undefined : 'essai-prenom-faute'
-                        }
-                        onChange={(evenement) => {
-                          setEssai({ ...essai, prenom: evenement.target.value })
-                        }}
-                      />
-                      {fautes['prenom'] === undefined ? null : (
-                        <p
-                          id="essai-prenom-faute"
-                          className="o-mt-2 o-text-xs o-font-semibold"
-                          style={ACCENT_ENCRE}
+                    <div className="o-mt-8 o-grid o-gap-5 sm:o-grid-cols-2">
+                      <div className="sm:o-col-span-2">
+                        <label className={ETIQUETTE} htmlFor="essai-prenom">
+                          Prenom
+                        </label>
+                        <input
+                          id="essai-prenom"
+                          name="prenom"
+                          type="text"
+                          autoComplete="given-name"
+                          className={CHAMP}
+                          value={essai.prenom}
+                          aria-invalid={fautes['prenom'] === undefined ? undefined : true}
+                          aria-describedby={
+                            fautes['prenom'] === undefined
+                              ? undefined
+                              : 'essai-prenom-faute'
+                          }
+                          onChange={(evenement) => {
+                            setEssai({ ...essai, prenom: evenement.target.value })
+                          }}
+                        />
+                        {fautes['prenom'] === undefined ? null : (
+                          <p
+                            id="essai-prenom-faute"
+                            className="o-mt-2 o-text-xs o-font-semibold"
+                            style={ACCENT_ENCRE}
+                          >
+                            {fautes['prenom']}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="sm:o-col-span-2">
+                        <label className={ETIQUETTE} htmlFor="essai-courriel">
+                          Courriel
+                        </label>
+                        <input
+                          id="essai-courriel"
+                          name="courriel"
+                          type="email"
+                          autoComplete="email"
+                          className={CHAMP}
+                          value={essai.courriel}
+                          aria-invalid={
+                            fautes['courriel'] === undefined ? undefined : true
+                          }
+                          aria-describedby={
+                            fautes['courriel'] === undefined
+                              ? undefined
+                              : 'essai-courriel-faute'
+                          }
+                          onChange={(evenement) => {
+                            setEssai({ ...essai, courriel: evenement.target.value })
+                          }}
+                        />
+                        {fautes['courriel'] === undefined ? null : (
+                          <p
+                            id="essai-courriel-faute"
+                            className="o-mt-2 o-text-xs o-font-semibold"
+                            style={ACCENT_ENCRE}
+                          >
+                            {fautes['courriel']}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className={ETIQUETTE} htmlFor="essai-jour">
+                          Premiere venue
+                        </label>
+                        <select
+                          id="essai-jour"
+                          name="jour"
+                          className={CHAMP}
+                          value={essai.jour}
+                          onChange={(evenement) => {
+                            setEssai({ ...essai, jour: evenement.target.value })
+                          }}
                         >
-                          {fautes['prenom']}
-                        </p>
-                      )}
-                    </div>
+                          {PLANNING.map((item) => (
+                            <option key={item.jour} value={item.jour}>
+                              {item.jour}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    <div className="sm:o-col-span-2">
-                      <label className={ETIQUETTE} htmlFor="essai-courriel">
-                        Courriel
-                      </label>
-                      <input
-                        id="essai-courriel"
-                        name="courriel"
-                        type="email"
-                        autoComplete="email"
-                        className={CHAMP}
-                        value={essai.courriel}
-                        aria-invalid={fautes['courriel'] === undefined ? undefined : true}
-                        aria-describedby={
-                          fautes['courriel'] === undefined
-                            ? undefined
-                            : 'essai-courriel-faute'
-                        }
-                        onChange={(evenement) => {
-                          setEssai({ ...essai, courriel: evenement.target.value })
-                        }}
-                      />
-                      {fautes['courriel'] === undefined ? null : (
-                        <p
-                          id="essai-courriel-faute"
-                          className="o-mt-2 o-text-xs o-font-semibold"
-                          style={ACCENT_ENCRE}
+                      <div>
+                        <label className={ETIQUETTE} htmlFor="essai-plateau">
+                          Ce qui vous interesse
+                        </label>
+                        <select
+                          id="essai-plateau"
+                          name="plateau"
+                          className={CHAMP}
+                          value={essai.plateau}
+                          onChange={(evenement) => {
+                            setEssai({ ...essai, plateau: evenement.target.value })
+                          }}
                         >
-                          {fautes['courriel']}
-                        </p>
-                      )}
+                          {PLATEAUX.map((item) => (
+                            <option key={item.id} value={item.label}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="sm:o-col-span-2">
+                        <label className={ETIQUETTE} htmlFor="essai-telephone">
+                          Telephone — facultatif
+                        </label>
+                        <input
+                          id="essai-telephone"
+                          name="telephone"
+                          type="tel"
+                          autoComplete="tel"
+                          className={CHAMP}
+                          value={essai.telephone}
+                          onChange={(evenement) => {
+                            setEssai({ ...essai, telephone: evenement.target.value })
+                          }}
+                        />
+                      </div>
                     </div>
 
-                    <div>
-                      <label className={ETIQUETTE} htmlFor="essai-jour">
-                        Premiere venue
-                      </label>
-                      <select
-                        id="essai-jour"
-                        name="jour"
-                        className={CHAMP}
-                        value={essai.jour}
-                        onChange={(evenement) => {
-                          setEssai({ ...essai, jour: evenement.target.value })
-                        }}
-                      >
-                        {PLANNING.map((item) => (
-                          <option key={item.jour} value={item.jour}>
-                            {item.jour}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className={ETIQUETTE} htmlFor="essai-plateau">
-                        Ce qui vous interesse
-                      </label>
-                      <select
-                        id="essai-plateau"
-                        name="plateau"
-                        className={CHAMP}
-                        value={essai.plateau}
-                        onChange={(evenement) => {
-                          setEssai({ ...essai, plateau: evenement.target.value })
-                        }}
-                      >
-                        {PLATEAUX.map((item) => (
-                          <option key={item.id} value={item.label}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="sm:o-col-span-2">
-                      <label className={ETIQUETTE} htmlFor="essai-telephone">
-                        Telephone — facultatif
-                      </label>
-                      <input
-                        id="essai-telephone"
-                        name="telephone"
-                        type="tel"
-                        autoComplete="tel"
-                        className={CHAMP}
-                        value={essai.telephone}
-                        onChange={(evenement) => {
-                          setEssai({ ...essai, telephone: evenement.target.value })
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <button type="submit" className={`o-mt-8 o-w-full ${BOUTON_ACCENT}`}>
-                    <Icon icon={BicepsFlexed} size={17} />
-                    Reserver mon badge
-                  </button>
-                  <p className="o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                    Vos coordonnees servent a preparer le badge et rien d autre. Elles
-                    sont effacees si vous ne venez pas dans les trente jours.
-                  </p>
-                </form>
-              )}
+                    <button type="submit" className={`o-mt-8 o-w-full ${BOUTON_ACCENT}`}>
+                      <Icon icon={BicepsFlexed} size={17} />
+                      Reserver mon badge
+                    </button>
+                    <p className="o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                      Vos coordonnees servent a preparer le badge et rien d autre. Elles
+                      sont effacees si vous ne venez pas dans les trente jours.
+                    </p>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/*
+        {/*
         ---------- L appel : un mot geant, une vignette (A1) ----------
 
         Un ecran noir, une question de deux mots, un seul bouton. Rien d autre
         n y tient : c est la derniere affiche avant la sortie.
       */}
-      <section
-        aria-labelledby="appel-titre"
-        className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
-      >
-        <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-24 o-text-center md:o-py-40">
-          <h2
-            id="appel-titre"
-            className="o-m-0 o-font-black o-uppercase o-tracking-tighter"
-            style={{ ...AFFICHE, ...ACCENT_CLAIR, fontSize: 'clamp(3rem, 15vw, 13rem)' }}
-          >
-            On souleve ?
-          </h2>
-          <p className="o-mx-auto o-mt-8 o-max-w-md o-text-sm o-font-medium o-leading-relaxed o-text-zinc-400">
-            Sept jours pleins, sans carte bancaire, sans preavis. Le badge est actif dix
-            minutes apres votre passage a l accueil.
-          </p>
-          <div className="o-mt-12 o-flex o-justify-center">
-            <a href="#essai" className={BOUTON_ACCENT}>
-              Reserver la semaine offerte
-              <Icon icon={ArrowRight} size={16} />
-            </a>
+        <section
+          aria-labelledby="appel-titre"
+          className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50"
+        >
+          <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-24 o-text-center md:o-py-40">
+            <h2
+              id="appel-titre"
+              className="o-m-0 o-font-black o-uppercase o-tracking-tighter"
+              style={{
+                ...AFFICHE,
+                ...ACCENT_CLAIR,
+                fontSize: 'clamp(3rem, 15vw, 13rem)',
+              }}
+            >
+              On souleve ?
+            </h2>
+            <p className="o-mx-auto o-mt-8 o-max-w-md o-text-sm o-font-medium o-leading-relaxed o-text-zinc-400">
+              Sept jours pleins, sans carte bancaire, sans preavis. Le badge est actif dix
+              minutes apres votre passage a l accueil.
+            </p>
+            <div className="o-mt-12 o-flex o-justify-center">
+              <a href="#essai" className={BOUTON_ACCENT}>
+                Reserver la semaine offerte
+                <Icon icon={ArrowRight} size={16} />
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/*
+        {/*
         ---------- Le pied : un bandeau, puis une ligne de mentions (P8) ----------
 
         Pas de colonnes de liens ni de mot-marque geant : la page se ferme comme
         elle s est ouverte, sur des mots qui traversent le mur, et une seule
         ligne de mentions dessous.
       */}
-      <footer className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50">
-        <div
-          aria-hidden="true"
-          className="o-overflow-hidden o-border-t o-border-zinc-800 o-py-7 md:o-py-10"
-          style={ACCENT_CLAIR}
-        >
-          <Bandeau
-            mots={['Fonte', 'Pantin', '5h — minuit', 'Sans engagement', '1520 m2', 'Metro Hoche']}
-            separateur="—"
-            inverse
-            vitesse={30}
-            taille="clamp(2.25rem, 8vw, 7rem)"
-          />
-        </div>
-        <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-start o-justify-between o-gap-x-10 o-gap-y-4 o-px-6 o-py-8 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-400">
-          <p className="o-m-0 o-leading-relaxed">
-            <Icon
-              icon={Dumbbell}
-              size={15}
-              className="o-mr-2 o-inline-block o-align-text-bottom"
-              style={ACCENT_CLAIR}
-              aria-hidden="true"
+        <footer className="o-bg-zinc-950 o-text-zinc-50 dark:o-text-zinc-50">
+          <div
+            aria-hidden="true"
+            className="o-overflow-hidden o-border-t o-border-zinc-800 o-py-7 md:o-py-10"
+            style={ACCENT_CLAIR}
+          >
+            <Bandeau
+              mots={[
+                'Fonte',
+                'Pantin',
+                '5h — minuit',
+                'Sans engagement',
+                '1520 m2',
+                'Metro Hoche',
+              ]}
+              separateur="—"
+              inverse
+              vitesse={30}
+              taille="clamp(2.25rem, 8vw, 7rem)"
             />
-            92 avenue Jean Lolive, 93500 Pantin — 01 48 45 90 31
-            <br />© 2026 Fonte SAS — SIRET 902 118 447 00013
-          </p>
-          <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
-            {MENTIONS.map((mot) => (
-              <a
-                key={mot}
-                href="#fonte"
-                className="o-text-zinc-400 dark:o-text-zinc-400 o-no-underline hover:o-text-brand-300 dark:hover:o-text-brand-300 o-transition-colors focus:o-ring"
-              >
-                {mot}
-              </a>
-            ))}
-          </nav>
-        </div>
-      </footer>
-    </div>
+          </div>
+          <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-start o-justify-between o-gap-x-10 o-gap-y-4 o-px-6 o-py-8 o-text-xs o-font-black o-uppercase o-tracking-widest o-text-zinc-400">
+            <p className="o-m-0 o-leading-relaxed">
+              <Icon
+                icon={Dumbbell}
+                size={15}
+                className="o-mr-2 o-inline-block o-align-text-bottom"
+                style={ACCENT_CLAIR}
+                aria-hidden="true"
+              />
+              92 avenue Jean Lolive, 93500 Pantin — 01 48 45 90 31
+              <br />© 2026 Fonte SAS — SIRET 902 118 447 00013
+            </p>
+            <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
+              {MENTIONS.map((mot) => (
+                <a
+                  key={mot}
+                  href="#fonte"
+                  className="o-text-zinc-400 dark:o-text-zinc-400 o-no-underline hover:o-text-brand-300 dark:hover:o-text-brand-300 o-transition-colors focus:o-ring"
+                >
+                  {mot}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </footer>
+      </div>
     </Porte>
   )
 }

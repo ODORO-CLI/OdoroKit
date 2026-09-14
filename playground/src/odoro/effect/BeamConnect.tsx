@@ -186,7 +186,12 @@ export function BeamConnect({
           width={geometry.width}
           height={geometry.height}
           viewBox={`0 0 ${String(geometry.width)} ${String(geometry.height)}`}
-          style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            overflow: 'visible',
+          }}
         >
           {/* Le lit du faisceau : la liaison reste lisible entre deux
               passages du tiret, et c'est tout ce qui reste sous mouvement

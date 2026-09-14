@@ -230,7 +230,9 @@ export function ChromaGrid({
           key={index}
           data-o-chroma-item=""
           style={
-            { '--o-chroma-tint': `var(${tints[index % tints.length] ?? DEFAULT_TOKENS[0] ?? ''})` } as CSSProperties
+            {
+              '--o-chroma-tint': `var(${tints[index % tints.length] ?? DEFAULT_TOKENS[0] ?? ''})`,
+            } as CSSProperties
           }
         >
           {card}

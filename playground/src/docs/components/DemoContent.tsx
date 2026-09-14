@@ -187,10 +187,16 @@ function Formulaire({ radius }: { radius: number }): ReactElement {
         style={veil(radius)}
       >
         <span className="o-text-sm o-font-bold">Se connecter</span>
-        <span className="o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-opacity-70" style={champ}>
+        <span
+          className="o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-opacity-70"
+          style={champ}
+        >
           adresse@exemple.fr
         </span>
-        <span className="o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-opacity-70" style={champ}>
+        <span
+          className="o-border-w-1 o-px-3 o-py-1.5 o-text-xs o-opacity-70"
+          style={champ}
+        >
           ••••••••
         </span>
         <span
@@ -246,13 +252,12 @@ function Article(): ReactElement {
         Le fond n’est pas une illustration, c’est une surface de travail
       </h3>
       <p className="o-max-w-md o-text-sm o-leading-relaxed o-opacity-80 o-text-pretty">
-        Un paragraphe entier est le juge le plus sévère : la moindre zone de
-        contraste insuffisant s’y voit immediatement, là où un titre isole
-        pardonne tout.
+        Un paragraphe entier est le juge le plus sévère : la moindre zone de contraste
+        insuffisant s’y voit immediatement, là où un titre isole pardonne tout.
       </p>
       <p className="o-max-w-md o-text-sm o-leading-relaxed o-opacity-60 o-text-pretty max-sm:o-hidden">
-        Si ces lignes se lisent sans effort d’un bout a l’autre du cadre, le
-        fond tient son rôle.
+        Si ces lignes se lisent sans effort d’un bout a l’autre du cadre, le fond tient
+        son rôle.
       </p>
     </div>
   )

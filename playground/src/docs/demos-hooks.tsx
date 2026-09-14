@@ -204,7 +204,8 @@ export function InViewDemo({ amount }: { readonly amount: number }): ReactElemen
   return (
     <div className="o-absolute o-inset-0 o-flex o-flex-col">
       <p className="o-shrink-0 o-px-4 o-pt-3 o-text-xs o-opacity-70">
-        Faites defiler le cadre : la cible s allume quand {String(Math.round(amount * 100))}
+        Faites defiler le cadre : la cible s allume quand{' '}
+        {String(Math.round(amount * 100))}
         &nbsp;% d elle est visible.
       </p>
 
@@ -379,8 +380,7 @@ export function MediaQueryDemo({ query }: { readonly query: string }): ReactElem
       </ul>
 
       <p className="o-text-xs o-opacity-70">
-        Redimensionnez la fenêtre : la réponse ne bascule qu’une fois, pas a
-        chaque pixel.
+        Redimensionnez la fenêtre : la réponse ne bascule qu’une fois, pas a chaque pixel.
       </p>
     </div>
   )
@@ -486,8 +486,8 @@ export function IntervalClockDemo({
       </div>
 
       <p className="o-max-w-md o-text-center o-text-xs o-opacity-70">
-        Changez d’onglet dix secondes, puis revenez : seul le minuteur a compte
-        pendant l’absence. Le crochet, lui, a repris ou il en etait.
+        Changez d’onglet dix secondes, puis revenez : seul le minuteur a compte pendant
+        l’absence. Le crochet, lui, a repris ou il en etait.
       </p>
     </div>
   )
@@ -530,7 +530,10 @@ export function KeyboardListDemo({
   readonly count: number
   readonly orientation: 'verticale' | 'horizontale'
 }): ReactElement {
-  const elements = TEINTES.slice(0, Math.min(Math.max(Math.round(count), 1), TEINTES.length))
+  const elements = TEINTES.slice(
+    0,
+    Math.min(Math.max(Math.round(count), 1), TEINTES.length),
+  )
   const [choisi, setChoisi] = useState<string | null>(null)
 
   const liste = useKeyboardList({
@@ -581,8 +584,8 @@ export function KeyboardListDemo({
       </ul>
 
       <p className="o-max-w-md o-text-center o-text-xs o-opacity-70">
-        Une tabulation pour entrer, les fleches pour parcourir, Home et End pour
-        les bouts, Entrée pour choisir — et une seule tabulation pour ressortir.
+        Une tabulation pour entrer, les fleches pour parcourir, Home et End pour les
+        bouts, Entrée pour choisir — et une seule tabulation pour ressortir.
       </p>
     </div>
   )

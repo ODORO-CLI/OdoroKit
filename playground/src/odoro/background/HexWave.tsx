@@ -108,7 +108,11 @@ export function HexWave({
   // image, l'identite ne change pas, la mutation suffit — aucun setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 3, name: 'vague hexagonale : pointeur' })
+  const pointer = usePointerDamped({
+    host,
+    speed: 3,
+    name: 'vague hexagonale : pointeur',
+  })
 
   useEffect(() => {
     const subscription = clock.subscribe(
@@ -123,18 +127,23 @@ export function HexWave({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: HEX_WAVE_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uSize: size, uSpeed: speed, uSpacing: spacing, uFade: fade },
-      name: 'hex-wave',
-      // Des alveoles petites scintillent sur leurs aretes a densite de
-      // pixels reduite : en qualite basse, elles s'elargissent.
-      degrade: (quality) => ({
-        uSize: quality === 'low' ? Math.min(size, 6) : size,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: HEX_WAVE_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uSize: size, uSpeed: speed, uSpacing: spacing, uFade: fade },
+    name: 'hex-wave',
+    // Des alveoles petites scintillent sur leurs aretes a densite de
+    // pixels reduite : en qualite basse, elles s'elargissent.
+    degrade: (quality) => ({
+      uSize: quality === 'low' ? Math.min(size, 6) : size,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

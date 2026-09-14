@@ -132,7 +132,8 @@ function versHexadecimal(oklab: [number, number, number]): string {
 function nuance(base: string, part: number): string {
   if (part === 0) return base
   const depart = versOklab(versLineaire(base))
-  const vers: [number, number, number] = part < 0 ? versOklab([1, 1, 1]) : versOklab([0, 0, 0])
+  const vers: [number, number, number] =
+    part < 0 ? versOklab([1, 1, 1]) : versOklab([0, 0, 0])
   const poids = Math.abs(part)
   const melange = depart.map(
     (valeur, i) => valeur * (1 - poids) + (vers[i] ?? 0) * poids,
@@ -182,7 +183,10 @@ function contraste(a: string, b: string): number {
  * @param sens `1` pour foncer l accent, `-1` pour l eclaircir.
  */
 function nuanceLisible(base: string, fond: string, sens: 1 | -1): string {
-  const echelle = sens === 1 ? ['500', '600', '700', '800', '900', '950'] : ['500', '400', '300', '200', '100', '50']
+  const echelle =
+    sens === 1
+      ? ['500', '600', '700', '800', '900', '950']
+      : ['500', '400', '300', '200', '100', '50']
   let dernier = base
   for (const cle of echelle) {
     dernier = nuance(base, MELANGES[cle] ?? 0)
@@ -216,7 +220,9 @@ function clarteCanonique(base: string): string {
 
 /** L encre qui tient le mieux sur un aplat : blanc ou noir d encre. */
 function encreSurAplat(aplat: string): string {
-  return contraste('#ffffff', aplat) >= contraste(FOND_SOMBRE, aplat) ? '#ffffff' : FOND_SOMBRE
+  return contraste('#ffffff', aplat) >= contraste(FOND_SOMBRE, aplat)
+    ? '#ffffff'
+    : FOND_SOMBRE
 }
 
 /**
@@ -305,8 +311,10 @@ export function encreSurSombre(): string {
  */
 export function aplat(): CSSProperties {
   return {
-    backgroundColor: 'light-dark(var(--o-vitrine-aplat-clair), var(--o-vitrine-aplat-sombre))',
-    color: 'light-dark(var(--o-vitrine-sur-aplat-clair), var(--o-vitrine-sur-aplat-sombre))',
+    backgroundColor:
+      'light-dark(var(--o-vitrine-aplat-clair), var(--o-vitrine-aplat-sombre))',
+    color:
+      'light-dark(var(--o-vitrine-sur-aplat-clair), var(--o-vitrine-sur-aplat-sombre))',
   }
 }
 
@@ -331,6 +339,9 @@ export function accent(nuance: (typeof NUANCES)[number] | number): string {
  * @param nuance Nuance de depart.
  * @param part Part de l accent, en pourcentage.
  */
-export function accentDoux(nuance: (typeof NUANCES)[number] | number, part: number): string {
+export function accentDoux(
+  nuance: (typeof NUANCES)[number] | number,
+  part: number,
+): string {
   return `color-mix(in oklab, var(--o-vitrine-${String(nuance)}) ${String(part)}%, var(--o-theme-bg))`
 }

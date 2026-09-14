@@ -296,18 +296,122 @@ interface Volume {
 
 /** Douze volumes ecrits a la main, repartis sur la decimale. */
 const FONDS: readonly Volume[] = [
-  { id: 'chaux', cote: '843.92 BOU', titre: 'La chaux vive', auteur: 'Irene Bouchard', annee: '1994', etat: 'En rayon', reliure: ['--o-vitrine-700', '--o-vitrine-600', '--o-palette-stone-200'] },
-  { id: 'ligne', cote: '843.92 VAU', titre: 'La ligne de partage', auteur: 'Salome Vaury', annee: '1988', etat: 'Sorti — retour le 24', reliure: ['--o-palette-stone-800', '--o-palette-stone-700', '--o-palette-stone-300'] },
-  { id: 'silence', cote: '843.93 DEL', titre: 'Le silence des ateliers', auteur: 'Hugo Delaunay', annee: '2011', etat: 'En rayon', reliure: ['--o-vitrine-800', '--o-vitrine-700', '--o-palette-stone-200'] },
-  { id: 'marees', cote: '841.92 ROQ', titre: 'Marees basses', auteur: 'Ines Roque', annee: '1976', etat: 'Reserve — salle de lecture', reliure: ['--o-palette-teal-900', '--o-palette-teal-800', '--o-palette-stone-200'] },
-  { id: 'bureau', cote: '842.92 RIV', titre: 'Le bureau des courants d air', auteur: 'Come Riviere', annee: '2003', etat: 'En rayon', reliure: ['--o-palette-amber-700', '--o-palette-amber-600', '--o-palette-stone-200'] },
-  { id: 'table', cote: '844.92 ARS', titre: 'Trente-deux facons de mettre la table', auteur: 'Jonas Arsac', annee: '1999', etat: 'En rayon', reliure: ['--o-palette-stone-300', '--o-palette-stone-200', '--o-palette-stone-600'] },
-  { id: 'lampe', cote: '784.2 TOU', titre: 'Une lampe pour deux', auteur: 'Elsa Toussaint', annee: '1982', etat: 'En rayon', reliure: ['--o-palette-violet-900', '--o-palette-violet-800', '--o-palette-stone-200'] },
-  { id: 'orgue', cote: '786.5 NAD', titre: 'L orgue de la collegiale', auteur: 'Tarek Nadji', annee: '2018', etat: 'En rayon', reliure: ['--o-vitrine-500', '--o-vitrine-400', '--o-palette-stone-800'] },
-  { id: 'quai', cote: '944.08 VAS', titre: 'Le quai, 1936-1945', auteur: 'Lea Vasseur', annee: '2007', etat: 'En rayon', reliure: ['--o-palette-sky-900', '--o-palette-sky-800', '--o-palette-stone-300'] },
-  { id: 'archive', cote: '944.083 NAD', titre: 'Une archive de rien', auteur: 'Tarek Nadji', annee: '2021', etat: 'Sorti — retour le 18', reliure: ['--o-palette-emerald-900', '--o-palette-emerald-800', '--o-palette-stone-200'] },
-  { id: 'mains', cote: '616.8 BER', titre: 'Ce que font les mains', auteur: 'Nadia Berthaut', annee: '2015', etat: 'En rayon', reliure: ['--o-palette-rose-900', '--o-palette-rose-800', '--o-palette-stone-200'] },
-  { id: 'memoire', cote: '153.12 FER', titre: 'La memoire des lieux ordinaires', auteur: 'Maud Ferrand', annee: '2009', etat: 'En rayon', reliure: ['--o-palette-stone-700', '--o-palette-stone-600', '--o-palette-stone-200'] },
+  {
+    id: 'chaux',
+    cote: '843.92 BOU',
+    titre: 'La chaux vive',
+    auteur: 'Irene Bouchard',
+    annee: '1994',
+    etat: 'En rayon',
+    reliure: ['--o-vitrine-700', '--o-vitrine-600', '--o-palette-stone-200'],
+  },
+  {
+    id: 'ligne',
+    cote: '843.92 VAU',
+    titre: 'La ligne de partage',
+    auteur: 'Salome Vaury',
+    annee: '1988',
+    etat: 'Sorti — retour le 24',
+    reliure: ['--o-palette-stone-800', '--o-palette-stone-700', '--o-palette-stone-300'],
+  },
+  {
+    id: 'silence',
+    cote: '843.93 DEL',
+    titre: 'Le silence des ateliers',
+    auteur: 'Hugo Delaunay',
+    annee: '2011',
+    etat: 'En rayon',
+    reliure: ['--o-vitrine-800', '--o-vitrine-700', '--o-palette-stone-200'],
+  },
+  {
+    id: 'marees',
+    cote: '841.92 ROQ',
+    titre: 'Marees basses',
+    auteur: 'Ines Roque',
+    annee: '1976',
+    etat: 'Reserve — salle de lecture',
+    reliure: ['--o-palette-teal-900', '--o-palette-teal-800', '--o-palette-stone-200'],
+  },
+  {
+    id: 'bureau',
+    cote: '842.92 RIV',
+    titre: 'Le bureau des courants d air',
+    auteur: 'Come Riviere',
+    annee: '2003',
+    etat: 'En rayon',
+    reliure: ['--o-palette-amber-700', '--o-palette-amber-600', '--o-palette-stone-200'],
+  },
+  {
+    id: 'table',
+    cote: '844.92 ARS',
+    titre: 'Trente-deux facons de mettre la table',
+    auteur: 'Jonas Arsac',
+    annee: '1999',
+    etat: 'En rayon',
+    reliure: ['--o-palette-stone-300', '--o-palette-stone-200', '--o-palette-stone-600'],
+  },
+  {
+    id: 'lampe',
+    cote: '784.2 TOU',
+    titre: 'Une lampe pour deux',
+    auteur: 'Elsa Toussaint',
+    annee: '1982',
+    etat: 'En rayon',
+    reliure: [
+      '--o-palette-violet-900',
+      '--o-palette-violet-800',
+      '--o-palette-stone-200',
+    ],
+  },
+  {
+    id: 'orgue',
+    cote: '786.5 NAD',
+    titre: 'L orgue de la collegiale',
+    auteur: 'Tarek Nadji',
+    annee: '2018',
+    etat: 'En rayon',
+    reliure: ['--o-vitrine-500', '--o-vitrine-400', '--o-palette-stone-800'],
+  },
+  {
+    id: 'quai',
+    cote: '944.08 VAS',
+    titre: 'Le quai, 1936-1945',
+    auteur: 'Lea Vasseur',
+    annee: '2007',
+    etat: 'En rayon',
+    reliure: ['--o-palette-sky-900', '--o-palette-sky-800', '--o-palette-stone-300'],
+  },
+  {
+    id: 'archive',
+    cote: '944.083 NAD',
+    titre: 'Une archive de rien',
+    auteur: 'Tarek Nadji',
+    annee: '2021',
+    etat: 'Sorti — retour le 18',
+    reliure: [
+      '--o-palette-emerald-900',
+      '--o-palette-emerald-800',
+      '--o-palette-stone-200',
+    ],
+  },
+  {
+    id: 'mains',
+    cote: '616.8 BER',
+    titre: 'Ce que font les mains',
+    auteur: 'Nadia Berthaut',
+    annee: '2015',
+    etat: 'En rayon',
+    reliure: ['--o-palette-rose-900', '--o-palette-rose-800', '--o-palette-stone-200'],
+  },
+  {
+    id: 'memoire',
+    cote: '153.12 FER',
+    titre: 'La memoire des lieux ordinaires',
+    auteur: 'Maud Ferrand',
+    annee: '2009',
+    etat: 'En rayon',
+    reliure: ['--o-palette-stone-700', '--o-palette-stone-600', '--o-palette-stone-200'],
+  },
 ]
 
 /* ============================ Le registre (A35) ======================== */
@@ -361,7 +465,10 @@ const INDEX: readonly (readonly [string, string])[] = [
 ]
 
 /** L index, groupe par lettre initiale. */
-function parLettre(): readonly (readonly [string, readonly (readonly [string, string])[]])[] {
+function parLettre(): readonly (readonly [
+  string,
+  readonly (readonly [string, string])[],
+])[] {
   const paquets = new Map<string, (readonly [string, string])[]>()
   for (const entree of INDEX) {
     const lettre = (entree[1][0] ?? '?').toUpperCase()
@@ -405,12 +512,17 @@ export default function Page(): ReactElement {
   const [section, setSection] = useState<string | null>('843')
 
   const [nom, setNom] = useState('')
-  const [inscrits, setInscrits] = useState<readonly { rang: number; nom: string; quand: string }[]>([])
+  const [inscrits, setInscrits] = useState<
+    readonly { rang: number; nom: string; quand: string }[]
+  >([])
 
   /** Ce qu on a choisi, ecrit comme une cote. */
   const cote = section ?? division ?? classe
 
-  const divisionsDeLaClasse = useMemo(() => DIVISIONS.filter((d) => d.cote.startsWith(classe)), [classe])
+  const divisionsDeLaClasse = useMemo(
+    () => DIVISIONS.filter((d) => d.cote.startsWith(classe)),
+    [classe],
+  )
   const sectionsDeLaDivision = division === null ? undefined : SECTIONS[division]
 
   /** Le fonds dont la cote commence par ce qu on a choisi. */
@@ -432,7 +544,8 @@ export default function Page(): ReactElement {
   )
 
   const [tire, setTire] = useState<string | null>(null)
-  const ouvert = tire !== null && tenus.some((v) => v.id === tire) ? tire : (tenus[0]?.id ?? null)
+  const ouvert =
+    tire !== null && tenus.some((v) => v.id === tire) ? tire : (tenus[0]?.id ?? null)
   const volume = FONDS.find((v) => v.id === ouvert)
 
   const laDivision = DIVISIONS.find((d) => d.cote === division)
@@ -479,19 +592,35 @@ export default function Page(): ReactElement {
     if (propre === '') return
     setInscrits((precedents) => [
       ...precedents,
-      { rang: REGISTRE_TENU.length + precedents.length + 1, nom: propre, quand: 'aujourd hui' },
+      {
+        rang: REGISTRE_TENU.length + precedents.length + 1,
+        nom: propre,
+        quand: 'aujourd hui',
+      },
     ])
     setNom('')
   }
 
   return (
     <Porte forme="compteur" marque="Rayon 800" sombre={false}>
-      <div className="o-relative" style={{ ...polices, backgroundColor: accentDoux(100, 10) }}>
+      <div
+        className="o-relative"
+        style={{ ...polices, backgroundColor: accentDoux(100, 10) }}
+      >
         {/*
           ----- L ouverture : du papier, une cote en filigrane ------------------
         */}
-        <section id="haut" className="o-relative o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
-          <BarreFilet marque="Rayon 800" liens={NAVIGATION} action={['#registre', 'S inscrire']} sombre={false} />
+        <section
+          id="haut"
+          className="o-relative o-flex o-flex-col o-overflow-hidden"
+          style={{ minHeight: ECRAN }}
+        >
+          <BarreFilet
+            marque="Rayon 800"
+            liens={NAVIGATION}
+            action={['#registre', 'S inscrire']}
+            sombre={false}
+          />
 
           {/* La cote, posee en enorme derriere le titre. */}
           <span
@@ -512,22 +641,39 @@ export default function Page(): ReactElement {
 
           <div className="o-relative o-z-10 o-mx-auto o-flex o-w-full o-max-w-7xl o-grow o-flex-col o-justify-center o-px-6 o-pb-24 o-pt-10 md:o-px-10">
             <Surgit>
-              <Etiquette sombre={false}>Bibliotheque municipale — ouverte du mardi au samedi, gratuite</Etiquette>
+              <Etiquette sombre={false}>
+                Bibliotheque municipale — ouverte du mardi au samedi, gratuite
+              </Etiquette>
             </Surgit>
             <TitreVague
               delai={140}
               cadence={80}
               className="o-m-0 o-mt-8 o-max-w-4xl o-text-teal-950 dark:o-text-teal-50"
-              style={{ ...titre('l'), fontSize: 'clamp(2.5rem, 8vw, 8rem)', lineHeight: 0.94 }}
+              style={{
+                ...titre('l'),
+                fontSize: 'clamp(2.5rem, 8vw, 8rem)',
+                lineHeight: 0.94,
+              }}
             >
               Rien n est cache. Tout est range.
             </TitreVague>
-            <Surgit delai={600} as="p" className="o-m-0 o-mt-9 o-max-w-lg o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Cent divisions, quatre-vingt-onze mille volumes, et une cote qui se descend chiffre a chiffre. Suivez-la : les rayons se deplient.
+            <Surgit
+              delai={600}
+              as="p"
+              className="o-m-0 o-mt-9 o-max-w-lg o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300"
+            >
+              Cent divisions, quatre-vingt-onze mille volumes, et une cote qui se descend
+              chiffre a chiffre. Suivez-la : les rayons se deplient.
             </Surgit>
             <Surgit delai={740} className="o-mt-9">
               <Actions
-                pleine={['#tableau', <>Ouvrir le tableau <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                pleine={[
+                  '#tableau',
+                  <>
+                    Ouvrir le tableau{' '}
+                    <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                  </>,
+                ]}
                 fantome={['#maison', 'Horaires et acces']}
                 sombre={false}
               />
@@ -546,80 +692,125 @@ export default function Page(): ReactElement {
         {/*
           ----- Chapitre 01 : le tableau des cent divisions (C13) ---------------
         */}
-        <section id="tableau" className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <section
+          id="tableau"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Chapitre
               indice="(01) — Le tableau"
               largeur={3}
               titre={
-                <h2 className="o-m-0 o-max-w-xs o-text-balance o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}>
+                <h2
+                  className="o-m-0 o-max-w-xs o-text-balance o-text-teal-950 dark:o-text-teal-50"
+                  style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}
+                >
                   Cent cases, et ce que chacune tient
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-stone-700 dark:o-text-stone-300">
-                  Dix classes en lignes, dix divisions en colonnes. Le nombre sous chaque case est le fonds reel au recolement de janvier. Cliquez une case : la cote se descend.
+                  Dix classes en lignes, dix divisions en colonnes. Le nombre sous chaque
+                  case est le fonds reel au recolement de janvier. Cliquez une case : la
+                  cote se descend.
                 </p>
               }
             >
               {/* Le tableau se lit large : sous 1 000 px il se parcourt de cote. */}
               <div className="o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-                <table className="o-w-full o-text-left" style={{ minWidth: 720, borderCollapse: 'separate', borderSpacing: 3 }}>
-                  <caption className="o-sr-only">Les cent divisions de la classification decimale, et le fonds tenu dans chacune</caption>
+                <table
+                  className="o-w-full o-text-left"
+                  style={{ minWidth: 720, borderCollapse: 'separate', borderSpacing: 3 }}
+                >
+                  <caption className="o-sr-only">
+                    Les cent divisions de la classification decimale, et le fonds tenu
+                    dans chacune
+                  </caption>
                   <tbody>
                     {CLASSES.map((c) => (
                       <tr key={c.chiffre}>
-                        <th scope="row" className="o-w-px o-whitespace-nowrap o-pr-4 o-align-middle o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
-                          <span className="o-block o-tabular-nums" style={{ color: encre() }}>
+                        <th
+                          scope="row"
+                          className="o-w-px o-whitespace-nowrap o-pr-4 o-align-middle o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300"
+                        >
+                          <span
+                            className="o-block o-tabular-nums"
+                            style={{ color: encre() }}
+                          >
                             {c.chiffre}00
                           </span>
-                          <span className="o-mt-1 o-hidden o-normal-case lg:o-block" style={{ letterSpacing: 0, maxWidth: '9rem' }}>
+                          <span
+                            className="o-mt-1 o-hidden o-normal-case lg:o-block"
+                            style={{ letterSpacing: 0, maxWidth: '9rem' }}
+                          >
                             {c.nom}
                           </span>
                         </th>
-                        {DIVISIONS.filter((d) => d.cote.startsWith(c.chiffre)).map((d) => {
-                          const prise = d.cote === division
-                          const vide = d.volumes === 0
-                          return (
-                            <td key={d.cote} className="o-p-0">
-                              <button
-                                type="button"
-                                aria-pressed={prise}
-                                disabled={vide}
-                                onClick={() => {
-                                  setClasse(c.chiffre)
-                                  setDivision(d.cote)
-                                  setSection(premiereSection(d.cote))
-                                  setTire(null)
-                                }}
-                                className={`o-flex o-h-16 o-w-full o-flex-col o-justify-between o-border-w-1 o-p-1.5 o-text-left o-transition-colors focus:o-ring ${vide ? '' : 'o-cursor-pointer'}`}
-                                style={
-                                  prise
-                                    ? { ...aplat(), borderColor: 'transparent' }
-                                    : {
-                                        borderColor: 'var(--o-theme-line)',
-                                        backgroundColor: vide ? 'transparent' : accentDoux(300, 8 + Math.min(26, Math.round(d.volumes / 32))),
-                                        color: vide ? 'var(--o-theme-muted)' : 'var(--o-theme-fg)',
-                                      }
-                                }
-                                title={`${d.cote}0 — ${d.nom}`}
-                              >
-                                <span className="o-font-mono o-text-xs o-tabular-nums o-opacity-80">{d.cote}0</span>
-                                <span className="o-truncate o-text-xs o-leading-tight" style={{ fontSize: '0.66rem' }}>
-                                  {d.nom}
-                                </span>
-                                <span className="o-font-mono o-text-xs o-font-semibold o-tabular-nums">{vide ? '—' : d.volumes}</span>
-                              </button>
-                            </td>
-                          )
-                        })}
+                        {DIVISIONS.filter((d) => d.cote.startsWith(c.chiffre)).map(
+                          (d) => {
+                            const prise = d.cote === division
+                            const vide = d.volumes === 0
+                            return (
+                              <td key={d.cote} className="o-p-0">
+                                <button
+                                  type="button"
+                                  aria-pressed={prise}
+                                  disabled={vide}
+                                  onClick={() => {
+                                    setClasse(c.chiffre)
+                                    setDivision(d.cote)
+                                    setSection(premiereSection(d.cote))
+                                    setTire(null)
+                                  }}
+                                  className={`o-flex o-h-16 o-w-full o-flex-col o-justify-between o-border-w-1 o-p-1.5 o-text-left o-transition-colors focus:o-ring ${vide ? '' : 'o-cursor-pointer'}`}
+                                  style={
+                                    prise
+                                      ? { ...aplat(), borderColor: 'transparent' }
+                                      : {
+                                          borderColor: 'var(--o-theme-line)',
+                                          backgroundColor: vide
+                                            ? 'transparent'
+                                            : accentDoux(
+                                                300,
+                                                8 +
+                                                  Math.min(
+                                                    26,
+                                                    Math.round(d.volumes / 32),
+                                                  ),
+                                              ),
+                                          color: vide
+                                            ? 'var(--o-theme-muted)'
+                                            : 'var(--o-theme-fg)',
+                                        }
+                                  }
+                                  title={`${d.cote}0 — ${d.nom}`}
+                                >
+                                  <span className="o-font-mono o-text-xs o-tabular-nums o-opacity-80">
+                                    {d.cote}0
+                                  </span>
+                                  <span
+                                    className="o-truncate o-text-xs o-leading-tight"
+                                    style={{ fontSize: '0.66rem' }}
+                                  >
+                                    {d.nom}
+                                  </span>
+                                  <span className="o-font-mono o-text-xs o-font-semibold o-tabular-nums">
+                                    {vide ? '—' : d.volumes}
+                                  </span>
+                                </button>
+                              </td>
+                            )
+                          },
+                        )}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               <p className="o-m-0 o-mt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
-                La case 040 est vide depuis 1989 : la classification l a laissee libre, et nous ne l avons jamais remplie.
+                La case 040 est vide depuis 1989 : la classification l a laissee libre, et
+                nous ne l avons jamais remplie.
               </p>
             </Chapitre>
           </div>
@@ -628,19 +819,30 @@ export default function Page(): ReactElement {
         {/*
           ----- Chapitre 02 : le mecanisme, la cote ----------------------------
         */}
-        <section id="cote" className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(200, 12) }}>
+        <section
+          id="cote"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{
+            borderColor: 'var(--o-theme-line)',
+            backgroundColor: accentDoux(200, 12),
+          }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Chapitre
               indice="(02) — La cote"
               largeur={3}
               titre={
-                <h2 className="o-m-0 o-max-w-xs o-text-balance o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}>
+                <h2
+                  className="o-m-0 o-max-w-xs o-text-balance o-text-teal-950 dark:o-text-teal-50"
+                  style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}
+                >
                   Du general au particulier
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-stone-700 dark:o-text-stone-300">
-                  Un chiffre de plus, un rayon de moins. Le meuble ne garde que ce qui commence par la cote courante, et la liste reste lisible sans lui.
+                  Un chiffre de plus, un rayon de moins. Le meuble ne garde que ce qui
+                  commence par la cote courante, et la liste reste lisible sans lui.
                 </p>
               }
             >
@@ -648,12 +850,22 @@ export default function Page(): ReactElement {
               <ol className="o-m-0 o-flex o-list-none o-flex-wrap o-items-center o-gap-2 o-p-0 o-font-mono o-text-sm o-tabular-nums">
                 {fil.map((cran, rang) => (
                   <li key={cran.code} className="o-flex o-items-center o-gap-2">
-                    {rang > 0 && <Icon icon={CornerDownRight} size={14} aria-hidden="true" style={{ color: encre() }} />}
+                    {rang > 0 && (
+                      <Icon
+                        icon={CornerDownRight}
+                        size={14}
+                        aria-hidden="true"
+                        style={{ color: encre() }}
+                      />
+                    )}
                     <button
                       type="button"
                       onClick={cran.remonter}
                       className="o-cursor-pointer o-border-w-1 o-bg-transparent o-px-3 o-py-1.5 o-text-sm o-transition-colors focus:o-ring"
-                      style={{ borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-fg)' }}
+                      style={{
+                        borderColor: 'var(--o-theme-line)',
+                        color: 'var(--o-theme-fg)',
+                      }}
                     >
                       <span className="o-font-semibold">{cran.code}</span>
                       <span className="o-ml-2 o-opacity-70">{cran.nom}</span>
@@ -686,7 +898,14 @@ export default function Page(): ReactElement {
                             style={
                               prise
                                 ? { ...aplat(), borderColor: 'transparent' }
-                                : { borderColor: 'var(--o-theme-line)', color: d.volumes === 0 ? 'var(--o-theme-muted)' : 'var(--o-theme-fg)', backgroundColor: 'transparent' }
+                                : {
+                                    borderColor: 'var(--o-theme-line)',
+                                    color:
+                                      d.volumes === 0
+                                        ? 'var(--o-theme-muted)'
+                                        : 'var(--o-theme-fg)',
+                                    backgroundColor: 'transparent',
+                                  }
                             }
                           >
                             <span className="o-font-mono o-tabular-nums">{d.cote}0</span>
@@ -697,13 +916,18 @@ export default function Page(): ReactElement {
                     })}
                   </ul>
 
-                  <div className="o-mt-10 o-border-t o-pt-8" style={{ borderColor: 'var(--o-theme-line)' }}>
+                  <div
+                    className="o-mt-10 o-border-t o-pt-8"
+                    style={{ borderColor: 'var(--o-theme-line)' }}
+                  >
                     <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
                       Le troisieme chiffre
                     </p>
                     {sectionsDeLaDivision === undefined ? (
                       <p className="o-m-0 o-mt-4 o-max-w-lg o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                        A cette division, la cote s arrete a deux chiffres. Le fonds tenu ne justifie pas de la pousser : on ferait des rayons de six volumes, et personne ne les trouverait.
+                        A cette division, la cote s arrete a deux chiffres. Le fonds tenu
+                        ne justifie pas de la pousser : on ferait des rayons de six
+                        volumes, et personne ne les trouverait.
                       </p>
                     ) : (
                       <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
@@ -722,7 +946,11 @@ export default function Page(): ReactElement {
                                 style={
                                   prise
                                     ? { ...aplat(), borderColor: 'transparent' }
-                                    : { borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-fg)', backgroundColor: 'transparent' }
+                                    : {
+                                        borderColor: 'var(--o-theme-line)',
+                                        color: 'var(--o-theme-fg)',
+                                        backgroundColor: 'transparent',
+                                      }
                                 }
                               >
                                 <span className="o-font-mono o-tabular-nums">{code}</span>
@@ -737,14 +965,24 @@ export default function Page(): ReactElement {
 
                   {/* Les volumes retenus, en toutes lettres. */}
                   <div className="o-mt-12">
-                    <p aria-live="polite" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+                    <p
+                      aria-live="polite"
+                      className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300"
+                    >
                       {tenus.length === 0
                         ? `Aucun volume cote ${cote} dans le fonds montre ici`
                         : `${String(tenus.length)} volume${tenus.length > 1 ? 's' : ''} dont la cote commence par ${cote}`}
                     </p>
-                    <ol className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0" style={{ borderColor: 'var(--o-theme-line)' }}>
+                    <ol
+                      className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0"
+                      style={{ borderColor: 'var(--o-theme-line)' }}
+                    >
                       {tenus.map((v) => (
-                        <li key={v.id} className="o-border-b" style={{ borderColor: 'var(--o-theme-line)' }}>
+                        <li
+                          key={v.id}
+                          className="o-border-b"
+                          style={{ borderColor: 'var(--o-theme-line)' }}
+                        >
                           <button
                             type="button"
                             aria-pressed={v.id === ouvert}
@@ -753,11 +991,21 @@ export default function Page(): ReactElement {
                             }}
                             className="o-grid o-w-full o-cursor-pointer o-gap-2 o-bg-transparent o-px-0 o-py-5 o-text-left o-transition-opacity hover:o-opacity-70 focus:o-ring md:o-grid-cols-12 md:o-gap-6"
                           >
-                            <span className="o-font-mono o-text-sm o-tabular-nums md:o-col-span-3" style={{ color: encre() }}>
+                            <span
+                              className="o-font-mono o-text-sm o-tabular-nums md:o-col-span-3"
+                              style={{ color: encre() }}
+                            >
                               {v.cote}
                             </span>
                             <span className="md:o-col-span-6">
-                              <span className="o-block o-text-lg o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.1rem, 1.8vw, 1.45rem)', lineHeight: 1.15 }}>
+                              <span
+                                className="o-block o-text-lg o-text-teal-950 dark:o-text-teal-50"
+                                style={{
+                                  ...titre('m'),
+                                  fontSize: 'clamp(1.1rem, 1.8vw, 1.45rem)',
+                                  lineHeight: 1.15,
+                                }}
+                              >
                                 {v.titre}
                               </span>
                               <span className="o-mt-1 o-block o-text-sm o-text-stone-600 dark:o-text-stone-400">
@@ -794,15 +1042,30 @@ export default function Page(): ReactElement {
                       style={{ height: 300 }}
                     />
                     <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
-                      Le meuble se tourne au glissement. Il ne garde que la cote courante ; sous mouvement reduit il se replie, et la liste ci-contre reste entiere.
+                      Le meuble se tourne au glissement. Il ne garde que la cote courante
+                      ; sous mouvement reduit il se replie, et la liste ci-contre reste
+                      entiere.
                     </p>
 
                     {volume !== undefined && (
-                      <div className="o-mt-8 o-border-w-1 o-p-6" style={{ borderColor: encre() }}>
-                        <p className="o-m-0 o-font-mono o-text-sm o-tabular-nums" style={{ color: encre() }}>
+                      <div
+                        className="o-mt-8 o-border-w-1 o-p-6"
+                        style={{ borderColor: encre() }}
+                      >
+                        <p
+                          className="o-m-0 o-font-mono o-text-sm o-tabular-nums"
+                          style={{ color: encre() }}
+                        >
                           {volume.cote}
                         </p>
-                        <h3 className="o-m-0 o-mt-3 o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.25rem, 2.2vw, 1.75rem)', lineHeight: 1.1 }}>
+                        <h3
+                          className="o-m-0 o-mt-3 o-text-teal-950 dark:o-text-teal-50"
+                          style={{
+                            ...titre('m'),
+                            fontSize: 'clamp(1.25rem, 2.2vw, 1.75rem)',
+                            lineHeight: 1.1,
+                          }}
+                        >
                           {volume.titre}
                         </h3>
                         <dl className="o-m-0 o-mt-5 o-flex o-flex-col o-gap-2 o-text-sm">
@@ -813,9 +1076,17 @@ export default function Page(): ReactElement {
                               ['Etat', volume.etat],
                             ] as const
                           ).map(([quoi, valeur]) => (
-                            <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-pb-2" style={{ borderColor: 'var(--o-theme-line)' }}>
-                              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">{quoi}</dt>
-                              <dd className="o-m-0 o-text-right o-text-stone-900 dark:o-text-stone-100">{valeur}</dd>
+                            <div
+                              key={quoi}
+                              className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-pb-2"
+                              style={{ borderColor: 'var(--o-theme-line)' }}
+                            >
+                              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+                                {quoi}
+                              </dt>
+                              <dd className="o-m-0 o-text-right o-text-stone-900 dark:o-text-stone-100">
+                                {valeur}
+                              </dd>
                             </div>
                           ))}
                         </dl>
@@ -831,17 +1102,23 @@ export default function Page(): ReactElement {
         {/*
           ----- La coupe sombre : un ecran de texte seul ------------------------
         */}
-        <section className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={nuit('stone')}>
+        <section
+          className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+          style={nuit('stone')}
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
             <Manifeste eteint="Une bibliotheque ne vous recommande rien.">
-              Elle range, elle ouvre a neuf heures, et elle vous laisse vous perdre entre deux chiffres.
+              Elle range, elle ouvre a neuf heures, et elle vous laisse vous perdre entre
+              deux chiffres.
             </Manifeste>
             <SplitLines
               as="p"
               stagger={110}
               className="o-m-0 o-mt-10 o-max-w-2xl o-text-base o-leading-relaxed o-text-stone-300"
             >
-              C est la difference entre un algorithme et une cote : l un vous ramene ou vous etiez deja, l autre vous pose devant deux cent dix-huit volumes que vous ne cherchiez pas.
+              C est la difference entre un algorithme et une cote : l un vous ramene ou
+              vous etiez deja, l autre vous pose devant deux cent dix-huit volumes que
+              vous ne cherchiez pas.
             </SplitLines>
           </div>
         </section>
@@ -849,13 +1126,20 @@ export default function Page(): ReactElement {
         {/*
           ----- La maison : la salle, en photographie ---------------------------
         */}
-        <section id="maison" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="maison"
+          className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Indice rang="03" sombre={false}>
               La maison
             </Indice>
-            <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.9rem, 4vw, 3.75rem)' }}>
-              Quatre cents places assises, et personne ne vous demandera pourquoi vous etes la.
+            <h2
+              className="o-m-0 o-mt-5 o-max-w-3xl o-text-teal-950 dark:o-text-teal-50"
+              style={{ ...titre('m'), fontSize: 'clamp(1.9rem, 4vw, 3.75rem)' }}
+            >
+              Quatre cents places assises, et personne ne vous demandera pourquoi vous
+              etes la.
             </h2>
 
             <div className="o-mt-14 o-grid o-gap-12 lg:o-grid-cols-12 lg:o-items-end">
@@ -876,18 +1160,42 @@ export default function Page(): ReactElement {
               <dl className="o-m-0 lg:o-col-span-4">
                 {(
                   [
-                    ['Horaires', 'Mardi au vendredi, 10 h — 19 h. Samedi, 10 h — 18 h. Ferme le lundi et le dimanche.'],
-                    ['Inscription', 'Gratuite pour tous, sans condition de residence. Une piece d identite suffit.'],
-                    ['Pret', 'Vingt documents, quatre semaines, prolongeable deux fois depuis chez vous.'],
-                    ['Magasin', 'Un tiers du fonds est en magasin. Demande au bureau, communication sous une heure.'],
-                    ['Retour', 'Boite a l exterieur, ouverte jour et nuit, videe a huit heures.'],
+                    [
+                      'Horaires',
+                      'Mardi au vendredi, 10 h — 19 h. Samedi, 10 h — 18 h. Ferme le lundi et le dimanche.',
+                    ],
+                    [
+                      'Inscription',
+                      'Gratuite pour tous, sans condition de residence. Une piece d identite suffit.',
+                    ],
+                    [
+                      'Pret',
+                      'Vingt documents, quatre semaines, prolongeable deux fois depuis chez vous.',
+                    ],
+                    [
+                      'Magasin',
+                      'Un tiers du fonds est en magasin. Demande au bureau, communication sous une heure.',
+                    ],
+                    [
+                      'Retour',
+                      'Boite a l exterieur, ouverte jour et nuit, videe a huit heures.',
+                    ],
                   ] as const
                 ).map(([quoi, valeur]) => (
-                  <div key={quoi} className="o-border-t o-py-4" style={{ borderColor: 'var(--o-theme-line)' }}>
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                  <div
+                    key={quoi}
+                    className="o-border-t o-py-4"
+                    style={{ borderColor: 'var(--o-theme-line)' }}
+                  >
+                    <dt
+                      className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                      style={{ color: encre() }}
+                    >
                       {quoi}
                     </dt>
-                    <dd className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">{valeur}</dd>
+                    <dd className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
+                      {valeur}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -898,21 +1206,36 @@ export default function Page(): ReactElement {
         {/*
           ----- L appel : le registre (A35) -------------------------------------
         */}
-        <section id="registre" className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(200, 14) }}>
+        <section
+          id="registre"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{
+            borderColor: 'var(--o-theme-line)',
+            backgroundColor: accentDoux(200, 14),
+          }}
+        >
           <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 lg:o-grid-cols-12">
             <div className="lg:o-col-span-5">
               <Indice rang="04" sombre={false}>
                 Le registre
               </Indice>
-              <h2 className="o-m-0 o-mt-5 o-max-w-sm o-text-teal-950 dark:o-text-teal-50" style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}>
+              <h2
+                className="o-m-0 o-mt-5 o-max-w-sm o-text-teal-950 dark:o-text-teal-50"
+                style={{ ...titre('m'), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}
+              >
                 L atelier d ecriture du jeudi
               </h2>
               <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                Deux heures, tous les quinze jours, en salle 2. Il n y a ni niveau, ni inscription payante, ni engagement : on ecrit son nom a la suite des autres, et on vient.
+                Deux heures, tous les quinze jours, en salle 2. Il n y a ni niveau, ni
+                inscription payante, ni engagement : on ecrit son nom a la suite des
+                autres, et on vient.
               </p>
 
               <div className="o-mt-10">
-                <label htmlFor="registre-nom" className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+                <label
+                  htmlFor="registre-nom"
+                  className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300"
+                >
                   Votre nom, a la suite
                 </label>
                 <div className="o-mt-3 o-flex o-flex-wrap o-gap-3">
@@ -931,7 +1254,10 @@ export default function Page(): ReactElement {
                     }}
                     placeholder="Prenom et nom"
                     className="o-min-w-0 o-grow o-border-w-1 o-bg-transparent o-px-4 o-py-3 o-text-base focus:o-ring"
-                    style={{ borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-fg)' }}
+                    style={{
+                      borderColor: 'var(--o-theme-line)',
+                      color: 'var(--o-theme-fg)',
+                    }}
                   />
                   <button
                     type="button"
@@ -944,7 +1270,8 @@ export default function Page(): ReactElement {
                   </button>
                 </div>
                 <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                  Rien n est envoye nulle part : le registre vit dans cette page, comme le cahier vit sur le bureau de la salle 2.
+                  Rien n est envoye nulle part : le registre vit dans cette page, comme le
+                  cahier vit sur le bureau de la salle 2.
                 </p>
               </div>
             </div>
@@ -964,14 +1291,25 @@ export default function Page(): ReactElement {
                 </p>
                 <ol aria-live="polite" className="o-m-0 o-mt-6 o-list-none o-p-0">
                   {[...REGISTRE_TENU, ...inscrits].map((ligne) => (
-                    <li key={`${String(ligne.rang)}-${ligne.nom}`} className="o-flex o-items-baseline o-gap-5" style={{ height: 36 }}>
+                    <li
+                      key={`${String(ligne.rang)}-${ligne.nom}`}
+                      className="o-flex o-items-baseline o-gap-5"
+                      style={{ height: 36 }}
+                    >
                       <span className="o-w-6 o-shrink-0 o-text-right o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400">
                         {ligne.rang}
                       </span>
-                      <span className="o-grow o-text-lg o-italic o-text-stone-900 dark:o-text-stone-100" style={{ fontFamily: 'var(--o-vitrine-affichage, var(--o-font-serif))' }}>
+                      <span
+                        className="o-grow o-text-lg o-italic o-text-stone-900 dark:o-text-stone-100"
+                        style={{
+                          fontFamily: 'var(--o-vitrine-affichage, var(--o-font-serif))',
+                        }}
+                      >
                         {ligne.nom}
                       </span>
-                      <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">{ligne.quand}</span>
+                      <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                        {ligne.quand}
+                      </span>
                     </li>
                   ))}
                 </ol>
@@ -988,7 +1326,10 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : l index alphabetique, par lettre (P21) ----------------
         */}
-        <footer className="o-border-t o-px-6 o-py-16 md:o-px-10" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <footer
+          className="o-border-t o-px-6 o-py-16 md:o-px-10"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
               Index
@@ -999,7 +1340,11 @@ export default function Page(): ReactElement {
                 <div key={lettre} className="o-mb-6" style={{ breakInside: 'avoid' }}>
                   <p
                     className="o-m-0 o-border-b o-pb-1 o-text-sm o-uppercase o-tracking-widest"
-                    style={{ borderColor: 'var(--o-theme-line)', color: encre(), fontVariantCaps: 'small-caps' }}
+                    style={{
+                      borderColor: 'var(--o-theme-line)',
+                      color: encre(),
+                      fontVariantCaps: 'small-caps',
+                    }}
                   >
                     {lettre}
                   </p>
@@ -1009,7 +1354,11 @@ export default function Page(): ReactElement {
                         <a
                           href={cible}
                           className="o-text-sm o-uppercase o-tracking-wide o-text-stone-700 o-no-underline o-transition-colors hover:o-text-teal-900 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-teal-100"
-                          style={{ fontSize: '0.78rem', fontVariantCaps: 'small-caps', textTransform: 'lowercase' }}
+                          style={{
+                            fontSize: '0.78rem',
+                            fontVariantCaps: 'small-caps',
+                            textTransform: 'lowercase',
+                          }}
                         >
                           {mot}
                         </a>
@@ -1020,9 +1369,18 @@ export default function Page(): ReactElement {
               ))}
             </div>
 
-            <p className="o-m-0 o-mt-12 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300" style={{ borderColor: 'var(--o-theme-line)' }}>
-              <span>© 2026 Rayon 800 — bibliotheque municipale, 7 place du Bouffay, 44000 Nantes</span>
-              <a href="#haut" className="o-text-stone-600 o-no-underline hover:o-text-teal-900 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-teal-100">
+            <p
+              className="o-m-0 o-mt-12 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
+              <span>
+                © 2026 Rayon 800 — bibliotheque municipale, 7 place du Bouffay, 44000
+                Nantes
+              </span>
+              <a
+                href="#haut"
+                className="o-text-stone-600 o-no-underline hover:o-text-teal-900 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-teal-100"
+              >
                 Remonter ↑
               </a>
             </p>

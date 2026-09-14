@@ -64,7 +64,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-brand-900 o-to-zinc-50 dark:o-to-zinc-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-brand-900 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
  * Faisceaux : des rais de lumiere obliques.

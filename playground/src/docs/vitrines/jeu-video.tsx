@@ -34,7 +34,13 @@
 
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, Check, X } from '@odoro-cli/icons/filaire'
-import { useEffect, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { Ballpit } from '@/odoro/background/Ballpit.jsx'
 import { ParallaxImage } from '@/odoro/image/ParallaxImage.jsx'
@@ -45,10 +51,27 @@ import { FuzzyText } from '@/odoro/text/FuzzyText.jsx'
 import { nuit } from './communs.jsx'
 import { photo } from './media.js'
 import { accentDoux, encre, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreCoins, CHROME, Coin, Grain, Indice, Porte, Surgit, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  CHROME,
+  Coin,
+  Grain,
+  Indice,
+  Porte,
+  Surgit,
+  usePolices,
+} from './marche.jsx'
 
 /** Les categories d entree du carnet. */
-const CATEGORIES = ['Moteur', 'Contenu', 'Accessibilite', 'Abandon', 'Calendrier'] as const
+const CATEGORIES = [
+  'Moteur',
+  'Contenu',
+  'Accessibilite',
+  'Abandon',
+  'Calendrier',
+] as const
 type Categorie = (typeof CATEGORIES)[number]
 
 /** Une entree du carnet. */
@@ -189,7 +212,10 @@ const PLAN: readonly (readonly [string, readonly string[]])[] = [
   ['Le jeu', ['Quai Nord', 'Acte I', 'Acte II', 'Bande originale', 'Accessibilite']],
   ['Le carnet', ['Moteur', 'Contenu', 'Accessibilite', 'Abandon', 'Calendrier']],
   ['Plateformes', ['Windows', 'macOS', 'Linux', 'Steam Deck', 'Consoles']],
-  ['Le studio', ['Onze personnes', 'Nantes', 'Recrutement', 'Presse', 'Avance sur recettes']],
+  [
+    'Le studio',
+    ['Onze personnes', 'Nantes', 'Recrutement', 'Presse', 'Avance sur recettes'],
+  ],
   ['La beta', ['S inscrire', 'Questionnaire', 'Regles', 'Confidentialite', 'Discord']],
   ['Legal', ['Mentions', 'RCS Nantes', 'Cookies', 'Contact', 'Credits']],
 ]
@@ -258,7 +284,12 @@ function Escalier({ coin }: { readonly coin: 'hd' | 'bg' }): ReactElement {
 /** Ce qu il reste avant la beta, en quatre nombres. */
 function reste(maintenant: number): readonly [number, number, number, number] {
   const total = Math.max(0, Math.floor((BETA.getTime() - maintenant) / 1000))
-  return [Math.floor(total / 86400), Math.floor((total % 86400) / 3600), Math.floor((total % 3600) / 60), total % 60]
+  return [
+    Math.floor(total / 86400),
+    Math.floor((total % 86400) / 3600),
+    Math.floor((total % 3600) / 60),
+    total % 60,
+  ]
 }
 
 /** Le compte a rebours vers la beta fermee : quatre odometres. */
@@ -280,13 +311,30 @@ function Rebours(): ReactElement {
     [secondes, 'secondes'],
   ] as const
   return (
-    <div className="o-flex o-flex-wrap o-items-end o-justify-center o-gap-x-6 o-gap-y-4 md:o-gap-x-12" role="timer" aria-label={`Beta fermee dans ${String(jours)} jours, ${String(heures)} heures et ${String(minutes)} minutes`}>
+    <div
+      className="o-flex o-flex-wrap o-items-end o-justify-center o-gap-x-6 o-gap-y-4 md:o-gap-x-12"
+      role="timer"
+      aria-label={`Beta fermee dans ${String(jours)} jours, ${String(heures)} heures et ${String(minutes)} minutes`}
+    >
       {unites.map(([valeur, quoi]) => (
         <div key={quoi} className="o-text-center">
-          <p aria-hidden="true" className="o-m-0 o-text-zinc-50" style={{ ...affiche('xl', 300), fontSize: 'clamp(3.5rem, 12vw, 11rem)', lineHeight: 1 }}>
+          <p
+            aria-hidden="true"
+            className="o-m-0 o-text-zinc-50"
+            style={{
+              ...affiche('xl', 300),
+              fontSize: 'clamp(3.5rem, 12vw, 11rem)',
+              lineHeight: 1,
+            }}
+          >
             <CounterRoll value={valeur} duration={700} step={60} />
           </p>
-          <p aria-hidden="true" className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</p>
+          <p
+            aria-hidden="true"
+            className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+          >
+            {quoi}
+          </p>
         </div>
       ))}
     </div>
@@ -305,7 +353,8 @@ export default function Page(): ReactElement {
 
   const comptes = useMemo(() => {
     const table = new Map<string, number>([['Tout', ENTREES.length]])
-    for (const c of CATEGORIES) table.set(c, ENTREES.filter((e) => e.categorie === c).length)
+    for (const c of CATEGORIES)
+      table.set(c, ENTREES.filter((e) => e.categorie === c).length)
     return table
   }, [])
 
@@ -316,290 +365,459 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Cabestan">
-    <div className="o-min-h-screen" style={{ ...polices, ...nuit('zinc') }}>
-      {/* ================= 1. L ouverture ================================= */}
-      <header id="haut" className="o-relative o-isolate o-min-h-screen o-overflow-hidden o-border-b o-border-zinc-800">
-        {/* La grille de points, en CSS — Tenora. */}
-        <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0" style={{ backgroundImage: 'radial-gradient(color-mix(in oklab, var(--o-palette-zinc-50) 14%, transparent) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <Escalier coin="hd" />
-        <Escalier coin="bg" />
-        <Grain opacite={0.05} />
-
-        <BarreCoins marque="Cabestan" liens={[['#carnet', 'Le carnet'], ['#tableau', 'Le tableau'], ['#beta', 'La beta']]} droite="Nantes — sans editeur" />
-
-        <div className="o-relative o-z-10 o-mx-auto o-flex o-min-h-screen o-max-w-6xl o-flex-col o-justify-center o-px-5 o-pb-28 o-pt-10 md:o-px-10">
-          <Surgit as="p" className="o-m-0 o-inline-block o-w-fit o-bg-zinc-50 o-px-2 o-py-0.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950">
-            #2027 — beta fermee le 30 septembre
-          </Surgit>
-          {/* Le titre du jeu tremble, et se remet au point sous le pointeur. */}
-          <Surgit delai={120} as="h1" className="o-m-0 o-mt-6 o-text-zinc-50" style={{ ...affiche('xl', 700), fontSize: 'clamp(4rem, 15vw, 15rem)' }}>
-            <FuzzyText blur={1.6} amplitude={1.8} period={140}>Quai Nord</FuzzyText>
-          </Surgit>
-          <Surgit delai={320} as="p" className="o-m-0 o-mt-8 o-max-w-3xl o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.2vw, 3rem)' }}>
-            Un jeu d enquete de quinze heures,{' '}
-            <span className="o-inline-block o-bg-zinc-50 o-px-2 o-text-zinc-950" style={{ boxDecorationBreak: 'clone' }}>sans editeur</span>, avec le journal de sa fabrication ouvert.
-          </Surgit>
-          <Surgit delai={500} className="o-mt-10">
-            <Actions pleine={['#carnet', <>Lire le carnet <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#beta', 'La beta fermee']} />
-          </Surgit>
-        </div>
-        <Coin position="bg">Neuf entrees depuis mars 2024<br />Une d abandon, deux reports</Coin>
-        <Coin position="bd">Windows, macOS, Linux, Steam Deck<br />Sortie visee : automne 2027</Coin>
-      </header>
-
-      <main>
-        {/* ================= 2. Le carnet, en cartes empilees ================ */}
-        <section id="carnet" className="o-mx-auto o-max-w-6xl o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28">
-          <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-            <div className="md:o-col-span-7">
-              <Indice rang="01">Le carnet</Indice>
-              <h2 className="o-m-0 o-mt-5 o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}>
-                Les quatre dernieres, puis tout le reste.
-              </h2>
-            </div>
-            <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-              La derniere en haut. Les reports gardent leur ancienne date barree, et l entree d abandon est restee : un carnet ou tout avance est une page de vente.
-            </p>
-          </div>
-
-          {/* Le filtre : une ligne de comptes, pas une rangee de pastilles. */}
+      <div className="o-min-h-screen" style={{ ...polices, ...nuit('zinc') }}>
+        {/* ================= 1. L ouverture ================================= */}
+        <header
+          id="haut"
+          className="o-relative o-isolate o-min-h-screen o-overflow-hidden o-border-b o-border-zinc-800"
+        >
+          {/* La grille de points, en CSS — Tenora. */}
           <div
-            role="group"
-            aria-label="Filtrer par categorie"
-            className="o-mt-12 o-flex o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-border-b o-border-t o-border-zinc-800 o-py-4 o-font-mono o-text-xs"
-          >
-            {(['Tout', ...CATEGORIES] as const).map((option) => {
-              const actif = categorie === option
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={actif}
-                  onClick={() => {
-                    setCategorie(option)
-                  }}
-                  className="o-inline-flex o-items-baseline o-gap-1.5 o-uppercase o-tracking-wider o-transition-colors focus:o-ring"
-                  style={{ color: actif ? encreSurSombre() : 'var(--o-theme-muted)' }}
-                >
-                  {option}
-                  <span className="o-tabular-nums o-opacity-70">{comptes.get(option) ?? 0}</span>
-                </button>
-              )
-            })}
-          </div>
+            aria-hidden="true"
+            className="o-absolute o-inset-0 o-z-0"
+            style={{
+              backgroundImage:
+                'radial-gradient(color-mix(in oklab, var(--o-palette-zinc-50) 14%, transparent) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+            }}
+          />
+          <Escalier coin="hd" />
+          <Escalier coin="bg" />
+          <Grain opacite={0.05} />
 
-          <StickyStack className="o-mt-10" offset={CHROME + 20} gap={18} shrink={0.04}>
-            {recentes.map((entree, rang) => (
-              <article
-                key={entree.iso}
-                className="o-grid o-gap-6 o-rounded-2xl o-border-w-1 o-border-zinc-800 o-p-6 md:o-grid-cols-12 md:o-gap-10 md:o-p-10"
-                // Toutes les cartes ont la meme hauteur : une carte plus haute que
-                // la suivante depasserait sous elle une fois recouverte.
-                style={{ backgroundColor: 'var(--o-palette-zinc-950)', minHeight: 'min(560px, calc(100vh - 180px))' }}
+          <BarreCoins
+            marque="Cabestan"
+            liens={[
+              ['#carnet', 'Le carnet'],
+              ['#tableau', 'Le tableau'],
+              ['#beta', 'La beta'],
+            ]}
+            droite="Nantes — sans editeur"
+          />
+
+          <div className="o-relative o-z-10 o-mx-auto o-flex o-min-h-screen o-max-w-6xl o-flex-col o-justify-center o-px-5 o-pb-28 o-pt-10 md:o-px-10">
+            <Surgit
+              as="p"
+              className="o-m-0 o-inline-block o-w-fit o-bg-zinc-50 o-px-2 o-py-0.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950"
+            >
+              #2027 — beta fermee le 30 septembre
+            </Surgit>
+            {/* Le titre du jeu tremble, et se remet au point sous le pointeur. */}
+            <Surgit
+              delai={120}
+              as="h1"
+              className="o-m-0 o-mt-6 o-text-zinc-50"
+              style={{ ...affiche('xl', 700), fontSize: 'clamp(4rem, 15vw, 15rem)' }}
+            >
+              <FuzzyText blur={1.6} amplitude={1.8} period={140}>
+                Quai Nord
+              </FuzzyText>
+            </Surgit>
+            <Surgit
+              delai={320}
+              as="p"
+              className="o-m-0 o-mt-8 o-max-w-3xl o-text-zinc-50"
+              style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.2vw, 3rem)' }}
+            >
+              Un jeu d enquete de quinze heures,{' '}
+              <span
+                className="o-inline-block o-bg-zinc-50 o-px-2 o-text-zinc-950"
+                style={{ boxDecorationBreak: 'clone' }}
               >
-                <div className="md:o-col-span-4">
-                  <p aria-hidden="true" className="o-m-0 o-tabular-nums o-text-zinc-50" style={{ ...affiche('l', 300), fontSize: 'clamp(3rem, 6vw, 6rem)' }}>
-                    {String(fil.length - rang).padStart(2, '0')}
-                  </p>
-                  <div className="o-mt-4 o-flex o-flex-wrap o-items-center o-gap-x-3 o-gap-y-2">
-                    <time dateTime={entree.iso} className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-400">
-                      {entree.date}
-                    </time>
-                    {pastille(entree.categorie)}
-                  </div>
-                  <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-text-zinc-500">{entree.auteur}</p>
-                  {entree.ancienne !== undefined && (
-                    <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-text-zinc-500">
-                      Annonce pour <span className="o-line-through">{entree.ancienne}</span>
-                    </p>
-                  )}
-                </div>
+                sans editeur
+              </span>
+              , avec le journal de sa fabrication ouvert.
+            </Surgit>
+            <Surgit delai={500} className="o-mt-10">
+              <Actions
+                pleine={[
+                  '#carnet',
+                  <>
+                    Lire le carnet <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  </>,
+                ]}
+                fantome={['#beta', 'La beta fermee']}
+              />
+            </Surgit>
+          </div>
+          <Coin position="bg">
+            Neuf entrees depuis mars 2024
+            <br />
+            Une d abandon, deux reports
+          </Coin>
+          <Coin position="bd">
+            Windows, macOS, Linux, Steam Deck
+            <br />
+            Sortie visee : automne 2027
+          </Coin>
+        </header>
 
-                <div className="o-min-w-0 md:o-col-span-8">
-                  <h3
-                    className={`o-m-0 o-text-2xl o-font-semibold o-tracking-tight md:o-text-3xl ${
-                      entree.categorie === 'Abandon' ? 'o-line-through o-text-zinc-400' : 'o-text-zinc-50'
-                    }`}
-                  >
-                    <span className="o-sr-only">{String(fil.length - rang).padStart(2, '0')} — </span>
-                    {entree.titre}
-                  </h3>
-                  <p className="o-m-0 o-mt-4 o-max-w-2xl o-text-base o-leading-relaxed o-text-zinc-300">{entree.texte}</p>
-
-                  {/* La piece jointe : soit une capture, soit la scene — toutes
-                      deux legendees et datees comme le reste du carnet. */}
-                  {entree.scene === true && (
-                    <figure className="o-m-0 o-mt-6 o-overflow-hidden o-rounded-lg o-border-w-1 o-border-zinc-800">
-                      <Ballpit
-                        className="o-h-52 o-w-full md:o-h-64"
-                        colors={['--o-theme-bg', '--o-vitrine-400', '--o-vitrine-600']}
-                        poster="o-bg-zinc-950"
-                      />
-                      <figcaption className="o-border-t o-border-zinc-800 o-px-4 o-py-2.5 o-font-mono o-text-xs o-text-zinc-400">
-                        {entree.legende}
-                      </figcaption>
-                    </figure>
-                  )}
-
-                  {entree.piece !== undefined && (
-                    <figure className="o-m-0 o-mt-6 o-overflow-hidden o-rounded-lg o-border-w-1 o-border-zinc-800">
-                      <ParallaxImage
-                        src={photo(entree.piece, 1200, 620)}
-                        alt={entree.legende ?? entree.titre}
-                        ratio={2.4}
-                        strength={0.28}
-                        className="o-w-full o-object-cover"
-                      />
-                      <figcaption className="o-border-t o-border-zinc-800 o-px-4 o-py-2.5 o-font-mono o-text-xs o-text-zinc-400">
-                        {entree.legende}
-                      </figcaption>
-                    </figure>
-                  )}
-                </div>
-              </article>
-            ))}
-          </StickyStack>
-
-          {/* L archive : le meme fil, mais en journal de depot — une ligne par
-              entree, sans carte, sans image. Deux formes pour une matiere. */}
-          {archive.length > 0 && (
-            <div className="o-mt-16">
-              <p className="o-m-0 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-700 o-pb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                <span style={{ color: encreSurSombre() }}>Archive</span>
-                <span>{archive.length} entree{archive.length > 1 ? 's' : ''} anterieure{archive.length > 1 ? 's' : ''}</span>
+        <main>
+          {/* ================= 2. Le carnet, en cartes empilees ================ */}
+          <section
+            id="carnet"
+            className="o-mx-auto o-max-w-6xl o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28"
+          >
+            <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
+              <div className="md:o-col-span-7">
+                <Indice rang="01">Le carnet</Indice>
+                <h2
+                  className="o-m-0 o-mt-5 o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.5vw, 4.25rem)',
+                  }}
+                >
+                  Les quatre dernieres, puis tout le reste.
+                </h2>
+              </div>
+              <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
+                La derniere en haut. Les reports gardent leur ancienne date barree, et l
+                entree d abandon est restee : un carnet ou tout avance est une page de
+                vente.
               </p>
-              <ol className="o-m-0 o-list-none o-p-0">
-                {archive.map((entree, rang) => (
-                  <li key={entree.iso} className="o-grid o-grid-cols-12 o-items-baseline o-gap-x-4 o-gap-y-2 o-border-b o-border-zinc-800 o-py-4">
-                    <span aria-hidden="true" className="o-col-span-2 o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 sm:o-col-span-1">
-                      {String(archive.length - rang).padStart(2, '0')}
+            </div>
+
+            {/* Le filtre : une ligne de comptes, pas une rangee de pastilles. */}
+            <div
+              role="group"
+              aria-label="Filtrer par categorie"
+              className="o-mt-12 o-flex o-flex-wrap o-items-center o-gap-x-6 o-gap-y-2 o-border-b o-border-t o-border-zinc-800 o-py-4 o-font-mono o-text-xs"
+            >
+              {(['Tout', ...CATEGORIES] as const).map((option) => {
+                const actif = categorie === option
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={actif}
+                    onClick={() => {
+                      setCategorie(option)
+                    }}
+                    className="o-inline-flex o-items-baseline o-gap-1.5 o-uppercase o-tracking-wider o-transition-colors focus:o-ring"
+                    style={{ color: actif ? encreSurSombre() : 'var(--o-theme-muted)' }}
+                  >
+                    {option}
+                    <span className="o-tabular-nums o-opacity-70">
+                      {comptes.get(option) ?? 0}
                     </span>
-                    <time dateTime={entree.iso} className="o-col-span-10 o-font-mono o-text-xs o-tabular-nums o-text-zinc-400 sm:o-col-span-3 md:o-col-span-2">
-                      {entree.date}
-                    </time>
+                  </button>
+                )
+              })}
+            </div>
+
+            <StickyStack className="o-mt-10" offset={CHROME + 20} gap={18} shrink={0.04}>
+              {recentes.map((entree, rang) => (
+                <article
+                  key={entree.iso}
+                  className="o-grid o-gap-6 o-rounded-2xl o-border-w-1 o-border-zinc-800 o-p-6 md:o-grid-cols-12 md:o-gap-10 md:o-p-10"
+                  // Toutes les cartes ont la meme hauteur : une carte plus haute que
+                  // la suivante depasserait sous elle une fois recouverte.
+                  style={{
+                    backgroundColor: 'var(--o-palette-zinc-950)',
+                    minHeight: 'min(560px, calc(100vh - 180px))',
+                  }}
+                >
+                  <div className="md:o-col-span-4">
+                    <p
+                      aria-hidden="true"
+                      className="o-m-0 o-tabular-nums o-text-zinc-50"
+                      style={{ ...affiche('l', 300), fontSize: 'clamp(3rem, 6vw, 6rem)' }}
+                    >
+                      {String(fil.length - rang).padStart(2, '0')}
+                    </p>
+                    <div className="o-mt-4 o-flex o-flex-wrap o-items-center o-gap-x-3 o-gap-y-2">
+                      <time
+                        dateTime={entree.iso}
+                        className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-400"
+                      >
+                        {entree.date}
+                      </time>
+                      {pastille(entree.categorie)}
+                    </div>
+                    <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-text-zinc-500">
+                      {entree.auteur}
+                    </p>
+                    {entree.ancienne !== undefined && (
+                      <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-text-zinc-500">
+                        Annonce pour{' '}
+                        <span className="o-line-through">{entree.ancienne}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="o-min-w-0 md:o-col-span-8">
                     <h3
-                      className={`o-col-span-12 o-m-0 o-text-base o-font-medium o-tracking-tight sm:o-col-span-8 md:o-col-span-6 ${
-                        entree.categorie === 'Abandon' ? 'o-line-through o-text-zinc-500' : 'o-text-zinc-100'
+                      className={`o-m-0 o-text-2xl o-font-semibold o-tracking-tight md:o-text-3xl ${
+                        entree.categorie === 'Abandon'
+                          ? 'o-line-through o-text-zinc-400'
+                          : 'o-text-zinc-50'
                       }`}
                     >
+                      <span className="o-sr-only">
+                        {String(fil.length - rang).padStart(2, '0')} —{' '}
+                      </span>
                       {entree.titre}
                     </h3>
-                    <span className="o-col-span-7 sm:o-col-span-6 md:o-col-span-2">{pastille(entree.categorie)}</span>
-                    <span className="o-col-span-5 o-text-right o-font-mono o-text-xs o-text-zinc-500 sm:o-col-span-6 md:o-col-span-1">
-                      {entree.auteur.split(',')[0]}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </section>
+                    <p className="o-m-0 o-mt-4 o-max-w-2xl o-text-base o-leading-relaxed o-text-zinc-300">
+                      {entree.texte}
+                    </p>
 
-        {/* ================= 3. Le tableau des scores, imprime ==============
-            La seule bande claire de la page. Une fiche technique se lit sur du
-            papier ; la coupe est nette, sans degrade. */}
-        <section id="tableau" className="o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28" style={JOUR}>
-          <div className="o-mx-auto o-max-w-6xl">
-            <p className="o-m-0 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-950 o-pb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
-              <span style={{ color: encre() }}>Fiche technique — rev. 09 / 2026</span>
-              <span>Cabestan / Quai Nord</span>
-            </p>
-            <h2 className="o-m-0 o-mt-8 o-max-w-4xl o-text-zinc-950" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6vw, 6rem)' }}>
-              Ce que le chantier tient, et ce que la machine tient.
-            </h2>
+                    {/* La piece jointe : soit une capture, soit la scene — toutes
+                      deux legendees et datees comme le reste du carnet. */}
+                    {entree.scene === true && (
+                      <figure className="o-m-0 o-mt-6 o-overflow-hidden o-rounded-lg o-border-w-1 o-border-zinc-800">
+                        <Ballpit
+                          className="o-h-52 o-w-full md:o-h-64"
+                          colors={['--o-theme-bg', '--o-vitrine-400', '--o-vitrine-600']}
+                          poster="o-bg-zinc-950"
+                        />
+                        <figcaption className="o-border-t o-border-zinc-800 o-px-4 o-py-2.5 o-font-mono o-text-xs o-text-zinc-400">
+                          {entree.legende}
+                        </figcaption>
+                      </figure>
+                    )}
 
-            <div className="o-mt-16 o-grid o-gap-x-12 o-gap-y-14 lg:o-grid-cols-2">
-              <div className="o-min-w-0">
-                <table className="o-w-full o-text-left o-font-mono o-text-sm" style={{ borderCollapse: 'collapse' }}>
-                  <caption className="o-border-b o-border-zinc-400 o-pb-2 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
-                    Le chantier
-                  </caption>
-                  <tbody>
-                    {CHANTIER.map(([quoi, valeur, note]) => (
-                      <tr key={quoi} className="o-border-b o-border-zinc-300">
-                        <th scope="row" className="o-py-3 o-pr-4 o-text-left o-font-normal o-align-top o-text-zinc-700">
-                          {quoi}
-                          <span className="o-mt-0.5 o-block o-text-xs o-text-zinc-600">{note}</span>
-                        </th>
-                        <td className="o-py-3 o-text-right o-tabular-nums o-text-lg o-font-bold o-text-zinc-950 o-whitespace-nowrap">{valeur}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    {entree.piece !== undefined && (
+                      <figure className="o-m-0 o-mt-6 o-overflow-hidden o-rounded-lg o-border-w-1 o-border-zinc-800">
+                        <ParallaxImage
+                          src={photo(entree.piece, 1200, 620)}
+                          alt={entree.legende ?? entree.titre}
+                          ratio={2.4}
+                          strength={0.28}
+                          className="o-w-full o-object-cover"
+                        />
+                        <figcaption className="o-border-t o-border-zinc-800 o-px-4 o-py-2.5 o-font-mono o-text-xs o-text-zinc-400">
+                          {entree.legende}
+                        </figcaption>
+                      </figure>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </StickyStack>
 
-              <div className="o-min-w-0">
-                <table className="o-w-full o-text-left o-font-mono o-text-sm" style={{ borderCollapse: 'collapse' }}>
-                  <caption className="o-border-b o-border-zinc-400 o-pb-2 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
-                    Les plateformes — images par seconde sur la machine la plus lente visee
-                  </caption>
-                  <tbody>
-                    {PLATEFORMES.map(([nom, ok, images, detail]) => (
-                      <tr key={nom} className="o-border-b o-border-zinc-300">
-                        <th scope="row" className="o-py-3 o-pr-4 o-text-left o-font-normal o-align-top o-text-zinc-700">
-                          <span className="o-inline-flex o-items-center o-gap-2">
-                            <Icon icon={ok ? Check : X} size={13} aria-hidden="true" style={{ color: ok ? encre() : 'var(--o-palette-zinc-500)' }} />
-                            {nom}
-                            <span className="o-sr-only">{ok ? ', visee' : ', non engagee'}</span>
-                          </span>
-                          <span className="o-mt-0.5 o-block o-text-xs o-text-zinc-600">{detail}</span>
-                        </th>
-                        <td className={`o-py-3 o-text-right o-tabular-nums o-text-lg o-font-bold o-whitespace-nowrap ${ok ? 'o-text-zinc-950' : 'o-text-zinc-500'}`}>{images}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= 4. Le compte a rebours ========================= */}
-        <section id="beta" className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-border-t o-border-zinc-800 o-px-5 o-py-24 o-text-center md:o-py-36">
-          <Escalier coin="bg" />
-          <div className="o-relative o-z-10 o-mx-auto o-max-w-6xl">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-              La beta fermee ouvre le 30 septembre 2026, a 9 h
-            </p>
-            <div className="o-mt-12">
-              <Rebours />
-            </div>
-            <p className="o-mx-auto o-mt-12 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-              Huit cents places, tirees au sort parmi les inscrits a la lettre. Six a huit courriels par an, et rien d autre.
-            </p>
-            <p className="o-m-0 o-mt-6 o-font-mono o-text-sm" style={{ color: encreSurSombre() }}>
-              <a href="#haut" className="o-no-underline o-underline-offset-4 hover:o-underline focus:o-ring" style={{ color: 'inherit' }}>carnet@cabestan.studio</a>
-            </p>
-          </div>
-        </section>
-      </main>
-
-      {/* ================= 5. Le pied : le plan du site, six colonnes ====== */}
-      <footer className="o-border-t o-border-zinc-800 o-px-5 o-pb-8 o-pt-14 md:o-px-10">
-        <div className="o-mx-auto o-max-w-6xl">
-          <div className="o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-10 sm:o-grid-cols-3 lg:o-grid-cols-6">
-            {PLAN.map(([titre, liens]) => (
-              <nav key={titre} aria-label={titre}>
-                <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>{titre}</h2>
-                <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-col o-gap-1.5 o-p-0">
-                  {liens.map((lien) => (
-                    <li key={lien}>
-                      <a href="#haut" className="o-text-xs o-no-underline o-text-zinc-400 o-transition-colors hover:o-text-zinc-50 focus:o-ring">
-                        {lien}
-                      </a>
+            {/* L archive : le meme fil, mais en journal de depot — une ligne par
+              entree, sans carte, sans image. Deux formes pour une matiere. */}
+            {archive.length > 0 && (
+              <div className="o-mt-16">
+                <p className="o-m-0 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-700 o-pb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  <span style={{ color: encreSurSombre() }}>Archive</span>
+                  <span>
+                    {archive.length} entree{archive.length > 1 ? 's' : ''} anterieure
+                    {archive.length > 1 ? 's' : ''}
+                  </span>
+                </p>
+                <ol className="o-m-0 o-list-none o-p-0">
+                  {archive.map((entree, rang) => (
+                    <li
+                      key={entree.iso}
+                      className="o-grid o-grid-cols-12 o-items-baseline o-gap-x-4 o-gap-y-2 o-border-b o-border-zinc-800 o-py-4"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-col-span-2 o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 sm:o-col-span-1"
+                      >
+                        {String(archive.length - rang).padStart(2, '0')}
+                      </span>
+                      <time
+                        dateTime={entree.iso}
+                        className="o-col-span-10 o-font-mono o-text-xs o-tabular-nums o-text-zinc-400 sm:o-col-span-3 md:o-col-span-2"
+                      >
+                        {entree.date}
+                      </time>
+                      <h3
+                        className={`o-col-span-12 o-m-0 o-text-base o-font-medium o-tracking-tight sm:o-col-span-8 md:o-col-span-6 ${
+                          entree.categorie === 'Abandon'
+                            ? 'o-line-through o-text-zinc-500'
+                            : 'o-text-zinc-100'
+                        }`}
+                      >
+                        {entree.titre}
+                      </h3>
+                      <span className="o-col-span-7 sm:o-col-span-6 md:o-col-span-2">
+                        {pastille(entree.categorie)}
+                      </span>
+                      <span className="o-col-span-5 o-text-right o-font-mono o-text-xs o-text-zinc-500 sm:o-col-span-6 md:o-col-span-1">
+                        {entree.auteur.split(',')[0]}
+                      </span>
                     </li>
                   ))}
-                </ul>
-              </nav>
-            ))}
+                </ol>
+              </div>
+            )}
+          </section>
+
+          {/* ================= 3. Le tableau des scores, imprime ==============
+            La seule bande claire de la page. Une fiche technique se lit sur du
+            papier ; la coupe est nette, sans degrade. */}
+          <section
+            id="tableau"
+            className="o-scroll-mt-24 o-px-5 o-py-20 md:o-px-10 md:o-py-28"
+            style={JOUR}
+          >
+            <div className="o-mx-auto o-max-w-6xl">
+              <p className="o-m-0 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-950 o-pb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
+                <span style={{ color: encre() }}>Fiche technique — rev. 09 / 2026</span>
+                <span>Cabestan / Quai Nord</span>
+              </p>
+              <h2
+                className="o-m-0 o-mt-8 o-max-w-4xl o-text-zinc-950"
+                style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6vw, 6rem)' }}
+              >
+                Ce que le chantier tient, et ce que la machine tient.
+              </h2>
+
+              <div className="o-mt-16 o-grid o-gap-x-12 o-gap-y-14 lg:o-grid-cols-2">
+                <div className="o-min-w-0">
+                  <table
+                    className="o-w-full o-text-left o-font-mono o-text-sm"
+                    style={{ borderCollapse: 'collapse' }}
+                  >
+                    <caption className="o-border-b o-border-zinc-400 o-pb-2 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
+                      Le chantier
+                    </caption>
+                    <tbody>
+                      {CHANTIER.map(([quoi, valeur, note]) => (
+                        <tr key={quoi} className="o-border-b o-border-zinc-300">
+                          <th
+                            scope="row"
+                            className="o-py-3 o-pr-4 o-text-left o-font-normal o-align-top o-text-zinc-700"
+                          >
+                            {quoi}
+                            <span className="o-mt-0.5 o-block o-text-xs o-text-zinc-600">
+                              {note}
+                            </span>
+                          </th>
+                          <td className="o-py-3 o-text-right o-tabular-nums o-text-lg o-font-bold o-text-zinc-950 o-whitespace-nowrap">
+                            {valeur}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="o-min-w-0">
+                  <table
+                    className="o-w-full o-text-left o-font-mono o-text-sm"
+                    style={{ borderCollapse: 'collapse' }}
+                  >
+                    <caption className="o-border-b o-border-zinc-400 o-pb-2 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
+                      Les plateformes — images par seconde sur la machine la plus lente
+                      visee
+                    </caption>
+                    <tbody>
+                      {PLATEFORMES.map(([nom, ok, images, detail]) => (
+                        <tr key={nom} className="o-border-b o-border-zinc-300">
+                          <th
+                            scope="row"
+                            className="o-py-3 o-pr-4 o-text-left o-font-normal o-align-top o-text-zinc-700"
+                          >
+                            <span className="o-inline-flex o-items-center o-gap-2">
+                              <Icon
+                                icon={ok ? Check : X}
+                                size={13}
+                                aria-hidden="true"
+                                style={{
+                                  color: ok ? encre() : 'var(--o-palette-zinc-500)',
+                                }}
+                              />
+                              {nom}
+                              <span className="o-sr-only">
+                                {ok ? ', visee' : ', non engagee'}
+                              </span>
+                            </span>
+                            <span className="o-mt-0.5 o-block o-text-xs o-text-zinc-600">
+                              {detail}
+                            </span>
+                          </th>
+                          <td
+                            className={`o-py-3 o-text-right o-tabular-nums o-text-lg o-font-bold o-whitespace-nowrap ${ok ? 'o-text-zinc-950' : 'o-text-zinc-500'}`}
+                          >
+                            {images}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ================= 4. Le compte a rebours ========================= */}
+          <section
+            id="beta"
+            className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-border-t o-border-zinc-800 o-px-5 o-py-24 o-text-center md:o-py-36"
+          >
+            <Escalier coin="bg" />
+            <div className="o-relative o-z-10 o-mx-auto o-max-w-6xl">
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                La beta fermee ouvre le 30 septembre 2026, a 9 h
+              </p>
+              <div className="o-mt-12">
+                <Rebours />
+              </div>
+              <p className="o-mx-auto o-mt-12 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
+                Huit cents places, tirees au sort parmi les inscrits a la lettre. Six a
+                huit courriels par an, et rien d autre.
+              </p>
+              <p
+                className="o-m-0 o-mt-6 o-font-mono o-text-sm"
+                style={{ color: encreSurSombre() }}
+              >
+                <a
+                  href="#haut"
+                  className="o-no-underline o-underline-offset-4 hover:o-underline focus:o-ring"
+                  style={{ color: 'inherit' }}
+                >
+                  carnet@cabestan.studio
+                </a>
+              </p>
+            </div>
+          </section>
+        </main>
+
+        {/* ================= 5. Le pied : le plan du site, six colonnes ====== */}
+        <footer className="o-border-t o-border-zinc-800 o-px-5 o-pb-8 o-pt-14 md:o-px-10">
+          <div className="o-mx-auto o-max-w-6xl">
+            <div className="o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-10 sm:o-grid-cols-3 lg:o-grid-cols-6">
+              {PLAN.map(([titre, liens]) => (
+                <nav key={titre} aria-label={titre}>
+                  <h2
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
+                    {titre}
+                  </h2>
+                  <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-col o-gap-1.5 o-p-0">
+                    {liens.map((lien) => (
+                      <li key={lien}>
+                        <a
+                          href="#haut"
+                          className="o-text-xs o-no-underline o-text-zinc-400 o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                        >
+                          {lien}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              ))}
+            </div>
+            <div className="o-mt-14 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-2 o-border-t o-border-zinc-800 o-pt-6 o-font-mono o-text-xs o-text-zinc-500">
+              <p className="o-m-0">
+                © 2026 Cabestan SAS — capital 25 000 EUR — RCS Nantes 913 664 208 — 14 rue
+                de la Verrerie, 44000 Nantes
+              </p>
+              <p className="o-m-0">
+                Les dates sont celles du carnet ; leurs changements y restent inscrits.
+              </p>
+            </div>
           </div>
-          <div className="o-mt-14 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-2 o-border-t o-border-zinc-800 o-pt-6 o-font-mono o-text-xs o-text-zinc-500">
-            <p className="o-m-0">© 2026 Cabestan SAS — capital 25 000 EUR — RCS Nantes 913 664 208 — 14 rue de la Verrerie, 44000 Nantes</p>
-            <p className="o-m-0">Les dates sont celles du carnet ; leurs changements y restent inscrits.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
     </Porte>
   )
 }

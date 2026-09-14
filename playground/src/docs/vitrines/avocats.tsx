@@ -36,7 +36,15 @@
 
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, ArrowUpRight, Scale } from '@odoro-cli/icons/filaire'
-import { Fragment, useId, useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  Fragment,
+  useId,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { Frame } from '@/odoro/image/Frame.jsx'
 import { BlurWords } from '@/odoro/text/BlurWords.jsx'
@@ -46,7 +54,18 @@ import { PillTabs } from '@/odoro/ui/PillTabs.jsx'
 import { nuit } from './communs.jsx'
 import { photo } from './media.js'
 import { accentDoux, aplat, encre, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreCoins, Etiquette, Indice, Porte, Surgit, TitreVague, usePolices, Accent } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  Etiquette,
+  Indice,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+  Accent,
+} from './marche.jsx'
 import { Chapitre } from './scene.jsx'
 
 /* ========================= Les constantes de dessin ===================== */
@@ -58,10 +77,12 @@ const FILET = 'color-mix(in oklab, currentColor 16%, transparent)'
 const FILET_FORT = 'color-mix(in oklab, currentColor 40%, transparent)'
 
 /** La voix mono des notes de marge. */
-const NOTE = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400'
+const NOTE =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400'
 
 /** La meme voix, sur la bande toujours sombre. */
-const NOTE_SUR_NUIT = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400'
+const NOTE_SUR_NUIT =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400'
 
 /**
  * Le papier regle du bloc-titre, dessine en gradients.
@@ -150,13 +171,49 @@ const PROCEDURES: readonly Procedure[] = [
         couperet: 'Douze mois a compter de la notification du licenciement',
         note: 'Requete deposee au greffe, avec les pieces. C est la date qui fixe tout le reste.',
       },
-      { titre: 'Convocation des parties', court: 'Convocation', jours: 21, note: 'Par lettre recommandee, avec la date du bureau de conciliation.' },
-      { titre: 'Bureau de conciliation et d orientation', court: 'Conciliation', jours: 75, note: 'Une audience courte. Elle oriente le dossier et fixe le calendrier des echanges.' },
-      { titre: 'Echange des pieces et conclusions', court: 'Conclusions', jours: 120, note: 'Deux tours, parfois trois. C est la partie ou un dossier se gagne.' },
-      { titre: 'Audience de jugement', court: 'Audience', jours: 210, note: 'Quatre conseillers, deux heures de plaidoirie pour les deux parties reunies.' },
-      { titre: 'Delibere', court: 'Delibere', jours: 45, note: 'Mis en delibere a une date annoncee a l audience, tenue une fois sur deux.' },
-      { titre: 'Notification du jugement', court: 'Notification', jours: 14, note: 'Par le greffe, en recommande. Le delai d appel court a partir de la reception.' },
-      { titre: 'Fin du delai d appel', court: 'Appel', jours: 30, couperet: 'Un mois a compter de la notification', note: 'Passe ce jour, le jugement est definitif pour celui qui n a pas releve appel.' },
+      {
+        titre: 'Convocation des parties',
+        court: 'Convocation',
+        jours: 21,
+        note: 'Par lettre recommandee, avec la date du bureau de conciliation.',
+      },
+      {
+        titre: 'Bureau de conciliation et d orientation',
+        court: 'Conciliation',
+        jours: 75,
+        note: 'Une audience courte. Elle oriente le dossier et fixe le calendrier des echanges.',
+      },
+      {
+        titre: 'Echange des pieces et conclusions',
+        court: 'Conclusions',
+        jours: 120,
+        note: 'Deux tours, parfois trois. C est la partie ou un dossier se gagne.',
+      },
+      {
+        titre: 'Audience de jugement',
+        court: 'Audience',
+        jours: 210,
+        note: 'Quatre conseillers, deux heures de plaidoirie pour les deux parties reunies.',
+      },
+      {
+        titre: 'Delibere',
+        court: 'Delibere',
+        jours: 45,
+        note: 'Mis en delibere a une date annoncee a l audience, tenue une fois sur deux.',
+      },
+      {
+        titre: 'Notification du jugement',
+        court: 'Notification',
+        jours: 14,
+        note: 'Par le greffe, en recommande. Le delai d appel court a partir de la reception.',
+      },
+      {
+        titre: 'Fin du delai d appel',
+        court: 'Appel',
+        jours: 30,
+        couperet: 'Un mois a compter de la notification',
+        note: 'Passe ce jour, le jugement est definitif pour celui qui n a pas releve appel.',
+      },
     ],
   },
   {
@@ -174,13 +231,49 @@ const PROCEDURES: readonly Procedure[] = [
         couperet: 'Six mois avant l echeance du bail, par acte de commissaire de justice',
         note: 'Un conge signifie hors delai ne vaut rien : le bail se renouvelle de plein droit.',
       },
-      { titre: 'Assignation en fixation', court: 'Assignation', jours: 60, note: 'Devant le juge des loyers commerciaux, avec la demande d expertise.' },
-      { titre: 'Premiere mise en etat', court: 'Mise en etat', jours: 45, note: 'Le calendrier de procedure est arrete ; les parties s y tiennent ou s expliquent.' },
-      { titre: 'Expertise ordonnee', court: 'Expertise', jours: 90, note: 'Un expert est designe, une consignation est mise a la charge du demandeur.' },
-      { titre: 'Depot du rapport', court: 'Rapport', jours: 240, note: 'Visite des lieux, dires des parties, pre-rapport, puis rapport definitif.' },
-      { titre: 'Plaidoiries', court: 'Plaidoiries', jours: 75, note: 'Les conclusions apres rapport sont echangees, puis l affaire est plaidee.' },
-      { titre: 'Jugement', court: 'Jugement', jours: 60, note: 'L indemnite est fixee, souvent entre le chiffre de l expert et celui du bailleur.' },
-      { titre: 'Fin du delai d appel', court: 'Appel', jours: 30, couperet: 'Un mois a compter de la signification', note: 'Le droit d option du bailleur se rejoue ensuite, dans un delai propre.' },
+      {
+        titre: 'Assignation en fixation',
+        court: 'Assignation',
+        jours: 60,
+        note: 'Devant le juge des loyers commerciaux, avec la demande d expertise.',
+      },
+      {
+        titre: 'Premiere mise en etat',
+        court: 'Mise en etat',
+        jours: 45,
+        note: 'Le calendrier de procedure est arrete ; les parties s y tiennent ou s expliquent.',
+      },
+      {
+        titre: 'Expertise ordonnee',
+        court: 'Expertise',
+        jours: 90,
+        note: 'Un expert est designe, une consignation est mise a la charge du demandeur.',
+      },
+      {
+        titre: 'Depot du rapport',
+        court: 'Rapport',
+        jours: 240,
+        note: 'Visite des lieux, dires des parties, pre-rapport, puis rapport definitif.',
+      },
+      {
+        titre: 'Plaidoiries',
+        court: 'Plaidoiries',
+        jours: 75,
+        note: 'Les conclusions apres rapport sont echangees, puis l affaire est plaidee.',
+      },
+      {
+        titre: 'Jugement',
+        court: 'Jugement',
+        jours: 60,
+        note: 'L indemnite est fixee, souvent entre le chiffre de l expert et celui du bailleur.',
+      },
+      {
+        titre: 'Fin du delai d appel',
+        court: 'Appel',
+        jours: 30,
+        couperet: 'Un mois a compter de la signification',
+        note: 'Le droit d option du bailleur se rejoue ensuite, dans un delai propre.',
+      },
     ],
   },
   {
@@ -198,7 +291,12 @@ const PROCEDURES: readonly Procedure[] = [
         couperet: 'Deux mois a compter de la notification de la decision',
         note: 'Facultatif, mais il conserve le delai : c est presque toujours le bon reflexe.',
       },
-      { titre: 'Rejet implicite', court: 'Rejet', jours: 60, note: 'Le silence garde deux mois par l administration vaut decision de rejet.' },
+      {
+        titre: 'Rejet implicite',
+        court: 'Rejet',
+        jours: 60,
+        note: 'Le silence garde deux mois par l administration vaut decision de rejet.',
+      },
       {
         titre: 'Requete introductive',
         court: 'Requete',
@@ -206,11 +304,36 @@ const PROCEDURES: readonly Procedure[] = [
         couperet: 'Deux mois a compter du rejet, expres ou implicite',
         note: 'Deposee par voie electronique, avec la decision attaquee et les moyens.',
       },
-      { titre: 'Communication au defendeur', court: 'Communication', jours: 30, note: 'Le greffe transmet ; l administration a un delai pour repondre, souvent proroge.' },
-      { titre: 'Memoire en defense', court: 'Defense', jours: 90, note: 'Puis replique. Deux echanges suffisent dans la plupart des dossiers.' },
-      { titre: 'Cloture de l instruction', court: 'Cloture', jours: 120, note: 'Trois jours francs avant l audience, ou a la date fixee par ordonnance.' },
-      { titre: 'Audience', court: 'Audience', jours: 45, note: 'Conclusions du rapporteur public, puis une breve intervention des avocats.' },
-      { titre: 'Jugement', court: 'Jugement', jours: 21, note: 'Lu au plus tard quinze jours apres l audience, notifie dans la foulee.' },
+      {
+        titre: 'Communication au defendeur',
+        court: 'Communication',
+        jours: 30,
+        note: 'Le greffe transmet ; l administration a un delai pour repondre, souvent proroge.',
+      },
+      {
+        titre: 'Memoire en defense',
+        court: 'Defense',
+        jours: 90,
+        note: 'Puis replique. Deux echanges suffisent dans la plupart des dossiers.',
+      },
+      {
+        titre: 'Cloture de l instruction',
+        court: 'Cloture',
+        jours: 120,
+        note: 'Trois jours francs avant l audience, ou a la date fixee par ordonnance.',
+      },
+      {
+        titre: 'Audience',
+        court: 'Audience',
+        jours: 45,
+        note: 'Conclusions du rapporteur public, puis une breve intervention des avocats.',
+      },
+      {
+        titre: 'Jugement',
+        court: 'Jugement',
+        jours: 21,
+        note: 'Lu au plus tard quinze jours apres l audience, notifie dans la foulee.',
+      },
     ],
   },
 ]
@@ -223,11 +346,18 @@ function dateDecalee(depart: string, jours: number): string {
   const base = Date.parse(`${depart}T00:00:00Z`)
   if (Number.isNaN(base)) return '—'
   const quand = new Date(base + jours * 86_400_000)
-  return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(quand)
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(quand)
 }
 
 /** Les etapes cumulees : pour chacune, les jours ecoules depuis le depot. */
-function cumuler(etapes: readonly Etape[]): readonly { readonly etape: Etape; readonly cumul: number }[] {
+function cumuler(
+  etapes: readonly Etape[],
+): readonly { readonly etape: Etape; readonly cumul: number }[] {
   let cumul = 0
   return etapes.map((etape) => {
     cumul += etape.jours
@@ -253,23 +383,52 @@ function abscisse(cumul: number, total: number): number {
  * l expertise mange la moitie d une procedure de bail, et que les deux delais
  * couperets d un recours administratif tombent au tout debut.
  */
-function Frise({ procedure, depot }: { readonly procedure: Procedure; readonly depot: string }): ReactElement {
+function Frise({
+  procedure,
+  depot,
+}: {
+  readonly procedure: Procedure
+  readonly depot: string
+}): ReactElement {
   const total = duree(procedure)
   const arrets = cumuler(procedure.etapes)
   const encreAccent = encre()
   const gris: CSSProperties = { color: 'var(--o-theme-muted)' }
 
   return (
-    <svg viewBox="0 0 1000 332" role="img" aria-label={`Frise des delais — ${procedure.libelle}`} className="o-w-full" style={{ minWidth: 860 }}>
+    <svg
+      viewBox="0 0 1000 332"
+      role="img"
+      aria-label={`Frise des delais — ${procedure.libelle}`}
+      className="o-w-full"
+      style={{ minWidth: 860 }}
+    >
       {/* La regle des mois, au-dessus : elle donne l echelle du rail. */}
       {Array.from({ length: Math.floor(total / 30) + 1 }, (_, mois) => {
         const x = abscisse(mois * 30, total)
         const annuel = mois % 6 === 0
         return (
           <g key={mois}>
-            <line x1={x} y1={annuel ? 34 : 40} x2={x} y2="48" stroke="currentColor" strokeWidth="1" opacity={annuel ? 0.7 : 0.3} style={gris} />
+            <line
+              x1={x}
+              y1={annuel ? 34 : 40}
+              x2={x}
+              y2="48"
+              stroke="currentColor"
+              strokeWidth="1"
+              opacity={annuel ? 0.7 : 0.3}
+              style={gris}
+            />
             {annuel && (
-              <text x={x} y="26" textAnchor="middle" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+              <text
+                x={x}
+                y="26"
+                textAnchor="middle"
+                className="o-font-mono"
+                fontSize="10"
+                fill="currentColor"
+                style={gris}
+              >
                 {mois === 0 ? 'depot' : `${String(mois)} mois`}
               </text>
             )}
@@ -278,7 +437,16 @@ function Frise({ procedure, depot }: { readonly procedure: Procedure; readonly d
       })}
 
       {/* Le rail. */}
-      <line x1="64" y1="70" x2="936" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.35" style={gris} />
+      <line
+        x1="64"
+        y1="70"
+        x2="936"
+        y2="70"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.35"
+        style={gris}
+      />
 
       {/*
         Les cartouches sont repartis sur quatre bandes successives. Avec deux
@@ -310,7 +478,15 @@ function Frise({ procedure, depot }: { readonly procedure: Procedure; readonly d
             {couperet ? (
               <rect x={x - 5} y="63" width="10" height="14" rx="1.5" fill={encreAccent} />
             ) : (
-              <circle cx={x} cy="70" r="5" fill="var(--o-theme-bg)" stroke="currentColor" strokeWidth="1.5" opacity="0.8" />
+              <circle
+                cx={x}
+                cy="70"
+                r="5"
+                fill="var(--o-theme-bg)"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                opacity="0.8"
+              />
             )}
             <text x={x} y={yTexte} textAnchor={ancre} fontSize="13" fill="currentColor">
               {etape.court}
@@ -331,10 +507,27 @@ function Frise({ procedure, depot }: { readonly procedure: Procedure; readonly d
       })}
 
       {/* La borne de duree, sous les quatre bandes. */}
-      <text x="500" y="298" textAnchor="middle" className="o-font-mono" fontSize="11" fill="currentColor" style={{ color: encreAccent }}>
+      <text
+        x="500"
+        y="298"
+        textAnchor="middle"
+        className="o-font-mono"
+        fontSize="11"
+        fill="currentColor"
+        style={{ color: encreAccent }}
+      >
         {`${String(total)} jours — soit ${String(Math.round((total / 30.4) * 10) / 10).replace('.', ',')} mois de mediane`}
       </text>
-      <path d="M64 314h872M72 309l-8 5 8 5M928 309l8 5-8 5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" style={gris} />
+      <path
+        d="M64 314h872M72 309l-8 5 8 5M928 309l8 5-8 5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.5"
+        style={gris}
+      />
     </svg>
   )
 }
@@ -352,7 +545,10 @@ function LaProcedure(): ReactElement {
   const champ = useId()
 
   const procedure = PROCEDURES.find((p) => p.id === id) ?? PROCEDURES[0]
-  const arrets = useMemo(() => (procedure === undefined ? [] : cumuler(procedure.etapes)), [procedure])
+  const arrets = useMemo(
+    () => (procedure === undefined ? [] : cumuler(procedure.etapes)),
+    [procedure],
+  )
   if (procedure === undefined) return <></>
   const total = duree(procedure)
   const couperets = procedure.etapes.filter((e) => e.couperet !== undefined)
@@ -374,13 +570,21 @@ function LaProcedure(): ReactElement {
             texte. Ici l encre est celle du theme, et la pastille un accent
             adouci : le rapport tient sur la page comme sur la pastille.
           */}
-          <div className="o-min-w-0 o-overflow-x-auto o-pb-1" style={{ overflowY: 'hidden' }}>
+          <div
+            className="o-min-w-0 o-overflow-x-auto o-pb-1"
+            style={{ overflowY: 'hidden' }}
+          >
             <PillTabs
               items={PROCEDURES.map((p) => ({ id: p.id, label: p.libelle }))}
               value={id}
               onValueChange={setId}
               label="Choisir une procedure"
-              style={{ '--o-pill-fill': accentDoux(400, 52), '--o-pill-ink': 'var(--o-theme-fg)' } as CSSProperties}
+              style={
+                {
+                  '--o-pill-fill': accentDoux(400, 52),
+                  '--o-pill-ink': 'var(--o-theme-fg)',
+                } as CSSProperties
+              }
             />
           </div>
         </div>
@@ -402,7 +606,10 @@ function LaProcedure(): ReactElement {
       </div>
 
       <p className="o-mt-8 o-max-w-2xl o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-        {procedure.quoi} <span className="o-text-stone-950 dark:o-text-stone-50">{procedure.juridiction}.</span>
+        {procedure.quoi}{' '}
+        <span className="o-text-stone-950 dark:o-text-stone-50">
+          {procedure.juridiction}.
+        </span>
       </p>
 
       {/*
@@ -411,7 +618,10 @@ function LaProcedure(): ReactElement {
         axes a `auto`, la bande avale la molette et la page se fige sous le
         pointeur.
       */}
-      <div className="o-mt-10 o-min-w-0 o-overflow-x-auto o-pb-2" style={{ overflowY: 'hidden' }}>
+      <div
+        className="o-mt-10 o-min-w-0 o-overflow-x-auto o-pb-2"
+        style={{ overflowY: 'hidden' }}
+      >
         <Frise procedure={procedure} depot={depot} />
       </div>
 
@@ -423,14 +633,24 @@ function LaProcedure(): ReactElement {
           </p>
           <ul className="o-m-0 o-mt-5 o-flex o-list-none o-flex-col o-gap-6 o-p-0">
             {couperets.map((e) => (
-              <li key={e.titre} className="o-pl-4" style={{ borderLeft: `2px solid ${encre()}` }}>
-                <p className="o-m-0 o-text-base o-font-medium o-text-stone-950 dark:o-text-stone-50">{e.titre}</p>
-                <p className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{e.couperet}</p>
+              <li
+                key={e.titre}
+                className="o-pl-4"
+                style={{ borderLeft: `2px solid ${encre()}` }}
+              >
+                <p className="o-m-0 o-text-base o-font-medium o-text-stone-950 dark:o-text-stone-50">
+                  {e.titre}
+                </p>
+                <p className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                  {e.couperet}
+                </p>
               </li>
             ))}
           </ul>
           <p className="o-mt-8 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-            <span className="o-text-stone-950 dark:o-text-stone-50">Ce que la frise ne sait pas. </span>
+            <span className="o-text-stone-950 dark:o-text-stone-50">
+              Ce que la frise ne sait pas.{' '}
+            </span>
             {procedure.reserve}
           </p>
         </div>
@@ -438,13 +658,24 @@ function LaProcedure(): ReactElement {
         {/* Le detail, a droite : une ligne par etape, la date dans la marge. */}
         <ol className="o-m-0 o-min-w-0 o-list-none o-p-0 lg:o-col-span-8">
           {arrets.map(({ etape, cumul }, rang) => (
-            <li key={etape.titre} className="o-grid o-gap-x-6 o-gap-y-1 o-py-5 sm:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
-              <p className="o-m-0 o-font-mono o-text-xs o-tabular-nums sm:o-col-span-1" style={{ color: encre() }}>
+            <li
+              key={etape.titre}
+              className="o-grid o-gap-x-6 o-gap-y-1 o-py-5 sm:o-grid-cols-12"
+              style={{ borderTop: `1px solid ${FILET}` }}
+            >
+              <p
+                className="o-m-0 o-font-mono o-text-xs o-tabular-nums sm:o-col-span-1"
+                style={{ color: encre() }}
+              >
                 {String(rang + 1).padStart(2, '0')}
               </p>
               <div className="o-min-w-0 sm:o-col-span-7">
-                <p className="o-m-0 o-text-base o-font-medium o-text-stone-950 dark:o-text-stone-50">{etape.titre}</p>
-                <p className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{etape.note}</p>
+                <p className="o-m-0 o-text-base o-font-medium o-text-stone-950 dark:o-text-stone-50">
+                  {etape.titre}
+                </p>
+                <p className="o-m-0 o-mt-1 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                  {etape.note}
+                </p>
               </div>
               <p className={`o-m-0 sm:o-col-span-4 sm:o-text-right ${NOTE}`}>
                 {dateDecalee(depot, cumul)}
@@ -453,9 +684,15 @@ function LaProcedure(): ReactElement {
               </p>
             </li>
           ))}
-          <li className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-py-6" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+          <li
+            className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-py-6"
+            style={{ borderTop: `1px solid ${FILET_FORT}` }}
+          >
             <span className={NOTE}>Du depot a la decision definitive</span>
-            <span className="o-tabular-nums o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}>
+            <span
+              className="o-tabular-nums o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+            >
               {String(total)} jours
             </span>
           </li>
@@ -468,7 +705,11 @@ function LaProcedure(): ReactElement {
 /* ========================= C15 : l echelle verticale ==================== */
 
 /** Les durees portees par l echelle, en mois, avec ce qu elles mesurent. */
-const ECHELLE: readonly { readonly mois: number; readonly quoi: string; readonly detail: string }[] = PROCEDURES.map((p) => ({
+const ECHELLE: readonly {
+  readonly mois: number
+  readonly quoi: string
+  readonly detail: string
+}[] = PROCEDURES.map((p) => ({
   mois: Math.round((duree(p) / 30.4) * 10) / 10,
   quoi: p.libelle,
   detail: p.juridiction,
@@ -494,26 +735,84 @@ function EchelleDurees(): ReactElement {
   const gris: CSSProperties = { color: 'var(--o-palette-stone-400)' }
   const encreNuit = encreSurSombre()
   return (
-    <svg viewBox="0 0 620 390" role="img" aria-label="Echelle des durees, en mois" className="o-w-full" style={{ minWidth: 520 }}>
+    <svg
+      viewBox="0 0 620 390"
+      role="img"
+      aria-label="Echelle des durees, en mois"
+      className="o-w-full"
+      style={{ minWidth: 520 }}
+    >
       {/* L axe et ses graduations, tous les trois mois. */}
-      <line x1="70" y1="24" x2="70" y2="356" stroke="currentColor" strokeWidth="1.2" opacity="0.6" style={gris} />
+      <line
+        x1="70"
+        y1="24"
+        x2="70"
+        y2="356"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        opacity="0.6"
+        style={gris}
+      />
       {[0, 3, 6, 9, 12, 15, 18, 21, 24].map((mois) => (
         <g key={mois}>
-          <line x1={mois % 6 === 0 ? 60 : 65} y1={ordonnee(mois)} x2="70" y2={ordonnee(mois)} stroke="currentColor" strokeWidth="1" opacity={mois % 6 === 0 ? 0.8 : 0.4} style={gris} />
+          <line
+            x1={mois % 6 === 0 ? 60 : 65}
+            y1={ordonnee(mois)}
+            x2="70"
+            y2={ordonnee(mois)}
+            stroke="currentColor"
+            strokeWidth="1"
+            opacity={mois % 6 === 0 ? 0.8 : 0.4}
+            style={gris}
+          />
           {mois % 6 === 0 && (
-            <text x="52" y={ordonnee(mois) + 4} textAnchor="end" className="o-font-mono" fontSize="11" fill="currentColor" style={gris}>
+            <text
+              x="52"
+              y={ordonnee(mois) + 4}
+              textAnchor="end"
+              className="o-font-mono"
+              fontSize="11"
+              fill="currentColor"
+              style={gris}
+            >
               {mois}
             </text>
           )}
         </g>
       ))}
-      <text x="52" y="16" textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x="52"
+        y="16"
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         mois
       </text>
 
       {/* La mediane du barreau : le repere contre lequel tout se lit. */}
-      <line x1="70" y1={ordonnee(13)} x2="600" y2={ordonnee(13)} stroke="currentColor" strokeWidth="1" strokeDasharray="4 6" opacity="0.55" style={gris} />
-      <text x="600" y={ordonnee(13) - 8} textAnchor="end" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <line
+        x1="70"
+        y1={ordonnee(13)}
+        x2="600"
+        y2={ordonnee(13)}
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="4 6"
+        opacity="0.55"
+        style={gris}
+      />
+      <text
+        x="600"
+        y={ordonnee(13) - 8}
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         mediane du barreau — 13 mois
       </text>
 
@@ -523,21 +822,59 @@ function EchelleDurees(): ReactElement {
         const y = ordonnee(ligne.mois)
         return (
           <g key={ligne.quoi}>
-            <line x1={x} y1={ordonnee(0)} x2={x} y2={y} stroke={encreNuit} strokeWidth="2" opacity="0.5" />
+            <line
+              x1={x}
+              y1={ordonnee(0)}
+              x2={x}
+              y2={y}
+              stroke={encreNuit}
+              strokeWidth="2"
+              opacity="0.5"
+            />
             <circle cx={x} cy={y} r="5.5" fill={encreNuit} />
-            <text x={x} y={y - 30} textAnchor="middle" fontSize="30" fill="currentColor" style={{ color: encreNuit, fontWeight: 300, letterSpacing: '-0.03em' }}>
+            <text
+              x={x}
+              y={y - 30}
+              textAnchor="middle"
+              fontSize="30"
+              fill="currentColor"
+              style={{ color: encreNuit, fontWeight: 300, letterSpacing: '-0.03em' }}
+            >
               {String(ligne.mois).replace('.', ',')}
             </text>
-            <text x={x} y={y - 14} textAnchor="middle" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+            <text
+              x={x}
+              y={y - 14}
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="10"
+              fill="currentColor"
+              style={gris}
+            >
               mois
             </text>
-            <text x={x} y={ordonnee(0) + 22} textAnchor="middle" fontSize="13" fill="currentColor">
+            <text
+              x={x}
+              y={ordonnee(0) + 22}
+              textAnchor="middle"
+              fontSize="13"
+              fill="currentColor"
+            >
               {ligne.quoi}
             </text>
           </g>
         )
       })}
-      <line x1="70" y1={ordonnee(0)} x2="600" y2={ordonnee(0)} stroke="currentColor" strokeWidth="1" opacity="0.5" style={gris} />
+      <line
+        x1="70"
+        y1={ordonnee(0)}
+        x2="600"
+        y2={ordonnee(0)}
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.5"
+        style={gris}
+      />
     </svg>
   )
 }
@@ -570,9 +907,25 @@ const POLES: readonly Pole[] = [
     texte:
       'Cote salarie comme cote employeur, jamais les deux dans la meme entreprise. Licenciements, ruptures conventionnelles contestees, harcelement, plans de sauvegarde.',
     dossiers: [
-      { annee: '2026', titre: 'Licenciement pour insuffisance professionnelle apres quinze ans d anciennete', devant: 'Prud hommes, section encadrement', issue: 'Requalification sans cause reelle, vingt mois de salaire.' },
-      { annee: '2025', titre: 'Contestation d un plan de sauvegarde de l emploi par le comite social', devant: 'Tribunal administratif', issue: 'Homologation annulee ; le plan a ete renegocie sur six mois.' },
-      { annee: '2025', titre: 'Harcelement moral etabli par un faisceau de courriels', devant: 'Prud hommes puis cour d appel', issue: 'Nullite du licenciement et reintegration demandee, obtenue en appel.' },
+      {
+        annee: '2026',
+        titre:
+          'Licenciement pour insuffisance professionnelle apres quinze ans d anciennete',
+        devant: 'Prud hommes, section encadrement',
+        issue: 'Requalification sans cause reelle, vingt mois de salaire.',
+      },
+      {
+        annee: '2025',
+        titre: 'Contestation d un plan de sauvegarde de l emploi par le comite social',
+        devant: 'Tribunal administratif',
+        issue: 'Homologation annulee ; le plan a ete renegocie sur six mois.',
+      },
+      {
+        annee: '2025',
+        titre: 'Harcelement moral etabli par un faisceau de courriels',
+        devant: 'Prud hommes puis cour d appel',
+        issue: 'Nullite du licenciement et reintegration demandee, obtenue en appel.',
+      },
     ],
   },
   {
@@ -582,9 +935,25 @@ const POLES: readonly Pole[] = [
     texte:
       'Baux commerciaux, cession de fonds, pactes d associes, ruptures brutales de relations etablies. Nous plaidons ce que nous avons redige, ou nous le disons.',
     dossiers: [
-      { annee: '2026', titre: 'Refus de renouvellement d un bail de restaurant, quartier central', devant: 'Juge des loyers commerciaux', issue: 'Indemnite d eviction fixee a 1,4 fois le chiffre du dernier exercice.' },
-      { annee: '2025', titre: 'Rupture brutale d une relation commerciale de onze ans', devant: 'Tribunal de commerce', issue: 'Preavis de dix-huit mois juge necessaire ; dommages alloues sur cette base.' },
-      { annee: '2024', titre: 'Execution forcee d un pacte d associes sur une clause de sortie', devant: 'Tribunal de commerce, refere', issue: 'Cession ordonnee sous astreinte, au prix de la formule du pacte.' },
+      {
+        annee: '2026',
+        titre: 'Refus de renouvellement d un bail de restaurant, quartier central',
+        devant: 'Juge des loyers commerciaux',
+        issue: 'Indemnite d eviction fixee a 1,4 fois le chiffre du dernier exercice.',
+      },
+      {
+        annee: '2025',
+        titre: 'Rupture brutale d une relation commerciale de onze ans',
+        devant: 'Tribunal de commerce',
+        issue:
+          'Preavis de dix-huit mois juge necessaire ; dommages alloues sur cette base.',
+      },
+      {
+        annee: '2024',
+        titre: 'Execution forcee d un pacte d associes sur une clause de sortie',
+        devant: 'Tribunal de commerce, refere',
+        issue: 'Cession ordonnee sous astreinte, au prix de la formule du pacte.',
+      },
     ],
   },
   {
@@ -594,9 +963,25 @@ const POLES: readonly Pole[] = [
     texte:
       'Marches publics, urbanisme, fonction publique. Le delai de recours est de deux mois et il ne se negocie pas : c est le seul domaine ou nous refusons un dossier sur la date.',
     dossiers: [
-      { annee: '2026', titre: 'Refere precontractuel sur un marche de travaux de voirie', devant: 'Tribunal administratif', issue: 'Procedure annulee au stade de l analyse des offres, remise en concurrence.' },
-      { annee: '2025', titre: 'Recours contre un permis de construire en zone protegee', devant: 'Tribunal administratif', issue: 'Permis annule pour insuffisance de l etude d impact.' },
-      { annee: '2024', titre: 'Contestation d une sanction disciplinaire dans la fonction publique', devant: 'Tribunal administratif', issue: 'Sanction ramenee du quatrieme au deuxieme groupe.' },
+      {
+        annee: '2026',
+        titre: 'Refere precontractuel sur un marche de travaux de voirie',
+        devant: 'Tribunal administratif',
+        issue:
+          'Procedure annulee au stade de l analyse des offres, remise en concurrence.',
+      },
+      {
+        annee: '2025',
+        titre: 'Recours contre un permis de construire en zone protegee',
+        devant: 'Tribunal administratif',
+        issue: 'Permis annule pour insuffisance de l etude d impact.',
+      },
+      {
+        annee: '2024',
+        titre: 'Contestation d une sanction disciplinaire dans la fonction publique',
+        devant: 'Tribunal administratif',
+        issue: 'Sanction ramenee du quatrieme au deuxieme groupe.',
+      },
     ],
   },
 ]
@@ -604,17 +989,42 @@ const POLES: readonly Pole[] = [
 /* ========================= Le tableau de l ordre ======================= */
 
 /** Les avocats du cabinet, dans l ordre d inscription au tableau. */
-const TABLEAU: readonly { readonly id: string; readonly label: string; readonly hint: string }[] = [
-  { id: 'lecointre', label: 'Claire Lecointre', hint: 'Inscrite en 1998 — travail, specialisation certifiee' },
-  { id: 'toussaint', label: 'Ivan Toussaint', hint: 'Inscrit en 2004 — affaires, ancien juge consulaire' },
-  { id: 'berthaut', label: 'Nadia Berthaut', hint: 'Inscrite en 2011 — public, urbanisme et marches' },
-  { id: 'ferrand', label: 'Come Ferrand', hint: 'Inscrit en 2019 — collaborateur, travail et affaires' },
+const TABLEAU: readonly {
+  readonly id: string
+  readonly label: string
+  readonly hint: string
+}[] = [
+  {
+    id: 'lecointre',
+    label: 'Claire Lecointre',
+    hint: 'Inscrite en 1998 — travail, specialisation certifiee',
+  },
+  {
+    id: 'toussaint',
+    label: 'Ivan Toussaint',
+    hint: 'Inscrit en 2004 — affaires, ancien juge consulaire',
+  },
+  {
+    id: 'berthaut',
+    label: 'Nadia Berthaut',
+    hint: 'Inscrite en 2011 — public, urbanisme et marches',
+  },
+  {
+    id: 'ferrand',
+    label: 'Come Ferrand',
+    hint: 'Inscrit en 2019 — collaborateur, travail et affaires',
+  },
 ]
 
 /* ========================= A22 : la question unique ==================== */
 
 /** Les trois reponses, et les trois adresses ou elles menent. */
-const REPONSES: readonly { readonly numero: string; readonly reponse: string; readonly quoi: string; readonly adresse: string }[] = [
+const REPONSES: readonly {
+  readonly numero: string
+  readonly reponse: string
+  readonly quoi: string
+  readonly adresse: string
+}[] = [
   {
     numero: 'I',
     reponse: 'Rien n est encore parti',
@@ -638,32 +1048,33 @@ const REPONSES: readonly { readonly numero: string; readonly reponse: string; re
 /* ========================= L ours du pied (P18) ======================== */
 
 /** Les trois colonnes de l ours, de chasse fixe. */
-const OURS: readonly { readonly titre: string; readonly lignes: readonly ReactNode[] }[] = [
-  {
-    titre: 'Le cabinet',
-    lignes: [
-      'Barreau — association d avocats a responsabilite professionnelle individuelle (AARPI), inscrite au barreau de Paris.',
-      '14 rue de la Grange-Bateliere, 75009 Paris. Telephone 01 44 83 27 60. Bureau secondaire a Bordeaux, 9 cours du Chapeau-Rouge.',
-      'SIREN 812 447 093 — TVA intracommunautaire FR 61 812 447 093 — APE 6910Z.',
-    ],
-  },
-  {
-    titre: 'L ordre et la deontologie',
-    lignes: [
-      'Ordre des avocats de Paris, 11 place Dauphine. Reglement interieur national et reglement interieur du barreau de Paris applicables a tous nos actes.',
-      'Assurance de responsabilite civile professionnelle et garantie de representation des fonds souscrites par l ordre, pour tous les avocats du cabinet.',
-      'Maniement de fonds par la CARPA exclusivement. Aucun paiement direct sur un compte du cabinet, en aucune circonstance.',
-    ],
-  },
-  {
-    titre: 'Le lecteur',
-    lignes: [
-      'Honoraires fixes par convention ecrite avant toute diligence : taux horaire, forfait, ou honoraire de resultat complementaire. Le devis est gratuit et engage le cabinet.',
-      'Reclamation : le mediateur de la consommation de la profession d avocat, 180 boulevard Haussmann, 75008 Paris, peut etre saisi apres une reclamation ecrite restee sans reponse.',
-      'Donnees conservees cinq ans apres la cloture du dossier, ni cedees ni prospectees. Site partiellement conforme au referentiel general d amelioration de l accessibilite.',
-    ],
-  },
-]
+const OURS: readonly { readonly titre: string; readonly lignes: readonly ReactNode[] }[] =
+  [
+    {
+      titre: 'Le cabinet',
+      lignes: [
+        'Barreau — association d avocats a responsabilite professionnelle individuelle (AARPI), inscrite au barreau de Paris.',
+        '14 rue de la Grange-Bateliere, 75009 Paris. Telephone 01 44 83 27 60. Bureau secondaire a Bordeaux, 9 cours du Chapeau-Rouge.',
+        'SIREN 812 447 093 — TVA intracommunautaire FR 61 812 447 093 — APE 6910Z.',
+      ],
+    },
+    {
+      titre: 'L ordre et la deontologie',
+      lignes: [
+        'Ordre des avocats de Paris, 11 place Dauphine. Reglement interieur national et reglement interieur du barreau de Paris applicables a tous nos actes.',
+        'Assurance de responsabilite civile professionnelle et garantie de representation des fonds souscrites par l ordre, pour tous les avocats du cabinet.',
+        'Maniement de fonds par la CARPA exclusivement. Aucun paiement direct sur un compte du cabinet, en aucune circonstance.',
+      ],
+    },
+    {
+      titre: 'Le lecteur',
+      lignes: [
+        'Honoraires fixes par convention ecrite avant toute diligence : taux horaire, forfait, ou honoraire de resultat complementaire. Le devis est gratuit et engage le cabinet.',
+        'Reclamation : le mediateur de la consommation de la profession d avocat, 180 boulevard Haussmann, 75008 Paris, peut etre saisi apres une reclamation ecrite restee sans reponse.',
+        'Donnees conservees cinq ans apres la cloture du dossier, ni cedees ni prospectees. Site partiellement conforme au referentiel general d amelioration de l accessibilite.',
+      ],
+    },
+  ]
 
 /* ========================= La vitrine ================================== */
 
@@ -673,7 +1084,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="trou" marque="Barreau" sombre={false}>
-      <div className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-200" style={polices}>
+      <div
+        className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-200"
+        style={polices}
+      >
         {/*
           ----- Le bloc-titre, de gouttiere a gouttiere — Forma --------------
 
@@ -684,33 +1098,48 @@ export default function Page(): ReactElement {
           <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0" style={PAPIER} />
 
           <div className="o-relative o-z-10 o-flex o-min-h-screen o-flex-col">
-            <BarreCoins marque="Barreau" liens={NAVIGATION} droite="Paris — Bordeaux" sombre={false} />
+            <BarreCoins
+              marque="Barreau"
+              liens={NAVIGATION}
+              droite="Paris — Bordeaux"
+              sombre={false}
+            />
 
             <div className="o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-8 o-pt-6 md:o-px-8">
               <div className="o-grid o-gap-8 md:o-grid-cols-12">
                 <div className="o-min-w-0 md:o-col-span-8">
                   <Surgit>
-                    <Etiquette sombre={false}>Barreau de Paris — quatre avocats, trois poles</Etiquette>
+                    <Etiquette sombre={false}>
+                      Barreau de Paris — quatre avocats, trois poles
+                    </Etiquette>
                   </Surgit>
                   <TitreVague
                     delai={120}
                     className="o-m-0 o-mt-6 o-max-w-4xl o-text-stone-950 dark:o-text-stone-50"
-                    style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 5.6vw, 5.75rem)' }}
+                    style={{
+                      ...affiche('l', 300),
+                      fontSize: 'clamp(2.5rem, 5.6vw, 5.75rem)',
+                    }}
                   >
                     Combien de temps ? Nous repondons avant de repondre au reste.
                   </TitreVague>
                 </div>
-                <Surgit delai={420} className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4">
+                <Surgit
+                  delai={420}
+                  className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4"
+                >
                   <p className="o-m-0 o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                    Trois procedures, leurs delais reels, et la difference entre ce qui se rattrape et ce qui se perd. Le reste — les
-                    dossiers, le tableau, l adresse — vient <Accent>apres</Accent>.
+                    Trois procedures, leurs delais reels, et la difference entre ce qui se
+                    rattrape et ce qui se perd. Le reste — les dossiers, le tableau, l
+                    adresse — vient <Accent>apres</Accent>.
                   </p>
                   <Actions
                     sombre={false}
                     pleine={[
                       '#procedure',
                       <>
-                        Voir la frise <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                        Voir la frise{' '}
+                        <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                       </>,
                     ]}
                     fantome={['#ouvrir', 'Ouvrir un dossier']}
@@ -720,29 +1149,51 @@ export default function Page(): ReactElement {
 
               {/* La rangee de bas de cadre — Forma : trois blocs inegaux. */}
               <div className="o-grid o-gap-4 md:o-grid-cols-12">
-                <Surgit delai={540} className="o-flex o-min-w-0 o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-stone-800 dark:o-bg-stone-900 md:o-col-span-3">
+                <Surgit
+                  delai={540}
+                  className="o-flex o-min-w-0 o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-stone-800 dark:o-bg-stone-900 md:o-col-span-3"
+                >
                   <p className={`o-m-0 ${NOTE}`}>Les poles</p>
                   <ol className="o-m-0 o-mt-6 o-list-none o-p-0">
                     {POLES.map((p) => (
-                      <li key={p.cle} className="o-flex o-items-baseline o-gap-3 o-py-1.5 o-text-sm">
-                        <span className="o-w-5 o-shrink-0 o-font-mono o-text-xs" style={{ color: encre() }}>
+                      <li
+                        key={p.cle}
+                        className="o-flex o-items-baseline o-gap-3 o-py-1.5 o-text-sm"
+                      >
+                        <span
+                          className="o-w-5 o-shrink-0 o-font-mono o-text-xs"
+                          style={{ color: encre() }}
+                        >
                           {p.numero}
                         </span>
-                        <a href={`#${p.cle}`} className="o-text-stone-950 dark:o-text-stone-50 focus:o-ring">
+                        <a
+                          href={`#${p.cle}`}
+                          className="o-text-stone-950 dark:o-text-stone-50 focus:o-ring"
+                        >
                           {p.titre}
                         </a>
                       </li>
                     ))}
                   </ol>
                 </Surgit>
-                <Surgit delai={620} className="o-flex o-min-w-0 o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-stone-800 dark:o-bg-stone-900 md:o-col-span-4">
+                <Surgit
+                  delai={620}
+                  className="o-flex o-min-w-0 o-flex-col o-justify-between o-rounded-2xl o-border-w-1 o-border-black-10 o-bg-white o-p-6 dark:o-border-stone-800 dark:o-bg-stone-900 md:o-col-span-4"
+                >
                   <p className={`o-m-0 ${NOTE}`}>Ce que nous refusons</p>
-                  <p className="o-m-0 o-mt-6 o-text-lg o-leading-snug o-text-stone-950 dark:o-text-stone-50" style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300 }}>
-                    Un dossier dont le delai est deja passe, et un dossier ou nous avons deja conseille l autre partie. Les deux se verifient
-                    avant le premier rendez-vous.
+                  <p
+                    className="o-m-0 o-mt-6 o-text-lg o-leading-snug o-text-stone-950 dark:o-text-stone-50"
+                    style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 300 }}
+                  >
+                    Un dossier dont le delai est deja passe, et un dossier ou nous avons
+                    deja conseille l autre partie. Les deux se verifient avant le premier
+                    rendez-vous.
                   </p>
                 </Surgit>
-                <Surgit delai={700} className="o-relative o-min-h-56 o-min-w-0 o-overflow-hidden o-rounded-2xl md:o-col-span-5">
+                <Surgit
+                  delai={700}
+                  className="o-relative o-min-h-56 o-min-w-0 o-overflow-hidden o-rounded-2xl md:o-col-span-5"
+                >
                   <Frame
                     src={photo('cadre-archive-escalier', 1000, 1500)}
                     alt="Escalier d honneur d un immeuble ancien, tapis rouge et ferronnerie"
@@ -750,7 +1201,9 @@ export default function Page(): ReactElement {
                     fit="cover"
                     className="o-size-full o-object-cover"
                   />
-                  <p className={`o-absolute o-bottom-4 o-left-4 o-m-0 o-rounded-full o-bg-stone-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-100`}>
+                  <p
+                    className={`o-absolute o-bottom-4 o-left-4 o-m-0 o-rounded-full o-bg-stone-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-100`}
+                  >
                     Rue de la Grange-Bateliere — deuxieme etage
                   </p>
                 </Surgit>
@@ -763,7 +1216,11 @@ export default function Page(): ReactElement {
           {/*
             ----- Un ecran de texte seul, qui se nettoie mot a mot -------------
           */}
-          <section aria-labelledby="dire-titre" className="o-px-6 o-py-28 md:o-px-8 md:o-py-40" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            aria-labelledby="dire-titre"
+            className="o-px-6 o-py-28 md:o-px-8 md:o-py-40"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-12">
               <p className={`o-m-0 md:o-col-span-3 ${NOTE}`}>
                 Avant les delais
@@ -787,10 +1244,15 @@ export default function Page(): ReactElement {
                   step={150}
                   pause={2800}
                   className="o-m-0 o-max-w-5xl o-text-balance o-text-stone-950 dark:o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)', lineHeight: 1.1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.6vw, 3.75rem)',
+                    lineHeight: 1.1,
+                  }}
                 >
-                  Un avocat qui vous annonce une issue au premier rendez-vous vous vend une chose qu il ne possede pas. Nous commencons par
-                  les dates, parce que ce sont les seules certitudes du dossier.
+                  Un avocat qui vous annonce une issue au premier rendez-vous vous vend
+                  une chose qu il ne possede pas. Nous commencons par les dates, parce que
+                  ce sont les seules certitudes du dossier.
                 </BlurWords>
               </div>
             </div>
@@ -810,7 +1272,14 @@ export default function Page(): ReactElement {
                 <Indice rang="01" sombre={false}>
                   La frise des delais
                 </Indice>
-                <h2 id="procedure-titre" className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+                <h2
+                  id="procedure-titre"
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
                   Du depot a l arret, jour par jour.
                 </h2>
               </div>
@@ -829,13 +1298,23 @@ export default function Page(): ReactElement {
           {/*
             ----- Les poles, en chapitres a etiquette collante -----------------
           */}
-          <section id="poles" className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="poles"
+            className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="02" sombre={false}>
                   Les trois poles
                 </Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
                   Trois matieres, et rien au-dela.
                 </h2>
               </div>
@@ -849,28 +1328,60 @@ export default function Page(): ReactElement {
 
           {POLES.map((pole, rang) => (
             <Fragment key={pole.cle}>
-              <div id={pole.cle} className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+              <div
+                id={pole.cle}
+                className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+              >
                 <Chapitre
                   indice={`${pole.numero} — ${String(rang + 1).padStart(2, '0')} / 03`}
                   largeur={4}
                   titre={
-                    <h3 className="o-m-0 o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3rem)' }}>
+                    <h3
+                      className="o-m-0 o-text-stone-950 dark:o-text-stone-50"
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.75rem, 3.2vw, 3rem)',
+                      }}
+                    >
                       {pole.titre}
                     </h3>
                   }
-                  texte={<span className="o-block o-text-stone-600 dark:o-text-stone-400">{pole.texte}</span>}
+                  texte={
+                    <span className="o-block o-text-stone-600 dark:o-text-stone-400">
+                      {pole.texte}
+                    </span>
+                  }
                 >
-                  <ol className="o-m-0 o-list-none o-p-0" style={{ borderBottom: `1px solid ${FILET}` }}>
+                  <ol
+                    className="o-m-0 o-list-none o-p-0"
+                    style={{ borderBottom: `1px solid ${FILET}` }}
+                  >
                     {pole.dossiers.map((d) => (
-                      <li key={d.titre} className="o-grid o-gap-x-8 o-gap-y-3 o-py-8 md:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
-                        <p className="o-m-0 o-tabular-nums o-text-stone-950 dark:o-text-stone-50 md:o-col-span-2" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.4vw, 2.25rem)' }}>
+                      <li
+                        key={d.titre}
+                        className="o-grid o-gap-x-8 o-gap-y-3 o-py-8 md:o-grid-cols-12"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        <p
+                          className="o-m-0 o-tabular-nums o-text-stone-950 dark:o-text-stone-50 md:o-col-span-2"
+                          style={{
+                            ...affiche('m', 300),
+                            fontSize: 'clamp(1.5rem, 2.4vw, 2.25rem)',
+                          }}
+                        >
                           {d.annee}
                         </p>
                         <div className="o-min-w-0 md:o-col-span-7">
-                          <h4 className="o-m-0 o-text-xl o-font-medium o-leading-snug o-tracking-tight o-text-stone-950 dark:o-text-stone-50">{d.titre}</h4>
-                          <p className="o-mt-3 o-max-w-lg o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{d.issue}</p>
+                          <h4 className="o-m-0 o-text-xl o-font-medium o-leading-snug o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
+                            {d.titre}
+                          </h4>
+                          <p className="o-mt-3 o-max-w-lg o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                            {d.issue}
+                          </p>
                         </div>
-                        <p className={`o-m-0 md:o-col-span-3 md:o-text-right ${NOTE}`}>{d.devant}</p>
+                        <p className={`o-m-0 md:o-col-span-3 md:o-text-right ${NOTE}`}>
+                          {d.devant}
+                        </p>
                       </li>
                     ))}
                   </ol>
@@ -885,35 +1396,60 @@ export default function Page(): ReactElement {
                 seule mesure de la page, sur une echelle commune.
               */}
               {rang === 1 && (
-                <section aria-labelledby="echelle-titre" className="o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={nuit('stone')}>
+                <section
+                  aria-labelledby="echelle-titre"
+                  className="o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+                  style={nuit('stone')}
+                >
                   <div className="o-grid o-gap-12 lg:o-grid-cols-12">
                     <div className="lg:o-col-span-4">
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: encreSurSombre() }}
+                      >
                         Mesure unique
                       </p>
-                      <h2 id="echelle-titre" className="o-m-0 o-mt-5 o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                      <h2
+                        id="echelle-titre"
+                        className="o-m-0 o-mt-5 o-text-stone-50"
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                        }}
+                      >
                         Ce que durent nos trois procedures.
                       </h2>
                       <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-stone-300">
-                        Les durees medianes de nos cent soixante dossiers clos depuis 2021, posees sur la meme echelle que la mediane du
-                        barreau. Nous ne publions pas de taux de reussite : il n a aucune definition partagee, et tout le monde le sait.
+                        Les durees medianes de nos cent soixante dossiers clos depuis
+                        2021, posees sur la meme echelle que la mediane du barreau. Nous
+                        ne publions pas de taux de reussite : il n a aucune definition
+                        partagee, et tout le monde le sait.
                       </p>
                       <ul className="o-m-0 o-mt-8 o-flex o-list-none o-flex-col o-gap-3 o-p-0">
                         {ECHELLE.map((ligne) => (
-                          <li key={ligne.quoi} className={`o-flex o-gap-3 ${NOTE_SUR_NUIT}`}>
-                            <span style={{ color: encreSurSombre() }}>{String(ligne.mois).replace('.', ',')}</span>
+                          <li
+                            key={ligne.quoi}
+                            className={`o-flex o-gap-3 ${NOTE_SUR_NUIT}`}
+                          >
+                            <span style={{ color: encreSurSombre() }}>
+                              {String(ligne.mois).replace('.', ',')}
+                            </span>
                             <span>{ligne.detail}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                     <figure className="o-m-0 o-min-w-0 lg:o-col-span-8">
-                      <div className="o-min-w-0 o-overflow-x-auto o-pb-2" style={{ overflowY: 'hidden' }}>
+                      <div
+                        className="o-min-w-0 o-overflow-x-auto o-pb-2"
+                        style={{ overflowY: 'hidden' }}
+                      >
                         <EchelleDurees />
                       </div>
                       <figcaption className="o-mt-6 o-border-t o-border-white-10 o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-stone-400">
-                        Echelle en mois, de zero a vingt-quatre. Chaque tige part du depot ; le disque marque la duree mediane observee. Le
-                        pointille est la mediane du barreau de Paris, toutes matieres confondues.
+                        Echelle en mois, de zero a vingt-quatre. Chaque tige part du depot
+                        ; le disque marque la duree mediane observee. Le pointille est la
+                        mediane du barreau de Paris, toutes matieres confondues.
                       </figcaption>
                     </figure>
                   </div>
@@ -925,22 +1461,40 @@ export default function Page(): ReactElement {
           {/*
             ----- Le tableau de l ordre ----------------------------------------
           */}
-          <section id="ordre" aria-labelledby="ordre-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="ordre"
+            aria-labelledby="ordre-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-12 md:o-grid-cols-12">
               <div className="md:o-col-span-5">
                 <Indice rang="03" sombre={false}>
                   Le tableau
                 </Indice>
-                <h2 id="ordre-titre" className="o-m-0 o-mt-5 o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                <h2
+                  id="ordre-titre"
+                  className="o-m-0 o-mt-5 o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
+                >
                   Quatre inscriptions, dans leur ordre.
                 </h2>
                 <p className="o-mt-5 o-max-w-md o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                  L annee d inscription au tableau dit plus qu une biographie : elle dit combien de fois quelqu un a vu la meme audience. Un
-                  associe est present a chaque rendez-vous, et il plaide le dossier qu il a suivi.
+                  L annee d inscription au tableau dit plus qu une biographie : elle dit
+                  combien de fois quelqu un a vu la meme audience. Un associe est present
+                  a chaque rendez-vous, et il plaide le dossier qu il a suivi.
                 </p>
               </div>
               <div className="o-min-w-0 md:o-col-span-7">
-                <AnimatedList items={TABLEAU} label="Les avocats du cabinet, par annee d inscription" defaultValue="lecointre" stagger={90} />
+                <AnimatedList
+                  items={TABLEAU}
+                  label="Les avocats du cabinet, par annee d inscription"
+                  defaultValue="lecointre"
+                  stagger={90}
+                />
               </div>
             </div>
           </section>
@@ -957,17 +1511,31 @@ export default function Page(): ReactElement {
             className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
             style={{ borderTop: `1px solid ${FILET}` }}
           >
-            <h2 id="ouvrir-titre" className="o-m-0 o-max-w-4xl o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 5.6vw, 5.5rem)' }}>
+            <h2
+              id="ouvrir-titre"
+              className="o-m-0 o-max-w-4xl o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 5.6vw, 5.5rem)' }}
+            >
               Ou en est votre affaire ?
             </h2>
-            <div className="o-mt-16 o-grid o-gap-px md:o-grid-cols-3" style={{ backgroundColor: FILET }}>
+            <div
+              className="o-mt-16 o-grid o-gap-px md:o-grid-cols-3"
+              style={{ backgroundColor: FILET }}
+            >
               {REPONSES.map((r) => (
-                <div key={r.numero} className="o-flex o-min-w-0 o-flex-col o-gap-6 o-bg-stone-50 o-p-8 dark:o-bg-stone-950">
+                <div
+                  key={r.numero}
+                  className="o-flex o-min-w-0 o-flex-col o-gap-6 o-bg-stone-50 o-p-8 dark:o-bg-stone-950"
+                >
                   <p className="o-m-0 o-font-mono o-text-sm" style={{ color: encre() }}>
                     {r.numero}
                   </p>
-                  <p className="o-m-0 o-text-2xl o-font-medium o-leading-snug o-tracking-tight o-text-stone-950 dark:o-text-stone-50 md:o-text-3xl">{r.reponse}</p>
-                  <p className="o-m-0 o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{r.quoi}</p>
+                  <p className="o-m-0 o-text-2xl o-font-medium o-leading-snug o-tracking-tight o-text-stone-950 dark:o-text-stone-50 md:o-text-3xl">
+                    {r.reponse}
+                  </p>
+                  <p className="o-m-0 o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                    {r.quoi}
+                  </p>
                   <a
                     href={`mailto:${r.adresse}`}
                     className="o-mt-auto o-inline-flex o-items-center o-gap-2 o-self-start o-rounded-full o-px-5 o-py-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-no-underline focus:o-ring"
@@ -980,8 +1548,8 @@ export default function Page(): ReactElement {
               ))}
             </div>
             <p className={`o-mt-10 o-max-w-2xl ${NOTE}`}>
-              Le premier entretien dure une heure et n est pas facture. La convention d honoraires est signee avant la moindre diligence, et
-              jamais pendant.
+              Le premier entretien dure une heure et n est pas facture. La convention d
+              honoraires est signee avant la moindre diligence, et jamais pendant.
             </p>
           </section>
         </main>
@@ -993,21 +1561,47 @@ export default function Page(): ReactElement {
           d un quotidien : c est ce qui donne le bloc gris regulier, et c est la
           seule raison pour laquelle ces mentions se lisent au lieu d etre sautees.
         */}
-        <footer className="o-px-6 o-pb-10 o-pt-14 md:o-px-8" style={{ borderTop: `1px solid ${FILET_FORT}`, backgroundColor: accentDoux(300, 6) }}>
+        <footer
+          className="o-px-6 o-pb-10 o-pt-14 md:o-px-8"
+          style={{
+            borderTop: `1px solid ${FILET_FORT}`,
+            backgroundColor: accentDoux(300, 6),
+          }}
+        >
           <div className="o-flex o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-pb-8">
             <span className="o-inline-flex o-items-center o-gap-2 o-text-xl o-font-medium o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
-              <Icon icon={Scale} size={18} style={{ color: encre() }} aria-hidden="true" />
+              <Icon
+                icon={Scale}
+                size={18}
+                style={{ color: encre() }}
+                aria-hidden="true"
+              />
               Barreau
             </span>
-            <span className={NOTE}>Avocats au barreau de Paris — AARPI — Paris et Bordeaux</span>
+            <span className={NOTE}>
+              Avocats au barreau de Paris — AARPI — Paris et Bordeaux
+            </span>
           </div>
 
-          <div className="o-flex o-flex-wrap o-gap-x-12 o-gap-y-10" style={{ borderTop: `1px solid ${FILET}`, paddingTop: '2rem' }}>
+          <div
+            className="o-flex o-flex-wrap o-gap-x-12 o-gap-y-10"
+            style={{ borderTop: `1px solid ${FILET}`, paddingTop: '2rem' }}
+          >
             {OURS.map((colonne) => (
-              <div key={colonne.titre} className="o-min-w-0" style={{ width: '22rem', maxWidth: '100%' }}>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-950 dark:o-text-stone-50">{colonne.titre}</p>
+              <div
+                key={colonne.titre}
+                className="o-min-w-0"
+                style={{ width: '22rem', maxWidth: '100%' }}
+              >
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-950 dark:o-text-stone-50">
+                  {colonne.titre}
+                </p>
                 {colonne.lignes.map((ligne, rang) => (
-                  <p key={rang} className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-600 dark:o-text-stone-400" style={{ textAlign: 'justify' }}>
+                  <p
+                    key={rang}
+                    className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-600 dark:o-text-stone-400"
+                    style={{ textAlign: 'justify' }}
+                  >
                     {ligne}
                   </p>
                 ))}
@@ -1015,7 +1609,10 @@ export default function Page(): ReactElement {
             ))}
           </div>
 
-          <p className={`o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-4 o-pt-6 ${NOTE}`} style={{ borderTop: `1px solid ${FILET}` }}>
+          <p
+            className={`o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-4 o-pt-6 ${NOTE}`}
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <span>© 2026 Barreau AARPI</span>
             <span>
               <a href="#haut" className="o-no-underline o-text-current focus:o-ring">

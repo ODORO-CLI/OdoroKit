@@ -585,7 +585,8 @@ describe('les imports relatifs, quand le projet n a pas d alias', () => {
   })
 
   it('laisse les vrais paquets intacts', () => {
-    const source = "import { useMotionState } from '@odoro-cli/engine'\nimport React from 'react'"
+    const source =
+      "import { useMotionState } from '@odoro-cli/engine'\nimport React from 'react'"
     expect(rewriteImports(source, 'src/odoro', 'text/CountUp.tsx')).toBe(source)
   })
 

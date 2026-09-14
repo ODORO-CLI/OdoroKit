@@ -159,13 +159,18 @@ export function SplashCursor({
     return () => subscription.unsubscribe()
   }, [pointer, uSplash])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: SPLASH_CURSOR_FRAGMENT,
-      colors,
-      uniforms: { uSplash, uLife: life, uSize: size, uLobes: lobes },
-      name: 'splash-cursor',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: SPLASH_CURSOR_FRAGMENT,
+    colors,
+    uniforms: { uSplash, uLife: life, uSize: size, uLobes: lobes },
+    name: 'splash-cursor',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

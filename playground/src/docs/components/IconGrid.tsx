@@ -140,7 +140,9 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
         {trouvees.length === entries.length
           ? `${String(entries.length)} icônes`
           : `${String(trouvees.length)} sur ${String(entries.length)}`}
-        {reste > 0 ? ` — ${String(affichees.length)} posées, ${String(reste)} suivent au défilement` : ''}
+        {reste > 0
+          ? ` — ${String(affichees.length)} posées, ${String(reste)} suivent au défilement`
+          : ''}
       </p>
 
       {affichees.length === 0 ? (
@@ -180,7 +182,10 @@ export function IconGrid({ module, icons, names }: IconGridProps): ReactElement 
       {/* La sentinelle, et ce qu'elle annonce a qui n'a pas la vue. */}
       {reste > 0 && (
         <div ref={sentinelle} className="o-py-8 o-text-center">
-          <p role="status" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+          <p
+            role="status"
+            className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+          >
             Chargement des suivantes…
           </p>
           {/* Sans souris ni molette, le bouton fait le meme travail. */}

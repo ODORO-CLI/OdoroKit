@@ -58,7 +58,12 @@
  * @module
  */
 
-import { clock, mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
+import {
+  clock,
+  mergePresentation,
+  useMotionState,
+  type Customisable,
+} from '@odoro-cli/engine'
 import {
   useEffect,
   useRef,

@@ -276,12 +276,7 @@ export function ParticleText({
             const ay = depart[index * 2 + 1] ?? 0
             const bx = cible[index * 2] ?? 0
             const by = cible[index * 2 + 1] ?? 0
-            ctx.fillRect(
-              ax + (bx - ax) * part,
-              ay + (by - ay) * part,
-              taille,
-              taille,
-            )
+            ctx.fillRect(ax + (bx - ax) * part, ay + (by - ay) * part, taille, taille)
           }
         },
         { name: 'titre en particules', priority: CLOCK_PRIORITY.default },

@@ -39,11 +39,7 @@ import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
-import {
-  useMemo,
-  useState,
-  type ReactElement,
-} from 'react'
+import { useMemo, useState, type ReactElement } from 'react'
 
 import { PixelTransition } from '@/odoro/effect/PixelTransition.jsx'
 import { RippleClick } from '@/odoro/effect/RippleClick.jsx'
@@ -100,15 +96,60 @@ interface Zone {
 }
 
 const ZONES: readonly Zone[] = [
-  { id: 'bout', nom: 'Le bout', haut: 0, bas: 19, prix: 18, cote: 'ep. 4,5 mm', note: 'Un patin de bout, colle et affleure : c est ce qui part en premier quand on marche vite.' },
-  { id: 'avant', nom: 'L avant-pied', haut: 19, bas: 44, prix: 48, cote: 'l. 98 mm', note: 'La demi-semelle. On decolle, on degauchit, on recolle sous presse pendant douze heures.' },
-  { id: 'cambrure', nom: 'Le cambrion', haut: 44, bas: 65, prix: 30, cote: 'l. 62 mm', note: 'La partie creuse, qui ne touche pas le sol. Elle se renforce, elle ne se remplace pas.' },
-  { id: 'talon', nom: 'Le talon', haut: 65, bas: 88, prix: 45, cote: 'h. 28 mm', note: 'Le bloc entier, en cuir empile ou en gomme. Le bonbout neuf est compris.' },
-  { id: 'bonbout', nom: 'Le bonbout', haut: 88, bas: 100, prix: 22, cote: 'ep. 7 mm', note: 'Le patin sous le talon. Quinze minutes a l etabli, et on vous attend.' },
+  {
+    id: 'bout',
+    nom: 'Le bout',
+    haut: 0,
+    bas: 19,
+    prix: 18,
+    cote: 'ep. 4,5 mm',
+    note: 'Un patin de bout, colle et affleure : c est ce qui part en premier quand on marche vite.',
+  },
+  {
+    id: 'avant',
+    nom: 'L avant-pied',
+    haut: 19,
+    bas: 44,
+    prix: 48,
+    cote: 'l. 98 mm',
+    note: 'La demi-semelle. On decolle, on degauchit, on recolle sous presse pendant douze heures.',
+  },
+  {
+    id: 'cambrure',
+    nom: 'Le cambrion',
+    haut: 44,
+    bas: 65,
+    prix: 30,
+    cote: 'l. 62 mm',
+    note: 'La partie creuse, qui ne touche pas le sol. Elle se renforce, elle ne se remplace pas.',
+  },
+  {
+    id: 'talon',
+    nom: 'Le talon',
+    haut: 65,
+    bas: 88,
+    prix: 45,
+    cote: 'h. 28 mm',
+    note: 'Le bloc entier, en cuir empile ou en gomme. Le bonbout neuf est compris.',
+  },
+  {
+    id: 'bonbout',
+    nom: 'Le bonbout',
+    haut: 88,
+    bas: 100,
+    prix: 22,
+    cote: 'ep. 7 mm',
+    note: 'Le patin sous le talon. Quinze minutes a l etabli, et on vous attend.',
+  },
 ]
 
 /** La couture de trepointe : elle ne vit pas sur une bande, mais sur le pourtour. */
-const COUTURE = { nom: 'La couture de trepointe', prix: 65, jours: 3, note: 'Cousue main au point sellier, puis laissee secher. C est ce qui rend la chaussure ressemelable a vie.' }
+const COUTURE = {
+  nom: 'La couture de trepointe',
+  prix: 65,
+  jours: 3,
+  note: 'Cousue main au point sellier, puis laissee secher. C est ce qui rend la chaussure ressemelable a vie.',
+}
 
 /** Le plan de semelle, vu de dessous, dans un repere de 200 sur 520. */
 const SEMELLE =
@@ -139,11 +180,31 @@ const METIERS = [
 
 /** Une etape du ressemelage, avec ce qu elle coute en temps. */
 const ETAPES: readonly (readonly [string, string, string])[] = [
-  ['01', 'Decoller', 'La vieille semelle part a la pince et au couteau a parer. On garde la trepointe : c est elle qui tient tout.'],
-  ['02', 'Degauchir', 'La premiere est mise a plat au rape, puis rechargee au liege fondu la ou le pied a creuse.'],
-  ['03', 'Coller', 'Colle de contact des deux cotes, dix minutes de repos, puis douze heures sous presse. Rien ne remplace le temps.'],
-  ['04', 'Coudre', 'Point sellier a l alene et au fil poisse, seize points au pouce. C est ici que la paire redevient ressemelable.'],
-  ['05', 'Finir', 'Tranche paree au fer chaud, teinte a la main, cirage. La chaussure ressort plus nette qu a l achat.'],
+  [
+    '01',
+    'Decoller',
+    'La vieille semelle part a la pince et au couteau a parer. On garde la trepointe : c est elle qui tient tout.',
+  ],
+  [
+    '02',
+    'Degauchir',
+    'La premiere est mise a plat au rape, puis rechargee au liege fondu la ou le pied a creuse.',
+  ],
+  [
+    '03',
+    'Coller',
+    'Colle de contact des deux cotes, dix minutes de repos, puis douze heures sous presse. Rien ne remplace le temps.',
+  ],
+  [
+    '04',
+    'Coudre',
+    'Point sellier a l alene et au fil poisse, seize points au pouce. C est ici que la paire redevient ressemelable.',
+  ],
+  [
+    '05',
+    'Finir',
+    'Tranche paree au fer chaud, teinte a la main, cirage. La chaussure ressort plus nette qu a l achat.',
+  ],
 ]
 
 /* ============================ Le grain du cuir ========================= */
@@ -172,7 +233,10 @@ function Cuir(): ReactElement {
     return points
   }, [])
   return (
-    <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden">
+    <div
+      aria-hidden="true"
+      className="o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden"
+    >
       <svg className="o-size-full">
         <defs>
           <pattern id="o-cd-grain" width="90" height="90" patternUnits="userSpaceOnUse">
@@ -209,9 +273,13 @@ interface Ligne {
  * morceaux et coute moins cher que leur somme ; le bonbout est compris dans un
  * talon neuf ; la couture ajoute des jours, pas seulement des euros.
  */
-function composer(choisies: ReadonlySet<string>, couture: boolean): { lignes: readonly Ligne[]; total: number; jours: number } {
+function composer(
+  choisies: ReadonlySet<string>,
+  couture: boolean,
+): { lignes: readonly Ligne[]; total: number; jours: number } {
   const lignes: Ligne[] = []
-  const complet = choisies.has('bout') && choisies.has('avant') && choisies.has('cambrure')
+  const complet =
+    choisies.has('bout') && choisies.has('avant') && choisies.has('cambrure')
 
   if (complet) {
     lignes.push({ quoi: 'Ressemelage complet, cuir cousu', prix: 95 })
@@ -250,25 +318,49 @@ function Plan({
           <clipPath id="o-cd-semelle">
             <path d={SEMELLE} />
           </clipPath>
-          <pattern id="o-cd-usure" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+          <pattern
+            id="o-cd-usure"
+            width="6"
+            height="6"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(38)"
+          >
             <path d="M0 0v6" stroke={accent(500)} strokeWidth="2" />
           </pattern>
         </defs>
 
         {/* Le corps de la semelle. */}
-        <path d={SEMELLE} fill={accentDoux(300, 16)} stroke={accentDoux(900, 50)} strokeWidth="1.6" />
+        <path
+          d={SEMELLE}
+          fill={accentDoux(300, 16)}
+          stroke={accentDoux(900, 50)}
+          strokeWidth="1.6"
+        />
 
         {/* Les bandes usees, hachurees, decoupees a la semelle. */}
         <g clipPath="url(#o-cd-semelle)">
           {ZONES.map((zone) =>
             choisies.has(zone.id) ? (
-              <rect key={zone.id} x="0" y={(zone.haut / 100) * 520} width="200" height={((zone.bas - zone.haut) / 100) * 520} fill="url(#o-cd-usure)" opacity="0.55" />
+              <rect
+                key={zone.id}
+                x="0"
+                y={(zone.haut / 100) * 520}
+                width="200"
+                height={((zone.bas - zone.haut) / 100) * 520}
+                fill="url(#o-cd-usure)"
+                opacity="0.55"
+              />
             ) : null,
           )}
         </g>
 
         {/* Les limites de zones, en trait fin. */}
-        <g clipPath="url(#o-cd-semelle)" stroke={accentDoux(900, 30)} strokeWidth="0.8" strokeDasharray="4 4">
+        <g
+          clipPath="url(#o-cd-semelle)"
+          stroke={accentDoux(900, 30)}
+          strokeWidth="0.8"
+          strokeDasharray="4 4"
+        >
           {ZONES.slice(1).map((zone) => (
             <path key={zone.id} d={`M0 ${String((zone.haut / 100) * 520)}h200`} />
           ))}
@@ -289,10 +381,33 @@ function Plan({
           <path d="M16 12v500M12 12h8M12 512h8" />
           <path d="M36 528h128M36 522v12M164 522v12" />
         </g>
-        <text x="10" y="268" fontSize="11" textAnchor="middle" transform="rotate(-90 10 268)" fill="currentColor" style={{ color: 'var(--o-theme-muted)', fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+        <text
+          x="10"
+          y="268"
+          fontSize="11"
+          textAnchor="middle"
+          transform="rotate(-90 10 268)"
+          fill="currentColor"
+          style={{
+            color: 'var(--o-theme-muted)',
+            fontFamily: 'var(--o-font-mono)',
+            letterSpacing: '0.1em',
+          }}
+        >
           295 MM
         </text>
-        <text x="100" y="546" fontSize="11" textAnchor="middle" fill="currentColor" style={{ color: 'var(--o-theme-muted)', fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+        <text
+          x="100"
+          y="546"
+          fontSize="11"
+          textAnchor="middle"
+          fill="currentColor"
+          style={{
+            color: 'var(--o-theme-muted)',
+            fontFamily: 'var(--o-font-mono)',
+            letterSpacing: '0.1em',
+          }}
+        >
           98 MM
         </text>
       </svg>
@@ -311,7 +426,12 @@ function Plan({
             opacity={0.3}
             // `RippleClick` pose `position: relative` en style en ligne : une
             // classe ne peut pas le reprendre, la position se redit donc ici.
-            style={{ position: 'absolute', insetInline: 0, top: `${String(zone.haut)}%`, height: `${String(zone.bas - zone.haut)}%` }}
+            style={{
+              position: 'absolute',
+              insetInline: 0,
+              top: `${String(zone.haut)}%`,
+              height: `${String(zone.bas - zone.haut)}%`,
+            }}
           >
             <button
               type="button"
@@ -326,14 +446,22 @@ function Plan({
               </span>
               {/* Les chiffres sont poses sur le plan, a cote de leur zone : le
                   prix de la reparation, et la cote de l endroit. */}
-              <span aria-hidden="true" className="o-block o-text-right o-transition-opacity" style={{ opacity: prise ? 1 : 0.7 }}>
+              <span
+                aria-hidden="true"
+                className="o-block o-text-right o-transition-opacity"
+                style={{ opacity: prise ? 1 : 0.7 }}
+              >
                 <span
                   className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest"
                   style={{ color: prise ? encre() : 'var(--o-theme-fg)' }}
                 >
-                  {zone.nom.replace('Le ', '').replace('La ', '').replace('L ', '')} · {zone.prix} EUR
+                  {zone.nom.replace('Le ', '').replace('La ', '').replace('L ', '')} ·{' '}
+                  {zone.prix} EUR
                 </span>
-                <span className="o-block o-font-mono o-text-xs o-tracking-widest" style={{ color: 'var(--o-theme-muted)' }}>
+                <span
+                  className="o-block o-font-mono o-text-xs o-tracking-widest"
+                  style={{ color: 'var(--o-theme-muted)' }}
+                >
                   {zone.cote}
                 </span>
               </span>
@@ -350,27 +478,97 @@ function Plan({
 /** Une semelle dessinee : usee, ou neuve. */
 function Coupe({ usee }: { readonly usee: boolean }): ReactElement {
   return (
-    <svg viewBox="0 0 320 120" className="o-h-auto o-w-full" role="img" aria-label={usee ? 'Coupe de la semelle usee : le talon est mange et la tranche s effrite' : 'Coupe de la semelle neuve : le cuir est plein et la tranche est droite'}>
+    <svg
+      viewBox="0 0 320 120"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label={
+        usee
+          ? 'Coupe de la semelle usee : le talon est mange et la tranche s effrite'
+          : 'Coupe de la semelle neuve : le cuir est plein et la tranche est droite'
+      }
+    >
       {/* La tige, toujours la meme : c est ce qui dure. */}
-      <path d="M30 62 C60 26 132 14 186 22 C228 28 250 42 258 62" fill="none" stroke={accentDoux(900, 55)} strokeWidth="2" />
-      <path d="M30 62h228" stroke={accentDoux(900, 40)} strokeWidth="1" strokeDasharray="4 4" />
+      <path
+        d="M30 62 C60 26 132 14 186 22 C228 28 250 42 258 62"
+        fill="none"
+        stroke={accentDoux(900, 55)}
+        strokeWidth="2"
+      />
+      <path
+        d="M30 62h228"
+        stroke={accentDoux(900, 40)}
+        strokeWidth="1"
+        strokeDasharray="4 4"
+      />
       {usee ? (
         <>
           {/* La semelle mangee, la tranche irreguliere, le talon ecrase. */}
-          <path d="M30 62 L258 62 L256 78 C232 82 214 74 186 80 C150 88 96 78 60 86 L34 84 Z" fill={accentDoux(500, 22)} stroke={accentDoux(900, 45)} strokeWidth="1.4" />
-          <path d="M200 80 L256 78 L252 104 C238 110 214 108 206 100 Z" fill={accentDoux(500, 30)} stroke={accentDoux(900, 45)} strokeWidth="1.4" />
-          <path d="M206 100 C218 96 236 100 250 96" stroke={accent(500)} strokeWidth="2.5" strokeDasharray="5 4" fill="none" />
-          <text x="30" y="112" fontSize="8" fill="currentColor" style={{ color: 'var(--o-theme-muted)', fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em' }}>
+          <path
+            d="M30 62 L258 62 L256 78 C232 82 214 74 186 80 C150 88 96 78 60 86 L34 84 Z"
+            fill={accentDoux(500, 22)}
+            stroke={accentDoux(900, 45)}
+            strokeWidth="1.4"
+          />
+          <path
+            d="M200 80 L256 78 L252 104 C238 110 214 108 206 100 Z"
+            fill={accentDoux(500, 30)}
+            stroke={accentDoux(900, 45)}
+            strokeWidth="1.4"
+          />
+          <path
+            d="M206 100 C218 96 236 100 250 96"
+            stroke={accent(500)}
+            strokeWidth="2.5"
+            strokeDasharray="5 4"
+            fill="none"
+          />
+          <text
+            x="30"
+            y="112"
+            fontSize="8"
+            fill="currentColor"
+            style={{
+              color: 'var(--o-theme-muted)',
+              fontFamily: 'var(--o-font-mono)',
+              letterSpacing: '0.12em',
+            }}
+          >
             AVANT — 4 ANS, 1 800 KM
           </text>
         </>
       ) : (
         <>
-          <path d="M30 62 L258 62 L258 80 L30 80 Z" fill={accentDoux(500, 26)} stroke={accentDoux(900, 50)} strokeWidth="1.4" />
-          <path d="M200 80 L258 80 L258 106 L200 106 Z" fill={accentDoux(500, 34)} stroke={accentDoux(900, 50)} strokeWidth="1.4" />
+          <path
+            d="M30 62 L258 62 L258 80 L30 80 Z"
+            fill={accentDoux(500, 26)}
+            stroke={accentDoux(900, 50)}
+            strokeWidth="1.4"
+          />
+          <path
+            d="M200 80 L258 80 L258 106 L200 106 Z"
+            fill={accentDoux(500, 34)}
+            stroke={accentDoux(900, 50)}
+            strokeWidth="1.4"
+          />
           <path d="M200 106h58" stroke={accent(500)} strokeWidth="3" />
-          <path d="M36 71h216" stroke={accentDoux(900, 40)} strokeWidth="0.8" strokeDasharray="3 4" />
-          <text x="30" y="118" fontSize="8" fill="currentColor" style={{ color: 'var(--o-theme-muted)', fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em' }}>
+          <path
+            d="M36 71h216"
+            stroke={accentDoux(900, 40)}
+            strokeWidth="0.8"
+            strokeDasharray="3 4"
+          />
+          <text
+            x="30"
+            y="118"
+            fontSize="8"
+            fill="currentColor"
+            style={{
+              color: 'var(--o-theme-muted)',
+              fontFamily: 'var(--o-font-mono)',
+              letterSpacing: '0.12em',
+            }}
+          >
             APRES — CUIR 4,5 MM, BONBOUT NEUF
           </text>
         </>
@@ -382,7 +580,13 @@ function Coupe({ usee }: { readonly usee: boolean }): ReactElement {
 /* ============================ Le devis (A26) =========================== */
 
 /** Les trois curseurs, et le total en cent vingt pixels. */
-function Devis({ base, jours }: { readonly base: number; readonly jours: number }): ReactElement {
+function Devis({
+  base,
+  jours,
+}: {
+  readonly base: number
+  readonly jours: number
+}): ReactElement {
   const [paires, setPaires] = useState(1)
   const [epaisseur, setEpaisseur] = useState(4.5)
   const [delai, setDelai] = useState(8)
@@ -409,7 +613,10 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
       pas: 1,
       poser: setPaires,
       lecture: `${String(paires)} paire${paires > 1 ? 's' : ''}`,
-      note: calcul.remise > 0 ? `Remise d atelier : ${String(Math.round(calcul.remise * 100))} %` : 'A partir de deux paires, la remise commence.',
+      note:
+        calcul.remise > 0
+          ? `Remise d atelier : ${String(Math.round(calcul.remise * 100))} %`
+          : 'A partir de deux paires, la remise commence.',
     },
     {
       nom: 'Epaisseur du cuir',
@@ -419,7 +626,12 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
       pas: 0.5,
       poser: setEpaisseur,
       lecture: `${epaisseur.toFixed(1).replace('.', ',')} mm`,
-      note: epaisseur >= 5.5 ? 'Semelle de marche : lourde, et increvable.' : epaisseur <= 3.5 ? 'Semelle de ville : souple, elle s use plus vite.' : 'Le standard de la maison.',
+      note:
+        epaisseur >= 5.5
+          ? 'Semelle de marche : lourde, et increvable.'
+          : epaisseur <= 3.5
+            ? 'Semelle de ville : souple, elle s use plus vite.'
+            : 'Le standard de la maison.',
     },
     {
       nom: 'Delai souhaite',
@@ -429,7 +641,12 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
       pas: 1,
       poser: setDelai,
       lecture: `${String(delai)} jours`,
-      note: delai < 8 ? 'Express : on decale une autre paire, et cela se paie.' : delai > 15 ? 'Atelier calme : on vous rend huit pour cent.' : 'Le delai courant de l atelier.',
+      note:
+        delai < 8
+          ? 'Express : on decale une autre paire, et cela se paie.'
+          : delai > 15
+            ? 'Atelier calme : on vous rend huit pour cent.'
+            : 'Le delai courant de l atelier.',
     },
   ] as const
 
@@ -437,11 +654,18 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
     <div className="o-grid o-gap-12 lg:o-grid-cols-12">
       <div className="lg:o-col-span-6">
         {curseurs.map((curseur) => (
-          <div key={curseur.nom} className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-6">
+          <div
+            key={curseur.nom}
+            className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-6"
+          >
             <label className="o-block">
               <span className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">{curseur.nom}</span>
-                <span className="o-font-mono o-text-sm o-tabular-nums o-text-stone-950 dark:o-text-stone-50">{curseur.lecture}</span>
+                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                  {curseur.nom}
+                </span>
+                <span className="o-font-mono o-text-sm o-tabular-nums o-text-stone-950 dark:o-text-stone-50">
+                  {curseur.lecture}
+                </span>
               </span>
               <input
                 type="range"
@@ -455,7 +679,9 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
                 className="o-mt-4 o-w-full o-accent-brand-500 focus:o-ring"
               />
             </label>
-            <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">{curseur.note}</p>
+            <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
+              {curseur.note}
+            </p>
           </div>
         ))}
       </div>
@@ -464,35 +690,57 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
         <div className="o-relative o-p-8 md:o-p-10" style={nuit('stone')}>
           <Croix />
           <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
-            {base === 0 ? 'Rien de coche sur le plan' : `Devis pour ${String(paires)} paire${paires > 1 ? 's' : ''}`}
+            {base === 0
+              ? 'Rien de coche sur le plan'
+              : `Devis pour ${String(paires)} paire${paires > 1 ? 's' : ''}`}
           </p>
           <p
             className="o-m-0 o-mt-4 o-tabular-nums o-text-stone-50"
             aria-live="polite"
-            style={{ ...affiche('xl', 300), fontSize: 'clamp(3.5rem, 11vw, 8rem)', lineHeight: 0.82, letterSpacing: '-0.05em' }}
+            style={{
+              ...affiche('xl', 300),
+              fontSize: 'clamp(3.5rem, 11vw, 8rem)',
+              lineHeight: 0.82,
+              letterSpacing: '-0.05em',
+            }}
           >
             {Math.round(calcul.total)}
             <span className="o-align-top o-text-2xl o-tracking-normal"> EUR</span>
           </p>
           <dl className="o-m-0 o-mt-10">
-            {([
-              ['La paire', `${Math.round(calcul.unitaire)} EUR`],
-              ['Cuir', `x ${calcul.facteurCuir.toFixed(2).replace('.', ',')}`],
-              ['Delai', `x ${calcul.facteurDelai.toFixed(2).replace('.', ',')}`],
-              ['Remise', calcul.remise > 0 ? `- ${String(Math.round(calcul.remise * 100))} %` : 'aucune'],
-              ['A l atelier', `${String(Math.max(jours, delai))} jours`],
-            ] as const).map(([quoi, valeur]) => (
-              <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">{quoi}</dt>
-                <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums" style={{ color: encreSurSombre() }}>
+            {(
+              [
+                ['La paire', `${Math.round(calcul.unitaire)} EUR`],
+                ['Cuir', `x ${calcul.facteurCuir.toFixed(2).replace('.', ',')}`],
+                ['Delai', `x ${calcul.facteurDelai.toFixed(2).replace('.', ',')}`],
+                [
+                  'Remise',
+                  calcul.remise > 0
+                    ? `- ${String(Math.round(calcul.remise * 100))} %`
+                    : 'aucune',
+                ],
+                ['A l atelier', `${String(Math.max(jours, delai))} jours`],
+              ] as const
+            ).map(([quoi, valeur]) => (
+              <div
+                key={quoi}
+                className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3"
+              >
+                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                  {quoi}
+                </dt>
+                <dd
+                  className="o-m-0 o-font-mono o-text-sm o-tabular-nums"
+                  style={{ color: encreSurSombre() }}
+                >
                   {valeur}
                 </dd>
               </div>
             ))}
           </dl>
           <p className="o-m-0 o-mt-8 o-text-xs o-leading-relaxed o-text-stone-400">
-            Devis ferme si la paire est cousue et la tige saine. Si le cuir a
-            casse au pli, nous vous appelons avant de toucher a quoi que ce soit.
+            Devis ferme si la paire est cousue et la tige saine. Si le cuir a casse au
+            pli, nous vous appelons avant de toucher a quoi que ce soit.
           </p>
         </div>
       </div>
@@ -505,7 +753,9 @@ function Devis({ base, jours }: { readonly base: number; readonly jours: number 
 export default function Page(): ReactElement {
   const polices = usePolices('jakarta')
   const { reduced } = useMotionState()
-  const [choisies, setChoisies] = useState<ReadonlySet<string>>(() => new Set(['bonbout', 'talon']))
+  const [choisies, setChoisies] = useState<ReadonlySet<string>>(
+    () => new Set(['bonbout', 'talon']),
+  )
   const [couture, setCouture] = useState(false)
 
   const basculer = (id: string): void => {
@@ -524,30 +774,51 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Alene" sombre={false}>
-      <div className="o-bg-stone-100 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-50" style={polices}>
+      <div
+        className="o-bg-stone-100 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-50"
+        style={polices}
+      >
         {/* ================= L ouverture : le cuir ======================== */}
-        <header className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: ECRAN }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: ECRAN }}
+        >
           <Cuir />
           <Croix sombre={false} />
-          <BarreCoins marque="Alene" liens={NAVIGATION} droite="Cordonnerie — Paris 11" sombre={false} />
+          <BarreCoins
+            marque="Alene"
+            liens={NAVIGATION}
+            droite="Cordonnerie — Paris 11"
+            sombre={false}
+          />
 
           <div className="o-relative o-flex o-grow o-flex-col o-justify-end o-gap-10 o-px-6 o-pb-12 md:o-px-10">
             <div className="o-grid o-items-end o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-7">
                 <Surgit>
-                  <Etiquette sombre={false}>Cordonnier — a l etabli depuis 1978</Etiquette>
+                  <Etiquette sombre={false}>
+                    Cordonnier — a l etabli depuis 1978
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={140}
                   className="o-m-0 o-mt-8 o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                  style={{ ...affiche('xl', 800), fontSize: 'clamp(3.5rem, 15vw, 14rem)', lineHeight: 0.8, letterSpacing: '-0.05em' }}
+                  style={{
+                    ...affiche('xl', 800),
+                    fontSize: 'clamp(3.5rem, 15vw, 14rem)',
+                    lineHeight: 0.8,
+                    letterSpacing: '-0.05em',
+                  }}
                 >
                   Alene
                 </TitreVague>
-                <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                  Une paire cousue se ressemelle quatre fois. Posez la votre sur
-                  le plan, montrez-nous ou elle est morte, et le devis se compose
-                  sous vos yeux.
+                <Surgit
+                  delai={520}
+                  as="p"
+                  className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400"
+                >
+                  Une paire cousue se ressemelle quatre fois. Posez la votre sur le plan,
+                  montrez-nous ou elle est morte, et le devis se compose sous vos yeux.
                 </Surgit>
                 <Surgit delai={640} className="o-mt-10 o-flex o-flex-wrap o-gap-4">
                   <a
@@ -555,12 +826,16 @@ export default function Page(): ReactElement {
                     className="o-inline-flex o-items-center o-gap-2 o-px-6 o-py-3 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
                     style={aplat()}
                   >
-                    Designer l usure <Icon icon={ArrowRight} size={14} aria-hidden="true" />
+                    Designer l usure{' '}
+                    <Icon icon={ArrowRight} size={14} aria-hidden="true" />
                   </a>
                   <a
                     href="#atelier"
                     className="o-inline-flex o-items-center o-gap-2 o-px-6 o-py-3 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest o-no-underline focus:o-ring"
-                    style={{ boxShadow: `inset 0 0 0 1px ${accentDoux(900, 34)}`, color: 'inherit' }}
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${accentDoux(900, 34)}`,
+                      color: 'inherit',
+                    }}
                   >
                     Voir l atelier
                   </a>
@@ -569,15 +844,47 @@ export default function Page(): ReactElement {
 
               {/* L alene, l outil qui donne son nom a la maison. */}
               <Surgit delai={340} className="lg:o-col-span-5 lg:o-justify-self-end">
-                <svg viewBox="0 0 280 120" className="o-w-full" style={{ maxWidth: 360 }} role="img" aria-label="Une alene de cordonnier : manche en buis, tige en acier, pointe en losange">
-                  <path d="M18 60 C18 42 34 34 56 34 H96 C104 34 108 42 108 60 C108 78 104 86 96 86 H56 C34 86 18 78 18 60 Z" fill={accentDoux(700, 34)} stroke={accentDoux(900, 55)} strokeWidth="1.4" />
-                  <path d="M34 44c10 4 10 28 0 32M52 40c12 6 12 34 0 40M72 38c14 8 14 38 0 46" fill="none" stroke={accentDoux(900, 28)} strokeWidth="1" />
-                  <path d="M108 54h118l40 6-40 6H108z" fill={accentDoux(400, 40)} stroke={accentDoux(900, 50)} strokeWidth="1.2" />
+                <svg
+                  viewBox="0 0 280 120"
+                  className="o-w-full"
+                  style={{ maxWidth: 360 }}
+                  role="img"
+                  aria-label="Une alene de cordonnier : manche en buis, tige en acier, pointe en losange"
+                >
+                  <path
+                    d="M18 60 C18 42 34 34 56 34 H96 C104 34 108 42 108 60 C108 78 104 86 96 86 H56 C34 86 18 78 18 60 Z"
+                    fill={accentDoux(700, 34)}
+                    stroke={accentDoux(900, 55)}
+                    strokeWidth="1.4"
+                  />
+                  <path
+                    d="M34 44c10 4 10 28 0 32M52 40c12 6 12 34 0 40M72 38c14 8 14 38 0 46"
+                    fill="none"
+                    stroke={accentDoux(900, 28)}
+                    strokeWidth="1"
+                  />
+                  <path
+                    d="M108 54h118l40 6-40 6H108z"
+                    fill={accentDoux(400, 40)}
+                    stroke={accentDoux(900, 50)}
+                    strokeWidth="1.2"
+                  />
                   <path d="M226 60h40" stroke={accent(500)} strokeWidth="2" />
                   <g stroke={accentDoux(900, 30)} strokeWidth="0.7">
                     <path d="M18 100h248M18 94v12M266 94v12" />
                   </g>
-                  <text x="142" y="118" fontSize="10" textAnchor="middle" fill="currentColor" style={{ color: 'var(--o-theme-muted)', fontFamily: 'var(--o-font-mono)', letterSpacing: '0.14em' }}>
+                  <text
+                    x="142"
+                    y="118"
+                    fontSize="10"
+                    textAnchor="middle"
+                    fill="currentColor"
+                    style={{
+                      color: 'var(--o-theme-muted)',
+                      fontFamily: 'var(--o-font-mono)',
+                      letterSpacing: '0.14em',
+                    }}
+                  >
                     ALENE DROITE — 178 MM
                   </text>
                 </svg>
@@ -589,11 +896,13 @@ export default function Page(): ReactElement {
               </Surgit>
             </div>
           </div>
-
         </header>
 
         {/* ================= Les trois metiers, en 01/02/03 =============== */}
-        <section id="atelier" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-stone-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="atelier"
+          className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-stone-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
               <Indice rang="01" sombre={false}>
@@ -605,19 +914,34 @@ export default function Page(): ReactElement {
                 as="h2"
                 lift={22}
                 className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                style={{ ...affiche('m', 800), fontSize: 'clamp(1.85rem, 4.4vw, 3.75rem)', lineHeight: 0.9, letterSpacing: '-0.04em' }}
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(1.85rem, 4.4vw, 3.75rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.04em',
+                }}
               >
                 Trois metiers, un seul etabli.
               </ScrollFloat>
             </Reveal>
             <div className="o-mt-14">
-              <Numerotee sombre={false} lignes={METIERS.map((metier) => ({ titre: metier.titre, texte: metier.texte }))} />
+              <Numerotee
+                sombre={false}
+                lignes={METIERS.map((metier) => ({
+                  titre: metier.titre,
+                  texte: metier.texte,
+                }))}
+              />
             </div>
           </div>
         </section>
 
         {/* ================= Le mecanisme : le diagnostic ================= */}
-        <section id="diagnostic" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(300, 10) }}>
+        <section
+          id="diagnostic"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ backgroundColor: accentDoux(300, 10) }}
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Chapitre
               indice="(02) — Le diagnostic"
@@ -625,16 +949,21 @@ export default function Page(): ReactElement {
               titre={
                 <h2
                   className="o-m-0 o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(1.6rem, 3.2vw, 2.75rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.6rem, 3.2vw, 2.75rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.04em',
+                  }}
                 >
                   Montrez-nous ou elle est morte.
                 </h2>
               }
               texte={
                 <>
-                  Le plan est a l echelle d une pointure 42. Cliquez les zones
-                  usees : le devis se compose selon les regles de l atelier, et
-                  pas par une addition naive.
+                  Le plan est a l echelle d une pointure 42. Cliquez les zones usees : le
+                  devis se compose selon les regles de l atelier, et pas par une addition
+                  naive.
                 </>
               }
             >
@@ -652,41 +981,73 @@ export default function Page(): ReactElement {
                     className={`o-flex o-w-full o-cursor-pointer o-appearance-none o-items-baseline o-justify-between o-gap-4 o-border-none o-px-5 o-py-4 o-text-left o-transition-colors focus:o-ring ${
                       couture ? '' : 'o-bg-stone-100 dark:o-bg-stone-950'
                     }`}
-                    style={couture ? aplat() : { boxShadow: `inset 0 0 0 1px ${accentDoux(900, 26)}` }}
+                    style={
+                      couture
+                        ? aplat()
+                        : { boxShadow: `inset 0 0 0 1px ${accentDoux(900, 26)}` }
+                    }
                   >
-                    <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">{COUTURE.nom}</span>
-                    <span className="o-font-mono o-text-xs o-tabular-nums">{COUTURE.prix} EUR</span>
+                    <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                      {COUTURE.nom}
+                    </span>
+                    <span className="o-font-mono o-text-xs o-tabular-nums">
+                      {COUTURE.prix} EUR
+                    </span>
                   </button>
-                  <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">{COUTURE.note}</p>
+                  <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
+                    {COUTURE.note}
+                  </p>
 
                   {/* Le devis de l atelier, ligne a ligne. */}
-                  <div className="o-relative o-mt-8 o-p-6" style={{ boxShadow: `inset 0 0 0 1px ${accentDoux(900, 26)}`, backgroundColor: 'var(--o-theme-bg)' }}>
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">Le devis</p>
+                  <div
+                    className="o-relative o-mt-8 o-p-6"
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${accentDoux(900, 26)}`,
+                      backgroundColor: 'var(--o-theme-bg)',
+                    }}
+                  >
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                      Le devis
+                    </p>
                     {devis.lignes.length === 0 ? (
                       <p className="o-m-0 o-mt-5 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                        Rien de coche. Une paire qu on n a pas besoin de reparer
-                        est une bonne nouvelle : gardez votre argent.
+                        Rien de coche. Une paire qu on n a pas besoin de reparer est une
+                        bonne nouvelle : gardez votre argent.
                       </p>
                     ) : (
                       <ul className="o-m-0 o-mt-5 o-list-none o-p-0" aria-live="polite">
                         {devis.lignes.map((ligne) => (
-                          <li key={ligne.quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-black-10 dark:o-border-stone-800 o-py-3">
-                            <span className="o-text-sm o-text-stone-950 dark:o-text-stone-50">{ligne.quoi}</span>
-                            <span className="o-font-mono o-text-sm o-tabular-nums o-text-stone-600 dark:o-text-stone-400">{ligne.prix} EUR</span>
+                          <li
+                            key={ligne.quoi}
+                            className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-black-10 dark:o-border-stone-800 o-py-3"
+                          >
+                            <span className="o-text-sm o-text-stone-950 dark:o-text-stone-50">
+                              {ligne.quoi}
+                            </span>
+                            <span className="o-font-mono o-text-sm o-tabular-nums o-text-stone-600 dark:o-text-stone-400">
+                              {ligne.prix} EUR
+                            </span>
                           </li>
                         ))}
                       </ul>
                     )}
                     <div className="o-mt-6 o-flex o-items-baseline o-justify-between o-gap-4">
                       <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                        {devis.jours === 0 ? 'Sans delai' : `${String(devis.jours)} jours d atelier`}
+                        {devis.jours === 0
+                          ? 'Sans delai'
+                          : `${String(devis.jours)} jours d atelier`}
                       </span>
-                      <span className="o-font-mono o-text-2xl o-tabular-nums" style={{ color: encre() }}>
+                      <span
+                        className="o-font-mono o-text-2xl o-tabular-nums"
+                        style={{ color: encre() }}
+                      >
                         {devis.total} EUR
                       </span>
                     </div>
                     <p className="o-m-0 o-mt-5 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
-                      {choisies.has('bout') && choisies.has('avant') && choisies.has('cambrure')
+                      {choisies.has('bout') &&
+                      choisies.has('avant') &&
+                      choisies.has('cambrure')
                         ? 'Bout, avant-pied et cambrion ensemble : c est un ressemelage complet, et il coute moins que leur somme.'
                         : choisies.has('talon')
                           ? 'Le bonbout est compris dans un talon neuf : nous ne le facturons pas deux fois.'
@@ -699,7 +1060,9 @@ export default function Page(): ReactElement {
               {/* L avant et l apres, en damier. */}
               <div className="o-mt-16">
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                  {reduced ? 'La meme paire, avant et apres' : 'La meme paire, avant et apres — survolez la coupe'}
+                  {reduced
+                    ? 'La meme paire, avant et apres'
+                    : 'La meme paire, avant et apres — survolez la coupe'}
                 </p>
                 <div className="o-mt-5 o-max-w-2xl">
                   {reduced ? (
@@ -708,7 +1071,13 @@ export default function Page(): ReactElement {
                       {neuve}
                     </div>
                   ) : (
-                    <PixelTransition from={usure} to={neuve} cells={14} duration={560} color={accentDoux(900, 60)} />
+                    <PixelTransition
+                      from={usure}
+                      to={neuve}
+                      cells={14}
+                      duration={560}
+                      color={accentDoux(900, 60)}
+                    />
                   )}
                 </div>
               </div>
@@ -717,7 +1086,11 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= Les cinq etapes, en chapitre ================= */}
-        <section aria-labelledby="etapes-titre" className="o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('stone')}>
+        <section
+          aria-labelledby="etapes-titre"
+          className="o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={nuit('stone')}
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Chapitre
               indice="(03) — Le ressemelage"
@@ -726,20 +1099,38 @@ export default function Page(): ReactElement {
                 <h2
                   id="etapes-titre"
                   className="o-m-0 o-uppercase o-text-stone-50"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(1.6rem, 3.2vw, 2.75rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.6rem, 3.2vw, 2.75rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.04em',
+                  }}
                 >
                   Cinq jours, et douze heures de presse.
                 </h2>
               }
-              texte={<span className="o-text-stone-400">Ce qui prend du temps n est pas le travail : c est la colle, et le cuir qui reprend sa place.</span>}
+              texte={
+                <span className="o-text-stone-400">
+                  Ce qui prend du temps n est pas le travail : c est la colle, et le cuir
+                  qui reprend sa place.
+                </span>
+              }
             >
               <ol className="o-m-0 o-list-none o-p-0">
                 {ETAPES.map(([rang, titre, texte]) => (
-                  <li key={rang} className="o-grid o-gap-4 o-border-t o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-8">
+                  <li
+                    key={rang}
+                    className="o-grid o-gap-4 o-border-t o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-8"
+                  >
                     <span
                       aria-hidden="true"
                       className="o-tabular-nums o-text-stone-50 md:o-col-span-3"
-                      style={{ ...affiche('l', 800), fontSize: 'clamp(2.5rem, 6vw, 5rem)', lineHeight: 0.84, letterSpacing: '-0.05em' }}
+                      style={{
+                        ...affiche('l', 800),
+                        fontSize: 'clamp(2.5rem, 6vw, 5rem)',
+                        lineHeight: 0.84,
+                        letterSpacing: '-0.05em',
+                      }}
                     >
                       {rang}
                     </span>
@@ -748,7 +1139,9 @@ export default function Page(): ReactElement {
                         <span className="o-sr-only">{rang} — </span>
                         {titre}
                       </h3>
-                      <p className="o-m-0 o-mt-3 o-max-w-xl o-text-sm o-leading-relaxed o-text-stone-300">{texte}</p>
+                      <p className="o-m-0 o-mt-3 o-max-w-xl o-text-sm o-leading-relaxed o-text-stone-300">
+                        {texte}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -758,7 +1151,10 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= L appel : le devis en trois curseurs (A26) === */}
-        <section id="devis" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="devis"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
               <Indice rang="04" sombre={false}>
@@ -768,7 +1164,12 @@ export default function Page(): ReactElement {
             <Reveal delay={80}>
               <h2
                 className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                style={{ ...affiche('m', 800), fontSize: 'clamp(1.85rem, 4.4vw, 3.75rem)', lineHeight: 0.9, letterSpacing: '-0.04em' }}
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(1.85rem, 4.4vw, 3.75rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.04em',
+                }}
               >
                 Trois crans, et le montant tombe.
               </h2>
@@ -776,8 +1177,7 @@ export default function Page(): ReactElement {
             <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
               Le devis part de ce que vous avez coche sur le plan
               {devis.total > 0 ? ` — ${String(devis.total)} euros la paire` : ''}. Ces
-              trois crans-la ne changent pas le travail, ils changent ce qu il
-              coute.
+              trois crans-la ne changent pas le travail, ils changent ce qu il coute.
             </p>
             <div className="o-mt-14">
               <Devis base={devis.total} jours={devis.jours} />
@@ -789,9 +1189,8 @@ export default function Page(): ReactElement {
         <footer className="o-relative o-border-t o-border-black-10 dark:o-border-stone-800 o-px-6 o-py-20 md:o-px-10">
           <div className="o-mx-auto o-max-w-3xl o-text-center">
             <p className="o-m-0 o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Je repare ce qui peut l etre et je le dis quand ce n est pas la
-              peine. Une paire que je refuse, c est une paire que vous ne payez
-              pas deux fois.
+              Je repare ce qui peut l etre et je le dis quand ce n est pas la peine. Une
+              paire que je refuse, c est une paire que vous ne payez pas deux fois.
             </p>
             <p className="o-m-0 o-mt-10" style={{ color: encre() }}>
               <HandWritten width={280} thickness={4} duration={2000}>

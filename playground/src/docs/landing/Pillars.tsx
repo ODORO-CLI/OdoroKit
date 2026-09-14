@@ -9,7 +9,15 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { ArrowRight, Cpu, Package, Palette, Route, Shapes, Zap } from '@odoro-cli/icons/filaire'
+import {
+  ArrowRight,
+  Cpu,
+  Package,
+  Palette,
+  Route,
+  Shapes,
+  Zap,
+} from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { type ReactElement, type ReactNode } from 'react'
@@ -48,7 +56,15 @@ const PILLARS: readonly Pillar[] = [
     text: 'Presets, revelations au defilement, sorties animees — sur le fil de composition du navigateur, jamais dans une boucle JavaScript.',
     to: '/docs/motion',
     icon: Zap,
-    visual: <Rings className="o-absolute o-inset-0" spacing={22} thickness={1} x={0.8} y={0.2} />,
+    visual: (
+      <Rings
+        className="o-absolute o-inset-0"
+        spacing={22}
+        thickness={1}
+        x={0.8}
+        y={0.2}
+      />
+    ),
   },
   {
     title: 'Des composants accessibles',
@@ -96,8 +112,8 @@ export function Pillars(): ReactElement {
           Tout ce qu’il faut pour un site vivant, sans une seule dependance.
         </h2>
         <p className="o-mt-4 o-text-lg o-text-zinc-600 dark:o-text-zinc-400 o-text-pretty">
-          Chaque module tient seul. Ensemble, ils partagent les mêmes tokens, la même boucle
-          et la même politique de mouvement.
+          Chaque module tient seul. Ensemble, ils partagent les mêmes tokens, la même
+          boucle et la même politique de mouvement.
         </p>
       </Reveal>
 
@@ -124,7 +140,9 @@ export function Pillars(): ReactElement {
                 <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
                   {pillar.module}
                 </span>
-                <h3 className="o-text-lg o-font-semibold o-tracking-tight">{pillar.title}</h3>
+                <h3 className="o-text-lg o-font-semibold o-tracking-tight">
+                  {pillar.title}
+                </h3>
                 <p className="o-flex-1 o-text-sm o-text-zinc-600 dark:o-text-zinc-400 o-text-pretty">
                   {pillar.text}
                 </p>

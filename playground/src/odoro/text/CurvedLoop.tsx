@@ -166,7 +166,7 @@ export function CurvedLoop({
     const abonnement = clock.subscribe(
       () => {
         const parcouru = ((performance.now() - depart) / 1000) * speed
-        const cycle = ((parcouru * signe) % largeurMotif + largeurMotif) % largeurMotif
+        const cycle = (((parcouru * signe) % largeurMotif) + largeurMotif) % largeurMotif
         // Le motif commence une repetition avant l'arc : celle qui sort par un
         // bord n'est jamais rendue, et celle qui entre par l'autre est deja la.
         texte.setAttribute('startOffset', (cycle - largeurMotif).toFixed(2))

@@ -19,11 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-palette-orange-400",
-    "--o-palette-rose-500"
-  ],
+  "tokens": ["--o-theme-bg", "--o-palette-orange-400", "--o-palette-rose-500"],
   "props": [
     {
       "name": "count",

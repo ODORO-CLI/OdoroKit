@@ -72,7 +72,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-stone-950 o-to-purple-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-stone-950 o-to-purple-950'
 
 /**
  * Nappes parallaxes.
@@ -112,13 +113,18 @@ export function VeilParallax({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: VEIL_PARALLAX_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uDepth: depth, uSpeed: speed, uScale: scale },
-      name: 'veil-parallax',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: VEIL_PARALLAX_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uDepth: depth, uSpeed: speed, uScale: scale },
+    name: 'veil-parallax',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

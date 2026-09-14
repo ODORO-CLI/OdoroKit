@@ -167,7 +167,12 @@ export function WaterSurface({
 
       // Un plan large et profond : la brume l'efface bien avant ses bords.
       const segments = SEGMENTS[scene.quality]
-      const geometry = new three.PlaneGeometry(24, 30, segments, Math.round(segments * 1.25))
+      const geometry = new three.PlaneGeometry(
+        24,
+        30,
+        segments,
+        Math.round(segments * 1.25),
+      )
       const material = new three.ShaderMaterial({
         vertexShader: WATER_SURFACE_VERTEX,
         fragmentShader: `${NOISE_FUNCTIONS_3D}\n${WATER_SURFACE_FRAGMENT}`,
@@ -193,8 +198,14 @@ export function WaterSurface({
 
     frame: ({ camera }, { time, delta }) => {
       const live = uniforms.current
-      const { amplitude: a, wavelength: l, choppiness: c, speed: s, sun: brightness, parallax: lean } =
-        settings.current
+      const {
+        amplitude: a,
+        wavelength: l,
+        choppiness: c,
+        speed: s,
+        sun: brightness,
+        parallax: lean,
+      } = settings.current
       const set = (key: string, value: number): void => {
         const uniform = live[key]
         if (uniform !== undefined) uniform.value = value

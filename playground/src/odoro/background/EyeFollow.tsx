@@ -75,11 +75,7 @@ export interface EyeFollowOwnProps {
 export type EyeFollowProps = Customisable<EyeFollowOwnProps>
 
 /** Tokens employes par defaut : le fond, le trait et la pupille, l'iris. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-fg',
-  '--o-palette-brand-500',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
@@ -124,13 +120,18 @@ export function EyeFollow({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: EYE_FOLLOW_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uEyes: eyes, uGaze: gaze, uBlink: blink },
-      name: 'eye-follow',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: EYE_FOLLOW_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uEyes: eyes, uGaze: gaze, uBlink: blink },
+    name: 'eye-follow',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

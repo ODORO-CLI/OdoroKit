@@ -210,24 +210,29 @@ export function LiquidEther({
     }
   }, [host, uTrail, uStamps])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: LIQUID_ETHER_FRAGMENT,
-      colors,
-      uniforms: {
-        uTrail,
-        uStamps,
-        uSpeed: speed,
-        uRadius: radius,
-        uStrength: strength,
-        uLife: life,
-        uOctaves: OCTAVES,
-      },
-      name: 'liquid-ether',
-      degrade: (quality) => ({
-        uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: LIQUID_ETHER_FRAGMENT,
+    colors,
+    uniforms: {
+      uTrail,
+      uStamps,
+      uSpeed: speed,
+      uRadius: radius,
+      uStrength: strength,
+      uLife: life,
+      uOctaves: OCTAVES,
+    },
+    name: 'liquid-ether',
+    degrade: (quality) => ({
+      uOctaves: quality === 'low' ? LOW_OCTAVES : OCTAVES,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

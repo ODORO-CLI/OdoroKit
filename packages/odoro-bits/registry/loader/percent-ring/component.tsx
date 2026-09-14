@@ -173,7 +173,9 @@ export function PercentRing({
               ? `${String(circumference * 0.25)} ${String(circumference)}`
               : `${String(circumference)} ${String(circumference)}`
           }
-          strokeDashoffset={indeterminate ? undefined : circumference * (1 - clamped / 100)}
+          strokeDashoffset={
+            indeterminate ? undefined : circumference * (1 - clamped / 100)
+          }
         />
       </svg>
       {indeterminate ? null : (

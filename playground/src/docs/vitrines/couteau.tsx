@@ -231,25 +231,29 @@ const COUCHES = [
     cle: 'fil',
     titre: 'Le fil',
     epaisseur: '0,4 mm',
-    texte: 'Affute a la pierre a eau, mille puis six mille, sans micro-biseau. Le fil part de l atelier a quinze degres par face.',
+    texte:
+      'Affute a la pierre a eau, mille puis six mille, sans micro-biseau. Le fil part de l atelier a quinze degres par face.',
   },
   {
     cle: 'lame',
     titre: 'La lame',
     epaisseur: '3,2 mm',
-    texte: 'Barre forgee a Thiers, trempee a huile, revenue deux fois. Le numero de coulee est grave sous le manche.',
+    texte:
+      'Barre forgee a Thiers, trempee a huile, revenue deux fois. Le numero de coulee est grave sous le manche.',
   },
   {
     cle: 'manche',
     titre: 'Le manche',
     epaisseur: '22 mm',
-    texte: 'Plaquettes de buis, de genevrier ou de micarta, rivetees laiton. Ajustees a la main, jamais tournees.',
+    texte:
+      'Plaquettes de buis, de genevrier ou de micarta, rivetees laiton. Ajustees a la main, jamais tournees.',
   },
   {
     cle: 'maison',
     titre: 'La maison',
     epaisseur: '—',
-    texte: 'Emouture — 8 rue des Forgerons, 63300 Thiers. Atelier ouvert le vendredi, de 14 h a 18 h.',
+    texte:
+      'Emouture — 8 rue des Forgerons, 63300 Thiers. Atelier ouvert le vendredi, de 14 h a 18 h.',
   },
 ] as const
 
@@ -281,7 +285,12 @@ interface Profil {
  * en parabole — a fleche faible, la parabole et l arc de cercle se confondent
  * a moins d un centieme.
  */
-function epaisseurA(distance: number, hauteur: number, demiEpaisseur: number, fleche: number): number {
+function epaisseurA(
+  distance: number,
+  hauteur: number,
+  demiEpaisseur: number,
+  fleche: number,
+): number {
   const droite = (distance / hauteur) * demiEpaisseur
   const demi = hauteur / 2
   const courbe = fleche * (1 - ((distance - demi) / demi) ** 2)
@@ -295,7 +304,8 @@ function profilDe(emouture: Emouture, epaisseur: number): Profil {
   const demi = (Math.atan(demiEpaisseur / hauteur) * 180) / Math.PI
   // La relation de la corde et de la fleche : R = (corde / 2) au carre, sur
   // deux fleches. C est le rayon de la meule qu il faudrait pour la tailler.
-  const meule = emouture.fleche === 0 ? 0 : (hauteur / 2) ** 2 / (2 * Math.abs(emouture.fleche))
+  const meule =
+    emouture.fleche === 0 ? 0 : (hauteur / 2) ** 2 / (2 * Math.abs(emouture.fleche))
   return {
     hauteur,
     demi,
@@ -312,7 +322,10 @@ const REFERENCE = profilDe(EMOUTURES[0], 3.2).derriere
 
 /** Un nombre a la francaise. */
 function nombre(valeur: number, decimales = 0): string {
-  return valeur.toLocaleString('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+  return valeur.toLocaleString('fr-FR', {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })
 }
 
 /* ============================ Le plan cote ============================= */
@@ -342,7 +355,15 @@ function pointPlan(distance: number, demiEpaisseur: number): readonly [number, n
  * point de la face vient de {@link epaisseurA}. Changer d emouture change la
  * courbe et les cotes en meme temps, parce que c est la meme source.
  */
-function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture; readonly epaisseur: number; readonly profil: Profil }): ReactElement {
+function PlanCote({
+  emouture,
+  epaisseur,
+  profil,
+}: {
+  readonly emouture: Emouture
+  readonly epaisseur: number
+  readonly profil: Profil
+}): ReactElement {
   const demiEpaisseur = epaisseur / 2
   const trait = encreSurSombre()
   const cote = 'var(--o-palette-stone-300)'
@@ -354,7 +375,10 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
     const pas = profil.hauteur / 40
     const points: string[] = []
     for (let d = 0; d <= profil.hauteur + 0.0001; d += pas) {
-      const [x, y] = pointPlan(d, epaisseurA(d, profil.hauteur, demiEpaisseur, emouture.fleche) / 2)
+      const [x, y] = pointPlan(
+        d,
+        epaisseurA(d, profil.hauteur, demiEpaisseur, emouture.fleche) / 2,
+      )
       points.push(`${x.toFixed(1)} ${y.toFixed(1)}`)
     }
     const [dosX, dosY] = pointPlan(HAUTEUR, demiEpaisseur)
@@ -366,7 +390,10 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
     const pas = profil.hauteur / 40
     const points: string[] = []
     for (let d = profil.hauteur; d >= -0.0001; d -= pas) {
-      const [x, y] = pointPlan(d, -epaisseurA(d, profil.hauteur, demiEpaisseur, emouture.fleche) / 2)
+      const [x, y] = pointPlan(
+        d,
+        -epaisseurA(d, profil.hauteur, demiEpaisseur, emouture.fleche) / 2,
+      )
       points.push(`${x.toFixed(1)} ${y.toFixed(1)}`)
     }
     return points.join('L')
@@ -377,11 +404,30 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
   const [milieuX] = [pointPlan(profil.hauteur / 2, 0)]
 
   return (
-    <svg viewBox="0 0 720 360" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 720 360"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       {/* La matiere, hachuree comme sur une coupe. */}
       <defs>
-        <pattern id="o-couteau-acier" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="6" stroke={trait} strokeWidth="1" strokeOpacity="0.45" />
+        <pattern
+          id="o-couteau-acier"
+          width="6"
+          height="6"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <line
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="6"
+            stroke={trait}
+            strokeWidth="1"
+            strokeOpacity="0.45"
+          />
         </pattern>
       </defs>
 
@@ -394,7 +440,15 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
       />
 
       {/* L axe de la lame. */}
-      <line x1={FIL_X - 30} y1={AXE_Y} x2={dosHaut[0] + 40} y2={AXE_Y} stroke={filet} strokeWidth="0.9" strokeDasharray="10 4 2 4" />
+      <line
+        x1={FIL_X - 30}
+        y1={AXE_Y}
+        x2={dosHaut[0] + 40}
+        y2={AXE_Y}
+        stroke={filet}
+        strokeWidth="0.9"
+        strokeDasharray="10 4 2 4"
+      />
 
       {/* La ligne de cote de la hauteur de lame. */}
       <g stroke={cote} strokeWidth="0.9">
@@ -402,8 +456,18 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
         <line x1={FIL_X} y1={AXE_Y + 4} x2={FIL_X} y2={AXE_Y + 116} />
         <line x1={dosHaut[0]} y1={dosBas[1]} x2={dosHaut[0]} y2={AXE_Y + 116} />
         {/* La ligne de cote de la hauteur d emouture. */}
-        <line x1={FIL_X} y1={AXE_Y + 74} x2={FIL_X + profil.hauteur * ECHELLE_X} y2={AXE_Y + 74} />
-        <line x1={FIL_X + profil.hauteur * ECHELLE_X} y1={AXE_Y + 10} x2={FIL_X + profil.hauteur * ECHELLE_X} y2={AXE_Y + 82} />
+        <line
+          x1={FIL_X}
+          y1={AXE_Y + 74}
+          x2={FIL_X + profil.hauteur * ECHELLE_X}
+          y2={AXE_Y + 74}
+        />
+        <line
+          x1={FIL_X + profil.hauteur * ECHELLE_X}
+          y1={AXE_Y + 10}
+          x2={FIL_X + profil.hauteur * ECHELLE_X}
+          y2={AXE_Y + 82}
+        />
         {/* La ligne de cote de l epaisseur au dos. */}
         <line x1={dosHaut[0] + 34} y1={dosHaut[1]} x2={dosHaut[0] + 34} y2={dosBas[1]} />
         <line x1={dosHaut[0]} y1={dosHaut[1]} x2={dosHaut[0] + 42} y2={dosHaut[1]} />
@@ -412,7 +476,13 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
 
       {/* Le repere a un millimetre du fil : le seul chiffre qui dise si ca coupe. */}
       <g stroke={trait} strokeWidth="1.1">
-        <line x1={FIL_X + ECHELLE_X} y1={AXE_Y - 64} x2={FIL_X + ECHELLE_X} y2={AXE_Y + 34} strokeDasharray="3 3" />
+        <line
+          x1={FIL_X + ECHELLE_X}
+          y1={AXE_Y - 64}
+          x2={FIL_X + ECHELLE_X}
+          y2={AXE_Y + 34}
+          strokeDasharray="3 3"
+        />
         <circle cx={FIL_X + ECHELLE_X} cy={AXE_Y} r="3" fill={trait} />
       </g>
 
@@ -424,9 +494,25 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
       />
 
       {/* Les chiffres, poses sur leurs lignes de cote. */}
-      <g fill={cote} style={{ fontFamily: 'var(--o-font-mono)', fontSize: 12, letterSpacing: '0.06em' }}>
-        <text x={(FIL_X + dosHaut[0]) / 2} y={AXE_Y + 124} textAnchor="middle">{`hauteur de lame ${nombre(HAUTEUR)} mm`}</text>
-        <text x={FIL_X + (profil.hauteur * ECHELLE_X) / 2} y={AXE_Y + 66} textAnchor="middle" fill={trait}>
+      <g
+        fill={cote}
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          fontSize: 12,
+          letterSpacing: '0.06em',
+        }}
+      >
+        <text
+          x={(FIL_X + dosHaut[0]) / 2}
+          y={AXE_Y + 124}
+          textAnchor="middle"
+        >{`hauteur de lame ${nombre(HAUTEUR)} mm`}</text>
+        <text
+          x={FIL_X + (profil.hauteur * ECHELLE_X) / 2}
+          y={AXE_Y + 66}
+          textAnchor="middle"
+          fill={trait}
+        >
           {`emouture ${nombre(profil.hauteur, 1)} mm`}
         </text>
         <text x={dosHaut[0] + 50} y={AXE_Y + 4}>{`dos ${nombre(epaisseur, 1)} mm`}</text>
@@ -439,8 +525,14 @@ function PlanCote({ emouture, epaisseur, profil }: { readonly emouture: Emouture
             {`fleche ${nombre(Math.abs(emouture.fleche), 2)} mm — meule ${nombre(profil.meule)} mm`}
           </text>
         )}
-        <text x="16" y="26" fill={filet}>{`Coupe A-A — echelle ${String(ECHELLE_X)} : 1 en hauteur, ${String(ECHELLE_Y)} : 1 en epaisseur`}</text>
-        <text x="16" y="346" fill={filet}>Emouture — plan 04, couteau de table 195</text>
+        <text
+          x="16"
+          y="26"
+          fill={filet}
+        >{`Coupe A-A — echelle ${String(ECHELLE_X)} : 1 en hauteur, ${String(ECHELLE_Y)} : 1 en epaisseur`}</text>
+        <text x="16" y="346" fill={filet}>
+          Emouture — plan 04, couteau de table 195
+        </text>
       </g>
     </svg>
   )
@@ -456,7 +548,12 @@ function LameDeProfil({ emouture }: { readonly emouture: Emouture }): ReactEleme
   const y = 38 + (1 - emouture.part) * 54
 
   return (
-    <svg viewBox="0 0 460 120" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 460 120"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       {/* La lame : dos droit, ventre qui remonte, pointe. */}
       <path
         d="M34 30 H286 C360 32 418 44 446 62 C418 80 360 94 286 100 H34 Q20 66 34 30 Z"
@@ -465,9 +562,19 @@ function LameDeProfil({ emouture }: { readonly emouture: Emouture }): ReactEleme
         strokeLinejoin="round"
       />
       {/* La ligne d emouture, posee a la hauteur que la geometrie donne. */}
-      <path d={`M48 ${String(Math.round(y))} H300 Q372 ${String(Math.round(y))} 424 62`} stroke={filet} strokeWidth="1.3" strokeDasharray="7 5" />
+      <path
+        d={`M48 ${String(Math.round(y))} H300 Q372 ${String(Math.round(y))} 424 62`}
+        stroke={filet}
+        strokeWidth="1.3"
+        strokeDasharray="7 5"
+      />
       {/* La soie, en pointille : elle continue dans le manche, hors cadre. */}
-      <path d="M34 44 H2 M34 88 H2" stroke={filet} strokeWidth="1.1" strokeDasharray="3 4" />
+      <path
+        d="M34 44 H2 M34 88 H2"
+        stroke={filet}
+        strokeWidth="1.1"
+        strokeDasharray="3 4"
+      />
       {/* Le talon, marque d un trait plein. */}
       <path d="M34 30 V100" stroke={filet} strokeWidth="1.1" />
     </svg>
@@ -477,14 +584,26 @@ function LameDeProfil({ emouture }: { readonly emouture: Emouture }): ReactEleme
 /* ============================ Les petites pieces ======================= */
 
 /** Un choix : une case franche, sans rondeur. Artefakt ne connait pas la gelule. */
-function Case({ actif, onClick, children }: { readonly actif: boolean; readonly onClick: () => void; readonly children: ReactNode }): ReactElement {
+function Case({
+  actif,
+  onClick,
+  children,
+}: {
+  readonly actif: boolean
+  readonly onClick: () => void
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <button
       type="button"
       aria-pressed={actif}
       onClick={onClick}
       className="o-border-w-1 o-px-3.5 o-py-2 o-text-left o-font-mono o-text-xs o-uppercase o-tracking-wider o-transition-colors focus:o-ring"
-      style={actif ? { ...aplat(), borderColor: 'transparent' } : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-stone-300)' }}
+      style={
+        actif
+          ? { ...aplat(), borderColor: 'transparent' }
+          : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-stone-300)' }
+      }
     >
       {children}
     </button>
@@ -492,14 +611,31 @@ function Case({ actif, onClick, children }: { readonly actif: boolean; readonly 
 }
 
 /** Une valeur du plan, reprise en clair a cote du dessin. */
-function Cote({ quoi, valeur, note }: { readonly quoi: string; readonly valeur: string; readonly note?: string }): ReactElement {
+function Cote({
+  quoi,
+  valeur,
+  note,
+}: {
+  readonly quoi: string
+  readonly valeur: string
+  readonly note?: string
+}): ReactElement {
   return (
     <div className="o-border-t o-border-white-10 o-py-3.5">
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-1 o-tabular-nums o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.2vw, 1.875rem)' }}>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+        {quoi}
+      </dt>
+      <dd
+        className="o-m-0 o-mt-1 o-tabular-nums o-text-stone-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.2vw, 1.875rem)' }}
+      >
         {valeur}
       </dd>
-      {note !== undefined && <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-stone-400">{note}</p>}
+      {note !== undefined && (
+        <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-stone-400">
+          {note}
+        </p>
+      )}
     </div>
   )
 }
@@ -537,11 +673,15 @@ export default function Page(): ReactElement {
   }
 
   /** Un filet de la grille : une encre translucide, pas un aplat. */
-  const filet = (part: number): string => `color-mix(in oklab, ${accent(300)} ${String(part)}%, transparent)`
+  const filet = (part: number): string =>
+    `color-mix(in oklab, ${accent(300)} ${String(part)}%, transparent)`
 
   return (
-    <Porte forme="trou" marque="Emouture" >
-      <div className="o-relative o-text-stone-50" style={{ ...polices, ...nuit('stone') }}>
+    <Porte forme="trou" marque="Emouture">
+      <div
+        className="o-relative o-text-stone-50"
+        style={{ ...polices, ...nuit('stone') }}
+      >
         {/* La grille : un aplat fixe, dix millimetres de cote, avec une maille
             forte tous les cinq carreaux. Rien ne bouge derriere le texte. */}
         <div
@@ -559,36 +699,75 @@ export default function Page(): ReactElement {
         />
 
         <div className="o-relative o-z-10">
-          <BarreFilet marque="Emouture" liens={NAVIGATION} action={['#commande', 'Commander']} />
+          <BarreFilet
+            marque="Emouture"
+            liens={NAVIGATION}
+            action={['#commande', 'Commander']}
+          />
 
           <main>
             {/*
               ----- L ouverture : la lame, et le champ d aiguilles -----------
             */}
-            <section id="haut" className="o-relative o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
-              <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-y-0 o-right-0 o-hidden o-w-1/2 lg:o-block">
-                <MagnetLines rows={12} columns={14} length={24} thickness={2} reach={300} idle={-32} color={filet(62)} className="o-absolute o-inset-0" />
+            <section
+              id="haut"
+              className="o-relative o-flex o-flex-col o-overflow-hidden"
+              style={{ minHeight: ECRAN }}
+            >
+              <div
+                aria-hidden="true"
+                className="o-pointer-events-none o-absolute o-inset-y-0 o-right-0 o-hidden o-w-1/2 lg:o-block"
+              >
+                <MagnetLines
+                  rows={12}
+                  columns={14}
+                  length={24}
+                  thickness={2}
+                  reach={300}
+                  idle={-32}
+                  color={filet(62)}
+                  className="o-absolute o-inset-0"
+                />
               </div>
 
               <div className="o-relative o-flex o-grow o-flex-col o-justify-center o-px-6 o-py-10 md:o-px-12">
                 <Surgit>
-                  <Etiquette>Thiers — huit couteliers, une seule emouture par piece</Etiquette>
+                  <Etiquette>
+                    Thiers — huit couteliers, une seule emouture par piece
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={140}
                   className="o-m-0 o-mt-7 o-max-w-3xl"
-                  style={{ ...affiche('l', 400), fontSize: 'clamp(2rem, 5.8vw, 5.5rem)', lineHeight: 0.94, letterSpacing: '-0.045em' }}
+                  style={{
+                    ...affiche('l', 400),
+                    fontSize: 'clamp(2rem, 5.8vw, 5.5rem)',
+                    lineHeight: 0.94,
+                    letterSpacing: '-0.045em',
+                  }}
                 >
                   Ce qui coupe, c est la geometrie.
                 </TitreVague>
 
                 <div className="o-mt-10 o-max-w-xl">
-                  <Surgit delai={540} as="p" className="o-m-0 o-text-base o-leading-relaxed o-text-stone-300">
-                    Un fil aiguise sur une lame epaisse fend ; un fil moyen sur une lame mince tranche. Tout se joue dans le millimetre derriere le tranchant, et ce millimetre se dessine.
+                  <Surgit
+                    delai={540}
+                    as="p"
+                    className="o-m-0 o-text-base o-leading-relaxed o-text-stone-300"
+                  >
+                    Un fil aiguise sur une lame epaisse fend ; un fil moyen sur une lame
+                    mince tranche. Tout se joue dans le millimetre derriere le tranchant,
+                    et ce millimetre se dessine.
                   </Surgit>
                   <Surgit delai={680} className="o-mt-8">
                     <Actions
-                      pleine={['#profil', <>Ouvrir le plan <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                      pleine={[
+                        '#profil',
+                        <>
+                          Ouvrir le plan{' '}
+                          <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                        </>,
+                      ]}
                       fantome={['#commande', 'Quatre questions']}
                     />
                   </Surgit>
@@ -615,19 +794,36 @@ export default function Page(): ReactElement {
               className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-16 md:o-px-12 md:o-py-24"
               indice="(01) — Le profil"
               titre={
-                <h2 className="o-m-0 o-max-w-sm" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)', lineHeight: 1 }}>
+                <h2
+                  className="o-m-0 o-max-w-sm"
+                  style={{
+                    ...affiche('m', 400),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)',
+                    lineHeight: 1,
+                  }}
+                >
                   {emouture.nom}.
                 </h2>
               }
               texte={
                 <div className="o-flex o-flex-col o-gap-6">
-                  <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300">{emouture.note}</p>
+                  <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300">
+                    {emouture.note}
+                  </p>
 
                   <fieldset className="o-m-0 o-p-0">
-                    <legend className="o-mb-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">L emouture</legend>
+                    <legend className="o-mb-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                      L emouture
+                    </legend>
                     <div className="o-flex o-flex-col o-gap-1.5">
                       {EMOUTURES.map((e) => (
-                        <Case key={e.cle} actif={e.cle === cleEmouture} onClick={() => { setCleEmouture(e.cle) }}>
+                        <Case
+                          key={e.cle}
+                          actif={e.cle === cleEmouture}
+                          onClick={() => {
+                            setCleEmouture(e.cle)
+                          }}
+                        >
                           {e.nom}
                         </Case>
                       ))}
@@ -635,10 +831,18 @@ export default function Page(): ReactElement {
                   </fieldset>
 
                   <fieldset className="o-m-0 o-p-0">
-                    <legend className="o-mb-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">L epaisseur au dos</legend>
+                    <legend className="o-mb-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                      L epaisseur au dos
+                    </legend>
                     <div className="o-flex o-flex-wrap o-gap-1.5">
                       {EPAISSEURS.map((e) => (
-                        <Case key={e} actif={e === epaisseur} onClick={() => { setEpaisseur(e) }}>
+                        <Case
+                          key={e}
+                          actif={e === epaisseur}
+                          onClick={() => {
+                            setEpaisseur(e)
+                          }}
+                        >
                           {`${nombre(e, 1)} mm`}
                         </Case>
                       ))}
@@ -647,7 +851,12 @@ export default function Page(): ReactElement {
                 </div>
               }
             >
-              <div className="o-border-w-1 o-border-white-10 o-p-3 md:o-p-5" style={{ backgroundColor: `color-mix(in oklab, ${accent(900)} 22%, var(--o-theme-bg))` }}>
+              <div
+                className="o-border-w-1 o-border-white-10 o-p-3 md:o-p-5"
+                style={{
+                  backgroundColor: `color-mix(in oklab, ${accent(900)} 22%, var(--o-theme-bg))`,
+                }}
+              >
                 <PlanCote emouture={emouture} epaisseur={epaisseur} profil={profil} />
               </div>
 
@@ -679,7 +888,11 @@ export default function Page(): ReactElement {
                 />
                 <Cote
                   quoi={emouture.fleche === 0 ? 'Fleche au milieu' : 'Meule equivalente'}
-                  valeur={emouture.fleche === 0 ? 'Aucune — face plane' : `${nombre(profil.meule)} mm`}
+                  valeur={
+                    emouture.fleche === 0
+                      ? 'Aucune — face plane'
+                      : `${nombre(profil.meule)} mm`
+                  }
                   note={
                     emouture.fleche === 0
                       ? 'Une face plane se refait sur une pierre plate, sans gabarit.'
@@ -694,25 +907,63 @@ export default function Page(): ReactElement {
             */}
             <section className="o-border-t o-border-white-10 o-px-6 o-py-16 md:o-px-12 md:o-py-24">
               <Indice rang="02">Les cinq</Indice>
-              <h2 className="o-m-0 o-mt-4 o-max-w-2xl" style={{ ...affiche('m', 400), fontSize: 'clamp(1.625rem, 3.4vw, 3rem)', lineHeight: 1 }}>
+              <h2
+                className="o-m-0 o-mt-4 o-max-w-2xl"
+                style={{
+                  ...affiche('m', 400),
+                  fontSize: 'clamp(1.625rem, 3.4vw, 3rem)',
+                  lineHeight: 1,
+                }}
+              >
                 Aucune n est meilleure. Elles repondent a des questions differentes.
               </h2>
               {/* Le tableau porte cinq colonnes : sur un telephone il ne
                   rentre pas, et il doit defiler de cote. La bande declare son
                   `overflow-y` : sans lui, elle avalerait la molette et figerait
                   la page. */}
-              <div className="o-relative o-mt-10 o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
+              <div
+                className="o-relative o-mt-10 o-overflow-x-auto"
+                style={{ overflowY: 'hidden' }}
+              >
                 <ComparisonTable
                   caption="Les cinq emoutures taillees a l atelier, en trois millimetres deux au dos"
                   maxHeight={520}
-                  columns={EMOUTURES.map((e) => ({ name: e.nom, note: e.usage, featured: e.cle === cleEmouture }))}
+                  columns={EMOUTURES.map((e) => ({
+                    name: e.nom,
+                    note: e.usage,
+                    featured: e.cle === cleEmouture,
+                  }))}
                   rows={[
-                    { label: 'Hauteur d emouture', values: EMOUTURES.map((e) => `${nombre(profilDe(e, 3.2).hauteur, 1)} mm`) },
-                    { label: 'Angle inclus', values: EMOUTURES.map((e) => `${nombre(profilDe(e, 3.2).inclus, 1)}°`) },
-                    { label: 'A 1 mm du fil', values: EMOUTURES.map((e) => `${nombre(profilDe(e, 3.2).derriere, 2)} mm`) },
-                    { label: 'Effort de coupe', values: EMOUTURES.map((e) => `${String(Math.round((profilDe(e, 3.2).derriere / REFERENCE) * 100))} %`) },
+                    {
+                      label: 'Hauteur d emouture',
+                      values: EMOUTURES.map(
+                        (e) => `${nombre(profilDe(e, 3.2).hauteur, 1)} mm`,
+                      ),
+                    },
+                    {
+                      label: 'Angle inclus',
+                      values: EMOUTURES.map(
+                        (e) => `${nombre(profilDe(e, 3.2).inclus, 1)}°`,
+                      ),
+                    },
+                    {
+                      label: 'A 1 mm du fil',
+                      values: EMOUTURES.map(
+                        (e) => `${nombre(profilDe(e, 3.2).derriere, 2)} mm`,
+                      ),
+                    },
+                    {
+                      label: 'Effort de coupe',
+                      values: EMOUTURES.map(
+                        (e) =>
+                          `${String(Math.round((profilDe(e, 3.2).derriere / REFERENCE) * 100))} %`,
+                      ),
+                    },
                     { label: 'Face plane', values: EMOUTURES.map((e) => e.fleche === 0) },
-                    { label: 'Affutage sans gabarit', values: EMOUTURES.map((e) => e.fleche >= 0 && e.part < 0.6) },
+                    {
+                      label: 'Affutage sans gabarit',
+                      values: EMOUTURES.map((e) => e.fleche >= 0 && e.part < 0.6),
+                    },
                   ]}
                 />
               </div>
@@ -727,13 +978,22 @@ export default function Page(): ReactElement {
               className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-16 md:o-px-12 md:o-py-24"
               indice="(03) — L acier"
               titre={
-                <h2 className="o-m-0 o-max-w-sm" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)', lineHeight: 1 }}>
+                <h2
+                  className="o-m-0 o-max-w-sm"
+                  style={{
+                    ...affiche('m', 400),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)',
+                    lineHeight: 1,
+                  }}
+                >
                   Trois barres, trois caracteres.
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300">
-                  Nous ne tenons pas dix aciers. Un carbone qui se refait en dix passes, un inoxydable pour ceux qui oublient d essuyer, et un allie pour ceux qui coupent beaucoup et affutent peu.
+                  Nous ne tenons pas dix aciers. Un carbone qui se refait en dix passes,
+                  un inoxydable pour ceux qui oublient d essuyer, et un allie pour ceux
+                  qui coupent beaucoup et affutent peu.
                 </p>
               }
             >
@@ -745,14 +1005,30 @@ export default function Page(): ReactElement {
                       <button
                         type="button"
                         aria-pressed={actif}
-                        onClick={() => { setCleAcier(a.cle) }}
+                        onClick={() => {
+                          setCleAcier(a.cle)
+                        }}
                         className="o-grid o-w-full o-cursor-pointer o-gap-x-8 o-gap-y-3 o-py-7 o-text-left o-transition-colors hover:o-bg-white-10 focus:o-ring md:o-grid-cols-12"
                       >
                         <span className="o-flex o-items-baseline o-gap-4 md:o-col-span-5">
-                          <span className="o-font-mono o-text-xs o-tabular-nums" style={{ color: actif ? encreSurSombre() : 'var(--o-palette-stone-400)' }}>
+                          <span
+                            className="o-font-mono o-text-xs o-tabular-nums"
+                            style={{
+                              color: actif
+                                ? encreSurSombre()
+                                : 'var(--o-palette-stone-400)',
+                            }}
+                          >
                             {String(rang + 1).padStart(2, '0')}
                           </span>
-                          <span style={{ ...affiche('m', 400), fontSize: 'clamp(1.375rem, 2.6vw, 2.125rem)', lineHeight: 1, color: actif ? encreSurSombre() : undefined }}>
+                          <span
+                            style={{
+                              ...affiche('m', 400),
+                              fontSize: 'clamp(1.375rem, 2.6vw, 2.125rem)',
+                              lineHeight: 1,
+                              color: actif ? encreSurSombre() : undefined,
+                            }}
+                          >
                             {a.nom}
                           </span>
                         </span>
@@ -760,7 +1036,8 @@ export default function Page(): ReactElement {
                           <span>{a.grain}</span>
                           <span className="o-text-stone-400">{a.entretien}</span>
                           <span className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-400">
-                            {String(a.durete)} HRC — tenue {nombre(a.facteur * 100)} — {a.patine}
+                            {String(a.durete)} HRC — tenue {nombre(a.facteur * 100)} —{' '}
+                            {a.patine}
                           </span>
                         </span>
                       </button>
@@ -773,41 +1050,89 @@ export default function Page(): ReactElement {
             {/*
               ----- Le manche : une figure large, et sa legende dans la marge -
             */}
-            <section id="manche" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-16 md:o-px-12 md:o-py-24">
+            <section
+              id="manche"
+              className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-16 md:o-px-12 md:o-py-24"
+            >
               <div className="o-grid o-gap-10 lg:o-grid-cols-12">
                 <div className="lg:o-col-span-3">
                   <Indice rang="04">Le manche</Indice>
                   <p className="o-m-0 o-mt-6 o-text-sm o-leading-relaxed o-text-stone-300">
-                    Deux plaquettes, trois rivets, et une soie qui traverse. Le manche est ajuste sur la main qui l a commande : on demande une pointure, comme pour un gant.
+                    Deux plaquettes, trois rivets, et une soie qui traverse. Le manche est
+                    ajuste sur la main qui l a commande : on demande une pointure, comme
+                    pour un gant.
                   </p>
                   <dl className="o-m-0 o-mt-8">
-                    {([
-                      ['Buis', 'Dense, jaune paille, se polit a la main'],
-                      ['Genevrier', 'Leger, odorant, veine tres marquee'],
-                      ['Micarta', 'Toile et resine, accroche mouille'],
-                    ] as const).map(([quoi, texte]) => (
+                    {(
+                      [
+                        ['Buis', 'Dense, jaune paille, se polit a la main'],
+                        ['Genevrier', 'Leger, odorant, veine tres marquee'],
+                        ['Micarta', 'Toile et resine, accroche mouille'],
+                      ] as const
+                    ).map(([quoi, texte]) => (
                       <div key={quoi} className="o-border-t o-border-white-10 o-py-3">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>{quoi}</dt>
-                        <dd className="o-m-0 o-mt-1 o-text-sm o-text-stone-300">{texte}</dd>
+                        <dt
+                          className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encreSurSombre() }}
+                        >
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-mt-1 o-text-sm o-text-stone-300">
+                          {texte}
+                        </dd>
                       </div>
                     ))}
                   </dl>
                 </div>
 
                 <div className="o-min-w-0 lg:o-col-span-9">
-                  <svg viewBox="0 0 900 260" className="o-w-full" fill="none" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 900 260"
+                    className="o-w-full"
+                    fill="none"
+                    aria-hidden="true"
+                  >
                     {/* La soie, qui traverse le manche de part en part. */}
-                    <path d="M120 118 H716 V148 H120 Z" fill={filet(18)} stroke={encreSurSombre()} strokeWidth="1.2" />
+                    <path
+                      d="M120 118 H716 V148 H120 Z"
+                      fill={filet(18)}
+                      stroke={encreSurSombre()}
+                      strokeWidth="1.2"
+                    />
                     {/* Les deux plaquettes, en coupe. */}
-                    <path d="M330 74 H700 Q724 74 724 96 V170 Q724 192 700 192 H330 Q318 192 318 176 V90 Q318 74 330 74 Z" stroke={encreSurSombre()} strokeWidth="1.8" />
+                    <path
+                      d="M330 74 H700 Q724 74 724 96 V170 Q724 192 700 192 H330 Q318 192 318 176 V90 Q318 74 330 74 Z"
+                      stroke={encreSurSombre()}
+                      strokeWidth="1.8"
+                    />
                     {/* La lame, qui sort a gauche. */}
-                    <path d="M318 108 L60 100 L20 118 L60 146 L318 158 Z" fill={filet(10)} stroke={encreSurSombre()} strokeWidth="1.6" strokeLinejoin="round" />
+                    <path
+                      d="M318 108 L60 100 L20 118 L60 146 L318 158 Z"
+                      fill={filet(10)}
+                      stroke={encreSurSombre()}
+                      strokeWidth="1.6"
+                      strokeLinejoin="round"
+                    />
                     {/* Les trois rivets, cotes. */}
                     {[392, 520, 650].map((x) => (
                       <g key={x}>
-                        <circle cx={x} cy="133" r="13" stroke="var(--o-palette-stone-300)" strokeWidth="1.3" />
+                        <circle
+                          cx={x}
+                          cy="133"
+                          r="13"
+                          stroke="var(--o-palette-stone-300)"
+                          strokeWidth="1.3"
+                        />
                         <circle cx={x} cy="133" r="4" fill="var(--o-palette-stone-300)" />
-                        <line x1={x} y1="206" x2={x} y2="150" stroke="var(--o-palette-stone-500)" strokeWidth="0.9" strokeDasharray="4 3" />
+                        <line
+                          x1={x}
+                          y1="206"
+                          x2={x}
+                          y2="150"
+                          stroke="var(--o-palette-stone-500)"
+                          strokeWidth="0.9"
+                          strokeDasharray="4 3"
+                        />
                       </g>
                     ))}
                     {/* Les lignes de cote du manche. */}
@@ -819,11 +1144,22 @@ export default function Page(): ReactElement {
                       <line x1="724" y1="74" x2="768" y2="74" />
                       <line x1="724" y1="192" x2="768" y2="192" />
                     </g>
-                    <g fill="var(--o-palette-stone-300)" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 13 }}>
-                      <text x="521" y="248" textAnchor="middle">manche 118 mm</text>
-                      <text x="778" y="138">22 mm</text>
-                      <text x="392" y="222" textAnchor="middle">rivets laiton 4 mm</text>
-                      <text x="120" y="88">soie traversante</text>
+                    <g
+                      fill="var(--o-palette-stone-300)"
+                      style={{ fontFamily: 'var(--o-font-mono)', fontSize: 13 }}
+                    >
+                      <text x="521" y="248" textAnchor="middle">
+                        manche 118 mm
+                      </text>
+                      <text x="778" y="138">
+                        22 mm
+                      </text>
+                      <text x="392" y="222" textAnchor="middle">
+                        rivets laiton 4 mm
+                      </text>
+                      <text x="120" y="88">
+                        soie traversante
+                      </text>
                     </g>
                   </svg>
                   <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
@@ -839,19 +1175,34 @@ export default function Page(): ReactElement {
             <section
               id="commande"
               className="o-flex o-scroll-mt-24 o-flex-col o-justify-center o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12"
-              style={{ minHeight: ECRAN, backgroundColor: `color-mix(in oklab, ${accent(900)} 30%, var(--o-theme-bg))` }}
+              style={{
+                minHeight: ECRAN,
+                backgroundColor: `color-mix(in oklab, ${accent(900)} 30%, var(--o-theme-bg))`,
+              }}
             >
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
                 Une seule question — la reponse commande tout le reste
               </p>
-              <h2 className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.5rem)', lineHeight: 1 }}>
+              <h2
+                className="o-m-0 o-mt-5 o-max-w-3xl"
+                style={{
+                  ...affiche('m', 400),
+                  fontSize: 'clamp(1.75rem, 4vw, 3.5rem)',
+                  lineHeight: 1,
+                }}
+              >
                 Que coupez-vous, le plus souvent ?
               </h2>
 
               <ul className="o-m-0 o-mt-10 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
                 {REPONSES.map((r) => (
                   <li key={r.cle}>
-                    <Case actif={r.cle === reponse} onClick={() => { repondre(r.cle) }}>
+                    <Case
+                      actif={r.cle === reponse}
+                      onClick={() => {
+                        repondre(r.cle)
+                      }}
+                    >
                       {r.question}
                     </Case>
                   </li>
@@ -860,7 +1211,14 @@ export default function Page(): ReactElement {
 
               <div className="o-mt-14 o-min-h-48">
                 {choisie === undefined ? (
-                  <p className="o-m-0 o-max-w-3xl o-text-stone-500" style={{ ...affiche('m', 400), fontSize: 'clamp(1.5rem, 4.4vw, 4rem)', lineHeight: 1.04 }}>
+                  <p
+                    className="o-m-0 o-max-w-3xl o-text-stone-500"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.5rem, 4.4vw, 4rem)',
+                      lineHeight: 1.04,
+                    }}
+                  >
                     Choisissez, et la reponse s ecrit ici.
                   </p>
                 ) : (
@@ -872,12 +1230,18 @@ export default function Page(): ReactElement {
                       duration={760}
                       stagger={110}
                       className="o-m-0 o-max-w-3xl"
-                      style={{ ...affiche('m', 400), fontSize: 'clamp(1.5rem, 4.4vw, 4rem)', lineHeight: 1.04 }}
+                      style={{
+                        ...affiche('m', 400),
+                        fontSize: 'clamp(1.5rem, 4.4vw, 4rem)',
+                        lineHeight: 1.04,
+                      }}
                     >
                       {choisie.ecrite}
                     </SplitLines>
                     <p className="o-m-0 o-mt-8 o-max-w-xl o-text-sm o-leading-relaxed o-text-stone-300">
-                      Le plan est regle : {emouture.nom.toLowerCase()}, {acier.nom}, {nombre(epaisseur, 1)} mm au dos. Remontez pour le voir, ou ecrivez-nous avec ces trois mots.
+                      Le plan est regle : {emouture.nom.toLowerCase()}, {acier.nom},{' '}
+                      {nombre(epaisseur, 1)} mm au dos. Remontez pour le voir, ou
+                      ecrivez-nous avec ces trois mots.
                     </p>
                   </>
                 )}
@@ -917,13 +1281,25 @@ export default function Page(): ReactElement {
                     backgroundImage: `repeating-linear-gradient(${String(rang % 2 === 0 ? 45 : -45)}deg, ${filet(rang === COUCHES.length - 1 ? 4 : 9)} 0 1px, transparent 1px ${String(7 + rang * 2)}px)`,
                   }}
                 >
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums md:o-col-span-2" style={{ color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums md:o-col-span-2"
+                    style={{ color: encreSurSombre() }}
+                  >
                     {couche.epaisseur}
                   </p>
-                  <p className="o-m-0 md:o-col-span-3" style={{ ...affiche('m', 400), fontSize: 'clamp(1.25rem, 2.4vw, 1.875rem)', lineHeight: 1 }}>
+                  <p
+                    className="o-m-0 md:o-col-span-3"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.25rem, 2.4vw, 1.875rem)',
+                      lineHeight: 1,
+                    }}
+                  >
                     {couche.titre}
                   </p>
-                  <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300 md:o-col-span-7">{couche.texte}</p>
+                  <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300 md:o-col-span-7">
+                    {couche.texte}
+                  </p>
                 </div>
               ))}
             </div>
@@ -931,9 +1307,16 @@ export default function Page(): ReactElement {
             <div className="o-mt-8 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
               <span>© 2026 Emouture</span>
               <span>
-                {reduced ? 'Plan fige — mouvement reduit' : 'Plans rediges a l atelier, cotes en millimetres'}
+                {reduced
+                  ? 'Plan fige — mouvement reduit'
+                  : 'Plans rediges a l atelier, cotes en millimetres'}
               </span>
-              <a href="#haut" className="o-text-stone-400 o-no-underline hover:o-text-stone-50 focus:o-ring">Remonter ↑</a>
+              <a
+                href="#haut"
+                className="o-text-stone-400 o-no-underline hover:o-text-stone-50 focus:o-ring"
+              >
+                Remonter ↑
+              </a>
             </div>
           </footer>
         </div>

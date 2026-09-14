@@ -104,7 +104,11 @@ export function GridDistortion({
   // image, l'identite ne change pas, la mutation suffit — aucun setState.
   const uPointer = useRef<number[]>([0.5, 0.5]).current
 
-  const pointer = usePointerDamped({ host, speed: 4, name: 'grille sous lentille : pointeur' })
+  const pointer = usePointerDamped({
+    host,
+    speed: 4,
+    name: 'grille sous lentille : pointeur',
+  })
 
   useEffect(() => {
     const subscription = clock.subscribe(
@@ -119,18 +123,23 @@ export function GridDistortion({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: GRID_DISTORTION_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uCells: cells, uStrength: strength, uRadius: radius },
-      name: 'grid-distortion',
-      // Une grille serree scintille sur ses lignes a densite de pixels
-      // reduite : en qualite basse, les cellules s'elargissent.
-      degrade: (quality) => ({
-        uCells: quality === 'low' ? Math.min(cells, 10) : cells,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: GRID_DISTORTION_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uCells: cells, uStrength: strength, uRadius: radius },
+    name: 'grid-distortion',
+    // Une grille serree scintille sur ses lignes a densite de pixels
+    // reduite : en qualite basse, les cellules s'elargissent.
+    degrade: (quality) => ({
+      uCells: quality === 'low' ? Math.min(cells, 10) : cells,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

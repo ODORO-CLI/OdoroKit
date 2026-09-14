@@ -54,17 +54,28 @@ const BASE = '/instructive/llm'
  * quoi ouvrir avant d ouvrir quoi que ce soit.
  */
 const ROLES = {
-  'prompts': 'Le texte injecte dans les appels au modele. La doctrine, puis un fichier par etape.',
-  'schemas': 'Les JSON Schema des sorties attendues, pour les sorties structurees.',
-  'data': 'La bibliotheque : compositions, styles, palettes, typographies, jetons.',
-  'runtime': 'Le code embarque dans chaque site produit : moteur d animation et jetons.',
-  'eval': 'Le controle automatique d une page produite.',
-  'examples': 'La reference de ce qui est attendu : un plan valide et la page qui en sort.',
-  'reference': "Les textes sources de la doctrine. Jamais injectes tels quels.",
+  prompts:
+    'Le texte injecte dans les appels au modele. La doctrine, puis un fichier par etape.',
+  schemas: 'Les JSON Schema des sorties attendues, pour les sorties structurees.',
+  data: 'La bibliotheque : compositions, styles, palettes, typographies, jetons.',
+  runtime: 'Le code embarque dans chaque site produit : moteur d animation et jetons.',
+  eval: 'Le controle automatique d une page produite.',
+  examples: 'La reference de ce qui est attendu : un plan valide et la page qui en sort.',
+  reference: 'Les textes sources de la doctrine. Jamais injectes tels quels.',
 }
 
 /** Les fichiers qu on ne lit pas comme du texte. */
-const BINAIRES = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.ico', '.woff', '.woff2'])
+const BINAIRES = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.avif',
+  '.gif',
+  '.ico',
+  '.woff',
+  '.woff2',
+])
 
 /** L extension d un chemin, point compris et en minuscules. */
 function extension(chemin) {
@@ -124,10 +135,20 @@ await mkdir(ARBRE, { recursive: true })
 // classe traduite qui n existerait pas ne peindrait rien, et ne leverait rien.
 const CLASSES = new Set(
   [
-    ...(await readFile(
-      join(RACINE, 'packages', 'odoro-libs', 'src', 'styles', 'generated', 'classNames.ts'),
-      'utf8',
-    )).matchAll(/'([^']+)'/g),
+    ...(
+      await readFile(
+        join(
+          RACINE,
+          'packages',
+          'odoro-libs',
+          'src',
+          'styles',
+          'generated',
+          'classNames.ts',
+        ),
+        'utf8',
+      )
+    ).matchAll(/'([^']+)'/g),
   ].map((m) => m[1]),
 )
 
@@ -158,7 +179,16 @@ for (const chemin of fichiers) {
 }
 
 const lignes = []
-const ordre = ['.', 'prompts', 'schemas', 'data', 'runtime', 'eval', 'examples', 'reference']
+const ordre = [
+  '.',
+  'prompts',
+  'schemas',
+  'data',
+  'runtime',
+  'eval',
+  'examples',
+  'reference',
+]
 let totalTexte = 0
 
 for (const groupe of ordre) {
@@ -257,4 +287,6 @@ if (inconnues.size > 0) {
   )
   for (const t of [...inconnues].sort().slice(0, 25)) console.warn(`    ${t}`)
 }
-console.log(`[instructive] document d entree : ${relative(RACINE, join(SORTIE, 'llm.md'))}`)
+console.log(
+  `[instructive] document d entree : ${relative(RACINE, join(SORTIE, 'llm.md'))}`,
+)

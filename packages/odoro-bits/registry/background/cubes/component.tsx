@@ -241,7 +241,9 @@ export function Cubes({
       const { three, renderer, camera } = scene
 
       const [bg, low, high] = colors.map((token) => readTokenColour(token, host))
-      const toColour = (value: readonly number[] | undefined): InstanceType<Three['Color']> =>
+      const toColour = (
+        value: readonly number[] | undefined,
+      ): InstanceType<Three['Color']> =>
         new three.Color(value?.[0] ?? 0, value?.[1] ?? 0, value?.[2] ?? 0)
 
       // Le token est en sRGB et le moteur encode sa couleur d'effacement du

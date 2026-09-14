@@ -67,7 +67,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-emerald-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-emerald-950'
 
 /**
  * Cellules.

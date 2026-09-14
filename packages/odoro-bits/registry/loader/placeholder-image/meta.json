@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-line",
-    "--o-theme-surface",
-    "--o-theme-muted"
-  ],
+  "tokens": ["--o-theme-line", "--o-theme-surface", "--o-theme-muted"],
   "props": [
     {
       "name": "ratio",

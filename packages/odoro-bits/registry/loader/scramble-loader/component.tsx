@@ -43,7 +43,12 @@
  * @module
  */
 
-import { clock, mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
+import {
+  clock,
+  mergePresentation,
+  useMotionState,
+  type Customisable,
+} from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
 /** Identifiant de la feuille injectee. */
@@ -230,7 +235,9 @@ export function ScrambleLoader({
           return
         }
         if (local >= flickerAt && local < cycle - FLICKER_MS) {
-          const candidates = nodes.map((cell, position) => (cell.fixed ? -1 : position)).filter((p) => p >= 0)
+          const candidates = nodes
+            .map((cell, position) => (cell.fixed ? -1 : position))
+            .filter((p) => p >= 0)
           const pick = candidates[Math.floor(Math.random() * candidates.length)]
           const cell = pick === undefined ? undefined : nodes[pick]
           if (pick === undefined || cell === undefined) return

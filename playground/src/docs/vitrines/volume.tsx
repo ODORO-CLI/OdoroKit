@@ -111,7 +111,8 @@ export function Volume({
 }): ReactElement {
   // La camera et l hote passent par l etat : `useScrollCamera` les recoit en
   // dependances, et une ref lue au montage serait encore vide.
-  const [camera, setCamera] = useState<Parameters<typeof useScrollCamera>[0]['camera']>(null)
+  const [camera, setCamera] =
+    useState<Parameters<typeof useScrollCamera>[0]['camera']>(null)
   const [hote, setHote] = useState<HTMLDivElement | null>(null)
 
   const { ref, refused } = useScene<HTMLDivElement>({

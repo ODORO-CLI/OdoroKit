@@ -35,7 +35,12 @@
  * @module
  */
 
-import { clock, mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
+import {
+  clock,
+  mergePresentation,
+  useMotionState,
+  type Customisable,
+} from '@odoro-cli/engine'
 import { useEffect, useRef, type CSSProperties, type ReactElement } from 'react'
 
 /** Identifiant de la feuille injectee. */

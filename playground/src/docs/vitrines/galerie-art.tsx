@@ -534,8 +534,8 @@ function Colonne(): ReactElement {
           className="max-lg:o-hidden o-border-t o-pt-6 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400"
           style={{ borderColor: FILET }}
         >
-          Galerie d art contemporain, ouverte en 2014. Membre du Comite professionnel
-          des galeries d art. Maison des artistes n 3341-08.
+          Galerie d art contemporain, ouverte en 2014. Membre du Comite professionnel des
+          galeries d art. Maison des artistes n 3341-08.
         </p>
       </div>
     </div>
@@ -586,7 +586,11 @@ function Accrochage(): ReactElement {
         <h1
           id="exposition-titre"
           className="o-m-0 o-text-zinc-950 dark:o-text-zinc-100"
-          style={{ ...corps('xl', 300), fontSize: 'clamp(2.5rem, 10vw, 10rem)', lineHeight: 0.88 }}
+          style={{
+            ...corps('xl', 300),
+            fontSize: 'clamp(2.5rem, 10vw, 10rem)',
+            lineHeight: 0.88,
+          }}
         >
           {['Une piece', 'par jour'].map((ligne) => (
             <VariableProximity
@@ -606,7 +610,11 @@ function Accrochage(): ReactElement {
         </h1>
       </Surgit>
 
-      <Surgit delai={260} as="p" className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-baseline o-gap-x-8 o-gap-y-2">
+      <Surgit
+        delai={260}
+        as="p"
+        className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-baseline o-gap-x-8 o-gap-y-2"
+      >
         <span className="o-text-xl o-text-zinc-950 dark:o-text-zinc-100 md:o-text-2xl">
           Helene Dorval
         </span>
@@ -618,7 +626,13 @@ function Accrochage(): ReactElement {
       {/* La vue de salle, pleine largeur, qui derive et continue de couler. */}
       <div className="o-mt-12 o-overflow-hidden">
         <Parallaxe vitesse={0.16} echelle={0.05} glisse={0.78}>
-          <RevealImage src={vue.src} alt={vue.alt} ratio={2.2} duration={1100} className="o-w-full" />
+          <RevealImage
+            src={vue.src}
+            alt={vue.alt}
+            ratio={2.2}
+            duration={1100}
+            className="o-w-full"
+          />
         </Parallaxe>
       </div>
       <p className="o-mt-4 o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
@@ -628,13 +642,13 @@ function Accrochage(): ReactElement {
       <div className="o-mt-14 o-grid o-gap-10 lg:o-grid-cols-12">
         <p className="o-m-0 o-text-lg o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300 lg:o-col-span-5 lg:o-col-start-4">
           Pendant quatre-vingt-dix jours, Helene Dorval a fait une seule chose chaque
-          matin, entre sept et neuf heures. Cinq de ces pieces sont accrochees ici, dans
-          l ordre ou elles ont ete faites. Les autres sont restees a l atelier.
+          matin, entre sept et neuf heures. Cinq de ces pieces sont accrochees ici, dans l
+          ordre ou elles ont ete faites. Les autres sont restees a l atelier.
         </p>
         <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 lg:o-col-span-3">
-          Quatre expositions par an, une salle de cent dix metres carres, et le temps
-          qu il faut devant chaque piece. Visite commentee par l artiste le premier
-          samedi du mois a 16h, sans reservation, dans la limite de vingt personnes.
+          Quatre expositions par an, une salle de cent dix metres carres, et le temps qu
+          il faut devant chaque piece. Visite commentee par l artiste le premier samedi du
+          mois a 16h, sans reservation, dans la limite de vingt personnes.
         </p>
       </div>
     </section>
@@ -670,11 +684,41 @@ function Mention({
  * longtemps qu une petite, et continue de couler apres l arret du geste.
  */
 const ACCROCHAGE = [
-  { image: 'lg:o-col-span-8 lg:o-col-start-5', cartel: 'lg:o-col-span-4 lg:o-col-start-1 lg:o-row-start-1', vitesse: 0.14, glisse: 0.62, decalage: '0rem' },
-  { image: 'lg:o-col-span-5 lg:o-col-start-1', cartel: 'lg:o-col-span-4 lg:o-col-start-7', vitesse: -0.1, glisse: 0.8, decalage: 'clamp(0rem, 4vw, 5rem)' },
-  { image: 'lg:o-col-span-7 lg:o-col-start-6', cartel: 'lg:o-col-span-4 lg:o-col-start-1 lg:o-row-start-1', vitesse: 0.2, glisse: 0.55, decalage: 'clamp(0rem, 3vw, 3.5rem)' },
-  { image: 'lg:o-col-span-6 lg:o-col-start-2', cartel: 'lg:o-col-span-4', vitesse: -0.16, glisse: 0.74, decalage: 'clamp(0rem, 2vw, 2.5rem)' },
-  { image: 'lg:o-col-span-9 lg:o-col-start-4', cartel: 'lg:o-col-span-3 lg:o-col-start-1 lg:o-row-start-1', vitesse: 0.12, glisse: 0.85, decalage: 'clamp(0rem, 5vw, 6rem)' },
+  {
+    image: 'lg:o-col-span-8 lg:o-col-start-5',
+    cartel: 'lg:o-col-span-4 lg:o-col-start-1 lg:o-row-start-1',
+    vitesse: 0.14,
+    glisse: 0.62,
+    decalage: '0rem',
+  },
+  {
+    image: 'lg:o-col-span-5 lg:o-col-start-1',
+    cartel: 'lg:o-col-span-4 lg:o-col-start-7',
+    vitesse: -0.1,
+    glisse: 0.8,
+    decalage: 'clamp(0rem, 4vw, 5rem)',
+  },
+  {
+    image: 'lg:o-col-span-7 lg:o-col-start-6',
+    cartel: 'lg:o-col-span-4 lg:o-col-start-1 lg:o-row-start-1',
+    vitesse: 0.2,
+    glisse: 0.55,
+    decalage: 'clamp(0rem, 3vw, 3.5rem)',
+  },
+  {
+    image: 'lg:o-col-span-6 lg:o-col-start-2',
+    cartel: 'lg:o-col-span-4',
+    vitesse: -0.16,
+    glisse: 0.74,
+    decalage: 'clamp(0rem, 2vw, 2.5rem)',
+  },
+  {
+    image: 'lg:o-col-span-9 lg:o-col-start-4',
+    cartel: 'lg:o-col-span-3 lg:o-col-start-1 lg:o-row-start-1',
+    vitesse: 0.12,
+    glisse: 0.85,
+    decalage: 'clamp(0rem, 5vw, 6rem)',
+  },
 ] as const
 
 /**
@@ -701,13 +745,22 @@ function Oeuvres(): ReactElement {
         Les cinq oeuvres accrochees
       </h2>
 
-      <StickyCursor size={16} stick={0.35} padding={10} targets="[data-o-sticky]" color={MARQUEUR}>
+      <StickyCursor
+        size={16}
+        stick={0.35}
+        padding={10}
+        targets="[data-o-sticky]"
+        color={MARQUEUR}
+      >
         <div className="o-mt-14 o-flex o-flex-col o-gap-24 md:o-gap-36">
           {OEUVRES.map((oeuvre, index) => {
             const place = ACCROCHAGE[index % ACCROCHAGE.length] ?? ACCROCHAGE[0]
             if (place === undefined) return null
             return (
-              <figure key={oeuvre.graine} className="o-m-0 o-grid o-gap-6 lg:o-grid-cols-12 lg:o-gap-10">
+              <figure
+                key={oeuvre.graine}
+                className="o-m-0 o-grid o-gap-6 lg:o-grid-cols-12 lg:o-gap-10"
+              >
                 <Parallaxe
                   vitesse={place.vitesse}
                   glisse={place.glisse}
@@ -728,7 +781,10 @@ function Oeuvres(): ReactElement {
                 {/* Le cartel, colle dans la marge tant qu on longe l oeuvre. */}
                 <figcaption className={`o-min-w-0 ${place.cartel}`}>
                   <div className="lg:o-sticky" style={{ top: 128 }}>
-                    <div className="o-flex o-items-baseline o-gap-4 o-border-t o-pt-4" style={{ borderColor: FILET }}>
+                    <div
+                      className="o-flex o-items-baseline o-gap-4 o-border-t o-pt-4"
+                      style={{ borderColor: FILET }}
+                    >
                       <span
                         className="o-text-xs o-tabular-nums o-uppercase o-tracking-widest"
                         style={{ color: ENCRE }}
@@ -742,7 +798,10 @@ function Oeuvres(): ReactElement {
                     </div>
                     <p
                       className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-100"
-                      style={{ ...corps('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+                      style={{
+                        ...corps('m', 300),
+                        fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                      }}
                     >
                       {oeuvre.titre}
                     </p>
@@ -789,8 +848,8 @@ function Fonds(): ReactElement {
       </h2>
       <p className="o-mt-6 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
         Ce que la galerie garde entre deux accrochages. La reserve se visite sur
-        rendez-vous, le jeudi apres-midi. Six pieces sont montrees ici ; la liste
-        complete est envoyee sur demande.
+        rendez-vous, le jeudi apres-midi. Six pieces sont montrees ici ; la liste complete
+        est envoyee sur demande.
       </p>
 
       <ul className="o-mt-12 o-grid o-list-none o-gap-x-8 o-gap-y-12 o-p-0 sm:o-grid-cols-2 lg:o-grid-cols-3">
@@ -855,7 +914,11 @@ function ColonneExpositions({
       </h3>
       <ul className="o-mt-6 o-flex o-list-none o-flex-col o-p-0">
         {entrees.map((entree) => (
-          <li key={entree.titre} className="o-border-t o-py-5" style={{ borderColor: FILET }}>
+          <li
+            key={entree.titre}
+            className="o-border-t o-py-5"
+            style={{ borderColor: FILET }}
+          >
             <p className="o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
               <time dateTime={entree.debut}>{entree.periode}</time>
             </p>
@@ -926,7 +989,11 @@ function Visites(): ReactElement {
 
       <dl className="o-mt-12 o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-2">
         {VISITES.map((visite) => (
-          <div key={visite.titre} className="o-border-t o-pt-5" style={{ borderColor: FILET }}>
+          <div
+            key={visite.titre}
+            className="o-border-t o-pt-5"
+            style={{ borderColor: FILET }}
+          >
             <dt className="o-flex o-items-center o-gap-3 o-text-base o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-100">
               <span aria-hidden style={{ color: ENCRE }}>
                 <Icon icon={visite.icone} size={18} />
@@ -934,7 +1001,10 @@ function Visites(): ReactElement {
               {visite.titre}
             </dt>
             <dd className="o-m-0">
-              <p className="o-mt-2 o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+              <p
+                className="o-mt-2 o-text-xs o-uppercase o-tracking-widest"
+                style={{ color: ENCRE }}
+              >
                 {visite.quand}
               </p>
               <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
@@ -999,9 +1069,9 @@ function Acquerir(): ReactElement {
         Pret aux institutions
       </h3>
       <p className="o-mt-3 o-max-w-2xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-        La galerie prete aux musees, centres d art et fonds regionaux, et sert
-        d intermediaire aupres des collectionneurs pour les pieces qui ne lui
-        appartiennent plus.
+        La galerie prete aux musees, centres d art et fonds regionaux, et sert d
+        intermediaire aupres des collectionneurs pour les pieces qui ne lui appartiennent
+        plus.
       </p>
       <dl className="o-mt-8 o-grid o-gap-x-12 o-gap-y-6 md:o-grid-cols-2">
         {PRET.map(([quoi, corps]) => (
@@ -1017,8 +1087,8 @@ function Acquerir(): ReactElement {
       </dl>
 
       <p className="o-mt-8 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-        Dossiers de pret et demandes de reproduction : prets@sallebasse.fr — reponse
-        sous huit jours ouvres.
+        Dossiers de pret et demandes de reproduction : prets@sallebasse.fr — reponse sous
+        huit jours ouvres.
       </p>
     </section>
   )
@@ -1057,8 +1127,8 @@ function Visiter(): ReactElement {
             ))}
           </dl>
           <p className="o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-            Fermeture annuelle du 1er au 20 aout. Derniere entree quinze minutes avant
-            la fermeture.
+            Fermeture annuelle du 1er au 20 aout. Derniere entree quinze minutes avant la
+            fermeture.
           </p>
         </div>
 
@@ -1169,8 +1239,8 @@ function Pied(): ReactElement {
         className="o-mt-8 o-border-t o-pt-6 o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
         style={{ borderColor: FILET }}
       >
-        2026 Salle Basse — 12 rue des Vertus, 75003 Paris — SARL au capital de 20 000
-        EUR, RCS Paris 802 447 118 — Mentions legales
+        2026 Salle Basse — 12 rue des Vertus, 75003 Paris — SARL au capital de 20 000 EUR,
+        RCS Paris 802 447 118 — Mentions legales
       </p>
     </footer>
   )
@@ -1186,29 +1256,32 @@ export default function Page(): ReactElement {
   const polices = usePolices('affiche')
   return (
     <Porte forme="trou" marque="Salle Basse" sombre={false}>
-    <div className="o-relative o-isolate o-bg-white dark:o-bg-zinc-950 o-text-zinc-950 dark:o-text-zinc-100" style={polices}>
-      {/* Le seul fond de la page : un grain a trois pour cent, immobile. */}
-      <Noise
-        className="o-absolute o-inset-0 o-z-0 o-pointer-events-none"
-        opacity={0.03}
-        scale={0.9}
-      />
+      <div
+        className="o-relative o-isolate o-bg-white dark:o-bg-zinc-950 o-text-zinc-950 dark:o-text-zinc-100"
+        style={polices}
+      >
+        {/* Le seul fond de la page : un grain a trois pour cent, immobile. */}
+        <Noise
+          className="o-absolute o-inset-0 o-z-0 o-pointer-events-none"
+          opacity={0.03}
+          scale={0.9}
+        />
 
-      <div className="o-relative o-z-10 lg:o-flex">
-        <Colonne />
-        <main className="o-min-w-0 o-flex-1">
-          <Accrochage />
-          <Oeuvres />
-          <Fonds />
-          <Agenda />
-          <Visites />
-          <Acquerir />
-          <Visiter />
-        </main>
+        <div className="o-relative o-z-10 lg:o-flex">
+          <Colonne />
+          <main className="o-min-w-0 o-flex-1">
+            <Accrochage />
+            <Oeuvres />
+            <Fonds />
+            <Agenda />
+            <Visites />
+            <Acquerir />
+            <Visiter />
+          </main>
+        </div>
+        {/* Le pied quitte la colonne de droite : la signature tient tout le mur. */}
+        <Pied />
       </div>
-      {/* Le pied quitte la colonne de droite : la signature tient tout le mur. */}
-      <Pied />
-    </div>
     </Porte>
   )
 }

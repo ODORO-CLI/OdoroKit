@@ -97,7 +97,8 @@ const TEINTES = [
 /** Somme stable d une chaine, pour choisir une teinte sans tirer au sort. */
 function empreinte(valeur: string): number {
   let somme = 0
-  for (let i = 0; i < valeur.length; i += 1) somme = (somme * 31 + valeur.charCodeAt(i)) % 9973
+  for (let i = 0; i < valeur.length; i += 1)
+    somme = (somme * 31 + valeur.charCodeAt(i)) % 9973
   return somme
 }
 
@@ -108,9 +109,25 @@ function empreinte(valeur: string): number {
  * d une meme page porteraient les memes initiales.
  */
 const CIVILITES = new Set([
-  'le', 'la', 'les', 'un', 'une', 'du', 'de', 'des',
-  'docteur', 'dr', 'professeur', 'pr', 'maitre', 'me',
-  'madame', 'mme', 'monsieur', 'mr', 'm',
+  'le',
+  'la',
+  'les',
+  'un',
+  'une',
+  'du',
+  'de',
+  'des',
+  'docteur',
+  'dr',
+  'professeur',
+  'pr',
+  'maitre',
+  'me',
+  'madame',
+  'mme',
+  'monsieur',
+  'mr',
+  'm',
 ])
 
 /**

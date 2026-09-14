@@ -99,10 +99,16 @@ const ZONES: readonly Zone[] = [
     rx: 32,
     ry: 15,
     motif: 'Je serre des dents la nuit, et j ai mal devant l oreille au reveil.',
-    examen: ['Ouverture buccale, en millimetres', 'Deviation du menton a l ouverture', 'Muscles masseter et temporal', 'Cervicales hautes'],
+    examen: [
+      'Ouverture buccale, en millimetres',
+      'Deviation du menton a l ouverture',
+      'Muscles masseter et temporal',
+      'Cervicales hautes',
+    ],
     seances: 2,
     duree: 45,
-    renvoi: 'Une douleur avec fievre, un gonflement ou une dent qui repond au froid est dentaire : c est le chirurgien-dentiste, pas moi.',
+    renvoi:
+      'Une douleur avec fievre, un gonflement ou une dent qui repond au froid est dentaire : c est le chirurgien-dentiste, pas moi.',
   },
   {
     cle: 'epaule',
@@ -113,10 +119,16 @@ const ZONES: readonly Zone[] = [
     rx: 27,
     ry: 19,
     motif: 'Je ne peux plus lever le bras au-dessus de l horizontale sans accrocher.',
-    examen: ['Amplitudes actives et passives, en degres', 'Rythme entre omoplate et bras', 'Premiere cote et clavicule', 'Diaphragme, du meme cote'],
+    examen: [
+      'Amplitudes actives et passives, en degres',
+      'Rythme entre omoplate et bras',
+      'Premiere cote et clavicule',
+      'Diaphragme, du meme cote',
+    ],
     seances: 3,
     duree: 45,
-    renvoi: 'Une perte de force nette, un traumatisme recent ou une douleur nocturne qui reveille demande une imagerie avant toute manipulation.',
+    renvoi:
+      'Une perte de force nette, un traumatisme recent ou une douleur nocturne qui reveille demande une imagerie avant toute manipulation.',
   },
   {
     cle: 'cotes',
@@ -126,11 +138,18 @@ const ZONES: readonly Zone[] = [
     cy: 182,
     rx: 47,
     ry: 32,
-    motif: 'Une pointe entre les cotes des que je respire a fond, depuis un faux mouvement.',
-    examen: ['Ampliation thoracique, au metre ruban', 'Mobilite des cotes, cote par cote', 'Coupoles du diaphragme', 'Charnieres du haut et du bas du dos'],
+    motif:
+      'Une pointe entre les cotes des que je respire a fond, depuis un faux mouvement.',
+    examen: [
+      'Ampliation thoracique, au metre ruban',
+      'Mobilite des cotes, cote par cote',
+      'Coupoles du diaphragme',
+      'Charnieres du haut et du bas du dos',
+    ],
     seances: 2,
     duree: 40,
-    renvoi: 'Une douleur qui serre, qui irradie dans le bras ou la machoire, ou qui vient avec un essoufflement : le 15, immediatement.',
+    renvoi:
+      'Une douleur qui serre, qui irradie dans le bras ou la machoire, ou qui vient avec un essoufflement : le 15, immediatement.',
   },
   {
     cle: 'hanche',
@@ -141,10 +160,16 @@ const ZONES: readonly Zone[] = [
     rx: 26,
     ry: 17,
     motif: 'Ca tire dans le pli de l aine quand je monte en voiture.',
-    examen: ['Rotations de hanche, couche puis debout', 'Longueur apparente des membres', 'Bassin, en appui bipodal et unipodal', 'Psoas et adducteurs'],
+    examen: [
+      'Rotations de hanche, couche puis debout',
+      'Longueur apparente des membres',
+      'Bassin, en appui bipodal et unipodal',
+      'Psoas et adducteurs',
+    ],
     seances: 3,
     duree: 45,
-    renvoi: 'Une boiterie qui s installe, une douleur la nuit au repos ou une limitation qui s aggrave de semaine en semaine relevent du medecin traitant.',
+    renvoi:
+      'Une boiterie qui s installe, une douleur la nuit au repos ou une limitation qui s aggrave de semaine en semaine relevent du medecin traitant.',
   },
   {
     cle: 'genou',
@@ -155,10 +180,16 @@ const ZONES: readonly Zone[] = [
     rx: 21,
     ry: 24,
     motif: 'Depuis que j ai repris la course, ca chauffe sur le cote du genou.',
-    examen: ['Appui du pied, en charge', 'Rotation du tibia sous le femur', 'Course de la rotule', 'Hanche et cheville du meme cote'],
+    examen: [
+      'Appui du pied, en charge',
+      'Rotation du tibia sous le femur',
+      'Course de la rotule',
+      'Hanche et cheville du meme cote',
+    ],
     seances: 2,
     duree: 40,
-    renvoi: 'Un genou qui gonfle, qui bloque ou qui lache est un avis orthopedique, et il passe avant moi.',
+    renvoi:
+      'Un genou qui gonfle, qui bloque ou qui lache est un avis orthopedique, et il passe avant moi.',
   },
   {
     cle: 'cervicales',
@@ -168,11 +199,18 @@ const ZONES: readonly Zone[] = [
     cy: 92,
     rx: 27,
     ry: 20,
-    motif: 'Je tourne la tete d un seul cote, et j ai des maux de tete en fin de journee.',
-    examen: ['Rotations et inclinaisons, en degres', 'Premiere et deuxieme cervicales', 'Appui des yeux et de la machoire', 'Poste de travail, en photo si vous en avez une'],
+    motif:
+      'Je tourne la tete d un seul cote, et j ai des maux de tete en fin de journee.',
+    examen: [
+      'Rotations et inclinaisons, en degres',
+      'Premiere et deuxieme cervicales',
+      'Appui des yeux et de la machoire',
+      'Poste de travail, en photo si vous en avez une',
+    ],
     seances: 3,
     duree: 45,
-    renvoi: 'Vertiges, troubles de la vue, fourmillements dans les deux mains : pas de manipulation cervicale, et un avis medical d abord.',
+    renvoi:
+      'Vertiges, troubles de la vue, fourmillements dans les deux mains : pas de manipulation cervicale, et un avis medical d abord.',
   },
   {
     cle: 'dorsales',
@@ -183,10 +221,16 @@ const ZONES: readonly Zone[] = [
     rx: 42,
     ry: 28,
     motif: 'Un point entre les omoplates, tous les jours, vers seize heures.',
-    examen: ['Courbures, debout et assis', 'Mobilite des cotes en arriere', 'Omoplates et muscles fixateurs', 'Estomac et diaphragme, par le ventre'],
+    examen: [
+      'Courbures, debout et assis',
+      'Mobilite des cotes en arriere',
+      'Omoplates et muscles fixateurs',
+      'Estomac et diaphragme, par le ventre',
+    ],
     seances: 2,
     duree: 45,
-    renvoi: 'Une douleur dorsale qui ne change jamais avec la position, ni le jour ni la nuit, n est pas mecanique : elle se fait explorer.',
+    renvoi:
+      'Une douleur dorsale qui ne change jamais avec la position, ni le jour ni la nuit, n est pas mecanique : elle se fait explorer.',
   },
   {
     cle: 'lombaires',
@@ -197,10 +241,16 @@ const ZONES: readonly Zone[] = [
     rx: 38,
     ry: 27,
     motif: 'Je me suis bloque en ramassant quelque chose et je marche plie.',
-    examen: ['Position antalgique, debout', 'Flexion, extension, inclinaisons', 'Sacro-iliaques, en charge', 'Test neurologique des membres inferieurs'],
+    examen: [
+      'Position antalgique, debout',
+      'Flexion, extension, inclinaisons',
+      'Sacro-iliaques, en charge',
+      'Test neurologique des membres inferieurs',
+    ],
     seances: 3,
     duree: 50,
-    renvoi: 'Une douleur qui descend sous le genou, une perte de force au pied, ou le moindre trouble pour uriner : urgence medicale, pas osteopathie.',
+    renvoi:
+      'Une douleur qui descend sous le genou, une perte de force au pied, ou le moindre trouble pour uriner : urgence medicale, pas osteopathie.',
   },
   {
     cle: 'sacrum',
@@ -211,10 +261,16 @@ const ZONES: readonly Zone[] = [
     rx: 31,
     ry: 19,
     motif: 'Une douleur d un seul cote, en bas, qui revient depuis ma grossesse.',
-    examen: ['Sacro-iliaques, tests dynamiques', 'Appui assis et appui debout', 'Ligaments du bassin', 'Plancher pelvien, par l exterieur seulement'],
+    examen: [
+      'Sacro-iliaques, tests dynamiques',
+      'Appui assis et appui debout',
+      'Ligaments du bassin',
+      'Plancher pelvien, par l exterieur seulement',
+    ],
     seances: 4,
     duree: 50,
-    renvoi: 'Apres un accouchement, un avis de sage-femme ou de medecin precede la premiere seance. Je ne passe jamais avant.',
+    renvoi:
+      'Apres un accouchement, un avis de sage-femme ou de medecin precede la premiere seance. Je ne passe jamais avant.',
   },
   {
     cle: 'cheville',
@@ -225,10 +281,16 @@ const ZONES: readonly Zone[] = [
     rx: 18,
     ry: 20,
     motif: 'Une vieille entorse qui n a jamais ete revue, et une cheville qui se derobe.',
-    examen: ['Amplitude de flexion dorsale, en degres', 'Jeu de l astragale et du calcaneum', 'Appui du pied a la marche', 'Genou et hanche, en remontant'],
+    examen: [
+      'Amplitude de flexion dorsale, en degres',
+      'Jeu de l astragale et du calcaneum',
+      'Appui du pied a la marche',
+      'Genou et hanche, en remontant',
+    ],
     seances: 2,
     duree: 40,
-    renvoi: 'Une entorse recente se radiographie avant tout : la regle est simple, si l appui est impossible, c est aux urgences.',
+    renvoi:
+      'Une entorse recente se radiographie avant tout : la regle est simple, si l appui est impossible, c est aux urgences.',
   },
 ]
 
@@ -376,7 +438,11 @@ function Silhouettes({
       textAnchor="middle"
       fontSize="13"
       fill="var(--o-theme-muted)"
-      style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.18em' }}
+      style={{
+        fontFamily: 'var(--o-font-mono)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.18em',
+      }}
     >
       {mot}
     </text>
@@ -391,13 +457,23 @@ function Silhouettes({
       <g transform="translate(110 10)">
         <Corps dos={false} />
         {ZONES.filter((z) => z.vue === 'face').map((zone) => (
-          <ZoneDessinee key={zone.cle} zone={zone} choisie={choisie === zone.cle} surChoix={surChoix} />
+          <ZoneDessinee
+            key={zone.cle}
+            zone={zone}
+            choisie={choisie === zone.cle}
+            surChoix={surChoix}
+          />
         ))}
       </g>
       <g transform="translate(310 10)">
         <Corps dos />
         {ZONES.filter((z) => z.vue === 'dos').map((zone) => (
-          <ZoneDessinee key={zone.cle} zone={zone} choisie={choisie === zone.cle} surChoix={surChoix} />
+          <ZoneDessinee
+            key={zone.cle}
+            zone={zone}
+            choisie={choisie === zone.cle}
+            surChoix={surChoix}
+          />
         ))}
       </g>
       {legende(110, 'De face')}
@@ -465,11 +541,15 @@ function Jauge(): ReactElement {
     // La jauge se remplit sur la premiere moitie de la traversee : au milieu
     // de l ecran elle est pleine, et le chiffre s est arrete avec elle.
     const part = Math.max(0, Math.min(1, p * 2 - 0.35))
-    if (barre.current !== null) barre.current.style.transform = `scaleX(${part.toFixed(4)})`
-    if (valeur.current !== null) valeur.current.textContent = String(Math.round(part * cible))
+    if (barre.current !== null)
+      barre.current.style.transform = `scaleX(${part.toFixed(4)})`
+    if (valeur.current !== null)
+      valeur.current.textContent = String(Math.round(part * cible))
   }, [])
 
-  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : avancer, { name: 'jauge du cabinet' })
+  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : avancer, {
+    name: 'jauge du cabinet',
+  })
 
   return (
     <div ref={ref}>
@@ -478,7 +558,11 @@ function Jauge(): ReactElement {
       </p>
       <p
         className="o-m-0 o-mt-5 o-tabular-nums o-text-stone-900 dark:o-text-stone-50"
-        style={{ ...affiche('l', 300), fontSize: 'clamp(3.5rem, 12vw, 10rem)', lineHeight: 0.86 }}
+        style={{
+          ...affiche('l', 300),
+          fontSize: 'clamp(3.5rem, 12vw, 10rem)',
+          lineHeight: 0.86,
+        }}
       >
         <span ref={valeur}>{reduced ? cible : 0}</span>
         <span style={{ color: encre() }}> %</span>
@@ -491,12 +575,16 @@ function Jauge(): ReactElement {
         <div
           ref={barre}
           className="o-h-full o-w-full o-origin-left o-rounded-full"
-          style={{ backgroundColor: encre(), transform: reduced ? 'scaleX(1)' : 'scaleX(0)' }}
+          style={{
+            backgroundColor: encre(),
+            transform: reduced ? 'scaleX(1)' : 'scaleX(0)',
+          }}
         />
       </div>
       <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-        Trois seances ou moins, et le motif ne revient pas dans l annee. Les vingt-quatre pour cent restants sont
-        surtout des douleurs anciennes, et quelques renvois vers un medecin — qui comptent aussi comme un resultat.
+        Trois seances ou moins, et le motif ne revient pas dans l annee. Les vingt-quatre
+        pour cent restants sont surtout des douleurs anciennes, et quelques renvois vers
+        un medecin — qui comptent aussi comme un resultat.
       </p>
     </div>
   )
@@ -573,7 +661,12 @@ function Reglette(): ReactElement {
               const minutes = OUVERTURE + rang * 120
               // Aux deux bouts, l etiquette se range sous la graduation plutot
               // que de la chevaucher : centree, elle sortirait de la reglette.
-              const cale = rang === 0 ? 'translateX(0)' : rang === 6 ? 'translateX(-100%)' : 'translateX(-50%)'
+              const cale =
+                rang === 0
+                  ? 'translateX(0)'
+                  : rang === 6
+                    ? 'translateX(-100%)'
+                    : 'translateX(-50%)'
               return (
                 <span
                   key={minutes}
@@ -607,8 +700,16 @@ function Reglette(): ReactElement {
                     className="o-flex o-h-14 o-w-full o-cursor-pointer o-flex-col o-justify-center o-rounded-full o-border-w-1 o-px-3 o-text-left o-transition-colors focus:o-ring"
                     style={
                       actif
-                        ? { backgroundColor: encre(), borderColor: encre(), color: 'var(--o-theme-bg)' }
-                        : { backgroundColor: accentDoux(200, 40), borderColor: accentDoux(700, 34), color: 'inherit' }
+                        ? {
+                            backgroundColor: encre(),
+                            borderColor: encre(),
+                            color: 'var(--o-theme-bg)',
+                          }
+                        : {
+                            backgroundColor: accentDoux(200, 40),
+                            borderColor: accentDoux(700, 34),
+                            color: 'inherit',
+                          }
                     }
                   >
                     <span className="o-block o-whitespace-nowrap o-font-mono o-text-xs o-tabular-nums">
@@ -625,7 +726,10 @@ function Reglette(): ReactElement {
         </div>
       </div>
 
-      <p className="o-m-0 o-mt-10 o-max-w-2xl o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300" aria-live="polite">
+      <p
+        className="o-m-0 o-mt-10 o-max-w-2xl o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300"
+        aria-live="polite"
+      >
         {choisie === undefined
           ? 'Aucune place retenue. Les cinq segments clairs sont les fenetres encore libres de jeudi.'
           : `Jeudi 18 septembre, de ${horaire(choisie.debut)} a ${horaire(choisie.fin)} — cinquante minutes, au 6 rue Gaultier. Venez avec vos examens si vous en avez ; sinon, venez quand meme.`}
@@ -660,8 +764,20 @@ function Horloge(): ReactElement {
 
   return (
     <figure className="o-m-0">
-      <svg viewBox="0 0 240 240" className="o-h-auto o-w-full" role="img" aria-label={`Il est ${lu} au cabinet`}>
-        <circle cx="120" cy="120" r="112" fill="none" stroke={accentDoux(300, 40)} strokeWidth="1.5" />
+      <svg
+        viewBox="0 0 240 240"
+        className="o-h-auto o-w-full"
+        role="img"
+        aria-label={`Il est ${lu} au cabinet`}
+      >
+        <circle
+          cx="120"
+          cy="120"
+          r="112"
+          fill="none"
+          stroke={accentDoux(300, 40)}
+          strokeWidth="1.5"
+        />
         {Array.from({ length: 12 }, (_, rang) => {
           const angle = (rang / 12) * Math.PI * 2
           const sin = Math.sin(angle)
@@ -748,13 +864,19 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="trou" marque="Appui" sombre={false}>
-      <div className="o-relative o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-200" style={polices}>
+      <div
+        className="o-relative o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-800 dark:o-text-stone-200"
+        style={polices}
+      >
         {/*
           Le fond respire : trois anneaux, fixes derriere toute la page, qui
           s ouvrent et se ferment a la cadence d une inspiration lente. Aucun
           canevas, aucune image — le calme est dessine.
         */}
-        <div aria-hidden="true" className="o-pointer-events-none o-fixed o-inset-0 o-z-0 o-overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="o-pointer-events-none o-fixed o-inset-0 o-z-0 o-overflow-hidden"
+        >
           {[
             { taille: '76vmin', duree: 13, opacite: 0.3 },
             { taille: '54vmin', duree: 11, opacite: 0.24 },
@@ -779,7 +901,12 @@ export default function Page(): ReactElement {
         </div>
 
         <div className="o-relative o-z-10">
-          <BarreGelule marque="Appui" liens={NAVIGATION} action={['#jeudi', 'Jeudi, 5 places']} sombre={false} />
+          <BarreGelule
+            marque="Appui"
+            liens={NAVIGATION}
+            action={['#jeudi', 'Jeudi, 5 places']}
+            sombre={false}
+          />
 
           {/* ================= L ouverture ================================ */}
           <header
@@ -799,17 +926,31 @@ export default function Page(): ReactElement {
               <TitreVague
                 delai={160}
                 className="o-m-0 o-mt-8 o-text-stone-900 dark:o-text-stone-50"
-                style={{ ...affiche('xl', 300), fontSize: 'clamp(3.5rem, 15vw, 13rem)', lineHeight: 0.84 }}
+                style={{
+                  ...affiche('xl', 300),
+                  fontSize: 'clamp(3.5rem, 15vw, 13rem)',
+                  lineHeight: 0.84,
+                }}
               >
                 Appui
               </TitreVague>
-              <Surgit delai={560} as="p" className="o-mx-auto o-m-0 o-mt-10 o-max-w-xl o-text-lg o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                Designez ou vous avez mal. Vous saurez combien de seances, de quelle duree, et ce qui ne releve pas de
-                moi — avant d avoir pris le telephone.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-mx-auto o-m-0 o-mt-10 o-max-w-xl o-text-lg o-leading-relaxed o-text-stone-600 dark:o-text-stone-400"
+              >
+                Designez ou vous avez mal. Vous saurez combien de seances, de quelle
+                duree, et ce qui ne releve pas de moi — avant d avoir pris le telephone.
               </Surgit>
               <Surgit delai={700} className="o-mt-11 o-flex o-justify-center">
                 <Actions
-                  pleine={['#motif', <>Designer le motif <Icon icon={ArrowRight} size={15} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#motif',
+                    <>
+                      Designer le motif{' '}
+                      <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#jeudi', 'Les places de jeudi']}
                   sombre={false}
                 />
@@ -819,9 +960,14 @@ export default function Page(): ReactElement {
 
           <main>
             {/* ================= M-allume : le paragraphe s allume ======== */}
-            <section aria-labelledby="promesse-titre" className="o-px-6 o-py-28 md:o-px-10 md:o-py-40">
+            <section
+              aria-labelledby="promesse-titre"
+              className="o-px-6 o-py-28 md:o-px-10 md:o-py-40"
+            >
               <div className="o-mx-auto o-max-w-4xl">
-                <Indice rang="01" sombre={false}>Ce que je fais</Indice>
+                <Indice rang="01" sombre={false}>
+                  Ce que je fais
+                </Indice>
                 <h2 id="promesse-titre" className="o-sr-only">
                   Ce que je fais
                 </h2>
@@ -831,11 +977,16 @@ export default function Page(): ReactElement {
                   blur={5}
                   course={0.9}
                   className="o-m-0 o-mt-12 o-text-stone-900 dark:o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.4vw, 3.25rem)', lineHeight: 1.16 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 3.4vw, 3.25rem)',
+                    lineHeight: 1.16,
+                  }}
                 >
-                  Je cherche ou le corps ne bouge plus, et je lui rends l amplitude qui lui manque. Ce n est ni une
-                  medecine ni un massage : c est un examen mecanique, des tests, et trois ou quatre gestes qui vous
-                  restent une fois la porte refermee.
+                  Je cherche ou le corps ne bouge plus, et je lui rends l amplitude qui
+                  lui manque. Ce n est ni une medecine ni un massage : c est un examen
+                  mecanique, des tests, et trois ou quatre gestes qui vous restent une
+                  fois la porte refermee.
                 </ScrollReveal>
               </div>
             </section>
@@ -844,12 +995,18 @@ export default function Page(): ReactElement {
             <section id="motif" className="o-scroll-mt-24 o-px-6 o-pb-28 md:o-px-10">
               <div className="o-mx-auto o-max-w-6xl">
                 <Reveal>
-                  <Indice rang="02" sombre={false}>Le motif</Indice>
+                  <Indice rang="02" sombre={false}>
+                    Le motif
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-max-w-3xl o-text-stone-900 dark:o-text-stone-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Montrez-moi ou.
                   </h2>
@@ -859,8 +1016,8 @@ export default function Page(): ReactElement {
                   <div className="lg:o-col-span-5">
                     <Silhouettes choisie={cle} surChoix={setCle} />
                     <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
-                      Dix zones, a la souris, au doigt ou au clavier : la tabulation passe de l une a l autre, Entree
-                      ou la barre d espace la designe.
+                      Dix zones, a la souris, au doigt ou au clavier : la tabulation passe
+                      de l une a l autre, Entree ou la barre d espace la designe.
                     </p>
                   </div>
 
@@ -871,7 +1028,11 @@ export default function Page(): ReactElement {
                     <p
                       className="o-m-0 o-mt-5 o-max-w-2xl o-text-stone-900 dark:o-text-stone-50"
                       aria-live="polite"
-                      style={{ ...affiche('m', 300), fontSize: 'clamp(1.3rem, 2.4vw, 2.1rem)', lineHeight: 1.16 }}
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.3rem, 2.4vw, 2.1rem)',
+                        lineHeight: 1.16,
+                      }}
                     >
                       « {zone.motif} »
                     </p>
@@ -903,20 +1064,32 @@ export default function Page(): ReactElement {
                       />
                     </div>
 
-                    <div className="o-mt-10 o-rounded-3xl o-p-8 md:o-p-10" style={{ backgroundColor: accentDoux(200, 34) }}>
+                    <div
+                      className="o-mt-10 o-rounded-3xl o-p-8 md:o-p-10"
+                      style={{ backgroundColor: accentDoux(200, 34) }}
+                    >
                       <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
                         Le protocole estime
                       </p>
                       <p
                         className="o-m-0 o-mt-4 o-tabular-nums o-text-stone-900 dark:o-text-stone-50"
                         aria-live="polite"
-                        style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 5vw, 3.75rem)', lineHeight: 0.94 }}
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(2.25rem, 5vw, 3.75rem)',
+                          lineHeight: 0.94,
+                        }}
                       >
-                        {estimation.seances} seance{estimation.seances > 1 ? 's' : ''} de {estimation.duree} min
+                        {estimation.seances} seance{estimation.seances > 1 ? 's' : ''} de{' '}
+                        {estimation.duree} min
                       </p>
                       <p className="o-m-0 o-mt-4 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                        Espacees de {estimation.ecart} jours, soit {heures(estimation.total)} en cabinet sur{' '}
-                        {estimation.semaines === 0 ? 'une seule visite' : `${String(estimation.semaines)} semaines`}.
+                        Espacees de {estimation.ecart} jours, soit{' '}
+                        {heures(estimation.total)} en cabinet sur{' '}
+                        {estimation.semaines === 0
+                          ? 'une seule visite'
+                          : `${String(estimation.semaines)} semaines`}
+                        .
                       </p>
 
                       <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
@@ -929,7 +1102,10 @@ export default function Page(): ReactElement {
                             className="o-flex o-items-baseline o-gap-4 o-border-t o-py-3 o-text-base o-leading-relaxed o-text-stone-800 dark:o-text-stone-200"
                             style={{ borderColor: accentDoux(700, 18) }}
                           >
-                            <span className="o-shrink-0 o-font-mono o-text-xs o-tabular-nums" style={{ color: encre() }}>
+                            <span
+                              className="o-shrink-0 o-font-mono o-text-xs o-tabular-nums"
+                              style={{ color: encre() }}
+                            >
                               {String(rang + 1).padStart(2, '0')}
                             </span>
                             {quoi}
@@ -943,14 +1119,24 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= La coupe sombre : mes limites ============ */}
-            <section id="limites" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('stone')}>
+            <section
+              id="limites"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+              style={nuit('stone')}
+            >
               <div className="o-mx-auto o-max-w-4xl">
                 <Indice rang="03">Mes limites</Indice>
                 <h2
                   className="o-m-0 o-mt-8 o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', lineHeight: 1.04 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                    lineHeight: 1.04,
+                  }}
                 >
-                  <span className="o-text-stone-500">Pour ce motif-la, il y a un endroit ou je m arrete </span>
+                  <span className="o-text-stone-500">
+                    Pour ce motif-la, il y a un endroit ou je m arrete{' '}
+                  </span>
                   et ou je vous envoie ailleurs.
                 </h2>
                 <p
@@ -960,15 +1146,21 @@ export default function Page(): ReactElement {
                   {zone.renvoi}
                 </p>
                 <p className="o-m-0 o-mt-12 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400">
-                  Osteopathe D.O., titre reconnu — je ne pose pas de diagnostic medical et je ne remplace personne
+                  Osteopathe D.O., titre reconnu — je ne pose pas de diagnostic medical et
+                  je ne remplace personne
                 </p>
               </div>
             </section>
 
             {/* ================= La jauge unique ========================== */}
-            <section aria-labelledby="jauge-titre" className="o-px-6 o-py-28 md:o-px-10 md:o-py-36">
+            <section
+              aria-labelledby="jauge-titre"
+              className="o-px-6 o-py-28 md:o-px-10 md:o-py-36"
+            >
               <div className="o-mx-auto o-max-w-4xl">
-                <Indice rang="04" sombre={false}>Le seul chiffre de cette page</Indice>
+                <Indice rang="04" sombre={false}>
+                  Le seul chiffre de cette page
+                </Indice>
                 <h2 id="jauge-titre" className="o-sr-only">
                   Le seul chiffre de cette page
                 </h2>
@@ -982,20 +1174,29 @@ export default function Page(): ReactElement {
             <section id="protocole" className="o-scroll-mt-24 o-px-6 o-pb-28 md:o-px-10">
               <div className="o-mx-auto o-grid o-max-w-6xl o-gap-14 md:o-grid-cols-12">
                 <div className="md:o-col-span-4">
-                  <Indice rang="05" sombre={false}>Le protocole</Indice>
+                  <Indice rang="05" sombre={false}>
+                    Le protocole
+                  </Indice>
                   <h2
                     className="o-m-0 o-mt-6 o-text-stone-900 dark:o-text-stone-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)', lineHeight: 1.02 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                      lineHeight: 1.02,
+                    }}
                   >
                     Quatre moments, et une sortie.
                   </h2>
                   <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                    Le meme deroule pour tous les motifs. Ce qui change d une personne a l autre, c est le nombre de
-                    fois qu on repasse par le deuxieme.
+                    Le meme deroule pour tous les motifs. Ce qui change d une personne a l
+                    autre, c est le nombre de fois qu on repasse par le deuxieme.
                   </p>
                 </div>
                 <div className="md:o-col-span-8">
-                  <Timeline events={FRISE} label="Le deroule d un suivi, en quatre moments" />
+                  <Timeline
+                    events={FRISE}
+                    label="Le deroule d un suivi, en quatre moments"
+                  />
                 </div>
               </div>
             </section>
@@ -1004,12 +1205,18 @@ export default function Page(): ReactElement {
             <section id="jeudi" className="o-scroll-mt-24 o-px-6 o-pb-32 md:o-px-10">
               <div className="o-mx-auto o-max-w-6xl">
                 <Reveal>
-                  <Indice rang="06" sombre={false}>Jeudi</Indice>
+                  <Indice rang="06" sombre={false}>
+                    Jeudi
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mb-14 o-mt-6 o-max-w-2xl o-text-stone-900 dark:o-text-stone-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Cinq places, entre huit heures et vingt heures.
                   </h2>
@@ -1028,7 +1235,11 @@ export default function Page(): ReactElement {
               <address className="o-m-0 o-not-italic">
                 <p
                   className="o-m-0 o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', lineHeight: 1.1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                    lineHeight: 1.1,
+                  }}
                 >
                   6 rue Gaultier
                   <br />
@@ -1037,12 +1248,17 @@ export default function Page(): ReactElement {
                 <p className="o-m-0 o-mt-8 o-font-mono o-text-sm o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400">
                   Du mardi au samedi
                   <br />
-                  <a href="#jeudi" className="o-no-underline focus:o-ring" style={{ color: encreSurSombre() }}>
+                  <a
+                    href="#jeudi"
+                    className="o-no-underline focus:o-ring"
+                    style={{ color: encreSurSombre() }}
+                  >
                     02 99 00 00 00
                   </a>
                 </p>
                 <p className="o-m-0 o-mt-10 o-text-xs o-leading-relaxed o-text-stone-400">
-                  © 2026 Appui — cabinet d osteopathie · Mentions legales · Accessibilite : partiellement conforme
+                  © 2026 Appui — cabinet d osteopathie · Mentions legales · Accessibilite
+                  : partiellement conforme
                 </p>
               </address>
             </div>

@@ -15,7 +15,12 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": ["--o-palette-brand-500", "--o-palette-fuchsia-500", "--o-palette-sky-500", "--o-theme-bg"],
+  "tokens": [
+    "--o-palette-brand-500",
+    "--o-palette-fuchsia-500",
+    "--o-palette-sky-500",
+    "--o-theme-bg"
+  ],
   "props": [
     {
       "name": "strength",

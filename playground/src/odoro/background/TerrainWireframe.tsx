@@ -172,7 +172,11 @@ export function TerrainWireframe({
       // Le token est en sRGB et le moteur encode sa couleur d'effacement du
       // lineaire vers le sRGB : sans la conversion inverse, le fond ressort
       // un cran plus clair.
-      const bgColour = new three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear()
+      const bgColour = new three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear()
       renderer.setClearColor(bgColour, 1)
       const fog = new three.Fog(bgColour, 4, DEPTH + 2)
       scene.scene.fog = fog
@@ -182,7 +186,8 @@ export function TerrainWireframe({
       camera.position.set(0, 1.8, 3.5)
       camera.lookAt(0, 0.2, -DEPTH)
 
-      const cols = quality === 'low' ? Math.min(columns, LOW_COLUMNS) : Math.max(columns, 8)
+      const cols =
+        quality === 'low' ? Math.min(columns, LOW_COLUMNS) : Math.max(columns, 8)
       const rows = Math.max(Math.round(cols / 2), 4)
       const count = (cols + 1) * (rows + 1)
 
@@ -307,7 +312,11 @@ export function TerrainWireframe({
     if (scene === null || nappe === null || host === null) return
     shades.current = colors.map((token) => readTokenColour(token, host))
     const [bg] = shades.current
-    const bgColour = new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear()
+    const bgColour = new scene.three.Color(
+      bg?.[0] ?? 0,
+      bg?.[1] ?? 0,
+      bg?.[2] ?? 0,
+    ).convertSRGBToLinear()
     scene.renderer.setClearColor(bgColour, 1)
     nappe.fog.color.copy(bgColour)
   }, [theme, colors, host, ready])

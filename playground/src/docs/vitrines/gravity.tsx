@@ -42,10 +42,25 @@
 import { CLOCK_PRIORITY, clock, useMotionState } from '@odoro-cli/engine'
 import { useScene, type SceneContext, type SceneFrame } from '@odoro-cli/engine/three'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowDown, ArrowUpRight, Menu, MousePointer_2, X } from '@odoro-cli/icons/filaire'
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Menu,
+  MousePointer_2,
+  X,
+} from '@odoro-cli/icons/filaire'
 import { Instagram, Linkedin, Twitter } from '@odoro-cli/icons/marques'
 import { useInView } from '@odoro-cli/libs/motion'
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { Noise } from '@/odoro/background/Noise.jsx'
 import { CursorRing } from '@/odoro/effect/CursorRing.jsx'
@@ -67,10 +82,12 @@ const DOUCE = 'o-text-stone-700 dark:o-text-stone-300'
 const FAIBLE = 'o-text-stone-500 dark:o-text-stone-400'
 
 /** La carte de verre, claire sur le papier, sombre sous la nuit. */
-const VERRE = 'o-border-w-1 o-border-white-60 o-bg-white-40 o-backdrop-blur-xl dark:o-border-zinc-700 dark:o-bg-zinc-900'
+const VERRE =
+  'o-border-w-1 o-border-white-60 o-bg-white-40 o-backdrop-blur-xl dark:o-border-zinc-700 dark:o-bg-zinc-900'
 
 /** L orbe d accent : batie sur l accent vivant, elle morphe avec la scene. */
-const ORBE = 'radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--o-gv-accent) 75%, #fff) 0%, var(--o-gv-accent) 48%, var(--o-vitrine-700) 100%)'
+const ORBE =
+  'radial-gradient(circle at 50% 28%, color-mix(in srgb, var(--o-gv-accent) 75%, #fff) 0%, var(--o-gv-accent) 48%, var(--o-vitrine-700) 100%)'
 
 /** La courbe de sortie partagee par toutes les revelations. */
 const COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)'
@@ -85,9 +102,23 @@ const COURBE = 'cubic-bezier(0.16, 1, 0.3, 1)'
 const TRACE_SIGLE = 'M0 0H50A50 50 0 1 1 0 50Z M15 15H50A35 35 0 1 1 15 50Z'
 
 /** Le sigle, en SVG. */
-function Sigle({ taille = 24, style }: { readonly taille?: number; readonly style?: CSSProperties }): ReactElement {
+function Sigle({
+  taille = 24,
+  style,
+}: {
+  readonly taille?: number
+  readonly style?: CSSProperties
+}): ReactElement {
   return (
-    <svg width={taille} height={taille} viewBox="0 0 100 100" aria-hidden="true" focusable="false" className="o-shrink-0" style={style}>
+    <svg
+      width={taille}
+      height={taille}
+      viewBox="0 0 100 100"
+      aria-hidden="true"
+      focusable="false"
+      className="o-shrink-0"
+      style={style}
+    >
       <path fillRule="evenodd" clipRule="evenodd" d={TRACE_SIGLE} fill="currentColor" />
     </svg>
   )
@@ -133,12 +164,23 @@ function nombreDeSpheres(): number {
 function SigleSeme(): ReactElement {
   const disques = useMemo(() => {
     const n = 96
-    const teintes = ['var(--o-vitrine-300)', 'var(--o-vitrine-100)', 'var(--o-vitrine-400)', 'var(--o-vitrine-500)', 'var(--o-vitrine-200)']
+    const teintes = [
+      'var(--o-vitrine-300)',
+      'var(--o-vitrine-100)',
+      'var(--o-vitrine-400)',
+      'var(--o-vitrine-500)',
+      'var(--o-vitrine-200)',
+    ]
     return Array.from({ length: n }, (_, i) => {
       const t = (i + 0.5) / n
       const ecart = ((i % 2) - 0.5) * 2 * DEMI_ECART
       const [x, y] = pointDuSigle(t, ecart)
-      return { x, y: -y, r: 0.075 + ((i * 7) % 5) * 0.008, fill: teintes[(i * 3) % teintes.length] ?? teintes[0] }
+      return {
+        x,
+        y: -y,
+        r: 0.075 + ((i * 7) % 5) * 0.008,
+        fill: teintes[(i * 3) % teintes.length] ?? teintes[0],
+      }
     })
   }, [])
   return (
@@ -216,7 +258,11 @@ function estSombre(): boolean {
  * Tout ce qui vit ici est alloue une fois ; la boucle n alloue rien, parce
  * qu a soixante images par seconde le ramasse-miettes se verrait.
  */
-function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTMLElement): { animer: (image: SceneFrame) => void; demonter: () => void } {
+function construireLeChamp(
+  contexte: SceneContext,
+  commande: Commande,
+  hote: HTMLElement,
+): { animer: (image: SceneFrame) => void; demonter: () => void } {
   const { scene, camera, three, quality } = contexte
 
   camera.fov = 38
@@ -226,20 +272,49 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
 
   /* ----- Les palettes : ambre, cuivre, marque — puis le fond ------------ */
 
-  const nuance = (n: number, repli: string): Couleur => new three.Color(teinte(`--o-vitrine-${String(n)}`, repli))
+  const nuance = (n: number, repli: string): Couleur =>
+    new three.Color(teinte(`--o-vitrine-${String(n)}`, repli))
   const palettes: Record<'ambre' | 'cuivre' | 'marque', Record<Role, Couleur>> = {
-    ambre: { pastel: nuance(50, '#fff7ed'), claire: nuance(100, '#ffedd5'), moyenne: nuance(300, '#fdba74'), profonde: nuance(400, '#fb923c'), verre: nuance(200, '#fed7aa') },
-    cuivre: { pastel: nuance(50, '#fff7ed'), claire: nuance(200, '#fed7aa'), moyenne: nuance(400, '#fb923c'), profonde: nuance(500, '#f97316'), verre: nuance(300, '#fdba74') },
-    marque: { pastel: nuance(100, '#ffedd5'), claire: nuance(300, '#fdba74'), moyenne: nuance(500, '#f97316'), profonde: nuance(700, '#c2410c'), verre: nuance(400, '#fb923c') },
+    ambre: {
+      pastel: nuance(50, '#fff7ed'),
+      claire: nuance(100, '#ffedd5'),
+      moyenne: nuance(300, '#fdba74'),
+      profonde: nuance(400, '#fb923c'),
+      verre: nuance(200, '#fed7aa'),
+    },
+    cuivre: {
+      pastel: nuance(50, '#fff7ed'),
+      claire: nuance(200, '#fed7aa'),
+      moyenne: nuance(400, '#fb923c'),
+      profonde: nuance(500, '#f97316'),
+      verre: nuance(300, '#fdba74'),
+    },
+    marque: {
+      pastel: nuance(100, '#ffedd5'),
+      claire: nuance(300, '#fdba74'),
+      moyenne: nuance(500, '#f97316'),
+      profonde: nuance(700, '#c2410c'),
+      verre: nuance(400, '#fb923c'),
+    },
   }
   const courante: Record<Role, Couleur> = {
-    pastel: new three.Color(), claire: new three.Color(), moyenne: new three.Color(), profonde: new three.Color(), verre: new three.Color(),
+    pastel: new three.Color(),
+    claire: new three.Color(),
+    moyenne: new three.Color(),
+    profonde: new three.Color(),
+    verre: new three.Color(),
   }
 
   // Le fond : trois anneaux de couleur (centre, mi-course, bord) par etape,
   // recalcules quand le theme bascule. Sur le papier : blanc vers abricot. Sous
   // la nuit : un zinc profond qui se rechauffe du meme mouvement.
-  const fonds: { centre: Couleur; milieu: Couleur; bord: Couleur }[] = [0, 1, 2].map(() => ({ centre: new three.Color(), milieu: new three.Color(), bord: new three.Color() }))
+  const fonds: { centre: Couleur; milieu: Couleur; bord: Couleur }[] = [0, 1, 2].map(
+    () => ({
+      centre: new three.Color(),
+      milieu: new three.Color(),
+      bord: new three.Color(),
+    }),
+  )
   const refaireLesFonds = (): void => {
     const sombre = estSombre()
     const nuit = new three.Color('#09090b')
@@ -258,7 +333,9 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
       } else {
         f.centre.copy(blanc)
         f.milieu.copy(blanc).lerp(n100, 0.32 + etape * 0.1)
-        f.bord.copy(n100).lerp(etape === 2 ? n300 : n200, etape === 0 ? 0.45 : etape === 1 ? 0.85 : 0.35)
+        f.bord
+          .copy(n100)
+          .lerp(etape === 2 ? n300 : n200, etape === 0 ? 0.45 : etape === 1 ? 0.85 : 0.35)
       }
     }
   }
@@ -266,7 +343,10 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
   scene.background = fonds[0]?.centre.clone() ?? new three.Color('#ffffff')
 
   const observateurTheme = new MutationObserver(refaireLesFonds)
-  observateurTheme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] })
+  observateurTheme.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme', 'class', 'style'],
+  })
   const media = window.matchMedia('(prefers-color-scheme: dark)')
   media.addEventListener('change', refaireLesFonds)
 
@@ -286,14 +366,24 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
     for (let i = 0; i < SEGMENTS; i += 1) {
       const suivant = (i + 1) % SEGMENTS
       index.push(0, 1 + i, 1 + suivant)
-      const a = 1 + i, b = 1 + suivant, c = 1 + SEGMENTS + i, d = 1 + SEGMENTS + suivant
+      const a = 1 + i,
+        b = 1 + suivant,
+        c = 1 + SEGMENTS + i,
+        d = 1 + SEGMENTS + suivant
       index.push(a, c, d, a, d, b)
     }
     toile.setIndex(index)
     toile.setAttribute('position', new three.Float32BufferAttribute(sommets, 3))
-    toile.setAttribute('color', new three.Float32BufferAttribute(new Array(sommets.length).fill(1), 3))
+    toile.setAttribute(
+      'color',
+      new three.Float32BufferAttribute(new Array(sommets.length).fill(1), 3),
+    )
   }
-  const matiereToile = new three.MeshBasicMaterial({ vertexColors: true, toneMapped: false, depthWrite: false })
+  const matiereToile = new three.MeshBasicMaterial({
+    vertexColors: true,
+    toneMapped: false,
+    depthWrite: false,
+  })
   const fond = new three.Mesh(toile, matiereToile)
   fond.position.z = -8
   fond.renderOrder = -1
@@ -313,7 +403,12 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
 
   /* ----- L eclairage ---------------------------------------------------- */
 
-  eclairer(contexte, { cle: 0xffffff, remplissage: 0xffe2c4, contour: 0xffffff, force: 0.55 })
+  eclairer(contexte, {
+    cle: 0xffffff,
+    remplissage: 0xffe2c4,
+    contour: 0xffffff,
+    force: 0.55,
+  })
   const ciel = new three.HemisphereLight(0xffffff, palettes.ambre.moyenne.getHex(), 1.5)
   const rasante = new three.DirectionalLight(0xffffff, 0.9)
   rasante.position.set(8, 7, -8)
@@ -397,8 +492,18 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
     scene.add(groupe)
 
     spheres.push({
-      id: i, rayon, masse, position: new three.Vector3(), vitesse: new three.Vector3(),
-      groupe, maille, matiere, role, enVerre, cible: new three.Vector3(), echelle: rayon,
+      id: i,
+      rayon,
+      masse,
+      position: new three.Vector3(),
+      vitesse: new three.Vector3(),
+      groupe,
+      maille,
+      matiere,
+      role,
+      enVerre,
+      cible: new three.Vector3(),
+      echelle: rayon,
     })
   }
 
@@ -433,7 +538,11 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
       const pz = (Math.random() - 0.5) * 4
       s.position.set(px, py, pz)
       s.groupe.position.copy(s.position)
-      if (avecElan) s.vitesse.set(-px, -py, -pz).normalize().multiplyScalar(0.08 + Math.random() * 0.05)
+      if (avecElan)
+        s.vitesse
+          .set(-px, -py, -pz)
+          .normalize()
+          .multiplyScalar(0.08 + Math.random() * 0.05)
       else s.vitesse.set(0, 0, 0)
     }
   }
@@ -460,9 +569,15 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
     commande.pointeur.y = -((e.clientY - boite.top) / Math.max(1, boite.height)) * 2 + 1
     commande.pointeur.dedans = true
   }
-  const surAppui = (): void => { commande.pointeur.enfonce = true }
-  const surRelache = (): void => { commande.pointeur.enfonce = false }
-  const surSortie = (): void => { commande.pointeur.dedans = false }
+  const surAppui = (): void => {
+    commande.pointeur.enfonce = true
+  }
+  const surRelache = (): void => {
+    commande.pointeur.enfonce = false
+  }
+  const surSortie = (): void => {
+    commande.pointeur.dedans = false
+  }
   window.addEventListener('pointermove', surMouvement, { passive: true })
   window.addEventListener('pointerdown', surAppui)
   window.addEventListener('pointerup', surRelache)
@@ -516,7 +631,10 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
     const versCuivre = lisse(0.55, 1.05, p)
     const versMarque = lisse(1.4, 1.95, p)
     for (const role of ROLES) {
-      courante[role].copy(palettes.ambre[role]).lerp(palettes.cuivre[role], versCuivre).lerp(palettes.marque[role], versMarque)
+      courante[role]
+        .copy(palettes.ambre[role])
+        .lerp(palettes.cuivre[role], versCuivre)
+        .lerp(palettes.marque[role], versMarque)
     }
     ciel.groundColor.copy(courante.moyenne)
 
@@ -535,7 +653,9 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
 
     const entreeT = sortieCubique(borne01((time - debutEntree) / 2.2))
     const renfort = entre(7.5, 1, entreeT)
-    const pointeurActif = commande.pointeur.dedans && (Math.abs(commande.pointeur.x) < 0.99 || Math.abs(commande.pointeur.y) < 0.99)
+    const pointeurActif =
+      commande.pointeur.dedans &&
+      (Math.abs(commande.pointeur.x) < 0.99 || Math.abs(commande.pointeur.y) < 0.99)
     let elan = pointeurActif ? pointeurMonde.distanceTo(pointeurPrecedent) : 0
     if (elan > 3) elan = 3
     pointeurPrecedent.copy(pointeurMonde)
@@ -603,7 +723,12 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
       const c = courante[s.role]
       s.matiere.color.copy(c)
       s.matiere.emissive.copy(c)
-      s.matiere.opacity = envolF > 0.001 ? 1 - lisse(camZ - 2.6, camZ - 0.3, s.position.z) : s.enVerre && !verrePossible ? 0.7 : 1
+      s.matiere.opacity =
+        envolF > 0.001
+          ? 1 - lisse(camZ - 2.6, camZ - 0.3, s.position.z)
+          : s.enVerre && !verrePossible
+            ? 0.7
+            : 1
 
       const echelleVisee = s.rayon * (1 - (1 - echelleSigle) * sigleF)
       s.echelle += (echelleVisee - s.echelle) * 0.12
@@ -627,12 +752,19 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
             const chevauchement = minimum - distance
             ecartCollision.multiplyScalar(1 / distance)
             const masseTotale = a.masse + b.masse
-            a.position.addScaledVector(ecartCollision, (-chevauchement * b.masse * echelleCollision) / masseTotale)
-            b.position.addScaledVector(ecartCollision, (chevauchement * a.masse * echelleCollision) / masseTotale)
+            a.position.addScaledVector(
+              ecartCollision,
+              (-chevauchement * b.masse * echelleCollision) / masseTotale,
+            )
+            b.position.addScaledVector(
+              ecartCollision,
+              (chevauchement * a.masse * echelleCollision) / masseTotale,
+            )
             vitesseRelative.subVectors(b.vitesse, a.vitesse)
             const normale = vitesseRelative.dot(ecartCollision)
             if (normale < -0.0001) {
-              const impulsion = (-(1 + ELASTICITE) * normale) / (1 / a.masse + 1 / b.masse)
+              const impulsion =
+                (-(1 + ELASTICITE) * normale) / (1 / a.masse + 1 / b.masse)
               a.vitesse.addScaledVector(ecartCollision, -impulsion / a.masse)
               b.vitesse.addScaledVector(ecartCollision, impulsion / b.masse)
             }
@@ -652,12 +784,20 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
     for (const s of spheres) {
       const r = s.echelle
       if (contenir) {
-        if (s.position.x < -xMax - r) { s.position.x = -xMax - r; s.vitesse.x *= REBOND_MUR }
-        else if (s.position.x > xMax + r) { s.position.x = xMax + r; s.vitesse.x *= REBOND_MUR }
+        if (s.position.x < -xMax - r) {
+          s.position.x = -xMax - r
+          s.vitesse.x *= REBOND_MUR
+        } else if (s.position.x > xMax + r) {
+          s.position.x = xMax + r
+          s.vitesse.x *= REBOND_MUR
+        }
         if (s.position.y - r < sol) {
           s.position.y = sol + r
           if (s.vitesse.y < 0) s.vitesse.y = -s.vitesse.y * restitution
-          if (chuteF > 0.3) { s.vitesse.x *= 0.86; s.vitesse.z *= 0.86 }
+          if (chuteF > 0.3) {
+            s.vitesse.x *= 0.86
+            s.vitesse.z *= 0.86
+          }
         }
         if (s.position.y + r > haut) {
           s.position.y = haut - r
@@ -665,8 +805,13 @@ function construireLeChamp(contexte: SceneContext, commande: Commande, hote: HTM
         }
       }
       if (contenirZ) {
-        if (s.position.z < -zMax) { s.position.z = -zMax; s.vitesse.z *= REBOND_MUR }
-        else if (s.position.z > zMax) { s.position.z = zMax; s.vitesse.z *= REBOND_MUR }
+        if (s.position.z < -zMax) {
+          s.position.z = -zMax
+          s.vitesse.z *= REBOND_MUR
+        } else if (s.position.z > zMax) {
+          s.position.z = zMax
+          s.vitesse.z *= REBOND_MUR
+        }
       }
       // Le roulement, deduit du deplacement.
       deplacement.copy(s.position).sub(s.groupe.position)
@@ -726,8 +871,18 @@ function useFeuille(): void {
 /** Le libelle d index, precede d une pastille a l accent vivant. */
 function Surtitre({ children }: { readonly children: ReactNode }): ReactElement {
   return (
-    <span className="o-inline-flex o-items-center o-gap-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-transition-colors" style={{ color: 'var(--o-gv-encre)', transitionDuration: '1100ms' }}>
-      <span aria-hidden="true" className="o-inline-block o-size-1.5 o-rounded-full" style={{ background: 'var(--o-gv-accent)', boxShadow: '0 0 10px var(--o-gv-accent)' }} />
+    <span
+      className="o-inline-flex o-items-center o-gap-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-transition-colors"
+      style={{ color: 'var(--o-gv-encre)', transitionDuration: '1100ms' }}
+    >
+      <span
+        aria-hidden="true"
+        className="o-inline-block o-size-1.5 o-rounded-full"
+        style={{
+          background: 'var(--o-gv-accent)',
+          boxShadow: '0 0 10px var(--o-gv-accent)',
+        }}
+      />
       {children}
     </span>
   )
@@ -736,24 +891,42 @@ function Surtitre({ children }: { readonly children: ReactNode }): ReactElement 
 /** Le mot d accent : l italique de serif, a l encre vivante. */
 function Italique({ children }: { readonly children: ReactNode }): ReactElement {
   return (
-    <em className="o-font-serif o-italic o-font-normal o-transition-colors" style={{ color: 'var(--o-gv-encre)', letterSpacing: '-0.01em', transitionDuration: '1100ms' }}>
+    <em
+      className="o-font-serif o-italic o-font-normal o-transition-colors"
+      style={{
+        color: 'var(--o-gv-encre)',
+        letterSpacing: '-0.01em',
+        transitionDuration: '1100ms',
+      }}
+    >
       {children}
     </em>
   )
 }
 
 /** Une entree gardee par le rideau : opacite et montee, sous un masque de ligne. */
-function Ligne({ delai, children }: { readonly delai: number; readonly children: ReactNode }): ReactElement {
+function Ligne({
+  delai,
+  children,
+}: {
+  readonly delai: number
+  readonly children: ReactNode
+}): ReactElement {
   const pret = usePret()
   const { reduced } = useMotionState()
   return (
-    <span className="o-block o-overflow-hidden" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
+    <span
+      className="o-block o-overflow-hidden"
+      style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}
+    >
       <span
         className="o-block"
         style={{
           transform: pret || reduced ? 'none' : 'translate3d(0, 110%, 0)',
           opacity: pret ? 1 : 0,
-          transition: reduced ? `opacity 300ms ease ${String(delai)}ms` : `transform 1000ms ${COURBE} ${String(delai)}ms, opacity 300ms ease ${String(delai)}ms`,
+          transition: reduced
+            ? `opacity 300ms ease ${String(delai)}ms`
+            : `transform 1000ms ${COURBE} ${String(delai)}ms, opacity 300ms ease ${String(delai)}ms`,
         }}
       >
         {children}
@@ -763,7 +936,15 @@ function Ligne({ delai, children }: { readonly delai: number; readonly children:
 }
 
 /** Une entree gardee par le rideau, sans masque : opacite et petite montee. */
-function Arrive({ delai, className, children }: { readonly delai: number; readonly className?: string; readonly children: ReactNode }): ReactElement {
+function Arrive({
+  delai,
+  className,
+  children,
+}: {
+  readonly delai: number
+  readonly className?: string
+  readonly children: ReactNode
+}): ReactElement {
   const pret = usePret()
   const { reduced } = useMotionState()
   return (
@@ -772,7 +953,9 @@ function Arrive({ delai, className, children }: { readonly delai: number; readon
       style={{
         opacity: pret ? 1 : 0,
         transform: pret || reduced ? 'none' : 'translate3d(0, 16px, 0)',
-        transition: reduced ? `opacity 300ms ease ${String(delai)}ms` : `opacity 800ms ${COURBE} ${String(delai)}ms, transform 800ms ${COURBE} ${String(delai)}ms`,
+        transition: reduced
+          ? `opacity 300ms ease ${String(delai)}ms`
+          : `opacity 800ms ${COURBE} ${String(delai)}ms, transform 800ms ${COURBE} ${String(delai)}ms`,
       }}
     >
       {children}
@@ -781,7 +964,15 @@ function Arrive({ delai, className, children }: { readonly delai: number; readon
 }
 
 /** La revelation a l entree dans le champ : flou et montee, une fois. */
-function Revele({ delai = 0, className, children }: { readonly delai?: number; readonly className?: string; readonly children: ReactNode }): ReactElement {
+function Revele({
+  delai = 0,
+  className,
+  children,
+}: {
+  readonly delai?: number
+  readonly className?: string
+  readonly children: ReactNode
+}): ReactElement {
   const { reduced } = useMotionState()
   const [ref, vu] = useInView<HTMLDivElement>({ threshold: 0.35, once: true })
   return (
@@ -792,7 +983,9 @@ function Revele({ delai = 0, className, children }: { readonly delai?: number; r
         opacity: vu ? 1 : 0,
         transform: vu || reduced ? 'none' : 'translate3d(0, 42px, 0)',
         filter: vu || reduced ? 'none' : 'blur(8px)',
-        transition: reduced ? `opacity 400ms ease ${String(delai)}ms` : `opacity 700ms ${COURBE} ${String(delai)}ms, transform 1400ms ${COURBE} ${String(delai)}ms, filter 1400ms ${COURBE} ${String(delai)}ms`,
+        transition: reduced
+          ? `opacity 400ms ease ${String(delai)}ms`
+          : `opacity 700ms ${COURBE} ${String(delai)}ms, transform 1400ms ${COURBE} ${String(delai)}ms, filter 1400ms ${COURBE} ${String(delai)}ms`,
       }}
     >
       {children}
@@ -803,7 +996,16 @@ function Revele({ delai = 0, className, children }: { readonly delai?: number; r
 /** L orbe flechee, au bout des gelules. */
 function Orbe({ taille = 32 }: { readonly taille?: number }): ReactElement {
   return (
-    <span data-gv-orbe="" className="o-flex o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-white o-transition-transform" style={{ width: taille, height: taille, background: ORBE, boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.5)' }}>
+    <span
+      data-gv-orbe=""
+      className="o-flex o-shrink-0 o-items-center o-justify-center o-rounded-full o-text-white o-transition-transform"
+      style={{
+        width: taille,
+        height: taille,
+        background: ORBE,
+        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.5)',
+      }}
+    >
       <Icon icon={ArrowUpRight} size={Math.round(taille / 2)} aria-hidden="true" />
     </span>
   )
@@ -811,9 +1013,27 @@ function Orbe({ taille = 32 }: { readonly taille?: number }): ReactElement {
 
 /** Les trois cartes de la chute, telles que la source les ecrit. */
 const CARTES = [
-  { n: '01', k: 'Solveur', v: 'Verlet', u: '· 4 sous-pas', d: 'Empilement stable a 60 fps' },
-  { n: '02', k: 'Restitution', v: '0,65', u: 'rebond', d: 'De l energie perdue a chaque contact' },
-  { n: '03', k: 'Corps', v: 'Temps reel', u: 'sur GPU', d: 'Aucune animation pre-calculee' },
+  {
+    n: '01',
+    k: 'Solveur',
+    v: 'Verlet',
+    u: '· 4 sous-pas',
+    d: 'Empilement stable a 60 fps',
+  },
+  {
+    n: '02',
+    k: 'Restitution',
+    v: '0,65',
+    u: 'rebond',
+    d: 'De l energie perdue a chaque contact',
+  },
+  {
+    n: '03',
+    k: 'Corps',
+    v: 'Temps reel',
+    u: 'sur GPU',
+    d: 'Aucune animation pre-calculee',
+  },
 ] as const
 
 /** Les rubriques de la barre. */
@@ -836,7 +1056,13 @@ const COURRIEL = 'mailto:bonjour@odoro.studio'
 /* ============================ Le contenu =============================== */
 
 /** Le site, sous le rideau. */
-function Contenu({ commande, onPret }: { readonly commande: Commande; readonly onPret: () => void }): ReactElement {
+function Contenu({
+  commande,
+  onPret,
+}: {
+  readonly commande: Commande
+  readonly onPret: () => void
+}): ReactElement {
   useFeuille()
   const { reduced } = useMotionState()
   const pret = usePret()
@@ -863,7 +1089,12 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
   const animer = useCallback((_contexte: SceneContext, image: SceneFrame) => {
     champ.current?.animer(image)
   }, [])
-  const { ref, ready, refused } = useScene<HTMLDivElement>({ name: 'champ de gravite', setup: construire, frame: animer, pauseOffscreen: false })
+  const { ref, ready, refused } = useScene<HTMLDivElement>({
+    name: 'champ de gravite',
+    setup: construire,
+    frame: animer,
+    pauseOffscreen: false,
+  })
 
   useEffect(() => {
     if (ready || refused !== undefined) onPret()
@@ -887,7 +1118,8 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
     const observateur = new ResizeObserver(mesurer)
     observateur.observe(document.documentElement)
 
-    const brut = (): number => (window.scrollY - haut) / Math.max(1, window.innerHeight - CHROME)
+    const brut = (): number =>
+      (window.scrollY - haut) / Math.max(1, window.innerHeight - CHROME)
     let courant = brut()
     let etapeCourante = -1
     const appliquer = (): void => {
@@ -899,7 +1131,8 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       }
       const course = document.documentElement.scrollHeight - window.innerHeight || 1
       const pct = Math.min(1, Math.max(0, window.scrollY / course))
-      if (rail.current !== null) rail.current.style.height = `${String(Math.round(pct * 100))}%`
+      if (rail.current !== null)
+        rail.current.style.height = `${String(Math.round(pct * 100))}%`
     }
     appliquer()
 
@@ -967,22 +1200,48 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
             background: `radial-gradient(circle at center, var(--o-theme-bg) 0%, color-mix(in oklab, var(--o-vitrine-100) 40%, var(--o-theme-bg)) 38%, color-mix(in oklab, var(--o-vitrine-300) 45%, var(--o-theme-bg)) 100%)`,
           }}
         >
-          <div className="o-size-full" style={{ maxWidth: 'min(70vh, 80vw)', maxHeight: 'min(70vh, 80vw)' }}>
+          <div
+            className="o-size-full"
+            style={{ maxWidth: 'min(70vh, 80vw)', maxHeight: 'min(70vh, 80vw)' }}
+          >
             <SigleSeme />
           </div>
         </div>
       )}
 
       {/* Le grain argentique, sur toute l experience. */}
-      <Noise className="o-pointer-events-none o-fixed o-inset-x-0 o-bottom-0 o-z-20" style={{ top: CHROME }} opacity={0.05} scale={0.9} />
+      <Noise
+        className="o-pointer-events-none o-fixed o-inset-x-0 o-bottom-0 o-z-20"
+        style={{ top: CHROME }}
+        opacity={0.05}
+        scale={0.9}
+      />
 
       {/* Le rail d avancement, sur le bord droit. */}
       <div
         aria-hidden="true"
         className="o-fixed o-z-30 o-hidden o-rounded-full md:o-block"
-        style={{ right: 22, top: `calc(50% + ${String(CHROME / 2)}px)`, transform: 'translateY(-50%)', height: 140, width: 1, background: 'color-mix(in srgb, currentColor 14%, transparent)', opacity: pret ? 1 : 0, transition: 'opacity 1000ms ease 600ms' }}
+        style={{
+          right: 22,
+          top: `calc(50% + ${String(CHROME / 2)}px)`,
+          transform: 'translateY(-50%)',
+          height: 140,
+          width: 1,
+          background: 'color-mix(in srgb, currentColor 14%, transparent)',
+          opacity: pret ? 1 : 0,
+          transition: 'opacity 1000ms ease 600ms',
+        }}
       >
-        <div ref={rail} className="o-absolute o-left-0 o-top-0 o-w-px o-rounded-full" style={{ height: '0%', background: 'var(--o-gv-encre)', boxShadow: '0 0 8px var(--o-gv-accent)', transition: 'height 200ms linear' }} />
+        <div
+          ref={rail}
+          className="o-absolute o-left-0 o-top-0 o-w-px o-rounded-full"
+          style={{
+            height: '0%',
+            background: 'var(--o-gv-encre)',
+            boxShadow: '0 0 8px var(--o-gv-accent)',
+            transition: 'height 200ms linear',
+          }}
+        />
       </div>
 
       {/*
@@ -990,26 +1249,56 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       */}
       <header
         className="o-pointer-events-none o-fixed o-inset-x-0 o-z-40 o-flex o-items-center o-justify-between o-px-6 md:o-px-12"
-        style={{ top: CHROME, height: 88, opacity: pret ? 1 : 0, transform: pret || reduced ? 'none' : 'translate3d(0, -16px, 0)', transition: `opacity 800ms ${COURBE}, transform 800ms ${COURBE}` }}
+        style={{
+          top: CHROME,
+          height: 88,
+          opacity: pret ? 1 : 0,
+          transform: pret || reduced ? 'none' : 'translate3d(0, -16px, 0)',
+          transition: `opacity 800ms ${COURBE}, transform 800ms ${COURBE}`,
+        }}
       >
         <Aimant force={0.25} className="o-pointer-events-auto">
-          <a href="#haut" className={`o-flex o-items-center o-gap-2.5 o-no-underline o-select-none ${ENCRE} focus:o-ring`} aria-label="odoro, revenir en haut">
-            <Sigle taille={26} style={{ color: 'var(--o-gv-accent)', filter: 'drop-shadow(0 0 10px var(--o-gv-accent))', transition: 'color 1100ms' }} />
-            <span className="o-text-xl o-font-semibold o-lowercase o-tracking-tight md:o-text-2xl">odoro</span>
+          <a
+            href="#haut"
+            className={`o-flex o-items-center o-gap-2.5 o-no-underline o-select-none ${ENCRE} focus:o-ring`}
+            aria-label="odoro, revenir en haut"
+          >
+            <Sigle
+              taille={26}
+              style={{
+                color: 'var(--o-gv-accent)',
+                filter: 'drop-shadow(0 0 10px var(--o-gv-accent))',
+                transition: 'color 1100ms',
+              }}
+            />
+            <span className="o-text-xl o-font-semibold o-lowercase o-tracking-tight md:o-text-2xl">
+              odoro
+            </span>
           </a>
         </Aimant>
 
         <div className="o-pointer-events-auto o-flex o-items-center o-gap-2 md:o-gap-3">
-          <nav aria-label="Navigation" className={`o-hidden o-items-center o-gap-1 o-rounded-full o-px-2 o-py-1.5 o-text-sm o-font-medium md:o-flex ${VERRE}`}>
+          <nav
+            aria-label="Navigation"
+            className={`o-hidden o-items-center o-gap-1 o-rounded-full o-px-2 o-py-1.5 o-text-sm o-font-medium md:o-flex ${VERRE}`}
+          >
             {RUBRIQUES.map(([href, mot]) => (
-              <a key={href} href={href} className={`o-rounded-full o-px-4 o-py-1.5 o-no-underline o-transition-colors ${ENCRE} hover:o-bg-white-40 dark:hover:o-bg-zinc-800 focus:o-ring`}>
+              <a
+                key={href}
+                href={href}
+                className={`o-rounded-full o-px-4 o-py-1.5 o-no-underline o-transition-colors ${ENCRE} hover:o-bg-white-40 dark:hover:o-bg-zinc-800 focus:o-ring`}
+              >
                 {mot}
               </a>
             ))}
           </nav>
 
           <Aimant force={0.35}>
-            <a href={COURRIEL} data-gv-groupe="" className={`o-gap-3.5 o-py-1.5 o-pl-6 o-pr-1.5 o-text-sm o-font-medium ${gelule} ${ENCRE} hover:o-bg-white-70 dark:hover:o-bg-zinc-800`}>
+            <a
+              href={COURRIEL}
+              data-gv-groupe=""
+              className={`o-gap-3.5 o-py-1.5 o-pl-6 o-pr-1.5 o-text-sm o-font-medium ${gelule} ${ENCRE} hover:o-bg-white-70 dark:hover:o-bg-zinc-800`}
+            >
               Parlons-en
               <Orbe />
             </a>
@@ -1017,7 +1306,9 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
 
           <button
             type="button"
-            onClick={() => { setMenuOuvert(true) }}
+            onClick={() => {
+              setMenuOuvert(true)
+            }}
             aria-label="Ouvrir le menu"
             aria-expanded={menuOuvert}
             className={`o-flex o-size-11 o-items-center o-justify-center o-rounded-full md:o-hidden ${VERRE} ${ENCRE} focus:o-ring`}
@@ -1030,14 +1321,26 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       {/*
         ----- 01 — Le heros ---------------------------------------------------
       */}
-      <section id="haut" className="o-relative o-z-10 o-flex o-w-full o-items-end" style={{ minHeight: ECRAN }}>
+      <section
+        id="haut"
+        className="o-relative o-z-10 o-flex o-w-full o-items-end"
+        style={{ minHeight: ECRAN }}
+      >
         <div className="o-w-full o-px-6 o-pb-12 md:o-px-12 md:o-pb-16">
           <div className="o-flex o-flex-col o-justify-between o-gap-8 md:o-flex-row md:o-items-end">
             <div className="o-flex o-flex-col o-items-start o-gap-5 md:o-gap-6">
               <Arrive delai={150}>
                 <Surtitre>Studio numerique independant</Surtitre>
               </Arrive>
-              <h1 className="o-m-0 o-select-none" style={{ ...affiche('l', 500), fontSize: 'clamp(3rem, 8.4vw, 7rem)', letterSpacing: '-0.035em', lineHeight: 0.92 }}>
+              <h1
+                className="o-m-0 o-select-none"
+                style={{
+                  ...affiche('l', 500),
+                  fontSize: 'clamp(3rem, 8.4vw, 7rem)',
+                  letterSpacing: '-0.035em',
+                  lineHeight: 0.92,
+                }}
+              >
                 <Ligne delai={250}>Moins de bruit.</Ligne>
                 <Ligne delai={380}>
                   Plus de <Italique>gravite.</Italique>
@@ -1045,16 +1348,31 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
               </h1>
             </div>
 
-            <Arrive delai={550} className="o-shrink-0 o-pb-1 o-text-left md:o-w-72 md:o-pb-3">
+            <Arrive
+              delai={550}
+              className="o-shrink-0 o-pb-1 o-text-left md:o-w-72 md:o-pb-3"
+            >
               <p className={`o-m-0 o-text-base o-leading-snug ${ENCRE}`}>
-                Nous concevons des experiences numeriques qui ecartent la distraction et mettent l attention en orbite.
+                Nous concevons des experiences numeriques qui ecartent la distraction et
+                mettent l attention en orbite.
               </p>
-              <p className={`o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}>© 2026 — Studio ODORO</p>
-              <div className={`o-mt-5 o-hidden o-items-center o-gap-2 md:o-flex ${DOUCE}`}>
-                <span className={reduced ? 'o-inline-flex' : 'o-inline-flex o-animate-bounce'} aria-hidden="true">
+              <p
+                className={`o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}
+              >
+                © 2026 — Studio ODORO
+              </p>
+              <div
+                className={`o-mt-5 o-hidden o-items-center o-gap-2 md:o-flex ${DOUCE}`}
+              >
+                <span
+                  className={reduced ? 'o-inline-flex' : 'o-inline-flex o-animate-bounce'}
+                  aria-hidden="true"
+                >
                   <Icon icon={ArrowDown} size={14} />
                 </span>
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">Faites defiler pour entrer</span>
+                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                  Faites defiler pour entrer
+                </span>
               </div>
             </Arrive>
           </div>
@@ -1064,21 +1382,37 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       {/*
         ----- 02 — La chute ---------------------------------------------------
       */}
-      <section id="physique" className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-items-center o-px-6 o-pb-40 o-pt-32 md:o-px-12 md:o-pt-40" style={{ minHeight: ECRAN }}>
+      <section
+        id="physique"
+        className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-items-center o-px-6 o-pb-40 o-pt-32 md:o-px-12 md:o-pt-40"
+        style={{ minHeight: ECRAN }}
+      >
         <div className="o-grid o-w-full o-items-start o-gap-10 lg:o-grid-cols-12 lg:o-gap-16">
           <div className="o-min-w-0 lg:o-col-span-7">
             <Revele>
               <Surtitre>02 — Physique</Surtitre>
             </Revele>
             <Revele delai={100}>
-              <h2 className="o-m-0 o-mt-7" style={{ ...affiche('m', 500), letterSpacing: '-0.035em', lineHeight: 0.92 }}>
+              <h2
+                className="o-m-0 o-mt-7"
+                style={{
+                  ...affiche('m', 500),
+                  letterSpacing: '-0.035em',
+                  lineHeight: 0.92,
+                }}
+              >
                 Quand la structure
                 <br className="o-hidden sm:o-block" /> <Italique>lache.</Italique>
               </h2>
             </Revele>
             <Revele delai={200}>
-              <p className={`o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed md:o-text-lg ${DOUCE}`}>
-                Continuez a faire defiler et le champ cede a la gravite. Chaque sphere obeit a une physique reellement simulee — masse, quantite de mouvement, restitution — degringole et rebondit sur le sol jusqu a ce que l energie finisse par se deposer.
+              <p
+                className={`o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed md:o-text-lg ${DOUCE}`}
+              >
+                Continuez a faire defiler et le champ cede a la gravite. Chaque sphere
+                obeit a une physique reellement simulee — masse, quantite de mouvement,
+                restitution — degringole et rebondit sur le sol jusqu a ce que l energie
+                finisse par se deposer.
               </p>
             </Revele>
           </div>
@@ -1086,30 +1420,76 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
           <div className="o-min-w-0 lg:o-col-span-5 lg:o-pt-3">
             <Revele delai={250} className="o-relative o-flex o-flex-col o-gap-4">
               {CARTES.map((carte) => (
-                <div key={carte.k} data-gv-groupe="" data-gv-carte="" className="o-relative o-flex o-items-center o-gap-5 o-overflow-hidden o-border-w-1 o-border-white-60 o-bg-white-40 o-px-6 o-py-5 o-backdrop-blur-2xl o-transition-transform md:o-gap-7 md:o-px-8 md:o-py-6 dark:o-border-zinc-700 dark:o-bg-zinc-900">
+                <div
+                  key={carte.k}
+                  data-gv-groupe=""
+                  data-gv-carte=""
+                  className="o-relative o-flex o-items-center o-gap-5 o-overflow-hidden o-border-w-1 o-border-white-60 o-bg-white-40 o-px-6 o-py-5 o-backdrop-blur-2xl o-transition-transform md:o-gap-7 md:o-px-8 md:o-py-6 dark:o-border-zinc-700 dark:o-bg-zinc-900"
+                >
                   {/* Le balayage de lustre en diagonale, au survol. */}
-                  <span aria-hidden="true" data-gv-lustre="" className="o-pointer-events-none o-absolute o-inset-0 o-transition-transform" style={{ transform: 'translateX(-140%) skewX(12deg)', background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.55), transparent)', transitionDuration: '1100ms' }} />
+                  <span
+                    aria-hidden="true"
+                    data-gv-lustre=""
+                    className="o-pointer-events-none o-absolute o-inset-0 o-transition-transform"
+                    style={{
+                      transform: 'translateX(-140%) skewX(12deg)',
+                      background:
+                        'linear-gradient(to right, transparent, rgba(255,255,255,0.55), transparent)',
+                      transitionDuration: '1100ms',
+                    }}
+                  />
                   <span
                     aria-hidden="true"
                     className="o-shrink-0 o-select-none o-font-light o-tracking-tight"
-                    style={{ lineHeight: 1, fontSize: 'clamp(2.75rem, 4vw, 3.4rem)', backgroundImage: 'linear-gradient(140deg, var(--o-gv-accent) 0%, var(--o-gv-encre) 100%)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
+                    style={{
+                      lineHeight: 1,
+                      fontSize: 'clamp(2.75rem, 4vw, 3.4rem)',
+                      backgroundImage:
+                        'linear-gradient(140deg, var(--o-gv-accent) 0%, var(--o-gv-encre) 100%)',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                    }}
                   >
                     {carte.n}
                   </span>
-                  <span aria-hidden="true" className="o-my-1.5 o-w-px o-shrink-0 o-self-stretch" style={{ backgroundColor: 'var(--o-theme-line)' }} />
+                  <span
+                    aria-hidden="true"
+                    className="o-my-1.5 o-w-px o-shrink-0 o-self-stretch"
+                    style={{ backgroundColor: 'var(--o-theme-line)' }}
+                  />
                   <div className="o-min-w-0 o-flex-1">
                     <div className="o-flex o-items-center o-gap-2">
-                      <span className={`o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}>{carte.k}</span>
+                      <span
+                        className={`o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}
+                      >
+                        {carte.k}
+                      </span>
                       <span className="o-ml-auto o-flex o-items-center o-gap-1.5">
                         <span className="o-relative o-flex o-size-1.5" aria-hidden="true">
-                          <span className={`o-absolute o-inline-flex o-size-full o-rounded-full o-opacity-60 ${reduced ? '' : 'o-animate-ping'}`} style={{ background: 'var(--o-gv-accent)' }} />
-                          <span className="o-relative o-inline-flex o-size-1.5 o-rounded-full" style={{ background: 'var(--o-gv-accent)' }} />
+                          <span
+                            className={`o-absolute o-inline-flex o-size-full o-rounded-full o-opacity-60 ${reduced ? '' : 'o-animate-ping'}`}
+                            style={{ background: 'var(--o-gv-accent)' }}
+                          />
+                          <span
+                            className="o-relative o-inline-flex o-size-1.5 o-rounded-full"
+                            style={{ background: 'var(--o-gv-accent)' }}
+                          />
                         </span>
-                        <span className={`o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}>direct</span>
+                        <span
+                          className={`o-font-mono o-text-xs o-uppercase o-tracking-widest ${FAIBLE}`}
+                        >
+                          direct
+                        </span>
                       </span>
                     </div>
-                    <p className={`o-m-0 o-mt-1.5 o-text-xl o-font-semibold o-leading-tight md:o-text-2xl ${ENCRE}`}>
-                      {carte.v} <span className={`o-text-base o-font-normal ${FAIBLE}`}>{carte.u}</span>
+                    <p
+                      className={`o-m-0 o-mt-1.5 o-text-xl o-font-semibold o-leading-tight md:o-text-2xl ${ENCRE}`}
+                    >
+                      {carte.v}{' '}
+                      <span className={`o-text-base o-font-normal ${FAIBLE}`}>
+                        {carte.u}
+                      </span>
                     </p>
                     <p className={`o-m-0 o-mt-0.5 o-text-sm ${FAIBLE}`}>{carte.d}</p>
                   </div>
@@ -1123,13 +1503,24 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       {/*
         ----- 03 — La forme : le sigle ----------------------------------------
       */}
-      <section id="forme" className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-flex-col o-justify-between o-px-6 o-py-36 md:o-px-12 md:o-py-44" style={{ minHeight: ECRAN }}>
+      <section
+        id="forme"
+        className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-flex-col o-justify-between o-px-6 o-py-36 md:o-px-12 md:o-py-44"
+        style={{ minHeight: ECRAN }}
+      >
         <div>
           <Revele>
             <Surtitre>03 — Forme</Surtitre>
           </Revele>
           <Revele delai={100}>
-            <h2 className="o-m-0 o-mt-7 o-max-w-2xl" style={{ ...affiche('m', 500), letterSpacing: '-0.035em', lineHeight: 0.92 }}>
+            <h2
+              className="o-m-0 o-mt-7 o-max-w-2xl"
+              style={{
+                ...affiche('m', 500),
+                letterSpacing: '-0.035em',
+                lineHeight: 0.92,
+              }}
+            >
               Le chaos, puis la <Italique>forme.</Italique>
             </h2>
           </Revele>
@@ -1138,13 +1529,19 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
         <div className="o-max-w-sm o-self-end o-text-left md:o-text-right">
           <Revele delai={150}>
             <p className={`o-m-0 o-text-base o-leading-relaxed md:o-text-lg ${DOUCE}`}>
-              Sortie de la chute libre, le champ se reassemble — chaque sphere trouve sa place dans le sigle ODORO. Promenez le curseur au travers, et regardez l ordre onduler, se disperser, puis se reprendre.
+              Sortie de la chute libre, le champ se reassemble — chaque sphere trouve sa
+              place dans le sigle ODORO. Promenez le curseur au travers, et regardez l
+              ordre onduler, se disperser, puis se reprendre.
             </p>
           </Revele>
           <Revele delai={280}>
-            <span className={`o-mt-7 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-4 o-py-2.5 ${VERRE} ${DOUCE}`}>
+            <span
+              className={`o-mt-7 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-4 o-py-2.5 ${VERRE} ${DOUCE}`}
+            >
               <Icon icon={MousePointer_2} size={14} aria-hidden="true" />
-              <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">Balayez au travers</span>
+              <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                Balayez au travers
+              </span>
             </span>
           </Revele>
         </div>
@@ -1153,20 +1550,36 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       {/*
         ----- 04 — La liberation : l envol dans l objectif --------------------
       */}
-      <section id="liberation" className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-36 o-text-center md:o-px-12 md:o-py-44" style={{ minHeight: ECRAN }}>
+      <section
+        id="liberation"
+        className="o-relative o-z-10 o-flex o-w-full o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-36 o-text-center md:o-px-12 md:o-py-44"
+        style={{ minHeight: ECRAN }}
+      >
         <div className="o-max-w-3xl">
           <Revele>
             <Surtitre>04 — Liberation</Surtitre>
           </Revele>
           <Revele delai={120}>
-            <h2 className="o-m-0 o-mt-8" style={{ ...affiche('m', 500), fontSize: 'clamp(2.8rem, 7vw, 6rem)', letterSpacing: '-0.035em', lineHeight: 0.92 }}>
+            <h2
+              className="o-m-0 o-mt-8"
+              style={{
+                ...affiche('m', 500),
+                fontSize: 'clamp(2.8rem, 7vw, 6rem)',
+                letterSpacing: '-0.035em',
+                lineHeight: 0.92,
+              }}
+            >
               Et puis,
               <br /> <Italique>l apesanteur.</Italique>
             </h2>
           </Revele>
           <Revele delai={240}>
-            <p className={`o-m-0 o-mx-auto o-mt-8 o-max-w-md o-text-base o-leading-relaxed md:o-text-lg ${DOUCE}`}>
-              Le champ tout entier decolle de l ecran et vous depasse — chaque sphere accelere dans l objectif jusqu a ce qu il ne reste que la lumiere. Moins de bruit.
+            <p
+              className={`o-m-0 o-mx-auto o-mt-8 o-max-w-md o-text-base o-leading-relaxed md:o-text-lg ${DOUCE}`}
+            >
+              Le champ tout entier decolle de l ecran et vous depasse — chaque sphere
+              accelere dans l objectif jusqu a ce qu il ne reste que la lumiere. Moins de
+              bruit.
             </p>
           </Revele>
         </div>
@@ -1175,26 +1588,69 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
       {/*
         ----- Le pied : toujours sombre, a coins arrondis ---------------------
       */}
-      <footer id="pied" className="o-relative o-z-10 o-w-full o-scroll-mt-24 o-overflow-hidden o-rounded-t-3xl o-text-zinc-50" style={nuit('zinc')}>
+      <footer
+        id="pied"
+        className="o-relative o-z-10 o-w-full o-scroll-mt-24 o-overflow-hidden o-rounded-t-3xl o-text-zinc-50"
+        style={nuit('zinc')}
+      >
         {/* Les halos doux, en echo a l accent vivant. */}
-        <div aria-hidden="true" className="o-pointer-events-none o-absolute o-rounded-full o-opacity-40 o-blur-3xl" style={{ top: -128, right: -96, width: 448, height: 448, background: 'radial-gradient(circle, var(--o-gv-accent) 0%, transparent 65%)' }} />
-        <div aria-hidden="true" className="o-pointer-events-none o-absolute o-rounded-full o-opacity-25 o-blur-3xl" style={{ bottom: -160, left: -128, width: 512, height: 512, background: 'radial-gradient(circle, var(--o-gv-accent) 0%, transparent 65%)' }} />
+        <div
+          aria-hidden="true"
+          className="o-pointer-events-none o-absolute o-rounded-full o-opacity-40 o-blur-3xl"
+          style={{
+            top: -128,
+            right: -96,
+            width: 448,
+            height: 448,
+            background: 'radial-gradient(circle, var(--o-gv-accent) 0%, transparent 65%)',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="o-pointer-events-none o-absolute o-rounded-full o-opacity-25 o-blur-3xl"
+          style={{
+            bottom: -160,
+            left: -128,
+            width: 512,
+            height: 512,
+            background: 'radial-gradient(circle, var(--o-gv-accent) 0%, transparent 65%)',
+          }}
+        />
 
         {/* Le bandeau defilant. */}
-        <div className="o-border-b o-border-white-10 o-py-6" style={{ overflowY: 'hidden' }}>
+        <div
+          className="o-border-b o-border-white-10 o-py-6"
+          style={{ overflowY: 'hidden' }}
+        >
           <Marquee speed={60} fade={0} pauseOnHover={false}>
-            {(['Moins de bruit', 'Plus de gravite', 'Concevoir avec du poids', 'Construisons'] as const).map((mot) => (
-              <span key={mot} className="o-flex o-shrink-0 o-items-center o-whitespace-nowrap o-font-medium o-tracking-tight o-text-zinc-100" style={{ fontSize: 'clamp(28px, 6vw, 64px)', lineHeight: 1.1 }}>
+            {(
+              [
+                'Moins de bruit',
+                'Plus de gravite',
+                'Concevoir avec du poids',
+                'Construisons',
+              ] as const
+            ).map((mot) => (
+              <span
+                key={mot}
+                className="o-flex o-shrink-0 o-items-center o-whitespace-nowrap o-font-medium o-tracking-tight o-text-zinc-100"
+                style={{ fontSize: 'clamp(28px, 6vw, 64px)', lineHeight: 1.1 }}
+              >
                 <span className="o-px-8">
                   {mot === 'Plus de gravite' ? (
                     <>
-                      Plus de <em className="o-font-serif o-italic o-font-normal">gravite</em>
+                      Plus de{' '}
+                      <em className="o-font-serif o-italic o-font-normal">gravite</em>
                     </>
                   ) : (
                     mot
                   )}
                 </span>
-                <span aria-hidden="true" className="o-size-2.5 o-rounded-full" style={{ background: 'var(--o-gv-accent)' }} />
+                <span
+                  aria-hidden="true"
+                  className="o-size-2.5 o-rounded-full"
+                  style={{ background: 'var(--o-gv-accent)' }}
+                />
               </span>
             ))}
           </Marquee>
@@ -1204,16 +1660,38 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
           <div className="o-grid o-grid-cols-1 o-gap-12 lg:o-grid-cols-12 lg:o-gap-8">
             {/* Le bloc d appel. */}
             <Revele className="lg:o-col-span-5">
-              <p className="o-m-0 o-mb-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">[ Collaborons ]</p>
-              <h2 className="o-m-0 o-font-medium" style={{ ...affiche('m', 500), fontSize: 'clamp(2.25rem, 4.5vw, 3.75rem)', lineHeight: 0.95, letterSpacing: '-0.03em' }}>
+              <p className="o-m-0 o-mb-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                [ Collaborons ]
+              </p>
+              <h2
+                className="o-m-0 o-font-medium"
+                style={{
+                  ...affiche('m', 500),
+                  fontSize: 'clamp(2.25rem, 4.5vw, 3.75rem)',
+                  lineHeight: 0.95,
+                  letterSpacing: '-0.03em',
+                }}
+              >
                 Une idee qui a
                 <br />
-                du <em className="o-font-serif o-italic o-font-normal" style={{ color: 'var(--o-gv-accent)' }}>poids ?</em>
+                du{' '}
+                <em
+                  className="o-font-serif o-italic o-font-normal"
+                  style={{ color: 'var(--o-gv-accent)' }}
+                >
+                  poids ?
+                </em>
               </h2>
               <div className="o-mt-9">
                 <Aimant force={0.25}>
-                  <a href={COURRIEL} data-gv-groupe="" className="o-inline-flex o-items-center o-gap-4 o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-py-2 o-pl-7 o-pr-2 o-text-zinc-50 o-no-underline o-transition-colors hover:o-bg-white-20 focus:o-ring">
-                    <span className="o-text-base o-font-medium md:o-text-lg">bonjour@odoro.studio</span>
+                  <a
+                    href={COURRIEL}
+                    data-gv-groupe=""
+                    className="o-inline-flex o-items-center o-gap-4 o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-py-2 o-pl-7 o-pr-2 o-text-zinc-50 o-no-underline o-transition-colors hover:o-bg-white-20 focus:o-ring"
+                  >
+                    <span className="o-text-base o-font-medium md:o-text-lg">
+                      bonjour@odoro.studio
+                    </span>
                     <Orbe taille={40} />
                   </a>
                 </Aimant>
@@ -1224,13 +1702,24 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
             <div className="o-grid o-grid-cols-2 o-gap-8 sm:o-grid-cols-3 lg:o-col-span-7">
               {COLONNES.map((col, rang) => (
                 <Revele key={col.titre} delai={80 * (rang + 1)}>
-                  <h3 className="o-m-0 o-mb-5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-400">{col.titre}</h3>
+                  <h3 className="o-m-0 o-mb-5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-400">
+                    {col.titre}
+                  </h3>
                   <ul className="o-m-0 o-flex o-list-none o-flex-col o-gap-3 o-p-0">
                     {col.liens.map((lien) => (
                       <li key={lien}>
-                        <a href="#haut" data-gv-groupe="" className="o-inline-flex o-items-center o-gap-1 o-text-sm o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-white focus:o-ring">
+                        <a
+                          href="#haut"
+                          data-gv-groupe=""
+                          className="o-inline-flex o-items-center o-gap-1 o-text-sm o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-white focus:o-ring"
+                        >
                           <span>{lien}</span>
-                          <span aria-hidden="true" data-gv-fleche="" className="o-inline-flex o-opacity-0 o-transition-all" style={{ transform: 'translateX(-4px)' }}>
+                          <span
+                            aria-hidden="true"
+                            data-gv-fleche=""
+                            className="o-inline-flex o-opacity-0 o-transition-all"
+                            style={{ transform: 'translateX(-4px)' }}
+                          >
                             <Icon icon={ArrowUpRight} size={14} />
                           </span>
                         </a>
@@ -1247,18 +1736,33 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
             <div className="o-flex o-flex-wrap o-items-center o-gap-3">
               <span className="o-inline-flex o-items-center o-gap-2 o-select-none">
                 <Sigle taille={18} style={{ color: 'var(--o-gv-accent)' }} />
-                <span className="o-text-base o-font-semibold o-lowercase o-tracking-tight o-text-white">odoro</span>
+                <span className="o-text-base o-font-semibold o-lowercase o-tracking-tight o-text-white">
+                  odoro
+                </span>
               </span>
-              <span aria-hidden="true" className="o-size-1.5 o-rounded-full" style={{ background: 'var(--o-gv-accent)' }} />
-              <p className="o-m-0 o-font-mono o-text-xs o-text-zinc-400">© 2026 Studio ODORO — Tous droits reserves.</p>
+              <span
+                aria-hidden="true"
+                className="o-size-1.5 o-rounded-full"
+                style={{ background: 'var(--o-gv-accent)' }}
+              />
+              <p className="o-m-0 o-font-mono o-text-xs o-text-zinc-400">
+                © 2026 Studio ODORO — Tous droits reserves.
+              </p>
             </div>
             <div className="o-flex o-items-center o-gap-3">
-              {([
-                [Twitter, 'Twitter'],
-                [Instagram, 'Instagram'],
-                [Linkedin, 'LinkedIn'],
-              ] as const).map(([icone, nom]) => (
-                <a key={nom} href="#haut" aria-label={nom} className="o-flex o-size-10 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-white-20 o-text-zinc-300 o-no-underline o-transition-colors hover:o-border-white-40 hover:o-bg-white-10 hover:o-text-white focus:o-ring">
+              {(
+                [
+                  [Twitter, 'Twitter'],
+                  [Instagram, 'Instagram'],
+                  [Linkedin, 'LinkedIn'],
+                ] as const
+              ).map(([icone, nom]) => (
+                <a
+                  key={nom}
+                  href="#haut"
+                  aria-label={nom}
+                  className="o-flex o-size-10 o-items-center o-justify-center o-rounded-full o-border-w-1 o-border-white-20 o-text-zinc-300 o-no-underline o-transition-colors hover:o-border-white-40 hover:o-bg-white-10 hover:o-text-white focus:o-ring"
+                >
                   <Icon icon={icone} size={16} aria-hidden="true" />
                 </a>
               ))}
@@ -1271,17 +1775,38 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
         ----- Le menu de navigation mobile -----------------------------------
       */}
       {menuOuvert && (
-        <div className="o-fixed o-inset-x-0 o-bottom-0 o-z-50 md:o-hidden" style={{ top: CHROME }}>
-          <div className="o-absolute o-inset-0 o-backdrop-blur-2xl" style={{ backgroundColor: 'color-mix(in oklab, var(--o-theme-bg) 85%, transparent)' }} onClick={() => { setMenuOuvert(false) }} aria-hidden="true" />
+        <div
+          className="o-fixed o-inset-x-0 o-bottom-0 o-z-50 md:o-hidden"
+          style={{ top: CHROME }}
+        >
+          <div
+            className="o-absolute o-inset-0 o-backdrop-blur-2xl"
+            style={{
+              backgroundColor: 'color-mix(in oklab, var(--o-theme-bg) 85%, transparent)',
+            }}
+            onClick={() => {
+              setMenuOuvert(false)
+            }}
+            aria-hidden="true"
+          />
           <div className="o-relative o-flex o-h-full o-flex-col o-px-6 o-pb-10 o-pt-6">
             <div className="o-flex o-items-center o-justify-between">
-              <span className="o-inline-flex o-items-center o-gap-2.5 o-select-none" aria-label="odoro">
+              <span
+                className="o-inline-flex o-items-center o-gap-2.5 o-select-none"
+                aria-label="odoro"
+              >
                 <Sigle taille={22} style={{ color: 'var(--o-gv-accent)' }} />
-                <span className={`o-text-xl o-font-semibold o-lowercase o-tracking-tight ${ENCRE}`}>odoro</span>
+                <span
+                  className={`o-text-xl o-font-semibold o-lowercase o-tracking-tight ${ENCRE}`}
+                >
+                  odoro
+                </span>
               </span>
               <button
                 type="button"
-                onClick={() => { setMenuOuvert(false) }}
+                onClick={() => {
+                  setMenuOuvert(false)
+                }}
                 aria-label="Fermer le menu"
                 className={`o-flex o-size-11 o-items-center o-justify-center o-rounded-full ${VERRE} ${ENCRE} focus:o-ring`}
               >
@@ -1289,16 +1814,39 @@ function Contenu({ commande, onPret }: { readonly commande: Commande; readonly o
               </button>
             </div>
 
-            <nav aria-label="Menu" className="o-mb-auto o-mt-auto o-flex o-flex-col o-gap-1">
+            <nav
+              aria-label="Menu"
+              className="o-mb-auto o-mt-auto o-flex o-flex-col o-gap-1"
+            >
               {([...RUBRIQUES, ['#pied', 'Contact']] as const).map(([href, mot], i) => (
-                <a key={mot} href={href} onClick={() => { setMenuOuvert(false) }} className={`o-flex o-items-center o-gap-3 o-no-underline ${ENCRE} focus:o-ring`} style={{ ...affiche('m', 500), fontSize: '3.25rem', lineHeight: 1.05 }}>
-                  <span className="o-font-mono o-text-xs o-font-normal o-tracking-widest" style={{ color: 'var(--o-gv-encre)' }}>0{i + 1}</span>
+                <a
+                  key={mot}
+                  href={href}
+                  onClick={() => {
+                    setMenuOuvert(false)
+                  }}
+                  className={`o-flex o-items-center o-gap-3 o-no-underline ${ENCRE} focus:o-ring`}
+                  style={{ ...affiche('m', 500), fontSize: '3.25rem', lineHeight: 1.05 }}
+                >
+                  <span
+                    className="o-font-mono o-text-xs o-font-normal o-tracking-widest"
+                    style={{ color: 'var(--o-gv-encre)' }}
+                  >
+                    0{i + 1}
+                  </span>
                   <span>{mot}</span>
                 </a>
               ))}
             </nav>
 
-            <a href={COURRIEL} onClick={() => { setMenuOuvert(false) }} data-gv-groupe="" className={`o-justify-between o-gap-4 o-py-2 o-pl-7 o-pr-2 ${gelule} ${ENCRE}`}>
+            <a
+              href={COURRIEL}
+              onClick={() => {
+                setMenuOuvert(false)
+              }}
+              data-gv-groupe=""
+              className={`o-justify-between o-gap-4 o-py-2 o-pl-7 o-pr-2 ${gelule} ${ENCRE}`}
+            >
               <span className="o-text-base o-font-medium">bonjour@odoro.studio</span>
               <Orbe taille={40} />
             </a>
@@ -1318,19 +1866,38 @@ export default function Page(): ReactElement {
   const serif = usePolices('fraunces')
   const voix = useMemo(() => {
     const s = serif as Record<string, string>
-    return { ...polices, '--o-font-serif': s['--o-vitrine-affichage'] ?? 'serif' } as CSSProperties
+    return {
+      ...polices,
+      '--o-font-serif': s['--o-vitrine-affichage'] ?? 'serif',
+    } as CSSProperties
   }, [polices, serif])
 
   // Ce que la scene lit a chaque image, sans re-rendu.
-  const commande = useMemo<Commande>(() => ({ progression: 0, demarre: false, pointeur: { x: 99, y: 99, enfonce: false, dedans: false } }), [])
+  const commande = useMemo<Commande>(
+    () => ({
+      progression: 0,
+      demarre: false,
+      pointeur: { x: 99, y: 99, enfonce: false, dedans: false },
+    }),
+    [],
+  )
 
   // Le rideau attend la premiere image du champ : le compteur dit la verite.
   const [pret, setPret] = useState(false)
-  const surPret = useCallback(() => { setPret(true) }, [])
+  const surPret = useCallback(() => {
+    setPret(true)
+  }, [])
 
   return (
     <Porte forme="compteur" marque="odoro" sombre={false} pret={pret}>
-      <CursorRing size={38} lag={1.2} grow={1.7} color="var(--o-gv-encre)" className="o-relative" style={voix}>
+      <CursorRing
+        size={38}
+        lag={1.2}
+        grow={1.7}
+        color="var(--o-gv-encre)"
+        className="o-relative"
+        style={voix}
+      >
         <Contenu commande={commande} onPret={surPret} />
       </CursorRing>
     </Porte>

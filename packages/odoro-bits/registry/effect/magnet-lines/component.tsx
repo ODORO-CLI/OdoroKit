@@ -227,7 +227,19 @@ export function MagnetLines({
       subscription.unsubscribe()
       layer.remove()
     }
-  }, [host, reduced, rows, columns, length, thickness, reach, speed, restAngle, color, pointer])
+  }, [
+    host,
+    reduced,
+    rows,
+    columns,
+    length,
+    thickness,
+    reach,
+    speed,
+    restAngle,
+    color,
+    pointer,
+  ])
 
   const { className, style } = mergePresentation(
     { className: 'o-relative o-overflow-hidden' },
@@ -235,7 +247,13 @@ export function MagnetLines({
   )
 
   return (
-    <div {...rest} ref={setHost} className={className} style={style as CSSProperties} aria-hidden />
+    <div
+      {...rest}
+      ref={setHost}
+      className={className}
+      style={style as CSSProperties}
+      aria-hidden
+    />
   )
 }
 

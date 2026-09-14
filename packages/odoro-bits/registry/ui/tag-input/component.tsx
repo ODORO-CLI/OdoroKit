@@ -170,7 +170,9 @@ export function TagInput({
   }
 
   const removeButtons = (): HTMLButtonElement[] =>
-    Array.from(hostRef.current?.querySelectorAll<HTMLButtonElement>('[data-o-tag] button') ?? [])
+    Array.from(
+      hostRef.current?.querySelectorAll<HTMLButtonElement>('[data-o-tag] button') ?? [],
+    )
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Enter' || event.key === ',') {
@@ -223,7 +225,9 @@ export function TagInput({
       data-o-tags=""
       data-o-tags-disabled={disabled ? '' : undefined}
       className={className}
-      style={{ '--o-tags-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties}
+      style={
+        { '--o-tags-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties
+      }
       onClick={(event) => {
         // Cliquer dans la marge du champ, c'est vouloir y ecrire.
         if (event.target === event.currentTarget) inputRef.current?.focus()

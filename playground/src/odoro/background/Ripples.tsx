@@ -68,7 +68,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-zinc-50 dark:o-to-zinc-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-sky-950 o-to-zinc-50 dark:o-to-zinc-950'
 
 /**
  * Gouttes.

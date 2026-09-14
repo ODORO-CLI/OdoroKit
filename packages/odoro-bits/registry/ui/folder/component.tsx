@@ -43,12 +43,7 @@
  */
 
 import { mergePresentation, type Customisable } from '@odoro-cli/engine'
-import {
-  useId,
-  useState,
-  type CSSProperties,
-  type ReactElement,
-} from 'react'
+import { useId, useState, type CSSProperties, type ReactElement } from 'react'
 
 /** Une fiche rangee dans le dossier. */
 export interface FolderItem {

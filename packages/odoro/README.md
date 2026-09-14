@@ -14,15 +14,15 @@ package is what it installs.
 
 | Command          | What it does                                              |
 | ---------------- | --------------------------------------------------------- |
-| `odoro dev`      | Development server with hot module replacement.            |
-| `odoro build`    | Production build into `dist/`.                             |
-| `odoro preview`  | Serves `dist/` the way a static host would.                |
-| `odoro create`   | Scaffolds a project — same thing as `npm create odoro`.    |
-| `odoro init`     | Writes `odoro.json` so `odoro add` knows where to write.   |
-| `odoro add <id>` | Copies a registry component into your project.             |
-| `odoro list`     | Prints the registry catalogue.                             |
-| `odoro diff`     | Compares what is installed with what the registry serves.  |
-| `odoro doctor`   | Checks that the project is in a fit state.                 |
+| `odoro dev`      | Development server with hot module replacement.           |
+| `odoro build`    | Production build into `dist/`.                            |
+| `odoro preview`  | Serves `dist/` the way a static host would.               |
+| `odoro create`   | Scaffolds a project — same thing as `npm create odoro`.   |
+| `odoro init`     | Writes `odoro.json` so `odoro add` knows where to write.  |
+| `odoro add <id>` | Copies a registry component into your project.            |
+| `odoro list`     | Prints the registry catalogue.                            |
+| `odoro diff`     | Compares what is installed with what the registry serves. |
+| `odoro doctor`   | Checks that the project is in a fit state.                |
 
 Run `odoro --help` for the full list, including the database commands.
 

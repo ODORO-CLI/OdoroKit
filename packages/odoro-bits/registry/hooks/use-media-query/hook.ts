@@ -109,7 +109,10 @@ export function useMediaQuery(query: string, options: MediaQueryOptions = {}): b
     [query],
   )
 
-  const lire = useCallback((): boolean => liste(query)?.matches ?? serveur, [query, serveur])
+  const lire = useCallback(
+    (): boolean => liste(query)?.matches ?? serveur,
+    [query, serveur],
+  )
   const lireServeur = useCallback((): boolean => serveur, [serveur])
 
   return useSyncExternalStore(subscribe, lire, lireServeur)

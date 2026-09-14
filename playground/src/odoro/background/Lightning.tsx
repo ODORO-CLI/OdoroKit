@@ -62,11 +62,7 @@ export interface LightningOwnProps {
 export type LightningProps = Customisable<LightningOwnProps>
 
 /** Tokens employes par defaut : le ciel de nuit, la lueur, l'arc. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-indigo-400',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-indigo-400', '--o-theme-fg'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

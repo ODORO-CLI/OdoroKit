@@ -75,7 +75,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-b o-from-zinc-50 dark:o-from-zinc-950 o-to-teal-950'
 
 /** Nombre de depots vivants a la fois. */
 const SLOTS = 16
@@ -147,13 +148,18 @@ export function Wake({
     return () => subscription.unsubscribe()
   }, [pointer, uTrail])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: WAKE_FRAGMENT,
-      colors,
-      uniforms: { uTrail, uLife: life, uSize: size },
-      name: 'wake',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: WAKE_FRAGMENT,
+    colors,
+    uniforms: { uTrail, uLife: life, uSize: size },
+    name: 'wake',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

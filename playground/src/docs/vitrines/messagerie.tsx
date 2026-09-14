@@ -36,8 +36,27 @@
 
 import { useMotionState, useScrollScrub } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, Dices, Key, Lock, MailOpen, Server, Stamp } from '@odoro-cli/icons/filaire'
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Dices,
+  Key,
+  Lock,
+  MailOpen,
+  Server,
+  Stamp,
+} from '@odoro-cli/icons/filaire'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { GridLines } from '@/odoro/background/GridLines.jsx'
 import { MorphText } from '@/odoro/text/MorphText.jsx'
@@ -47,7 +66,20 @@ import { TreeView, type TreeNode } from '@/odoro/ui/TreeView.jsx'
 
 import { nuit } from './communs.jsx'
 import { accentDoux, aplat, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreCoins, Coin, Etiquette, Grain, Indice, Manifeste, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  Coin,
+  Etiquette,
+  Grain,
+  Indice,
+  Manifeste,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Chapitre } from './scene.jsx'
 
 /* ========================= Les constantes de dessin ===================== */
@@ -62,7 +94,8 @@ const FILET_FORT = 'color-mix(in oklab, currentColor 34%, transparent)'
 const ENCRE = encreSurSombre()
 
 /** La voix mono des notes de marge, sur la nuit. */
-const NOTE = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-400'
+const NOTE =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-400'
 
 /** Le jour d une seule bande : la coupe claire au milieu de la nuit. */
 const JOUR = {
@@ -95,7 +128,7 @@ const NAVIGATION = [
  * et retrouver les memes octets.
  */
 function tirage(graine: number): () => number {
-  let etat = (graine >>> 0) || 0x9e3779b9
+  let etat = graine >>> 0 || 0x9e3779b9
   return () => {
     etat ^= etat << 13
     etat >>>= 0
@@ -183,7 +216,11 @@ const MESSAGE_PAR_DEFAUT = 'Rendez-vous jeudi 14 h, cote quai. Je porte le dossi
  * pixels de large dans le repere de la figure, et une phrase entiere y
  * chevauchait celle de l arret voisin.
  */
-const PROTOCOLE: readonly { readonly rang: string; readonly qui: string; readonly quoi: readonly [string, string] }[] = [
+const PROTOCOLE: readonly {
+  readonly rang: string
+  readonly qui: string
+  readonly quoi: readonly [string, string]
+}[] = [
   { rang: '01', qui: 'Vous', quoi: ['la boite est fermee', 'de votre cadenas'] },
   { rang: '02', qui: 'Le destinataire', quoi: ['il ajoute le sien,', 'sans ouvrir'] },
   { rang: '03', qui: 'Vous', quoi: ['vous retirez le votre,', 'elle reste close'] },
@@ -208,15 +245,39 @@ function FigureCadenas(): ReactElement {
   const { reduced } = useMotionState()
   const gris: CSSProperties = { color: 'var(--o-theme-muted)' }
   return (
-    <svg viewBox="0 0 1000 330" aria-hidden="true" className="o-w-full" style={{ minWidth: 720 }}>
-      <style>{'@keyframes pli-course{from{stroke-dashoffset:0}to{stroke-dashoffset:-232}}'}</style>
+    <svg
+      viewBox="0 0 1000 330"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 720 }}
+    >
+      <style>
+        {'@keyframes pli-course{from{stroke-dashoffset:0}to{stroke-dashoffset:-232}}'}
+      </style>
 
-      <text x="500" y="34" textAnchor="middle" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="500"
+        y="34"
+        textAnchor="middle"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         Trois traversees — aucune cle ne quitte son appareil
       </text>
 
       {/* Le rail, ses chevrons, et le pli qui court dessus. */}
-      <line x1="118" y1="118" x2="814" y2="118" stroke="currentColor" strokeWidth="1.5" opacity="0.4" style={gris} />
+      <line
+        x1="118"
+        y1="118"
+        x2="814"
+        y2="118"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        opacity="0.4"
+        style={gris}
+      />
       {[0, 1, 2].map((rang) => (
         <path
           key={rang}
@@ -239,7 +300,10 @@ function FigureCadenas(): ReactElement {
           stroke={ENCRE}
           strokeWidth="3"
           strokeLinecap="round"
-          style={{ strokeDasharray: '22 210', animation: 'pli-course 2600ms linear infinite' }}
+          style={{
+            strokeDasharray: '22 210',
+            animation: 'pli-course 2600ms linear infinite',
+          }}
         />
       )}
 
@@ -248,40 +312,115 @@ function FigureCadenas(): ReactElement {
         const cadenas = rang === 0 ? 1 : rang === 1 ? 2 : rang === 2 ? 1 : 0
         return (
           <g key={etape.rang}>
-            <text x={x} y="62" textAnchor="middle" className="o-font-mono" fontSize="10" fill="currentColor" style={{ color: ENCRE }}>
+            <text
+              x={x}
+              y="62"
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="10"
+              fill="currentColor"
+              style={{ color: ENCRE }}
+            >
               {etape.rang}
             </text>
             {/* La boite : un carre, et un cadenas dessine par cadenas pose. */}
-            <rect x={x - 34} y="74" width="68" height="44" rx="5" fill="var(--o-theme-bg)" stroke="currentColor" strokeWidth="1.5" opacity="0.9" />
-            <line x1={x - 34} y1="88" x2={x + 34} y2="88" stroke="currentColor" strokeWidth="1" opacity="0.45" style={gris} />
+            <rect
+              x={x - 34}
+              y="74"
+              width="68"
+              height="44"
+              rx="5"
+              fill="var(--o-theme-bg)"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              opacity="0.9"
+            />
+            <line
+              x1={x - 34}
+              y1="88"
+              x2={x + 34}
+              y2="88"
+              stroke="currentColor"
+              strokeWidth="1"
+              opacity="0.45"
+              style={gris}
+            />
             {Array.from({ length: cadenas }, (_, index) => {
               const cx = cadenas === 1 ? x : x - 15 + index * 30
               return (
                 <g key={index} transform={`translate(${String(cx - 8)}, 90)`}>
-                  <path d="M3 6V4a5 5 0 0 1 10 0v2" fill="none" stroke={index === 0 ? ENCRE : 'currentColor'} strokeWidth="1.8" />
-                  <rect x="0.5" y="6" width="15" height="12" rx="2.5" fill={index === 0 ? ENCRE : 'currentColor'} opacity={index === 0 ? 1 : 0.55} />
+                  <path
+                    d="M3 6V4a5 5 0 0 1 10 0v2"
+                    fill="none"
+                    stroke={index === 0 ? ENCRE : 'currentColor'}
+                    strokeWidth="1.8"
+                  />
+                  <rect
+                    x="0.5"
+                    y="6"
+                    width="15"
+                    height="12"
+                    rx="2.5"
+                    fill={index === 0 ? ENCRE : 'currentColor'}
+                    opacity={index === 0 ? 1 : 0.55}
+                  />
                 </g>
               )
             })}
             {cadenas === 0 && (
-              <text x={x} y="105" textAnchor="middle" className="o-font-mono" fontSize="11" fill="currentColor" style={{ color: ENCRE }}>
+              <text
+                x={x}
+                y="105"
+                textAnchor="middle"
+                className="o-font-mono"
+                fontSize="11"
+                fill="currentColor"
+                style={{ color: ENCRE }}
+              >
                 ouverte
               </text>
             )}
             <text x={x} y="152" textAnchor="middle" fontSize="13.5" fill="currentColor">
               {etape.qui}
             </text>
-            <text x={x} y="172" textAnchor="middle" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+            <text
+              x={x}
+              y="172"
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="10.5"
+              fill="currentColor"
+              style={gris}
+            >
               <tspan x={x}>{etape.quoi[0]}</tspan>
-              <tspan x={x} dy="15">{etape.quoi[1]}</tspan>
+              <tspan x={x} dy="15">
+                {etape.quoi[1]}
+              </tspan>
             </text>
           </g>
         )
       })}
 
       {/* La voie du transporteur, dessous : ce qu il voit a chaque passage. */}
-      <line x1="118" y1="222" x2="814" y2="222" stroke="currentColor" strokeWidth="1" strokeDasharray="5 6" opacity="0.5" style={gris} />
-      <text x="118" y="210" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <line
+        x1="118"
+        y1="222"
+        x2="814"
+        y2="222"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="5 6"
+        opacity="0.5"
+        style={gris}
+      />
+      <text
+        x="118"
+        y="210"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         Ce que le transporteur voit passer
       </text>
       {[0, 1, 2].map((rang) => (
@@ -300,9 +439,18 @@ function FigureCadenas(): ReactElement {
       ))}
 
       <text x="500" y="292" textAnchor="middle" fontSize="13.5" fill="currentColor">
-        Il porte la boite trois fois. Il ne l ouvre jamais, et il n a jamais eu de cle a perdre.
+        Il porte la boite trois fois. Il ne l ouvre jamais, et il n a jamais eu de cle a
+        perdre.
       </text>
-      <line x1="300" y1="308" x2="700" y2="308" stroke={ENCRE} strokeWidth="1.4" opacity="0.8" />
+      <line
+        x1="300"
+        y1="308"
+        x2="700"
+        y2="308"
+        stroke={ENCRE}
+        strokeWidth="1.4"
+        opacity="0.8"
+      />
     </svg>
   )
 }
@@ -336,7 +484,10 @@ function JaugeUnique(): ReactElement {
   return (
     <div ref={ref}>
       <p className="o-m-0 o-flex o-items-baseline o-gap-4 o-text-slate-50">
-        <span className="o-tabular-nums" style={{ ...affiche('xl', 300), lineHeight: 0.9 }}>
+        <span
+          className="o-tabular-nums"
+          style={{ ...affiche('xl', 300), lineHeight: 0.9 }}
+        >
           <span ref={valeur}>{reduced ? '98,7' : '0,0'}</span>
           <span aria-hidden="true"> %</span>
         </span>
@@ -354,7 +505,8 @@ function JaugeUnique(): ReactElement {
         />
       </span>
       <p className="o-sr-only">
-        98,7 pour cent du message ne sort jamais chiffre des deux appareils. Le reste, 53 octets de fiche technique, est detaille a cote.
+        98,7 pour cent du message ne sort jamais chiffre des deux appareils. Le reste, 53
+        octets de fiche technique, est detaille a cote.
       </p>
     </div>
   )
@@ -376,37 +528,43 @@ const ACTES: readonly Acte[] = [
     cle: 'texte',
     numero: 'I',
     titre: 'Le texte, tel que vous l ecrivez',
-    texte: 'Ecrivez ce que vous voulez dans le champ. Tout ce qui suit se recalcule a la frappe, dans votre navigateur, et rien ne part d ici.',
+    texte:
+      'Ecrivez ce que vous voulez dans le champ. Tout ce qui suit se recalcule a la frappe, dans votre navigateur, et rien ne part d ici.',
   },
   {
     cle: 'cle',
     numero: 'II',
     titre: 'La cle de session',
-    texte: 'Tiree au debut de la conversation et jamais transmise. Son empreinte de six caracteres se dicte au telephone : c est la seule verification qui vaille.',
+    texte:
+      'Tiree au debut de la conversation et jamais transmise. Son empreinte de six caracteres se dicte au telephone : c est la seule verification qui vaille.',
   },
   {
     cle: 'corps',
     numero: 'III',
     titre: 'Le corps chiffre',
-    texte: 'Chaque octet du texte rencontre un octet du flux de cles. La longueur reste la meme — un message court reste un message court, et c est une fuite que nous assumons.',
+    texte:
+      'Chaque octet du texte rencontre un octet du flux de cles. La longueur reste la meme — un message court reste un message court, et c est une fuite que nous assumons.',
   },
   {
     cle: 'sceau',
     numero: 'IV',
     titre: 'Le sceau',
-    texte: 'Une empreinte du corps chiffre. Changez une lettre du message, et le sceau change en entier : c est ainsi qu on sait qu un pli a ete touche en route.',
+    texte:
+      'Une empreinte du corps chiffre. Changez une lettre du message, et le sceau change en entier : c est ainsi qu on sait qu un pli a ete touche en route.',
   },
   {
     cle: 'fiche',
     numero: 'V',
     titre: 'Ce que le serveur garde',
-    texte: 'La fiche entiere, rien de cache. Un horodatage a la minute, une taille arrondie, deux empreintes, et le corps que personne ici ne sait ouvrir.',
+    texte:
+      'La fiche entiere, rien de cache. Un horodatage a la minute, une taille arrondie, deux empreintes, et le corps que personne ici ne sait ouvrir.',
   },
   {
     cle: 'ouverture',
     numero: 'VI',
     titre: 'L ouverture, chez lui',
-    texte: 'La meme cle, le meme flux, le meme ou-exclusif : le texte revient identique, octet pour octet. La page le verifie devant vous.',
+    texte:
+      'La meme cle, le meme flux, le meme ou-exclusif : le texte revient identique, octet pour octet. La page le verifie devant vous.',
   },
 ]
 
@@ -421,12 +579,21 @@ function Valeur({
   readonly action?: ReactNode
 }): ReactElement {
   return (
-    <div className="o-overflow-hidden o-rounded-xl" style={{ border: `1px solid ${FILET_FORT}`, backgroundColor: accentDoux(950, 14) }}>
-      <div className="o-flex o-items-center o-gap-3 o-px-4 o-py-2" style={{ borderBottom: `1px solid ${FILET}` }}>
+    <div
+      className="o-overflow-hidden o-rounded-xl"
+      style={{ border: `1px solid ${FILET_FORT}`, backgroundColor: accentDoux(950, 14) }}
+    >
+      <div
+        className="o-flex o-items-center o-gap-3 o-px-4 o-py-2"
+        style={{ borderBottom: `1px solid ${FILET}` }}
+      >
         <p className={`o-m-0 ${NOTE}`}>{intitule}</p>
         {action !== undefined && <span className="o-ml-auto">{action}</span>}
       </div>
-      <div className="o-px-4 o-py-4 o-font-mono o-text-xs o-leading-relaxed o-text-slate-200" style={{ overflowWrap: 'anywhere' }}>
+      <div
+        className="o-px-4 o-py-4 o-font-mono o-text-xs o-leading-relaxed o-text-slate-200"
+        style={{ overflowWrap: 'anywhere' }}
+      >
         {children}
       </div>
     </div>
@@ -457,7 +624,9 @@ function Cadenas(): ReactElement {
     const corps = ouExclusif(clair, flux)
     const variante = octetsDe(message.slice(0, -1) + (message.endsWith('.') ? '!' : '.'))
     const corpsVariante = ouExclusif(variante, fluxDeCles(graine, variante.length))
-    const rendu = new TextDecoder().decode(ouExclusif(corps, fluxDeCles(graine, corps.length)))
+    const rendu = new TextDecoder().decode(
+      ouExclusif(corps, fluxDeCles(graine, corps.length)),
+    )
     return {
       clair,
       flux,
@@ -478,10 +647,18 @@ function Cadenas(): ReactElement {
         hint: `${String(calcul.corps.length + 53)} octets`,
         children: [
           { id: 'horodatage', label: 'recu_le', hint: '2026-09-11 14:02 (a la minute)' },
-          { id: 'taille', label: 'taille_arrondie', hint: `${String(Math.ceil((calcul.corps.length + 1) / 64) * 64)} octets` },
+          {
+            id: 'taille',
+            label: 'taille_arrondie',
+            hint: `${String(Math.ceil((calcul.corps.length + 1) / 64) * 64)} octets`,
+          },
           { id: 'expediteur', label: 'empreinte_expediteur', hint: calcul.empreinte },
           { id: 'sceau', label: 'sceau', hint: calcul.sceauCorps },
-          { id: 'corps', label: 'corps', hint: `${String(calcul.corps.length)} octets illisibles` },
+          {
+            id: 'corps',
+            label: 'corps',
+            hint: `${String(calcul.corps.length)} octets illisibles`,
+          },
         ],
       },
     ],
@@ -490,9 +667,15 @@ function Cadenas(): ReactElement {
 
   /** Le premier mot du message, et sa forme chiffree : la fusion du chapitre V. */
   const fusion = useMemo(() => {
-    const mot = (message.trim().split(/\s+/)[0] ?? 'message').replace(/[^\p{L}\p{N}-]/gu, '').slice(0, 8) || 'message'
+    const mot =
+      (message.trim().split(/\s+/)[0] ?? 'message')
+        .replace(/[^\p{L}\p{N}-]/gu, '')
+        .slice(0, 8) || 'message'
     const octets = octetsDe(mot)
-    return [mot, enHexadecimal(ouExclusif(octets, fluxDeCles(graine, octets.length)), '')] as const
+    return [
+      mot,
+      enHexadecimal(ouExclusif(octets, fluxDeCles(graine, octets.length)), ''),
+    ] as const
   }, [message, graine])
 
   const dicteJuste = dicte.length === 6 ? dicte.toUpperCase() === calcul.empreinte : null
@@ -500,12 +683,20 @@ function Cadenas(): ReactElement {
   return (
     <>
       {ACTES.map((acte, rang) => (
-        <div key={acte.cle} id={acte.cle} className="o-scroll-mt-24 o-px-6 o-py-16 md:o-px-8 md:o-py-24" style={{ borderTop: `1px solid ${FILET}` }}>
+        <div
+          key={acte.cle}
+          id={acte.cle}
+          className="o-scroll-mt-24 o-px-6 o-py-16 md:o-px-8 md:o-py-24"
+          style={{ borderTop: `1px solid ${FILET}` }}
+        >
           <Chapitre
             indice={`${acte.numero} — ${String(rang + 1).padStart(2, '0')} / 06`}
             largeur={4}
             titre={
-              <h3 className="o-m-0 o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)' }}>
+              <h3
+                className="o-m-0 o-text-slate-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)' }}
+              >
                 {acte.titre}
               </h3>
             }
@@ -527,7 +718,10 @@ function Cadenas(): ReactElement {
                       setMessage(evenement.target.value)
                     }}
                     className="o-mt-3 o-w-full o-resize-none o-rounded-xl o-bg-transparent o-p-4 o-text-lg o-leading-relaxed o-text-slate-50 focus:o-ring"
-                    style={{ border: `1px solid ${FILET_FORT}`, backgroundColor: accentDoux(950, 14) }}
+                    style={{
+                      border: `1px solid ${FILET_FORT}`,
+                      backgroundColor: accentDoux(950, 14),
+                    }}
                   />
                 </div>
                 <dl className="o-m-0 o-grid o-grid-cols-2 o-gap-6 sm:o-grid-cols-3">
@@ -535,11 +729,23 @@ function Cadenas(): ReactElement {
                     [
                       [String(message.length), 'caracteres'],
                       [String(calcul.clair.length), 'octets en UTF-8'],
-                      [message.trim() === '' ? '0' : String(message.trim().split(/\s+/).length), 'mots'],
+                      [
+                        message.trim() === ''
+                          ? '0'
+                          : String(message.trim().split(/\s+/).length),
+                        'mots',
+                      ],
                     ] as const
                   ).map(([valeur, quoi]) => (
-                    <div key={quoi} className="o-pt-4" style={{ borderTop: `1px solid ${FILET}` }}>
-                      <dt className="o-font-mono o-text-2xl o-tabular-nums" style={{ color: ENCRE }}>
+                    <div
+                      key={quoi}
+                      className="o-pt-4"
+                      style={{ borderTop: `1px solid ${FILET}` }}
+                    >
+                      <dt
+                        className="o-font-mono o-text-2xl o-tabular-nums"
+                        style={{ color: ENCRE }}
+                      >
                         {valeur}
                       </dt>
                       <dd className={`o-m-0 o-mt-1 ${NOTE}`}>{quoi}</dd>
@@ -563,7 +769,15 @@ function Cadenas(): ReactElement {
                         setDicte('')
                       }}
                       className="o-cursor-pointer o-rounded-full o-border-w-1 o-px-4 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-200 focus:o-ring"
-                      style={index === rangCle ? { borderColor: ENCRE, color: ENCRE, backgroundColor: accentDoux(900, 26) } : { borderColor: FILET_FORT }}
+                      style={
+                        index === rangCle
+                          ? {
+                              borderColor: ENCRE,
+                              color: ENCRE,
+                              backgroundColor: accentDoux(900, 26),
+                            }
+                          : { borderColor: FILET_FORT }
+                      }
                     >
                       {option.nom}
                     </button>
@@ -573,13 +787,22 @@ function Cadenas(): ReactElement {
                     Tiree a l ouverture de la conversation
                   </span>
                 </div>
-                <Valeur intitule={`Flux de cles — ${nomCle}, ${String(calcul.flux.length)} octets`}>
-                  {calcul.flux.length === 0 ? 'Ecrivez une phrase pour tirer un flux.' : enHexadecimal(calcul.flux.slice(0, 48))}
+                <Valeur
+                  intitule={`Flux de cles — ${nomCle}, ${String(calcul.flux.length)} octets`}
+                >
+                  {calcul.flux.length === 0
+                    ? 'Ecrivez une phrase pour tirer un flux.'
+                    : enHexadecimal(calcul.flux.slice(0, 48))}
                   {calcul.flux.length > 48 ? ' …' : ''}
                 </Valeur>
                 <div className="o-grid o-gap-5">
-                  <p className={`o-m-0 ${NOTE}`}>Dictez ces six caracteres a votre correspondant, et tapez les siens</p>
-                  <p className="o-m-0 o-font-mono o-text-3xl o-tracking-widest" style={{ color: ENCRE }}>
+                  <p className={`o-m-0 ${NOTE}`}>
+                    Dictez ces six caracteres a votre correspondant, et tapez les siens
+                  </p>
+                  <p
+                    className="o-m-0 o-font-mono o-text-3xl o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     {calcul.empreinte}
                   </p>
                   <CodeInput
@@ -613,12 +836,16 @@ function Cadenas(): ReactElement {
                     />
                   }
                 >
-                  {calcul.corps.length === 0 ? 'Rien a chiffrer.' : enHexadecimal(calcul.corps)}
+                  {calcul.corps.length === 0
+                    ? 'Rien a chiffrer.'
+                    : enHexadecimal(calcul.corps)}
                 </Valeur>
                 <p className="o-m-0 o-max-w-xl o-leading-relaxed o-text-slate-300">
-                  Le texte et le corps ont exactement la meme longueur : {String(calcul.clair.length)} octets d un cote,{' '}
-                  {String(calcul.corps.length)} de l autre. Nous ne pretendons donc pas cacher la taille d un message, et la fiche du serveur
-                  l arrondit au bloc de soixante-quatre.
+                  Le texte et le corps ont exactement la meme longueur :{' '}
+                  {String(calcul.clair.length)} octets d un cote,{' '}
+                  {String(calcul.corps.length)} de l autre. Nous ne pretendons donc pas
+                  cacher la taille d un message, et la fiche du serveur l arrondit au bloc
+                  de soixante-quatre.
                 </p>
               </div>
             )}
@@ -627,22 +854,36 @@ function Cadenas(): ReactElement {
             {acte.cle === 'sceau' && (
               <div className="o-grid o-gap-6">
                 <div className="o-grid o-gap-4 sm:o-grid-cols-2">
-                  <div className="o-min-w-0 o-pt-4" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+                  <div
+                    className="o-min-w-0 o-pt-4"
+                    style={{ borderTop: `1px solid ${FILET_FORT}` }}
+                  >
                     <p className={`o-m-0 ${NOTE}`}>Votre message</p>
-                    <p className="o-m-0 o-mt-3 o-font-mono o-text-2xl o-tracking-widest" style={{ color: ENCRE, overflowWrap: 'anywhere' }}>
+                    <p
+                      className="o-m-0 o-mt-3 o-font-mono o-text-2xl o-tracking-widest"
+                      style={{ color: ENCRE, overflowWrap: 'anywhere' }}
+                    >
                       {calcul.sceauCorps}
                     </p>
                   </div>
-                  <div className="o-min-w-0 o-pt-4" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+                  <div
+                    className="o-min-w-0 o-pt-4"
+                    style={{ borderTop: `1px solid ${FILET_FORT}` }}
+                  >
                     <p className={`o-m-0 ${NOTE}`}>Le meme, derniere lettre changee</p>
-                    <p className="o-m-0 o-mt-3 o-font-mono o-text-2xl o-tracking-widest o-text-slate-400" style={{ overflowWrap: 'anywhere' }}>
+                    <p
+                      className="o-m-0 o-mt-3 o-font-mono o-text-2xl o-tracking-widest o-text-slate-400"
+                      style={{ overflowWrap: 'anywhere' }}
+                    >
                       {calcul.sceauVariante}
                     </p>
                   </div>
                 </div>
                 <p className="o-m-0 o-max-w-xl o-leading-relaxed o-text-slate-300">
-                  Une lettre de difference, et les huit chiffres changent. C est ce qui permet au destinataire de refuser un pli modifie en
-                  route sans avoir a le lire — et c est aussi pourquoi un sceau ne se compare jamais a l oeil, mais caractere par caractere.
+                  Une lettre de difference, et les huit chiffres changent. C est ce qui
+                  permet au destinataire de refuser un pli modifie en route sans avoir a
+                  le lire — et c est aussi pourquoi un sceau ne se compare jamais a l
+                  oeil, mais caractere par caractere.
                 </p>
               </div>
             )}
@@ -657,9 +898,23 @@ function Cadenas(): ReactElement {
                   de cote declare `overflow-y: hidden` explicitement, sinon la
                   cascade met les deux axes a `auto` et elle avale la molette.
                 */}
-                <div className="o-min-w-0 o-rounded-xl o-p-5" style={{ border: `1px solid ${FILET_FORT}`, backgroundColor: accentDoux(950, 14) }}>
-                  <div className="o-min-w-0 o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-                    <TreeView nodes={arbre} label="La fiche gardee par le serveur" defaultOpen={['fiche']} className="o-font-mono o-text-sm" />
+                <div
+                  className="o-min-w-0 o-rounded-xl o-p-5"
+                  style={{
+                    border: `1px solid ${FILET_FORT}`,
+                    backgroundColor: accentDoux(950, 14),
+                  }}
+                >
+                  <div
+                    className="o-min-w-0 o-overflow-x-auto"
+                    style={{ overflowY: 'hidden' }}
+                  >
+                    <TreeView
+                      nodes={arbre}
+                      label="La fiche gardee par le serveur"
+                      defaultOpen={['fiche']}
+                      className="o-font-mono o-text-sm"
+                    />
                   </div>
                 </div>
                 {/*
@@ -676,12 +931,17 @@ function Cadenas(): ReactElement {
                     morph={800}
                     fusion={1.4}
                     flou={9}
-                    style={{ ...affiche('m', 800), fontSize: 'clamp(1.35rem, 2.6vw, 2.25rem)', color: ENCRE }}
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(1.35rem, 2.6vw, 2.25rem)',
+                      color: ENCRE,
+                    }}
                   />
                 </p>
                 <p className="o-m-0 o-max-w-xl o-leading-relaxed o-text-slate-300">
-                  La fiche tient en cinquante-trois octets de metadonnees. Elle est effacee trente jours apres la remise, et le corps avec
-                  elle : nous n avons aucun moyen de le rouvrir plus tard, meme si on nous le demandait.
+                  La fiche tient en cinquante-trois octets de metadonnees. Elle est
+                  effacee trente jours apres la remise, et le corps avec elle : nous n
+                  avons aucun moyen de le rouvrir plus tard, meme si on nous le demandait.
                 </p>
               </div>
             )}
@@ -690,20 +950,32 @@ function Cadenas(): ReactElement {
             {acte.cle === 'ouverture' && (
               <div className="o-grid o-gap-6">
                 <Valeur intitule="Texte rendu par la cle du destinataire">
-                  <span className="o-text-base o-text-slate-50" style={{ fontFamily: 'var(--o-font-sans)' }}>
+                  <span
+                    className="o-text-base o-text-slate-50"
+                    style={{ fontFamily: 'var(--o-font-sans)' }}
+                  >
                     {calcul.rendu === '' ? '—' : calcul.rendu}
                   </span>
                 </Valeur>
                 <p
                   className="o-m-0 o-inline-flex o-items-center o-gap-3 o-self-start o-rounded-full o-px-4 o-py-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
-                  style={calcul.identique ? aplat() : { border: `1px solid ${FILET_FORT}` }}
+                  style={
+                    calcul.identique ? aplat() : { border: `1px solid ${FILET_FORT}` }
+                  }
                 >
-                  <Icon icon={calcul.identique ? MailOpen : Lock} size={15} aria-hidden="true" />
-                  {calcul.identique ? 'Identique au texte de depart, octet pour octet' : 'Difference detectee : le pli serait refuse'}
+                  <Icon
+                    icon={calcul.identique ? MailOpen : Lock}
+                    size={15}
+                    aria-hidden="true"
+                  />
+                  {calcul.identique
+                    ? 'Identique au texte de depart, octet pour octet'
+                    : 'Difference detectee : le pli serait refuse'}
                 </p>
                 <p className="o-m-0 o-max-w-xl o-leading-relaxed o-text-slate-300">
-                  La comparaison est faite ici, dans la page : elle porte sur la chaine rendue et sur celle que vous avez tapee. Si un jour
-                  elle affichait autre chose, ce serait un defaut a nous signaler, pas une formule de style.
+                  La comparaison est faite ici, dans la page : elle porte sur la chaine
+                  rendue et sur celle que vous avez tapee. Si un jour elle affichait autre
+                  chose, ce serait un defaut a nous signaler, pas une formule de style.
                 </p>
               </div>
             )}
@@ -729,7 +1001,16 @@ const PICTOGRAMMES: readonly {
     legende: 'Ferme avant de partir. Il ne s ouvre nulle part entre les deux appareils.',
     dessin: (
       <>
-        <rect x="8" y="16" width="48" height="32" rx="3" fill="none" stroke="currentColor" strokeWidth="2" />
+        <rect
+          x="8"
+          y="16"
+          width="48"
+          height="32"
+          rx="3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
         <path d="M8 20l24 16 24-16" fill="none" stroke="currentColor" strokeWidth="2" />
         <circle cx="32" cy="38" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
       </>
@@ -741,8 +1022,21 @@ const PICTOGRAMMES: readonly {
     legende: 'Tiree sur votre appareil, jamais televersee, perdue avec lui.',
     dessin: (
       <>
-        <circle cx="22" cy="32" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M32 32h22M46 32v8M52 32v6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <circle
+          cx="22"
+          cy="32"
+          r="10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path
+          d="M32 32h22M46 32v8M52 32v6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
   },
@@ -752,9 +1046,29 @@ const PICTOGRAMMES: readonly {
     legende: 'Huit chiffres. Un pli touche en route ne porte plus le meme.',
     dessin: (
       <>
-        <circle cx="32" cy="30" r="13" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M26 30l4 4 8-8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M24 43l-4 11 12-5 12 5-4-11" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <circle
+          cx="32"
+          cy="30"
+          r="13"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
+        <path
+          d="M26 30l4 4 8-8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M24 43l-4 11 12-5 12 5-4-11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
       </>
     ),
   },
@@ -764,9 +1078,27 @@ const PICTOGRAMMES: readonly {
     legende: 'Trente jours apres la remise, la fiche et le corps sont effaces.',
     dessin: (
       <>
-        <path d="M14 20h36M26 20v-4h12v4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M18 20l3 28h22l3-28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M28 28v12M36 28v12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M14 20h36M26 20v-4h12v4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M18 20l3 28h22l3-28"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M28 28v12M36 28v12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </>
     ),
   },
@@ -775,7 +1107,12 @@ const PICTOGRAMMES: readonly {
 /* ========================= La question unique (A22) ===================== */
 
 /** Les trois reponses, et les trois adresses ou elles menent. */
-const REPONSES: readonly { readonly reponse: string; readonly ou: string; readonly quoi: string; readonly href: string }[] = [
+const REPONSES: readonly {
+  readonly reponse: string
+  readonly ou: string
+  readonly quoi: string
+  readonly href: string
+}[] = [
   {
     reponse: 'Une equipe',
     ou: 'Un espace partage, des salons, et un administrateur qui ne lit rien',
@@ -804,7 +1141,11 @@ export default function Page(): ReactElement {
   const [heure, setHeure] = useState('')
 
   useEffect(() => {
-    const format = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })
+    const format = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris',
+    })
     setHeure(format.format(new Date()))
   }, [])
 
@@ -819,11 +1160,21 @@ export default function Page(): ReactElement {
           plein — c est la citation d Artefakt, et c est le seul ornement.
         */}
         <div id="haut" className="o-relative o-isolate o-overflow-hidden">
-          <GridLines className="o-absolute o-inset-0 o-z-0" size={44} thickness={1} speed={0} color={accentDoux(400, 22)} />
+          <GridLines
+            className="o-absolute o-inset-0 o-z-0"
+            size={44}
+            thickness={1}
+            speed={0}
+            color={accentDoux(400, 22)}
+          />
           <Grain opacite={0.05} />
 
           <div className="o-relative o-z-10 o-flex o-min-h-screen o-flex-col">
-            <BarreCoins marque="Pli Ferme" liens={NAVIGATION} droite={heure === '' ? 'Paris' : `Paris ${heure}`} />
+            <BarreCoins
+              marque="Pli Ferme"
+              liens={NAVIGATION}
+              droite={heure === '' ? 'Paris' : `Paris ${heure}`}
+            />
 
             <div className="o-flex o-grow o-flex-col o-justify-between o-gap-12 o-px-6 o-pb-10 o-pt-6 md:o-px-8">
               <div className="o-grid o-gap-8 md:o-grid-cols-12">
@@ -834,21 +1185,29 @@ export default function Page(): ReactElement {
                   <TitreVague
                     delai={140}
                     className="o-m-0 o-mt-7 o-max-w-5xl o-text-slate-50"
-                    style={{ ...affiche('l', 300), fontSize: 'clamp(2.6rem, 7.4vw, 7.5rem)' }}
+                    style={{
+                      ...affiche('l', 300),
+                      fontSize: 'clamp(2.6rem, 7.4vw, 7.5rem)',
+                    }}
                   >
                     Nous ne pouvons pas lire vos messages.
                   </TitreVague>
                 </div>
-                <Surgit delai={480} className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-3">
+                <Surgit
+                  delai={480}
+                  className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-3"
+                >
                   <p className="o-m-0 o-text-base o-leading-relaxed o-text-slate-400">
-                    Ce n est pas une promesse commerciale, c est une consequence du dessin. Descendez : la page le calcule sous vos yeux, avec
-                    la phrase que vous voulez.
+                    Ce n est pas une promesse commerciale, c est une consequence du
+                    dessin. Descendez : la page le calcule sous vos yeux, avec la phrase
+                    que vous voulez.
                   </p>
                   <Actions
                     pleine={[
                       '#cadenas',
                       <>
-                        Voir le cadenas <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                        Voir le cadenas{' '}
+                        <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                       </>,
                     ]}
                     fantome={['#figure', 'Le protocole']}
@@ -862,14 +1221,34 @@ export default function Page(): ReactElement {
                 la seule chose que l ouverture montre du mecanisme, et elle
                 remplit le vide entre le titre et le filigrane.
               */}
-              <Surgit delai={700} className="o-flex o-min-w-0 o-items-center o-gap-5 o-py-4" style={{ borderTop: `1px solid ${FILET}`, borderBottom: `1px solid ${FILET}` }}>
+              <Surgit
+                delai={700}
+                className="o-flex o-min-w-0 o-items-center o-gap-5 o-py-4"
+                style={{
+                  borderTop: `1px solid ${FILET}`,
+                  borderBottom: `1px solid ${FILET}`,
+                }}
+              >
                 <span className={`o-shrink-0 ${NOTE}`} style={{ color: ENCRE }}>
                   Ce qui part
                 </span>
-                <span className="o-min-w-0 o-flex-1 o-truncate o-font-mono o-text-xs o-text-slate-400" aria-hidden="true">
-                  {enHexadecimal(ouExclusif(octetsDe(MESSAGE_PAR_DEFAUT), fluxDeCles(CLES[0]?.graine ?? 0, octetsDe(MESSAGE_PAR_DEFAUT).length)))}
+                <span
+                  className="o-min-w-0 o-flex-1 o-truncate o-font-mono o-text-xs o-text-slate-400"
+                  aria-hidden="true"
+                >
+                  {enHexadecimal(
+                    ouExclusif(
+                      octetsDe(MESSAGE_PAR_DEFAUT),
+                      fluxDeCles(
+                        CLES[0]?.graine ?? 0,
+                        octetsDe(MESSAGE_PAR_DEFAUT).length,
+                      ),
+                    ),
+                  )}
                 </span>
-                <span className={`o-hidden o-shrink-0 md:o-inline ${NOTE}`}>60 octets</span>
+                <span className={`o-hidden o-shrink-0 md:o-inline ${NOTE}`}>
+                  60 octets
+                </span>
               </Surgit>
 
               {/* Le mot-marque en contour, coupe aux deux bords — Artefakt. */}
@@ -907,7 +1286,11 @@ export default function Page(): ReactElement {
             Entre l ouverture et le mecanisme, une phrase et rien d autre : la
             page a besoin d une respiration avant six chapitres de valeurs.
           */}
-          <section aria-labelledby="dire-titre" className="o-px-6 o-py-28 md:o-px-8 md:o-py-40" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            aria-labelledby="dire-titre"
+            className="o-px-6 o-py-28 md:o-px-8 md:o-py-40"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-12">
               <p className={`o-m-0 md:o-col-span-3 ${NOTE}`}>
                 Avant le mecanisme
@@ -919,7 +1302,8 @@ export default function Page(): ReactElement {
                   Ce que veut dire « de bout en bout »
                 </h2>
                 <Manifeste eteint="Un service qui peut lire vos messages finira par devoir les montrer a quelqu un —">
-                  alors nous avons construit un service qui ne le peut pas, et cette page est la preuve, pas l argument.
+                  alors nous avons construit un service qui ne le peut pas, et cette page
+                  est la preuve, pas l argument.
                 </Manifeste>
               </div>
             </div>
@@ -928,11 +1312,18 @@ export default function Page(): ReactElement {
           {/*
             ----- Le mecanisme : le cadenas, en six chapitres -------------------
           */}
-          <section id="cadenas" className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="cadenas"
+            className="o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-8 md:o-pt-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="01">Le cadenas</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-slate-50"
+                  style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4rem)' }}
+                >
                   Six etapes, et vos octets dedans.
                 </h2>
               </div>
@@ -961,15 +1352,26 @@ export default function Page(): ReactElement {
           >
             <div className="o-grid o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   Figure 01
                 </p>
-                <h2 id="figure-titre" className="o-m-0 o-mt-5 o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                <h2
+                  id="figure-titre"
+                  className="o-m-0 o-mt-5 o-text-slate-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
+                >
                   La boite a deux cadenas.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-slate-400">
-                  Le protocole en une image : chacun pose son cadenas a son tour, et la boite ne voyage jamais ouverte. Aucune cle ne quitte
-                  son appareil — il n y a donc rien a nous voler.
+                  Le protocole en une image : chacun pose son cadenas a son tour, et la
+                  boite ne voyage jamais ouverte. Aucune cle ne quitte son appareil — il n
+                  y a donc rien a nous voler.
                 </p>
                 <ul className="o-m-0 o-mt-8 o-flex o-list-none o-flex-col o-gap-3 o-p-0">
                   {PROTOCOLE.map((etape) => (
@@ -985,9 +1387,13 @@ export default function Page(): ReactElement {
                 <div className="o-overflow-x-auto o-pb-2" style={{ overflowY: 'hidden' }}>
                   <FigureCadenas />
                 </div>
-                <figcaption className="o-mt-6 o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-slate-400" style={{ borderTop: `1px solid ${FILET}` }}>
-                  Figure 01 — trois traversees, quatre etats de la boite. Le trait plein sous le dernier temps marque le seul moment ou le
-                  texte existe en clair : chez le destinataire.
+                <figcaption
+                  className="o-mt-6 o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-slate-400"
+                  style={{ borderTop: `1px solid ${FILET}` }}
+                >
+                  Figure 01 — trois traversees, quatre etats de la boite. Le trait plein
+                  sous le dernier temps marque le seul moment ou le texte existe en clair
+                  : chez le destinataire.
                 </figcaption>
               </figure>
             </div>
@@ -1000,7 +1406,11 @@ export default function Page(): ReactElement {
             papier : c est l ecran ou le message est lisible, et la coupe dit
             la meme chose que tout le reste, en une image.
           */}
-          <section aria-labelledby="clair-titre" className="o-px-6 o-py-28 md:o-px-8 md:o-py-40" style={JOUR}>
+          <section
+            aria-labelledby="clair-titre"
+            className="o-px-6 o-py-28 md:o-px-8 md:o-py-40"
+            style={JOUR}
+          >
             <div className="o-grid o-gap-x-12 o-gap-y-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-600 md:o-col-span-3">
                 Le seul ecran en clair
@@ -1013,13 +1423,19 @@ export default function Page(): ReactElement {
                 </h2>
                 <p
                   className="o-m-0 o-max-w-4xl o-text-stone-950"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)', lineHeight: 1.12 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)',
+                    lineHeight: 1.12,
+                  }}
                 >
                   « Rendez-vous jeudi 14 h, cote quai. Je porte le dossier vert. »
                 </p>
                 <p className="o-mt-10 o-max-w-xl o-leading-relaxed o-text-stone-700">
-                  Voila a quoi ressemble un message quand il est lisible. Cela n arrive que deux fois : sur l ecran de celui qui l ecrit, et
-                  sur celui de qui le recoit. Entre les deux, le meme texte occupe la meme place, en octets qui ne veulent rien dire.
+                  Voila a quoi ressemble un message quand il est lisible. Cela n arrive
+                  que deux fois : sur l ecran de celui qui l ecrit, et sur celui de qui le
+                  recoit. Entre les deux, le meme texte occupe la meme place, en octets
+                  qui ne veulent rien dire.
                 </p>
                 <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600">
                   Papier — 1 ecran sur 14
@@ -1040,12 +1456,20 @@ export default function Page(): ReactElement {
             <div className="o-grid o-gap-10 md:o-grid-cols-12">
               <div className="md:o-col-span-4">
                 <Indice rang="02">Ce qui reste chez nous</Indice>
-                <h2 id="garde-titre" className="o-m-0 o-mt-5 o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                <h2
+                  id="garde-titre"
+                  className="o-m-0 o-mt-5 o-text-slate-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
+                >
                   Une seule mesure.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-slate-400">
-                  Nous n affichons pas de compteur de clients ni d annees de service : la seule quantite qui vous concerne est celle-ci, et
-                  elle ne nous flatte qu a moitie.
+                  Nous n affichons pas de compteur de clients ni d annees de service : la
+                  seule quantite qui vous concerne est celle-ci, et elle ne nous flatte qu
+                  a moitie.
                 </p>
               </div>
               <div className="o-min-w-0 md:o-col-span-8">
@@ -1053,13 +1477,26 @@ export default function Page(): ReactElement {
                 <dl className="o-m-0 o-mt-12 o-grid o-gap-6 sm:o-grid-cols-3">
                   {(
                     [
-                      ['53 octets', 'la fiche gardee : horodatage, taille arrondie, deux empreintes'],
+                      [
+                        '53 octets',
+                        'la fiche gardee : horodatage, taille arrondie, deux empreintes',
+                      ],
                       ['30 jours', 'apres la remise, la fiche et le corps sont effaces'],
-                      ['0', 'numero de telephone, carnet d adresses, journal de connexion'],
+                      [
+                        '0',
+                        'numero de telephone, carnet d adresses, journal de connexion',
+                      ],
                     ] as const
                   ).map(([valeur, quoi]) => (
-                    <div key={quoi} className="o-pt-4" style={{ borderTop: `1px solid ${FILET}` }}>
-                      <dt className="o-font-mono o-text-lg o-tabular-nums" style={{ color: ENCRE }}>
+                    <div
+                      key={quoi}
+                      className="o-pt-4"
+                      style={{ borderTop: `1px solid ${FILET}` }}
+                    >
+                      <dt
+                        className="o-font-mono o-text-lg o-tabular-nums"
+                        style={{ color: ENCRE }}
+                      >
                         {valeur}
                       </dt>
                       <dd className={`o-m-0 o-mt-2 ${NOTE}`}>{quoi}</dd>
@@ -1079,7 +1516,11 @@ export default function Page(): ReactElement {
             className="o-scroll-mt-24 o-flex o-min-h-screen o-flex-col o-justify-center o-px-6 o-py-24 md:o-px-8"
             style={{ borderTop: `1px solid ${FILET}` }}
           >
-            <h2 id="qui-titre" className="o-m-0 o-max-w-4xl o-text-slate-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6vw, 6rem)' }}>
+            <h2
+              id="qui-titre"
+              className="o-m-0 o-max-w-4xl o-text-slate-50"
+              style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6vw, 6rem)' }}
+            >
               Qui ecrit a qui ?
             </h2>
             <ul className="o-m-0 o-mt-16 o-list-none o-p-0">
@@ -1089,9 +1530,16 @@ export default function Page(): ReactElement {
                     href={r.href}
                     className="o-grid o-items-baseline o-gap-x-8 o-gap-y-2 o-py-8 o-no-underline o-text-slate-50 focus:o-ring md:o-grid-cols-12"
                   >
-                    <span className="o-text-2xl o-font-medium o-tracking-tight md:o-col-span-4 md:o-text-3xl">{r.reponse}</span>
-                    <span className="o-text-base o-leading-relaxed o-text-slate-400 md:o-col-span-5">{r.ou}</span>
-                    <span className={`o-inline-flex o-items-center o-gap-2 md:o-col-span-3 md:o-justify-end ${NOTE}`} style={{ color: ENCRE }}>
+                    <span className="o-text-2xl o-font-medium o-tracking-tight md:o-col-span-4 md:o-text-3xl">
+                      {r.reponse}
+                    </span>
+                    <span className="o-text-base o-leading-relaxed o-text-slate-400 md:o-col-span-5">
+                      {r.ou}
+                    </span>
+                    <span
+                      className={`o-inline-flex o-items-center o-gap-2 md:o-col-span-3 md:o-justify-end ${NOTE}`}
+                      style={{ color: ENCRE }}
+                    >
                       {r.quoi}
                       <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                     </span>
@@ -1100,7 +1548,8 @@ export default function Page(): ReactElement {
               ))}
             </ul>
             <p className={`o-mt-10 o-max-w-xl ${NOTE}`}>
-              Pas de formulaire, pas de demonstration commerciale a planifier. Une adresse, et une reponse d une personne dans la journee.
+              Pas de formulaire, pas de demonstration commerciale a planifier. Une
+              adresse, et une reponse d une personne dans la journee.
             </p>
           </section>
         </main>
@@ -1108,20 +1557,35 @@ export default function Page(): ReactElement {
         {/*
           ----- P27 : quatre pictogrammes dessines et leurs legendes ------------
         */}
-        <footer className="o-px-6 o-pb-10 o-pt-16 md:o-px-8" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+        <footer
+          className="o-px-6 o-pb-10 o-pt-16 md:o-px-8"
+          style={{ borderTop: `1px solid ${FILET_FORT}` }}
+        >
           <div className="o-grid o-gap-x-10 o-gap-y-12 sm:o-grid-cols-2 lg:o-grid-cols-4">
             {PICTOGRAMMES.map((p) => (
               <div key={p.cle}>
-                <svg viewBox="0 0 64 64" aria-hidden="true" className="o-block o-size-12" style={{ color: ENCRE }}>
+                <svg
+                  viewBox="0 0 64 64"
+                  aria-hidden="true"
+                  className="o-block o-size-12"
+                  style={{ color: ENCRE }}
+                >
                   {p.dessin}
                 </svg>
-                <p className="o-m-0 o-mt-5 o-text-lg o-font-medium o-tracking-tight o-text-slate-50">{p.titre}</p>
-                <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-slate-400">{p.legende}</p>
+                <p className="o-m-0 o-mt-5 o-text-lg o-font-medium o-tracking-tight o-text-slate-50">
+                  {p.titre}
+                </p>
+                <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-slate-400">
+                  {p.legende}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="o-mt-16 o-flex o-flex-wrap o-items-center o-gap-x-8 o-gap-y-4 o-pt-6" style={{ borderTop: `1px solid ${FILET}` }}>
+          <div
+            className="o-mt-16 o-flex o-flex-wrap o-items-center o-gap-x-8 o-gap-y-4 o-pt-6"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <span className="o-inline-flex o-items-center o-gap-2 o-text-base o-font-semibold o-tracking-tight o-text-slate-50">
               <Icon icon={Lock} size={16} style={{ color: ENCRE }} aria-hidden="true" />
               Pli Ferme
@@ -1134,7 +1598,11 @@ export default function Page(): ReactElement {
                 ['#haut', 'Mentions legales'],
               ] as const
             ).map(([href, mot]) => (
-              <a key={mot} href={href} className={`o-no-underline hover:o-text-slate-50 focus:o-ring ${NOTE}`}>
+              <a
+                key={mot}
+                href={href}
+                className={`o-no-underline hover:o-text-slate-50 focus:o-ring ${NOTE}`}
+              >
                 {mot}
               </a>
             ))}

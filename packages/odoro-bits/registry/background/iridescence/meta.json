@@ -19,11 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-palette-pink-300",
-    "--o-palette-teal-300"
-  ],
+  "tokens": ["--o-theme-bg", "--o-palette-pink-300", "--o-palette-teal-300"],
   "props": [
     {
       "name": "speed",

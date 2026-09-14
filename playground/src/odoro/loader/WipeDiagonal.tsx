@@ -195,7 +195,8 @@ export function WipeDiagonal({
     if (noeud === null) return
 
     const mesurer = (): void => {
-      const debord = Math.abs(Math.tan((slant * Math.PI) / 180)) * (noeud.clientHeight / 2)
+      const debord =
+        Math.abs(Math.tan((slant * Math.PI) / 180)) * (noeud.clientHeight / 2)
       noeud.style.setProperty('--o-wipd-lead', `${String(debord + SAFETY)}px`)
       noeud.style.setProperty(
         '--o-wipd-travel',

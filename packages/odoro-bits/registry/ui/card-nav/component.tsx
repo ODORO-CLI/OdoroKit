@@ -217,13 +217,18 @@ export function CardNav({
   }
 
   const cards = (): HTMLElement[] =>
-    Array.from(hostRef.current?.querySelectorAll<HTMLElement>('[data-o-cardnav-card]') ?? [])
+    Array.from(
+      hostRef.current?.querySelectorAll<HTMLElement>('[data-o-cardnav-card]') ?? [],
+    )
 
   // Ferme, le focus revient au bouton s'il etait sur une carte.
   useEffect(() => {
     const host = hostRef.current
     if (host === null || isOpen) return
-    if (host.contains(document.activeElement) && document.activeElement !== toggleRef.current) {
+    if (
+      host.contains(document.activeElement) &&
+      document.activeElement !== toggleRef.current
+    ) {
       toggleRef.current?.focus()
     }
   }, [isOpen])
@@ -256,11 +261,20 @@ export function CardNav({
   }
 
   const { className, style } = mergePresentation({}, rest)
-  const radius = typeof style?.borderRadius === 'number' ? `${String(style.borderRadius)}px` : style?.borderRadius
+  const radius =
+    typeof style?.borderRadius === 'number'
+      ? `${String(style.borderRadius)}px`
+      : style?.borderRadius
 
   const arrow = (
     <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" data-o-cardnav-arrow="">
-      <path d="M4 12 12 4M6 4h6v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4 12 12 4M6 4h6v6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 
@@ -307,7 +321,8 @@ export function CardNav({
           <ul>
             {items.map((item, index) => {
               const isCurrent = index === active
-              const tint = colors[index % Math.max(colors.length, 1)] ?? DEFAULT_COLORS[0] ?? ''
+              const tint =
+                colors[index % Math.max(colors.length, 1)] ?? DEFAULT_COLORS[0] ?? ''
               const vars = {
                 '--o-cardnav-i': String(index),
                 '--o-cardnav-tint': `var(${tint})`,

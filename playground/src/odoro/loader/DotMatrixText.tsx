@@ -107,7 +107,10 @@ const FONT: Readonly<Record<string, readonly number[]>> = {
 
 /** Le glyphe d'un caractere : capitale sans accent, ou point d'interrogation. */
 function glyphOf(char: string): readonly number[] {
-  const key = char.normalize('NFD').replace(/\p{M}+/gu, '').toUpperCase()
+  const key = char
+    .normalize('NFD')
+    .replace(/\p{M}+/gu, '')
+    .toUpperCase()
   return FONT[key] ?? FONT['?'] ?? []
 }
 
@@ -220,7 +223,11 @@ export function DotMatrixText({
             r={radius}
             data-o-dmt-cell=""
             {...(cell.on ? { 'data-o-dmt-on': '' } : {})}
-            style={cell.on ? ({ '--o-dmt-col': String(cell.column) } as CSSProperties) : undefined}
+            style={
+              cell.on
+                ? ({ '--o-dmt-col': String(cell.column) } as CSSProperties)
+                : undefined
+            }
           />
         ))}
       </svg>

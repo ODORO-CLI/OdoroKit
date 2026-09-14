@@ -48,7 +48,9 @@ import { encre, encreSurSombre } from './palettes.js'
  * @example
  * <header style={nuit('stone')}>…</header>
  */
-export function nuit(famille: 'zinc' | 'stone' | 'slate' | 'neutral' = 'zinc'): CSSProperties {
+export function nuit(
+  famille: 'zinc' | 'stone' | 'slate' | 'neutral' = 'zinc',
+): CSSProperties {
   return {
     colorScheme: 'dark',
     backgroundColor: 'var(--o-theme-bg)',
@@ -236,10 +238,19 @@ export function Ouverture({
           mono ? 'o-font-mono' : ''
         }`}
       >
-        <span className="o-tabular-nums" style={{ color: sombre ? encreSurSombre() : encre() }}>
+        <span
+          className="o-tabular-nums"
+          style={{ color: sombre ? encreSurSombre() : encre() }}
+        >
           {numero}
         </span>
-        <span className={sombre ? 'o-text-zinc-400 dark:o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}>
+        <span
+          className={
+            sombre
+              ? 'o-text-zinc-400 dark:o-text-zinc-400'
+              : 'o-text-zinc-500 dark:o-text-zinc-400'
+          }
+        >
           {rubrique}
         </span>
       </p>
@@ -255,7 +266,9 @@ export function Ouverture({
       {chapeau !== undefined && (
         <p
           className={`o-mt-4 o-text-base o-leading-relaxed ${
-            sombre ? 'o-text-zinc-300 dark:o-text-zinc-300' : 'o-text-zinc-600 dark:o-text-zinc-400'
+            sombre
+              ? 'o-text-zinc-300 dark:o-text-zinc-300'
+              : 'o-text-zinc-600 dark:o-text-zinc-400'
           }`}
         >
           {chapeau}
@@ -315,12 +328,16 @@ export function RailChiffres({
             }`}
             style={{ color: sombre ? encreSurSombre() : encre() }}
           >
-            {chiffre.icone !== undefined && <Icon icon={chiffre.icone} size={15} aria-hidden="true" />}
+            {chiffre.icone !== undefined && (
+              <Icon icon={chiffre.icone} size={15} aria-hidden="true" />
+            )}
             {chiffre.valeur}
           </dt>
           <dd
             className={`o-m-0 o-mt-1 o-text-xs o-uppercase o-tracking-wider ${
-              sombre ? 'o-text-zinc-400 dark:o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'
+              sombre
+                ? 'o-text-zinc-400 dark:o-text-zinc-400'
+                : 'o-text-zinc-500 dark:o-text-zinc-400'
             }`}
           >
             {chiffre.quoi}

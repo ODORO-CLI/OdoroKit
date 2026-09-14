@@ -123,20 +123,25 @@ export function MetallicPaint({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: METALLIC_PAINT_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uRelief: relief, uSheen: sheen, uFlakes: flakes },
-      name: 'metallic-paint',
-      // Les stries et les paillettes vivent sous le pixel a densite reduite :
-      // elles s'y lisent comme un fourmillement. Le relief est adouci et les
-      // paillettes coupees plutot que de laisser le bruit gagner.
-      degrade: (quality) =>
-        quality === 'low'
-          ? { uRelief: relief * 0.5, uFlakes: 0 }
-          : { uRelief: relief, uFlakes: flakes },
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: METALLIC_PAINT_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uRelief: relief, uSheen: sheen, uFlakes: flakes },
+    name: 'metallic-paint',
+    // Les stries et les paillettes vivent sous le pixel a densite reduite :
+    // elles s'y lisent comme un fourmillement. Le relief est adouci et les
+    // paillettes coupees plutot que de laisser le bruit gagner.
+    degrade: (quality) =>
+      quality === 'low'
+        ? { uRelief: relief * 0.5, uFlakes: 0 }
+        : { uRelief: relief, uFlakes: flakes },
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

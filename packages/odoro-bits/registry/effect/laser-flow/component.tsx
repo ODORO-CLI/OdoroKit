@@ -126,10 +126,7 @@ export function LaserFlow({
   const { reduced } = useMotionState()
   ensureLaserRules()
 
-  const { className, style } = mergePresentation(
-    { className: 'o-overflow-hidden' },
-    rest,
-  )
+  const { className, style } = mergePresentation({ className: 'o-overflow-hidden' }, rest)
 
   return (
     <div

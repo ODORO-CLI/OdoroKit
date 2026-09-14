@@ -66,7 +66,12 @@ import { CATALOGUE } from '../catalogue.generated.js'
 import { DEPOT, NPM, pageNpm, useVersions, versionDe } from '../liens.js'
 import type { PaquetPublie } from '../versions.generated.js'
 import { Grain, Indice, Porte, Surgit, affiche, usePolices } from '../vitrines/marche.jsx'
-import { accent, accentDoux, variablesDePalette, type Couleurs } from '../vitrines/palettes.js'
+import {
+  accent,
+  accentDoux,
+  variablesDePalette,
+  type Couleurs,
+} from '../vitrines/palettes.js'
 import { Aimant } from '../vitrines/scene.jsx'
 import { Volume } from '../vitrines/volume.jsx'
 
@@ -114,7 +119,13 @@ function traceDuSigle(taille: number): string {
 /** Le sigle en `currentColor`, pour la barre et le pied. */
 function Sigle({ taille = 18 }: { readonly taille?: number }): ReactElement {
   return (
-    <svg viewBox="0 0 24 24" width={taille} height={taille} aria-hidden="true" className="o-inline-block o-shrink-0">
+    <svg
+      viewBox="0 0 24 24"
+      width={taille}
+      height={taille}
+      aria-hidden="true"
+      className="o-inline-block o-shrink-0"
+    >
       <path d={traceDuSigle(24)} fill="currentColor" fillRule="evenodd" />
     </svg>
   )
@@ -139,8 +150,22 @@ function Embleme({ className }: { readonly className?: string }): ReactElement {
   const tiret = `${String(2 * Math.PI * orbite * 0.75)} ${String(2 * Math.PI * orbite)}`
   return (
     <div className={`o-relative ${className ?? ''}`} aria-hidden="true">
-      <svg viewBox="0 0 140 140" className="o-absolute o-inset-0 o-size-full" data-ac-orbite="">
-        <circle cx="70" cy="70" r={orbite} fill="none" stroke="url(#ac-orbite)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray={tiret} opacity="0.55" />
+      <svg
+        viewBox="0 0 140 140"
+        className="o-absolute o-inset-0 o-size-full"
+        data-ac-orbite=""
+      >
+        <circle
+          cx="70"
+          cy="70"
+          r={orbite}
+          fill="none"
+          stroke="url(#ac-orbite)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeDasharray={tiret}
+          opacity="0.55"
+        />
         <defs>
           <DegradeMarque id="ac-orbite" />
         </defs>
@@ -414,9 +439,27 @@ interface Lueur {
 }
 
 const LUEUR: Record<'uni' | 'burst' | 'mael', Lueur> = {
-  uni: { coreStrength: 1.5, coreSize: 0.5, coreSharp: 2.4, haloAmount: 0.6, haloFalloff: 1.5 },
-  burst: { coreStrength: 1.7, coreSize: 0.34, coreSharp: 3, haloAmount: 0.3, haloFalloff: 1.9 },
-  mael: { coreStrength: 1.35, coreSize: 0.4, coreSharp: 2.8, haloAmount: 0.38, haloFalloff: 1.9 },
+  uni: {
+    coreStrength: 1.5,
+    coreSize: 0.5,
+    coreSharp: 2.4,
+    haloAmount: 0.6,
+    haloFalloff: 1.5,
+  },
+  burst: {
+    coreStrength: 1.7,
+    coreSize: 0.34,
+    coreSharp: 3,
+    haloAmount: 0.3,
+    haloFalloff: 1.9,
+  },
+  mael: {
+    coreStrength: 1.35,
+    coreSize: 0.4,
+    coreSharp: 2.8,
+    haloAmount: 0.38,
+    haloFalloff: 1.9,
+  },
 }
 
 function melangeLueur(a: Lueur, b: Lueur, t: number): Lueur {
@@ -495,10 +538,40 @@ const ORBITE_DU_SIGLE =
   'M6 70a64 64 0 1 0 128 0a64 64 0 1 0 -128 0Z M7.5 70a62.5 62.5 0 1 0 125 0a62.5 62.5 0 1 0 -125 0Z'
 
 /** Les comptes de la source par qualite : ceux du bureau, puis divises. */
-function comptes(qualite: SceneContext['quality']): { arms: number; perArm: number; stars: number; dust: number; sigle: number; fond: number } {
-  if (qualite === 'high') return { arms: 520, perArm: 161, stars: 2520, dust: 455, sigle: SIGLE.count, fond: SIGLE.fond }
-  if (qualite === 'medium') return { arms: 340, perArm: 119, stars: 1540, dust: 280, sigle: Math.round(SIGLE.count * 0.7), fond: 800 }
-  return { arms: 260, perArm: 161, stars: 1260, dust: 228, sigle: Math.round(SIGLE.count * 0.5), fond: 700 }
+function comptes(qualite: SceneContext['quality']): {
+  arms: number
+  perArm: number
+  stars: number
+  dust: number
+  sigle: number
+  fond: number
+} {
+  if (qualite === 'high')
+    return {
+      arms: 520,
+      perArm: 161,
+      stars: 2520,
+      dust: 455,
+      sigle: SIGLE.count,
+      fond: SIGLE.fond,
+    }
+  if (qualite === 'medium')
+    return {
+      arms: 340,
+      perArm: 119,
+      stars: 1540,
+      dust: 280,
+      sigle: Math.round(SIGLE.count * 0.7),
+      fond: 800,
+    }
+  return {
+    arms: 260,
+    perArm: 161,
+    stars: 1260,
+    dust: 228,
+    sigle: Math.round(SIGLE.count * 0.5),
+    fond: 700,
+  }
 }
 
 /** Un tirage normal, pour donner un profil a l epaisseur du disque. */
@@ -685,7 +758,11 @@ const FRAGMENT_DOUX = /* glsl */ `
  * Construit tout le monde dans la scene, et rend ce qu il faut pour le
  * piloter image par image et le liberer.
  */
-function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HTMLElement): Monde {
+function construireLeMonde(
+  contexte: SceneContext,
+  racine: HTMLElement,
+  hote: HTMLElement,
+): Monde {
   const { scene, camera, renderer, three, quality } = contexte
   const n = comptes(quality)
 
@@ -717,8 +794,14 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     sigleB: jeton('--o-vitrine-200', '#ffd1a6'),
   }
 
-  const rotation = (x: number, y: number, z: number): InstanceType<typeof three.Matrix3> =>
-    new three.Matrix3().setFromMatrix4(new three.Matrix4().makeRotationFromEuler(new three.Euler(x, y, z)))
+  const rotation = (
+    x: number,
+    y: number,
+    z: number,
+  ): InstanceType<typeof three.Matrix3> =>
+    new three.Matrix3().setFromMatrix4(
+      new three.Matrix4().makeRotationFromEuler(new three.Euler(x, y, z)),
+    )
 
   /* ------------------------------------------------ le champ d etoiles */
 
@@ -879,15 +962,21 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
 
         // Le disque : un point sur une spirale logarithmique, avec son
         // epaisseur profilee et son entonnoir vers le trou.
-        const radius = FORMES.maelRInner * Math.exp(logSpan * t) * (1 + (Math.random() - 0.5) * 0.05)
-        const angle = armPhase + FORMES.maelTightness * Math.log(radius / FORMES.maelRInner) + (Math.random() - 0.5) * 0.06
+        const radius =
+          FORMES.maelRInner * Math.exp(logSpan * t) * (1 + (Math.random() - 0.5) * 0.05)
+        const angle =
+          armPhase +
+          FORMES.maelTightness * Math.log(radius / FORMES.maelRInner) +
+          (Math.random() - 0.5) * 0.06
         const inner = radius / FORMES.maelRInner - 1
         const bulge = 1 + FORMES.maelBulge * Math.exp(-inner * inner * 1.6)
         const rNorm = Math.min(1, radius / FORMES.maelROuter)
-        const funnelZ = -FORMES.maelFunnel * FORMES.maelROuter * 0.4 * Math.pow(1 - rNorm, 1.8)
+        const funnelZ =
+          -FORMES.maelFunnel * FORMES.maelROuter * 0.4 * Math.pow(1 - rNorm, 1.8)
         positions[k * 3] = radius * Math.cos(angle)
         positions[k * 3 + 1] = radius * Math.sin(angle)
-        positions[k * 3 + 2] = funnelZ + gauss() * 0.5 * FORMES.maelThickness * (0.4 + radius * 0.03) * bulge
+        positions[k * 3 + 2] =
+          funnelZ + gauss() * 0.5 * FORMES.maelThickness * (0.4 + radius * 0.03) * bulge
 
         // La galaxie : un point de la distribution sphere-et-tube de la source.
         const theta = TAU * Math.random()
@@ -927,71 +1016,71 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
 
     const [ex, ey, ez] = FORMES.uniEuler
     const uniformes = {
-        iTime: { value: 0 },
-        uAlpha: { value: 0 },
-        uRes: { value: new three.Vector2(1, 1) },
-        uT1: { value: 0 },
-        uT2: { value: 0 },
-        uNeedUni: { value: 1 },
-        uNeedBurst: { value: 0 },
-        uNeedMael: { value: 0 },
-        uPointer: { value: new three.Vector3() },
-        uPointerAxis: { value: new three.Vector3(0, 0, -1) },
-        uPointerR: { value: 1 },
-        uPointerPush: { value: 0 },
-        uPointerSwirl: { value: 0 },
-        uPointerGlow: { value: 0 },
-        uStagger: { value: FORMES.stagger },
-        uMidBoost: { value: FORMES.midBoost },
-        uArc1: { value: FORMES.arc1 },
-        uSwirl1: { value: FORMES.swirl1 },
-        uArc2: { value: FORMES.arc2 },
-        uSwirl2: { value: FORMES.swirl2 },
-        uUniTime: { value: 0 },
-        uUniRot: { value: rotation(ex, ey, ez) },
-        uUniScale: { value: FORMES.uniScale },
-        uUniEllipse: { value: FORMES.uniEllipse },
-        uUniLife: { value: FORMES.uniLife },
-        uUniSpawnSpread: { value: FORMES.uniSpawnSpread },
-        uUniOmega: { value: FORMES.uniOmega },
-        uUniV0: { value: FORMES.uniV0 },
-        uUniDecay: { value: FORMES.uniDecay },
-        uUniSize: { value: FORMES.uniSize },
-        uUniBright: { value: FORMES.uniBright },
-        uBurstScale: { value: FORMES.burstScale },
-        uBurstSway: { value: FORMES.burstSway },
-        uBurstSwaySpeed: { value: FORMES.burstSwaySpeed },
-        uBurstShimmer: { value: FORMES.burstShimmer },
-        uBurstShimmerSpeed: { value: FORMES.burstShimmerSpeed },
-        uBurstTipFade: { value: FORMES.burstTipFade },
-        uBurstSize: { value: FORMES.burstSize },
-        uBurstBright: { value: FORMES.burstBright },
-        uMaelRot: { value: rotation(FORMES.maelTilt, 0, 0) },
-        uRInner: { value: FORMES.maelRInner },
-        uROuter: { value: FORMES.maelROuter },
-        uSpin: { value: FORMES.maelSpin },
-        uMaelTwinkle: { value: FORMES.maelTwinkle },
-        uCrescent: { value: FORMES.maelCrescent },
-        uCrescentAngle: { value: FORMES.maelCrescentAngle },
-        uMaelSize: { value: FORMES.maelSize },
-        uMaelBright: { value: FORMES.maelBright },
-        uMaelPhase: { value: 0 },
-        uUniDeep: { value: couleurs.accent500 },
-        uUniMid: { value: couleurs.accent400 },
-        uUniBrightC: { value: couleurs.accent200 },
-        uBurstCore: { value: couleurs.foreground },
-        uBurstInner: { value: couleurs.accent200 },
-        uBurstMid: { value: couleurs.accent500 },
-        uBurstOuter: { value: couleurs.accent600 },
-        uArm: { value: couleurs.accent500 },
-        uArmHot: { value: couleurs.accent300 },
-        uMaelCore: { value: couleurs.accent700 },
-        uHeat: { value: couleurs.heat },
-        uCoreStrength: { value: LUEUR.uni.coreStrength },
-        uCoreSize: { value: LUEUR.uni.coreSize },
-        uCoreSharp: { value: LUEUR.uni.coreSharp },
-        uHaloAmount: { value: LUEUR.uni.haloAmount },
-        uHaloFalloff: { value: LUEUR.uni.haloFalloff },
+      iTime: { value: 0 },
+      uAlpha: { value: 0 },
+      uRes: { value: new three.Vector2(1, 1) },
+      uT1: { value: 0 },
+      uT2: { value: 0 },
+      uNeedUni: { value: 1 },
+      uNeedBurst: { value: 0 },
+      uNeedMael: { value: 0 },
+      uPointer: { value: new three.Vector3() },
+      uPointerAxis: { value: new three.Vector3(0, 0, -1) },
+      uPointerR: { value: 1 },
+      uPointerPush: { value: 0 },
+      uPointerSwirl: { value: 0 },
+      uPointerGlow: { value: 0 },
+      uStagger: { value: FORMES.stagger },
+      uMidBoost: { value: FORMES.midBoost },
+      uArc1: { value: FORMES.arc1 },
+      uSwirl1: { value: FORMES.swirl1 },
+      uArc2: { value: FORMES.arc2 },
+      uSwirl2: { value: FORMES.swirl2 },
+      uUniTime: { value: 0 },
+      uUniRot: { value: rotation(ex, ey, ez) },
+      uUniScale: { value: FORMES.uniScale },
+      uUniEllipse: { value: FORMES.uniEllipse },
+      uUniLife: { value: FORMES.uniLife },
+      uUniSpawnSpread: { value: FORMES.uniSpawnSpread },
+      uUniOmega: { value: FORMES.uniOmega },
+      uUniV0: { value: FORMES.uniV0 },
+      uUniDecay: { value: FORMES.uniDecay },
+      uUniSize: { value: FORMES.uniSize },
+      uUniBright: { value: FORMES.uniBright },
+      uBurstScale: { value: FORMES.burstScale },
+      uBurstSway: { value: FORMES.burstSway },
+      uBurstSwaySpeed: { value: FORMES.burstSwaySpeed },
+      uBurstShimmer: { value: FORMES.burstShimmer },
+      uBurstShimmerSpeed: { value: FORMES.burstShimmerSpeed },
+      uBurstTipFade: { value: FORMES.burstTipFade },
+      uBurstSize: { value: FORMES.burstSize },
+      uBurstBright: { value: FORMES.burstBright },
+      uMaelRot: { value: rotation(FORMES.maelTilt, 0, 0) },
+      uRInner: { value: FORMES.maelRInner },
+      uROuter: { value: FORMES.maelROuter },
+      uSpin: { value: FORMES.maelSpin },
+      uMaelTwinkle: { value: FORMES.maelTwinkle },
+      uCrescent: { value: FORMES.maelCrescent },
+      uCrescentAngle: { value: FORMES.maelCrescentAngle },
+      uMaelSize: { value: FORMES.maelSize },
+      uMaelBright: { value: FORMES.maelBright },
+      uMaelPhase: { value: 0 },
+      uUniDeep: { value: couleurs.accent500 },
+      uUniMid: { value: couleurs.accent400 },
+      uUniBrightC: { value: couleurs.accent200 },
+      uBurstCore: { value: couleurs.foreground },
+      uBurstInner: { value: couleurs.accent200 },
+      uBurstMid: { value: couleurs.accent500 },
+      uBurstOuter: { value: couleurs.accent600 },
+      uArm: { value: couleurs.accent500 },
+      uArmHot: { value: couleurs.accent300 },
+      uMaelCore: { value: couleurs.accent700 },
+      uHeat: { value: couleurs.heat },
+      uCoreStrength: { value: LUEUR.uni.coreStrength },
+      uCoreSize: { value: LUEUR.uni.coreSize },
+      uCoreSharp: { value: LUEUR.uni.coreSharp },
+      uHaloAmount: { value: LUEUR.uni.haloAmount },
+      uHaloFalloff: { value: LUEUR.uni.haloFalloff },
     }
     const matiere = new three.ShaderMaterial({
       uniforms: uniformes,
@@ -1029,7 +1118,8 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
       pot.fill(new Path2D(trace), 'evenodd')
       const data = pot.getImageData(0, 0, w, h).data
       const liste: number[] = []
-      for (let i = 3; i < data.length; i += 4) if ((data[i] ?? 0) > 40) liste.push((i - 3) / 4)
+      for (let i = 3; i < data.length; i += 4)
+        if ((data[i] ?? 0) > 40) liste.push((i - 3) / 4)
       return liste
     }
     const marque = tramer(traceDuSigle(100), SIGLE.marge)
@@ -1055,7 +1145,8 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
       const surLaMarque = i % SIGLE.orbiteTousLes !== 0
       const liste = surLaMarque ? marque : orbite
       bande[i] = surLaMarque ? 0 : 1
-      const pixel = liste.length > 0 ? (liste[(Math.random() * liste.length) | 0] ?? 0) : 0
+      const pixel =
+        liste.length > 0 ? (liste[(Math.random() * liste.length) | 0] ?? 0) : 0
       const px = pixel % w
       const py = (pixel / w) | 0
       cible[i * 3] = (px / w - 0.5) * SIGLE.markSize
@@ -1169,7 +1260,15 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     const groupe = new three.Group()
     groupe.add(fond, points)
     scene.add(groupe)
-    return { geometrie, matiere, uniformes, fondGeometrie, fondMatiere, fondUniformes, groupe }
+    return {
+      geometrie,
+      matiere,
+      uniformes,
+      fondGeometrie,
+      fondMatiere,
+      fondUniformes,
+      groupe,
+    }
   })()
 
   /* ------------------------------------------------ le pointeur */
@@ -1193,11 +1292,23 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
   const regardMael = new three.Vector3()
   const avant = new three.Vector3()
   const droite = new three.Vector3()
-  const force = { world: new three.Vector3(), axis: new three.Vector3(0, 0, -1), radius: 1, push: 0, swirl: 0, glow: 0 }
+  const force = {
+    world: new three.Vector3(),
+    axis: new three.Vector3(0, 0, -1),
+    radius: 1,
+    push: 0,
+    swirl: 0,
+    glow: 0,
+  }
   const tampon = new three.Vector2()
 
   /** Un point du repere du disque, ramene dans le monde. */
-  const depuisLeDisque = (sortie: InstanceType<typeof three.Vector3>, x: number, y: number, z: number): void => {
+  const depuisLeDisque = (
+    sortie: InstanceType<typeof three.Vector3>,
+    x: number,
+    y: number,
+    z: number,
+  ): void => {
     const c = Math.cos(FORMES.maelTilt)
     const s = Math.sin(FORMES.maelTilt)
     sortie.set(x, y * c - z * s, y * s + z * c)
@@ -1209,7 +1320,8 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
   const rendre = (mesures: Mesures | null, time: number, delta: number): void => {
     if (debut === null) debut = time
     // L arrivee : la camera part plus loin que tout cadrage et se pose.
-    const appear = 1 - Math.pow(1 - borne(((time - debut) * 1000 - 700) / CAMERA.appearMs), 3)
+    const appear =
+      1 - Math.pow(1 - borne(((time - debut) * 1000 - 700) / CAMERA.appearMs), 3)
 
     // Le defilement, lisse : la molette avance par crans, la camera non.
     const vue = window.innerHeight - CHROME_ACCUEIL
@@ -1235,9 +1347,16 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
       dive = s1
       const burstBegins = haut.top + CAMERA.morph1Start * (chaine.top - haut.top)
       burstPhase = borne((y - burstBegins) / Math.max(1, parcours.top - burstBegins))
-      phase = borne((y - parcours.top) / Math.max(1, parcours.bottom - parcours.top - vue))
-      exit = borne((y + vue * CAMERA.diveLeadVh - lancement.top) / Math.max(1, vue * CAMERA.diveSpanVh))
-      logo = borne((y - lancement.top + vue * CAMERA.logoLeadVh) / (vue * CAMERA.logoSpanVh))
+      phase = borne(
+        (y - parcours.top) / Math.max(1, parcours.bottom - parcours.top - vue),
+      )
+      exit = borne(
+        (y + vue * CAMERA.diveLeadVh - lancement.top) /
+          Math.max(1, vue * CAMERA.diveSpanVh),
+      )
+      logo = borne(
+        (y - lancement.top + vue * CAMERA.logoLeadVh) / (vue * CAMERA.logoSpanVh),
+      )
       fini = borne((y - final.top + vue * 0.7) / (vue * 0.7))
     }
 
@@ -1251,12 +1370,23 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     // La galaxie : un balancement, une montee, et le plongeon au defilement.
     const uniDist = CAMERA.uni.z - CAMERA.scrollDive * dive
     const uniAngle = Math.sin(time * CAMERA.uniSwayRate) * CAMERA.uniSway
-    oeilUni.set(Math.sin(uniAngle) * uniDist, CAMERA.uni.y + Math.sin(time * CAMERA.uniRiseRate) * CAMERA.uniRise, Math.cos(uniAngle) * uniDist)
+    oeilUni.set(
+      Math.sin(uniAngle) * uniDist,
+      CAMERA.uni.y + Math.sin(time * CAMERA.uniRiseRate) * CAMERA.uniRise,
+      Math.cos(uniAngle) * uniDist,
+    )
 
     // Le souffle : une orbite pilotee par le defilement, l horloge en dessous.
-    const orbit = burstPhase * CAMERA.burstScroll + Math.sin(time * CAMERA.burstSwayRate) * CAMERA.burstSway + mx * CAMERA.burstOrbitParallax * pointeur.actif
+    const orbit =
+      burstPhase * CAMERA.burstScroll +
+      Math.sin(time * CAMERA.burstSwayRate) * CAMERA.burstSway +
+      mx * CAMERA.burstOrbitParallax * pointeur.actif
     const burstDist = CAMERA.burst.z + CAMERA.burstPull * burstPhase
-    oeilBurst.set(Math.sin(orbit) * burstDist, CAMERA.burst.y + CAMERA.burstRise * burstPhase, Math.cos(orbit) * burstDist)
+    oeilBurst.set(
+      Math.sin(orbit) * burstDist,
+      CAMERA.burst.y + CAMERA.burstRise * burstPhase,
+      Math.cos(orbit) * burstDist,
+    )
 
     // Le disque : une orbite dans le repere du disque, puis le plongeon
     // dans le trou — le rayon s effondre, la hauteur passe de l autre cote.
@@ -1267,7 +1397,12 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     const ahead = lisse(0.12, 0.5, exit)
     const maelRadius = lerp(CAMERA.maelOrbitFrom, CAMERA.maelOrbitTo, pass) * (1 - onAxis)
     const eyeZ = lerp(CAMERA.maelOrbitHeight, CAMERA.diveThrough, through)
-    depuisLeDisque(oeilMael, Math.cos(swing) * maelRadius, Math.sin(swing) * maelRadius, eyeZ)
+    depuisLeDisque(
+      oeilMael,
+      Math.cos(swing) * maelRadius,
+      Math.sin(swing) * maelRadius,
+      eyeZ,
+    )
     depuisLeDisque(regardMael, 0, 0, lerp(0, eyeZ - CAMERA.diveAhead, ahead))
     const drift = Math.sin(time * CAMERA.maelDriftRate) * CAMERA.maelDrift * (1 - pass)
 
@@ -1285,7 +1420,11 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     camera.position.copy(oeil)
     camera.lookAt(regard)
 
-    const maelFov = lerp(lerp(CAMERA.maelFovFrom, CAMERA.maelFovTo, pass), CAMERA.diveFov, through)
+    const maelFov = lerp(
+      lerp(CAMERA.maelFovFrom, CAMERA.maelFovTo, pass),
+      CAMERA.diveFov,
+      through,
+    )
     const fov = lerp(lerp(CAMERA.uni.fov, CAMERA.burst.fov, t1), maelFov, t2)
     if (Math.abs(camera.fov - fov) > 1e-3) {
       camera.fov = fov
@@ -1296,7 +1435,13 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     // de ce que la camera regarde.
     force.axis.copy(regard).sub(oeil).normalize()
     const profondeur = regard.distanceTo(oeil)
-    force.world.set(mx, my, 0.5).unproject(camera).sub(oeil).normalize().multiplyScalar(profondeur).add(oeil)
+    force.world
+      .set(mx, my, 0.5)
+      .unproject(camera)
+      .sub(oeil)
+      .normalize()
+      .multiplyScalar(profondeur)
+      .add(oeil)
     const pf = CAMERA.pointerForce
     force.radius = lerp(lerp(pf.uni.radius, pf.burst.radius, t1), pf.mael.radius, t2)
     force.push = lerp(lerp(pf.uni.push, pf.burst.push, t1), pf.mael.push, t2) * tenu
@@ -1357,11 +1502,16 @@ function construireLeMonde(contexte: SceneContext, racine: HTMLElement, hote: HT
     droite.set(1, 0, 0).applyQuaternion(camera.quaternion)
     const decalage = (1 - fini) * (large ? 5.2 : 0)
     const descente = (1 - fini) * (large ? 0 : -2.4)
-    sigle.groupe.position.copy(camera.position).addScaledVector(avant, SIGLE.devant).addScaledVector(droite, decalage)
+    sigle.groupe.position
+      .copy(camera.position)
+      .addScaledVector(avant, SIGLE.devant)
+      .addScaledVector(droite, decalage)
     sigle.groupe.position.y += descente
     sigle.groupe.quaternion.copy(camera.quaternion)
     sigle.groupe.rotateY(mx * SIGLE.mouseStrength * 0.4 * pointeur.actif)
-    sigle.groupe.rotateX(SIGLE.tilt * 0.3 + my * SIGLE.mouseStrength * 0.2 * pointeur.actif)
+    sigle.groupe.rotateX(
+      SIGLE.tilt * 0.3 + my * SIGLE.mouseStrength * 0.2 * pointeur.actif,
+    )
   }
 
   const liberer = (): void => {
@@ -1408,20 +1558,48 @@ function CielDessine(): ReactElement {
     }))
   }, [])
   return (
-    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" className="o-h-full o-w-full" aria-hidden="true">
+    <svg
+      viewBox="0 0 1440 900"
+      preserveAspectRatio="xMidYMid slice"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+    >
       <rect width="1440" height="900" fill="var(--o-palette-zinc-950)" />
       <g>
         {etoiles.map((e, rang) => (
-          <circle key={rang} cx={e.x} cy={e.y} r={e.r} fill={e.chaude ? accent(200) : 'var(--o-palette-zinc-100)'} opacity={e.o} />
+          <circle
+            key={rang}
+            cx={e.x}
+            cy={e.y}
+            r={e.r}
+            fill={e.chaude ? accent(200) : 'var(--o-palette-zinc-100)'}
+            opacity={e.o}
+          />
         ))}
       </g>
       {/* Les deux bras de la galaxie, en pointille. */}
-      <g fill="none" stroke={accent(400)} strokeWidth="1.6" strokeDasharray="1 7" strokeLinecap="round" opacity="0.7">
+      <g
+        fill="none"
+        stroke={accent(400)}
+        strokeWidth="1.6"
+        strokeDasharray="1 7"
+        strokeLinecap="round"
+        opacity="0.7"
+      >
         <path d="M300 620 C 420 420, 760 330, 1080 400 C 1260 440, 1330 540, 1240 660" />
         <path d="M1160 260 C 1040 430, 700 560, 380 520 C 210 500, 150 420, 250 300" />
       </g>
       <g transform="translate(650 380)">
-        <circle cx="70" cy="70" r="64" fill="none" stroke="url(#ac-repli-orbite)" strokeWidth="1.5" opacity="0.6" strokeDasharray="302 402" />
+        <circle
+          cx="70"
+          cy="70"
+          r="64"
+          fill="none"
+          stroke="url(#ac-repli-orbite)"
+          strokeWidth="1.5"
+          opacity="0.6"
+          strokeDasharray="302 402"
+        />
         <g transform="translate(20 20)">
           <path d={traceDuSigle(100)} fill="url(#ac-repli-sigle)" fillRule="evenodd" />
         </g>
@@ -1468,7 +1646,8 @@ function TitreMiroir({
           const a = (rang + 1) / mots.length
           const teinteA = inverse ? 1 - de : de
           const teinteB = inverse ? 1 - a : a
-          const couleur = (t: number): string => `color-mix(in oklab, ${clair} ${String(Math.round((1 - t) * 100))}%, ${brume})`
+          const couleur = (t: number): string =>
+            `color-mix(in oklab, ${clair} ${String(Math.round((1 - t) * 100))}%, ${brume})`
           return (
             <Surgit
               key={`${mot}-${String(rang)}`}
@@ -1492,7 +1671,11 @@ function TitreMiroir({
     )
   }
   return (
-    <Balise className={`o-m-0 o-text-center ${className ?? ''}`} style={{ ...affiche('m', 300), ...style }} aria-label={`${haut} ${bas}`}>
+    <Balise
+      className={`o-m-0 o-text-center ${className ?? ''}`}
+      style={{ ...affiche('m', 300), ...style }}
+      aria-label={`${haut} ${bas}`}
+    >
       {ligne(haut, false, delai)}
       {ligne(bas, true, delai + 240)}
     </Balise>
@@ -1500,7 +1683,17 @@ function TitreMiroir({
 }
 
 /** Une entree a la vue : l element monte cache et se revele quand il arrive dans le champ. */
-function Entre({ children, className, delai = 0, style }: { readonly children: ReactNode; readonly className?: string; readonly delai?: number; readonly style?: CSSProperties }): ReactElement {
+function Entre({
+  children,
+  className,
+  delai = 0,
+  style,
+}: {
+  readonly children: ReactNode
+  readonly className?: string
+  readonly delai?: number
+  readonly style?: CSSProperties
+}): ReactElement {
   const { reduced } = useMotionState()
   const [ref, vu] = useInView<HTMLDivElement>({ threshold: 0.2, once: true })
   return (
@@ -1550,10 +1743,26 @@ function Ecran({
     if (el === null) return
     el.style.opacity = String(1 - borne((p - 0.74) / 0.22))
   }, [])
-  const { ref } = useScrollScrub<HTMLElement>(reduced ? () => undefined : onProgress, { start: 'top top', end: 'bottom bottom', name: `ecran ${id}` })
+  const { ref } = useScrollScrub<HTMLElement>(reduced ? () => undefined : onProgress, {
+    start: 'top top',
+    end: 'bottom bottom',
+    name: `ecran ${id}`,
+  })
   return (
-    <section ref={ref} id={id} data-o-epingle className={`o-relative o-scroll-mt-24 ${className ?? ''}`} style={{ height: reduced ? 'auto' : `calc(${String(ecrans)} * 100vh)`, ...style }}>
-      <div ref={scene} className={reduced ? 'o-relative o-overflow-hidden' : 'o-sticky o-overflow-hidden'} style={reduced ? { minHeight: ECRAN } : { top: CHROME_ACCUEIL, height: ECRAN }}>
+    <section
+      ref={ref}
+      id={id}
+      data-o-epingle
+      className={`o-relative o-scroll-mt-24 ${className ?? ''}`}
+      style={{ height: reduced ? 'auto' : `calc(${String(ecrans)} * 100vh)`, ...style }}
+    >
+      <div
+        ref={scene}
+        className={
+          reduced ? 'o-relative o-overflow-hidden' : 'o-sticky o-overflow-hidden'
+        }
+        style={reduced ? { minHeight: ECRAN } : { top: CHROME_ACCUEIL, height: ECRAN }}
+      >
         {children}
       </div>
     </section>
@@ -1583,12 +1792,28 @@ const MODULES = {
   haut: 'Quatre modules en chaine.',
   bas: 'Pas un framework.',
   gauche: [
-    { titre: '1. Styles', texte: 'Deux cent quatre-vingt-dix couleurs en OKLCH, le thème écrit sur la classe, les utilitaires produits depuis les jetons.' },
-    { titre: '3. Routeur', texte: 'Routes imbriquées, paramètres, chargement paresseux, et les transitions de page du navigateur.' },
+    {
+      titre: '1. Styles',
+      texte:
+        'Deux cent quatre-vingt-dix couleurs en OKLCH, le thème écrit sur la classe, les utilitaires produits depuis les jetons.',
+    },
+    {
+      titre: '3. Routeur',
+      texte:
+        'Routes imbriquées, paramètres, chargement paresseux, et les transitions de page du navigateur.',
+    },
   ],
   droite: [
-    { titre: '2. Motion', texte: 'Des préréglages, des révélations au défilement et des sorties animées, sur l’API d’animation du navigateur.' },
-    { titre: '4. Interface', texte: 'Une trentaine de composants accessibles, retheme entierement par variables CSS.' },
+    {
+      titre: '2. Motion',
+      texte:
+        'Des préréglages, des révélations au défilement et des sorties animées, sur l’API d’animation du navigateur.',
+    },
+    {
+      titre: '4. Interface',
+      texte:
+        'Une trentaine de composants accessibles, retheme entierement par variables CSS.',
+    },
   ],
   note: 'Ailleurs, un seul paquet impose sa mise en page, ses couleurs et son moteur. Ici chaque module se prend seul, et les quatre parlent la même langue de jetons.',
 } as const
@@ -1598,11 +1823,36 @@ const PARCOURS = {
   haut: 'De la commande',
   bas: 'a la production.',
   etapes: [
-    { indice: '01', titre: 'Tu installes', texte: 'Une commande, et le moteur sert les modules, transforme le TSX et recharge à chaud. Aucune configuration a écrire.' },
-    { indice: '02', titre: 'Tu poses les jetons', texte: 'Trois couleurs sur la racine, et la page entière se reteinte. Les utilitaires en dérivent, y compris ceux que tu n’as pas encore employés.' },
-    { indice: '03', titre: 'Tu ajoutes une pièce', texte: 'La commande dépose le fichier dans ton dépôt. Tu le lis, tu le modifies, il t’appartient — ce n’est pas un paquet que tu subis.' },
-    { indice: '04', titre: 'Tu animes', texte: 'Le moteur tient une seule horloge. Les scènes s’y abonnent par priorité, et ne rendent que lorsqu elles sont visibles.' },
-    { indice: '05', titre: 'Tu livres', texte: 'La construction élague les utilitaires sur ce que le projet emploie vraiment. Ce qui n’est pas écrit n’est pas servi.' },
+    {
+      indice: '01',
+      titre: 'Tu installes',
+      texte:
+        'Une commande, et le moteur sert les modules, transforme le TSX et recharge à chaud. Aucune configuration a écrire.',
+    },
+    {
+      indice: '02',
+      titre: 'Tu poses les jetons',
+      texte:
+        'Trois couleurs sur la racine, et la page entière se reteinte. Les utilitaires en dérivent, y compris ceux que tu n’as pas encore employés.',
+    },
+    {
+      indice: '03',
+      titre: 'Tu ajoutes une pièce',
+      texte:
+        'La commande dépose le fichier dans ton dépôt. Tu le lis, tu le modifies, il t’appartient — ce n’est pas un paquet que tu subis.',
+    },
+    {
+      indice: '04',
+      titre: 'Tu animes',
+      texte:
+        'Le moteur tient une seule horloge. Les scènes s’y abonnent par priorité, et ne rendent que lorsqu elles sont visibles.',
+    },
+    {
+      indice: '05',
+      titre: 'Tu livres',
+      texte:
+        'La construction élague les utilitaires sur ce que le projet emploie vraiment. Ce qui n’est pas écrit n’est pas servi.',
+    },
   ],
 } as const
 
@@ -1611,7 +1861,8 @@ const PIECES = {
   rubrique: 'Le registre',
   haut: 'Des pièces vivantes,',
   bas: 'pas des captures.',
-  texte: 'Chacune de ces quatre démonstrations est la pièce elle-même, rendue dans cette page. Ce que tu vois est ce que la commande dépose chez toi.',
+  texte:
+    'Chacune de ces quatre démonstrations est la pièce elle-même, rendue dans cette page. Ce que tu vois est ce que la commande dépose chez toi.',
 } as const
 
 /** La pile, expliquee paquet par paquet. */
@@ -1619,11 +1870,41 @@ const PILE = {
   rubrique: 'La pile',
   titre: 'Cinq paquets, et ce que chacun fait.',
   lignes: [
-    { nom: 'odoro', paquet: 'odoro', role: 'Le moteur de développement et de construction', texte: 'Il sert les modules, transforme le TSX, recharge à chaud et construit. Il remplace le bundler, et sa configuration tient en un fichier.' },
-    { nom: '@odoro-cli/libs', paquet: '@odoro-cli/libs', role: 'Styles, motion, routeur, interface', texte: 'Les quatre modules. On importe la feuille une fois, puis on prend ce dont on a besoin — chacun fonctionne sans les autres.' },
-    { nom: '@odoro-cli/engine', paquet: '@odoro-cli/engine', role: 'L horloge, le défilement, les surfaces', texte: 'Une boucle unique par page, un arbitre qui borne le nombre de contextes graphiques, et le respect du mouvement réduit sans qu’on ait a y penser.' },
-    { nom: '@odoro-cli/icons', paquet: '@odoro-cli/icons', role: 'Cinq jeux normalisés', texte: 'Dix mille six cent trente-neuf traces sur un même contrat, et un seul composant pour les rendre a la taille et a la graisse voulues.' },
-    { nom: 'le registre', paquet: undefined, role: 'Ce qu on copie chez soi', texte: 'Fonds, héros, animations de texte, effets, sections et chargeurs. La commande écrit le fichier dans ton dépôt : tu en deviens l’auteur.' },
+    {
+      nom: 'odoro',
+      paquet: 'odoro',
+      role: 'Le moteur de développement et de construction',
+      texte:
+        'Il sert les modules, transforme le TSX, recharge à chaud et construit. Il remplace le bundler, et sa configuration tient en un fichier.',
+    },
+    {
+      nom: '@odoro-cli/libs',
+      paquet: '@odoro-cli/libs',
+      role: 'Styles, motion, routeur, interface',
+      texte:
+        'Les quatre modules. On importe la feuille une fois, puis on prend ce dont on a besoin — chacun fonctionne sans les autres.',
+    },
+    {
+      nom: '@odoro-cli/engine',
+      paquet: '@odoro-cli/engine',
+      role: 'L horloge, le défilement, les surfaces',
+      texte:
+        'Une boucle unique par page, un arbitre qui borne le nombre de contextes graphiques, et le respect du mouvement réduit sans qu’on ait a y penser.',
+    },
+    {
+      nom: '@odoro-cli/icons',
+      paquet: '@odoro-cli/icons',
+      role: 'Cinq jeux normalisés',
+      texte:
+        'Dix mille six cent trente-neuf traces sur un même contrat, et un seul composant pour les rendre a la taille et a la graisse voulues.',
+    },
+    {
+      nom: 'le registre',
+      paquet: undefined,
+      role: 'Ce qu on copie chez soi',
+      texte:
+        'Fonds, héros, animations de texte, effets, sections et chargeurs. La commande écrit le fichier dans ton dépôt : tu en deviens l’auteur.',
+    },
   ],
 } as const
 
@@ -1635,17 +1916,20 @@ const MOTEUR = {
     {
       mot: 'Une horloge',
       titre: 'Une seule boucle pour toute la page',
-      texte: 'Chaque scène s’abonne avec un nom et une priorité. L’entrée passe avant la mise en page, qui passe avant le rendu — et rien ne tourne quand l’onglet est cache.',
+      texte:
+        'Chaque scène s’abonne avec un nom et une priorité. L’entrée passe avant la mise en page, qui passe avant le rendu — et rien ne tourne quand l’onglet est cache.',
     },
     {
       mot: 'Deux surfaces',
       titre: 'Le nombre de contextes est borne',
-      texte: 'Un arbitre compte les surfaces graphiques et refuse la troisieme. Une pièce refusee montre son repli dessine, plutôt que de prendre la mémoire d’une autre.',
+      texte:
+        'Un arbitre compte les surfaces graphiques et refuse la troisieme. Une pièce refusee montre son repli dessine, plutôt que de prendre la mémoire d’une autre.',
     },
     {
       mot: 'Des jetons',
       titre: 'Aucune couleur n’est écrite en dur',
-      texte: 'Les pièces lisent des variables. Changer trois couleurs sur la racine reteinte une page entière, y compris les shaders — celui de cette page le fait.',
+      texte:
+        'Les pièces lisent des variables. Changer trois couleurs sur la racine reteinte une page entière, y compris les shaders — celui de cette page le fait.',
     },
   ],
 } as const
@@ -1653,11 +1937,13 @@ const MOTEUR = {
 const FINAL = {
   haut: 'Tout converge',
   bas: 'vers ton interface.',
-  texte: 'Le guide se lit en une demi-heure, et le registre se parcourt en regardant. Les deux sont ici, sans compte a créer.',
+  texte:
+    'Le guide se lit en une demi-heure, et le registre se parcourt en regardant. Les deux sont ici, sans compte a créer.',
 } as const
 
 const PIED = {
-  slogan: 'Un système de style, un moteur d animation, un routeur et des composants — quatre modules cohérents, sans une seule dépendance externe.',
+  slogan:
+    'Un système de style, un moteur d animation, un routeur et des composants — quatre modules cohérents, sans une seule dépendance externe.',
   liens: [
     ['/docs/installation', 'Guide'],
     ['/docs/registry', 'Registre'],
@@ -1685,7 +1971,9 @@ function BarreCommande(): ReactElement {
       className="o-flex o-flex-col o-gap-2 o-rounded-3xl o-border-w-1 ac-bord-fort o-p-2 o-backdrop-blur-md ac-barre sm:o-flex-row sm:o-items-center sm:o-gap-5 ac-gelule sm:o-py-0.5 sm:o-pl-8 sm:o-pr-0.5"
     >
       <code className="o-min-w-0 o-flex-1 o-truncate o-px-4 o-py-3 o-font-mono o-text-base ac-encre sm:o-px-0">
-        <span aria-hidden="true" style={{ color: 'var(--o-accueil-accent)' }}>$ </span>
+        <span aria-hidden="true" style={{ color: 'var(--o-accueil-accent)' }}>
+          ${' '}
+        </span>
         {HEROS.commande}
       </code>
       <Aimant force={0.25} className="o-shrink-0">
@@ -1700,10 +1988,15 @@ function BarreCommande(): ReactElement {
           className="o-flex o-w-full o-shrink-0 o-items-center o-justify-center o-gap-2 o-rounded-full o-py-0.5 o-pl-0.5 o-pr-7 o-transition-transform hover:o-scale-105 focus:o-ring"
           style={gelule()}
         >
-          <span className="o-flex o-size-10 o-items-center o-justify-center o-rounded-full ac-jeton" aria-hidden="true">
+          <span
+            className="o-flex o-size-10 o-items-center o-justify-center o-rounded-full ac-jeton"
+            aria-hidden="true"
+          >
             <Icon icon={copie ? Check : Copy} size={18} />
           </span>
-          <span className="o-whitespace-nowrap o-text-base">{copie ? 'Copie' : 'Copier'}</span>
+          <span className="o-whitespace-nowrap o-text-base">
+            {copie ? 'Copie' : 'Copier'}
+          </span>
         </button>
       </Aimant>
     </div>
@@ -1725,7 +2018,9 @@ function Demonstration({
 }): ReactElement {
   return (
     <div className="o-flex o-min-w-0 o-flex-col o-gap-4 o-rounded-2xl o-border-w-1 ac-bord ac-carte o-p-6 o-backdrop-blur-md">
-      <div className="o-flex o-min-h-24 o-items-center o-justify-center o-text-center">{children}</div>
+      <div className="o-flex o-min-h-24 o-items-center o-justify-center o-text-center">
+        {children}
+      </div>
       <div className="o-flex o-flex-col o-gap-1 o-border-t ac-bord o-pt-4">
         <p className="o-m-0 o-text-sm o-font-medium ac-encre">{nom}</p>
         <code className="o-font-mono o-text-xs ac-encre-3">{commande}</code>
@@ -1741,7 +2036,15 @@ function Demonstration({
  * barres au-dessus d une vitrine. Ici il en faut soixante-quatre, sans quoi la
  * frise pend trente-sept pixels trop bas.
  */
-function RailAccueil({ ecrans, entete, children }: { readonly ecrans: number; readonly entete: ReactNode; readonly children: ReactNode }): ReactElement {
+function RailAccueil({
+  ecrans,
+  entete,
+  children,
+}: {
+  readonly ecrans: number
+  readonly entete: ReactNode
+  readonly children: ReactNode
+}): ReactElement {
   const { reduced } = useMotionState()
   const piste = useRef<HTMLDivElement>(null)
   const onProgress = useCallback((p: number) => {
@@ -1751,7 +2054,11 @@ function RailAccueil({ ecrans, entete, children }: { readonly ecrans: number; re
     const course = Math.max(0, el.scrollWidth - parent.clientWidth)
     el.style.transform = `translate3d(${(-course * p).toFixed(1)}px, 0, 0)`
   }, [])
-  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : onProgress, { start: 'top top', end: 'bottom bottom', name: 'rail accueil' })
+  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : onProgress, {
+    start: 'top top',
+    end: 'bottom bottom',
+    name: 'rail accueil',
+  })
   if (reduced) {
     return (
       <div>
@@ -1763,11 +2070,22 @@ function RailAccueil({ ecrans, entete, children }: { readonly ecrans: number; re
     )
   }
   return (
-    <div ref={ref} data-o-epingle className="o-relative" style={{ height: `calc(${String(ecrans)} * 100vh)` }}>
-      <div className="o-sticky o-flex o-flex-col o-overflow-hidden" style={{ top: CHROME_ACCUEIL, height: ECRAN }}>
+    <div
+      ref={ref}
+      data-o-epingle
+      className="o-relative"
+      style={{ height: `calc(${String(ecrans)} * 100vh)` }}
+    >
+      <div
+        className="o-sticky o-flex o-flex-col o-overflow-hidden"
+        style={{ top: CHROME_ACCUEIL, height: ECRAN }}
+      >
         {entete}
         <div className="o-flex o-min-h-0 o-grow o-items-center">
-          <div ref={piste} className="o-flex o-w-max o-items-stretch o-will-change-transform">
+          <div
+            ref={piste}
+            className="o-flex o-w-max o-items-stretch o-will-change-transform"
+          >
             {children}
           </div>
         </div>
@@ -1809,11 +2127,18 @@ function RideauAccueil({ surFin }: { readonly surFin: () => void }): ReactElemen
         surFin()
         // Le rideau s efface, puis quitte l arbre : le retirer tout de suite
         // couperait son propre fondu.
-        window.setTimeout(() => { setRetire(true) }, reduced ? 200 : 700)
+        window.setTimeout(
+          () => {
+            setRetire(true)
+          },
+          reduced ? 200 : 700,
+        )
       }
     }
     image = requestAnimationFrame(avancer)
-    return () => { cancelAnimationFrame(image) }
+    return () => {
+      cancelAnimationFrame(image)
+    }
   }, [reduced, surFin])
 
   if (retire || typeof document === 'undefined') return null
@@ -1829,7 +2154,9 @@ function RideauAccueil({ surFin }: { readonly surFin: () => void }): ReactElemen
       style={{
         ...variablesDePalette(BLEU),
         opacity: parti ? 0 : 1,
-        transition: reduced ? 'opacity 200ms linear' : 'opacity 650ms cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: reduced
+          ? 'opacity 200ms linear'
+          : 'opacity 650ms cubic-bezier(0.16, 1, 0.3, 1)',
         pointerEvents: parti ? 'none' : 'auto',
       }}
     >
@@ -1844,7 +2171,11 @@ function RideauAccueil({ surFin }: { readonly surFin: () => void }): ReactElemen
         </span>
         <span
           className="o-text-zinc-950"
-          style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 400, letterSpacing: '0.02em' }}
+          style={{
+            fontSize: 'clamp(1.75rem, 3vw, 2.75rem)',
+            fontWeight: 400,
+            letterSpacing: '0.02em',
+          }}
         >
           ODORO
         </span>
@@ -1926,7 +2257,10 @@ export function Landing(): ReactElement {
   const monde = useRef<Monde | null>(null)
 
   // Les chiffres viennent du catalogue genere : ni saisis, ni arrondis.
-  const familles = useMemo(() => new Set(CATALOGUE.map((entree) => entree.category)).size, [])
+  const familles = useMemo(
+    () => new Set(CATALOGUE.map((entree) => entree.category)).size,
+    [],
+  )
 
   // Ou sont les cinq ecrans mesures : au montage, a chaque changement de
   // taille, et une fois les polices arrivees. Jamais a l image.
@@ -1944,7 +2278,10 @@ export function Landing(): ReactElement {
       const parcours = lire('parcours')
       const lancement = lire('capot')
       const final = lire('final')
-      mesures.current = haut && chaine && parcours && lancement && final ? { haut, chaine, parcours, lancement, final } : null
+      mesures.current =
+        haut && chaine && parcours && lancement && final
+          ? { haut, chaine, parcours, lancement, final }
+          : null
     }
     mesurer()
     const observateur = new ResizeObserver(mesurer)
@@ -1984,7 +2321,11 @@ export function Landing(): ReactElement {
   )
 
   return (
-    <Porte forme="compteur" marque="ODORO" rideau={(surFin) => <RideauAccueil surFin={surFin} />}>
+    <Porte
+      forme="compteur"
+      marque="ODORO"
+      rideau={(surFin) => <RideauAccueil surFin={surFin} />}
+    >
       <div
         ref={setRacine}
         data-o-accueil=""
@@ -1997,7 +2338,10 @@ export function Landing(): ReactElement {
               barre est transparente, et ce qui affleurait au-dessus de la
               scene etait le fond de la page — une bande sombre de la hauteur
               des barres, qui suivait le defilement. */}
-          <div className="o-sticky o-z-0 o-overflow-hidden" style={{ top: 0, height: '100vh' }}>
+          <div
+            className="o-sticky o-z-0 o-overflow-hidden"
+            style={{ top: 0, height: '100vh' }}
+          >
             {scene}
             {/* Le voile : la bande du haut pour la barre, celle du bas pour les actions. */}
             <div
@@ -2015,25 +2359,65 @@ export function Landing(): ReactElement {
             */}
             <Ecran id="haut" ecrans={1.4}>
               <div className="o-flex o-h-full o-flex-col o-items-center o-justify-between o-px-6 o-pb-8 o-pt-24 o-text-center md:o-pt-28">
-                <TitreMiroir as="h1" haut={HEROS.haut} bas={HEROS.bas} delai={120} className="o-max-w-4xl" style={{ fontSize: 'clamp(2.1rem, 5.2vw, 4.75rem)', lineHeight: 1.02 }} />
+                <TitreMiroir
+                  as="h1"
+                  haut={HEROS.haut}
+                  bas={HEROS.bas}
+                  delai={120}
+                  className="o-max-w-4xl"
+                  style={{ fontSize: 'clamp(2.1rem, 5.2vw, 4.75rem)', lineHeight: 1.02 }}
+                />
 
                 {/* L embleme, dans son anneau, sur un disque sombre qui le decolle du champ. */}
-                <Surgit delai={360} duree={1400} distance={0} className="o-relative o-flex o-items-center o-justify-center">
-                  <span aria-hidden="true" className="ac-halo o-pointer-events-none o-absolute o-rounded-full" style={{ width: 'clamp(150px, 26vh, 230px)', height: 'clamp(150px, 26vh, 230px)' }} />
-                  <span aria-hidden="true" className="o-pointer-events-none o-absolute o-rounded-full o-border-w-1 ac-bord-fort" style={{ width: 'clamp(190px, 34vh, 290px)', height: 'clamp(190px, 34vh, 290px)' }} />
+                <Surgit
+                  delai={360}
+                  duree={1400}
+                  distance={0}
+                  className="o-relative o-flex o-items-center o-justify-center"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="ac-halo o-pointer-events-none o-absolute o-rounded-full"
+                    style={{
+                      width: 'clamp(150px, 26vh, 230px)',
+                      height: 'clamp(150px, 26vh, 230px)',
+                    }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="o-pointer-events-none o-absolute o-rounded-full o-border-w-1 ac-bord-fort"
+                    style={{
+                      width: 'clamp(190px, 34vh, 290px)',
+                      height: 'clamp(190px, 34vh, 290px)',
+                    }}
+                  />
                   <Embleme className="o-size-24 md:o-size-32" />
                 </Surgit>
 
                 <div className="o-flex o-w-full o-flex-col o-items-center o-gap-6">
-                  <Surgit delai={520} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-snug ac-encre">
+                  <Surgit
+                    delai={520}
+                    as="p"
+                    className="o-m-0 o-max-w-md o-text-base o-leading-snug ac-encre"
+                  >
                     {HEROS.texte}
                   </Surgit>
                   <Surgit delai={660} className="o-w-full o-max-w-2xl">
                     <BarreCommande />
                   </Surgit>
-                  <Surgit delai={780} as="p" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest ac-encre-3">
-                    <CountUp value={CATALOGUE.length} declenchement="montage" duration={1800} /> pièces ·{' '}
-                    <CountUp value={familles} declenchement="montage" duration={1800} /> familles · zéro dépendance
+                  <Surgit
+                    delai={780}
+                    as="p"
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest ac-encre-3"
+                  >
+                    <CountUp
+                      value={CATALOGUE.length}
+                      declenchement="montage"
+                      duration={1800}
+                    />{' '}
+                    pièces ·{' '}
+                    <CountUp value={familles} declenchement="montage" duration={1800} />{' '}
+                    familles · zéro dépendance
                   </Surgit>
                 </div>
               </div>
@@ -2044,22 +2428,47 @@ export function Landing(): ReactElement {
             */}
             <Ecran id="modules" ecrans={1.4}>
               <div className="o-flex o-h-full o-flex-col o-justify-between o-px-6 o-pb-10 o-pt-24 md:o-px-12 md:o-pt-28">
-                <TitreMiroir haut={MODULES.haut} bas={MODULES.bas} style={{ fontSize: 'clamp(2rem, 4.6vw, 4.25rem)', lineHeight: 1.02 }} />
+                <TitreMiroir
+                  haut={MODULES.haut}
+                  bas={MODULES.bas}
+                  style={{ fontSize: 'clamp(2rem, 4.6vw, 4.25rem)', lineHeight: 1.02 }}
+                />
 
                 {/* Quatre cellules aux deux bords ; le coeur du souffle tombe au milieu. */}
                 <div className="o-grid o-gap-x-10 o-gap-y-7 md:o-grid-cols-12">
-                  {[MODULES.gauche[0], MODULES.droite[0], MODULES.gauche[1], MODULES.droite[1]].map((module, rang) => {
+                  {[
+                    MODULES.gauche[0],
+                    MODULES.droite[0],
+                    MODULES.gauche[1],
+                    MODULES.droite[1],
+                  ].map((module, rang) => {
                     const droite = rang % 2 === 1
                     return (
-                      <Entre key={module.titre} delai={rang * 110} className={`o-max-w-sm ${droite ? 'md:o-col-span-4 ac-col9 md:o-justify-self-end md:o-text-right' : 'md:o-col-span-4'}`}>
-                        <p className="o-m-0 o-text-2xl o-font-light ac-encre md:o-text-3xl" style={{ lineHeight: 1, fontFamily: 'var(--o-vitrine-affichage)' }}>
+                      <Entre
+                        key={module.titre}
+                        delai={rang * 110}
+                        className={`o-max-w-sm ${droite ? 'md:o-col-span-4 ac-col9 md:o-justify-self-end md:o-text-right' : 'md:o-col-span-4'}`}
+                      >
+                        <p
+                          className="o-m-0 o-text-2xl o-font-light ac-encre md:o-text-3xl"
+                          style={{
+                            lineHeight: 1,
+                            fontFamily: 'var(--o-vitrine-affichage)',
+                          }}
+                        >
                           {module.titre}
                         </p>
-                        <p className="o-m-0 o-mt-3 o-text-base o-leading-snug ac-encre">{module.texte}</p>
+                        <p className="o-m-0 o-mt-3 o-text-base o-leading-snug ac-encre">
+                          {module.texte}
+                        </p>
                         <span
                           aria-hidden="true"
                           className="o-mt-4 o-block o-h-px o-w-full"
-                          style={{ backgroundImage: droite ? `linear-gradient(90deg, transparent, ${accent(200)})` : `linear-gradient(90deg, ${accent(500)}, transparent)` }}
+                          style={{
+                            backgroundImage: droite
+                              ? `linear-gradient(90deg, transparent, ${accent(200)})`
+                              : `linear-gradient(90deg, ${accent(500)}, transparent)`,
+                          }}
                         />
                       </Entre>
                     )
@@ -2077,41 +2486,104 @@ export function Landing(): ReactElement {
             {/*
               ----- Le parcours : le rail sur le maelstrom ------------------------
             */}
-            <section id="parcours" className="o-scroll-mt-24" style={{ marginTop: reduced ? 0 : 'clamp(140px, 30vh, 300px)' }}>
+            <section
+              id="parcours"
+              className="o-scroll-mt-24"
+              style={{ marginTop: reduced ? 0 : 'clamp(140px, 30vh, 300px)' }}
+            >
               <RailAccueil
                 ecrans={3.2}
                 entete={
                   <div className="o-px-6 o-pb-4 o-pt-24 md:o-pt-28">
-                    <TitreMiroir haut={PARCOURS.haut} bas={PARCOURS.bas} style={{ fontSize: 'clamp(2rem, 4.6vw, 4.25rem)', lineHeight: 1.02 }} />
+                    <TitreMiroir
+                      haut={PARCOURS.haut}
+                      bas={PARCOURS.bas}
+                      style={{
+                        fontSize: 'clamp(2rem, 4.6vw, 4.25rem)',
+                        lineHeight: 1.02,
+                      }}
+                    />
                   </div>
                 }
               >
                 {/* Une frise : cinq stations sur une meme ligne de base. */}
                 <div className="o-relative o-flex o-items-end o-pb-10 o-pt-16 md:o-pt-24">
-                  <span aria-hidden="true" className="o-absolute o-bottom-10 o-left-12 o-right-12 o-h-px" style={{ backgroundColor: `color-mix(in oklab, ${accent(400)} 30%, transparent)` }} />
+                  <span
+                    aria-hidden="true"
+                    className="o-absolute o-bottom-10 o-left-12 o-right-12 o-h-px"
+                    style={{
+                      backgroundColor: `color-mix(in oklab, ${accent(400)} 30%, transparent)`,
+                    }}
+                  />
                   {PARCOURS.etapes.map((etape, rang) => (
-                    <div key={etape.indice} className="o-relative o-shrink-0 o-pl-6 md:o-pl-12" style={{ width: 'clamp(300px, 34vw, 560px)', marginRight: rang === PARCOURS.etapes.length - 1 ? 'clamp(24px, 6vw, 96px)' : 0 }}>
+                    <div
+                      key={etape.indice}
+                      className="o-relative o-shrink-0 o-pl-6 md:o-pl-12"
+                      style={{
+                        width: 'clamp(300px, 34vw, 560px)',
+                        marginRight:
+                          rang === PARCOURS.etapes.length - 1
+                            ? 'clamp(24px, 6vw, 96px)'
+                            : 0,
+                      }}
+                    >
                       {/* La tige qui monte de la ligne de base, et son repere triangulaire. */}
-                      <span aria-hidden="true" className="o-absolute o-bottom-0 o-left-0 o-w-px md:o-left-6" style={{ top: 0, backgroundImage: `linear-gradient(180deg, transparent, ${accent(500)})`, opacity: 0.6 }} />
-                      <svg aria-hidden="true" width="19" height="19" viewBox="0 0 19 19" className="o-absolute o-bottom-0 o-left-0 md:o-left-6" style={{ transform: 'translateX(-9px)' }}>
-                        <path d="M9.5 0L19 19H0L9.5 0Z" fill={`url(#ac-tri-${etape.indice})`} />
+                      <span
+                        aria-hidden="true"
+                        className="o-absolute o-bottom-0 o-left-0 o-w-px md:o-left-6"
+                        style={{
+                          top: 0,
+                          backgroundImage: `linear-gradient(180deg, transparent, ${accent(500)})`,
+                          opacity: 0.6,
+                        }}
+                      />
+                      <svg
+                        aria-hidden="true"
+                        width="19"
+                        height="19"
+                        viewBox="0 0 19 19"
+                        className="o-absolute o-bottom-0 o-left-0 md:o-left-6"
+                        style={{ transform: 'translateX(-9px)' }}
+                      >
+                        <path
+                          d="M9.5 0L19 19H0L9.5 0Z"
+                          fill={`url(#ac-tri-${etape.indice})`}
+                        />
                         <defs>
-                          <linearGradient id={`ac-tri-${etape.indice}`} x1="0" y1="0" x2="19" y2="19" gradientUnits="userSpaceOnUse">
+                          <linearGradient
+                            id={`ac-tri-${etape.indice}`}
+                            x1="0"
+                            y1="0"
+                            x2="19"
+                            y2="19"
+                            gradientUnits="userSpaceOnUse"
+                          >
                             <stop stopColor={accent(500)} />
                             <stop offset="1" stopColor={accent(200)} />
                           </linearGradient>
                         </defs>
                       </svg>
                       <div className="o-pb-8 o-pl-4">
-                        <p className="o-m-0 o-text-base o-tabular-nums" style={{ color: 'var(--o-accueil-accent)' }}>
+                        <p
+                          className="o-m-0 o-text-base o-tabular-nums"
+                          style={{ color: 'var(--o-accueil-accent)' }}
+                        >
                           {etape.indice}
                         </p>
-                        <h2 className="o-m-0 o-mt-3 o-text-3xl o-font-light ac-encre md:o-text-4xl" style={{ lineHeight: 1, fontFamily: 'var(--o-vitrine-affichage)' }}>
+                        <h2
+                          className="o-m-0 o-mt-3 o-text-3xl o-font-light ac-encre md:o-text-4xl"
+                          style={{
+                            lineHeight: 1,
+                            fontFamily: 'var(--o-vitrine-affichage)',
+                          }}
+                        >
                           <DecodeText as="span" duration={900}>
                             {etape.titre}
                           </DecodeText>
                         </h2>
-                        <p className="o-m-0 o-mt-5 o-max-w-sm o-text-base o-leading-snug ac-encre">{etape.texte}</p>
+                        <p className="o-m-0 o-mt-5 o-max-w-sm o-text-base o-leading-snug ac-encre">
+                          {etape.texte}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -2122,41 +2594,79 @@ export function Landing(): ReactElement {
             {/*
               ----- Les pieces vivantes : quatre demonstrations reelles -----------
             */}
-            <section id="pieces" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-12 md:o-py-32">
+            <section
+              id="pieces"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-12 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-6xl">
                 <Entre>
-                  <Indice rang="04" sombre={false}>{PIECES.rubrique}</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-2xl o-text-balance o-font-light ac-encre" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', lineHeight: 1.1 }}>
+                  <Indice rang="04" sombre={false}>
+                    {PIECES.rubrique}
+                  </Indice>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-2xl o-text-balance o-font-light ac-encre"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                      lineHeight: 1.1,
+                    }}
+                  >
                     {PIECES.haut} {PIECES.bas}
                   </h2>
-                  <p className="o-m-0 o-mt-5 o-max-w-lg o-text-base o-leading-relaxed ac-encre-2">{PIECES.texte}</p>
+                  <p className="o-m-0 o-mt-5 o-max-w-lg o-text-base o-leading-relaxed ac-encre-2">
+                    {PIECES.texte}
+                  </p>
                 </Entre>
 
                 <div className="o-mt-12 o-grid o-gap-4 sm:o-grid-cols-2 lg:o-grid-cols-4">
                   <Entre delai={0}>
-                    <Demonstration nom="text/shine-text" commande="odoro add text/shine-text">
-                      <ShineText as="span" className="o-text-3xl o-font-semibold" shine={accent(200)} from="var(--o-palette-zinc-400)">
+                    <Demonstration
+                      nom="text/shine-text"
+                      commande="odoro add text/shine-text"
+                    >
+                      <ShineText
+                        as="span"
+                        className="o-text-3xl o-font-semibold"
+                        shine={accent(200)}
+                        from="var(--o-palette-zinc-400)"
+                      >
                         Odoro
                       </ShineText>
                     </Demonstration>
                   </Entre>
                   <Entre delai={110}>
-                    <Demonstration nom="text/decode-text" commande="odoro add text/decode-text">
-                      <DecodeText as="span" className="o-font-mono o-text-2xl ac-encre" duration={1400}>
+                    <Demonstration
+                      nom="text/decode-text"
+                      commande="odoro add text/decode-text"
+                    >
+                      <DecodeText
+                        as="span"
+                        className="o-font-mono o-text-2xl ac-encre"
+                        duration={1400}
+                      >
                         registre
                       </DecodeText>
                     </Demonstration>
                   </Entre>
                   <Entre delai={220}>
-                    <Demonstration nom="text/rotating-words" commande="odoro add text/rotating-words">
+                    <Demonstration
+                      nom="text/rotating-words"
+                      commande="odoro add text/rotating-words"
+                    >
                       <span className="o-text-2xl o-font-light ac-encre">
-                        <RotatingWords words={['un fond', 'un heros', 'une section', 'un chargeur']} interval={1900} />
+                        <RotatingWords
+                          words={['un fond', 'un heros', 'une section', 'un chargeur']}
+                          interval={1900}
+                        />
                       </span>
                     </Demonstration>
                   </Entre>
                   <Entre delai={330}>
                     <Demonstration nom="text/count-up" commande="odoro add text/count-up">
-                      <span className="o-text-4xl o-font-light o-tabular-nums" style={{ color: 'var(--o-accueil-accent)' }}>
+                      <span
+                        className="o-text-4xl o-font-light o-tabular-nums"
+                        style={{ color: 'var(--o-accueil-accent)' }}
+                      >
                         <CountUp value={CATALOGUE.length} duration={2200} />
                       </span>
                     </Demonstration>
@@ -2169,7 +2679,12 @@ export function Landing(): ReactElement {
                     className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 ac-bord-fort o-px-6 o-py-3 o-text-sm o-font-medium ac-encre o-no-underline o-backdrop-blur-md o-transition-colors ac-tenu-survol focus:o-ring"
                   >
                     Parcourir les {CATALOGUE.length} pièces
-                    <Icon icon={ArrowUpRight} size={16} aria-hidden="true" style={{ color: 'var(--o-accueil-accent)' }} />
+                    <Icon
+                      icon={ArrowUpRight}
+                      size={16}
+                      aria-hidden="true"
+                      style={{ color: 'var(--o-accueil-accent)' }}
+                    />
                   </Link>
                 </Entre>
               </div>
@@ -2178,11 +2693,23 @@ export function Landing(): ReactElement {
             {/*
               ----- La pile : cinq paquets, et ce que chacun fait -----------------
             */}
-            <section id="pile" className="o-scroll-mt-24 o-px-6 o-pb-24 md:o-px-12 md:o-pb-32">
+            <section
+              id="pile"
+              className="o-scroll-mt-24 o-px-6 o-pb-24 md:o-px-12 md:o-pb-32"
+            >
               <div className="o-mx-auto o-max-w-6xl">
                 <Entre>
-                  <Indice rang="05" sombre={false}>{PILE.rubrique}</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-2xl o-text-balance o-font-light ac-encre" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', lineHeight: 1.1 }}>
+                  <Indice rang="05" sombre={false}>
+                    {PILE.rubrique}
+                  </Indice>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-2xl o-text-balance o-font-light ac-encre"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                      lineHeight: 1.1,
+                    }}
+                  >
                     {PILE.titre}
                   </h2>
                 </Entre>
@@ -2193,14 +2720,19 @@ export function Landing(): ReactElement {
                       <div className="o-grid o-gap-x-10 o-gap-y-2 o-border-t ac-bord o-py-6 md:o-grid-cols-12">
                         <dt className="o-min-w-0 md:o-col-span-4">
                           <span className="o-flex o-flex-wrap o-items-center o-gap-2">
-                            <code className="o-font-mono o-text-base" style={{ color: 'var(--o-accueil-accent)' }}>
+                            <code
+                              className="o-font-mono o-text-base"
+                              style={{ color: 'var(--o-accueil-accent)' }}
+                            >
                               {ligne.nom}
                             </code>
                             {/* La version vient du registre quand il repond, du
                                 depot sinon : elle ne peut pas mentir a l envers. */}
-<Version paquets={paquets} nom={ligne.paquet} />
+                            <Version paquets={paquets} nom={ligne.paquet} />
                           </span>
-                          <p className="o-m-0 o-mt-1 o-text-sm ac-encre-3">{ligne.role}</p>
+                          <p className="o-m-0 o-mt-1 o-text-sm ac-encre-3">
+                            {ligne.role}
+                          </p>
                         </dt>
                         <dd className="o-m-0 o-min-w-0 o-text-base o-leading-relaxed ac-encre-2 md:o-col-span-8">
                           {ligne.texte}
@@ -2218,30 +2750,52 @@ export function Landing(): ReactElement {
             <Ecran id="capot" ecrans={2.4} style={{ marginTop: reduced ? 0 : 96 }}>
               <div className="o-flex o-h-full o-flex-col o-justify-between o-px-6 o-pb-10 o-pt-24 md:o-max-w-xl md:o-px-12 md:o-pt-28">
                 <div>
-                  <Indice rang="06" sombre={false}>{MOTEUR.rubrique}</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-lg o-text-balance o-font-light ac-encre" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', lineHeight: 1.1 }}>
+                  <Indice rang="06" sombre={false}>
+                    {MOTEUR.rubrique}
+                  </Indice>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-lg o-text-balance o-font-light ac-encre"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                      lineHeight: 1.1,
+                    }}
+                  >
                     {MOTEUR.titre}
                   </h2>
                 </div>
 
                 <ol className="o-m-0 o-list-none o-p-0">
                   {MOTEUR.pieces.map((piece, rang) => (
-                    <li key={piece.mot} className="o-border-t ac-bord o-py-4 md:o-py-5" style={rang === 0 ? { borderTopWidth: 0 } : undefined}>
+                    <li
+                      key={piece.mot}
+                      className="o-border-t ac-bord o-py-4 md:o-py-5"
+                      style={rang === 0 ? { borderTopWidth: 0 } : undefined}
+                    >
                       <Entre delai={rang * 120}>
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: 'var(--o-accueil-accent)' }}>
+                        <p
+                          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: 'var(--o-accueil-accent)' }}
+                        >
                           {String(rang + 1).padStart(2, '0')} — {piece.mot}
                         </p>
-                        <p className="o-m-0 o-mt-2 o-text-xl o-font-light o-leading-tight ac-encre md:o-text-2xl" style={{ fontFamily: 'var(--o-vitrine-affichage)' }}>
+                        <p
+                          className="o-m-0 o-mt-2 o-text-xl o-font-light o-leading-tight ac-encre md:o-text-2xl"
+                          style={{ fontFamily: 'var(--o-vitrine-affichage)' }}
+                        >
                           {piece.titre}
                         </p>
-                        <p className="o-m-0 o-mt-2 o-max-w-md o-text-sm o-leading-relaxed ac-encre-2">{piece.texte}</p>
+                        <p className="o-m-0 o-mt-2 o-max-w-md o-text-sm o-leading-relaxed ac-encre-2">
+                          {piece.texte}
+                        </p>
                       </Entre>
                     </li>
                   ))}
                 </ol>
 
                 <p className="o-m-0 o-max-w-md o-text-xs o-leading-relaxed o-tracking-wide ac-encre-3">
-                  Des chiffres du catalogue, pas d’une communaute : {CATALOGUE.length} entrées en {familles} familles, comptees a la construction.
+                  Des chiffres du catalogue, pas d’une communaute : {CATALOGUE.length}{' '}
+                  entrées en {familles} familles, comptees a la construction.
                 </p>
               </div>
             </Ecran>
@@ -2251,18 +2805,31 @@ export function Landing(): ReactElement {
             */}
             <Ecran id="final" ecrans={1.6}>
               <div className="o-flex o-h-full o-flex-col o-items-center o-justify-between o-px-6 o-pb-10 o-pt-24 o-text-center md:o-pt-28">
-                <TitreMiroir haut={FINAL.haut} bas={FINAL.bas} style={{ fontSize: 'clamp(2.1rem, 5.2vw, 4.75rem)', lineHeight: 1.02 }} />
+                <TitreMiroir
+                  haut={FINAL.haut}
+                  bas={FINAL.bas}
+                  style={{ fontSize: 'clamp(2.1rem, 5.2vw, 4.75rem)', lineHeight: 1.02 }}
+                />
                 <div className="o-flex o-flex-col o-items-center o-gap-6">
-                  <p className="o-m-0 o-max-w-md o-text-base o-leading-snug ac-encre">{FINAL.texte}</p>
+                  <p className="o-m-0 o-max-w-md o-text-base o-leading-snug ac-encre">
+                    {FINAL.texte}
+                  </p>
                   <div className="o-flex o-flex-wrap o-items-center o-justify-center o-gap-3">
                     <Aimant force={0.3}>
-                      <Link to="/docs/installation" className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring" style={gelule()}>
+                      <Link
+                        to="/docs/installation"
+                        className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
+                        style={gelule()}
+                      >
                         Lire le guide
                         <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                       </Link>
                     </Aimant>
                     <Aimant force={0.3}>
-                      <Link to="/templates" className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 ac-bord-fort ac-tenu o-px-6 o-py-3 o-text-sm o-font-semibold ac-encre o-no-underline o-backdrop-blur-md o-transition-colors ac-tenu-fort-survol focus:o-ring">
+                      <Link
+                        to="/templates"
+                        className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 ac-bord-fort ac-tenu o-px-6 o-py-3 o-text-sm o-font-semibold ac-encre o-no-underline o-backdrop-blur-md o-transition-colors ac-tenu-fort-survol focus:o-ring"
+                      >
                         Voir les templates
                         <Icon icon={ArrowUpRight} size={16} aria-hidden="true" />
                       </Link>
@@ -2278,31 +2845,74 @@ export function Landing(): ReactElement {
           ----- Le pied : bande haute, bande de liens, ligne de base --------------
         */}
         <footer className="ac-pied o-relative o-z-10 o-px-6 o-pb-10 o-pt-16 md:o-px-12">
-          <span aria-hidden="true" className="ac-filet o-absolute o-top-0 o-h-px" style={{ backgroundImage: `linear-gradient(90deg, transparent, ${accent(300)} 50%, transparent)`, opacity: 0.4 }} />
+          <span
+            aria-hidden="true"
+            className="ac-filet o-absolute o-top-0 o-h-px"
+            style={{
+              backgroundImage: `linear-gradient(90deg, transparent, ${accent(300)} 50%, transparent)`,
+              opacity: 0.4,
+            }}
+          />
           <div className="o-flex o-flex-col o-items-start o-justify-between o-gap-8 o-pb-12 md:o-flex-row md:o-items-end">
             <div>
-              <p className="o-m-0 o-flex o-items-center o-gap-4 o-lowercase ac-encre" style={{ lineHeight: 1, ...affiche('l', 300), fontSize: 'clamp(2.75rem, 7vw, 5.75rem)', letterSpacing: '0.02em' }}>
+              <p
+                className="o-m-0 o-flex o-items-center o-gap-4 o-lowercase ac-encre"
+                style={{
+                  lineHeight: 1,
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.75rem, 7vw, 5.75rem)',
+                  letterSpacing: '0.02em',
+                }}
+              >
                 <span style={{ color: 'var(--o-accueil-accent-2)' }}>
                   <Sigle taille={44} />
                 </span>
                 odoro
               </p>
-              <p className="o-m-0 o-mt-5 o-max-w-md o-text-base o-leading-relaxed ac-encre-2">{PIED.slogan}</p>
+              <p className="o-m-0 o-mt-5 o-max-w-md o-text-base o-leading-relaxed ac-encre-2">
+                {PIED.slogan}
+              </p>
             </div>
-            <Link to="/docs/installation" className="o-inline-flex o-shrink-0 o-items-center o-gap-3 o-rounded-full o-border-w-1 ac-bord-fort o-px-6 o-py-3.5 o-text-sm o-font-medium o-tracking-wide ac-encre o-no-underline o-transition-colors ac-tenu-survol focus:o-ring">
+            <Link
+              to="/docs/installation"
+              className="o-inline-flex o-shrink-0 o-items-center o-gap-3 o-rounded-full o-border-w-1 ac-bord-fort o-px-6 o-py-3.5 o-text-sm o-font-medium o-tracking-wide ac-encre o-no-underline o-transition-colors ac-tenu-survol focus:o-ring"
+            >
               Démarrer
-              <Icon icon={ArrowRight} size={15} aria-hidden="true" style={{ color: 'var(--o-accueil-accent-2)' }} />
+              <Icon
+                icon={ArrowRight}
+                size={15}
+                aria-hidden="true"
+                style={{ color: 'var(--o-accueil-accent-2)' }}
+              />
             </Link>
           </div>
 
-          <nav aria-label="Pied de page" className="o-flex o-flex-wrap o-items-center o-gap-7 o-border-t o-border-b ac-bord o-py-6">
+          <nav
+            aria-label="Pied de page"
+            className="o-flex o-flex-wrap o-items-center o-gap-7 o-border-t o-border-b ac-bord o-py-6"
+          >
             {PIED.liens.map(([href, mot]) => (
-              <Link key={href} to={href} className="o-text-sm o-tracking-wide ac-encre-2 o-no-underline o-transition-colors ac-encre-survol focus:o-ring">
+              <Link
+                key={href}
+                to={href}
+                className="o-text-sm o-tracking-wide ac-encre-2 o-no-underline o-transition-colors ac-encre-survol focus:o-ring"
+              >
                 {mot}
               </Link>
             ))}
-            {([[DEPOT, 'GitHub'], [NPM, 'npm']] as const).map(([href, mot]) => (
-              <a key={href} href={href} target="_blank" rel="noreferrer" className="o-inline-flex o-items-center o-gap-1.5 o-text-sm o-tracking-wide ac-encre-2 o-no-underline o-transition-colors ac-encre-survol focus:o-ring">
+            {(
+              [
+                [DEPOT, 'GitHub'],
+                [NPM, 'npm'],
+              ] as const
+            ).map(([href, mot]) => (
+              <a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="o-inline-flex o-items-center o-gap-1.5 o-text-sm o-tracking-wide ac-encre-2 o-no-underline o-transition-colors ac-encre-survol focus:o-ring"
+              >
                 {mot}
                 <Icon icon={ArrowUpRight} size={13} aria-hidden="true" />
               </a>
@@ -2311,7 +2921,10 @@ export function Landing(): ReactElement {
 
           <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-pt-7 o-font-mono o-text-xs o-uppercase o-tracking-widest ac-encre-3">
             <span>{PIED.mention}</span>
-            <a href="#haut" className="o-inline-flex o-items-center o-gap-2 ac-encre-2 o-no-underline ac-encre-survol focus:o-ring">
+            <a
+              href="#haut"
+              className="o-inline-flex o-items-center o-gap-2 ac-encre-2 o-no-underline ac-encre-survol focus:o-ring"
+            >
               Haut de page ↑
             </a>
           </div>

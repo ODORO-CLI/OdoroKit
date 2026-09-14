@@ -250,8 +250,10 @@ export function DomeGallery({
     const gestes: Readonly<Record<string, (() => void) | undefined>> = {
       ArrowRight: () => (vise.current.lacet -= colonne),
       ArrowLeft: () => (vise.current.lacet += colonne),
-      ArrowUp: () => (vise.current.tangage = Math.max(-limite, vise.current.tangage - pitch)),
-      ArrowDown: () => (vise.current.tangage = Math.min(limite, vise.current.tangage + pitch)),
+      ArrowUp: () =>
+        (vise.current.tangage = Math.max(-limite, vise.current.tangage - pitch)),
+      ArrowDown: () =>
+        (vise.current.tangage = Math.min(limite, vise.current.tangage + pitch)),
       Home: () => {
         vise.current.lacet = 0
         vise.current.tangage = 0

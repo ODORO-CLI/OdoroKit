@@ -126,11 +126,7 @@ export function KenBurns({
   const shown = reduced ? images.slice(0, 1) : images
 
   return (
-    <div
-      {...rest}
-      className={className}
-      style={{ ...style, aspectRatio: String(ratio) }}
-    >
+    <div {...rest} className={className} style={{ ...style, aspectRatio: String(ratio) }}>
       {shown.map((image, index) => {
         const isActive = index === active || reduced
         const drift = DRIFTS[index % DRIFTS.length] ?? ['0%', '0%']

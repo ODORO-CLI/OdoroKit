@@ -113,7 +113,12 @@ export function ProgressRing({
         } as CSSProperties
       }
     >
-      <svg width={size} height={size} viewBox={`0 0 ${String(size)} ${String(size)}`} aria-hidden="true">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${String(size)} ${String(size)}`}
+        aria-hidden="true"
+      >
         <circle
           data-o-ring-track=""
           cx={size / 2}

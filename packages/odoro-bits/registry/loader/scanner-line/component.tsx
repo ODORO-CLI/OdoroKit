@@ -51,10 +51,22 @@ const STYLE_ID = 'o-scanner-line'
  * au lieu de quatre jeux de bordures a tenir en accord.
  */
 const CORNERS: readonly { readonly key: string; readonly place: CSSProperties }[] = [
-  { key: 'haut-gauche', place: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 } },
-  { key: 'haut-droite', place: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 } },
-  { key: 'bas-gauche', place: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 } },
-  { key: 'bas-droite', place: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 } },
+  {
+    key: 'haut-gauche',
+    place: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
+  },
+  {
+    key: 'haut-droite',
+    place: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
+  },
+  {
+    key: 'bas-gauche',
+    place: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
+  },
+  {
+    key: 'bas-droite',
+    place: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
+  },
 ]
 
 /** Pose la zone, ses equerres et le faisceau, une fois par document. */

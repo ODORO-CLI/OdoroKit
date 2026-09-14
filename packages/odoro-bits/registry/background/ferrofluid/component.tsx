@@ -138,23 +138,28 @@ export function Ferrofluid({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: FERROFLUID_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uSpikes: spikes,
-        uReach: reach,
-        uHeight: height,
-        uGloss: gloss,
-        uDetail: DETAIL,
-      },
-      name: 'ferrofluid',
-      degrade: (quality) => ({
-        uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: FERROFLUID_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uSpikes: spikes,
+      uReach: reach,
+      uHeight: height,
+      uGloss: gloss,
+      uDetail: DETAIL,
+    },
+    name: 'ferrofluid',
+    degrade: (quality) => ({
+      uDetail: quality === 'low' ? LOW_DETAIL : DETAIL,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

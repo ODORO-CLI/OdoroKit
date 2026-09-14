@@ -98,10 +98,34 @@ interface Filtre {
 }
 
 const FILTRES: readonly Filtre[] = [
-  { cle: 'recent', mot: 'Sept derniers jours', colonne: 'cree_le', sql: "cree_le >= now() - interval '7 days'", selectivite: 0.012 },
-  { cle: 'gros', mot: 'Panier au-dessus de 500', colonne: 'total_ttc', sql: 'total_ttc > 500', selectivite: 0.07 },
-  { cle: 'expediee', mot: 'Deja expediees', colonne: 'statut', sql: "statut = 'expediee'", selectivite: 0.34 },
-  { cle: 'france', mot: 'Livrees en France', colonne: 'pays', sql: "pays = 'FR'", selectivite: 0.62 },
+  {
+    cle: 'recent',
+    mot: 'Sept derniers jours',
+    colonne: 'cree_le',
+    sql: "cree_le >= now() - interval '7 days'",
+    selectivite: 0.012,
+  },
+  {
+    cle: 'gros',
+    mot: 'Panier au-dessus de 500',
+    colonne: 'total_ttc',
+    sql: 'total_ttc > 500',
+    selectivite: 0.07,
+  },
+  {
+    cle: 'expediee',
+    mot: 'Deja expediees',
+    colonne: 'statut',
+    sql: "statut = 'expediee'",
+    selectivite: 0.34,
+  },
+  {
+    cle: 'france',
+    mot: 'Livrees en France',
+    colonne: 'pays',
+    sql: "pays = 'FR'",
+    selectivite: 0.62,
+  },
 ]
 
 /** L etat de la requete composee. */
@@ -170,7 +194,8 @@ function planifier(requete: Requete): Noeud {
   const { filtre, index, jointure, tri, limite } = requete
   const sorties = Math.round(COMMANDES.lignes * filtre.selectivite)
 
-  const coutSequentiel = COMMANDES.pages * PAGE_SEQ + COMMANDES.lignes * (LIGNE + OPERATEUR)
+  const coutSequentiel =
+    COMMANDES.pages * PAGE_SEQ + COMMANDES.lignes * (LIGNE + OPERATEUR)
   const coutIndex =
     2 +
     sorties * (LIGNE_INDEX + LIGNE + OPERATEUR) +
@@ -186,7 +211,10 @@ function planifier(requete: Requete): Noeud {
       ['Filtre', filtre.sql],
       ['Index', index ? `idx_commandes_${filtre.colonne}` : 'aucun sur cette colonne'],
       ['Lignes lues', nombre(parIndex ? sorties : COMMANDES.lignes)],
-      ['Pages', nombre(parIndex ? filtre.selectivite * COMMANDES.pages : COMMANDES.pages)],
+      [
+        'Pages',
+        nombre(parIndex ? filtre.selectivite * COMMANDES.pages : COMMANDES.pages),
+      ],
     ],
     cout: coutParcours,
     lignes: sorties,
@@ -201,7 +229,8 @@ function planifier(requete: Requete): Noeud {
   if (jointure) {
     const boucle = sorties <= 20_000
     if (boucle) {
-      const coutBoucle = coutParcours + sorties * (PAGE_ALEATOIRE + LIGNE + LIGNE_INDEX * 3)
+      const coutBoucle =
+        coutParcours + sorties * (PAGE_ALEATOIRE + LIGNE + LIGNE_INDEX * 3)
       racine = {
         cle: 'jointure',
         nom: 'Nested Loop',
@@ -233,7 +262,8 @@ function planifier(requete: Requete): Noeud {
       }
     } else {
       const coutClients = CLIENTS.pages * PAGE_SEQ + CLIENTS.lignes * LIGNE
-      const coutHachage = coutParcours + coutClients + CLIENTS.lignes * OPERATEUR + sorties * OPERATEUR * 2
+      const coutHachage =
+        coutParcours + coutClients + CLIENTS.lignes * OPERATEUR + sorties * OPERATEUR * 2
       racine = {
         cle: 'jointure',
         nom: 'Hash Join',
@@ -273,10 +303,21 @@ function planifier(requete: Requete): Noeud {
     const surDisque = !limite && memoire > 4 * 1024 * 1024
     racine = {
       cle: 'tri',
-      nom: limite ? 'Top-N heapsort' : surDisque ? 'Sort, sur disque' : 'Sort, en memoire',
+      nom: limite
+        ? 'Top-N heapsort'
+        : surDisque
+          ? 'Sort, sur disque'
+          : 'Sort, en memoire',
       detail: [
         ['Cle', 'commandes.total_ttc DESC'],
-        ['Methode', limite ? 'heapsort a cinquante entrees' : surDisque ? 'fusion externe' : 'quicksort'],
+        [
+          'Methode',
+          limite
+            ? 'heapsort a cinquante entrees'
+            : surDisque
+              ? 'fusion externe'
+              : 'quicksort',
+        ],
         ['Memoire', limite ? '29 ko' : `${nombre(memoire / 1024)} ko`],
         ['Lignes triees', nombre(racine.lignes)],
       ],
@@ -347,7 +388,10 @@ const ETAGE = 100
  * sommet, et les feuilles — les parcours de table — tout en bas. Les etages
  * sont reguliers ; seuls les enfants d une jointure se separent.
  */
-function poser(racine: Noeud): { readonly poses: readonly Pose[]; readonly hauteur: number } {
+function poser(racine: Noeud): {
+  readonly poses: readonly Pose[]
+  readonly hauteur: number
+} {
   const poses: Pose[] = []
   let profondeurMax = 0
 
@@ -443,12 +487,22 @@ function Planche({
               width={BOITE_L}
               height={BOITE_H}
               rx="8"
-              fill={actif ? accentDoux(700, 70) : 'color-mix(in oklab, white 5%, transparent)'}
+              fill={
+                actif ? accentDoux(700, 70) : 'color-mix(in oklab, white 5%, transparent)'
+              }
               stroke={actif ? encreSurSombre() : accentDoux(500, 42)}
               strokeWidth={actif ? 2 : 1}
             />
             {/* La part du cout total, en barre pleine sous le nom. */}
-            <rect x="0" y={BOITE_H - 4} width={BOITE_L * part} height="4" fill={accent(400)} opacity="0.85" rx="2" />
+            <rect
+              x="0"
+              y={BOITE_H - 4}
+              width={BOITE_L * part}
+              height="4"
+              fill={accent(400)}
+              opacity="0.85"
+              rx="2"
+            />
             <text
               x="14"
               y="25"
@@ -488,8 +542,8 @@ function Planche({
 
 /** C14 : vingt-quatre heures de latence mediane, dessinees au trait. */
 const LATENCE: readonly number[] = [
-  2.1, 1.9, 1.8, 1.7, 1.8, 2.4, 4.1, 7.8, 12.4, 14.1, 13.2, 11.8, 9.4, 10.6, 12.9, 13.8, 12.2, 10.1, 8.4, 6.2, 4.8,
-  3.6, 2.8, 2.3,
+  2.1, 1.9, 1.8, 1.7, 1.8, 2.4, 4.1, 7.8, 12.4, 14.1, 13.2, 11.8, 9.4, 10.6, 12.9, 13.8,
+  12.2, 10.1, 8.4, 6.2, 4.8, 3.6, 2.8, 2.3,
 ]
 
 /** Le graphique : des traits, une ligne de base, aucun cadre. */
@@ -502,7 +556,12 @@ function Barres(): ReactElement {
 
   return (
     <figure className="o-m-0">
-      <svg viewBox={`0 0 ${String(large)} ${String(hauteur + 46)}`} className="o-h-auto o-w-full" role="img" aria-label={`Latence mediane heure par heure, de ${String(Math.min(...LATENCE))} a ${String(haut)} millisecondes, avec une pointe a ${String(pointe)} heures`}>
+      <svg
+        viewBox={`0 0 ${String(large)} ${String(hauteur + 46)}`}
+        className="o-h-auto o-w-full"
+        role="img"
+        aria-label={`Latence mediane heure par heure, de ${String(Math.min(...LATENCE))} a ${String(haut)} millisecondes, avec une pointe a ${String(pointe)} heures`}
+      >
         {LATENCE.map((valeur, heure) => {
           const h = (valeur / haut) * hauteur
           const x = heure * pas + pas / 2
@@ -529,7 +588,11 @@ function Barres(): ReactElement {
             </g>
           )
         })}
-        <path d={`M0 ${String(hauteur)} H${String(large)}`} stroke={accentDoux(500, 26)} strokeWidth="1" />
+        <path
+          d={`M0 ${String(hauteur)} H${String(large)}`}
+          stroke={accentDoux(500, 26)}
+          strokeWidth="1"
+        />
         <text
           x={pointe * pas + pas / 2 + 12}
           y={hauteur - (haut / haut) * hauteur + 18}
@@ -541,9 +604,9 @@ function Barres(): ReactElement {
         </text>
       </svg>
       <figcaption className="o-mt-6 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400">
-        Latence mediane des requetes de lecture, heure par heure, sur la semaine du 1er septembre. Grappe de trois
-        noeuds, 190 Go de donnees chaudes. Le creux de la nuit n est pas un exploit : c est l heure ou personne ne
-        travaille.
+        Latence mediane des requetes de lecture, heure par heure, sur la semaine du 1er
+        septembre. Grappe de trois noeuds, 190 Go de donnees chaudes. Le creux de la nuit
+        n est pas un exploit : c est l heure ou personne ne travaille.
       </figcaption>
     </figure>
   )
@@ -563,7 +626,11 @@ const SCHEMA = [
         hint: '2 400 000 lignes',
         children: [
           { id: 'commandes.id', label: 'id', hint: 'bigint, cle primaire' },
-          { id: 'commandes.client_id', label: 'client_id', hint: 'bigint, cle etrangere' },
+          {
+            id: 'commandes.client_id',
+            label: 'client_id',
+            hint: 'bigint, cle etrangere',
+          },
           { id: 'commandes.statut', label: 'statut', hint: 'enum, 5 valeurs' },
           { id: 'commandes.total_ttc', label: 'total_ttc', hint: 'numeric(10,2)' },
           { id: 'commandes.cree_le', label: 'cree_le', hint: 'timestamptz, indexe' },
@@ -584,7 +651,11 @@ const SCHEMA = [
         label: 'lignes_commande',
         hint: '9 100 000 lignes',
         children: [
-          { id: 'lignes.commande_id', label: 'commande_id', hint: 'bigint, cle etrangere' },
+          {
+            id: 'lignes.commande_id',
+            label: 'commande_id',
+            hint: 'bigint, cle etrangere',
+          },
           { id: 'lignes.reference', label: 'reference', hint: 'text' },
           { id: 'lignes.quantite', label: 'quantite', hint: 'integer' },
         ],
@@ -596,7 +667,11 @@ const SCHEMA = [
     label: 'audit',
     hint: 'schema, en lecture seule',
     children: [
-      { id: 'audit.journal', label: 'journal', hint: '41 200 000 lignes, partitionne par mois' },
+      {
+        id: 'audit.journal',
+        label: 'journal',
+        hint: '41 200 000 lignes, partitionne par mois',
+      },
       { id: 'audit.sessions', label: 'sessions', hint: '2 800 000 lignes' },
     ],
   },
@@ -609,9 +684,18 @@ const VERSIONS = [
     dateTime: '2026-09-04',
     summary: 'Le planificateur descend la limite jusque dans le tri.',
     notes: [
-      { kind: 'evolution' as const, text: 'Top-N heapsort choisi des qu une limite est presente au-dessus d un tri.' },
-      { kind: 'correction' as const, text: 'Un parcours par index sur colonne nullable rendait une ligne de trop en jointure externe.' },
-      { kind: 'ajout' as const, text: 'EXPLAIN (FORMAT JSON) publie desormais le temps passe par noeud et par boucle.' },
+      {
+        kind: 'evolution' as const,
+        text: 'Top-N heapsort choisi des qu une limite est presente au-dessus d un tri.',
+      },
+      {
+        kind: 'correction' as const,
+        text: 'Un parcours par index sur colonne nullable rendait une ligne de trop en jointure externe.',
+      },
+      {
+        kind: 'ajout' as const,
+        text: 'EXPLAIN (FORMAT JSON) publie desormais le temps passe par noeud et par boucle.',
+      },
     ],
   },
   {
@@ -620,9 +704,18 @@ const VERSIONS = [
     dateTime: '2026-06-19',
     summary: 'Replication logique par partition.',
     notes: [
-      { kind: 'ajout' as const, text: 'Une partition peut etre repliquee sans le reste de sa table mere.' },
-      { kind: 'evolution' as const, text: 'La memoire de travail par defaut passe de 4 a 8 mega-octets.' },
-      { kind: 'retrait' as const, text: 'Le format de sauvegarde anterieur a la 14 n est plus lu.' },
+      {
+        kind: 'ajout' as const,
+        text: 'Une partition peut etre repliquee sans le reste de sa table mere.',
+      },
+      {
+        kind: 'evolution' as const,
+        text: 'La memoire de travail par defaut passe de 4 a 8 mega-octets.',
+      },
+      {
+        kind: 'retrait' as const,
+        text: 'Le format de sauvegarde anterieur a la 14 n est plus lu.',
+      },
     ],
   },
   {
@@ -631,8 +724,14 @@ const VERSIONS = [
     dateTime: '2026-03-02',
     summary: 'Le moteur de stockage passe en ecriture differee.',
     notes: [
-      { kind: 'ajout' as const, text: 'Ecriture differee par groupe de transactions, au prix de 200 ms de perte possible.' },
-      { kind: 'evolution' as const, text: 'Les statistiques etendues sont collectees sur les couples de colonnes correles.' },
+      {
+        kind: 'ajout' as const,
+        text: 'Ecriture differee par groupe de transactions, au prix de 200 ms de perte possible.',
+      },
+      {
+        kind: 'evolution' as const,
+        text: 'Les statistiques etendues sont collectees sur les couples de colonnes correles.',
+      },
     ],
   },
 ]
@@ -685,7 +784,11 @@ function Bascule({
       className="o-flex o-w-full o-cursor-pointer o-flex-col o-gap-1 o-border-w-1 o-p-4 o-text-left o-transition-colors focus:o-ring"
       style={
         actif
-          ? { borderColor: encreSurSombre(), backgroundColor: accentDoux(700, 60), color: 'var(--o-theme-fg)' }
+          ? {
+              borderColor: encreSurSombre(),
+              backgroundColor: accentDoux(700, 60),
+              color: 'var(--o-theme-fg)',
+            }
           : { borderColor: accentDoux(500, 34), color: 'var(--o-theme-muted)' }
       }
     >
@@ -709,7 +812,10 @@ export default function Page(): ReactElement {
     const filtre = FILTRES[rangFiltre] ?? FILTRES[0]
     return filtre === undefined ? undefined : { filtre, index, jointure, tri, limite }
   }, [rangFiltre, index, jointure, tri, limite])
-  const plan = useMemo(() => (requete === undefined ? undefined : planifier(requete)), [requete])
+  const plan = useMemo(
+    () => (requete === undefined ? undefined : planifier(requete)),
+    [requete],
+  )
 
   const trouver = (noeud: Noeud): Noeud | undefined => {
     if (noeud.cle === noeudChoisi) return noeud
@@ -729,7 +835,10 @@ export default function Page(): ReactElement {
     <Porte forme="compteur" marque="Socle" sombre>
       <div className="o-relative" style={{ ...polices, ...nuit('zinc') }}>
         {/* ================= L ouverture : le HUD ======================== */}
-        <header className="o-relative o-isolate o-overflow-hidden" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-isolate o-overflow-hidden"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <div aria-hidden="true" className="o-absolute o-inset-0">
             <DataStream
               className="o-absolute o-inset-0"
@@ -749,12 +858,19 @@ export default function Page(): ReactElement {
             />
             <div
               className="o-absolute o-inset-x-0 o-bottom-0 o-h-64"
-              style={{ background: 'linear-gradient(to bottom, transparent, var(--o-palette-zinc-950))' }}
+              style={{
+                background:
+                  'linear-gradient(to bottom, transparent, var(--o-palette-zinc-950))',
+              }}
             />
           </div>
           <Grain opacite={0.05} />
 
-          <BarreCoins marque="Socle" liens={NAVIGATION} droite="v16.2 — LTS jusqu en 2030" />
+          <BarreCoins
+            marque="Socle"
+            liens={NAVIGATION}
+            droite="v16.2 — LTS jusqu en 2030"
+          />
 
           <Coin position="bd">
             Grappe de trois noeuds
@@ -762,7 +878,10 @@ export default function Page(): ReactElement {
             190 Go chauds · 41 M lignes d audit
           </Coin>
 
-          <div className="o-relative o-z-20 o-flex o-flex-col o-justify-center o-px-6 o-pb-28 o-pt-16 md:o-px-10" style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 5rem)` }}>
+          <div
+            className="o-relative o-z-20 o-flex o-flex-col o-justify-center o-px-6 o-pb-28 o-pt-16 md:o-px-10"
+            style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 5rem)` }}
+          >
             <div className="o-mx-auto o-w-full o-max-w-7xl">
               <Surgit>
                 <Etiquette>Base de donnees relationnelle — auto-hebergeable</Etiquette>
@@ -770,24 +889,40 @@ export default function Page(): ReactElement {
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-8 o-text-zinc-50"
-                style={{ ...affiche('xl', 300), fontSize: 'clamp(3.25rem, 13vw, 11rem)', lineHeight: 0.86 }}
+                style={{
+                  ...affiche('xl', 300),
+                  fontSize: 'clamp(3.25rem, 13vw, 11rem)',
+                  lineHeight: 0.86,
+                }}
               >
                 Socle
               </TitreVague>
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-400">
-                Un moteur qui vous montre ce qu il fait. Composez une requete plus bas : le plan d execution se
-                dessine, avec ses couts, et vous verrez pourquoi votre index n est pas toujours employe.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-400"
+              >
+                Un moteur qui vous montre ce qu il fait. Composez une requete plus bas :
+                le plan d execution se dessine, avec ses couts, et vous verrez pourquoi
+                votre index n est pas toujours employe.
               </Surgit>
 
               {/* L invite : la seule chose qui frappe d elle-meme sur la page. */}
-              <Surgit delai={640} className="o-mt-10 o-max-w-xl o-border-w-1 o-p-5" style={{ borderColor: accentDoux(500, 36), backgroundColor: 'color-mix(in oklab, black 55%, transparent)' }}>
+              <Surgit
+                delai={640}
+                className="o-mt-10 o-max-w-xl o-border-w-1 o-p-5"
+                style={{
+                  borderColor: accentDoux(500, 36),
+                  backgroundColor: 'color-mix(in oklab, black 55%, transparent)',
+                }}
+              >
                 <p className="o-m-0 o-font-mono o-text-sm o-leading-relaxed o-text-zinc-300">
                   <span style={{ color: encreSurSombre() }}>socle=# </span>
                   <Typewriter
                     phrases={[
-                      'EXPLAIN ANALYZE SELECT * FROM commandes WHERE cree_le > now() - interval \'7 days\';',
+                      "EXPLAIN ANALYZE SELECT * FROM commandes WHERE cree_le > now() - interval '7 days';",
                       'CREATE INDEX CONCURRENTLY idx_commandes_statut ON commandes (statut);',
-                      'SELECT pg_size_pretty(pg_total_relation_size(\'commandes\'));',
+                      "SELECT pg_size_pretty(pg_total_relation_size('commandes'));",
                     ]}
                     typeSpeed={38}
                     deleteSpeed={14}
@@ -798,7 +933,13 @@ export default function Page(): ReactElement {
 
               <Surgit delai={780} className="o-mt-10">
                 <Actions
-                  pleine={['#requete', <>Composer une requete <Icon icon={ArrowRight} size={15} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#requete',
+                    <>
+                      Composer une requete{' '}
+                      <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#schema', 'Voir le schema']}
                 />
               </Surgit>
@@ -808,7 +949,10 @@ export default function Page(): ReactElement {
 
         <main>
           {/* ================= Le mecanisme : la requete ================== */}
-          <section id="requete" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="requete"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Reveal>
                 <Indice rang="01">La requete</Indice>
@@ -816,7 +960,11 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 1,
+                  }}
                 >
                   Un index n est pas une promesse.
                 </h2>
@@ -842,8 +990,15 @@ export default function Page(): ReactElement {
                             className="o-flex o-w-full o-cursor-pointer o-items-baseline o-justify-between o-gap-4 o-border-w-1 o-px-4 o-py-3 o-text-left o-transition-colors focus:o-ring"
                             style={
                               actif
-                                ? { borderColor: encreSurSombre(), backgroundColor: accentDoux(700, 60), color: 'var(--o-theme-fg)' }
-                                : { borderColor: accentDoux(500, 34), color: 'var(--o-theme-muted)' }
+                                ? {
+                                    borderColor: encreSurSombre(),
+                                    backgroundColor: accentDoux(700, 60),
+                                    color: 'var(--o-theme-fg)',
+                                  }
+                                : {
+                                    borderColor: accentDoux(500, 34),
+                                    color: 'var(--o-theme-muted)',
+                                  }
                             }
                           >
                             <span className="o-text-sm">{f.mot}</span>
@@ -904,22 +1059,34 @@ export default function Page(): ReactElement {
 
                 {/* Le plan, dessine. */}
                 <div className="lg:o-col-span-5">
-                  <div className="o-border-w-1 o-p-4 md:o-p-6" style={{ borderColor: accentDoux(500, 30) }}>
+                  <div
+                    className="o-border-w-1 o-p-4 md:o-p-6"
+                    style={{ borderColor: accentDoux(500, 30) }}
+                  >
                     <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4">
                       <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
                         Plan d execution
                       </p>
-                      <p className="o-m-0 o-font-mono o-text-xs o-tabular-nums" style={{ color: encreSurSombre() }} aria-live="polite">
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-tabular-nums"
+                        style={{ color: encreSurSombre() }}
+                        aria-live="polite"
+                      >
                         cout {cout(plan.cout)} · {ms.toFixed(1).replace('.', ',')} ms
                       </p>
                     </div>
                     <div className="o-mt-6">
-                      <Planche racine={plan} choisi={noeudChoisi} surChoix={setNoeudChoisi} />
+                      <Planche
+                        racine={plan}
+                        choisi={noeudChoisi}
+                        surChoix={setNoeudChoisi}
+                      />
                     </div>
                   </div>
                   <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-500">
-                    Chaque boite est un bouton : la tabulation passe de l une a l autre, Entree ou la barre d espace
-                    l ouvre a droite. La barre pleine sous le nom est la part du cout total.
+                    Chaque boite est un bouton : la tabulation passe de l une a l autre,
+                    Entree ou la barre d espace l ouvre a droite. La barre pleine sous le
+                    nom est la part du cout total.
                   </p>
                 </div>
 
@@ -932,25 +1099,40 @@ export default function Page(): ReactElement {
                     <h3
                       className="o-m-0 o-mt-4 o-font-mono o-text-zinc-50"
                       aria-live="polite"
-                      style={{ fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)', lineHeight: 1.16, letterSpacing: '-0.01em' }}
+                      style={{
+                        fontSize: 'clamp(1.1rem, 1.8vw, 1.5rem)',
+                        lineHeight: 1.16,
+                        letterSpacing: '-0.01em',
+                      }}
                     >
                       {detail.nom}
                     </h3>
                     <dl className="o-m-0 o-mt-6">
                       {detail.detail.map(([quoi, valeur]) => (
                         <div key={quoi} className="o-border-t o-border-white-10 o-py-3">
-                          <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">{quoi}</dt>
-                          <dd className="o-m-0 o-mt-1 o-break-words o-font-mono o-text-xs o-text-zinc-200">{valeur}</dd>
+                          <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                            {quoi}
+                          </dt>
+                          <dd className="o-m-0 o-mt-1 o-break-words o-font-mono o-text-xs o-text-zinc-200">
+                            {valeur}
+                          </dd>
                         </div>
                       ))}
                       <div className="o-border-t o-border-white-10 o-py-3">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">Cout cumule</dt>
-                        <dd className="o-m-0 o-mt-1 o-font-mono o-text-sm o-tabular-nums" style={{ color: encreSurSombre() }}>
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+                          Cout cumule
+                        </dt>
+                        <dd
+                          className="o-m-0 o-mt-1 o-font-mono o-text-sm o-tabular-nums"
+                          style={{ color: encreSurSombre() }}
+                        >
                           {cout(detail.cout)}
                         </dd>
                       </div>
                     </dl>
-                    <p className="o-m-0 o-mt-6 o-text-sm o-leading-relaxed o-text-zinc-300">{detail.note}</p>
+                    <p className="o-m-0 o-mt-6 o-text-sm o-leading-relaxed o-text-zinc-300">
+                      {detail.note}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -958,7 +1140,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= C14 : les barres au trait ================== */}
-          <section id="latence" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="latence"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Reveal>
                 <Indice rang="02">La latence</Indice>
@@ -966,7 +1151,11 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mb-14 o-mt-6 o-max-w-2xl o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                    lineHeight: 1,
+                  }}
                 >
                   Vingt-quatre heures, une pointe a neuf heures.
                 </h2>
@@ -985,7 +1174,11 @@ export default function Page(): ReactElement {
                 titre={
                   <h2
                     className="o-m-0 o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Deux schemas, cinq tables, cinquante-trois millions de lignes.
                   </h2>
@@ -1005,7 +1198,11 @@ export default function Page(): ReactElement {
                 titre={
                   <h2
                     className="o-m-0 o-text-zinc-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)', lineHeight: 1 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Ce qui a change, et ce qui a disparu.
                   </h2>
@@ -1018,12 +1215,19 @@ export default function Page(): ReactElement {
           </div>
 
           {/* ================= A16 : le formulaire d une seule ligne ====== */}
-          <section aria-labelledby="essai-titre" className="o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            aria-labelledby="essai-titre"
+            className="o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-3xl">
               <h2
                 id="essai-titre"
                 className="o-m-0 o-text-zinc-50"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', lineHeight: 1.02 }}
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                  lineHeight: 1.02,
+                }}
               >
                 Une grappe de trois noeuds, montee en douze minutes.
               </h2>
@@ -1040,33 +1244,41 @@ export default function Page(): ReactElement {
           <div className="o-mx-auto o-mt-8 o-grid o-max-w-6xl o-gap-10 o-font-mono o-text-xs o-leading-relaxed md:o-grid-cols-3">
             <div className="o-max-w-2xs">
               <p className="o-m-0 o-text-zinc-300">
-                <span style={{ color: encreSurSombre() }}>La fondation.</span> Socle est publie par la fondation
-                Socle, association d interet general enregistree a Delft. Direction technique Ines Aubertin. Comite
-                de publication : sept mainteneurs, elus pour deux ans. Les decisions de compatibilite sont prises en
-                seance publique, le premier jeudi du mois.
+                <span style={{ color: encreSurSombre() }}>La fondation.</span> Socle est
+                publie par la fondation Socle, association d interet general enregistree a
+                Delft. Direction technique Ines Aubertin. Comite de publication : sept
+                mainteneurs, elus pour deux ans. Les decisions de compatibilite sont
+                prises en seance publique, le premier jeudi du mois.
               </p>
             </div>
             <div className="o-max-w-2xs">
               <p className="o-m-0 o-text-zinc-300">
-                <span style={{ color: encreSurSombre() }}>Le tirage.</span> Version 16.2, publiee le 4 septembre
-                2026, maintenue jusqu au 30 juin 2030. Licence Apache 2.0. Empreinte de l archive
-                sha256:9f14c2e0a7. Paquets verifies pour Debian, Alpine et FreeBSD. Les versions 14 et anterieures
-                ne recoivent plus de correctif de securite.
+                <span style={{ color: encreSurSombre() }}>Le tirage.</span> Version 16.2,
+                publiee le 4 septembre 2026, maintenue jusqu au 30 juin 2030. Licence
+                Apache 2.0. Empreinte de l archive sha256:9f14c2e0a7. Paquets verifies
+                pour Debian, Alpine et FreeBSD. Les versions 14 et anterieures ne
+                recoivent plus de correctif de securite.
               </p>
             </div>
             <div className="o-max-w-2xs">
               <p className="o-m-0 o-text-zinc-300">
-                <span style={{ color: encreSurSombre() }}>L adresse.</span> Fondation Socle, Oude Delft 112, 2611
-                CG Delft. Signalements de securite a securite@socle.dev, cle publique sur le site. Forum public,
-                archives ouvertes depuis 2019.{' '}
-                <a href="#requete" className="o-no-underline focus:o-ring" style={{ color: encreSurSombre() }}>
+                <span style={{ color: encreSurSombre() }}>L adresse.</span> Fondation
+                Socle, Oude Delft 112, 2611 CG Delft. Signalements de securite a
+                securite@socle.dev, cle publique sur le site. Forum public, archives
+                ouvertes depuis 2019.{' '}
+                <a
+                  href="#requete"
+                  className="o-no-underline focus:o-ring"
+                  style={{ color: encreSurSombre() }}
+                >
                   socle.dev
                 </a>
               </p>
             </div>
           </div>
           <p className="o-mx-auto o-mt-12 o-max-w-6xl o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-            © 2026 Fondation Socle · Les couts affiches sont ceux du planificateur, pas des durees
+            © 2026 Fondation Socle · Les couts affiches sont ceux du planificateur, pas
+            des durees
           </p>
         </footer>
       </div>
@@ -1089,7 +1301,10 @@ function Essai(): ReactElement {
         setEnvoye(adresse.trim().length > 0)
       }}
     >
-      <label htmlFor="socle-adresse" className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+      <label
+        htmlFor="socle-adresse"
+        className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+      >
         Votre adresse, et la cle d essai part dans la minute
       </label>
       {/* Le champ et le bouton partagent le meme filet : A16. */}
@@ -1113,12 +1328,19 @@ function Essai(): ReactElement {
         <button
           type="submit"
           className="o-shrink-0 o-cursor-pointer o-px-6 o-py-4 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest o-transition-opacity hover:o-opacity-85 focus:o-ring"
-          style={{ backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)', border: 'none' }}
+          style={{
+            backgroundColor: accent(400),
+            color: 'var(--o-palette-zinc-950)',
+            border: 'none',
+          }}
         >
           Recevoir la cle
         </button>
       </div>
-      <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400" aria-live="polite">
+      <p
+        className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400"
+        aria-live="polite"
+      >
         {envoye
           ? `Cle envoyee a ${adresse}. Elle ouvre une grappe de trois noeuds pendant trente jours, sans carte bancaire et sans relance commerciale.`
           : 'Trente jours, trois noeuds, aucune carte bancaire. L adresse sert a envoyer la cle, et a rien d autre.'}

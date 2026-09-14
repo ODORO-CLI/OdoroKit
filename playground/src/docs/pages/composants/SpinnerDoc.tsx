@@ -59,7 +59,7 @@ export function SpinnerDoc(): ReactElement {
             },
             {
               title: 'Libelle personnalise',
-              description: 'Annonce aux lecteurs d\'ecran, masque visuellement.',
+              description: "Annonce aux lecteurs d'ecran, masque visuellement.",
               values: { label: 'Envoi en cours' },
             },
             {
@@ -69,7 +69,7 @@ export function SpinnerDoc(): ReactElement {
             },
             {
               title: 'Centre dans une carte',
-              description: 'Le motif d\'attente d\'un contenu qui arrive.',
+              description: "Le motif d'attente d'un contenu qui arrive.",
               node: (
                 <Card className="o-w-56">
                   <div className="o-flex o-items-center o-justify-center o-py-8">

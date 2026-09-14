@@ -191,7 +191,9 @@ export function BubbleMenu({
   }
 
   const bubbles = (): HTMLElement[] =>
-    Array.from(hostRef.current?.querySelectorAll<HTMLElement>('[data-o-bubble-item]') ?? [])
+    Array.from(
+      hostRef.current?.querySelectorAll<HTMLElement>('[data-o-bubble-item]') ?? [],
+    )
 
   // Ouvert : le focus va a la premiere bulle des qu'elle est visible. Un clic
   // hors du menu le referme. Ferme : le focus revient au bouton s'il etait
@@ -201,7 +203,10 @@ export function BubbleMenu({
     if (host === null) return
 
     if (!isOpen) {
-      if (host.contains(document.activeElement) && document.activeElement !== triggerRef.current) {
+      if (
+        host.contains(document.activeElement) &&
+        document.activeElement !== triggerRef.current
+      ) {
         triggerRef.current?.focus()
       }
       return

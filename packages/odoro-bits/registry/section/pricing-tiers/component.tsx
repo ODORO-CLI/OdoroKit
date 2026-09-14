@@ -199,14 +199,8 @@ export function PricingTiers({
                 }}
               />
               <span
-                className={
-                  annuel === choix.valeur
-                    ? 'o-font-medium'
-                    : 'o-opacity-70'
-                }
-                style={
-                  annuel === choix.valeur ? { backgroundColor: VOILE } : undefined
-                }
+                className={annuel === choix.valeur ? 'o-font-medium' : 'o-opacity-70'}
+                style={annuel === choix.valeur ? { backgroundColor: VOILE } : undefined}
               >
                 {choix.libelle}
               </span>
@@ -225,9 +219,7 @@ export function PricingTiers({
               data-o-tier=""
               className={[
                 'o-rounded-xl o-border-w-1 o-p-6',
-                tier.featured === true
-                  ? 'o-border-current o-shadow-lg'
-                  : '',
+                tier.featured === true ? 'o-border-current o-shadow-lg' : '',
               ].join(' ')}
               style={tier.featured === true ? undefined : { borderColor: FILET }}
             >

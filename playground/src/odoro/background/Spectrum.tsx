@@ -63,7 +63,8 @@ export type SpectrumProps = Customisable<SpectrumOwnProps>
 const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-brand-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-100 dark:o-to-brand-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-brand-100 dark:o-to-brand-950'
 
 /**
  * Spectre.

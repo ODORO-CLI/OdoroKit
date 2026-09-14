@@ -104,7 +104,11 @@ export function CounterGateDemo({
  * par une transformation : ces rideaux acceptent `contained` et se posent alors
  * sur le premier ancetre positionne.
  */
-export function CadreRideau({ children }: { readonly children: ReactElement }): ReactElement {
+export function CadreRideau({
+  children,
+}: {
+  readonly children: ReactElement
+}): ReactElement {
   const [cle, setCle] = useState(0)
 
   return (
@@ -179,7 +183,12 @@ export function CursorHaloDemo({
         et survolez ceci
       </button>
 
-      <CursorHalo host={cadre} speed={speed} haloSize={haloSize} hoverScale={hoverScale} />
+      <CursorHalo
+        host={cadre}
+        speed={speed}
+        haloSize={haloSize}
+        hoverScale={hoverScale}
+      />
     </div>
   )
 }

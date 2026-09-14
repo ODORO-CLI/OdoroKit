@@ -232,7 +232,7 @@ const [open, setOpen] = useState(false)
               node: <SideDemo side="bottom" label="Ouvrir en bas" />,
             },
             {
-              title: 'Avec pied d\'actions',
+              title: "Avec pied d'actions",
               description: 'Filtres et boutons Reinitialiser / Appliquer.',
               node: <FiltersDemo />,
             },

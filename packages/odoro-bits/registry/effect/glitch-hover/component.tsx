@@ -69,7 +69,12 @@ const COPY_STYLE: CSSProperties = {
  */
 function makeBurst(direction: 1 | -1, intensity: number, slices: number): Keyframe[] {
   const frames: Keyframe[] = [
-    { clipPath: 'inset(0 0 100% 0)', transform: 'translateX(0)', opacity: 0, easing: 'step-end' },
+    {
+      clipPath: 'inset(0 0 100% 0)',
+      transform: 'translateX(0)',
+      opacity: 0,
+      easing: 'step-end',
+    },
   ]
 
   const steps = Math.max(2, Math.round(slices)) * 2
@@ -161,7 +166,12 @@ export function GlitchHover({
   const { className, style } = mergePresentation({}, rest)
 
   return (
-    <div {...rest} ref={setHost} className={className} style={{ position: 'relative', ...style }}>
+    <div
+      {...rest}
+      ref={setHost}
+      className={className}
+      style={{ position: 'relative', ...style }}
+    >
       {children}
       {/* Sous mouvement reduit, les copies n'existent pas : rien a animer,
           rien a superposer. */}

@@ -65,7 +65,11 @@ export interface MarbleOwnProps {
 export type MarbleProps = Customisable<MarbleOwnProps>
 
 /** Tokens employes par defaut : la pierre, les veines, l'accent. */
-const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-amber-400'] as const
+const DEFAULT_TOKENS = [
+  '--o-theme-bg',
+  '--o-theme-muted',
+  '--o-palette-amber-400',
+] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK =

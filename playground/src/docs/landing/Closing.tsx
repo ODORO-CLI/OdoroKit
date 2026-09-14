@@ -5,7 +5,14 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { ArrowRight, Check, Code, Package, Palette, Shield } from '@odoro-cli/icons/filaire'
+import {
+  ArrowRight,
+  Check,
+  Code,
+  Package,
+  Palette,
+  Shield,
+} from '@odoro-cli/icons/filaire'
 import { Reveal, Stagger } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { buttonClasses } from '@odoro-cli/libs/ui'
@@ -120,9 +127,9 @@ export function Closing({ total }: ClosingProps): ReactElement {
               Ou partez d’un projet entier.
             </h2>
             <p className="o-mt-4 o-max-w-prose o-text-zinc-600 dark:o-text-zinc-400 o-text-pretty">
-              Un template n’est pas une piece a ajouter : c’est un projet complet, routes et
-              configuration comprises, bati avec la même stack — et livre avec ses entrées de
-              registre déjà installees.
+              Un template n’est pas une piece a ajouter : c’est un projet complet, routes
+              et configuration comprises, bati avec la même stack — et livre avec ses
+              entrées de registre déjà installees.
             </p>
             <Link
               to="/templates"
@@ -163,9 +170,9 @@ export function Closing({ total }: ClosingProps): ReactElement {
               answer: (
                 <p>
                   Un composant d animation est presque toujours retouche : une duree, une
-                  couleur, un declenchement. Copie, il se modifie sans forker un paquet et sans
-                  craindre la prochaine version. Le registre reste la pour comparer votre copie
-                  a l original (odoro diff).
+                  couleur, un declenchement. Copie, il se modifie sans forker un paquet et
+                  sans craindre la prochaine version. Le registre reste la pour comparer
+                  votre copie a l original (odoro diff).
                 </p>
               ),
             },
@@ -173,10 +180,10 @@ export function Closing({ total }: ClosingProps): ReactElement {
               question: 'Que se passe-t-il sans WebGL, ou sous mouvement reduit ?',
               answer: (
                 <p>
-                  Chaque fond déclare un repli statique — un dégradé dans les mêmes tons — qui
-                  s’affiche pendant le chargement, quand WebGL manque, quand l’arbitre refuse
-                  une surface de plus, et sous prefers-reduced-motion. Rien ne disparaît, rien
-                  ne clignote.
+                  Chaque fond déclare un repli statique — un dégradé dans les mêmes tons —
+                  qui s’affiche pendant le chargement, quand WebGL manque, quand l’arbitre
+                  refuse une surface de plus, et sous prefers-reduced-motion. Rien ne
+                  disparaît, rien ne clignote.
                 </p>
               ),
             },
@@ -185,18 +192,21 @@ export function Closing({ total }: ClosingProps): ReactElement {
               answer: (
                 <p>
                   Un contexte par backend : un shader ogl et une scène three au maximum,
-                  simultanement. Cette page en emploie exactement deux — la constellation du
-                  hero et le ciel de la section moteur. Les autres fonds sont en CSS pur.
+                  simultanement. Cette page en emploie exactement deux — la constellation
+                  du hero et le ciel de la section moteur. Les autres fonds sont en CSS
+                  pur.
                 </p>
               ),
             },
             {
-              question: 'Faut-il utiliser l engine odoro, ou puis-je garder mon bundler ?',
+              question:
+                'Faut-il utiliser l engine odoro, ou puis-je garder mon bundler ?',
               answer: (
                 <p>
-                  La librairie fonctionne dans tout projet React 18+, quel que soit le bundler.
-                  L’engine apporte le serveur de développement, le build qui élague la feuille
-                  de style et la CLI du registre — il est recommande, pas obligatoire.
+                  La librairie fonctionne dans tout projet React 18+, quel que soit le
+                  bundler. L’engine apporte le serveur de développement, le build qui
+                  élague la feuille de style et la CLI du registre — il est recommande,
+                  pas obligatoire.
                 </p>
               ),
             },
@@ -205,8 +215,8 @@ export function Closing({ total }: ClosingProps): ReactElement {
               answer: (
                 <p>
                   En surchargeant les variables --o-thème-* et --o-palette-* : composants,
-                  utilitaires et shaders lisent les mêmes tokens. La teinte de marque change en
-                  une ligne, et les fonds la suivent au prochain rendu.
+                  utilitaires et shaders lisent les mêmes tokens. La teinte de marque
+                  change en une ligne, et les fonds la suivent au prochain rendu.
                 </p>
               ),
             },

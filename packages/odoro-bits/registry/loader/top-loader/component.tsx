@@ -149,7 +149,9 @@ export function TopLoader({
       <div
         aria-hidden
         data-o-top-bar=""
-        style={indeterminate ? undefined : { transform: `scaleX(${String(value / 100)})` }}
+        style={
+          indeterminate ? undefined : { transform: `scaleX(${String(value / 100)})` }
+        }
       />
     </div>
   )

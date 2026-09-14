@@ -99,7 +99,10 @@ const BRUITS = [
 /** Les trois lignes que la session rend le soir venu. */
 const JOURNAL: readonly (readonly [string, string])[] = [
   ['Fait', 'Sept secteurs de la maquette sur neuf, et la grille de colonnes reprise.'],
-  ['Coupe', 'Une fois, quarante et une minutes apres le debut. L exception nommee a sonne.'],
+  [
+    'Coupe',
+    'Une fois, quarante et une minutes apres le debut. L exception nommee a sonne.',
+  ],
   ['Demain', 'Les deux secteurs qui restent, puis la revue de midi. Une seule session.'],
 ]
 
@@ -127,7 +130,13 @@ const MAXIMUM = 180
  * trigonometrie pour le tracer, et une transition CSS gratuite quand le
  * curseur bouge. Les points de pause, eux, demandent leur angle.
  */
-function Cadran({ duree, pauses }: { readonly duree: number; readonly pauses: number }): ReactElement {
+function Cadran({
+  duree,
+  pauses,
+}: {
+  readonly duree: number
+  readonly pauses: number
+}): ReactElement {
   const { reduced } = useMotionState()
   const part = duree / MAXIMUM
   /** L angle d une minute, en degres, sur les trois quarts de tour. */
@@ -141,10 +150,24 @@ function Cadran({ duree, pauses }: { readonly duree: number; readonly pauses: nu
 
   return (
     <div className="o-relative o-w-full o-max-w-xs">
-      <svg viewBox="0 0 200 200" className="o-h-auto o-w-full" aria-hidden="true" fill="none">
+      <svg
+        viewBox="0 0 200 200"
+        className="o-h-auto o-w-full"
+        aria-hidden="true"
+        fill="none"
+      >
         <g transform="rotate(135 100 100)">
           {/* La piste : les trois heures possibles. */}
-          <circle cx="100" cy="100" r={RAYON} stroke="currentColor" strokeOpacity="0.14" strokeWidth="7" strokeDasharray={`${String(COURSE)} ${String(ANNEAU)}`} strokeLinecap="round" />
+          <circle
+            cx="100"
+            cy="100"
+            r={RAYON}
+            stroke="currentColor"
+            strokeOpacity="0.14"
+            strokeWidth="7"
+            strokeDasharray={`${String(COURSE)} ${String(ANNEAU)}`}
+            strokeLinecap="round"
+          />
           {/* La session : ce qu on a regle. */}
           <circle
             cx="100"
@@ -154,25 +177,59 @@ function Cadran({ duree, pauses }: { readonly duree: number; readonly pauses: nu
             strokeWidth="7"
             strokeLinecap="round"
             strokeDasharray={`${String(COURSE * part)} ${String(ANNEAU)}`}
-            style={reduced ? undefined : { transition: 'stroke-dasharray 420ms cubic-bezier(0.22, 1, 0.36, 1)' }}
+            style={
+              reduced
+                ? undefined
+                : { transition: 'stroke-dasharray 420ms cubic-bezier(0.22, 1, 0.36, 1)' }
+            }
           />
         </g>
         {/* Les pauses, a leur minute reelle. */}
         {Array.from({ length: pauses }, (_, k) => {
           const [x, y] = point((k + 1) * 45)
-          return <circle key={k} cx={x} cy={y} r="4.5" fill="var(--o-palette-zinc-950)" stroke="currentColor" strokeWidth="1.5" />
+          return (
+            <circle
+              key={k}
+              cx={x}
+              cy={y}
+              r="4.5"
+              fill="var(--o-palette-zinc-950)"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+          )
         })}
         {/* La fin de la session. */}
-        <circle cx={finX} cy={finY} r="3" fill="currentColor" style={reduced ? undefined : { transition: 'cx 420ms ease, cy 420ms ease' }} />
+        <circle
+          cx={finX}
+          cy={finY}
+          r="3"
+          fill="currentColor"
+          style={reduced ? undefined : { transition: 'cx 420ms ease, cy 420ms ease' }}
+        />
       </svg>
 
       <div className="o-pointer-events-none o-absolute o-inset-0 o-flex o-flex-col o-items-center o-justify-center o-text-center">
-        <p className="o-m-0 o-tabular-nums o-text-white" style={{ ...affiche('l', 300), fontSize: 'clamp(2.75rem, 5vw, 4rem)', lineHeight: 1 }}>
+        <p
+          className="o-m-0 o-tabular-nums o-text-white"
+          style={{
+            ...affiche('l', 300),
+            fontSize: 'clamp(2.75rem, 5vw, 4rem)',
+            lineHeight: 1,
+          }}
+        >
           {duree}
         </p>
-        <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">minutes</p>
-        <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-300" style={{ maxWidth: '9rem' }}>
-          {pauses === 0 ? 'Aucune pause' : `${String(pauses)} pause${pauses > 1 ? 's' : ''} de 3 min`}
+        <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
+          minutes
+        </p>
+        <p
+          className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-300"
+          style={{ maxWidth: '9rem' }}
+        >
+          {pauses === 0
+            ? 'Aucune pause'
+            : `${String(pauses)} pause${pauses > 1 ? 's' : ''} de 3 min`}
         </p>
       </div>
     </div>
@@ -204,7 +261,10 @@ function ChampDeBruit(): ReactElement {
       <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
         Ce qui frappe a la porte pendant quatre-vingt-dix minutes
       </p>
-      <ul aria-hidden="true" className="o-m-0 o-mt-6 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
+      <ul
+        aria-hidden="true"
+        className="o-m-0 o-mt-6 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0"
+      >
         {BRUITS.map((bruit, rang) => (
           <li
             key={bruit}
@@ -226,7 +286,8 @@ function ChampDeBruit(): ReactElement {
         </li>
       </ul>
       <p className="o-m-0 o-mt-6 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-300">
-        Vingt et une choses ont demande a passer. Une seule est passee, et vous l aviez nommee avant de commencer.
+        Vingt et une choses ont demande a passer. Une seule est passee, et vous l aviez
+        nommee avant de commencer.
       </p>
     </div>
   )
@@ -243,13 +304,19 @@ function Journal(): ReactElement {
     <div className={`${verre(true)} o-p-6 md:o-p-8`}>
       <p className="o-m-0 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
         <span>Le journal du soir</span>
-        <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>21 h 04</span>
+        <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>
+          21 h 04
+        </span>
       </p>
       <dl className="o-m-0 o-mt-6">
         {JOURNAL.map(([terme, ligne]) => (
           <div key={terme} className="o-border-t o-border-white-10 o-py-4">
-            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">{terme}</dt>
-            <dd className="o-m-0 o-mt-2 o-text-base o-leading-relaxed o-text-zinc-100">{ligne}</dd>
+            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
+              {terme}
+            </dt>
+            <dd className="o-m-0 o-mt-2 o-text-base o-leading-relaxed o-text-zinc-100">
+              {ligne}
+            </dd>
           </div>
         ))}
       </dl>
@@ -265,7 +332,9 @@ function Session(): ReactElement {
   const [duree, setDuree] = useState(90)
   const [coupes, setCoupes] = useState<readonly string[]>(['Messagerie', 'Reseaux'])
   const basculer = (c: string): void => {
-    setCoupes((avant) => (avant.includes(c) ? avant.filter((x) => x !== c) : [...avant, c]))
+    setCoupes((avant) =>
+      avant.includes(c) ? avant.filter((x) => x !== c) : [...avant, c],
+    )
   }
   const pauses = Math.max(0, Math.floor(duree / 45) - (duree % 45 === 0 ? 1 : 0))
 
@@ -281,15 +350,40 @@ function Session(): ReactElement {
           <span className="o-flex o-justify-between o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
             Duree <span className="o-text-white">{duree} min</span>
           </span>
-          <input type="range" min={25} max={180} step={5} value={duree} onChange={(e) => { setDuree(Number(e.target.value)) }} className="o-mt-3 o-w-full o-accent-brand-500 focus:o-ring" />
+          <input
+            type="range"
+            min={25}
+            max={180}
+            step={5}
+            value={duree}
+            onChange={(e) => {
+              setDuree(Number(e.target.value))
+            }}
+            className="o-mt-3 o-w-full o-accent-brand-500 focus:o-ring"
+          />
         </label>
         <div>
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Ce qu on coupe</p>
-          <div role="group" aria-label="Ce qu on coupe" className="o-mt-3 o-flex o-flex-wrap o-gap-2">
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            Ce qu on coupe
+          </p>
+          <div
+            role="group"
+            aria-label="Ce qu on coupe"
+            className="o-mt-3 o-flex o-flex-wrap o-gap-2"
+          >
             {COUPURES.map((c) => {
               const actif = coupes.includes(c)
               return (
-                <button key={c} type="button" aria-pressed={actif} onClick={() => { basculer(c) }} className={`o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-font-mono o-text-xs o-transition-colors focus:o-ring ${actif ? 'o-border-transparent' : 'o-border-white-20 o-text-zinc-300 hover:o-bg-white-10'}`} style={actif ? aplat() : undefined}>
+                <button
+                  key={c}
+                  type="button"
+                  aria-pressed={actif}
+                  onClick={() => {
+                    basculer(c)
+                  }}
+                  className={`o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-3 o-py-1.5 o-font-mono o-text-xs o-transition-colors focus:o-ring ${actif ? 'o-border-transparent' : 'o-border-white-20 o-text-zinc-300 hover:o-bg-white-10'}`}
+                  style={actif ? aplat() : undefined}
+                >
                   {actif && <Icon icon={BellOff} size={12} aria-hidden="true" />}
                   {c}
                 </button>
@@ -299,16 +393,45 @@ function Session(): ReactElement {
         </div>
       </div>
 
-      <div className="lg:o-col-span-4 lg:o-border-l lg:o-pl-8" style={{ borderColor: 'color-mix(in oklab, white 12%, transparent)' }}>
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le deroule</p>
+      <div
+        className="lg:o-col-span-4 lg:o-border-l lg:o-pl-8"
+        style={{ borderColor: 'color-mix(in oklab, white 12%, transparent)' }}
+      >
+        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+          Le deroule
+        </p>
         <ol className="o-m-0 o-mt-4 o-list-none o-p-0">
           {[
-            ['00:00', 'Tout se coupe. ' + (coupes.length === 0 ? 'Rien n est coupe cette fois.' : `${coupes.join(', ').toLowerCase()} en silence.`)],
-            ...Array.from({ length: pauses }, (_, k) => [`${String((k + 1) * 45).padStart(2, '0')}:00`, 'Trois minutes de pause, ecran eteint.'] as const),
-            [`${String(duree).padStart(2, '0')}:00`, 'Fin. Le journal du soir s ouvre, trois lignes.'],
+            [
+              '00:00',
+              'Tout se coupe. ' +
+                (coupes.length === 0
+                  ? 'Rien n est coupe cette fois.'
+                  : `${coupes.join(', ').toLowerCase()} en silence.`),
+            ],
+            ...Array.from(
+              { length: pauses },
+              (_, k) =>
+                [
+                  `${String((k + 1) * 45).padStart(2, '0')}:00`,
+                  'Trois minutes de pause, ecran eteint.',
+                ] as const,
+            ),
+            [
+              `${String(duree).padStart(2, '0')}:00`,
+              'Fin. Le journal du soir s ouvre, trois lignes.',
+            ],
           ].map(([heure, quoi]) => (
-            <li key={heure} className="o-flex o-items-baseline o-gap-4 o-border-t o-border-white-10 o-py-3">
-              <span className="o-w-14 o-shrink-0 o-font-mono o-text-sm o-tabular-nums" style={{ color: encreSurSombre() }}>{heure}</span>
+            <li
+              key={heure}
+              className="o-flex o-items-baseline o-gap-4 o-border-t o-border-white-10 o-py-3"
+            >
+              <span
+                className="o-w-14 o-shrink-0 o-font-mono o-text-sm o-tabular-nums"
+                style={{ color: encreSurSombre() }}
+              >
+                {heure}
+              </span>
               <span className="o-text-sm o-text-zinc-200">{quoi}</span>
             </li>
           ))}
@@ -322,14 +445,41 @@ function Session(): ReactElement {
 function Compte(): ReactElement {
   const [visible, setVisible] = useState(false)
   return (
-    <GlassSurface colors={['--o-vitrine-500', '--o-palette-zinc-50']} blur={18} tint={0.12} className="o-mx-auto o-w-full o-max-w-lg o-p-8 o-text-center o-text-zinc-50 md:o-p-12">
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">Session en cours — 07 secteurs de la maquette</p>
-      <p aria-live="polite" className="o-m-0 o-mt-8 o-tabular-nums o-transition-all" style={{ ...affiche('l', 300), fontSize: 'clamp(3.5rem, 9vw, 8rem)', filter: visible ? 'blur(0)' : 'blur(18px)', opacity: visible ? 1 : 0.35, userSelect: visible ? 'auto' : 'none' }}>
+    <GlassSurface
+      colors={['--o-vitrine-500', '--o-palette-zinc-50']}
+      blur={18}
+      tint={0.12}
+      className="o-mx-auto o-w-full o-max-w-lg o-p-8 o-text-center o-text-zinc-50 md:o-p-12"
+    >
+      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300">
+        Session en cours — 07 secteurs de la maquette
+      </p>
+      <p
+        aria-live="polite"
+        className="o-m-0 o-mt-8 o-tabular-nums o-transition-all"
+        style={{
+          ...affiche('l', 300),
+          fontSize: 'clamp(3.5rem, 9vw, 8rem)',
+          filter: visible ? 'blur(0)' : 'blur(18px)',
+          opacity: visible ? 1 : 0.35,
+          userSelect: visible ? 'auto' : 'none',
+        }}
+      >
         <span aria-hidden={!visible}>47:12</span>
         {!visible && <span className="o-sr-only">Temps restant masque</span>}
       </p>
-      <p className="o-m-0 o-mt-6 o-text-base o-leading-relaxed o-text-zinc-200">Le temps restant n est visible que si vous le demandez. On ne travaille pas bien avec une horloge en face.</p>
-      <button type="button" aria-pressed={visible} onClick={() => { setVisible((v) => !v) }} className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-px-5 o-py-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white o-transition-colors hover:o-bg-white-20 focus:o-ring">
+      <p className="o-m-0 o-mt-6 o-text-base o-leading-relaxed o-text-zinc-200">
+        Le temps restant n est visible que si vous le demandez. On ne travaille pas bien
+        avec une horloge en face.
+      </p>
+      <button
+        type="button"
+        aria-pressed={visible}
+        onClick={() => {
+          setVisible((v) => !v)
+        }}
+        className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-white-20 o-bg-white-10 o-px-5 o-py-2.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-white o-transition-colors hover:o-bg-white-20 focus:o-ring"
+      >
         <Icon icon={visible ? EyeOff : Eye} size={14} aria-hidden="true" />
         {visible ? 'Le cacher' : 'Le voir, cette fois'}
       </button>
@@ -352,61 +502,145 @@ export default function Page(): ReactElement {
       <div className="o-relative" style={{ ...nuit('zinc'), ...polices }}>
         {/* Le fluide, colle derriere toute la page. */}
         <div className="o-pointer-events-none o-fixed o-inset-0 o-z-0">
-          <Silk className="o-absolute o-inset-0" colors={['--o-theme-bg', '--o-vitrine-600', '--o-vitrine-300', '--o-palette-fuchsia-500']} speed={0.06} scale={1.3} fallback="o-bg-zinc-950" />
-          <div aria-hidden="true" className="o-absolute o-inset-0" style={{ background: 'radial-gradient(ellipse at 50% 45%, transparent 25%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 65%, color-mix(in oklab, var(--o-palette-zinc-950) 85%, transparent) 100%)' }} />
+          <Silk
+            className="o-absolute o-inset-0"
+            colors={[
+              '--o-theme-bg',
+              '--o-vitrine-600',
+              '--o-vitrine-300',
+              '--o-palette-fuchsia-500',
+            ]}
+            speed={0.06}
+            scale={1.3}
+            fallback="o-bg-zinc-950"
+          />
+          <div
+            aria-hidden="true"
+            className="o-absolute o-inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse at 50% 45%, transparent 25%, color-mix(in oklab, var(--o-palette-zinc-950) 55%, transparent) 65%, color-mix(in oklab, var(--o-palette-zinc-950) 85%, transparent) 100%)',
+            }}
+          />
           <Grain opacite={0.07} />
         </div>
 
-        <BarreGelule marque="Etale" liens={[['#session', 'La session'], ['#silence', 'Le silence'], ['#compte', 'Le compte']]} action={['#attente', 'Rejoindre la liste']} />
+        <BarreGelule
+          marque="Etale"
+          liens={[
+            ['#session', 'La session'],
+            ['#silence', 'Le silence'],
+            ['#compte', 'Le compte'],
+          ]}
+          action={['#attente', 'Rejoindre la liste']}
+        />
 
         {/* ================= L ouverture, un seul ecran =================
             La hauteur retire les barres de la documentation : sans cela le
             titre pousse les deux gelules sous le pli, et l ouverture se lit
             comme une page coupee. */}
-        <header className="o-relative o-z-10 o-flex o-flex-col o-items-center o-justify-center o-px-6 o-pb-20 o-pt-28 o-text-center" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-z-10 o-flex o-flex-col o-items-center o-justify-center o-px-6 o-pb-20 o-pt-28 o-text-center"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <Surgit>
             <Etiquette>Une session a la fois</Etiquette>
           </Surgit>
-          <TitreVague delai={120} cadence={80} className="o-m-0 o-mt-7 o-max-w-5xl o-text-white" style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 7.5vw, 8rem)' }}>
+          <TitreVague
+            delai={120}
+            cadence={80}
+            className="o-m-0 o-mt-7 o-max-w-5xl o-text-white"
+            style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 7.5vw, 8rem)' }}
+          >
             Du travail profond dans un monde distrait.
           </TitreVague>
-          <Surgit delai={520} as="p" className="o-m-0 o-mt-7 o-max-w-md o-text-lg o-leading-relaxed o-text-zinc-300">
+          <Surgit
+            delai={520}
+            as="p"
+            className="o-m-0 o-mt-7 o-max-w-md o-text-lg o-leading-relaxed o-text-zinc-300"
+          >
             Coupez le bruit, reprenez votre attention. Une session, puis une autre.
           </Surgit>
           <Surgit delai={640} className="o-mt-10">
-            <Actions pleine={['#attente', <>Rejoindre la liste <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#session', 'Regler une session']} />
+            <Actions
+              pleine={[
+                '#attente',
+                <>
+                  Rejoindre la liste{' '}
+                  <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                </>,
+              ]}
+              fantome={['#session', 'Regler une session']}
+            />
           </Surgit>
           <Coin position="bg">Etale — concu pour le travail profond</Coin>
-          <Coin position="bd">Nantes<br />Ouverture par petits groupes</Coin>
+          <Coin position="bd">
+            Nantes
+            <br />
+            Ouverture par petits groupes
+          </Coin>
         </header>
 
         <main className="o-relative o-z-10">
           {/* ================= I. La session, le mecanisme ================ */}
-          <section id="session" className="o-flex o-min-h-screen o-scroll-mt-24 o-items-center o-px-6 o-py-20">
+          <section
+            id="session"
+            className="o-flex o-min-h-screen o-scroll-mt-24 o-items-center o-px-6 o-py-20"
+          >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <Reveal><Indice rang="01">La session</Indice></Reveal>
+                  <Reveal>
+                    <Indice rang="01">La session</Indice>
+                  </Reveal>
                   <Reveal delay={80}>
-                    <h2 className="o-m-0 o-mt-6 o-text-white" style={affiche('m', 300)}>Reglez-la avant. Ne la regardez plus pendant.</h2>
+                    <h2 className="o-m-0 o-mt-6 o-text-white" style={affiche('m', 300)}>
+                      Reglez-la avant. Ne la regardez plus pendant.
+                    </h2>
                   </Reveal>
                 </div>
-                <BlurWords as="p" blur={7} dim={0.2} step={140} pause={2600} className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-200 md:o-col-span-5 md:o-justify-self-end">
-                  La duree, ce qu on coupe, ce qu on laisse passer : tout se decide avant. Ensuite la page se ferme, et vous travaillez.
+                <BlurWords
+                  as="p"
+                  blur={7}
+                  dim={0.2}
+                  step={140}
+                  pause={2600}
+                  className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-200 md:o-col-span-5 md:o-justify-self-end"
+                >
+                  La duree, ce qu on coupe, ce qu on laisse passer : tout se decide avant.
+                  Ensuite la page se ferme, et vous travaillez.
                 </BlurWords>
               </div>
-              <div className="o-mt-10"><Reveal delay={160}><Session /></Reveal></div>
+              <div className="o-mt-10">
+                <Reveal delay={160}>
+                  <Session />
+                </Reveal>
+              </div>
             </div>
           </section>
 
           {/* ================= II. Le silence : le paragraphe qui s allume ===== */}
-          <section id="silence" className="o-flex o-min-h-screen o-scroll-mt-24 o-items-center o-px-6 o-py-20">
+          <section
+            id="silence"
+            className="o-flex o-min-h-screen o-scroll-mt-24 o-items-center o-px-6 o-py-20"
+          >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12">
                 <div className="md:o-col-span-3">
                   <Indice rang="02">Le silence</Indice>
                 </div>
-                <ScrollReveal as="p" dim={0.1} blur={3} course={1.1} className="o-m-0 o-text-white md:o-col-span-9" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.2vw, 3rem)', lineHeight: 1.15 }}>
+                <ScrollReveal
+                  as="p"
+                  dim={0.1}
+                  blur={3}
+                  course={1.1}
+                  className="o-m-0 o-text-white md:o-col-span-9"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 3.2vw, 3rem)',
+                    lineHeight: 1.15,
+                  }}
+                >
                   {SILENCE}
                 </ScrollReveal>
               </div>
@@ -421,47 +655,109 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= III. Le compte, qu on ne voit pas ============ */}
-          <section id="compte" className="o-flex o-min-h-screen o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-20">
+          <section
+            id="compte"
+            className="o-flex o-min-h-screen o-scroll-mt-24 o-flex-col o-items-center o-justify-center o-px-6 o-py-20"
+          >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
               <div className="o-mb-12 o-flex o-justify-center">
                 <Indice rang="03">Le compte</Indice>
               </div>
               <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-items-center">
                 <div className="lg:o-col-span-6">
-                  <Reveal><Compte /></Reveal>
+                  <Reveal>
+                    <Compte />
+                  </Reveal>
                 </div>
                 {/* Les trois lignes que le paragraphe du silence promettait. */}
                 <div className="lg:o-col-span-6">
-                  <Reveal delay={140}><Journal /></Reveal>
+                  <Reveal delay={140}>
+                    <Journal />
+                  </Reveal>
                 </div>
               </div>
             </div>
           </section>
 
           {/* ================= A8 : la liste d attente, en verre ============= */}
-          <section id="attente" className="o-flex o-scroll-mt-24 o-items-center o-px-6 o-pb-32 o-pt-20 md:o-pb-40">
+          <section
+            id="attente"
+            className="o-flex o-scroll-mt-24 o-items-center o-px-6 o-pb-32 o-pt-20 md:o-pb-40"
+          >
             <div className="o-mx-auto o-w-full o-max-w-3xl o-text-center">
-              <h2 className="o-m-0 o-text-white" style={affiche('m', 300)}>Une session, ce soir ?</h2>
-              <form onSubmit={rejoindre} className={`${verre(true)} o-mx-auto o-mt-10 o-flex o-w-full o-max-w-lg o-items-center o-gap-2 o-p-1.5 o-pl-4`}>
-                <label htmlFor="etale-adresse" className="o-sr-only">Adresse e-mail</label>
-                <input id="etale-adresse" type="email" required value={adresse} onChange={(e) => { setAdresse(e.target.value) }} placeholder="Votre adresse" className="o-min-w-0 o-grow o-bg-transparent o-text-sm o-text-white focus:o-outline-none" />
-                <button type="submit" className="o-shrink-0 o-rounded-full o-px-5 o-py-2.5 o-text-sm o-font-semibold o-transition-opacity hover:o-opacity-85 focus:o-ring" style={aplat()}>
-                  {inscrit ? <><Icon icon={Check} size={14} aria-hidden="true" /> Inscrit</> : 'Rejoindre'}
+              <h2 className="o-m-0 o-text-white" style={affiche('m', 300)}>
+                Une session, ce soir ?
+              </h2>
+              <form
+                onSubmit={rejoindre}
+                className={`${verre(true)} o-mx-auto o-mt-10 o-flex o-w-full o-max-w-lg o-items-center o-gap-2 o-p-1.5 o-pl-4`}
+              >
+                <label htmlFor="etale-adresse" className="o-sr-only">
+                  Adresse e-mail
+                </label>
+                <input
+                  id="etale-adresse"
+                  type="email"
+                  required
+                  value={adresse}
+                  onChange={(e) => {
+                    setAdresse(e.target.value)
+                  }}
+                  placeholder="Votre adresse"
+                  className="o-min-w-0 o-grow o-bg-transparent o-text-sm o-text-white focus:o-outline-none"
+                />
+                <button
+                  type="submit"
+                  className="o-shrink-0 o-rounded-full o-px-5 o-py-2.5 o-text-sm o-font-semibold o-transition-opacity hover:o-opacity-85 focus:o-ring"
+                  style={aplat()}
+                >
+                  {inscrit ? (
+                    <>
+                      <Icon icon={Check} size={14} aria-hidden="true" /> Inscrit
+                    </>
+                  ) : (
+                    'Rejoindre'
+                  )}
                 </button>
               </form>
-              <p aria-live="polite" className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200">
-                {inscrit ? 'Merci. Une invitation par semaine, par ordre d arrivee.' : 'Une invitation par semaine, par ordre d arrivee. Aucune relance.'}
+              <p
+                aria-live="polite"
+                className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-200"
+              >
+                {inscrit
+                  ? 'Merci. Une invitation par semaine, par ordre d arrivee.'
+                  : 'Une invitation par semaine, par ordre d arrivee. Aucune relance.'}
               </p>
             </div>
           </section>
         </main>
 
         {/* ================= P2 : une seule ligne ========================== */}
-        <footer className="o-relative o-z-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-px-6 o-py-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400" style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-zinc-950) 70%, transparent)' }}>
+        <footer
+          className="o-relative o-z-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-px-6 o-py-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+          style={{
+            backgroundColor:
+              'color-mix(in oklab, var(--o-palette-zinc-950) 70%, transparent)',
+          }}
+        >
           <span className="o-text-white">Etale</span>
           <nav aria-label="Pied de page" className="o-flex o-flex-wrap o-gap-6">
-            {([['#session', 'La session'], ['#silence', 'Le silence'], ['#compte', 'Le compte'], ['#attente', 'bonjour@etale.app'], ['#attente', 'Confidentialite']] as const).map(([href, mot]) => (
-              <a key={mot} href={href} className="o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-white focus:o-ring">{mot}</a>
+            {(
+              [
+                ['#session', 'La session'],
+                ['#silence', 'Le silence'],
+                ['#compte', 'Le compte'],
+                ['#attente', 'bonjour@etale.app'],
+                ['#attente', 'Confidentialite'],
+              ] as const
+            ).map(([href, mot]) => (
+              <a
+                key={mot}
+                href={href}
+                className="o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-white focus:o-ring"
+              >
+                {mot}
+              </a>
             ))}
           </nav>
           <span>© 2026 Etale SAS — Nantes</span>

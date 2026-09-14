@@ -71,7 +71,14 @@ import {
 } from '@odoro-cli/icons/filaire'
 import { Button, Input, Select, Textarea } from '@odoro-cli/libs/ui'
 import { useMotionState } from '@odoro-cli/engine'
-import { useEffect, useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { Hologram } from '@/odoro/background/Hologram.jsx'
 import { Marquee } from '@/odoro/effect/Marquee.jsx'
@@ -83,7 +90,20 @@ import { HighlightSweep } from '@/odoro/text/HighlightSweep.jsx'
 import { ToastStack, type ToastItem } from '@/odoro/ui/ToastStack.jsx'
 
 import { accent, accentDoux, encre } from './palettes.js'
-import { Actions, affiche, BarreCoins, CHROME, Coin, Etiquette, Grain, Indice, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  CHROME,
+  Coin,
+  Etiquette,
+  Grain,
+  Indice,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 
 /** Le filet neutre de la page, derive de l encre courante. */
 const FILET = 'color-mix(in oklab, currentColor 14%, transparent)'
@@ -384,8 +404,7 @@ const DELAIS: readonly {
   },
   {
     gravite: 'elevee',
-    definition:
-      'Acces anormal confirme, escalade de privileges, fuite de secret active.',
+    definition: 'Acces anormal confirme, escalade de privileges, fuite de secret active.',
     priseEnCharge: '15 min, 24 h sur 24',
     confinement: '1 h',
     rapport: '48 h',
@@ -627,7 +646,12 @@ const RUBAN: readonly string[] = [
 
 /** Les tranches de parc proposees. */
 const TRANCHES = [
-  { value: '1', label: 'Moins de 200 postes', analyste: 'un analyste', duree: '30 minutes' },
+  {
+    value: '1',
+    label: 'Moins de 200 postes',
+    analyste: 'un analyste',
+    duree: '30 minutes',
+  },
   {
     value: '2',
     label: 'De 200 a 1 000 postes',
@@ -650,7 +674,11 @@ const TRANCHES = [
 
 /** Les echeances proposees, avec le delai de reponse qu elles declenchent. */
 const ECHEANCES = [
-  { value: 'urgence', label: 'Incident en cours', delai: 'sous 30 minutes, par telephone' },
+  {
+    value: 'urgence',
+    label: 'Incident en cours',
+    delai: 'sous 30 minutes, par telephone',
+  },
   { value: 'mois', label: 'Dans le mois', delai: 'sous 4 heures ouvrees' },
   { value: 'trimestre', label: 'Ce trimestre', delai: 'sous 1 jour ouvre' },
   { value: 'veille', label: 'Simple veille', delai: 'sous 3 jours ouvres' },
@@ -658,10 +686,26 @@ const ECHEANCES = [
 
 /** Les outils dont nous reprenons le plus souvent la place. */
 const OUTILS = [
-  { value: 'antivirus', label: 'Un antivirus de poste', note: 'Reprise sans desinstallation prealable : les deux agents cohabitent le temps de la bascule.' },
-  { value: 'siem', label: 'Un collecteur de journaux', note: 'Vos regles existantes sont importees et rejouees sur trente jours d historique avant bascule.' },
-  { value: 'infogerance', label: 'Une infogerance', note: 'Nous travaillons avec votre infogerant : le pupitre lui ouvre un acces en lecture.' },
-  { value: 'rien', label: 'Rien de structure', note: 'La demonstration commence par un releve de votre exposition externe, sans rien installer.' },
+  {
+    value: 'antivirus',
+    label: 'Un antivirus de poste',
+    note: 'Reprise sans desinstallation prealable : les deux agents cohabitent le temps de la bascule.',
+  },
+  {
+    value: 'siem',
+    label: 'Un collecteur de journaux',
+    note: 'Vos regles existantes sont importees et rejouees sur trente jours d historique avant bascule.',
+  },
+  {
+    value: 'infogerance',
+    label: 'Une infogerance',
+    note: 'Nous travaillons avec votre infogerant : le pupitre lui ouvre un acces en lecture.',
+  },
+  {
+    value: 'rien',
+    label: 'Rien de structure',
+    note: 'La demonstration commence par un releve de votre exposition externe, sans rien installer.',
+  },
 ] as const
 
 /**
@@ -751,7 +795,10 @@ function Demande(): ReactElement {
         className="o-border-w-1 o-p-4 o-text-sm o-leading-relaxed"
         style={{ borderColor: accent(500), backgroundColor: VOILE }}
       >
-        <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+        <p
+          className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: ENCRE }}
+        >
           <Icon icon={Timer} size={13} aria-hidden="true" />
           Ce que votre demande declenche
         </p>
@@ -820,7 +867,11 @@ function Pupitre(): ReactElement {
     <div
       id="veille"
       className="lg:o-col-span-8 o-relative o-overflow-hidden"
-      style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE, border: `1px solid ${FILET_SOMBRE}` }}
+      style={{
+        backgroundColor: ARDOISE,
+        color: ENCRE_PUPITRE,
+        border: `1px solid ${FILET_SOMBRE}`,
+      }}
     >
       <Hologram
         key={cleDeTeinte}
@@ -832,7 +883,11 @@ function Pupitre(): ReactElement {
         colors={['--o-vitrine-950', '--o-vitrine-300', '--o-vitrine-100']}
         poster="o-bg-transparent"
       />
-      <div aria-hidden className="o-absolute o-inset-0" style={{ background: VOILE_PUPITRE }} />
+      <div
+        aria-hidden
+        className="o-absolute o-inset-0"
+        style={{ background: VOILE_PUPITRE }}
+      />
 
       <div className="o-relative o-flex o-h-full o-flex-col">
         {/* L entete du pupitre : d ou vient l extrait, et quand. */}
@@ -855,7 +910,8 @@ function Pupitre(): ReactElement {
               className="o-block o-h-2 o-w-2 o-rounded-full"
               style={{ backgroundColor: accent(400) }}
             />
-            Flux en direct — {lignes.length} {lignes.length > 1 ? 'signaux' : 'signal'} affiche
+            Flux en direct — {lignes.length} {lignes.length > 1 ? 'signaux' : 'signal'}{' '}
+            affiche
             {lignes.length > 1 ? 's' : ''} sur {VEILLE.length} retenus
           </p>
         </div>
@@ -948,16 +1004,19 @@ function Pupitre(): ReactElement {
             }}
           >
             {lignes.length === 0 ? (
-              <p className="o-m-0 o-p-4 o-text-xs o-leading-relaxed" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                Aucun signal de cette gravite dans ce statut sur l extrait du jour.
-                Sur un pupitre, c est une bonne nouvelle : la combinaison existe,
-                elle est simplement vide.
+              <p
+                className="o-m-0 o-p-4 o-text-xs o-leading-relaxed"
+                style={{ color: ENCRE_PUPITRE_DOUCE }}
+              >
+                Aucun signal de cette gravite dans ce statut sur l extrait du jour. Sur un
+                pupitre, c est une bonne nouvelle : la combinaison existe, elle est
+                simplement vide.
               </p>
             ) : (
               <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 620 }}>
                 <caption className="o-sr-only">
-                  Les signaux retenus par le pupitre de veille le 12 avril 2026,
-                  filtres par gravite et par statut
+                  Les signaux retenus par le pupitre de veille le 12 avril 2026, filtres
+                  par gravite et par statut
                 </caption>
                 <thead>
                   <tr>
@@ -1111,8 +1170,8 @@ function Pupitre(): ReactElement {
                 />
                 {alertes.length === 0 && (
                   <p className="o-text-xs" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                    Toutes les alertes ont ete acquittees. Rechargez la page pour
-                    les revoir.
+                    Toutes les alertes ont ete acquittees. Rechargez la page pour les
+                    revoir.
                   </p>
                 )}
               </div>
@@ -1179,11 +1238,19 @@ function Figure({
   return (
     <figure className="o-m-0 o-grid o-gap-8 lg:o-grid-cols-12 lg:o-gap-12">
       <figcaption className="lg:o-col-span-3">
-        <p className="o-m-0 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest" style={{ color: sombre ? ENCRE_PUPITRE : ENCRE }}>
+        <p
+          className="o-m-0 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+          style={{ color: sombre ? ENCRE_PUPITRE : ENCRE }}
+        >
           Figure {rang}
         </p>
-        <p className="o-m-0 o-mt-4 o-text-lg o-font-bold o-leading-snug o-tracking-tight">{titre}</p>
-        <p className={`o-m-0 o-mt-4 o-text-sm o-leading-relaxed ${sombre ? '' : 'o-text-slate-600 dark:o-text-slate-400'}`} style={sombre ? { color: ENCRE_PUPITRE_DOUCE } : undefined}>
+        <p className="o-m-0 o-mt-4 o-text-lg o-font-bold o-leading-snug o-tracking-tight">
+          {titre}
+        </p>
+        <p
+          className={`o-m-0 o-mt-4 o-text-sm o-leading-relaxed ${sombre ? '' : 'o-text-slate-600 dark:o-text-slate-400'}`}
+          style={sombre ? { color: ENCRE_PUPITRE_DOUCE } : undefined}
+        >
           {legende}
         </p>
       </figcaption>
@@ -1278,15 +1345,39 @@ function FigureDelais(): ReactElement {
   const pale = 'color-mix(in oklab, currentColor 72%, transparent)'
   return (
     <div ref={poser} className="o-overflow-x-auto o-pb-2">
-      <svg viewBox="0 0 1000 300" className="o-h-auto o-w-full" style={{ minWidth: 720 }} role="img" aria-label="Les jalons contractuels sur une echelle de temps logarithmique : critique, prise en charge a 5 minutes, confinement a 15 minutes, rapport a 24 heures ; elevee, 15 minutes, 1 heure, 48 heures ; moyenne, 2 heures, 1 jour, 5 jours ; faible, 1 jour, 5 jours, rapport mensuel.">
+      <svg
+        viewBox="0 0 1000 300"
+        className="o-h-auto o-w-full"
+        style={{ minWidth: 720 }}
+        role="img"
+        aria-label="Les jalons contractuels sur une echelle de temps logarithmique : critique, prise en charge a 5 minutes, confinement a 15 minutes, rapport a 24 heures ; elevee, 15 minutes, 1 heure, 48 heures ; moyenne, 2 heures, 1 jour, 5 jours ; faible, 1 jour, 5 jours, rapport mensuel."
+      >
         {/* La legende des trois signes, en haut. */}
         <g fontFamily="ui-monospace, monospace" fontSize="11" fill={pale}>
           <rect x={150} y={20} width={9} height={9} fill={ENCRE} />
-          <text x={166} y={29}>prise en charge</text>
-          <circle cx={294} cy={24.5} r={5} fill="none" stroke="currentColor" strokeWidth="1.4" />
-          <text x={306} y={29}>confinement</text>
-          <path d="M416 24.5 421 19.5 426 24.5 421 29.5Z" fill="none" stroke="currentColor" strokeWidth="1.4" />
-          <text x={434} y={29}>rapport ecrit</text>
+          <text x={166} y={29}>
+            prise en charge
+          </text>
+          <circle
+            cx={294}
+            cy={24.5}
+            r={5}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+          <text x={306} y={29}>
+            confinement
+          </text>
+          <path
+            d="M416 24.5 421 19.5 426 24.5 421 29.5Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
+          <text x={434} y={29}>
+            rapport ecrit
+          </text>
         </g>
 
         {JALONS.map((jalon, rang) => {
@@ -1294,8 +1385,23 @@ function FigureDelais(): ReactElement {
           const [prise, confinement, rapport] = jalon.minutes
           return (
             <g key={jalon.gravite}>
-              <rect x={0} y={y - 13} width={9} height={9} fill={TEINTE_GRAVITE[jalon.gravite]} />
-              <text x={16} y={y - 4} fontFamily="ui-monospace, monospace" fontSize="12" fontWeight="700" fill="currentColor">{jalon.gravite}</text>
+              <rect
+                x={0}
+                y={y - 13}
+                width={9}
+                height={9}
+                fill={TEINTE_GRAVITE[jalon.gravite]}
+              />
+              <text
+                x={16}
+                y={y - 4}
+                fontFamily="ui-monospace, monospace"
+                fontSize="12"
+                fontWeight="700"
+                fill="currentColor"
+              >
+                {jalon.gravite}
+              </text>
               {/* La piste, tracee au trait quand la figure entre dans le cadre. */}
               <path
                 d={`M150 ${String(y)}H960`}
@@ -1308,16 +1414,59 @@ function FigureDelais(): ReactElement {
                   transition: `stroke-dashoffset 900ms cubic-bezier(0.16, 1, 0.3, 1) ${String(rang * 130)}ms`,
                 }}
               />
-              <g style={{ opacity: vu ? 1 : 0, transition: `opacity 500ms ease ${String(500 + rang * 130)}ms` }}>
-                <rect x={abscisse(prise) - 5} y={y - 5} width={10} height={10} fill={ENCRE} />
-                <circle cx={abscisse(confinement)} cy={y} r={5.5} fill="none" stroke="currentColor" strokeWidth="1.6" />
-                <path d={`M${String(abscisse(rapport) - 6)} ${String(y)} ${String(abscisse(rapport))} ${String(y - 6)} ${String(abscisse(rapport) + 6)} ${String(y)} ${String(abscisse(rapport))} ${String(y + 6)}Z`} fill="none" stroke="currentColor" strokeWidth="1.6" />
-                <text x={abscisse(prise) - 5} y={y - 12} fontFamily="ui-monospace, monospace" fontSize="10.5" fill={ENCRE}>{jalon.ecrits[0]}</text>
-                <text x={abscisse(confinement) + 10} y={y - 9} fontFamily="ui-monospace, monospace" fontSize="10.5" fill={pale}>{jalon.ecrits[1]}</text>
+              <g
+                style={{
+                  opacity: vu ? 1 : 0,
+                  transition: `opacity 500ms ease ${String(500 + rang * 130)}ms`,
+                }}
+              >
+                <rect
+                  x={abscisse(prise) - 5}
+                  y={y - 5}
+                  width={10}
+                  height={10}
+                  fill={ENCRE}
+                />
+                <circle
+                  cx={abscisse(confinement)}
+                  cy={y}
+                  r={5.5}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+                <path
+                  d={`M${String(abscisse(rapport) - 6)} ${String(y)} ${String(abscisse(rapport))} ${String(y - 6)} ${String(abscisse(rapport) + 6)} ${String(y)} ${String(abscisse(rapport))} ${String(y + 6)}Z`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+                <text
+                  x={abscisse(prise) - 5}
+                  y={y - 12}
+                  fontFamily="ui-monospace, monospace"
+                  fontSize="10.5"
+                  fill={ENCRE}
+                >
+                  {jalon.ecrits[0]}
+                </text>
+                <text
+                  x={abscisse(confinement) + 10}
+                  y={y - 9}
+                  fontFamily="ui-monospace, monospace"
+                  fontSize="10.5"
+                  fill={pale}
+                >
+                  {jalon.ecrits[1]}
+                </text>
                 {/* Le dernier jalon du dernier contrat touche le bord : son
                     libelle passe alors a gauche du signe. */}
                 <text
-                  x={abscisse(rapport) > 880 ? abscisse(rapport) - 11 : abscisse(rapport) + 11}
+                  x={
+                    abscisse(rapport) > 880
+                      ? abscisse(rapport) - 11
+                      : abscisse(rapport) + 11
+                  }
                   y={y + 4}
                   textAnchor={abscisse(rapport) > 880 ? 'end' : 'start'}
                   fontFamily="ui-monospace, monospace"
@@ -1335,11 +1484,33 @@ function FigureDelais(): ReactElement {
         <path d="M150 262H960" stroke={filet} strokeWidth="1.2" fill="none" />
         {GRADUATIONS.map(([minutes, mot]) => (
           <g key={mot}>
-            <path d={`M${String(abscisse(minutes))} 262v7`} stroke={filet} strokeWidth="1.2" fill="none" />
-            <text x={abscisse(minutes)} y={287} textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="10.5" fill={pale}>{mot}</text>
+            <path
+              d={`M${String(abscisse(minutes))} 262v7`}
+              stroke={filet}
+              strokeWidth="1.2"
+              fill="none"
+            />
+            <text
+              x={abscisse(minutes)}
+              y={287}
+              textAnchor="middle"
+              fontFamily="ui-monospace, monospace"
+              fontSize="10.5"
+              fill={pale}
+            >
+              {mot}
+            </text>
           </g>
         ))}
-        <text x={0} y={287} fontFamily="ui-monospace, monospace" fontSize="10.5" fill={pale}>echelle log.</text>
+        <text
+          x={0}
+          y={287}
+          fontFamily="ui-monospace, monospace"
+          fontSize="10.5"
+          fill={pale}
+        >
+          echelle log.
+        </text>
       </svg>
     </div>
   )
@@ -1358,7 +1529,12 @@ interface Garde {
 }
 
 /** Le quart lu par defaut, quand aucun ne tient — minuit passe. */
-const GARDE_ZERO: Garde = { nom: 'Nuit', debut: 0, fin: 8, effectif: '3 analystes, 1 senior d astreinte' }
+const GARDE_ZERO: Garde = {
+  nom: 'Nuit',
+  debut: 0,
+  fin: 8,
+  effectif: '3 analystes, 1 senior d astreinte',
+}
 
 /** Les trois quarts de huit heures. */
 const GARDES: readonly Garde[] = [
@@ -1395,7 +1571,11 @@ function Cadran(): ReactElement {
   const [horloge, setHorloge] = useState('')
 
   useEffect(() => {
-    const format = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })
+    const format = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris',
+    })
     const lire = (): void => {
       const parties = format.formatToParts(new Date())
       const h = Number(parties.find((p) => p.type === 'hour')?.value ?? '0')
@@ -1410,23 +1590,58 @@ function Cadran(): ReactElement {
     }
   }, [])
 
-  const deGarde: Garde | null = heure === null ? null : (GARDES.find((g) => heure >= g.debut && heure < g.fin) ?? GARDE_ZERO)
+  const deGarde: Garde | null =
+    heure === null
+      ? null
+      : (GARDES.find((g) => heure >= g.debut && heure < g.fin) ?? GARDE_ZERO)
   const [ax, ay] = surLeCadran(96, heure ?? 0)
 
   return (
     <div className="o-grid o-items-center o-gap-10 md:o-grid-cols-2">
-      <svg viewBox="0 0 300 300" className="o-mx-auto o-h-auto o-w-full" style={{ maxWidth: 320 }} role="img" aria-label={deGarde === null ? 'Cadran des vingt-quatre heures de garde' : `Cadran des vingt-quatre heures de garde. Il est ${horloge} a Paris : equipe ${deGarde.nom}, ${deGarde.effectif}.`}>
-        <circle cx={150} cy={150} r={118} fill="none" stroke={FILET_SOMBRE} strokeWidth="1" />
+      <svg
+        viewBox="0 0 300 300"
+        className="o-mx-auto o-h-auto o-w-full"
+        style={{ maxWidth: 320 }}
+        role="img"
+        aria-label={
+          deGarde === null
+            ? 'Cadran des vingt-quatre heures de garde'
+            : `Cadran des vingt-quatre heures de garde. Il est ${horloge} a Paris : equipe ${deGarde.nom}, ${deGarde.effectif}.`
+        }
+      >
+        <circle
+          cx={150}
+          cy={150}
+          r={118}
+          fill="none"
+          stroke={FILET_SOMBRE}
+          strokeWidth="1"
+        />
         {/* Les vingt-quatre graduations, une marquee toutes les six heures. */}
         {Array.from({ length: 24 }, (_, h) => {
           const [x1, y1] = surLeCadran(h % 6 === 0 ? 106 : 113, h)
           const [x2, y2] = surLeCadran(118, h)
-          return <path key={h} d={`M${x1.toFixed(2)} ${y1.toFixed(2)}L${x2.toFixed(2)} ${y2.toFixed(2)}`} stroke={FILET_SOMBRE} strokeWidth={h % 6 === 0 ? 1.6 : 1} />
+          return (
+            <path
+              key={h}
+              d={`M${x1.toFixed(2)} ${y1.toFixed(2)}L${x2.toFixed(2)} ${y2.toFixed(2)}`}
+              stroke={FILET_SOMBRE}
+              strokeWidth={h % 6 === 0 ? 1.6 : 1}
+            />
+          )
         })}
         {([0, 6, 12, 18] as const).map((h) => {
           const [x, y] = surLeCadran(90, h)
           return (
-            <text key={h} x={x} y={y + 4} textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="11" fill={ENCRE_PUPITRE_DOUCE}>
+            <text
+              key={h}
+              x={x}
+              y={y + 4}
+              textAnchor="middle"
+              fontFamily="ui-monospace, monospace"
+              fontSize="11"
+              fill={ENCRE_PUPITRE_DOUCE}
+            >
               {String(h).padStart(2, '0')}
             </text>
           )
@@ -1439,13 +1654,21 @@ function Cadran(): ReactElement {
             fill="none"
             strokeWidth="10"
             strokeLinecap="butt"
-            stroke={deGarde !== null && deGarde.nom === garde.nom ? accent(400) : `color-mix(in oklab, ${accent(400)} ${String(26 + rang * 4)}%, transparent)`}
+            stroke={
+              deGarde !== null && deGarde.nom === garde.nom
+                ? accent(400)
+                : `color-mix(in oklab, ${accent(400)} ${String(26 + rang * 4)}%, transparent)`
+            }
           />
         ))}
         {/* L aiguille : l heure de Paris, relue toutes les trente secondes. */}
         {heure !== null && (
           <g style={{ transition: reduced ? undefined : 'opacity 400ms ease' }}>
-            <path d={`M150 150L${ax.toFixed(2)} ${ay.toFixed(2)}`} stroke={accent(200)} strokeWidth="2" />
+            <path
+              d={`M150 150L${ax.toFixed(2)} ${ay.toFixed(2)}`}
+              stroke={accent(200)}
+              strokeWidth="2"
+            />
             <circle cx={ax} cy={ay} r={5} fill={accent(200)} />
             <circle cx={150} cy={150} r={4} fill={accent(200)} />
           </g>
@@ -1453,23 +1676,50 @@ function Cadran(): ReactElement {
       </svg>
 
       <div>
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
+        <p
+          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: ENCRE_PUPITRE_DOUCE }}
+        >
           Heure de Paris
         </p>
-        <p className="o-m-0 o-mt-2 o-font-mono o-text-4xl o-font-bold o-tabular-nums o-tracking-tight md:o-text-5xl" style={{ color: accent(50) }}>
+        <p
+          className="o-m-0 o-mt-2 o-font-mono o-text-4xl o-font-bold o-tabular-nums o-tracking-tight md:o-text-5xl"
+          style={{ color: accent(50) }}
+        >
           {horloge === '' ? '— h —' : horloge}
         </p>
-        <p aria-live="polite" className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed" style={{ color: ENCRE_PUPITRE }}>
-          {deGarde === null ? 'Lecture de l heure en cours.' : `Au pupitre en ce moment : equipe ${deGarde.nom} — ${deGarde.effectif}.`}
+        <p
+          aria-live="polite"
+          className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed"
+          style={{ color: ENCRE_PUPITRE }}
+        >
+          {deGarde === null
+            ? 'Lecture de l heure en cours.'
+            : `Au pupitre en ce moment : equipe ${deGarde.nom} — ${deGarde.effectif}.`}
         </p>
         <dl className="o-m-0 o-mt-8 o-grid o-gap-x-6 o-gap-y-3 o-font-mono o-text-xs sm:o-grid-cols-3">
           {GARDES.map((garde) => (
-            <div key={garde.nom} style={{ borderTop: `1px solid ${FILET_SOMBRE}`, paddingTop: 10 }}>
-              <dt className="o-uppercase o-tracking-widest" style={{ color: deGarde !== null && deGarde.nom === garde.nom ? accent(200) : ENCRE_PUPITRE_DOUCE }}>
+            <div
+              key={garde.nom}
+              style={{ borderTop: `1px solid ${FILET_SOMBRE}`, paddingTop: 10 }}
+            >
+              <dt
+                className="o-uppercase o-tracking-widest"
+                style={{
+                  color:
+                    deGarde !== null && deGarde.nom === garde.nom
+                      ? accent(200)
+                      : ENCRE_PUPITRE_DOUCE,
+                }}
+              >
                 {garde.nom}
               </dt>
-              <dd className="o-m-0 o-mt-1 o-tabular-nums" style={{ color: ENCRE_PUPITRE }}>
-                {String(garde.debut).padStart(2, '0')} h — {String(garde.fin).padStart(2, '0')} h
+              <dd
+                className="o-m-0 o-mt-1 o-tabular-nums"
+                style={{ color: ENCRE_PUPITRE }}
+              >
+                {String(garde.debut).padStart(2, '0')} h —{' '}
+                {String(garde.fin).padStart(2, '0')} h
               </dd>
             </div>
           ))}
@@ -1488,8 +1738,11 @@ export default function Page(): ReactElement {
   const polices = usePolices('grotesk')
   return (
     <Porte forme="lettres" marque="Meridien">
-    <div className="o-bg-white dark:o-bg-slate-950 o-text-slate-900 dark:o-text-slate-100" style={polices}>
-      {/*
+      <div
+        className="o-bg-white dark:o-bg-slate-950 o-text-slate-900 dark:o-text-slate-100"
+        style={polices}
+      >
+        {/*
         ============================================== L affiche, dans le noir
 
         Ni photographie ni seconde scene graphique : la nuance 950 de la
@@ -1498,131 +1751,182 @@ export default function Page(): ReactElement {
         dessous — c est le pupitre, et son hologramme est le seul contexte
         anime de tout le document.
       */}
-      <div style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE }}>
-        <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden">
-          <div aria-hidden className="o-absolute o-inset-0">
-            <div className="o-absolute o-inset-0" style={{ background: HALO }} />
-            <Grain opacite={0.07} />
-          </div>
-
-          <BarreCoins
-            marque="Meridien / veille"
-            liens={LIENS.map((lien) => [lien.ancre, lien.libelle] as const)}
-            droite={
-              <a
-                href="#demonstration"
-                className="o-inline-flex o-items-center o-gap-1 o-no-underline focus:o-ring"
-                style={{ color: ENCRE_PUPITRE }}
-              >
-                Astreinte 02 99 41 08 12
-                <Icon icon={ArrowRight} size={12} aria-hidden="true" />
-              </a>
-            }
-          />
-
-          <div
-            className="o-relative o-z-20 o-mx-auto o-flex o-max-w-7xl o-flex-col o-justify-center o-px-6 o-pb-28 o-pt-6"
-            style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 128px)` }}
+        <div style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE }}>
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden"
           >
-            <Surgit>
-              <Etiquette>Pupitre de veille — Rennes, 24 h sur 24</Etiquette>
-            </Surgit>
-            <TitreVague
-              delai={120}
-              className="o-m-0 o-mt-8 o-max-w-4xl"
-              style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 6vw, 6rem)', color: accent(50) }}
+            <div aria-hidden className="o-absolute o-inset-0">
+              <div className="o-absolute o-inset-0" style={{ background: HALO }} />
+              <Grain opacite={0.07} />
+            </div>
+
+            <BarreCoins
+              marque="Meridien / veille"
+              liens={LIENS.map((lien) => [lien.ancre, lien.libelle] as const)}
+              droite={
+                <a
+                  href="#demonstration"
+                  className="o-inline-flex o-items-center o-gap-1 o-no-underline focus:o-ring"
+                  style={{ color: ENCRE_PUPITRE }}
+                >
+                  Astreinte 02 99 41 08 12
+                  <Icon icon={ArrowRight} size={12} aria-hidden="true" />
+                </a>
+              }
+            />
+
+            <div
+              className="o-relative o-z-20 o-mx-auto o-flex o-max-w-7xl o-flex-col o-justify-center o-px-6 o-pb-28 o-pt-6"
+              style={{ minHeight: `calc(100vh - ${String(CHROME)}px - 128px)` }}
             >
-              On ne vend pas un mur. On vend une vigilance.
-            </TitreVague>
-            <Surgit delai={520} as="p" className="o-m-0 o-mt-9 o-max-w-lg o-text-base o-leading-relaxed" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-              Vos postes, vos identites et votre reseau sur un seul pupitre. La
-              reponse part avant que quelqu un ait decroche son telephone.
-            </Surgit>
-            <Surgit delai={660} className="o-mt-10">
-              <Actions
-                pleine={['#demonstration', <>Demander une demonstration <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]}
-                fantome={['#veille', 'Voir le pupitre']}
-              />
-            </Surgit>
-          </div>
+              <Surgit>
+                <Etiquette>Pupitre de veille — Rennes, 24 h sur 24</Etiquette>
+              </Surgit>
+              <TitreVague
+                delai={120}
+                className="o-m-0 o-mt-8 o-max-w-4xl"
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.5rem, 6vw, 6rem)',
+                  color: accent(50),
+                }}
+              >
+                On ne vend pas un mur. On vend une vigilance.
+              </TitreVague>
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-9 o-max-w-lg o-text-base o-leading-relaxed"
+                style={{ color: ENCRE_PUPITRE_DOUCE }}
+              >
+                Vos postes, vos identites et votre reseau sur un seul pupitre. La reponse
+                part avant que quelqu un ait decroche son telephone.
+              </Surgit>
+              <Surgit delai={660} className="o-mt-10">
+                <Actions
+                  pleine={[
+                    '#demonstration',
+                    <>
+                      Demander une demonstration{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#veille', 'Voir le pupitre']}
+                />
+              </Surgit>
+            </div>
 
-          <Coin position="bg">Detection comportementale, pas de signatures<br />Astreinte en France, sans sous-traitance</Coin>
-          <Coin position="bd">340 parcs surveilles<br />Donnees a Paris et a Francfort</Coin>
-        </section>
+            <Coin position="bg">
+              Detection comportementale, pas de signatures
+              <br />
+              Astreinte en France, sans sous-traitance
+            </Coin>
+            <Coin position="bd">
+              340 parcs surveilles
+              <br />
+              Donnees a Paris et a Francfort
+            </Coin>
+          </section>
 
-        {/*
+          {/*
           ================================================ (01) Le pupitre
 
           Le mecanisme du milieu, remonte au premier ecran : la table filtre
           reellement, et l hologramme tourne derriere elle. Encore dans le
           noir ; la coupe vers le corps clair vient juste apres.
         */}
-        <section
-          aria-labelledby="pupitre-titre"
-          className="o-relative o-mx-auto o-max-w-7xl o-scroll-mt-24 o-px-6 o-pb-24"
-        >
-          <Indice rang="01">Le pupitre</Indice>
-          <div className="o-mt-8 o-grid o-gap-8 lg:o-grid-cols-12">
-            <Pupitre />
+          <section
+            aria-labelledby="pupitre-titre"
+            className="o-relative o-mx-auto o-max-w-7xl o-scroll-mt-24 o-px-6 o-pb-24"
+          >
+            <Indice rang="01">Le pupitre</Indice>
+            <div className="o-mt-8 o-grid o-gap-8 lg:o-grid-cols-12">
+              <Pupitre />
 
-            <div className="o-self-start lg:o-col-span-4">
-              <h2
-                id="pupitre-titre"
-                className="o-m-0 o-text-balance"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)', color: accent(50) }}
-              >
-                Ce qu un analyste de garde lit a trois heures du matin.
-              </h2>
-              <p className="o-mt-5 o-text-sm o-leading-relaxed" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                Un extrait reel de format, avec des donnees inventees. Les deux
-                filtres fonctionnent : la gravite pour un responsable, le statut
-                pour un analyste.
-              </p>
+              <div className="o-self-start lg:o-col-span-4">
+                <h2
+                  id="pupitre-titre"
+                  className="o-m-0 o-text-balance"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                    color: accent(50),
+                  }}
+                >
+                  Ce qu un analyste de garde lit a trois heures du matin.
+                </h2>
+                <p
+                  className="o-mt-5 o-text-sm o-leading-relaxed"
+                  style={{ color: ENCRE_PUPITRE_DOUCE }}
+                >
+                  Un extrait reel de format, avec des donnees inventees. Les deux filtres
+                  fonctionnent : la gravite pour un responsable, le statut pour un
+                  analyste.
+                </p>
 
-              <p className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-x-4 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                Gravite
-                {GRAVITES.map((degre) => (
-                  <span key={degre} className="o-inline-flex o-items-center o-gap-2">
-                    <span aria-hidden className="o-block o-h-2 o-w-2" style={{ backgroundColor: TEINTE_GRAVITE[degre] }} />
-                    {degre}
-                  </span>
-                ))}
-              </p>
-              <p className="o-mt-6 o-text-xs o-leading-relaxed" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                Chaque alerte part aussi vers votre outil de tickets et votre
-                canal d equipe, avec le meme identifiant de correlation.
-              </p>
+                <p
+                  className="o-mt-8 o-flex o-flex-wrap o-items-center o-gap-x-4 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE_PUPITRE_DOUCE }}
+                >
+                  Gravite
+                  {GRAVITES.map((degre) => (
+                    <span key={degre} className="o-inline-flex o-items-center o-gap-2">
+                      <span
+                        aria-hidden
+                        className="o-block o-h-2 o-w-2"
+                        style={{ backgroundColor: TEINTE_GRAVITE[degre] }}
+                      />
+                      {degre}
+                    </span>
+                  ))}
+                </p>
+                <p
+                  className="o-mt-6 o-text-xs o-leading-relaxed"
+                  style={{ color: ENCRE_PUPITRE_DOUCE }}
+                >
+                  Chaque alerte part aussi vers votre outil de tickets et votre canal d
+                  equipe, avec le meme identifiant de correlation.
+                </p>
+              </div>
             </div>
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
 
-      <main>
-        {/*
+        <main>
+          {/*
           ================================================== Le ruban (C9)
 
           Pas de barre de compteurs : une bande qui passe. Sur un pupitre, un
           chiffre defile — il ne se contemple pas dans une case bordee.
         */}
-        <div
-          aria-label="Meridien en chiffres"
-          className="o-overflow-hidden o-py-5"
-          style={{ borderTop: `1px solid ${FILET}`, borderBottom: `1px solid ${FILET}` }}
-        >
-          <Marquee speed={58} fade={10} pauseOnHover={false}>
-            {[...RUBAN, ...RUBAN].map((valeur, rang) => (
-              <span
-                key={`${valeur}-${String(rang)}`}
-                className="o-flex o-shrink-0 o-items-center o-gap-4 o-px-8 o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
-              >
-                <span aria-hidden className="o-block o-h-1.5 o-w-1.5" style={{ backgroundColor: accent(500) }} />
-                <span className="o-text-slate-700 dark:o-text-slate-300">{valeur}</span>
-              </span>
-            ))}
-          </Marquee>
-        </div>
+          <div
+            aria-label="Meridien en chiffres"
+            className="o-overflow-hidden o-py-5"
+            style={{
+              borderTop: `1px solid ${FILET}`,
+              borderBottom: `1px solid ${FILET}`,
+            }}
+          >
+            <Marquee speed={58} fade={10} pauseOnHover={false}>
+              {[...RUBAN, ...RUBAN].map((valeur, rang) => (
+                <span
+                  key={`${valeur}-${String(rang)}`}
+                  className="o-flex o-shrink-0 o-items-center o-gap-4 o-px-8 o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
+                >
+                  <span
+                    aria-hidden
+                    className="o-block o-h-1.5 o-w-1.5"
+                    style={{ backgroundColor: accent(500) }}
+                  />
+                  <span className="o-text-slate-700 dark:o-text-slate-300">{valeur}</span>
+                </span>
+              ))}
+            </Marquee>
+          </div>
 
-        {/*
+          {/*
           =========================================== (02) Les menaces, empilees
 
           La signature de la page. Quatre panneaux sombres qui se recouvrent au
@@ -1630,254 +1934,311 @@ export default function Page(): ReactElement {
           c est le seul endroit du document ou le texte se derange, et c est
           celui ou une machine attaque.
         */}
-        <section
-          id="menaces"
-          aria-labelledby="menaces-titre"
-          className="o-mx-auto o-max-w-7xl o-scroll-mt-24 o-px-6 o-py-20 md:o-py-28"
-        >
-          <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
-            <div className="md:o-col-span-7">
-              <p className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
-                (02) — Les menaces
+          <section
+            id="menaces"
+            aria-labelledby="menaces-titre"
+            className="o-mx-auto o-max-w-7xl o-scroll-mt-24 o-px-6 o-py-20 md:o-py-28"
+          >
+            <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
+              <div className="md:o-col-span-7">
+                <p
+                  className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
+                  (02) — Les menaces
+                </p>
+                <h2
+                  id="menaces-titre"
+                  className="o-m-0 o-mt-4 o-text-balance"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
+                  Quatre familles font neuf dossiers sur dix.
+                </h2>
+              </div>
+              <p className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400 md:o-col-span-5">
+                Pour chacune : a quoi elle ressemble sur le fil, ce que la machine fait
+                sans attendre un humain, et en combien de temps. Le reste — onze pour cent
+                — passe par un analyste avant tout geste.
               </p>
-              <h2
-                id="menaces-titre"
-                className="o-m-0 o-mt-4 o-text-balance"
-                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}
-              >
-                Quatre familles font neuf dossiers sur dix.
-              </h2>
             </div>
-            <p className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400 md:o-col-span-5">
-              Pour chacune : a quoi elle ressemble sur le fil, ce que la machine
-              fait sans attendre un humain, et en combien de temps. Le reste —
-              onze pour cent — passe par un analyste avant tout geste.
-            </p>
-          </div>
 
-          <StickyStack className="o-mt-14 o-flex o-flex-col o-gap-8" offset={CHROME + 24} gap={22} shrink={0.06}>
-            {MENACES.map((menace, rang) => (
-              <article
-                key={menace.cle}
-                className="o-relative o-overflow-hidden o-p-6 md:o-p-10"
-                style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE, border: `1px solid ${FILET_SOMBRE}` }}
-              >
-                <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                  <span className="o-tabular-nums">{String(rang + 1).padStart(2, '0')} / 04</span>
-                  <span>{menace.part}</span>
-                </div>
-
-                <h3 className="o-m-0 o-mt-6" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 5vw, 4.5rem)', color: accent(50) }}>
-                  <GlitchText as="span" intensity={2} interval={4200}>
-                    {menace.nom}
-                  </GlitchText>
-                </h3>
-
-                <dl className="o-m-0 o-mt-10 o-grid o-gap-x-10 o-gap-y-6 md:o-grid-cols-12">
-                  <div className="md:o-col-span-5">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                      Le signe
-                    </dt>
-                    <dd className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed" style={{ color: ENCRE_PUPITRE }}>
-                      {menace.signe}
-                    </dd>
+            <StickyStack
+              className="o-mt-14 o-flex o-flex-col o-gap-8"
+              offset={CHROME + 24}
+              gap={22}
+              shrink={0.06}
+            >
+              {MENACES.map((menace, rang) => (
+                <article
+                  key={menace.cle}
+                  className="o-relative o-overflow-hidden o-p-6 md:o-p-10"
+                  style={{
+                    backgroundColor: ARDOISE,
+                    color: ENCRE_PUPITRE,
+                    border: `1px solid ${FILET_SOMBRE}`,
+                  }}
+                >
+                  <div
+                    className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE_PUPITRE_DOUCE }}
+                  >
+                    <span className="o-tabular-nums">
+                      {String(rang + 1).padStart(2, '0')} / 04
+                    </span>
+                    <span>{menace.part}</span>
                   </div>
-                  <div className="md:o-col-span-5">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                      Le geste
-                    </dt>
-                    <dd className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed" style={{ color: ENCRE_PUPITRE }}>
-                      {menace.geste}
-                    </dd>
-                  </div>
-                  <div className="md:o-col-span-2">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                      Median
-                    </dt>
-                    <dd className="o-m-0 o-mt-3 o-font-mono o-text-lg o-font-bold o-tabular-nums" style={{ color: ENCRE_PUPITRE }}>
-                      {menace.median}
-                    </dd>
-                  </div>
-                </dl>
-              </article>
-            ))}
-          </StickyStack>
-        </section>
 
-        {/*
+                  <h3
+                    className="o-m-0 o-mt-6"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(2rem, 5vw, 4.5rem)',
+                      color: accent(50),
+                    }}
+                  >
+                    <GlitchText as="span" intensity={2} interval={4200}>
+                      {menace.nom}
+                    </GlitchText>
+                  </h3>
+
+                  <dl className="o-m-0 o-mt-10 o-grid o-gap-x-10 o-gap-y-6 md:o-grid-cols-12">
+                    <div className="md:o-col-span-5">
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: ENCRE_PUPITRE_DOUCE }}
+                      >
+                        Le signe
+                      </dt>
+                      <dd
+                        className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed"
+                        style={{ color: ENCRE_PUPITRE }}
+                      >
+                        {menace.signe}
+                      </dd>
+                    </div>
+                    <div className="md:o-col-span-5">
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: ENCRE_PUPITRE_DOUCE }}
+                      >
+                        Le geste
+                      </dt>
+                      <dd
+                        className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed"
+                        style={{ color: ENCRE_PUPITRE }}
+                      >
+                        {menace.geste}
+                      </dd>
+                    </div>
+                    <div className="md:o-col-span-2">
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: ENCRE_PUPITRE_DOUCE }}
+                      >
+                        Median
+                      </dt>
+                      <dd
+                        className="o-m-0 o-mt-3 o-font-mono o-text-lg o-font-bold o-tabular-nums"
+                        style={{ color: ENCRE_PUPITRE }}
+                      >
+                        {menace.median}
+                      </dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </StickyStack>
+          </section>
+
+          {/*
           =========================================== L ecran de texte seul
 
           Entre la pile des menaces et le premier tableau, une phrase et rien
           d autre. C est la respiration qui manquait : trois tableaux se
           suivaient sans qu on ait le temps de lever les yeux.
         */}
-        <section
-          aria-labelledby="minutes-titre"
-          className="o-flex o-items-center o-px-6 o-py-24 md:o-py-32"
-          style={{ minHeight: '64vh', borderTop: `1px solid ${FILET}` }}
-        >
-          <div className="o-mx-auto o-w-full o-max-w-5xl">
-            <h2 id="minutes-titre" className="o-sr-only">Ce qui se mesure ici</h2>
-            <p
-              className="o-m-0 o-text-balance"
-              style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4.3vw, 3.75rem)', lineHeight: 1.1 }}
-            >
-              Ce que nous vendons ne se mesure ni en fonctions ni en tableaux de
-              bord. Cela se mesure{' '}
-              <HighlightSweep colour={accentDoux(500, 34)} thickness={0.42} duration={900} delay={300}>
-                en minutes
-              </HighlightSweep>{' '}
-              — celles qui separent le premier fichier chiffre du moment ou la
-              machine s arrete.
-            </p>
-            <p className="o-m-0 o-mt-10 o-max-w-md o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
-              Les trois tableaux qui suivent disent lesquelles, et ce qu il en coute quand nous les manquons
-            </p>
-          </div>
-        </section>
+          <section
+            aria-labelledby="minutes-titre"
+            className="o-flex o-items-center o-px-6 o-py-24 md:o-py-32"
+            style={{ minHeight: '64vh', borderTop: `1px solid ${FILET}` }}
+          >
+            <div className="o-mx-auto o-w-full o-max-w-5xl">
+              <h2 id="minutes-titre" className="o-sr-only">
+                Ce qui se mesure ici
+              </h2>
+              <p
+                className="o-m-0 o-text-balance"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 4.3vw, 3.75rem)',
+                  lineHeight: 1.1,
+                }}
+              >
+                Ce que nous vendons ne se mesure ni en fonctions ni en tableaux de bord.
+                Cela se mesure{' '}
+                <HighlightSweep
+                  colour={accentDoux(500, 34)}
+                  thickness={0.42}
+                  duration={900}
+                  delay={300}
+                >
+                  en minutes
+                </HighlightSweep>{' '}
+                — celles qui separent le premier fichier chiffre du moment ou la machine s
+                arrete.
+              </p>
+              <p className="o-m-0 o-mt-10 o-max-w-md o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
+                Les trois tableaux qui suivent disent lesquelles, et ce qu il en coute
+                quand nous les manquons
+              </p>
+            </div>
+          </section>
 
-        {/* ---------------------------- Les delais d intervention contractuels */}
-        <section
-          id="delais"
-          aria-labelledby="delais-titre"
-          className="o-mx-auto o-max-w-7xl o-px-6 o-py-20"
-          style={{ borderTop: `1px solid ${FILET}` }}
-        >
-          <div className="o-max-w-2xl">
-            <p
-              className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-              style={{ color: ENCRE }}
-            >
-              Les delais
-            </p>
-            <h2
-              id="delais-titre"
-              className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
-            >
-              Ce que le contrat vous doit, en minutes
-            </h2>
-            <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-              Un engagement de securite qui ne chiffre pas ses delais n engage
-              rien. Voici les notres, avec la penalite qui les accompagne — c est
-              la seule partie du contrat qui rende un delai reel.
-            </p>
-          </div>
+          {/* ---------------------------- Les delais d intervention contractuels */}
+          <section
+            id="delais"
+            aria-labelledby="delais-titre"
+            className="o-mx-auto o-max-w-7xl o-px-6 o-py-20"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
+            <div className="o-max-w-2xl">
+              <p
+                className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                style={{ color: ENCRE }}
+              >
+                Les delais
+              </p>
+              <h2
+                id="delais-titre"
+                className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
+              >
+                Ce que le contrat vous doit, en minutes
+              </h2>
+              <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                Un engagement de securite qui ne chiffre pas ses delais n engage rien.
+                Voici les notres, avec la penalite qui les accompagne — c est la seule
+                partie du contrat qui rende un delai reel.
+              </p>
+            </div>
 
-          {/*
+            {/*
             La figure passe devant le tableau. Elle ne le remplace pas : elle
             donne la forme — quatre contrats dont le plus dur tient dans le
             premier centimetre d une echelle d un mois — et le tableau garde
             l engagement, au mot pres.
           */}
-          <div className="o-mt-12">
-            <Figure
-              rang="1"
-              titre="Les trois jalons du contrat, a l echelle du temps."
-              legende="Prise en charge, confinement, rapport ecrit, poses sur une echelle logarithmique d une minute a trente jours. Un jour ouvre vaut ici vingt-quatre heures : la figure situe, le tableau engage."
+            <div className="o-mt-12">
+              <Figure
+                rang="1"
+                titre="Les trois jalons du contrat, a l echelle du temps."
+                legende="Prise en charge, confinement, rapport ecrit, poses sur une echelle logarithmique d une minute a trente jours. Un jour ouvre vaut ici vingt-quatre heures : la figure situe, le tableau engage."
+              >
+                <FigureDelais />
+              </Figure>
+            </div>
+
+            <div
+              className="o-mt-12 o-overflow-x-auto o-bg-white dark:o-bg-slate-950"
+              style={{ border: `1px solid ${FILET}` }}
             >
-              <FigureDelais />
-            </Figure>
-          </div>
-
-          <div
-            className="o-mt-12 o-overflow-x-auto o-bg-white dark:o-bg-slate-950"
-            style={{ border: `1px solid ${FILET}` }}
-          >
-            <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 760 }}>
-              <caption className="o-sr-only">
-                Delais contractuels de prise en charge, de confinement et de rapport,
-                par gravite
-              </caption>
-              <thead>
-                <tr>
-                  {[
-                    'Gravite',
-                    'Ce que cela recouvre',
-                    'Prise en charge',
-                    'Confinement',
-                    'Rapport ecrit',
-                    'Penalite',
-                  ].map((entete) => (
-                    <th
-                      key={entete}
-                      scope="col"
-                      className="o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-wide o-text-slate-600 dark:o-text-slate-400"
-                      style={{ borderBottom: `1px solid ${FILET}` }}
-                    >
-                      {entete}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {DELAIS.map((ligne) => (
-                  <tr key={ligne.gravite}>
-                    <th
-                      scope="row"
-                      className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      <span className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase">
-                        <span
-                          aria-hidden
-                          className="o-block o-h-2 o-w-2"
-                          style={{ backgroundColor: TEINTE_GRAVITE[ligne.gravite] }}
-                        />
-                        {ligne.gravite}
-                      </span>
-                    </th>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      {ligne.definition}
-                    </td>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-font-bold o-tabular-nums o-whitespace-nowrap"
-                      style={{ borderTop: `1px solid ${FILET}`, color: ENCRE }}
-                    >
-                      {ligne.priseEnCharge}
-                    </td>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      {ligne.confinement}
-                    </td>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      {ligne.rapport}
-                    </td>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      {ligne.penalite}
-                    </td>
+              <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 760 }}>
+                <caption className="o-sr-only">
+                  Delais contractuels de prise en charge, de confinement et de rapport,
+                  par gravite
+                </caption>
+                <thead>
+                  <tr>
+                    {[
+                      'Gravite',
+                      'Ce que cela recouvre',
+                      'Prise en charge',
+                      'Confinement',
+                      'Rapport ecrit',
+                      'Penalite',
+                    ].map((entete) => (
+                      <th
+                        key={entete}
+                        scope="col"
+                        className="o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-wide o-text-slate-600 dark:o-text-slate-400"
+                        style={{ borderBottom: `1px solid ${FILET}` }}
+                      >
+                        {entete}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {DELAIS.map((ligne) => (
+                    <tr key={ligne.gravite}>
+                      <th
+                        scope="row"
+                        className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        <span className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase">
+                          <span
+                            aria-hidden
+                            className="o-block o-h-2 o-w-2"
+                            style={{ backgroundColor: TEINTE_GRAVITE[ligne.gravite] }}
+                          />
+                          {ligne.gravite}
+                        </span>
+                      </th>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        {ligne.definition}
+                      </td>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-font-bold o-tabular-nums o-whitespace-nowrap"
+                        style={{ borderTop: `1px solid ${FILET}`, color: ENCRE }}
+                      >
+                        {ligne.priseEnCharge}
+                      </td>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        {ligne.confinement}
+                      </td>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-font-mono o-text-sm o-tabular-nums o-whitespace-nowrap"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        {ligne.rapport}
+                      </td>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        {ligne.penalite}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <ul className="o-mt-8 o-grid o-list-none o-gap-3 o-p-0 o-text-sm md:o-grid-cols-2">
-            {CONTRAT.map((regle) => (
-              <li key={regle} className="o-flex o-items-start o-gap-3">
-                <Icon
-                  icon={Check}
-                  size={16}
-                  className="o-mt-0.5 o-shrink-0"
-                  style={{ color: ENCRE }}
-                />
-                <span className="o-text-slate-600 dark:o-text-slate-400">{regle}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+            <ul className="o-mt-8 o-grid o-list-none o-gap-3 o-p-0 o-text-sm md:o-grid-cols-2">
+              {CONTRAT.map((regle) => (
+                <li key={regle} className="o-flex o-items-start o-gap-3">
+                  <Icon
+                    icon={Check}
+                    size={16}
+                    className="o-mt-0.5 o-shrink-0"
+                    style={{ color: ENCRE }}
+                  />
+                  <span className="o-text-slate-600 dark:o-text-slate-400">{regle}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        {/*
+          {/*
           ====================================================== La coupe sombre
 
           Deux tableaux ne doivent pas se toucher. Entre les delais et la
@@ -1886,74 +2247,84 @@ export default function Page(): ReactElement {
           seule mesure de la page qui bouge d elle-meme, et elle dit qui tient
           le pupitre a la seconde ou la page est lue.
         */}
-        <section
-          id="garde"
-          aria-labelledby="garde-titre"
-          className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-px-6 o-py-20 md:o-py-28"
-          style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE }}
-        >
-          <div aria-hidden className="o-absolute o-inset-0">
-            <div className="o-absolute o-inset-0" style={{ background: HALO }} />
-            <Grain opacite={0.07} />
-          </div>
-          <div className="o-relative o-mx-auto o-max-w-7xl">
-            <h2 id="garde-titre" className="o-sr-only">La garde, sur vingt-quatre heures</h2>
-            <Figure
-              rang="2"
-              sombre
-              titre="Qui tient le pupitre, a l heure ou vous lisez ceci."
-              legende="Trois quarts de huit heures, en France, sans sous-traitance. L aiguille suit l heure de Paris : elle ne montre pas un principe, elle montre l equipe de garde maintenant."
-            >
-              <Cadran />
-            </Figure>
-          </div>
-        </section>
-
-        {/* ---------------------------------------------------- La conformite */}
-        <section
-          id="conformite"
-          aria-labelledby="conformite-titre"
-          className="o-bg-slate-50 dark:o-bg-slate-900"
-          style={{
-            borderTop: `1px solid ${FILET}`,
-            borderBottom: `1px solid ${FILET}`,
-          }}
-        >
-          <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-20">
-            <div className="o-max-w-2xl">
-              <p
-                className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-                style={{ color: ENCRE }}
-              >
-                La conformite
-              </p>
-              <h2
-                id="conformite-titre"
-                className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
-              >
-                Six referentiels, leur etat, et la date qui vient
-              </h2>
-              <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                La conformite n est pas une page de logos : c est un dossier que
-                votre auditeur telecharge. Le notre est tenu a jour en continu,
-                l acces vous est ouvert des la signature, et ce qui n est pas
-                encore acquis est ecrit comme tel.
-              </p>
+          <section
+            id="garde"
+            aria-labelledby="garde-titre"
+            className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-px-6 o-py-20 md:o-py-28"
+            style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE }}
+          >
+            <div aria-hidden className="o-absolute o-inset-0">
+              <div className="o-absolute o-inset-0" style={{ background: HALO }} />
+              <Grain opacite={0.07} />
             </div>
+            <div className="o-relative o-mx-auto o-max-w-7xl">
+              <h2 id="garde-titre" className="o-sr-only">
+                La garde, sur vingt-quatre heures
+              </h2>
+              <Figure
+                rang="2"
+                sombre
+                titre="Qui tient le pupitre, a l heure ou vous lisez ceci."
+                legende="Trois quarts de huit heures, en France, sans sous-traitance. L aiguille suit l heure de Paris : elle ne montre pas un principe, elle montre l equipe de garde maintenant."
+              >
+                <Cadran />
+              </Figure>
+            </div>
+          </section>
 
-            <div
-              className="o-mt-10 o-overflow-x-auto o-bg-white dark:o-bg-slate-950"
-              style={{ border: `1px solid ${FILET}` }}
-            >
-              <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 760 }}>
-                <caption className="o-sr-only">
-                  Les six referentiels couverts par Meridien, leur etat, leur
-                  couverture et la preuve tenue pour chacun
-                </caption>
-                <thead>
-                  <tr>
-                    {['Referentiel', 'Etat', 'Couverture', 'Prochaine echeance', 'Preuve tenue'].map(
-                      (entete) => (
+          {/* ---------------------------------------------------- La conformite */}
+          <section
+            id="conformite"
+            aria-labelledby="conformite-titre"
+            className="o-bg-slate-50 dark:o-bg-slate-900"
+            style={{
+              borderTop: `1px solid ${FILET}`,
+              borderBottom: `1px solid ${FILET}`,
+            }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-20">
+              <div className="o-max-w-2xl">
+                <p
+                  className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
+                  La conformite
+                </p>
+                <h2
+                  id="conformite-titre"
+                  className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
+                >
+                  Six referentiels, leur etat, et la date qui vient
+                </h2>
+                <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                  La conformite n est pas une page de logos : c est un dossier que votre
+                  auditeur telecharge. Le notre est tenu a jour en continu, l acces vous
+                  est ouvert des la signature, et ce qui n est pas encore acquis est ecrit
+                  comme tel.
+                </p>
+              </div>
+
+              <div
+                className="o-mt-10 o-overflow-x-auto o-bg-white dark:o-bg-slate-950"
+                style={{ border: `1px solid ${FILET}` }}
+              >
+                <table
+                  className="o-w-full o-text-left o-text-sm"
+                  style={{ minWidth: 760 }}
+                >
+                  <caption className="o-sr-only">
+                    Les six referentiels couverts par Meridien, leur etat, leur couverture
+                    et la preuve tenue pour chacun
+                  </caption>
+                  <thead>
+                    <tr>
+                      {[
+                        'Referentiel',
+                        'Etat',
+                        'Couverture',
+                        'Prochaine echeance',
+                        'Preuve tenue',
+                      ].map((entete) => (
                         <th
                           key={entete}
                           scope="col"
@@ -1962,223 +2333,232 @@ export default function Page(): ReactElement {
                         >
                           {entete}
                         </th>
-                      ),
-                    )}
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {CONFORMITE.map((cadre) => (
+                      <tr key={cadre.nom}>
+                        <th
+                          scope="row"
+                          className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
+                          style={{ borderTop: `1px solid ${FILET}` }}
+                        >
+                          <span className="o-flex o-items-center o-gap-2 o-font-mono o-text-sm o-font-bold o-tracking-tight">
+                            <Icon icon={cadre.icone} size={18} style={{ color: ENCRE }} />
+                            {cadre.nom}
+                          </span>
+                        </th>
+                        <td
+                          className="o-px-4 o-py-3 o-align-top o-text-sm o-font-medium o-whitespace-nowrap"
+                          style={{ borderTop: `1px solid ${FILET}` }}
+                        >
+                          <span
+                            className="o-inline-flex o-items-center o-gap-2 o-px-2 o-py-1 o-font-mono o-text-xs"
+                            style={
+                              cadre.etat === 'En cours'
+                                ? {
+                                    border: '1px solid var(--o-palette-amber-500)',
+                                    color: `color-mix(in oklab, var(--o-palette-amber-500) 45%, var(--o-theme-fg))`,
+                                  }
+                                : { backgroundColor: VOILE, color: ENCRE }
+                            }
+                          >
+                            {cadre.etat !== 'En cours' && <Icon icon={Check} size={12} />}
+                            {cadre.etat}
+                          </span>
+                        </td>
+                        <td
+                          className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
+                          style={{ borderTop: `1px solid ${FILET}` }}
+                        >
+                          <Couverture part={cadre.couverture} />
+                        </td>
+                        <td
+                          className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
+                          style={{ borderTop: `1px solid ${FILET}` }}
+                        >
+                          {cadre.echeance}
+                        </td>
+                        <td
+                          className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
+                          style={{ borderTop: `1px solid ${FILET}` }}
+                        >
+                          {cadre.preuve}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="o-mt-6 o-max-w-3xl o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                La couverture est le rapport des mesures dont la preuve est collectee
+                automatiquement au total des mesures du referentiel. Les vingt-deux pour
+                cent manquants sur PCI DSS concernent la segmentation d un environnement
+                client, en cours de reprise. Contrat de sous-traitance conforme a l
+                article 28 du reglement europeen, signable en ligne.
+              </p>
+            </div>
+          </section>
+
+          {/* ------------------------------------------------- L etude de cas */}
+          <section
+            id="cas"
+            aria-labelledby="cas-titre"
+            className="o-mx-auto o-max-w-7xl o-px-6 o-py-20"
+          >
+            <div className="o-max-w-3xl">
+              <p
+                className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+                style={{ color: ENCRE }}
+              >
+                Etude de cas — logistique, 2 400 postes
+              </p>
+              <h2
+                id="cas-titre"
+                className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
+              >
+                Une rancongicielle arretee a 3 h 41, sur un seul poste
+              </h2>
+              <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                Le groupe Ferrand-Delaunay exploite dix-huit entrepots et une flotte de
+                900 vehicules. En mars 2026, un compte prestataire compromis a servi de
+                porte d entree a un chiffrement de masse. Meridien a isole le poste
+                quarante-huit secondes apres le premier fichier chiffre, revoque les
+                sessions du prestataire, et rendu le dossier complet a l assureur le
+                lendemain matin.
+              </p>
+            </div>
+
+            {/*
+            Les trois mesures de cette nuit-la ne sont pas une barre de
+            compteurs : elles tiennent dans la marge, en mono, a cote de la
+            phrase de la responsable. C est ainsi qu une note se lit dans un
+            dossier d incident.
+          */}
+            <div className="o-mt-10 o-grid o-gap-x-10 o-gap-y-6 md:o-grid-cols-12">
+              <blockquote
+                className="o-m-0 o-pl-5 o-text-lg o-leading-relaxed md:o-col-span-8"
+                style={{ borderLeft: `2px solid ${accent(500)}` }}
+              >
+                « A 4 h du matin, j ai recu un message qui disait ce qui s etait passe et
+                ce qui avait deja ete fait. Je n ai eu qu a valider. »
+                <footer className="o-mt-3 o-text-xs o-text-slate-600 dark:o-text-slate-400">
+                  Nadia Lefevre — responsable des systemes, Ferrand-Delaunay
+                </footer>
+              </blockquote>
+              {/*
+              Les trois mesures montent quand elles entrent dans le cadre.
+              C est la seconde chose qui bouge de la page, apres l aiguille du
+              cadran — et la seule ou le nombre lui-meme est l argument.
+            */}
+              <dl
+                className="o-m-0 o-flex o-flex-col o-gap-5 o-font-mono md:o-col-span-4"
+                style={{ color: ENCRE_FORTE }}
+              >
+                {(
+                  [
+                    ['Avant isolation du poste', 48, ' s'],
+                    ['Postes touches sur 2 400', 1, ''],
+                    ['De rancon versee', 0, ' EUR'],
+                  ] as const
+                ).map(([quoi, valeur, unite]) => (
+                  <div
+                    key={quoi}
+                    style={{ borderTop: `1px solid ${FILET}`, paddingTop: 12 }}
+                  >
+                    <dt className="o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
+                      {quoi}
+                    </dt>
+                    <dd className="o-m-0 o-mt-1 o-text-3xl o-font-bold o-tabular-nums o-tracking-tight">
+                      <CountUp
+                        value={valeur}
+                        locale="fr-FR"
+                        duration={1200}
+                        suffix={unite}
+                      />
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            {/*
+            Une photographie de salle de supervision ne dirait rien de plus que
+            le titre. Le journal, lui, est l argument : chaque minute est datee,
+            et la colonne d origine dit ce qui n a pas attendu un humain.
+          */}
+            <h3
+              className="o-mt-14 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
+              style={{ color: ENCRE }}
+            >
+              Chronologie de l incident — nuit du 14 au 15 mars 2026
+            </h3>
+
+            <div
+              className="o-mt-4 o-overflow-x-auto"
+              style={{ border: `1px solid ${FILET}` }}
+            >
+              <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 620 }}>
+                <caption className="o-sr-only">
+                  Le journal horodate de la nuit du 14 au 15 mars 2026, geste par geste
+                </caption>
+                <thead>
+                  <tr>
+                    {['Heure', 'Fait journalise', 'Origine'].map((entete) => (
+                      <th
+                        key={entete}
+                        scope="col"
+                        className="o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-wide o-text-slate-600 dark:o-text-slate-400"
+                        style={{ borderBottom: `1px solid ${FILET}` }}
+                      >
+                        {entete}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {CONFORMITE.map((cadre) => (
-                    <tr key={cadre.nom}>
+                  {CHRONOLOGIE.map((moment) => (
+                    <tr key={moment.heure}>
                       <th
                         scope="row"
-                        className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
-                        style={{ borderTop: `1px solid ${FILET}` }}
+                        className="o-px-4 o-py-3 o-align-top o-font-mono o-text-xs o-font-normal o-tabular-nums o-whitespace-nowrap"
+                        style={{ borderTop: `1px solid ${FILET}`, color: ENCRE }}
                       >
-                        <span className="o-flex o-items-center o-gap-2 o-font-mono o-text-sm o-font-bold o-tracking-tight">
-                          <Icon icon={cadre.icone} size={18} style={{ color: ENCRE }} />
-                          {cadre.nom}
-                        </span>
+                        {moment.heure}
                       </th>
                       <td
-                        className="o-px-4 o-py-3 o-align-top o-text-sm o-font-medium o-whitespace-nowrap"
+                        className="o-px-4 o-py-3 o-align-top o-text-sm o-leading-relaxed"
                         style={{ borderTop: `1px solid ${FILET}` }}
                       >
-                        <span
-                          className="o-inline-flex o-items-center o-gap-2 o-px-2 o-py-1 o-font-mono o-text-xs"
-                          style={
-                            cadre.etat === 'En cours'
-                              ? {
-                                  border: '1px solid var(--o-palette-amber-500)',
-                                  color: `color-mix(in oklab, var(--o-palette-amber-500) 45%, var(--o-theme-fg))`,
-                                }
-                              : { backgroundColor: VOILE, color: ENCRE }
-                          }
-                        >
-                          {cadre.etat !== 'En cours' && <Icon icon={Check} size={12} />}
-                          {cadre.etat}
+                        {moment.fait}
+                      </td>
+                      <td
+                        className="o-px-4 o-py-3 o-align-top o-text-xs o-whitespace-nowrap o-text-slate-600 dark:o-text-slate-400"
+                        style={{ borderTop: `1px solid ${FILET}` }}
+                      >
+                        <span className="o-flex o-items-center o-gap-2">
+                          <span
+                            aria-hidden
+                            className="o-block o-h-2 o-w-2"
+                            style={{
+                              backgroundColor: moment.machine
+                                ? accent(500)
+                                : 'var(--o-palette-slate-500)',
+                            }}
+                          />
+                          {moment.machine ? 'Automatique' : 'Analyste de garde'}
                         </span>
-                      </td>
-                      <td
-                        className="o-px-4 o-py-3 o-align-top o-whitespace-nowrap"
-                        style={{ borderTop: `1px solid ${FILET}` }}
-                      >
-                        <Couverture part={cadre.couverture} />
-                      </td>
-                      <td
-                        className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
-                        style={{ borderTop: `1px solid ${FILET}` }}
-                      >
-                        {cadre.echeance}
-                      </td>
-                      <td
-                        className="o-px-4 o-py-3 o-align-top o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
-                        style={{ borderTop: `1px solid ${FILET}` }}
-                      >
-                        {cadre.preuve}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-
-            <p className="o-mt-6 o-max-w-3xl o-text-xs o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-              La couverture est le rapport des mesures dont la preuve est
-              collectee automatiquement au total des mesures du referentiel. Les
-              vingt-deux pour cent manquants sur PCI DSS concernent la
-              segmentation d un environnement client, en cours de reprise.
-              Contrat de sous-traitance conforme a l article 28 du reglement
-              europeen, signable en ligne.
-            </p>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------- L etude de cas */}
-        <section
-          id="cas"
-          aria-labelledby="cas-titre"
-          className="o-mx-auto o-max-w-7xl o-px-6 o-py-20"
-        >
-          <div className="o-max-w-3xl">
-            <p
-              className="o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-              style={{ color: ENCRE }}
-            >
-              Etude de cas — logistique, 2 400 postes
-            </p>
-            <h2
-              id="cas-titre"
-              className="o-mt-3 o-text-3xl md:o-text-4xl o-font-bold o-tracking-tight"
-            >
-              Une rancongicielle arretee a 3 h 41, sur un seul poste
-            </h2>
-            <p className="o-mt-4 o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-              Le groupe Ferrand-Delaunay exploite dix-huit entrepots et une
-              flotte de 900 vehicules. En mars 2026, un compte prestataire
-              compromis a servi de porte d entree a un chiffrement de masse.
-              Meridien a isole le poste quarante-huit secondes apres le premier
-              fichier chiffre, revoque les sessions du prestataire, et rendu le
-              dossier complet a l assureur le lendemain matin.
-            </p>
-          </div>
+          </section>
 
           {/*
-            Les trois mesures de cette nuit-la ne sont pas une barre de
-            compteurs : elles tiennent dans la marge, en mono, a cote de la
-            phrase de la responsable. C est ainsi qu une note se lit dans un
-            dossier d incident.
-          */}
-          <div className="o-mt-10 o-grid o-gap-x-10 o-gap-y-6 md:o-grid-cols-12">
-            <blockquote
-              className="o-m-0 o-pl-5 o-text-lg o-leading-relaxed md:o-col-span-8"
-              style={{ borderLeft: `2px solid ${accent(500)}` }}
-            >
-              « A 4 h du matin, j ai recu un message qui disait ce qui s etait
-              passe et ce qui avait deja ete fait. Je n ai eu qu a valider. »
-              <footer className="o-mt-3 o-text-xs o-text-slate-600 dark:o-text-slate-400">
-                Nadia Lefevre — responsable des systemes, Ferrand-Delaunay
-              </footer>
-            </blockquote>
-            {/*
-              Les trois mesures montent quand elles entrent dans le cadre.
-              C est la seconde chose qui bouge de la page, apres l aiguille du
-              cadran — et la seule ou le nombre lui-meme est l argument.
-            */}
-            <dl
-              className="o-m-0 o-flex o-flex-col o-gap-5 o-font-mono md:o-col-span-4"
-              style={{ color: ENCRE_FORTE }}
-            >
-              {([
-                ['Avant isolation du poste', 48, ' s'],
-                ['Postes touches sur 2 400', 1, ''],
-                ['De rancon versee', 0, ' EUR'],
-              ] as const).map(([quoi, valeur, unite]) => (
-                <div key={quoi} style={{ borderTop: `1px solid ${FILET}`, paddingTop: 12 }}>
-                  <dt className="o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">{quoi}</dt>
-                  <dd className="o-m-0 o-mt-1 o-text-3xl o-font-bold o-tabular-nums o-tracking-tight">
-                    <CountUp value={valeur} locale="fr-FR" duration={1200} suffix={unite} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          {/*
-            Une photographie de salle de supervision ne dirait rien de plus que
-            le titre. Le journal, lui, est l argument : chaque minute est datee,
-            et la colonne d origine dit ce qui n a pas attendu un humain.
-          */}
-          <h3
-            className="o-mt-14 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest"
-            style={{ color: ENCRE }}
-          >
-            Chronologie de l incident — nuit du 14 au 15 mars 2026
-          </h3>
-
-          <div
-            className="o-mt-4 o-overflow-x-auto"
-            style={{ border: `1px solid ${FILET}` }}
-          >
-            <table className="o-w-full o-text-left o-text-sm" style={{ minWidth: 620 }}>
-              <caption className="o-sr-only">
-                Le journal horodate de la nuit du 14 au 15 mars 2026, geste par
-                geste
-              </caption>
-              <thead>
-                <tr>
-                  {['Heure', 'Fait journalise', 'Origine'].map((entete) => (
-                    <th
-                      key={entete}
-                      scope="col"
-                      className="o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-tracking-wide o-text-slate-600 dark:o-text-slate-400"
-                      style={{ borderBottom: `1px solid ${FILET}` }}
-                    >
-                      {entete}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {CHRONOLOGIE.map((moment) => (
-                  <tr key={moment.heure}>
-                    <th
-                      scope="row"
-                      className="o-px-4 o-py-3 o-align-top o-font-mono o-text-xs o-font-normal o-tabular-nums o-whitespace-nowrap"
-                      style={{ borderTop: `1px solid ${FILET}`, color: ENCRE }}
-                    >
-                      {moment.heure}
-                    </th>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-text-sm o-leading-relaxed"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      {moment.fait}
-                    </td>
-                    <td
-                      className="o-px-4 o-py-3 o-align-top o-text-xs o-whitespace-nowrap o-text-slate-600 dark:o-text-slate-400"
-                      style={{ borderTop: `1px solid ${FILET}` }}
-                    >
-                      <span className="o-flex o-items-center o-gap-2">
-                        <span
-                          aria-hidden
-                          className="o-block o-h-2 o-w-2"
-                          style={{
-                            backgroundColor: moment.machine
-                              ? accent(500)
-                              : 'var(--o-palette-slate-500)',
-                          }}
-                        />
-                        {moment.machine ? 'Automatique' : 'Analyste de garde'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/*
           ================================================== (05) L appel — A6
 
           Deux panneaux decales : le noir monte plus haut que le clair et
@@ -2187,166 +2567,213 @@ export default function Page(): ReactElement {
           c est le panneau noir lui-meme — la ligne d astreinte et son radar
           dessine — qui tient le role de l image.
         */}
-        <section
-          id="demonstration"
-          aria-labelledby="demo-titre"
-          className="o-scroll-mt-24 o-bg-slate-50 dark:o-bg-slate-900"
-          style={{ borderTop: `1px solid ${FILET}` }}
-        >
-          <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-20 md:o-py-28">
-            <div className="o-grid o-items-start o-gap-10 lg:o-grid-cols-12">
-              {/* Le panneau noir, remonte : il deborde vers le haut du bloc. */}
-              <div
-                className="o-relative o-overflow-hidden o-p-8 md:o-p-10 lg:o-col-span-5"
-                style={{ backgroundColor: ARDOISE, color: ENCRE_PUPITRE, border: `1px solid ${FILET_SOMBRE}`, marginTop: '-3rem' }}
-              >
-                <div aria-hidden className="o-absolute o-inset-0" style={{ background: HALO }} />
-                <div className="o-relative">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                    Urgence en cours
-                  </p>
-                  <p className="o-m-0 o-mt-5 o-font-mono o-font-bold o-tabular-nums o-tracking-tight" style={{ fontSize: 'clamp(1.75rem, 3.6vw, 3rem)', color: accent(50) }}>
-                    02 99 41 08 12
-                  </p>
-                  <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                    Ligne d astreinte ouverte 24 h sur 24, decrochee en France
-                    par un analyste, jamais par un serveur vocal.
-                  </p>
+          <section
+            id="demonstration"
+            aria-labelledby="demo-titre"
+            className="o-scroll-mt-24 o-bg-slate-50 dark:o-bg-slate-900"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
+            <div className="o-mx-auto o-max-w-7xl o-px-6 o-py-20 md:o-py-28">
+              <div className="o-grid o-items-start o-gap-10 lg:o-grid-cols-12">
+                {/* Le panneau noir, remonte : il deborde vers le haut du bloc. */}
+                <div
+                  className="o-relative o-overflow-hidden o-p-8 md:o-p-10 lg:o-col-span-5"
+                  style={{
+                    backgroundColor: ARDOISE,
+                    color: ENCRE_PUPITRE,
+                    border: `1px solid ${FILET_SOMBRE}`,
+                    marginTop: '-3rem',
+                  }}
+                >
+                  <div
+                    aria-hidden
+                    className="o-absolute o-inset-0"
+                    style={{ background: HALO }}
+                  />
+                  <div className="o-relative">
+                    <p
+                      className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                      style={{ color: ENCRE_PUPITRE_DOUCE }}
+                    >
+                      Urgence en cours
+                    </p>
+                    <p
+                      className="o-m-0 o-mt-5 o-font-mono o-font-bold o-tabular-nums o-tracking-tight"
+                      style={{
+                        fontSize: 'clamp(1.75rem, 3.6vw, 3rem)',
+                        color: accent(50),
+                      }}
+                    >
+                      02 99 41 08 12
+                    </p>
+                    <p
+                      className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed"
+                      style={{ color: ENCRE_PUPITRE_DOUCE }}
+                    >
+                      Ligne d astreinte ouverte 24 h sur 24, decrochee en France par un
+                      analyste, jamais par un serveur vocal.
+                    </p>
 
-                  {/* Le radar : quatre anneaux et un balayage, dessines. */}
-                  <div aria-hidden className="o-relative o-mt-10 o-aspect-square o-mx-auto" style={{ maxWidth: '15rem' }}>
-                    {[100, 74, 48, 22].map((part) => (
+                    {/* Le radar : quatre anneaux et un balayage, dessines. */}
+                    <div
+                      aria-hidden
+                      className="o-relative o-mt-10 o-aspect-square o-mx-auto"
+                      style={{ maxWidth: '15rem' }}
+                    >
+                      {[100, 74, 48, 22].map((part) => (
+                        <span
+                          key={part}
+                          className="o-absolute o-rounded-full"
+                          style={{
+                            inset: `${String((100 - part) / 2)}%`,
+                            border: `1px solid color-mix(in srgb, ${accent(300)} ${String(part === 100 ? 34 : 20)}%, transparent)`,
+                          }}
+                        />
+                      ))}
                       <span
-                        key={part}
                         className="o-absolute o-rounded-full"
                         style={{
-                          inset: `${String((100 - part) / 2)}%`,
-                          border: `1px solid color-mix(in srgb, ${accent(300)} ${String(part === 100 ? 34 : 20)}%, transparent)`,
+                          inset: '0',
+                          background: `conic-gradient(from 210deg, color-mix(in srgb, ${accent(400)} 34%, transparent) 0deg, transparent 62deg)`,
                         }}
                       />
-                    ))}
-                    <span
-                      className="o-absolute o-rounded-full"
-                      style={{ inset: '0', background: `conic-gradient(from 210deg, color-mix(in srgb, ${accent(400)} 34%, transparent) 0deg, transparent 62deg)` }}
-                    />
-                    <span
-                      className="o-absolute o-rounded-full"
-                      style={{ left: '62%', top: '38%', width: 9, height: 9, backgroundColor: 'var(--o-palette-rose-400)' }}
-                    />
-                  </div>
-
-                  <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest" style={{ color: ENCRE_PUPITRE_DOUCE }}>
-                    8 boulevard de la Tour d Auvergne, 35000 Rennes
-                  </p>
-                </div>
-              </div>
-
-              {/* Le panneau clair, descendu : le texte et le formulaire. */}
-              <div className="lg:o-col-span-7" style={{ marginTop: '2rem' }}>
-                <h2
-                  id="demo-titre"
-                  className="o-m-0 o-text-balance"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}
-                >
-                  Une seance calibree sur votre parc, pas une presentation.
-                </h2>
-                <p className="o-mt-5 o-max-w-xl o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                  La demonstration se fait sur un extrait de vos propres
-                  journaux, pas sur une maquette. Vous repartez avec la liste de
-                  ce que nous avons vu et de ce que votre outil actuel n avait
-                  pas remonte — que vous signiez ou non.
-                </p>
-
-                <ul className="o-mt-8 o-flex o-list-none o-flex-col o-gap-3 o-p-0 o-text-sm">
-                  {[
-                    'Trois champs suffisent a calibrer la seance : le formulaire le dit avant l envoi',
-                    'Aucune installation requise pour la demonstration',
-                    'Rapport ecrit remis sous 48 heures',
-                    'Accord de confidentialite signe avant tout echange',
-                  ].map((point) => (
-                    <li key={point} className="o-flex o-items-start o-gap-3">
-                      <Icon
-                        icon={Check}
-                        size={18}
-                        className="o-mt-px o-shrink-0"
-                        style={{ color: ENCRE }}
+                      <span
+                        className="o-absolute o-rounded-full"
+                        style={{
+                          left: '62%',
+                          top: '38%',
+                          width: 9,
+                          height: 9,
+                          backgroundColor: 'var(--o-palette-rose-400)',
+                        }}
                       />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
+                    </div>
 
-                <div className="o-mt-10">
-                  <Demande />
+                    <p
+                      className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest"
+                      style={{ color: ENCRE_PUPITRE_DOUCE }}
+                    >
+                      8 boulevard de la Tour d Auvergne, 35000 Rennes
+                    </p>
+                  </div>
+                </div>
+
+                {/* Le panneau clair, descendu : le texte et le formulaire. */}
+                <div className="lg:o-col-span-7" style={{ marginTop: '2rem' }}>
+                  <h2
+                    id="demo-titre"
+                    className="o-m-0 o-text-balance"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)',
+                    }}
+                  >
+                    Une seance calibree sur votre parc, pas une presentation.
+                  </h2>
+                  <p className="o-mt-5 o-max-w-xl o-text-base o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                    La demonstration se fait sur un extrait de vos propres journaux, pas
+                    sur une maquette. Vous repartez avec la liste de ce que nous avons vu
+                    et de ce que votre outil actuel n avait pas remonte — que vous signiez
+                    ou non.
+                  </p>
+
+                  <ul className="o-mt-8 o-flex o-list-none o-flex-col o-gap-3 o-p-0 o-text-sm">
+                    {[
+                      'Trois champs suffisent a calibrer la seance : le formulaire le dit avant l envoi',
+                      'Aucune installation requise pour la demonstration',
+                      'Rapport ecrit remis sous 48 heures',
+                      'Accord de confidentialite signe avant tout echange',
+                    ].map((point) => (
+                      <li key={point} className="o-flex o-items-start o-gap-3">
+                        <Icon
+                          icon={Check}
+                          size={18}
+                          className="o-mt-px o-shrink-0"
+                          style={{ color: ENCRE }}
+                        />
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="o-mt-10">
+                    <Demande />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
+          </section>
+        </main>
 
-      {/*
+        {/*
         ================================================ Le pied — P5
 
         Un generique de fin : le nom de la maison monte derriere, le bandeau
         des mentions passe en biais, et la page se referme sur la seule phrase
         qui compte pour un centre de veille — la garde ne s arrete pas.
       */}
-      <CinematicFooter
-        style={{ '--o-footer-glow-a': accent(500), '--o-footer-glow-b': accent(800) } as CSSProperties}
-        heading="La garde continue."
-        word="MERIDIEN"
-        topLabel="Revenir au pupitre"
-        banner={
-          <span className="o-px-8">
-            Astreinte 02 99 41 08 12 — 8 boulevard de la Tour d Auvergne, 35000 Rennes — contact@meridien.example — ISO 27001 — SOC 2 type II — HDS — Donnees a Paris et a Francfort
-          </span>
-        }
-        actions={
-          <>
-            <a
-              href="#demonstration"
-              className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline focus:o-ring"
-              style={PLEIN_SOMBRE}
-            >
-              Demander une demonstration
-              <Icon icon={ArrowRight} size={16} aria-hidden="true" />
-            </a>
-            <a
-              href="#veille"
-              className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline focus:o-ring"
-              style={{ borderColor: FILET }}
-            >
-              <Icon icon={RadarIcon} size={16} aria-hidden="true" />
-              Revoir le pupitre
-            </a>
-          </>
-        }
-        links={
-          <>
-            {[
-              ['#menaces', 'Les menaces'],
-              ['#delais', 'Delais contractuels'],
-              ['#conformite', 'Conformite'],
-              ['#cas', 'Etude de cas'],
-              ['#sommet', 'Incidents manques'],
-              ['#sommet', 'Politique de divulgation'],
-              ['#sommet', 'Mentions legales'],
-            ].map(([cible, mot]) => (
+        <CinematicFooter
+          style={
+            {
+              '--o-footer-glow-a': accent(500),
+              '--o-footer-glow-b': accent(800),
+            } as CSSProperties
+          }
+          heading="La garde continue."
+          word="MERIDIEN"
+          topLabel="Revenir au pupitre"
+          banner={
+            <span className="o-px-8">
+              Astreinte 02 99 41 08 12 — 8 boulevard de la Tour d Auvergne, 35000 Rennes —
+              contact@meridien.example — ISO 27001 — SOC 2 type II — HDS — Donnees a Paris
+              et a Francfort
+            </span>
+          }
+          actions={
+            <>
               <a
-                key={mot}
-                href={cible}
-                className="o-rounded-full o-px-3 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-no-underline o-text-slate-600 dark:o-text-slate-400 focus:o-ring"
+                href="#demonstration"
+                className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline focus:o-ring"
+                style={PLEIN_SOMBRE}
               >
-                {mot}
+                Demander une demonstration
+                <Icon icon={ArrowRight} size={16} aria-hidden="true" />
               </a>
-            ))}
-          </>
-        }
-        copyright="2026 Meridien SAS — societe fictive"
-        signature="Les chiffres, la veille et l etude de cas sont inventes"
-      />
-    </div>
+              <a
+                href="#veille"
+                className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline focus:o-ring"
+                style={{ borderColor: FILET }}
+              >
+                <Icon icon={RadarIcon} size={16} aria-hidden="true" />
+                Revoir le pupitre
+              </a>
+            </>
+          }
+          links={
+            <>
+              {[
+                ['#menaces', 'Les menaces'],
+                ['#delais', 'Delais contractuels'],
+                ['#conformite', 'Conformite'],
+                ['#cas', 'Etude de cas'],
+                ['#sommet', 'Incidents manques'],
+                ['#sommet', 'Politique de divulgation'],
+                ['#sommet', 'Mentions legales'],
+              ].map(([cible, mot]) => (
+                <a
+                  key={mot}
+                  href={cible}
+                  className="o-rounded-full o-px-3 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-no-underline o-text-slate-600 dark:o-text-slate-400 focus:o-ring"
+                >
+                  {mot}
+                </a>
+              ))}
+            </>
+          }
+          copyright="2026 Meridien SAS — societe fictive"
+          signature="Les chiffres, la veille et l etude de cas sont inventes"
+        />
+      </div>
     </Porte>
   )
 }

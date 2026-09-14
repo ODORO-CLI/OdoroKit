@@ -217,7 +217,8 @@ function jourDeLAnnee(annee: number, jour: number): number {
 function joursEnCave(piece: Piece, aujourdhui: number): number {
   const annee = new Date(aujourdhui).getUTCFullYear()
   const cetteAnnee = jourDeLAnnee(annee, piece.entree)
-  const depart = cetteAnnee <= aujourdhui ? cetteAnnee : jourDeLAnnee(annee - 1, piece.entree)
+  const depart =
+    cetteAnnee <= aujourdhui ? cetteAnnee : jourDeLAnnee(annee - 1, piece.entree)
   const ecoules = Math.max(0, Math.floor((aujourdhui - depart) / 86400000))
   return ecoules % piece.duree
 }
@@ -235,7 +236,9 @@ function euros(n: number): string {
 
 /** Un poids, en grammes ou en kilos selon ce qui se dit. */
 function poidsDit(grammes: number): string {
-  return grammes >= 1000 ? `${(grammes / 1000).toLocaleString('fr-FR')} kg` : `${String(grammes)} g`
+  return grammes >= 1000
+    ? `${(grammes / 1000).toLocaleString('fr-FR')} kg`
+    : `${String(grammes)} g`
 }
 
 /* ============================ Les pieces dessinees ===================== */
@@ -247,36 +250,105 @@ function poidsDit(grammes: number): string {
  * buche, un cylindre bas, un carre. Un fromager reconnait sa cave a ces cinq
  * profils, et aucune photographie generique ne dirait autant.
  */
-function PieceDessinee({ forme, taille = 120 }: { readonly forme: Forme; readonly taille?: number }): ReactElement {
+function PieceDessinee({
+  forme,
+  taille = 120,
+}: {
+  readonly forme: Forme
+  readonly taille?: number
+}): ReactElement {
   const pate = accentDoux(200, 78)
   const croute = accent(700)
   const ombre = accentDoux(500, 60)
   const chemins: Readonly<Record<Forme, ReactElement>> = {
     meule: (
       <>
-        <ellipse cx="60" cy="40" rx="46" ry="17" fill={pate} stroke={croute} strokeWidth="2.4" />
-        <path d="M14 40v22c0 9 21 17 46 17s46-8 46-17V40" fill={ombre} stroke={croute} strokeWidth="2.4" />
-        <ellipse cx="60" cy="40" rx="32" ry="11" fill="none" stroke={croute} strokeWidth="1.2" opacity="0.5" />
+        <ellipse
+          cx="60"
+          cy="40"
+          rx="46"
+          ry="17"
+          fill={pate}
+          stroke={croute}
+          strokeWidth="2.4"
+        />
+        <path
+          d="M14 40v22c0 9 21 17 46 17s46-8 46-17V40"
+          fill={ombre}
+          stroke={croute}
+          strokeWidth="2.4"
+        />
+        <ellipse
+          cx="60"
+          cy="40"
+          rx="32"
+          ry="11"
+          fill="none"
+          stroke={croute}
+          strokeWidth="1.2"
+          opacity="0.5"
+        />
       </>
     ),
     pyramide: (
       <>
-        <path d="M60 14 100 84H20Z" fill={pate} stroke={croute} strokeWidth="2.4" strokeLinejoin="round" />
+        <path
+          d="M60 14 100 84H20Z"
+          fill={pate}
+          stroke={croute}
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+        />
         <path d="M44 42h32" stroke={croute} strokeWidth="1.6" opacity="0.6" />
         <path d="M20 84h80" stroke={croute} strokeWidth="2.4" />
       </>
     ),
     buche: (
       <>
-        <rect x="16" y="34" width="88" height="34" rx="17" fill={pate} stroke={croute} strokeWidth="2.4" />
-        <ellipse cx="16" cy="51" rx="7" ry="17" fill={ombre} stroke={croute} strokeWidth="2" />
-        <path d="M40 38v26M64 38v26M88 38v26" stroke={croute} strokeWidth="1.2" opacity="0.45" />
+        <rect
+          x="16"
+          y="34"
+          width="88"
+          height="34"
+          rx="17"
+          fill={pate}
+          stroke={croute}
+          strokeWidth="2.4"
+        />
+        <ellipse
+          cx="16"
+          cy="51"
+          rx="7"
+          ry="17"
+          fill={ombre}
+          stroke={croute}
+          strokeWidth="2"
+        />
+        <path
+          d="M40 38v26M64 38v26M88 38v26"
+          stroke={croute}
+          strokeWidth="1.2"
+          opacity="0.45"
+        />
       </>
     ),
     cylindre: (
       <>
-        <ellipse cx="60" cy="38" rx="40" ry="14" fill={pate} stroke={croute} strokeWidth="2.4" />
-        <path d="M20 38v26c0 8 18 14 40 14s40-6 40-14V38" fill={ombre} stroke={croute} strokeWidth="2.4" />
+        <ellipse
+          cx="60"
+          cy="38"
+          rx="40"
+          ry="14"
+          fill={pate}
+          stroke={croute}
+          strokeWidth="2.4"
+        />
+        <path
+          d="M20 38v26c0 8 18 14 40 14s40-6 40-14V38"
+          fill={ombre}
+          stroke={croute}
+          strokeWidth="2.4"
+        />
         {[34, 52, 70, 88].map((x) => (
           <circle key={x} cx={x} cy="36" r="2.4" fill={croute} opacity="0.55" />
         ))}
@@ -284,22 +356,42 @@ function PieceDessinee({ forme, taille = 120 }: { readonly forme: Forme; readonl
     ),
     carre: (
       <>
-        <path d="M22 30h76v40l-12 12H22Z" fill={pate} stroke={croute} strokeWidth="2.4" strokeLinejoin="round" />
+        <path
+          d="M22 30h76v40l-12 12H22Z"
+          fill={pate}
+          stroke={croute}
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+        />
         <path d="M98 70 86 82" stroke={croute} strokeWidth="2.4" />
-        {([
-          [40, 46],
-          [58, 58],
-          [76, 44],
-          [50, 70],
-          [72, 68],
-        ] as const).map(([x, y]) => (
-          <path key={`${String(x)}-${String(y)}`} d={`M${String(x)} ${String(y)}l6 4M${String(x + 6)} ${String(y)}l-6 4`} stroke={croute} strokeWidth="1.6" opacity="0.7" />
+        {(
+          [
+            [40, 46],
+            [58, 58],
+            [76, 44],
+            [50, 70],
+            [72, 68],
+          ] as const
+        ).map(([x, y]) => (
+          <path
+            key={`${String(x)}-${String(y)}`}
+            d={`M${String(x)} ${String(y)}l6 4M${String(x + 6)} ${String(y)}l-6 4`}
+            stroke={croute}
+            strokeWidth="1.6"
+            opacity="0.7"
+          />
         ))}
       </>
     ),
   }
   return (
-    <svg viewBox="0 0 120 100" width={taille} height={(taille * 100) / 120} aria-hidden="true" fill="none">
+    <svg
+      viewBox="0 0 120 100"
+      width={taille}
+      height={(taille * 100) / 120}
+      aria-hidden="true"
+      fill="none"
+    >
       {chemins[forme]}
     </svg>
   )
@@ -319,26 +411,94 @@ function MeuleEntamee(): ReactElement {
   const croute = accent(700)
   const flanc = accentDoux(500, 58)
   return (
-    <svg viewBox="0 0 340 260" className="o-h-auto o-w-full" role="img" aria-label="Une meule entamee, une part levee, croute et pate visibles">
+    <svg
+      viewBox="0 0 340 260"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Une meule entamee, une part levee, croute et pate visibles"
+    >
       {/* Le flanc et le dessus de la meule. */}
-      <path d="M24 116v44c0 32 65 58 146 58s146-26 146-58v-44" fill={flanc} stroke={croute} strokeWidth="3" />
-      <ellipse cx="170" cy="116" rx="146" ry="58" fill={pate} stroke={croute} strokeWidth="3" />
+      <path
+        d="M24 116v44c0 32 65 58 146 58s146-26 146-58v-44"
+        fill={flanc}
+        stroke={croute}
+        strokeWidth="3"
+      />
+      <ellipse
+        cx="170"
+        cy="116"
+        rx="146"
+        ry="58"
+        fill={pate}
+        stroke={croute}
+        strokeWidth="3"
+      />
       {/* La part levee : la saignee dans le dessus. */}
-      <path d="M170 116 96 78a146 58 0 0 1 74-20Z" fill="var(--o-theme-bg)" stroke={croute} strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M170 116 96 78v36l74 38Z" fill={pateClaire} stroke={croute} strokeWidth="2" strokeLinejoin="round" />
+      <path
+        d="M170 116 96 78a146 58 0 0 1 74-20Z"
+        fill="var(--o-theme-bg)"
+        stroke={croute}
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M170 116 96 78v36l74 38Z"
+        fill={pateClaire}
+        stroke={croute}
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
       {/* La croute, au trait, sur le dessus. */}
-      <ellipse cx="170" cy="116" rx="120" ry="46" fill="none" stroke={croute} strokeWidth="1.1" opacity="0.45" />
-      <ellipse cx="170" cy="116" rx="92" ry="34" fill="none" stroke={croute} strokeWidth="1.1" opacity="0.3" />
+      <ellipse
+        cx="170"
+        cy="116"
+        rx="120"
+        ry="46"
+        fill="none"
+        stroke={croute}
+        strokeWidth="1.1"
+        opacity="0.45"
+      />
+      <ellipse
+        cx="170"
+        cy="116"
+        rx="92"
+        ry="34"
+        fill="none"
+        stroke={croute}
+        strokeWidth="1.1"
+        opacity="0.3"
+      />
       {/* Le grain de la croute sur le flanc. */}
       {Array.from({ length: 22 }, (_, rang) => {
         const x = 30 + rang * 13
         const h = 16 + ((rang * 7) % 13)
-        return <path key={rang} d={`M${String(x)} ${String(150 + ((rang * 5) % 11))}v${String(h)}`} stroke={croute} strokeWidth="1" opacity="0.22" />
+        return (
+          <path
+            key={rang}
+            d={`M${String(x)} ${String(150 + ((rang * 5) % 11))}v${String(h)}`}
+            stroke={croute}
+            strokeWidth="1"
+            opacity="0.22"
+          />
+        )
       })}
       {/* La part posee a cote, sur la planche. */}
       <g transform="translate(238 178) rotate(-8)">
-        <path d="M0 0 66 34 20 52Z" fill={pateClaire} stroke={croute} strokeWidth="2.4" strokeLinejoin="round" />
-        <path d="M0 0v14l20 52" fill="none" stroke={croute} strokeWidth="1.6" opacity="0.6" />
+        <path
+          d="M0 0 66 34 20 52Z"
+          fill={pateClaire}
+          stroke={croute}
+          strokeWidth="2.4"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M0 0v14l20 52"
+          fill="none"
+          stroke={croute}
+          strokeWidth="1.6"
+          opacity="0.6"
+        />
       </g>
     </svg>
   )
@@ -365,11 +525,27 @@ function Cave({
 }): ReactElement {
   const zone = useRef<HTMLDivElement>(null)
   return (
-    <div ref={zone} className="o-relative o-overflow-hidden o-rounded-2xl" style={nuit('stone')}>
-      <CursorHalo host={zone} dotSize={5} haloSize={90} speed={6} hoverScale={1.5} style={{ color: accent(300) }} />
+    <div
+      ref={zone}
+      className="o-relative o-overflow-hidden o-rounded-2xl"
+      style={nuit('stone')}
+    >
+      <CursorHalo
+        host={zone}
+        dotSize={5}
+        haloSize={90}
+        speed={6}
+        hoverScale={1.5}
+        style={{ color: accent(300) }}
+      />
 
       {/* Les murs de la cave : pierre dessinee. */}
-      <svg aria-hidden="true" viewBox="0 0 600 400" preserveAspectRatio="none" className="o-pointer-events-none o-absolute o-inset-0 o-h-full o-w-full">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 600 400"
+        preserveAspectRatio="none"
+        className="o-pointer-events-none o-absolute o-inset-0 o-h-full o-w-full"
+      >
         {Array.from({ length: 16 }, (_, ligne) =>
           Array.from({ length: 10 }, (_, colonne) => (
             <rect
@@ -386,16 +562,29 @@ function Cave({
             />
           )),
         )}
-        <path d="M0 0h600v70q-150 40-300 0T0 70Z" fill="var(--o-palette-stone-950)" opacity="0.55" />
+        <path
+          d="M0 0h600v70q-150 40-300 0T0 70Z"
+          fill="var(--o-palette-stone-950)"
+          opacity="0.55"
+        />
       </svg>
 
       <ol className="o-relative o-m-0 o-list-none o-p-0">
         {ETAGES.map((etage, rang) => {
-          const dessus = PIECES.filter((p) => etageDe(p, joursEnCave(p, aujourdhui)) === rang)
+          const dessus = PIECES.filter(
+            (p) => etageDe(p, joursEnCave(p, aujourdhui)) === rang,
+          )
           return (
-            <li key={etage.nom} className="o-relative o-border-b o-px-5 o-pb-3 o-pt-5 md:o-px-8" style={{ borderColor: 'var(--o-theme-line)' }}>
+            <li
+              key={etage.nom}
+              className="o-relative o-border-b o-px-5 o-pb-3 o-pt-5 md:o-px-8"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
               <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: encreSurSombre() }}
+                >
                   {String(rang + 1).padStart(2, '0')} — {etage.nom}
                 </p>
                 <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
@@ -403,19 +592,30 @@ function Cave({
                   {etage.temperature} · {etage.hygrometrie}
                 </p>
               </div>
-              <p className="o-m-0 o-mt-1 o-max-w-xl o-text-xs o-leading-relaxed o-text-stone-400">{etage.role}</p>
+              <p className="o-m-0 o-mt-1 o-max-w-xl o-text-xs o-leading-relaxed o-text-stone-400">
+                {etage.role}
+              </p>
 
               {/* La planche de l etage, et ce qui est pose dessus. */}
               <div className="o-relative o-mt-4 o-h-24">
-                <span aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-h-1.5 o-rounded-full" style={{ backgroundColor: accentDoux(700, 70) }} />
+                <span
+                  aria-hidden="true"
+                  className="o-absolute o-inset-x-0 o-bottom-0 o-h-1.5 o-rounded-full"
+                  style={{ backgroundColor: accentDoux(700, 70) }}
+                />
                 {dessus.length === 0 ? (
-                  <p className="o-m-0 o-pt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500">Planche vide aujourd hui</p>
+                  <p className="o-m-0 o-pt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500">
+                    Planche vide aujourd hui
+                  </p>
                 ) : (
                   dessus.map((p, index) => {
                     const jours = joursEnCave(p, aujourdhui)
-                    const bas = rang === 0 ? 0 : p.paliers[rang - 1] ?? 0
-                    const haut = rang === 2 ? p.duree : p.paliers[rang] ?? p.duree
-                    const part = Math.min(1, Math.max(0, (jours - bas) / Math.max(1, haut - bas)))
+                    const bas = rang === 0 ? 0 : (p.paliers[rang - 1] ?? 0)
+                    const haut = rang === 2 ? p.duree : (p.paliers[rang] ?? p.duree)
+                    const part = Math.min(
+                      1,
+                      Math.max(0, (jours - bas) / Math.max(1, haut - bas)),
+                    )
                     return (
                       <button
                         key={p.cle}
@@ -429,7 +629,10 @@ function Cave({
                         style={{
                           left: `calc(6% + ${String(part * 78)}% + ${String(index * 2)}%)`,
                           transform: 'translateX(-50%)',
-                          outline: p.cle === choisie ? `2px solid ${encreSurSombre()}` : undefined,
+                          outline:
+                            p.cle === choisie
+                              ? `2px solid ${encreSurSombre()}`
+                              : undefined,
                           outlineOffset: 2,
                         }}
                       >
@@ -459,22 +662,39 @@ function Cave({
  * haloir, le passage en cave d attente, et la sortie. Le curseur est le jour
  * ou la piece en est — et il monte tout seul d un cran par jour.
  */
-function Echelle({ piece, jours }: { readonly piece: Piece; readonly jours: number }): ReactElement {
+function Echelle({
+  piece,
+  jours,
+}: {
+  readonly piece: Piece
+  readonly jours: number
+}): ReactElement {
   const part = (valeur: number): number => Math.min(100, (valeur / piece.duree) * 100)
   const crans = Math.floor(piece.duree / 30)
   return (
     <div className="o-relative o-flex o-gap-5" style={{ height: 320 }}>
       <div className="o-relative o-w-16">
-        <span aria-hidden="true" className="o-absolute o-bottom-0 o-top-0 o-w-0.5" style={{ left: 22, backgroundColor: 'var(--o-theme-line)' }} />
+        <span
+          aria-hidden="true"
+          className="o-absolute o-bottom-0 o-top-0 o-w-0.5"
+          style={{ left: 22, backgroundColor: 'var(--o-theme-line)' }}
+        />
         {Array.from({ length: crans + 1 }, (_, rang) => rang * 30).map((valeur) => (
           <span
             key={valeur}
             aria-hidden="true"
             className="o-absolute o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400"
-            style={{ bottom: `${String(part(valeur))}%`, left: 0, transform: 'translateY(50%)' }}
+            style={{
+              bottom: `${String(part(valeur))}%`,
+              left: 0,
+              transform: 'translateY(50%)',
+            }}
           >
             <span className="o-w-6 o-text-right o-tabular-nums">{valeur}</span>
-            <span className="o-h-px o-w-3" style={{ backgroundColor: 'var(--o-theme-line)' }} />
+            <span
+              className="o-h-px o-w-3"
+              style={{ backgroundColor: 'var(--o-theme-line)' }}
+            />
           </span>
         ))}
       </div>
@@ -492,7 +712,11 @@ function Echelle({ piece, jours }: { readonly piece: Piece; readonly jours: numb
             key={bas}
             aria-hidden="true"
             className="o-absolute o-left-0 o-w-10 o-rounded-sm"
-            style={{ bottom: `${String(part(bas))}%`, height: `${String(part(haut) - part(bas))}%`, backgroundColor: accentDoux(500, force) }}
+            style={{
+              bottom: `${String(part(bas))}%`,
+              height: `${String(part(haut) - part(bas))}%`,
+              backgroundColor: accentDoux(500, force),
+            }}
           />
         ))}
 
@@ -501,8 +725,19 @@ function Echelle({ piece, jours }: { readonly piece: Piece; readonly jours: numb
           className="o-absolute o-left-12 o-flex o-items-baseline o-gap-2 o-whitespace-nowrap"
           style={{ bottom: `${String(part(jours))}%`, transform: 'translateY(50%)' }}
         >
-          <span aria-hidden="true" className="o-absolute o-h-0.5 o-w-14" style={{ left: -56, top: '50%', backgroundColor: encre() }} />
-          <span className="o-tabular-nums" style={{ ...affiche('m', 400), fontSize: 'clamp(2rem, 4vw, 3.25rem)', color: encre() }}>
+          <span
+            aria-hidden="true"
+            className="o-absolute o-h-0.5 o-w-14"
+            style={{ left: -56, top: '50%', backgroundColor: encre() }}
+          />
+          <span
+            className="o-tabular-nums"
+            style={{
+              ...affiche('m', 400),
+              fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+              color: encre(),
+            }}
+          >
             {jours}
           </span>
           <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
@@ -526,21 +761,42 @@ interface Ligne {
 }
 
 /** La planche flottante, en bas a droite, qui recapitule ce qu on a pris. */
-function Panier({ lignes, onRetirer }: { readonly lignes: readonly Ligne[]; readonly onRetirer: (cle: string) => void }): ReactElement | null {
+function Panier({
+  lignes,
+  onRetirer,
+}: {
+  readonly lignes: readonly Ligne[]
+  readonly onRetirer: (cle: string) => void
+}): ReactElement | null {
   if (lignes.length === 0) return null
   const total = lignes.reduce((somme, l) => somme + (l.grammes / 1000) * l.prix, 0)
   return (
-    <div className="o-fixed o-bottom-4 o-right-4 o-z-40 o-w-72 o-rounded-2xl o-border-w-1 o-p-4 o-shadow-xl" style={{ maxWidth: 'calc(100vw - 2rem)', borderColor: 'var(--o-theme-line)', backgroundColor: 'var(--o-theme-bg)' }}>
+    <div
+      className="o-fixed o-bottom-4 o-right-4 o-z-40 o-w-72 o-rounded-2xl o-border-w-1 o-p-4 o-shadow-xl"
+      style={{
+        maxWidth: 'calc(100vw - 2rem)',
+        borderColor: 'var(--o-theme-line)',
+        backgroundColor: 'var(--o-theme-bg)',
+      }}
+    >
       <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
         <Icon icon={ShoppingBasket} size={14} aria-hidden="true" />
         La planche — {lignes.length} piece{lignes.length > 1 ? 's' : ''}
       </p>
       <ul className="o-m-0 o-mt-3 o-list-none o-p-0">
         {lignes.map((l) => (
-          <li key={l.cle} className="o-flex o-items-baseline o-justify-between o-gap-2 o-border-b o-py-2 o-text-sm" style={{ borderColor: 'var(--o-theme-line)' }}>
-            <span className="o-min-w-0 o-truncate o-text-stone-800 dark:o-text-stone-100">{l.nom}</span>
+          <li
+            key={l.cle}
+            className="o-flex o-items-baseline o-justify-between o-gap-2 o-border-b o-py-2 o-text-sm"
+            style={{ borderColor: 'var(--o-theme-line)' }}
+          >
+            <span className="o-min-w-0 o-truncate o-text-stone-800 dark:o-text-stone-100">
+              {l.nom}
+            </span>
             <span className="o-flex o-shrink-0 o-items-baseline o-gap-2">
-              <span className="o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400">{poidsDit(l.grammes)}</span>
+              <span className="o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400">
+                {poidsDit(l.grammes)}
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -556,12 +812,21 @@ function Panier({ lignes, onRetirer }: { readonly lignes: readonly Ligne[]; read
         ))}
       </ul>
       <p className="o-m-0 o-mt-3 o-flex o-items-baseline o-justify-between o-gap-2">
-        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">Total</span>
-        <span className="o-tabular-nums o-text-lg o-font-semibold" style={{ color: encre() }}>
+        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+          Total
+        </span>
+        <span
+          className="o-tabular-nums o-text-lg o-font-semibold"
+          style={{ color: encre() }}
+        >
           {euros(total)}
         </span>
       </p>
-      <a href="#retirer" className="o-mt-3 o-flex o-w-full o-items-center o-justify-center o-rounded-full o-px-4 o-py-2 o-text-sm o-font-semibold o-no-underline focus:o-ring" style={aplat()}>
+      <a
+        href="#retirer"
+        className="o-mt-3 o-flex o-w-full o-items-center o-justify-center o-rounded-full o-px-4 o-py-2 o-text-sm o-font-semibold o-no-underline focus:o-ring"
+        style={aplat()}
+      >
         Reserver la planche
       </a>
     </div>
@@ -578,7 +843,10 @@ export default function Page(): ReactElement {
   const [aujourdhui] = useState(() => Date.now())
 
   const [choisie, setChoisie] = useState<string>(PIECES[0].cle)
-  const piece = useMemo(() => PIECES.find((p) => p.cle === choisie) ?? PIECES[0], [choisie])
+  const piece = useMemo(
+    () => PIECES.find((p) => p.cle === choisie) ?? PIECES[0],
+    [choisie],
+  )
   const jours = joursEnCave(piece, aujourdhui)
 
   const [lignes, setLignes] = useState<readonly Ligne[]>([])
@@ -586,7 +854,11 @@ export default function Page(): ReactElement {
 
   const ajouter = (p: Piece): void => {
     const grammes = p.poids >= 1000 ? 250 : Math.round(p.poids / 2)
-    setLignes((avant) => (avant.some((l) => l.cle === p.cle) ? avant : [...avant, { cle: p.cle, nom: p.nom, grammes, prix: p.prix }]))
+    setLignes((avant) =>
+      avant.some((l) => l.cle === p.cle)
+        ? avant
+        : [...avant, { cle: p.cle, nom: p.nom, grammes, prix: p.prix }],
+    )
     setAnnonces((avant) => [
       ...avant,
       {
@@ -604,11 +876,18 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Hale" sombre={false}>
-      <div className="o-relative o-overflow-hidden" style={{ ...polices, backgroundColor: accentDoux(300, 10) }}>
+      <div
+        className="o-relative o-overflow-hidden"
+        style={{ ...polices, backgroundColor: accentDoux(300, 10) }}
+      >
         {/*
           ----- L ouverture : creme, un nom en serif, une meule en coupe -------
         */}
-        <section id="haut" className="o-relative o-flex o-flex-col" style={{ minHeight: ECRAN }}>
+        <section
+          id="haut"
+          className="o-relative o-flex o-flex-col"
+          style={{ minHeight: ECRAN }}
+        >
           <BarreCoins
             marque="Hale — affineur"
             liens={NAVIGATION}
@@ -619,21 +898,39 @@ export default function Page(): ReactElement {
           <div className="o-mx-auto o-grid o-w-full o-max-w-7xl o-grow o-gap-10 o-px-6 o-pb-16 o-pt-8 md:o-grid-cols-12 md:o-items-center md:o-px-10">
             <div className="md:o-col-span-7">
               <Surgit>
-                <Etiquette sombre={false}>Six pieces en cave — cave sous la rue Vaubecour</Etiquette>
+                <Etiquette sombre={false}>
+                  Six pieces en cave — cave sous la rue Vaubecour
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-7 o-max-w-3xl o-text-stone-900 dark:o-text-stone-50"
-                style={{ ...affiche('l', 300), fontSize: 'clamp(2.75rem, 8vw, 8rem)', letterSpacing: '-0.02em' }}
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.75rem, 8vw, 8rem)',
+                  letterSpacing: '-0.02em',
+                }}
               >
                 Nous donnons du temps au fromage.
               </TitreVague>
-              <Surgit delai={560} as="p" className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                Nous ne le fabriquons pas : six fermes le font, et nous l affinons. Une cave de quarante metres carres sous la rue, trois etages, et un nombre de jours par piece — que vous pouvez voir.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300"
+              >
+                Nous ne le fabriquons pas : six fermes le font, et nous l affinons. Une
+                cave de quarante metres carres sous la rue, trois etages, et un nombre de
+                jours par piece — que vous pouvez voir.
               </Surgit>
               <Surgit delai={680} className="o-mt-9">
                 <Actions
-                  pleine={['#cave', <>Descendre a la cave <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#cave',
+                    <>
+                      Descendre a la cave{' '}
+                      <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#planche', 'Les six pieces']}
                   sombre={false}
                 />
@@ -665,8 +962,13 @@ export default function Page(): ReactElement {
           style={{ borderColor: 'var(--o-theme-line)' }}
           entete={
             <div id="planche" className="o-scroll-mt-24 o-px-6 o-pt-10 md:o-px-10">
-              <Indice rang="01" sombre={false}>La planche</Indice>
-              <h2 className="o-m-0 o-mt-4" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}>
+              <Indice rang="01" sombre={false}>
+                La planche
+              </Indice>
+              <h2
+                className="o-m-0 o-mt-4"
+                style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)' }}
+              >
                 <StrokeText
                   as="span"
                   strokeWidth={1.4}
@@ -683,21 +985,43 @@ export default function Page(): ReactElement {
           {PIECES.map((p) => {
             const j = joursEnCave(p, aujourdhui)
             return (
-              <article key={p.cle} className="o-shrink-0 o-px-6" style={{ width: 'min(82vw, 25rem)' }}>
-                <div className="o-flex o-h-full o-flex-col o-rounded-2xl o-border-w-1 o-p-6" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: 'var(--o-theme-bg)' }}>
+              <article
+                key={p.cle}
+                className="o-shrink-0 o-px-6"
+                style={{ width: 'min(82vw, 25rem)' }}
+              >
+                <div
+                  className="o-flex o-h-full o-flex-col o-rounded-2xl o-border-w-1 o-p-6"
+                  style={{
+                    borderColor: 'var(--o-theme-line)',
+                    backgroundColor: 'var(--o-theme-bg)',
+                  }}
+                >
                   <div className="o-flex o-justify-center o-py-4">
                     <PieceDessinee forme={p.forme} taille={180} />
                   </div>
-                  <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                  <p
+                    className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encre() }}
+                  >
                     {String(j)} jours de cave — {ETAGES[etageDe(p, j)]?.nom}
                   </p>
-                  <h3 className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50">{p.nom}</h3>
+                  <h3 className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50">
+                    {p.nom}
+                  </h3>
                   <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
                     {p.lait} · {p.ferme}
                   </p>
-                  <p className="o-m-0 o-mt-4 o-grow o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">{p.note}</p>
-                  <p className="o-m-0 o-mt-5 o-flex o-items-baseline o-justify-between o-gap-3 o-border-t o-pt-4" style={{ borderColor: 'var(--o-theme-line)' }}>
-                    <span className="o-tabular-nums o-text-lg o-font-semibold o-text-stone-900 dark:o-text-stone-50">{euros(p.prix)} / kg</span>
+                  <p className="o-m-0 o-mt-4 o-grow o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
+                    {p.note}
+                  </p>
+                  <p
+                    className="o-m-0 o-mt-5 o-flex o-items-baseline o-justify-between o-gap-3 o-border-t o-pt-4"
+                    style={{ borderColor: 'var(--o-theme-line)' }}
+                  >
+                    <span className="o-tabular-nums o-text-lg o-font-semibold o-text-stone-900 dark:o-text-stone-50">
+                      {euros(p.prix)} / kg
+                    </span>
                     <button
                       type="button"
                       onClick={() => {
@@ -718,20 +1042,30 @@ export default function Page(): ReactElement {
         {/*
           ----- Le mecanisme : la cave en coupe --------------------------------
         */}
-        <section id="cave" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="cave"
+          className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-7">
-                <Indice rang="02" sombre={false}>La cave</Indice>
+                <Indice rang="02" sombre={false}>
+                  La cave
+                </Indice>
                 <h2
                   className="o-m-0 o-mt-5 o-max-w-2xl o-text-stone-900 dark:o-text-stone-50"
-                  style={{ ...affiche('m', 400), fontSize: 'clamp(1.9rem, 4.4vw, 3.75rem)' }}
+                  style={{
+                    ...affiche('m', 400),
+                    fontSize: 'clamp(1.9rem, 4.4vw, 3.75rem)',
+                  }}
                 >
                   Trois etages, quarante metres carres, et le temps qui passe.
                 </h2>
               </div>
               <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300 md:o-col-span-5">
-                La coupe est a jour : chaque piece est posee sur l etage ou elle se trouve aujourd hui, et elle glisse vers la droite de sa planche a mesure qu elle se fait. Cliquez une piece.
+                La coupe est a jour : chaque piece est posee sur l etage ou elle se trouve
+                aujourd hui, et elle glisse vers la droite de sa planche a mesure qu elle
+                se fait. Cliquez une piece.
               </p>
             </div>
 
@@ -744,23 +1078,42 @@ export default function Page(): ReactElement {
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
                   Ou elle en est
                 </p>
-                <h3 className="o-m-0 o-mt-3 o-text-3xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50">{piece.nom}</h3>
+                <h3 className="o-m-0 o-mt-3 o-text-3xl o-tracking-tight o-text-stone-900 dark:o-text-stone-50">
+                  {piece.nom}
+                </h3>
                 <div className="o-mt-8">
                   <Echelle piece={piece} jours={jours} />
                 </div>
-                <dl className="o-m-0 o-mt-10 o-border-t" style={{ borderColor: 'var(--o-theme-line)' }}>
+                <dl
+                  className="o-m-0 o-mt-10 o-border-t"
+                  style={{ borderColor: 'var(--o-theme-line)' }}
+                >
                   {(
                     [
                       ['Ferme', piece.ferme],
                       ['Lait', piece.lait],
                       ['Etage', ETAGES[etageDe(piece, jours)]?.nom ?? ''],
-                      ['Sortie du lot', `dans ${String(Math.max(0, piece.duree - jours))} jours, et le lot suivant entre le jour meme`],
-                      ['Piece entiere', `${poidsDit(piece.poids)}, ${euros(piece.prix)} le kilo`],
+                      [
+                        'Sortie du lot',
+                        `dans ${String(Math.max(0, piece.duree - jours))} jours, et le lot suivant entre le jour meme`,
+                      ],
+                      [
+                        'Piece entiere',
+                        `${poidsDit(piece.poids)}, ${euros(piece.prix)} le kilo`,
+                      ],
                     ] as const
                   ).map(([quoi, valeur]) => (
-                    <div key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">{quoi}</dt>
-                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-800 dark:o-text-stone-200 sm:o-col-span-7">{valeur}</dd>
+                    <div
+                      key={quoi}
+                      className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12"
+                      style={{ borderColor: 'var(--o-theme-line)' }}
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">
+                        {quoi}
+                      </dt>
+                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-800 dark:o-text-stone-200 sm:o-col-span-7">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -782,10 +1135,14 @@ export default function Page(): ReactElement {
         {/*
           ----- La coupe sombre : un ecran de texte seul ------------------------
         */}
-        <section className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={nuit('stone')}>
+        <section
+          className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+          style={nuit('stone')}
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
             <Manifeste eteint="Un fromage trop jeune se vend mieux : il est plus doux, il rassure, et il coute moins cher a garder.">
-              Nous le gardons quand meme. Une cave qui tourne trop vite n est pas une cave, c est un entrepot avec de la pierre autour.
+              Nous le gardons quand meme. Une cave qui tourne trop vite n est pas une
+              cave, c est un entrepot avec de la pierre autour.
             </Manifeste>
           </div>
         </section>
@@ -793,28 +1150,44 @@ export default function Page(): ReactElement {
         {/*
           ----- L appel : retirer la planche ------------------------------------
         */}
-        <section id="retirer" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="retirer"
+          className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
             <div className="md:o-col-span-7">
-              <Indice rang="03" sombre={false}>Retirer</Indice>
+              <Indice rang="03" sombre={false}>
+                Retirer
+              </Indice>
               <h2
                 className="o-m-0 o-mt-5 o-max-w-2xl o-text-stone-900 dark:o-text-stone-50"
                 style={{ ...affiche('m', 400), fontSize: 'clamp(1.9rem, 4.2vw, 3.5rem)' }}
               >
-                {lignes.length === 0 ? 'Votre planche est vide.' : `Votre planche : ${String(lignes.length)} piece${lignes.length > 1 ? 's' : ''}.`}
+                {lignes.length === 0
+                  ? 'Votre planche est vide.'
+                  : `Votre planche : ${String(lignes.length)} piece${lignes.length > 1 ? 's' : ''}.`}
               </h2>
               <p className="o-mt-5 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
                 {lignes.length === 0
                   ? 'Choisissez dans la planche ou dans la cave : ce que vous prenez se retrouve ici, coupe a la demande le jour du retrait.'
                   : 'Nous coupons le matin du retrait, jamais la veille. Dites-nous l heure, et laissez le fromage a temperature une heure avant de le servir.'}
               </p>
-              <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+              <p
+                className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                style={{ color: encre() }}
+              >
                 12 rue Vaubecour, Lyon 2e — 04 78 37 11 04
               </p>
             </div>
 
             <div className="o-min-w-0 md:o-col-span-5">
-              <div className="o-rounded-2xl o-border-w-1 o-p-6" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: 'var(--o-theme-bg)' }}>
+              <div
+                className="o-rounded-2xl o-border-w-1 o-p-6"
+                style={{
+                  borderColor: 'var(--o-theme-line)',
+                  backgroundColor: 'var(--o-theme-bg)',
+                }}
+              >
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
                   Recapitulatif
                 </p>
@@ -825,8 +1198,14 @@ export default function Page(): ReactElement {
                 ) : (
                   <ul className="o-m-0 o-mt-4 o-list-none o-p-0">
                     {lignes.map((l) => (
-                      <li key={l.cle} className="o-flex o-items-baseline o-justify-between o-gap-3 o-border-b o-py-3 o-text-sm" style={{ borderColor: 'var(--o-theme-line)' }}>
-                        <span className="o-text-stone-800 dark:o-text-stone-100">{l.nom}</span>
+                      <li
+                        key={l.cle}
+                        className="o-flex o-items-baseline o-justify-between o-gap-3 o-border-b o-py-3 o-text-sm"
+                        style={{ borderColor: 'var(--o-theme-line)' }}
+                      >
+                        <span className="o-text-stone-800 dark:o-text-stone-100">
+                          {l.nom}
+                        </span>
                         <span className="o-font-mono o-text-xs o-tabular-nums o-text-stone-600 dark:o-text-stone-300">
                           {poidsDit(l.grammes)} — {euros((l.grammes / 1000) * l.prix)}
                         </span>
@@ -849,23 +1228,71 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : la plaque de caseine (P26) ----------------------------
         */}
-        <footer className="o-px-6 o-py-16 md:o-px-10 md:o-py-20" style={{ backgroundColor: accentDoux(400, 16) }}>
+        <footer
+          className="o-px-6 o-py-16 md:o-px-10 md:o-py-20"
+          style={{ backgroundColor: accentDoux(400, 16) }}
+        >
           <div className="o-mx-auto o-grid o-max-w-5xl o-items-center o-gap-12 md:o-grid-cols-12">
             {/* La plaque : le petit disque de caseine colle sur chaque meule. */}
             <div className="o-flex o-justify-center md:o-col-span-4">
-              <svg viewBox="0 0 220 220" className="o-h-auto o-w-full" style={{ maxWidth: 220 }} role="img" aria-label="Plaque de caseine de la maison Hale, atelier FR 69.383.001 CE">
-                <circle cx="110" cy="110" r="104" fill="var(--o-theme-bg)" stroke={encre()} strokeWidth="2.5" />
-                <circle cx="110" cy="110" r="92" fill="none" stroke={encre()} strokeWidth="1" opacity="0.5" />
-                <path id="o-hale-cercle" d="M110 28a82 82 0 1 1 0 164 82 82 0 1 1 0-164" fill="none" />
-                <text fontFamily="var(--o-font-mono)" fontSize="13" letterSpacing="3" fill={encre()}>
+              <svg
+                viewBox="0 0 220 220"
+                className="o-h-auto o-w-full"
+                style={{ maxWidth: 220 }}
+                role="img"
+                aria-label="Plaque de caseine de la maison Hale, atelier FR 69.383.001 CE"
+              >
+                <circle
+                  cx="110"
+                  cy="110"
+                  r="104"
+                  fill="var(--o-theme-bg)"
+                  stroke={encre()}
+                  strokeWidth="2.5"
+                />
+                <circle
+                  cx="110"
+                  cy="110"
+                  r="92"
+                  fill="none"
+                  stroke={encre()}
+                  strokeWidth="1"
+                  opacity="0.5"
+                />
+                <path
+                  id="o-hale-cercle"
+                  d="M110 28a82 82 0 1 1 0 164 82 82 0 1 1 0-164"
+                  fill="none"
+                />
+                <text
+                  fontFamily="var(--o-font-mono)"
+                  fontSize="13"
+                  letterSpacing="3"
+                  fill={encre()}
+                >
                   <textPath href="#o-hale-cercle" startOffset="6%">
                     AFFINE EN CAVE — LYON — FR 69.383.001 CE
                   </textPath>
                 </text>
-                <text x="110" y="104" textAnchor="middle" fontSize="34" fontFamily="var(--o-font-serif, serif)" fill={encre()}>
+                <text
+                  x="110"
+                  y="104"
+                  textAnchor="middle"
+                  fontSize="34"
+                  fontFamily="var(--o-font-serif, serif)"
+                  fill={encre()}
+                >
                   Hale
                 </text>
-                <text x="110" y="132" textAnchor="middle" fontSize="12" letterSpacing="4" fontFamily="var(--o-font-mono)" fill={encre()}>
+                <text
+                  x="110"
+                  y="132"
+                  textAnchor="middle"
+                  fontSize="12"
+                  letterSpacing="4"
+                  fontFamily="var(--o-font-mono)"
+                  fill={encre()}
+                >
                   DEPUIS 2009
                 </text>
                 <circle cx="110" cy="152" r="3" fill={encre()} />
@@ -876,26 +1303,58 @@ export default function Page(): ReactElement {
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
                 Etiquette de la maison
               </p>
-              <dl className="o-m-0 o-mt-5 o-border-t" style={{ borderColor: 'var(--o-theme-line)' }}>
+              <dl
+                className="o-m-0 o-mt-5 o-border-t"
+                style={{ borderColor: 'var(--o-theme-line)' }}
+              >
                 {(
                   [
-                    ['Composition', 'Lait cru de vache, de chevre ou de brebis, sel, presure animale, ferments du lait'],
-                    ['Origine', 'Savoie, Berry, Puy-de-Dome, Doubs — six fermes, aucune laiterie industrielle'],
-                    ['Affinage', 'Cave sous voute, 8 a 14 degres, 80 a 95 pour cent d hygrometrie'],
-                    ['Lot', 'Un lot par ferme et par collecte — le numero est sur le papier de coupe'],
-                    ['Conservation', 'Entre 4 et 8 degres, dans son papier ; sorti une heure avant d etre servi'],
-                    ['Etablissement', 'Hale SARL, 12 rue Vaubecour, 69002 Lyon — agrement FR 69.383.001 CE'],
+                    [
+                      'Composition',
+                      'Lait cru de vache, de chevre ou de brebis, sel, presure animale, ferments du lait',
+                    ],
+                    [
+                      'Origine',
+                      'Savoie, Berry, Puy-de-Dome, Doubs — six fermes, aucune laiterie industrielle',
+                    ],
+                    [
+                      'Affinage',
+                      'Cave sous voute, 8 a 14 degres, 80 a 95 pour cent d hygrometrie',
+                    ],
+                    [
+                      'Lot',
+                      'Un lot par ferme et par collecte — le numero est sur le papier de coupe',
+                    ],
+                    [
+                      'Conservation',
+                      'Entre 4 et 8 degres, dans son papier ; sorti une heure avant d etre servi',
+                    ],
+                    [
+                      'Etablissement',
+                      'Hale SARL, 12 rue Vaubecour, 69002 Lyon — agrement FR 69.383.001 CE',
+                    ],
                   ] as const
                 ).map(([terme, valeur]) => (
-                  <div key={terme} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300 sm:o-col-span-4">{terme}</dt>
-                    <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-800 dark:o-text-stone-100 sm:o-col-span-8">{valeur}</dd>
+                  <div
+                    key={terme}
+                    className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-py-3.5 sm:o-grid-cols-12"
+                    style={{ borderColor: 'var(--o-theme-line)' }}
+                  >
+                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300 sm:o-col-span-4">
+                      {terme}
+                    </dt>
+                    <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-800 dark:o-text-stone-100 sm:o-col-span-8">
+                      {valeur}
+                    </dd>
                   </div>
                 ))}
               </dl>
               <p className="o-m-0 o-mt-6 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
                 <span>© 2026 Hale SARL</span>
-                <a href="#haut" className="o-text-stone-600 o-no-underline hover:o-text-stone-900 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-stone-50">
+                <a
+                  href="#haut"
+                  className="o-text-stone-600 o-no-underline hover:o-text-stone-900 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-stone-50"
+                >
                   Remonter ↑
                 </a>
               </p>

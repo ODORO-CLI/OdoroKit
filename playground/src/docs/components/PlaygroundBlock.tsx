@@ -414,9 +414,7 @@ export function VariantGrid({
                 style={frameStyle}
               >
                 {variant.node ??
-                  (variant.values !== undefined
-                    ? renderValues?.(variant.values)
-                    : null)}
+                  (variant.values !== undefined ? renderValues?.(variant.values) : null)}
               </span>
               <span className="o-flex o-flex-col o-gap-0.5 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900 o-px-3 o-py-2 o-text-left">
                 <span className="o-text-sm o-font-medium o-text-zinc-900 dark:o-text-zinc-50">

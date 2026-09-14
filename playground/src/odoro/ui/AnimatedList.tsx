@@ -195,7 +195,8 @@ export function AnimatedList({
     const item = items[target]
     if (item === undefined) return
     choose(item.id)
-    const option = ref.current?.querySelectorAll<HTMLButtonElement>('[role="option"]')[target]
+    const option =
+      ref.current?.querySelectorAll<HTMLButtonElement>('[role="option"]')[target]
     option?.focus()
     option?.scrollIntoView({ block: 'nearest' })
   }

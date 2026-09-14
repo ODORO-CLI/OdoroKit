@@ -73,11 +73,7 @@ export interface CursorGridOwnProps {
 export type CursorGridProps = Customisable<CursorGridOwnProps>
 
 /** Tokens employes par defaut : le fond, le filet et la trainee, les paves vifs. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-line',
-  '--o-palette-sky-400',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-line', '--o-palette-sky-400'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
@@ -140,18 +136,23 @@ export function CursorGrid({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer, uEcho])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: CURSOR_GRID_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uEcho, uCells: cells, uRadius: radius, uTrail: trail },
-      name: 'cursor-grid',
-      // Une grille serree scintille sur ses filets a densite de pixels
-      // reduite : en qualite basse, les paves s'elargissent.
-      degrade: (quality) => ({
-        uCells: quality === 'low' ? Math.min(cells, 10) : cells,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: CURSOR_GRID_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uEcho, uCells: cells, uRadius: radius, uTrail: trail },
+    name: 'cursor-grid',
+    // Une grille serree scintille sur ses filets a densite de pixels
+    // reduite : en qualite basse, les paves s'elargissent.
+    degrade: (quality) => ({
+      uCells: quality === 'low' ? Math.min(cells, 10) : cells,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

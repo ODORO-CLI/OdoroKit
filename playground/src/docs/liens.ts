@@ -62,10 +62,10 @@ export function useVersions(): readonly PaquetPublie[] {
 
     const lire = async (paquet: PaquetPublie): Promise<PaquetPublie> => {
       try {
-        const reponse = await fetch(
-          `https://registry.npmjs.org/${paquet.nom}/latest`,
-          { signal: abandon.signal, headers: { accept: 'application/json' } },
-        )
+        const reponse = await fetch(`https://registry.npmjs.org/${paquet.nom}/latest`, {
+          signal: abandon.signal,
+          headers: { accept: 'application/json' },
+        })
         if (!reponse.ok) return paquet
         const corps = (await reponse.json()) as Abrege
         return typeof corps.version === 'string' && corps.version !== ''

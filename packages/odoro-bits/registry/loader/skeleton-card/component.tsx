@@ -146,7 +146,9 @@ export function SkeletonCard({
 
   /** Retard du reflet, du haut de la carte vers son pied. */
   const delay = (rank: number): CSSProperties =>
-    ({ '--o-skcard-delay': `${String(Math.round((speed / 10) * rank))}ms` }) as CSSProperties
+    ({
+      '--o-skcard-delay': `${String(Math.round((speed / 10) * rank))}ms`,
+    }) as CSSProperties
 
   return (
     <div
@@ -160,7 +162,9 @@ export function SkeletonCard({
     >
       <span className="o-sr-only">{label}</span>
       <span aria-hidden data-o-skcard-body="">
-        {media ? <span data-o-skcard-fill="" data-o-skcard-media="" style={delay(0)} /> : null}
+        {media ? (
+          <span data-o-skcard-fill="" data-o-skcard-media="" style={delay(0)} />
+        ) : null}
         <span data-o-skcard-fill="" data-o-skcard-title="" style={delay(1)} />
         {count > 0 ? (
           <span data-o-skcard-text="">
@@ -186,7 +190,11 @@ export function SkeletonCard({
         ) : null}
         {footer ? (
           <span data-o-skcard-foot="">
-            <span data-o-skcard-fill="" data-o-skcard-avatar="" style={delay(2 + count)} />
+            <span
+              data-o-skcard-fill=""
+              data-o-skcard-avatar=""
+              style={delay(2 + count)}
+            />
             <span data-o-skcard-fill="" data-o-skcard-meta="" style={delay(3 + count)} />
           </span>
         ) : null}

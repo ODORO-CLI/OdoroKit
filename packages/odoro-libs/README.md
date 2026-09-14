@@ -13,14 +13,14 @@ import '@odoro-cli/libs/styles.css'
 
 ## Entry points
 
-| Import                          | What you get                                    |
-| ------------------------------- | ----------------------------------------------- |
-| `@odoro-cli/libs`               | Everything re-exported.                          |
-| `@odoro-cli/libs/ui`            | Buttons, dialogs, tables, forms — 40+ components. |
-| `@odoro-cli/libs/router`        | Nested routes, dynamic segments, lazy loading.    |
-| `@odoro-cli/libs/motion`        | `Reveal`, `Stagger`, `useAnimate`.                |
-| `@odoro-cli/libs/tokens`        | The raw scales, as values.                        |
-| `@odoro-cli/libs/styles.css`    | The base sheet: variables, preflight, keyframes.  |
+| Import                       | What you get                                      |
+| ---------------------------- | ------------------------------------------------- |
+| `@odoro-cli/libs`            | Everything re-exported.                           |
+| `@odoro-cli/libs/ui`         | Buttons, dialogs, tables, forms — 40+ components. |
+| `@odoro-cli/libs/router`     | Nested routes, dynamic segments, lazy loading.    |
+| `@odoro-cli/libs/motion`     | `Reveal`, `Stagger`, `useAnimate`.                |
+| `@odoro-cli/libs/tokens`     | The raw scales, as values.                        |
+| `@odoro-cli/libs/styles.css` | The base sheet: variables, preflight, keyframes.  |
 
 ## One stylesheet, and it stays small
 

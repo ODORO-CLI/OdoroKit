@@ -36,8 +36,23 @@
  */
 
 import { Icon, type IconData } from '@odoro-cli/icons'
-import { Activity, ArrowRight, Bell, Gauge, Layers, Radar, Terminal, TriangleAlert } from '@odoro-cli/icons/filaire'
-import { useMemo, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  Activity,
+  ArrowRight,
+  Bell,
+  Gauge,
+  Layers,
+  Radar,
+  Terminal,
+  TriangleAlert,
+} from '@odoro-cli/icons/filaire'
+import {
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { Hologram } from '@/odoro/background/Hologram.jsx'
 import { Timeline } from '@/odoro/section/Timeline.jsx'
@@ -47,7 +62,17 @@ import { useInView } from '@/odoro/hooks/useInView'
 
 import { nuit } from './communs.jsx'
 import { accent, accentDoux, encreSurSombre } from './palettes.js'
-import { affiche, BarreFilet, Coin, Etiquette, Grain, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  affiche,
+  BarreFilet,
+  Coin,
+  Etiquette,
+  Grain,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Epingle } from './scene.jsx'
 
 /* ------------------------------------------------------------------------ */
@@ -248,31 +273,106 @@ interface Ecriture {
 
 /** Les seize ecritures du journal, de la mise en ligne au rapport. */
 const JOURNAL: readonly Ecriture[] = [
-  { minute: 0, nature: 'deploiement', texte: 'Mise en ligne 8f21c du service de facturation, par la chaine habituelle.' },
-  { minute: 7, nature: 'sonde', texte: 'Premier avertissement : le pool de connexions passe 58 %, sans alerte.' },
-  { minute: 11, nature: 'alerte', texte: 'Alerte : la latence p99 depasse 800 ms depuis deux minutes.' },
-  { minute: 13, nature: 'humain', texte: 'Astreinte reveillee. Lea Nardi accuse reception en quatre-vingt-dix secondes.' },
+  {
+    minute: 0,
+    nature: 'deploiement',
+    texte: 'Mise en ligne 8f21c du service de facturation, par la chaine habituelle.',
+  },
+  {
+    minute: 7,
+    nature: 'sonde',
+    texte: 'Premier avertissement : le pool de connexions passe 58 %, sans alerte.',
+  },
+  {
+    minute: 11,
+    nature: 'alerte',
+    texte: 'Alerte : la latence p99 depasse 800 ms depuis deux minutes.',
+  },
+  {
+    minute: 13,
+    nature: 'humain',
+    texte:
+      'Astreinte reveillee. Lea Nardi accuse reception en quatre-vingt-dix secondes.',
+  },
   { minute: 16, nature: 'alerte', texte: 'Alerte : le taux d erreur depasse 1 %.' },
-  { minute: 18, nature: 'sonde', texte: 'Le pool de connexions est sature : 100 %, plus une seule libre.' },
-  { minute: 21, nature: 'humain', texte: 'Hypothese posee : la reconciliation ne relache pas sa connexion.' },
-  { minute: 24, nature: 'humain', texte: 'Le trace d une requete lente remonte 4,2 s dans un seul appel.' },
-  { minute: 27, nature: 'humain', texte: 'Decision : retour a la version 7e04a, sans chercher plus loin pour l instant.' },
-  { minute: 29, nature: 'action', texte: 'Retour arriere lance sur les douze instances.' },
-  { minute: 31, nature: 'sonde', texte: 'Le pool redescend sous 85 %. Les premieres requetes repassent.' },
+  {
+    minute: 18,
+    nature: 'sonde',
+    texte: 'Le pool de connexions est sature : 100 %, plus une seule libre.',
+  },
+  {
+    minute: 21,
+    nature: 'humain',
+    texte: 'Hypothese posee : la reconciliation ne relache pas sa connexion.',
+  },
+  {
+    minute: 24,
+    nature: 'humain',
+    texte: 'Le trace d une requete lente remonte 4,2 s dans un seul appel.',
+  },
+  {
+    minute: 27,
+    nature: 'humain',
+    texte:
+      'Decision : retour a la version 7e04a, sans chercher plus loin pour l instant.',
+  },
+  {
+    minute: 29,
+    nature: 'action',
+    texte: 'Retour arriere lance sur les douze instances.',
+  },
+  {
+    minute: 31,
+    nature: 'sonde',
+    texte: 'Le pool redescend sous 85 %. Les premieres requetes repassent.',
+  },
   { minute: 34, nature: 'sonde', texte: 'Le taux d erreur repasse sous 1 %.' },
   { minute: 36, nature: 'sonde', texte: 'La latence p99 repasse sous 800 ms.' },
   { minute: 38, nature: 'sonde', texte: 'La file se resorbe sous cinq mille messages.' },
-  { minute: 41, nature: 'humain', texte: 'Fin d incident declaree. Trente minutes depuis la premiere alerte.' },
-  { minute: 47, nature: 'humain', texte: 'Rapport ecrit : une connexion par requete, jamais relachee. Correctif en revue.' },
+  {
+    minute: 41,
+    nature: 'humain',
+    texte: 'Fin d incident declaree. Trente minutes depuis la premiere alerte.',
+  },
+  {
+    minute: 47,
+    nature: 'humain',
+    texte:
+      'Rapport ecrit : une connexion par requete, jamais relachee. Correctif en revue.',
+  },
 ]
 
 /** Une phase de l incident. */
-const PHASES: readonly { readonly depuis: number; readonly nom: string; readonly note: string }[] = [
-  { depuis: 0, nom: 'Rien ne parait', note: 'La version est en ligne depuis sept minutes. Une sonde s agite, personne ne le sait encore.' },
-  { depuis: 11, nom: 'La detection', note: 'La premiere alerte part. Onze minutes ont passe : c est le delai qu on cherche a reduire, et le seul qui depende de l outil.' },
-  { depuis: 18, nom: 'Le diagnostic', note: 'Trois signaux sont au rouge en meme temps. L ordre dans lequel ils sont montes dit lequel est la cause.' },
-  { depuis: 27, nom: 'La mitigation', note: 'On retablit d abord, on comprend ensuite. Le retour arriere passe avant le correctif.' },
-  { depuis: 37, nom: 'Le retablissement', note: 'Les courbes redescendent dans l ordre inverse de leur montee. La file est la derniere a se vider.' },
+const PHASES: readonly {
+  readonly depuis: number
+  readonly nom: string
+  readonly note: string
+}[] = [
+  {
+    depuis: 0,
+    nom: 'Rien ne parait',
+    note: 'La version est en ligne depuis sept minutes. Une sonde s agite, personne ne le sait encore.',
+  },
+  {
+    depuis: 11,
+    nom: 'La detection',
+    note: 'La premiere alerte part. Onze minutes ont passe : c est le delai qu on cherche a reduire, et le seul qui depende de l outil.',
+  },
+  {
+    depuis: 18,
+    nom: 'Le diagnostic',
+    note: 'Trois signaux sont au rouge en meme temps. L ordre dans lequel ils sont montes dit lequel est la cause.',
+  },
+  {
+    depuis: 27,
+    nom: 'La mitigation',
+    note: 'On retablit d abord, on comprend ensuite. Le retour arriere passe avant le correctif.',
+  },
+  {
+    depuis: 37,
+    nom: 'Le retablissement',
+    note: 'Les courbes redescendent dans l ordre inverse de leur montee. La file est la derniere a se vider.',
+  },
 ]
 
 /** La phase en cours, a la minute donnee. */
@@ -307,18 +407,32 @@ function teinteDe(nature: Nature): string {
 /* ------------------------------------------------------------------------ */
 
 /** Le chemin d un signal, trace jusqu a la minute courante. */
-function chemin(signal: Signal, minute: number, large: number, haut: number, gauche: number, sommet: number): string {
+function chemin(
+  signal: Signal,
+  minute: number,
+  large: number,
+  haut: number,
+  gauche: number,
+  sommet: number,
+): string {
   const points: string[] = []
   for (let m = 0; m <= Math.max(0, minute); m += 1) {
     const x = gauche + (m / (MINUTES - 1)) * large
-    const y = sommet + (1 - Math.min(valeurA(signal, m), signal.haut) / signal.haut) * haut
+    const y =
+      sommet + (1 - Math.min(valeurA(signal, m), signal.haut) / signal.haut) * haut
     points.push(`${m === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`)
   }
   return points.join(' ')
 }
 
 /** Le grand trace du signal choisi, avec son seuil et la minute courante. */
-function Trace({ signal, minute }: { readonly signal: Signal; readonly minute: number }): ReactElement {
+function Trace({
+  signal,
+  minute,
+}: {
+  readonly signal: Signal
+  readonly minute: number
+}): ReactElement {
   const gris: CSSProperties = { color: 'var(--o-palette-zinc-500)' }
   const gauche = 58
   const large = 872
@@ -331,15 +445,44 @@ function Trace({ signal, minute }: { readonly signal: Signal; readonly minute: n
   const alarme = valeur > signal.seuil
 
   return (
-    <svg viewBox="0 0 960 282" role="img" aria-label={`${signal.nom} : ${ecrit(signal, valeur)} ${signal.unite} a la minute ${String(minute)}`} className="o-w-full">
+    <svg
+      viewBox="0 0 960 282"
+      role="img"
+      aria-label={`${signal.nom} : ${ecrit(signal, valeur)} ${signal.unite} a la minute ${String(minute)}`}
+      className="o-w-full"
+    >
       {/* Le seuil, et le nom de ce qu il garde. */}
-      <line x1={gauche} y1={ySeuil} x2={gauche + large} y2={ySeuil} stroke={ALARME} strokeWidth="1" strokeDasharray="5 5" opacity="0.8" />
-      <text x={gauche + 6} y={ySeuil - 7} className="o-font-mono" fontSize="10" fill={ALARME}>
+      <line
+        x1={gauche}
+        y1={ySeuil}
+        x2={gauche + large}
+        y2={ySeuil}
+        stroke={ALARME}
+        strokeWidth="1"
+        strokeDasharray="5 5"
+        opacity="0.8"
+      />
+      <text
+        x={gauche + 6}
+        y={ySeuil - 7}
+        className="o-font-mono"
+        fontSize="10"
+        fill={ALARME}
+      >
         seuil {ecrit(signal, signal.seuil)} {signal.unite}
       </text>
 
       {/* Le sol, et les minutes. */}
-      <line x1={gauche} y1={sommet + haut} x2={gauche + large} y2={sommet + haut} stroke="currentColor" strokeWidth="1" opacity="0.4" style={gris} />
+      <line
+        x1={gauche}
+        y1={sommet + haut}
+        x2={gauche + large}
+        y2={sommet + haut}
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.4"
+        style={gris}
+      />
       {[0, 6, 12, 18, 24, 30, 36, 42, 47].map((m) => (
         <text
           key={m}
@@ -354,16 +497,48 @@ function Trace({ signal, minute }: { readonly signal: Signal; readonly minute: n
           T+{m}
         </text>
       ))}
-      <text x={gauche - 10} y={sommet + 6} textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x={gauche - 10}
+        y={sommet + 6}
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         {ecrit(signal, signal.haut)}
       </text>
-      <text x={gauche - 10} y={sommet + haut + 4} textAnchor="end" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+      <text
+        x={gauche - 10}
+        y={sommet + haut + 4}
+        textAnchor="end"
+        className="o-font-mono"
+        fontSize="10"
+        fill="currentColor"
+        style={gris}
+      >
         0
       </text>
 
       {/* Le trace, jusqu a la minute courante, et rien au-dela. */}
-      <path d={chemin(signal, minute, large, haut, gauche, sommet)} fill="none" stroke={ENCRE} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
-      <line x1={xCourant} y1={sommet - 8} x2={xCourant} y2={sommet + haut} stroke="currentColor" strokeWidth="1" opacity="0.5" style={gris} />
+      <path
+        d={chemin(signal, minute, large, haut, gauche, sommet)}
+        fill="none"
+        stroke={ENCRE}
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <line
+        x1={xCourant}
+        y1={sommet - 8}
+        x2={xCourant}
+        y2={sommet + haut}
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.5"
+        style={gris}
+      />
       <circle cx={xCourant} cy={yCourant} r="5" fill={alarme ? ALARME : ENCRE} />
       <text
         x={gauche + large}
@@ -375,7 +550,14 @@ function Trace({ signal, minute }: { readonly signal: Signal; readonly minute: n
       >
         {ecrit(signal, valeur)} {signal.unite}
       </text>
-      <text x={gauche} y="272" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x={gauche}
+        y="272"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         {signal.quoi}
       </text>
     </svg>
@@ -383,7 +565,13 @@ function Trace({ signal, minute }: { readonly signal: Signal; readonly minute: n
 }
 
 /** Un petit trace de signal, dans la colonne de gauche. */
-function Miniature({ signal, minute }: { readonly signal: Signal; readonly minute: number }): ReactElement {
+function Miniature({
+  signal,
+  minute,
+}: {
+  readonly signal: Signal
+  readonly minute: number
+}): ReactElement {
   const valeur = valeurA(signal, minute)
   const alarme = valeur > signal.seuil
   return (
@@ -398,7 +586,13 @@ function Miniature({ signal, minute }: { readonly signal: Signal; readonly minut
         strokeDasharray="3 4"
         opacity="0.7"
       />
-      <path d={chemin(signal, minute, 130, 26, 0, 4)} fill="none" stroke={alarme ? ALARME : ENCRE} strokeWidth="1.6" strokeLinejoin="round" />
+      <path
+        d={chemin(signal, minute, 130, 26, 0, 4)}
+        fill="none"
+        stroke={alarme ? ALARME : ENCRE}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -432,15 +626,30 @@ function Hud({
   return (
     <div className="o-flex o-h-full o-flex-col o-px-6 o-py-6 md:o-px-8">
       {/* ----- L horloge, la phase, l etat ------------------------------- */}
-      <div className="o-flex o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-border-b o-pb-4" style={{ borderColor: FILET }}>
-        <p className="o-m-0 o-font-mono o-tabular-nums o-tracking-tight" style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)', color: ENCRE }}>
+      <div
+        className="o-flex o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-border-b o-pb-4"
+        style={{ borderColor: FILET }}
+      >
+        <p
+          className="o-m-0 o-font-mono o-tabular-nums o-tracking-tight"
+          style={{ fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)', color: ENCRE }}
+        >
           T+{String(minute).padStart(2, '0')}
         </p>
-        <p className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-400">{heure(minute)}</p>
-        <p className="o-m-0 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">{phase.nom}</p>
-        <p className="o-m-0 o-ml-auto o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: alertes.length > 0 ? ALARME : 'var(--o-palette-emerald-400)' }}>
+        <p className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-400">
+          {heure(minute)}
+        </p>
+        <p className="o-m-0 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-50">
+          {phase.nom}
+        </p>
+        <p
+          className="o-m-0 o-ml-auto o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: alertes.length > 0 ? ALARME : 'var(--o-palette-emerald-400)' }}
+        >
           <Icon icon={Bell} size={13} aria-hidden="true" />
-          {alertes.length === 0 ? 'aucune alerte' : `${String(alertes.length)} alerte${alertes.length > 1 ? 's' : ''}`}
+          {alertes.length === 0
+            ? 'aucune alerte'
+            : `${String(alertes.length)} alerte${alertes.length > 1 ? 's' : ''}`}
         </p>
       </div>
 
@@ -468,9 +677,14 @@ function Hud({
                         <Icon icon={s.icone} size={12} aria-hidden="true" />
                         {s.nom}
                       </span>
-                      <span className="o-mt-1 o-block o-font-mono o-text-xl o-tabular-nums o-tracking-tight" style={{ color: alarme ? ALARME : ENCRE }}>
+                      <span
+                        className="o-mt-1 o-block o-font-mono o-text-xl o-tabular-nums o-tracking-tight"
+                        style={{ color: alarme ? ALARME : ENCRE }}
+                      >
                         {ecrit(s, valeur)}
-                        <span className="o-ml-1 o-text-xs o-text-zinc-400">{s.unite}</span>
+                        <span className="o-ml-1 o-text-xs o-text-zinc-400">
+                          {s.unite}
+                        </span>
                       </span>
                     </span>
                     <Miniature signal={s} minute={minute} />
@@ -480,7 +694,9 @@ function Hud({
             })}
           </ul>
 
-          <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-400">{phase.note}</p>
+          <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-zinc-400">
+            {phase.note}
+          </p>
         </div>
 
         {/* ----- Le grand trace, et le journal --------------------------- */}
@@ -493,7 +709,10 @@ function Hud({
               onChange={surChoix}
             />
             <div className="o-ml-auto o-flex o-items-center o-gap-3">
-              <label htmlFor="incident-minute" className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+              <label
+                htmlFor="incident-minute"
+                className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400"
+              >
                 Minute
               </label>
               <input
@@ -528,17 +747,29 @@ function Hud({
             <Trace signal={signal} minute={minute} />
           </div>
 
-          <div className="o-mt-3 o-min-h-0 o-border-t o-pt-3" style={{ borderColor: FILET }}>
+          <div
+            className="o-mt-3 o-min-h-0 o-border-t o-pt-3"
+            style={{ borderColor: FILET }}
+          >
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-              Journal — {passees.length} ecriture{passees.length > 1 ? 's' : ''} sur {JOURNAL.length}
+              Journal — {passees.length} ecriture{passees.length > 1 ? 's' : ''} sur{' '}
+              {JOURNAL.length}
             </p>
             <ol className="o-m-0 o-mt-2 o-list-none o-p-0">
               {dernieres.map((ecriture) => (
-                <li key={ecriture.minute} className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-py-1">
-                  <span className="o-col-span-3 o-font-mono o-text-xs o-tabular-nums sm:o-col-span-2" style={{ color: teinteDe(ecriture.nature) }}>
+                <li
+                  key={ecriture.minute}
+                  className="o-grid o-grid-cols-12 o-items-baseline o-gap-3 o-py-1"
+                >
+                  <span
+                    className="o-col-span-3 o-font-mono o-text-xs o-tabular-nums sm:o-col-span-2"
+                    style={{ color: teinteDe(ecriture.nature) }}
+                  >
                     T+{String(ecriture.minute).padStart(2, '0')}
                   </span>
-                  <span className="o-col-span-9 o-text-xs o-leading-relaxed o-text-zinc-300 sm:o-col-span-10">{ecriture.texte}</span>
+                  <span className="o-col-span-9 o-text-xs o-leading-relaxed o-text-zinc-300 sm:o-col-span-10">
+                    {ecriture.texte}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -557,7 +788,13 @@ function Incident(): ReactElement {
   return (
     <Epingle ecrans={5} actes={MINUTES}>
       {(acte) => (
-        <Hud minute={manuel ?? acte} choisi={choisi} surChoix={setChoisi} manuel={manuel} surManuel={setManuel} />
+        <Hud
+          minute={manuel ?? acte}
+          choisi={choisi}
+          surChoix={setChoisi}
+          manuel={manuel}
+          surManuel={setManuel}
+        />
       )}
     </Epingle>
   )
@@ -578,7 +815,13 @@ const SEGMENTS: readonly {
   { nom: 'POST /factures/reconcilier', niveau: 0, debut: 0, duree: 4210 },
   { nom: 'authentification', niveau: 1, debut: 4, duree: 12 },
   { nom: 'lecture du client', niveau: 1, debut: 18, duree: 18 },
-  { nom: 'acquisition d une connexion', niveau: 1, debut: 38, duree: 3940, coupable: true },
+  {
+    nom: 'acquisition d une connexion',
+    niveau: 1,
+    debut: 38,
+    duree: 3940,
+    coupable: true,
+  },
   { nom: 'requete SQL', niveau: 2, debut: 3980, duree: 214 },
   { nom: 'calcul de la taxe', niveau: 1, debut: 4194, duree: 9 },
   { nom: 'ecriture du journal', niveau: 1, debut: 4200, duree: 7 },
@@ -599,8 +842,21 @@ function FigureTrace(): ReactElement {
   const large = 600
   const total = 4210
   return (
-    <svg ref={ref} viewBox="0 0 1000 250" aria-hidden="true" className="o-w-full" style={{ minWidth: 720 }}>
-      <text x="20" y="22" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+    <svg
+      ref={ref}
+      viewBox="0 0 1000 250"
+      aria-hidden="true"
+      className="o-w-full"
+      style={{ minWidth: 720 }}
+    >
+      <text
+        x="20"
+        y="22"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         une requete, prise au hasard a T+24 — 4 210 ms de bout en bout
       </text>
 
@@ -610,7 +866,13 @@ function FigureTrace(): ReactElement {
         const w = Math.max(2, (segment.duree / total) * large)
         return (
           <g key={segment.nom}>
-            <text x={20 + segment.niveau * 16} y={y + 9} fontSize="12" fill="currentColor" style={segment.coupable === true ? { color: ENCRE } : undefined}>
+            <text
+              x={20 + segment.niveau * 16}
+              y={y + 9}
+              fontSize="12"
+              fill="currentColor"
+              style={segment.coupable === true ? { color: ENCRE } : undefined}
+            >
               {segment.nom}
             </text>
             <rect
@@ -643,11 +905,37 @@ function FigureTrace(): ReactElement {
       })}
 
       {/* L echelle de temps, sous la cascade. */}
-      <line x1={gauche} y1="240" x2={gauche + large} y2="240" stroke="currentColor" strokeWidth="1" opacity="0.4" style={gris} />
+      <line
+        x1={gauche}
+        y1="240"
+        x2={gauche + large}
+        y2="240"
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.4"
+        style={gris}
+      />
       {[0, 1000, 2000, 3000, 4000].map((ms) => (
         <g key={ms}>
-          <line x1={gauche + (ms / total) * large} y1="236" x2={gauche + (ms / total) * large} y2="240" stroke="currentColor" strokeWidth="1" opacity="0.6" style={gris} />
-          <text x={gauche + (ms / total) * large} y="234" textAnchor="middle" className="o-font-mono" fontSize="10" fill="currentColor" style={gris}>
+          <line
+            x1={gauche + (ms / total) * large}
+            y1="236"
+            x2={gauche + (ms / total) * large}
+            y2="240"
+            stroke="currentColor"
+            strokeWidth="1"
+            opacity="0.6"
+            style={gris}
+          />
+          <text
+            x={gauche + (ms / total) * large}
+            y="234"
+            textAnchor="middle"
+            className="o-font-mono"
+            fontSize="10"
+            fill="currentColor"
+            style={gris}
+          >
             {ms / 1000} s
           </text>
         </g>
@@ -664,7 +952,10 @@ function FigureTrace(): ReactElement {
 const JOURS = 30
 
 /** Les minutes degradees, par service et par jour du mois. Le reste est a zero. */
-const CHALEUR: readonly { readonly service: string; readonly jours: Readonly<Record<number, number>> }[] = [
+const CHALEUR: readonly {
+  readonly service: string
+  readonly jours: Readonly<Record<number, number>>
+}[] = [
   { service: 'Passerelle', jours: { 8: 30, 23: 12, 27: 5 } },
   { service: 'Facturation', jours: { 2: 6, 8: 30, 19: 4 } },
   { service: 'Paiements', jours: { 8: 22, 14: 9 } },
@@ -676,7 +967,11 @@ const CHALEUR: readonly { readonly service: string; readonly jours: Readonly<Rec
 ]
 
 /** Les cinq degres de la carte : ce que vaut une case. */
-const DEGRES: readonly { readonly depuis: number; readonly part: number; readonly mot: string }[] = [
+const DEGRES: readonly {
+  readonly depuis: number
+  readonly part: number
+  readonly mot: string
+}[] = [
   { depuis: 0, part: 0, mot: 'rien' },
   { depuis: 1, part: 0.25, mot: '1 a 5 min' },
   { depuis: 6, part: 0.45, mot: '6 a 15 min' },
@@ -695,20 +990,31 @@ function degreDe(minutes: number): (typeof DEGRES)[number] {
 function Chaleur(): ReactElement {
   const { ref, vu } = useInView<HTMLDivElement>({ amount: 0.2 })
   const total = useMemo(
-    () => CHALEUR.reduce((somme, ligne) => somme + Object.values(ligne.jours).reduce((s, v) => s + v, 0), 0),
+    () =>
+      CHALEUR.reduce(
+        (somme, ligne) => somme + Object.values(ligne.jours).reduce((s, v) => s + v, 0),
+        0,
+      ),
     [],
   )
 
   return (
     <div ref={ref}>
       <div className="o-overflow-x-auto o-pb-2" style={{ overflowY: 'hidden' }}>
-        <table className="o-text-left o-text-sm" style={{ minWidth: 1040, borderCollapse: 'collapse' }}>
+        <table
+          className="o-text-left o-text-sm"
+          style={{ minWidth: 1040, borderCollapse: 'collapse' }}
+        >
           <caption className="o-sr-only">
-            Minutes de service degrade, par service et par jour, sur les trente jours d avril 2026
+            Minutes de service degrade, par service et par jour, sur les trente jours d
+            avril 2026
           </caption>
           <thead>
             <tr>
-              <th scope="col" className="o-px-2 o-py-1 o-text-left o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-600">
+              <th
+                scope="col"
+                className="o-px-2 o-py-1 o-text-left o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-zinc-600"
+              >
                 Service
               </th>
               {Array.from({ length: JOURS }, (_, place) => place + 1).map((jour) => (
@@ -716,7 +1022,10 @@ function Chaleur(): ReactElement {
                   key={jour}
                   scope="col"
                   className="o-px-0 o-py-1 o-text-center o-font-mono o-text-xs o-font-normal o-tabular-nums"
-                  style={{ width: 30, color: jour === 8 ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)' }}
+                  style={{
+                    width: 30,
+                    color: jour === 8 ? 'var(--o-theme-fg)' : 'var(--o-theme-muted)',
+                  }}
                 >
                   {jour % 2 === 0 ? jour : ''}
                 </th>
@@ -726,7 +1035,10 @@ function Chaleur(): ReactElement {
           <tbody>
             {CHALEUR.map((ligne, rang) => (
               <tr key={ligne.service}>
-                <th scope="row" className="o-whitespace-nowrap o-px-2 o-py-1 o-text-left o-text-xs o-font-normal">
+                <th
+                  scope="row"
+                  className="o-whitespace-nowrap o-px-2 o-py-1 o-text-left o-text-xs o-font-normal"
+                >
                   {ligne.service}
                 </th>
                 {Array.from({ length: JOURS }, (_, place) => place + 1).map((jour) => {
@@ -742,7 +1054,10 @@ function Chaleur(): ReactElement {
                           margin: 2,
                           borderRadius: 3,
                           border: `1px solid ${FILET_JOUR}`,
-                          backgroundColor: degre.part === 0 ? 'transparent' : accentDoux(600, Math.round(degre.part * 100)),
+                          backgroundColor:
+                            degre.part === 0
+                              ? 'transparent'
+                              : accentDoux(600, Math.round(degre.part * 100)),
                           opacity: vu ? 1 : 0,
                           transition: `opacity 420ms ease ${String(rang * 60 + jour * 10)}ms`,
                         }}
@@ -756,7 +1071,10 @@ function Chaleur(): ReactElement {
         </table>
       </div>
 
-      <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-x-6 o-gap-y-3 o-border-t o-pt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600" style={{ borderColor: FILET_JOUR }}>
+      <div
+        className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-x-6 o-gap-y-3 o-border-t o-pt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600"
+        style={{ borderColor: FILET_JOUR }}
+      >
         {DEGRES.map((degre) => (
           <span key={degre.mot} className="o-inline-flex o-items-center o-gap-2">
             <span
@@ -767,7 +1085,10 @@ function Chaleur(): ReactElement {
                 height: 16,
                 borderRadius: 3,
                 border: `1px solid ${FILET_JOUR}`,
-                backgroundColor: degre.part === 0 ? 'transparent' : accentDoux(600, Math.round(degre.part * 100)),
+                backgroundColor:
+                  degre.part === 0
+                    ? 'transparent'
+                    : accentDoux(600, Math.round(degre.part * 100)),
               }}
             />
             {degre.mot}
@@ -786,13 +1107,28 @@ function Chaleur(): ReactElement {
 /* ------------------------------------------------------------------------ */
 
 /** Un intitule de section. */
-function Titre({ indice, id, children }: { readonly indice: string; readonly id: string; readonly children: ReactNode }): ReactElement {
+function Titre({
+  indice,
+  id,
+  children,
+}: {
+  readonly indice: string
+  readonly id: string
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <>
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+      <p
+        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: ENCRE }}
+      >
         {indice}
       </p>
-      <h2 id={id} className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+      <h2
+        id={id}
+        className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}
+      >
         {children}
       </h2>
     </>
@@ -806,11 +1142,20 @@ export default function Page(): ReactElement {
   return (
     <Porte forme="compteur" marque="Vigie">
       <div className="o-text-zinc-100" style={{ ...polices, ...nuit('zinc') }}>
-        <BarreFilet marque="Vigie" liens={LIENS} action={['#essai', 'Poser une sonde']} sombre />
+        <BarreFilet
+          marque="Vigie"
+          liens={LIENS}
+          action={['#essai', 'Poser une sonde']}
+          sombre
+        />
 
         <main>
           {/* =============== L ouverture : l hologramme et le HUD ========== */}
-          <section id="sommet" aria-label="Ouverture" className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-24 o-pt-20 md:o-px-8 md:o-pb-32 md:o-pt-28">
+          <section
+            id="sommet"
+            aria-label="Ouverture"
+            className="o-relative o-isolate o-overflow-hidden o-px-6 o-pb-24 o-pt-20 md:o-px-8 md:o-pb-32 md:o-pt-28"
+          >
             <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0">
               <Hologram
                 className="o-absolute o-inset-0"
@@ -818,7 +1163,11 @@ export default function Page(): ReactElement {
                 parallels={8}
                 rpm={3}
                 flicker={0.35}
-                colors={['--o-palette-zinc-950', '--o-vitrine-400', '--o-palette-zinc-200']}
+                colors={[
+                  '--o-palette-zinc-950',
+                  '--o-vitrine-400',
+                  '--o-palette-zinc-200',
+                ]}
                 poster="o-bg-zinc-950"
               />
               <div
@@ -828,7 +1177,13 @@ export default function Page(): ReactElement {
                     'linear-gradient(to right, color-mix(in oklab, var(--o-palette-zinc-950) 94%, transparent) 0%, color-mix(in oklab, var(--o-palette-zinc-950) 86%, transparent) 46%, color-mix(in oklab, var(--o-palette-zinc-950) 42%, transparent) 72%, transparent 100%)',
                 }}
               />
-              <div className="o-absolute o-inset-x-0 o-bottom-0 o-h-40" style={{ background: 'linear-gradient(to bottom, transparent, var(--o-palette-zinc-950))' }} />
+              <div
+                className="o-absolute o-inset-x-0 o-bottom-0 o-h-40"
+                style={{
+                  background:
+                    'linear-gradient(to bottom, transparent, var(--o-palette-zinc-950))',
+                }}
+              />
             </div>
             <Grain opacite={0.06} />
 
@@ -837,15 +1192,33 @@ export default function Page(): ReactElement {
                 <Etiquette sombre>Vigie 5 — traces, mesures, journaux</Etiquette>
               </Surgit>
 
-              <TitreVague delai={140} cadence={68} className="o-mt-8 o-max-w-4xl o-text-zinc-50" style={affiche('l', 300)}>
+              <TitreVague
+                delai={140}
+                cadence={68}
+                className="o-mt-8 o-max-w-4xl o-text-zinc-50"
+                style={affiche('l', 300)}
+              >
                 Onze minutes avant de savoir.
               </TitreVague>
 
-              <div className="o-mt-10 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-12" style={{ borderColor: FILET }}>
-                <Surgit delai={440} as="p" className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                  C est le delai qu il a fallu, le 8 avril, pour qu une alerte parte. Tout le reste de cette page est cet incident-la, minute par minute — et ce que Vigie y a montre.
+              <div
+                className="o-mt-10 o-grid o-gap-8 o-border-t o-pt-8 md:o-grid-cols-12"
+                style={{ borderColor: FILET }}
+              >
+                <Surgit
+                  delai={440}
+                  as="p"
+                  className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-400 md:o-col-span-5"
+                >
+                  C est le delai qu il a fallu, le 8 avril, pour qu une alerte parte. Tout
+                  le reste de cette page est cet incident-la, minute par minute — et ce
+                  que Vigie y a montre.
                 </Surgit>
-                <Surgit delai={520} as="p" className="o-m-0 o-font-mono o-text-xs o-leading-relaxed o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-3">
+                <Surgit
+                  delai={520}
+                  as="p"
+                  className="o-m-0 o-font-mono o-text-xs o-leading-relaxed o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-3"
+                >
                   Quatre signaux
                   <br />
                   Seize ecritures
@@ -856,7 +1229,10 @@ export default function Page(): ReactElement {
                   <a
                     href="#incident"
                     className="o-inline-flex o-items-center o-gap-3 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
-                    style={{ backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)' }}
+                    style={{
+                      backgroundColor: accent(400),
+                      color: 'var(--o-palette-zinc-950)',
+                    }}
                   >
                     <Icon icon={Radar} size={15} aria-hidden="true" />
                     Traverser l incident
@@ -878,20 +1254,34 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Le ruban des sondes =========================== */}
-          <div className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8" style={{ borderColor: FILET }}>
+          <div
+            className="o-border-t o-border-b o-px-6 o-py-4 md:o-px-8"
+            style={{ borderColor: FILET }}
+          >
             <ul className="o-m-0 o-mx-auto o-flex o-max-w-7xl o-list-none o-flex-wrap o-items-center o-gap-x-9 o-gap-y-3 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
               {SIGNAUX.map((signal) => (
                 <li key={signal.cle} className="o-inline-flex o-items-center o-gap-2">
-                  <Icon icon={signal.icone} size={13} style={{ color: ENCRE }} aria-hidden="true" />
+                  <Icon
+                    icon={signal.icone}
+                    size={13}
+                    style={{ color: ENCRE }}
+                    aria-hidden="true"
+                  />
                   {signal.nom}
                 </li>
               ))}
-              <li className="o-ml-auto o-normal-case o-tracking-normal">Un seuil par signal, ecrit par vous, relu tous les trimestres.</li>
+              <li className="o-ml-auto o-normal-case o-tracking-normal">
+                Un seuil par signal, ecrit par vous, relu tous les trimestres.
+              </li>
             </ul>
           </div>
 
           {/* =============== (01) L incident, epingle ======================= */}
-          <section id="incident" aria-labelledby="incident-titre" className="o-scroll-mt-24 o-px-6 o-pb-4 o-pt-20 md:o-px-8 md:o-pt-28">
+          <section
+            id="incident"
+            aria-labelledby="incident-titre"
+            className="o-scroll-mt-24 o-px-6 o-pb-4 o-pt-20 md:o-px-8 md:o-pt-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
@@ -900,7 +1290,8 @@ export default function Page(): ReactElement {
                   </Titre>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-5">
-                  La scene reste collee pendant cinq ecrans : c est le defilement qui fait tourner l horloge. Le curseur reprend la main pour revenir en arriere.
+                  La scene reste collee pendant cinq ecrans : c est le defilement qui fait
+                  tourner l horloge. Le curseur reprend la main pour revenir en arriere.
                 </p>
               </div>
             </div>
@@ -908,20 +1299,38 @@ export default function Page(): ReactElement {
           <Incident />
 
           {/* =============== Figure 01 : le trace d une requete ============= */}
-          <section id="trace" aria-labelledby="trace-titre" className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderColor: FILET }}>
+          <section
+            id="trace"
+            aria-labelledby="trace-titre"
+            className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 lg:o-grid-cols-12">
               <div className="lg:o-col-span-3">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: ENCRE }}
+                >
                   Figure 01
                 </p>
-                <h2 id="trace-titre" className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                <h2
+                  id="trace-titre"
+                  className="o-m-0 o-mt-5 o-text-balance o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
+                >
                   Le segment qui ne calcule rien.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  A la vingt-quatrieme minute, Lea ouvre une requete au hasard. Sur quatre secondes et deux dixiemes, la base n en prend que deux cent quatorze millisecondes.
+                  A la vingt-quatrieme minute, Lea ouvre une requete au hasard. Sur quatre
+                  secondes et deux dixiemes, la base n en prend que deux cent quatorze
+                  millisecondes.
                 </p>
                 <p className="o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-400">
-                  Le reste est une attente : la requete demande une connexion, et toutes sont prises. C est la, et nulle part ailleurs, que l incident se lit.
+                  Le reste est une attente : la requete demande une connexion, et toutes
+                  sont prises. C est la, et nulle part ailleurs, que l incident se lit.
                 </p>
               </div>
 
@@ -932,12 +1341,17 @@ export default function Page(): ReactElement {
                 <ol className="o-sr-only">
                   {SEGMENTS.map((segment) => (
                     <li key={segment.nom}>
-                      {segment.nom} — {segment.duree} millisecondes, a partir de {segment.debut}.
+                      {segment.nom} — {segment.duree} millisecondes, a partir de{' '}
+                      {segment.debut}.
                     </li>
                   ))}
                 </ol>
-                <figcaption className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400" style={{ borderColor: FILET }}>
-                  Figure 01 — la cascade d une requete prise a T+24. Le segment en rouge n execute rien : il attend une connexion libre.
+                <figcaption
+                  className="o-mt-6 o-border-t o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400"
+                  style={{ borderColor: FILET }}
+                >
+                  Figure 01 — la cascade d une requete prise a T+24. Le segment en rouge n
+                  execute rien : il attend une connexion libre.
                 </figcaption>
               </figure>
             </div>
@@ -946,17 +1360,34 @@ export default function Page(): ReactElement {
           {/* =============== La coupe claire : la carte de chaleur (C18) ====
               La page est sombre : la coupe est donc une bande claire, et rien
               dedans que les deux cent quarante cases du mois. */}
-          <section id="chaleur" aria-labelledby="chaleur-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={JOUR}>
+          <section
+            id="chaleur"
+            aria-labelledby="chaleur-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={JOUR}
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-items-end">
                 <div className="lg:o-col-span-6">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">Avril 2026</p>
-                  <h2 id="chaleur-titre" className="o-m-0 o-mt-5 o-text-balance o-text-zinc-950" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600">
+                    Avril 2026
+                  </p>
+                  <h2
+                    id="chaleur-titre"
+                    className="o-m-0 o-mt-5 o-text-balance o-text-zinc-950"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                    }}
+                  >
                     Une colonne qui traverse tout le mois.
                   </h2>
                 </div>
                 <p className="o-m-0 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 lg:o-col-span-6">
-                  Deux cent quarante cases, une par service et par jour. Les incidents isoles se voient ; celui du 8 avril se lit autrement — il descend la colonne entiere, et c est ce qui dit qu il venait de la passerelle, pas d un service.
+                  Deux cent quarante cases, une par service et par jour. Les incidents
+                  isoles se voient ; celui du 8 avril se lit autrement — il descend la
+                  colonne entiere, et c est ce qui dit qu il venait de la passerelle, pas
+                  d un service.
                 </p>
               </div>
 
@@ -967,17 +1398,25 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== (02) Ce qu on garde ============================ */}
-          <section id="retention" aria-labelledby="retention-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32">
+          <section
+            id="retention"
+            aria-labelledby="retention-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 lg:o-grid-cols-12">
               <div className="o-min-w-0 lg:o-col-span-5">
                 <Titre indice="(02) — Ce qu on garde" id="retention-titre">
                   Tout, puis moins, puis presque rien.
                 </Titre>
                 <p className="o-mt-6 o-text-base o-leading-relaxed o-text-zinc-400">
-                  Garder chaque trace treize mois couterait plus cher que le service qu elles observent. Vigie degrade donc la finesse avec l age, et le dit — c est la seule chose qu on ne peut pas rattraper apres coup.
+                  Garder chaque trace treize mois couterait plus cher que le service qu
+                  elles observent. Vigie degrade donc la finesse avec l age, et le dit — c
+                  est la seule chose qu on ne peut pas rattraper apres coup.
                 </p>
                 <p className="o-mt-4 o-text-base o-leading-relaxed o-text-zinc-400">
-                  Une exception : les traces d une periode declaree en incident ne sont jamais degradees. Elles restent entieres cinq ans, parce qu un rapport se relit longtemps apres.
+                  Une exception : les traces d une periode declaree en incident ne sont
+                  jamais degradees. Elles restent entieres cinq ans, parce qu un rapport
+                  se relit longtemps apres.
                 </p>
               </div>
 
@@ -985,10 +1424,26 @@ export default function Page(): ReactElement {
                 <Timeline
                   label="Les paliers de retention"
                   events={[
-                    { date: 'Heure en cours', title: 'Tout, a la seconde', body: 'Chaque trace, chaque mesure, chaque ligne de journal. C est la fenetre dans laquelle on travaille pendant un incident.' },
-                    { date: 'Sept jours', title: 'Les traces echantillonnees', body: 'Une trace sur cent est gardee entiere ; les autres se reduisent a leur duree et a leur resultat. Les mesures restent a la minute.' },
-                    { date: 'Treize mois', title: 'Les mesures a l heure', body: 'De quoi comparer un mardi de mars a celui de l an dernier. Les journaux sont partis, sauf ceux marques.' },
-                    { date: 'Cinq ans', title: 'Les periodes d incident, entieres', body: 'Rien n est degrade dans une fenetre declaree en incident : traces, mesures et journaux restent au grain d origine.' },
+                    {
+                      date: 'Heure en cours',
+                      title: 'Tout, a la seconde',
+                      body: 'Chaque trace, chaque mesure, chaque ligne de journal. C est la fenetre dans laquelle on travaille pendant un incident.',
+                    },
+                    {
+                      date: 'Sept jours',
+                      title: 'Les traces echantillonnees',
+                      body: 'Une trace sur cent est gardee entiere ; les autres se reduisent a leur duree et a leur resultat. Les mesures restent a la minute.',
+                    },
+                    {
+                      date: 'Treize mois',
+                      title: 'Les mesures a l heure',
+                      body: 'De quoi comparer un mardi de mars a celui de l an dernier. Les journaux sont partis, sauf ceux marques.',
+                    },
+                    {
+                      date: 'Cinq ans',
+                      title: 'Les periodes d incident, entieres',
+                      body: 'Rien n est degrade dans une fenetre declaree en incident : traces, mesures et journaux restent au grain d origine.',
+                    },
                   ]}
                 />
               </div>
@@ -996,7 +1451,11 @@ export default function Page(): ReactElement {
           </section>
 
           {/* =============== Un ecran, une phrase =========================== */}
-          <section aria-labelledby="phrase-titre" className="o-border-t o-px-6 o-py-32 md:o-px-8 md:o-py-44" style={{ borderColor: FILET }}>
+          <section
+            aria-labelledby="phrase-titre"
+            className="o-border-t o-px-6 o-py-32 md:o-px-8 md:o-py-44"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 md:o-col-span-3">
                 Le principe
@@ -1010,27 +1469,45 @@ export default function Page(): ReactElement {
                   lift={22}
                   course={0.5}
                   className="o-m-0 o-max-w-4xl o-text-balance o-text-zinc-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3.2vw, 3.5rem)', lineHeight: 1.12 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.6rem, 3.2vw, 3.5rem)',
+                    lineHeight: 1.12,
+                  }}
                 >
-                  Un tableau de bord ne sert a rien pendant un incident. Ce qui sert, c est de pouvoir poser une question qui n avait pas ete prevue.
+                  Un tableau de bord ne sert a rien pendant un incident. Ce qui sert, c
+                  est de pouvoir poser une question qui n avait pas ete prevue.
                 </ScrollFloat>
               </div>
             </div>
           </section>
 
           {/* =============== A16 : la commande, en une ligne ================ */}
-          <section id="essai" aria-labelledby="essai-titre" className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderColor: FILET }}>
+          <section
+            id="essai"
+            aria-labelledby="essai-titre"
+            className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderColor: FILET }}
+          >
             <div className="o-mx-auto o-max-w-3xl">
-              <h2 id="essai-titre" className="o-m-0 o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.5rem)' }}>
+              <h2
+                id="essai-titre"
+                className="o-m-0 o-text-balance o-text-zinc-50"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.5rem)' }}
+              >
                 Posez une sonde, et regardez une semaine.
               </h2>
               <p className="o-mt-5 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400">
-                Un agent, une ligne de configuration, et les quatre signaux de cette page sur vos propres services. Rien a decider avant d avoir vu vos courbes.
+                Un agent, une ligne de configuration, et les quatre signaux de cette page
+                sur vos propres services. Rien a decider avant d avoir vu vos courbes.
               </p>
 
               <form
                 className="o-mt-10 o-flex o-items-center o-rounded-lg"
-                style={{ border: `1px solid ${FILET}`, backgroundColor: 'color-mix(in oklab, #ffffff 4%, transparent)' }}
+                style={{
+                  border: `1px solid ${FILET}`,
+                  backgroundColor: 'color-mix(in oklab, #ffffff 4%, transparent)',
+                }}
                 onSubmit={(evenement) => {
                   evenement.preventDefault()
                 }}
@@ -1052,7 +1529,11 @@ export default function Page(): ReactElement {
                 <button
                   type="submit"
                   className="o-inline-flex o-shrink-0 o-cursor-pointer o-items-center o-gap-2 o-px-6 o-py-4 o-text-sm o-font-semibold o-transition-opacity hover:o-opacity-85 focus:o-ring"
-                  style={{ backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)', border: 'none' }}
+                  style={{
+                    backgroundColor: accent(400),
+                    color: 'var(--o-palette-zinc-950)',
+                    border: 'none',
+                  }}
                 >
                   Recevoir la cle
                   <Icon icon={ArrowRight} size={15} aria-hidden="true" />
@@ -1063,49 +1544,76 @@ export default function Page(): ReactElement {
         </main>
 
         {/* =============== P18 : l ours, en trois colonnes de chasse fixe === */}
-        <footer className="o-border-t o-px-6 o-pb-10 o-pt-14 md:o-px-8" style={{ borderColor: FILET }}>
+        <footer
+          className="o-border-t o-px-6 o-pb-10 o-pt-14 md:o-px-8"
+          style={{ borderColor: FILET }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
-            <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-pb-4" style={{ borderColor: FILET }}>
-              <p className="o-m-0 o-font-mono o-text-sm o-uppercase o-tracking-widest o-text-zinc-50">Vigie</p>
+            <div
+              className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-4 o-border-b o-pb-4"
+              style={{ borderColor: FILET }}
+            >
+              <p className="o-m-0 o-font-mono o-text-sm o-uppercase o-tracking-widest o-text-zinc-50">
+                Vigie
+              </p>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
                 Bulletin d exploitation — numero 41, avril 2026
               </p>
             </div>
 
             <div className="o-mt-8 o-grid o-gap-8 md:o-grid-cols-3">
-              {([
+              {(
                 [
-                  'L astreinte',
-                  'Rotation de six personnes, une semaine chacune, jamais deux semaines de suite. Lea Nardi, Tarek Boulanger, Come Ravel, Ines Delaunay, Bastien Lecointre, Nadia Toussaint. Reveil par appel, puis par message, puis par le suivant dans la liste.',
-                ],
-                [
-                  'Les sondes',
-                  'Agent unique, ecrit en Rust, quatre megaoctets, sans dependance a l execution. Il lit les mesures exposees par vos services, les traces au format ouvert, et les journaux du systeme. Il n ouvre aucun port entrant.',
-                ],
-                [
-                  'Les mentions',
-                  'Vigie SAS, capital de 96 000 EUR, RCS Lyon 913 447 220, 14 rue Chevreul, 69007 Lyon. Hebergement a Strasbourg et a Gravelines. Etat du service publie en continu. Accessibilite : partiellement conforme, declaration du 14 janvier 2026.',
-                ],
-              ] as const).map(([titre, texte]) => (
+                  [
+                    'L astreinte',
+                    'Rotation de six personnes, une semaine chacune, jamais deux semaines de suite. Lea Nardi, Tarek Boulanger, Come Ravel, Ines Delaunay, Bastien Lecointre, Nadia Toussaint. Reveil par appel, puis par message, puis par le suivant dans la liste.',
+                  ],
+                  [
+                    'Les sondes',
+                    'Agent unique, ecrit en Rust, quatre megaoctets, sans dependance a l execution. Il lit les mesures exposees par vos services, les traces au format ouvert, et les journaux du systeme. Il n ouvre aucun port entrant.',
+                  ],
+                  [
+                    'Les mentions',
+                    'Vigie SAS, capital de 96 000 EUR, RCS Lyon 913 447 220, 14 rue Chevreul, 69007 Lyon. Hebergement a Strasbourg et a Gravelines. Etat du service publie en continu. Accessibilite : partiellement conforme, declaration du 14 janvier 2026.',
+                  ],
+                ] as const
+              ).map(([titre, texte]) => (
                 <div key={titre}>
-                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <h2
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     {titre}
                   </h2>
-                  <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">{texte}</p>
+                  <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">
+                    {texte}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500" style={{ borderColor: FILET }}>
+            <div
+              className="o-mt-10 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500"
+              style={{ borderColor: FILET }}
+            >
               <span>Lyon 69007 — 14 rue Chevreul</span>
-              <nav aria-label="Mentions" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2">
-                {([
-                  ['#incident', 'Rapports publics'],
-                  ['#retention', 'Traitement des donnees'],
-                  ['#trace', 'Documentation de l agent'],
-                  ['#essai', 'Nous ecrire'],
-                ] as const).map(([cible, mot]) => (
-                  <a key={mot} href={cible} className="o-no-underline o-text-zinc-500 hover:o-text-zinc-200 o-transition-colors focus:o-ring">
+              <nav
+                aria-label="Mentions"
+                className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-2"
+              >
+                {(
+                  [
+                    ['#incident', 'Rapports publics'],
+                    ['#retention', 'Traitement des donnees'],
+                    ['#trace', 'Documentation de l agent'],
+                    ['#essai', 'Nous ecrire'],
+                  ] as const
+                ).map(([cible, mot]) => (
+                  <a
+                    key={mot}
+                    href={cible}
+                    className="o-no-underline o-text-zinc-500 hover:o-text-zinc-200 o-transition-colors focus:o-ring"
+                  >
                     {mot}
                   </a>
                 ))}

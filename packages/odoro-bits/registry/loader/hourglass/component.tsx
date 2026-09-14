@@ -47,7 +47,8 @@ const GLASS =
 const TOP_BULB = 'M 30 12 L 70 12 L 70 22 Q 70 39 52 48.5 L 48 48.5 Q 30 39 30 22 Z'
 
 /** Interieur de l'ampoule du bas. */
-const BOTTOM_BULB = 'M 48 51.5 L 52 51.5 Q 70 61 70 78 L 70 88 L 30 88 L 30 78 Q 30 61 48 51.5 Z'
+const BOTTOM_BULB =
+  'M 48 51.5 L 52 51.5 Q 70 61 70 78 L 70 88 L 30 88 L 30 78 Q 30 61 48 51.5 Z'
 
 /** Le tas du bas, en pointe. */
 const MOUND = 'M 30 90 L 30 76 Q 42 70 50 60 Q 58 70 70 76 L 70 90 Z'
@@ -187,10 +188,20 @@ export function Hourglass({
           <rect x={22} y={4} width={56} height={6} rx={2} fill="currentColor" />
           <rect x={22} y={90} width={56} height={6} rx={2} fill="currentColor" />
           <g clipPath={`url(#${topClip})`}>
-            <path data-o-hourglass-sand="top" d={HOLLOW} fill="currentColor" fillOpacity={0.8} />
+            <path
+              data-o-hourglass-sand="top"
+              d={HOLLOW}
+              fill="currentColor"
+              fillOpacity={0.8}
+            />
           </g>
           <g clipPath={`url(#${bottomClip})`}>
-            <path data-o-hourglass-sand="bottom" d={MOUND} fill="currentColor" fillOpacity={0.8} />
+            <path
+              data-o-hourglass-sand="bottom"
+              d={MOUND}
+              fill="currentColor"
+              fillOpacity={0.8}
+            />
           </g>
           <line
             data-o-hourglass-stream=""

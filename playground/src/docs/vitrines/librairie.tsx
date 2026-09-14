@@ -145,7 +145,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 248,
     prix: '21 EUR',
     humeurs: ['secoue', 'sais-pas'],
-    cartel: 'Un village, une carriere, et une enquete qui n aboutit pas. Le refus de conclure est le sujet.',
+    cartel:
+      'Un village, une carriere, et une enquete qui n aboutit pas. Le refus de conclure est le sujet.',
     rayon: 0,
     place: 0,
     reliure: ['--o-vitrine-700', '--o-vitrine-600', '--o-palette-stone-300'],
@@ -158,10 +159,15 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 176,
     prix: '18,50 EUR',
     humeurs: ['comprendre', 'secoue'],
-    cartel: 'Comment un Etat range ce qu il prefere oublier. Quatre-vingts pages de notes, et elles se lisent.',
+    cartel:
+      'Comment un Etat range ce qu il prefere oublier. Quatre-vingts pages de notes, et elles se lisent.',
     rayon: 0,
     place: 1,
-    reliure: ['--o-palette-emerald-900', '--o-palette-emerald-800', '--o-palette-stone-200'],
+    reliure: [
+      '--o-palette-emerald-900',
+      '--o-palette-emerald-800',
+      '--o-palette-stone-200',
+    ],
   },
   {
     id: 'nord',
@@ -171,7 +177,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 312,
     prix: '23 EUR',
     humeurs: ['partir', 'tenir'],
-    cartel: 'Mille kilometres a pied entre deux villes qui ne s aiment pas. Le meilleur livre de marche depuis longtemps.',
+    cartel:
+      'Mille kilometres a pied entre deux villes qui ne s aiment pas. Le meilleur livre de marche depuis longtemps.',
     rayon: 0,
     place: 2,
     reliure: ['--o-palette-sky-900', '--o-palette-sky-800', '--o-palette-stone-300'],
@@ -184,7 +191,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 204,
     prix: '19 EUR',
     humeurs: ['rire', 'sais-pas'],
-    cartel: 'Une administration qui gere le vent. On a ri a voix haute au jeudi de lecture, ce qui n arrive pas souvent.',
+    cartel:
+      'Une administration qui gere le vent. On a ri a voix haute au jeudi de lecture, ce qui n arrive pas souvent.',
     rayon: 0,
     place: 3,
     reliure: ['--o-palette-amber-700', '--o-palette-amber-600', '--o-palette-stone-200'],
@@ -197,7 +205,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 160,
     prix: '17 EUR',
     humeurs: ['tenir', 'comprendre'],
-    cartel: 'Douze metiers manuels, racontes par ceux qui les font. Aucun miserabilisme, aucune nostalgie.',
+    cartel:
+      'Douze metiers manuels, racontes par ceux qui les font. Aucun miserabilisme, aucune nostalgie.',
     rayon: 0,
     place: 4,
     reliure: ['--o-vitrine-800', '--o-vitrine-700', '--o-palette-stone-200'],
@@ -223,7 +232,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 132,
     prix: '15 EUR',
     humeurs: ['partir', 'tenir'],
-    cartel: 'Cent trente pages, une plage, deux soeurs. A lire d une traite, en fin d apres-midi.',
+    cartel:
+      'Cent trente pages, une plage, deux soeurs. A lire d une traite, en fin d apres-midi.',
     rayon: 1,
     place: 0,
     reliure: ['--o-palette-rose-900', '--o-palette-rose-800', '--o-palette-stone-200'],
@@ -236,7 +246,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 224,
     prix: '24 EUR',
     humeurs: ['rire', 'tenir'],
-    cartel: 'Un traite domestique completement serieux, et donc irresistible. Le chapitre sur les couteaux est un morceau.',
+    cartel:
+      'Un traite domestique completement serieux, et donc irresistible. Le chapitre sur les couteaux est un morceau.',
     rayon: 1,
     place: 1,
     reliure: ['--o-palette-stone-300', '--o-palette-stone-200', '--o-palette-stone-600'],
@@ -249,10 +260,15 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 356,
     prix: '25 EUR',
     humeurs: ['comprendre', 'partir'],
-    cartel: 'Une frontiere suivie a pied sur toute sa longueur. Geographie, droit, et beaucoup de pluie.',
+    cartel:
+      'Une frontiere suivie a pied sur toute sa longueur. Geographie, droit, et beaucoup de pluie.',
     rayon: 1,
     place: 2,
-    reliure: ['--o-palette-violet-900', '--o-palette-violet-800', '--o-palette-stone-200'],
+    reliure: [
+      '--o-palette-violet-900',
+      '--o-palette-violet-800',
+      '--o-palette-stone-200',
+    ],
   },
   {
     id: 'lampe',
@@ -262,7 +278,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 148,
     prix: '16,50 EUR',
     humeurs: ['tenir', 'sais-pas'],
-    cartel: 'Deux vieux amis, une panne de courant, une nuit. C est tout, et c est suffisant.',
+    cartel:
+      'Deux vieux amis, une panne de courant, une nuit. C est tout, et c est suffisant.',
     rayon: 1,
     place: 3,
     reliure: ['--o-palette-amber-200', '--o-palette-amber-100', '--o-palette-stone-500'],
@@ -275,7 +292,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 192,
     prix: '18 EUR',
     humeurs: ['rire', 'secoue'],
-    cartel: 'La suite du Bureau, en plus mechant. On peut commencer par celui-la, mais ce serait dommage.',
+    cartel:
+      'La suite du Bureau, en plus mechant. On peut commencer par celui-la, mais ce serait dommage.',
     rayon: 1,
     place: 4,
     reliure: ['--o-vitrine-500', '--o-vitrine-400', '--o-palette-stone-800'],
@@ -288,7 +306,8 @@ const VOLUMES: readonly [Volume, ...Volume[]] = [
     pages: 208,
     prix: '29 EUR',
     humeurs: ['partir', 'rire', 'sais-pas'],
-    cartel: 'Des cartes de ronds-points, de parkings et d arrets de bus. Un livre drole, et beau malgre lui.',
+    cartel:
+      'Des cartes de ronds-points, de parkings et d arrets de bus. Un livre drole, et beau malgre lui.',
     rayon: 1,
     place: 5,
     reliure: ['--o-palette-teal-900', '--o-palette-teal-800', '--o-palette-stone-200'],
@@ -349,7 +368,15 @@ const INDEX: readonly (readonly [string, string])[] = [
  * Cette page ne porte aucun chiffre (forme C8) : un nombre de volumes ecrit en
  * chiffres se lirait comme un indicateur, et ce n en est pas un.
  */
-const COMPTE: Readonly<Record<number, string>> = { 0: 'Aucun', 1: 'Un', 2: 'Deux', 3: 'Trois', 4: 'Quatre', 5: 'Cinq', 6: 'Six' }
+const COMPTE: Readonly<Record<number, string>> = {
+  0: 'Aucun',
+  1: 'Un',
+  2: 'Deux',
+  3: 'Trois',
+  4: 'Quatre',
+  5: 'Cinq',
+  6: 'Six',
+}
 
 /** Le paraphe du libraire, trace d un seul trait. */
 const PARAPHE =
@@ -362,12 +389,16 @@ export default function Page(): ReactElement {
   const [humeur, setHumeur] = useState<string>(HUMEURS[0].cle)
 
   const table = useMemo(() => VOLUMES.filter((v) => v.humeurs.includes(humeur)), [humeur])
-  const courante = useMemo(() => HUMEURS.find((h) => h.cle === humeur) ?? HUMEURS[0], [humeur])
+  const courante = useMemo(
+    () => HUMEURS.find((h) => h.cle === humeur) ?? HUMEURS[0],
+    [humeur],
+  )
 
   // Le rayon tire toujours un volume de la table : par defaut le premier, et
   // celui qu on clique ensuite. Changer d humeur remet la main sur le premier.
   const [tire, setTire] = useState<string | null>(null)
-  const ouvert = tire !== null && table.some((v) => v.id === tire) ? tire : (table[0]?.id ?? null)
+  const ouvert =
+    tire !== null && table.some((v) => v.id === tire) ? tire : (table[0]?.id ?? null)
   const volumeOuvert = VOLUMES.find((v) => v.id === ouvert) ?? VOLUMES[0]
 
   // Le meuble porte le catalogue entier : c est un rayon, pas une vitrine, et
@@ -388,36 +419,70 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Marge" sombre={false}>
-      <div className="o-relative o-overflow-hidden" style={{ ...polices, backgroundColor: accentDoux(400, 7) }}>
+      <div
+        className="o-relative o-overflow-hidden"
+        style={{ ...polices, backgroundColor: accentDoux(400, 7) }}
+      >
         {/*
           ----- L ouverture : le papier, un mot-marque en filigrane ------------
         */}
-        <section id="haut" className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: ECRAN }}>
-          <Filigrane taille={30} opacite={7} className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-6 o-z-0">
+        <section
+          id="haut"
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: ECRAN }}
+        >
+          <Filigrane
+            taille={30}
+            opacite={7}
+            className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-6 o-z-0"
+          >
             MARGE
           </Filigrane>
 
-          <BarreCoins marque="Marge — libraire" liens={NAVIGATION} droite="Nantes, Hauts-Paves" sombre={false} />
+          <BarreCoins
+            marque="Marge — libraire"
+            liens={NAVIGATION}
+            droite="Nantes, Hauts-Paves"
+            sombre={false}
+          />
 
           <div className="o-relative o-z-10 o-mx-auto o-flex o-w-full o-max-w-7xl o-grow o-flex-col o-justify-center o-px-6 o-pb-28 o-pt-12 md:o-px-10">
             <Surgit>
-              <Etiquette sombre={false}>Librairie generale depuis 2011 — 14 000 titres, trois libraires</Etiquette>
+              <Etiquette sombre={false}>
+                Librairie generale depuis 2011 — 14 000 titres, trois libraires
+              </Etiquette>
             </Surgit>
             <TitreVague
               delai={140}
               cadence={80}
               className="o-m-0 o-mt-8 o-max-w-5xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-              style={{ ...affiche('l', 400), fontSize: 'clamp(2.5rem, 8.4vw, 8.5rem)', letterSpacing: '-0.045em', lineHeight: 0.9 }}
+              style={{
+                ...affiche('l', 400),
+                fontSize: 'clamp(2.5rem, 8.4vw, 8.5rem)',
+                letterSpacing: '-0.045em',
+                lineHeight: 0.9,
+              }}
             >
               Dites-nous votre humeur. Nous refaisons la table.
             </TitreVague>
             <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-              <Surgit delai={560} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300 md:o-col-span-6">
-                Nous ne savons pas ce que vous cherchez, et vous non plus la plupart du temps. C est pour cela que la table est faite de six humeurs et non de categories.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300 md:o-col-span-6"
+              >
+                Nous ne savons pas ce que vous cherchez, et vous non plus la plupart du
+                temps. C est pour cela que la table est faite de six humeurs et non de
+                categories.
               </Surgit>
               <Surgit delai={680} className="md:o-col-span-6 md:o-flex md:o-justify-end">
                 <Actions
-                  pleine={['#table', <>Voir la table <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#table',
+                    <>
+                      Voir la table <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#maison', 'Ce qu on ne fait pas']}
                   sombre={false}
                 />
@@ -437,12 +502,22 @@ export default function Page(): ReactElement {
         {/*
           ----- Le mecanisme : la table des libraires --------------------------
         */}
-        <section id="table" className="o-relative o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <section
+          id="table"
+          className="o-relative o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
-            <Indice rang="01" sombre={false}>La table</Indice>
+            <Indice rang="01" sombre={false}>
+              La table
+            </Indice>
             <h2
               className="o-m-0 o-mt-5 o-max-w-3xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-              style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)', letterSpacing: '-0.04em' }}
+              style={{
+                ...affiche('m', 400),
+                fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)',
+                letterSpacing: '-0.04em',
+              }}
             >
               Ce soir, vous etes plutot
             </h2>
@@ -464,7 +539,11 @@ export default function Page(): ReactElement {
                       style={
                         actif
                           ? { ...aplat(), borderColor: 'transparent' }
-                          : { borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-fg)', backgroundColor: 'transparent' }
+                          : {
+                              borderColor: 'var(--o-theme-line)',
+                              color: 'var(--o-theme-fg)',
+                              backgroundColor: 'transparent',
+                            }
                       }
                     >
                       {h.dit}
@@ -487,18 +566,26 @@ export default function Page(): ReactElement {
                   style={{ height: 420 }}
                 />
                 <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                  Le rayon se tourne au glissement, et un clic tire un volume. Sous mouvement reduit il se replie : la table ci-contre reste entiere.
+                  Le rayon se tourne au glissement, et un clic tire un volume. Sous
+                  mouvement reduit il se replie : la table ci-contre reste entiere.
                 </p>
 
-                <div className="o-mt-8 o-border-t o-pt-6" style={{ borderColor: 'var(--o-theme-line)' }}>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                <div
+                  className="o-mt-8 o-border-t o-pt-6"
+                  style={{ borderColor: 'var(--o-theme-line)' }}
+                >
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encre() }}
+                  >
                     Le volume tire
                   </p>
                   <h3 className="o-m-0 o-mt-3 o-text-2xl o-font-bold o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
                     {volumeOuvert.titre}
                   </h3>
                   <p className="o-m-0 o-mt-2 o-text-sm o-text-stone-700 dark:o-text-stone-300">
-                    {volumeOuvert.auteur} · {volumeOuvert.maison} · {String(volumeOuvert.pages)} pages · {volumeOuvert.prix}
+                    {volumeOuvert.auteur} · {volumeOuvert.maison} ·{' '}
+                    {String(volumeOuvert.pages)} pages · {volumeOuvert.prix}
                   </p>
                   <p className="o-m-0 o-mt-4 o-max-w-md o-text-base o-leading-relaxed o-text-stone-800 dark:o-text-stone-200">
                     {volumeOuvert.cartel}
@@ -511,9 +598,17 @@ export default function Page(): ReactElement {
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
                   {COMPTE[table.length] ?? String(table.length)} volumes sur la table
                 </p>
-                <ol aria-live="polite" className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0" style={{ borderColor: 'var(--o-theme-line)' }}>
+                <ol
+                  aria-live="polite"
+                  className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0"
+                  style={{ borderColor: 'var(--o-theme-line)' }}
+                >
                   {table.map((v) => (
-                    <li key={v.id} className="o-border-b" style={{ borderColor: 'var(--o-theme-line)' }}>
+                    <li
+                      key={v.id}
+                      className="o-border-b"
+                      style={{ borderColor: 'var(--o-theme-line)' }}
+                    >
                       <button
                         type="button"
                         aria-pressed={v.id === ouvert}
@@ -525,7 +620,12 @@ export default function Page(): ReactElement {
                         <span className="md:o-col-span-8">
                           <span
                             className="o-block o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                            style={{ ...affiche('m', 400), fontSize: 'clamp(1.25rem, 2.4vw, 2rem)', letterSpacing: '-0.035em', lineHeight: 1.02 }}
+                            style={{
+                              ...affiche('m', 400),
+                              fontSize: 'clamp(1.25rem, 2.4vw, 2rem)',
+                              letterSpacing: '-0.035em',
+                              lineHeight: 1.02,
+                            }}
                           >
                             {v.titre}
                           </span>
@@ -583,10 +683,14 @@ export default function Page(): ReactElement {
         {/*
           ----- Un ecran de texte seul ------------------------------------------
         */}
-        <section className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={nuit('stone')}>
+        <section
+          className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+          style={nuit('stone')}
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
             <Manifeste eteint="Une librairie n est pas un entrepot avec des fenetres.">
-              C est une piece ou quelqu un a deja lu a votre place, et qui accepte de se tromper devant vous.
+              C est une piece ou quelqu un a deja lu a votre place, et qui accepte de se
+              tromper devant vous.
             </Manifeste>
           </div>
         </section>
@@ -594,12 +698,21 @@ export default function Page(): ReactElement {
         {/*
           ----- La maison : trois refus qui s empilent (M-empile) ---------------
         */}
-        <section id="maison" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="maison"
+          className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-max-w-5xl">
-            <Indice rang="02" sombre={false}>La maison</Indice>
+            <Indice rang="02" sombre={false}>
+              La maison
+            </Indice>
             <h2
               className="o-m-0 o-mb-14 o-mt-5 o-max-w-3xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-              style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', letterSpacing: '-0.04em' }}
+              style={{
+                ...affiche('m', 400),
+                fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                letterSpacing: '-0.04em',
+              }}
             >
               Trois choses que nous ne ferons pas
             </h2>
@@ -608,18 +721,35 @@ export default function Page(): ReactElement {
                 <div
                   key={refus.numero}
                   className="o-rounded-2xl o-border-w-1 o-p-8 md:o-p-14"
-                  style={{ borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(300, 14) }}
+                  style={{
+                    borderColor: 'var(--o-theme-line)',
+                    backgroundColor: accentDoux(300, 14),
+                  }}
                 >
-                  <p className="o-m-0 o-tabular-nums o-text-stone-500 dark:o-text-stone-400" style={{ ...affiche('l', 400), fontSize: 'clamp(3rem, 8vw, 7rem)', lineHeight: 0.9 }}>
+                  <p
+                    className="o-m-0 o-tabular-nums o-text-stone-500 dark:o-text-stone-400"
+                    style={{
+                      ...affiche('l', 400),
+                      fontSize: 'clamp(3rem, 8vw, 7rem)',
+                      lineHeight: 0.9,
+                    }}
+                  >
                     {refus.numero}
                   </p>
                   <h3
                     className="o-m-0 o-mt-6 o-max-w-2xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                    style={{ ...affiche('m', 400), fontSize: 'clamp(1.4rem, 3vw, 2.5rem)', letterSpacing: '-0.035em', lineHeight: 1.02 }}
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.4rem, 3vw, 2.5rem)',
+                      letterSpacing: '-0.035em',
+                      lineHeight: 1.02,
+                    }}
                   >
                     {refus.titre}
                   </h3>
-                  <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">{refus.texte}</p>
+                  <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
+                    {refus.texte}
+                  </p>
                 </div>
               ))}
             </StickyStack>
@@ -629,15 +759,27 @@ export default function Page(): ReactElement {
         {/*
           ----- L appel : une question, trois reponses (A22) --------------------
         */}
-        <section id="question" className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <section
+          id="question"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <h2
               className="o-m-0 o-max-w-4xl o-uppercase o-text-stone-950 dark:o-text-stone-50"
-              style={{ ...affiche('l', 400), fontSize: 'clamp(2.25rem, 6.4vw, 6rem)', letterSpacing: '-0.045em', lineHeight: 0.94 }}
+              style={{
+                ...affiche('l', 400),
+                fontSize: 'clamp(2.25rem, 6.4vw, 6rem)',
+                letterSpacing: '-0.045em',
+                lineHeight: 0.94,
+              }}
             >
               Vous cherchez quoi, au juste ?
             </h2>
-            <ul className="o-m-0 o-mt-14 o-grid o-list-none o-gap-px o-p-0 md:o-grid-cols-3" style={{ backgroundColor: 'var(--o-theme-line)' }}>
+            <ul
+              className="o-m-0 o-mt-14 o-grid o-list-none o-gap-px o-p-0 md:o-grid-cols-3"
+              style={{ backgroundColor: 'var(--o-theme-line)' }}
+            >
               {(
                 [
                   [
@@ -660,7 +802,11 @@ export default function Page(): ReactElement {
                   ],
                 ] as const
               ).map(([titre, cible, texte, adresse]) => (
-                <li key={titre} className="o-p-8" style={{ backgroundColor: 'var(--o-theme-bg)' }}>
+                <li
+                  key={titre}
+                  className="o-p-8"
+                  style={{ backgroundColor: 'var(--o-theme-bg)' }}
+                >
                   <a
                     href={cible}
                     className="o-flex o-h-full o-flex-col o-no-underline focus:o-ring"
@@ -669,14 +815,29 @@ export default function Page(): ReactElement {
                     <span className="o-flex o-items-start o-justify-between o-gap-4">
                       <span
                         className="o-uppercase o-text-stone-950 dark:o-text-stone-50"
-                        style={{ ...affiche('m', 400), fontSize: 'clamp(1.25rem, 2.2vw, 1.9rem)', letterSpacing: '-0.035em', lineHeight: 1.04 }}
+                        style={{
+                          ...affiche('m', 400),
+                          fontSize: 'clamp(1.25rem, 2.2vw, 1.9rem)',
+                          letterSpacing: '-0.035em',
+                          lineHeight: 1.04,
+                        }}
                       >
                         {titre}
                       </span>
-                      <Icon icon={ArrowUpRight} size={22} aria-hidden="true" style={{ color: encre() }} />
+                      <Icon
+                        icon={ArrowUpRight}
+                        size={22}
+                        aria-hidden="true"
+                        style={{ color: encre() }}
+                      />
                     </span>
-                    <span className="o-mt-5 o-grow o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">{texte}</span>
-                    <span className="o-mt-7 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                    <span className="o-mt-5 o-grow o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
+                      {texte}
+                    </span>
+                    <span
+                      className="o-mt-7 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                      style={{ color: encre() }}
+                    >
                       {adresse}
                     </span>
                   </a>
@@ -689,7 +850,10 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : l index alphabetique (P21) ----------------------------
         */}
-        <footer className="o-border-t o-px-6 o-py-16 md:o-px-10" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <footer
+          className="o-border-t o-px-6 o-py-16 md:o-px-10"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <p className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
               <Icon icon={BookOpen} size={14} aria-hidden="true" />
@@ -700,22 +864,38 @@ export default function Page(): ReactElement {
               style={{ columnWidth: '15rem', columnGap: '2.5rem' }}
             >
               {INDEX.map(([cible, mot], rang) => (
-                <li key={`${mot}-${String(rang)}`} className="o-mb-2.5" style={{ breakInside: 'avoid' }}>
+                <li
+                  key={`${mot}-${String(rang)}`}
+                  className="o-mb-2.5"
+                  style={{ breakInside: 'avoid' }}
+                >
                   <a
                     href={cible}
                     className="o-text-sm o-uppercase o-tracking-widest o-text-stone-700 o-no-underline hover:o-text-stone-950 focus:o-ring dark:o-text-stone-300 dark:hover:o-text-stone-50"
                     style={{ fontSize: '0.78rem' }}
                   >
-                    <UnderlineDraw as="span" trigger="hover" thickness={2} duration={520} color={encre()}>
+                    <UnderlineDraw
+                      as="span"
+                      trigger="hover"
+                      thickness={2}
+                      duration={520}
+                      color={encre()}
+                    >
                       {mot}
                     </UnderlineDraw>
                   </a>
                 </li>
               ))}
             </ul>
-            <p className="o-m-0 o-mt-12 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400" style={{ borderColor: 'var(--o-theme-line)' }}>
+            <p
+              className="o-m-0 o-mt-12 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
               <span>© 2026 Librairie Marge — 28 rue des Hauts-Paves, 44000 Nantes</span>
-              <a href="#haut" className="o-text-stone-500 o-no-underline hover:o-text-stone-950 focus:o-ring dark:o-text-stone-400 dark:hover:o-text-stone-50">
+              <a
+                href="#haut"
+                className="o-text-stone-500 o-no-underline hover:o-text-stone-950 focus:o-ring dark:o-text-stone-400 dark:hover:o-text-stone-50"
+              >
                 Remonter ↑
               </a>
             </p>

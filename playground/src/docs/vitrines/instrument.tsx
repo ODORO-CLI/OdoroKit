@@ -152,11 +152,22 @@ const CONTOUR: readonly (readonly [number, number, number, number, number, numbe
 ]
 
 /** Le contour complet, referme par symetrie. */
-function contourFerme(): readonly (readonly [number, number, number, number, number, number])[] {
+function contourFerme(): readonly (readonly [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+])[] {
   const gauche = [...CONTOUR]
     .reverse()
     .map(
-      (courbe, rang, tableau): readonly [number, number, number, number, number, number] => {
+      (
+        courbe,
+        rang,
+        tableau,
+      ): readonly [number, number, number, number, number, number] => {
         const precedent = tableau[rang + 1]
         const arrivee: readonly [number, number] =
           precedent === undefined ? [0, -1.8] : [-precedent[4], precedent[5]]
@@ -190,15 +201,30 @@ function cheminCaisse(): string {
  * Les cotes sont ceux des ouies du volume — meme geometrie, autre rendu — et
  * la fente est legerement inclinee, comme sur un instrument.
  */
-const OUIE = { x: 0.4, haut: 0.32, bas: -0.5, oeilHaut: 0.095, oeilBas: 0.115, fente: 0.075 } as const
+const OUIE = {
+  x: 0.4,
+  haut: 0.32,
+  bas: -0.5,
+  oeilHaut: 0.095,
+  oeilBas: 0.115,
+  fente: 0.075,
+} as const
 
 function Ouie({ cote }: { readonly cote: 1 | -1 }): ReactElement {
   const x = OUIE.x * cote
   const decale = 0.07 * cote
   return (
     <g>
-      <circle cx={AXE + x * ECHELLE} cy={SOL - OUIE.haut * ECHELLE} r={OUIE.oeilHaut * ECHELLE} />
-      <circle cx={AXE + (x - decale) * ECHELLE} cy={SOL - OUIE.bas * ECHELLE} r={OUIE.oeilBas * ECHELLE} />
+      <circle
+        cx={AXE + x * ECHELLE}
+        cy={SOL - OUIE.haut * ECHELLE}
+        r={OUIE.oeilHaut * ECHELLE}
+      />
+      <circle
+        cx={AXE + (x - decale) * ECHELLE}
+        cy={SOL - OUIE.bas * ECHELLE}
+        r={OUIE.oeilBas * ECHELLE}
+      />
       <path
         d={`M${enSvg(x + OUIE.fente * cote, OUIE.haut)}L${enSvg(x - decale + OUIE.fente * cote, OUIE.bas)}L${enSvg(
           x - decale - OUIE.fente * cote,
@@ -219,12 +245,29 @@ function ViolonDessine(): ReactElement {
   const caisse = useMemo(() => cheminCaisse(), [])
   const cordes = [-0.048, -0.016, 0.016, 0.048]
   return (
-    <svg viewBox="0 0 248 480" className="o-h-full o-w-full" role="img" aria-label="Un violon vu de face : la caisse, les deux ouies, le chevalet, le chevillier et les quatre cordes">
-      <g fill="none" stroke={accent(300)} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round">
+    <svg
+      viewBox="0 0 248 480"
+      className="o-h-full o-w-full"
+      role="img"
+      aria-label="Un violon vu de face : la caisse, les deux ouies, le chevalet, le chevillier et les quatre cordes"
+    >
+      <g
+        fill="none"
+        stroke={accent(300)}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      >
         {/* Le manche et le chevillier, derriere la caisse. */}
-        <path d={`M${enSvg(-0.16, 1.8)}L${enSvg(-0.16, 3.05)}L${enSvg(0.16, 3.05)}L${enSvg(0.16, 1.8)}`} />
-        <path d={`M${enSvg(-0.13, 3.05)}L${enSvg(-0.15, 3.75)}L${enSvg(0.15, 3.75)}L${enSvg(0.13, 3.05)}Z`} />
-        <path d={`M${enSvg(0.15, 3.75)}C${enSvg(0.36, 3.9)} ${enSvg(0.34, 4.18)} ${enSvg(0.1, 4.14)}C${enSvg(-0.08, 4.11)} ${enSvg(-0.06, 3.9)} ${enSvg(0.06, 3.92)}`} />
+        <path
+          d={`M${enSvg(-0.16, 1.8)}L${enSvg(-0.16, 3.05)}L${enSvg(0.16, 3.05)}L${enSvg(0.16, 1.8)}`}
+        />
+        <path
+          d={`M${enSvg(-0.13, 3.05)}L${enSvg(-0.15, 3.75)}L${enSvg(0.15, 3.75)}L${enSvg(0.13, 3.05)}Z`}
+        />
+        <path
+          d={`M${enSvg(0.15, 3.75)}C${enSvg(0.36, 3.9)} ${enSvg(0.34, 4.18)} ${enSvg(0.1, 4.14)}C${enSvg(-0.08, 4.11)} ${enSvg(-0.06, 3.9)} ${enSvg(0.06, 3.92)}`}
+        />
         {[3.2, 3.5].map((y) => (
           <g key={y}>
             <path d={`M${enSvg(-0.15, y)}L${enSvg(-0.34, y)}`} />
@@ -233,15 +276,34 @@ function ViolonDessine(): ReactElement {
         ))}
 
         {/* La caisse, tracee. */}
-        <path data-o-lu-trace="" d={caisse} pathLength={1000} style={{ strokeDasharray: 1000, '--o-lu-l': 1000 } as CSSProperties} />
-        <path d={caisse} opacity="0.22" transform={`translate(0 0) scale(1)`} style={{ transformOrigin: `${String(AXE)}px ${String(SOL)}px`, transform: 'scale(0.965)' }} />
+        <path
+          data-o-lu-trace=""
+          d={caisse}
+          pathLength={1000}
+          style={{ strokeDasharray: 1000, '--o-lu-l': 1000 } as CSSProperties}
+        />
+        <path
+          d={caisse}
+          opacity="0.22"
+          transform={`translate(0 0) scale(1)`}
+          style={{
+            transformOrigin: `${String(AXE)}px ${String(SOL)}px`,
+            transform: 'scale(0.965)',
+          }}
+        />
 
         {/* La touche, de la caisse au sillet. */}
-        <path d={`M${enSvg(-0.12, 0.9)}L${enSvg(-0.13, 3.62)}L${enSvg(0.13, 3.62)}L${enSvg(0.12, 0.9)}Z`} />
+        <path
+          d={`M${enSvg(-0.12, 0.9)}L${enSvg(-0.13, 3.62)}L${enSvg(0.13, 3.62)}L${enSvg(0.12, 0.9)}Z`}
+        />
 
         {/* Le chevalet et le cordier. */}
-        <path d={`M${enSvg(-0.19, -0.2)}L${enSvg(-0.17, 0.02)}L${enSvg(0.17, 0.02)}L${enSvg(0.19, -0.2)}`} />
-        <path d={`M${enSvg(-0.12, -0.52)}L${enSvg(-0.09, -1.28)}L${enSvg(0.09, -1.28)}L${enSvg(0.12, -0.52)}Z`} />
+        <path
+          d={`M${enSvg(-0.19, -0.2)}L${enSvg(-0.17, 0.02)}L${enSvg(0.17, 0.02)}L${enSvg(0.19, -0.2)}`}
+        />
+        <path
+          d={`M${enSvg(-0.12, -0.52)}L${enSvg(-0.09, -1.28)}L${enSvg(0.09, -1.28)}L${enSvg(0.12, -0.52)}Z`}
+        />
         <path d={`M${enSvg(0, -1.28)}L${enSvg(0, -1.78)}`} />
       </g>
 
@@ -308,10 +370,38 @@ interface Corde {
 const VIBRANTE = 0.325
 
 const CORDES: readonly Corde[] = [
-  { cle: 'sol', nom: 'Sol', note: 'sol 3', rapport: 1 / 2.25, masse: 2.94, matiere: 'Ame synthetique, filee argent' },
-  { cle: 're', nom: 'Re', note: 're 4', rapport: 1 / 1.5, masse: 1.4, matiere: 'Ame synthetique, filee aluminium' },
-  { cle: 'la', nom: 'La', note: 'la 4', rapport: 1, masse: 0.62, matiere: 'Ame synthetique, filee aluminium' },
-  { cle: 'mi', nom: 'Mi', note: 'mi 5', rapport: 1.5, masse: 0.43, matiere: 'Acier plein, boucle' },
+  {
+    cle: 'sol',
+    nom: 'Sol',
+    note: 'sol 3',
+    rapport: 1 / 2.25,
+    masse: 2.94,
+    matiere: 'Ame synthetique, filee argent',
+  },
+  {
+    cle: 're',
+    nom: 'Re',
+    note: 're 4',
+    rapport: 1 / 1.5,
+    masse: 1.4,
+    matiere: 'Ame synthetique, filee aluminium',
+  },
+  {
+    cle: 'la',
+    nom: 'La',
+    note: 'la 4',
+    rapport: 1,
+    masse: 0.62,
+    matiere: 'Ame synthetique, filee aluminium',
+  },
+  {
+    cle: 'mi',
+    nom: 'Mi',
+    note: 'mi 5',
+    rapport: 1.5,
+    masse: 0.43,
+    matiere: 'Acier plein, boucle',
+  },
 ]
 
 /** La tension d une corde, en newtons : T = 4 L² f² µ. */
@@ -341,7 +431,10 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
   const [diapason, setDiapason] = useState(440)
   const [pincee, setPincee] = useState<{ cle: string; coup: number } | null>(null)
 
-  const tensions = useMemo(() => CORDES.map((corde) => tension(corde, diapason)), [diapason])
+  const tensions = useMemo(
+    () => CORDES.map((corde) => tension(corde, diapason)),
+    [diapason],
+  )
   const totale = tensions.reduce((somme, t) => somme + t, 0)
   // Angle de cassure de 158 degres : la verticale vaut 2 T cos(79°).
   const charge = totale * 2 * Math.cos((79 * Math.PI) / 180)
@@ -355,10 +448,16 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
     <div className="o-grid o-gap-12 lg:o-grid-cols-12 lg:o-gap-16">
       {/* ----- La reglette du diapason ---------------------------------- */}
       <div className="o-min-w-0 lg:o-col-span-5">
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le diapason</p>
+        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+          Le diapason
+        </p>
         <p
           className="o-m-0 o-mt-3 o-tabular-nums o-text-zinc-50"
-          style={{ ...serif('m'), fontSize: 'clamp(3rem, 7vw, 5.5rem)', lineHeight: 0.86 }}
+          style={{
+            ...serif('m'),
+            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
+            lineHeight: 0.86,
+          }}
         >
           {diapason} <span style={{ fontSize: '0.3em', letterSpacing: '0.1em' }}>Hz</span>
         </p>
@@ -390,7 +489,10 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
                 style={
                   diapason === repere.hz
                     ? { ...aplat(), borderColor: 'transparent' }
-                    : { borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-muted)' }
+                    : {
+                        borderColor: 'var(--o-theme-line)',
+                        color: 'var(--o-theme-muted)',
+                      }
                 }
               >
                 {repere.hz} — {repere.quoi}
@@ -405,14 +507,19 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
           </p>
           <p
             className="o-m-0 o-mt-2 o-tabular-nums"
-            style={{ ...serif('m'), fontSize: 'clamp(2.25rem, 5vw, 3.75rem)', lineHeight: 0.9, color: encreSurSombre() }}
+            style={{
+              ...serif('m'),
+              fontSize: 'clamp(2.25rem, 5vw, 3.75rem)',
+              lineHeight: 0.9,
+              color: encreSurSombre(),
+            }}
           >
             {charge.toFixed(1).replace('.', ',')} N
           </p>
           <p className="o-m-0 o-mt-4 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-400">
-            Somme des quatre tensions — {totale.toFixed(0)} newtons — rabattue par l angle de cassure de cent
-            cinquante-huit degres. C est ce poids-la que l ame transmet au fond, et il decide de tout le
-            reglage.
+            Somme des quatre tensions — {totale.toFixed(0)} newtons — rabattue par l angle
+            de cassure de cent cinquante-huit degres. C est ce poids-la que l ame transmet
+            au fond, et il decide de tout le reglage.
           </p>
         </div>
       </div>
@@ -422,7 +529,10 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
         <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
           Pincez une corde
         </p>
-        <div className="o-mt-4 o-grid o-grid-cols-4 o-gap-px" style={{ backgroundColor: 'var(--o-theme-line)' }}>
+        <div
+          className="o-mt-4 o-grid o-grid-cols-4 o-gap-px"
+          style={{ backgroundColor: 'var(--o-theme-line)' }}
+        >
           {CORDES.map((corde, rang) => {
             const f = diapason * corde.rapport
             const active = pincee?.cle === corde.cle
@@ -436,20 +546,48 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
                 className="o-relative o-flex o-min-w-0 o-flex-col o-items-center o-justify-between o-overflow-hidden o-px-2 o-py-5 o-transition-colors hover:o-bg-white-10 focus:o-ring"
                 style={{ backgroundColor: 'var(--o-theme-bg)' }}
               >
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: active ? encreSurSombre() : 'var(--o-theme-muted)' }}>
+                <span
+                  className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: active ? encreSurSombre() : 'var(--o-theme-muted)' }}
+                >
                   {corde.nom}
                 </span>
 
                 {/* La corde elle-meme : trois fils, dont deux fantomes. */}
-                <span aria-hidden="true" className="o-relative o-block o-w-full" style={{ height: 168 }}>
-                  <svg viewBox="0 0 40 168" className="o-h-full o-w-full" preserveAspectRatio="none">
+                <span
+                  aria-hidden="true"
+                  className="o-relative o-block o-w-full"
+                  style={{ height: 168 }}
+                >
+                  <svg
+                    viewBox="0 0 40 168"
+                    className="o-h-full o-w-full"
+                    preserveAspectRatio="none"
+                  >
                     <g
                       key={active ? String(pincee.coup) : 'repos'}
                       data-o-lu-corde={active && !reduced ? '' : undefined}
                     >
-                      <path d="M20 0V168" stroke={accent(200)} strokeWidth={3.4 - rang * 0.6} strokeLinecap="round" />
-                      <path d="M20 0V168" stroke={accent(400)} strokeWidth={1} opacity="0.5" transform="translate(2 0)" />
-                      <path d="M20 0V168" stroke={accent(400)} strokeWidth={1} opacity="0.5" transform="translate(-2 0)" />
+                      <path
+                        d="M20 0V168"
+                        stroke={accent(200)}
+                        strokeWidth={3.4 - rang * 0.6}
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M20 0V168"
+                        stroke={accent(400)}
+                        strokeWidth={1}
+                        opacity="0.5"
+                        transform="translate(2 0)"
+                      />
+                      <path
+                        d="M20 0V168"
+                        stroke={accent(400)}
+                        strokeWidth={1}
+                        opacity="0.5"
+                        transform="translate(-2 0)"
+                      />
                     </g>
                   </svg>
                 </span>
@@ -468,22 +606,64 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
         </div>
 
         {/* La table qui repond : les ondes partent du chevalet. */}
-        <div className="o-relative o-mt-8 o-overflow-hidden o-border-w-1 o-border-white-10" style={{ height: 210 }}>
+        <div
+          className="o-relative o-mt-8 o-overflow-hidden o-border-w-1 o-border-white-10"
+          style={{ height: 210 }}
+        >
           <svg viewBox="0 0 620 210" className="o-h-full o-w-full" aria-hidden="true">
             {/* La table, en coupe longitudinale : barre d harmonie et ame. */}
-            <path d="M20 40h580v130H20Z" fill="none" stroke={accentDoux(300, 22)} strokeWidth="1" />
+            <path
+              d="M20 40h580v130H20Z"
+              fill="none"
+              stroke={accentDoux(300, 22)}
+              strokeWidth="1"
+            />
             <path d="M20 40h580" stroke={accent(300)} strokeWidth="3" opacity="0.8" />
             <path d="M20 170h580" stroke={accentDoux(300, 40)} strokeWidth="2" />
-            <path d="M120 44v6h380v-6" fill="none" stroke={accent(400)} strokeWidth="4" opacity="0.55" />
-            <rect x="352" y="43" width="10" height="124" fill={accent(400)} opacity="0.75" />
-            <text x="368" y="112" fontSize="12" fill="currentColor" opacity="0.6" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+            <path
+              d="M120 44v6h380v-6"
+              fill="none"
+              stroke={accent(400)}
+              strokeWidth="4"
+              opacity="0.55"
+            />
+            <rect
+              x="352"
+              y="43"
+              width="10"
+              height="124"
+              fill={accent(400)}
+              opacity="0.75"
+            />
+            <text
+              x="368"
+              y="112"
+              fontSize="12"
+              fill="currentColor"
+              opacity="0.6"
+              style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+            >
               L AME
             </text>
-            <text x="126" y="70" fontSize="12" fill="currentColor" opacity="0.6" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+            <text
+              x="126"
+              y="70"
+              fontSize="12"
+              fill="currentColor"
+              opacity="0.6"
+              style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+            >
               BARRE D HARMONIE
             </text>
             <path d="M300 16v24M340 16v24" stroke={accent(200)} strokeWidth="3" />
-            <text x="228" y="24" fontSize="12" fill="currentColor" opacity="0.6" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+            <text
+              x="228"
+              y="24"
+              fontSize="12"
+              fill="currentColor"
+              opacity="0.6"
+              style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+            >
               CHEVALET
             </text>
 
@@ -501,7 +681,12 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
                     fill="none"
                     stroke={encreSurSombre()}
                     strokeWidth="1.5"
-                    style={{ '--o-lu-delai': `${String(retard)}s`, transformBox: 'fill-box' } as CSSProperties}
+                    style={
+                      {
+                        '--o-lu-delai': `${String(retard)}s`,
+                        transformBox: 'fill-box',
+                      } as CSSProperties
+                    }
                   />
                 ))}
               </g>
@@ -509,7 +694,10 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
           </svg>
         </div>
 
-        <p aria-live="polite" className="o-m-0 o-mt-5 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400">
+        <p
+          aria-live="polite"
+          className="o-m-0 o-mt-5 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-400"
+        >
           {pincee === null
             ? 'Les quatre cordes sont accordees en quintes justes a partir du la : sol, re, la, mi. Pincez-en une.'
             : `${CORDES.find((c) => c.cle === pincee.cle)?.nom ?? ''} — ${
@@ -530,7 +718,13 @@ function Accord({ quiver }: { readonly quiver: { current: number } }): ReactElem
  * porte l encre claire. C est la maniere dont un chiffre est grave dans une
  * eclisse, et c est du texte, pas une image.
  */
-function Relief({ children, taille = 'clamp(3rem, 9vw, 8rem)' }: { readonly children: string; readonly taille?: string }): ReactElement {
+function Relief({
+  children,
+  taille = 'clamp(3rem, 9vw, 8rem)',
+}: {
+  readonly children: string
+  readonly taille?: string
+}): ReactElement {
   // La tranche est une pile d ombres portees, pas une pile de copies du texte :
   // une copie serait lue par l audit de contraste — et par un lecteur d ecran —
   // alors qu elle n est qu une epaisseur.
@@ -556,9 +750,21 @@ function Relief({ children, taille = 'clamp(3rem, 9vw, 8rem)' }: { readonly chil
 }
 
 const CHIFFRES = [
-  { valeur: '210', unite: 'heures d atelier par instrument', note: 'Du billon debite au premier coup d archet.' },
-  { valeur: '3', unite: 'violons par an, pas davantage', note: 'Le vernis prend six mois a lui seul.' },
-  { valeur: '78', unite: 'ans de sechage pour l epicea', note: 'Abattu en 1948 dans le val di Fiemme, en lune descendante.' },
+  {
+    valeur: '210',
+    unite: 'heures d atelier par instrument',
+    note: 'Du billon debite au premier coup d archet.',
+  },
+  {
+    valeur: '3',
+    unite: 'violons par an, pas davantage',
+    note: 'Le vernis prend six mois a lui seul.',
+  },
+  {
+    valeur: '78',
+    unite: 'ans de sechage pour l epicea',
+    note: 'Abattu en 1948 dans le val di Fiemme, en lune descendante.',
+  },
 ] as const
 
 /* ============================ L enveloppe ============================== */
@@ -614,8 +820,8 @@ function Enveloppe(): ReactElement {
           Liste d attente — ouverte
         </p>
         <p className="o-m-0 o-mt-4 o-text-base o-leading-relaxed o-text-zinc-200">
-          Trois instruments par an, et quatorze noms devant vous. On ecrit avant de commander : la seule
-          question utile est celle du jeu, pas celle du modele.
+          Trois instruments par an, et quatorze noms devant vous. On ecrit avant de
+          commander : la seule question utile est celle du jeu, pas celle du modele.
         </p>
         <a
           href="mailto:atelier@chevalet-lutherie.fr"
@@ -632,9 +838,23 @@ function Enveloppe(): ReactElement {
         className="o-absolute o-inset-x-0 o-bottom-8 o-z-20 o-border-w-1 o-border-white-10"
         style={{ backgroundColor: accentDoux(800, 30), height: 150 }}
       >
-        <svg viewBox="0 0 540 150" className="o-h-full o-w-full" aria-hidden="true" preserveAspectRatio="none">
-          <path d="M0 0 270 96 540 0" fill="none" stroke={accentDoux(300, 22)} strokeWidth="1" />
-          <path d="M0 150 200 74M540 150 340 74" stroke={accentDoux(300, 16)} strokeWidth="1" />
+        <svg
+          viewBox="0 0 540 150"
+          className="o-h-full o-w-full"
+          aria-hidden="true"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0 270 96 540 0"
+            fill="none"
+            stroke={accentDoux(300, 22)}
+            strokeWidth="1"
+          />
+          <path
+            d="M0 150 200 74M540 150 340 74"
+            stroke={accentDoux(300, 16)}
+            strokeWidth="1"
+          />
         </svg>
         <p className="o-pointer-events-none o-absolute o-bottom-4 o-left-6 o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
           Chevalet — 6 rue des Trois-Bornes, Paris
@@ -657,8 +877,17 @@ function Enveloppe(): ReactElement {
           transition: reduced ? 'none' : 'transform 760ms cubic-bezier(0.22,1,0.36,1)',
         }}
       >
-        <svg viewBox="0 0 540 96" className="o-h-full o-w-full" preserveAspectRatio="none">
-          <path d="M0 0h540L270 96Z" fill={accentDoux(700, 44)} stroke={accentDoux(300, 26)} strokeWidth="1.5" />
+        <svg
+          viewBox="0 0 540 96"
+          className="o-h-full o-w-full"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 0h540L270 96Z"
+            fill={accentDoux(700, 44)}
+            stroke={accentDoux(300, 26)}
+            strokeWidth="1.5"
+          />
         </svg>
       </div>
 
@@ -728,7 +957,8 @@ export default function Page(): ReactElement {
           // ----- La caisse : le contour reel, extrude, ouies percees -----
           const forme = new three.Shape()
           forme.moveTo(0, -1.8)
-          for (const c of contourFerme()) forme.bezierCurveTo(c[0], c[1], c[2], c[3], c[4], c[5])
+          for (const c of contourFerme())
+            forme.bezierCurveTo(c[0], c[1], c[2], c[3], c[4], c[5])
 
           for (const cote of [1, -1] as const) {
             const x = OUIE.x * cote
@@ -770,7 +1000,12 @@ export default function Page(): ReactElement {
           groupe.add(caisse)
 
           // ----- L ebene : manche, touche, chevillier, cordier ----------
-          const ebene = new three.MeshPhysicalMaterial({ color: 0x14100e, metalness: 0.1, roughness: 0.35, clearcoat: 0.6 })
+          const ebene = new three.MeshPhysicalMaterial({
+            color: 0x14100e,
+            metalness: 0.1,
+            roughness: 0.35,
+            clearcoat: 0.6,
+          })
 
           const formeManche = new three.BoxGeometry(0.34, 1.3, 0.24)
           const manche = new three.Mesh(formeManche, vernis)
@@ -813,7 +1048,11 @@ export default function Page(): ReactElement {
           groupe.add(chevalet)
 
           // ----- Les quatre cordes --------------------------------------
-          const acier = new three.MeshStandardMaterial({ color: 0xd9d4c8, metalness: 0.9, roughness: 0.25 })
+          const acier = new three.MeshStandardMaterial({
+            color: 0xd9d4c8,
+            metalness: 0.9,
+            roughness: 0.25,
+          })
           const formeCorde = new three.CylinderGeometry(0.011, 0.011, 3.3, 6)
           for (const x of [-0.05, -0.017, 0.017, 0.05]) {
             const corde = new three.Mesh(formeCorde, acier)
@@ -832,7 +1071,12 @@ export default function Page(): ReactElement {
           // Un vernis n est lisible que si la lumiere rase : l ambiante reste
           // basse, et trois lampes ponctuelles font le relief — dont une de
           // dessous, sans quoi la caisse est une tache.
-          eclairer(contexte, { cle: 0xffe9c6, remplissage: 0x5c6f9e, contour: 0xfff6e6, force: 0.82 })
+          eclairer(contexte, {
+            cle: 0xffe9c6,
+            remplissage: 0x5c6f9e,
+            contour: 0xfff6e6,
+            force: 0.82,
+          })
           const dessous = new three.PointLight(0xffcf92, 42, 20, 2)
           dessous.position.set(1.4, -3.4, 2.8)
           const rasante = new three.PointLight(0xfff4e0, 34, 18, 2)
@@ -886,7 +1130,10 @@ export default function Page(): ReactElement {
           ----- L etabli : le violon colle, l ouverture et quatre actes dessus
         */}
         <div ref={setPiste} className="o-relative">
-          <div className="o-sticky o-z-0 o-overflow-hidden" style={{ top: CHROME, height: ECRAN }}>
+          <div
+            className="o-sticky o-z-0 o-overflow-hidden"
+            style={{ top: CHROME, height: ECRAN }}
+          >
             {lueur}
             {violon}
             <div
@@ -902,8 +1149,16 @@ export default function Page(): ReactElement {
 
           <div className="o-relative o-z-10" style={{ marginTop: `calc(-1 * ${ECRAN})` }}>
             {/* L ouverture. */}
-            <section id="haut" className="o-relative o-flex o-flex-col" style={{ minHeight: ECRAN }}>
-              <BarreCoins marque="Chevalet" liens={NAVIGATION} droite="Atelier — Paris XI" />
+            <section
+              id="haut"
+              className="o-relative o-flex o-flex-col"
+              style={{ minHeight: ECRAN }}
+            >
+              <BarreCoins
+                marque="Chevalet"
+                liens={NAVIGATION}
+                droite="Atelier — Paris XI"
+              />
               <div className="o-flex o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-12 md:o-px-14 md:o-pb-24">
                 <Surgit>
                   <Etiquette>Lutherie du quatuor — trois instruments par an</Etiquette>
@@ -916,17 +1171,26 @@ export default function Page(): ReactElement {
                   Le son sort par deux fentes de quatre-vingts millimetres.
                 </TitreVague>
                 <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-                  <Surgit delai={520} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6">
-                    Un violon est une boite d epicea sous quatre-vingt-sept newtons. Tout le metier tient a
-                    savoir ou porte cette charge, et a quelle epaisseur la table y resiste sans se taire.
+                  <Surgit
+                    delai={520}
+                    as="p"
+                    className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6"
+                  >
+                    Un violon est une boite d epicea sous quatre-vingt-sept newtons. Tout
+                    le metier tient a savoir ou porte cette charge, et a quelle epaisseur
+                    la table y resiste sans se taire.
                   </Surgit>
-                  <Surgit delai={640} className="md:o-col-span-6 md:o-flex md:o-justify-end">
+                  <Surgit
+                    delai={640}
+                    className="md:o-col-span-6 md:o-flex md:o-justify-end"
+                  >
                     <a
                       href="#accord"
                       className="o-inline-flex o-items-center o-gap-3 o-border-w-1 o-px-7 o-py-3.5 o-text-sm o-font-semibold o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
                       style={aplat()}
                     >
-                      Accorder l instrument <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                      Accorder l instrument{' '}
+                      <Icon icon={ArrowDown} size={16} aria-hidden="true" />
                     </a>
                   </Surgit>
                 </div>
@@ -947,36 +1211,71 @@ export default function Page(): ReactElement {
                     <div className="o-grid o-gap-8 md:o-grid-cols-12">
                       <div className="md:o-col-span-3">
                         <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-                          {String(acte + 1).padStart(2, '0')} / {String(ACTES.length).padStart(2, '0')}
+                          {String(acte + 1).padStart(2, '0')} /{' '}
+                          {String(ACTES.length).padStart(2, '0')}
                         </p>
                         <ol className="o-m-0 o-mt-6 o-list-none o-p-0">
                           {ACTES.map((autre, rang) => (
                             <li
                               key={autre.mot}
                               className="o-flex o-items-center o-gap-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest"
-                              style={{ color: rang === acte ? encreSurSombre() : 'var(--o-theme-muted)' }}
+                              style={{
+                                color:
+                                  rang === acte
+                                    ? encreSurSombre()
+                                    : 'var(--o-theme-muted)',
+                              }}
                             >
-                              <span aria-hidden="true" className="o-h-px o-transition-all" style={{ width: rang === acte ? 26 : 8, backgroundColor: 'currentColor' }} />
+                              <span
+                                aria-hidden="true"
+                                className="o-h-px o-transition-all"
+                                style={{
+                                  width: rang === acte ? 26 : 8,
+                                  backgroundColor: 'currentColor',
+                                }}
+                              />
                               {autre.mot}
                             </li>
                           ))}
                         </ol>
                       </div>
                       <div className="o-min-w-0 md:o-col-span-9">
-                        <h2 key={a.mot} className="o-m-0 o-max-w-3xl o-text-balance" style={{ ...serif('l'), fontSize: 'clamp(2rem, 5.4vw, 5.5rem)' }}>
-                          <ShineText from="var(--o-palette-zinc-50)" shine={accent(200)} duration={4200} width={22}>
+                        <h2
+                          key={a.mot}
+                          className="o-m-0 o-max-w-3xl o-text-balance"
+                          style={{
+                            ...serif('l'),
+                            fontSize: 'clamp(2rem, 5.4vw, 5.5rem)',
+                          }}
+                        >
+                          <ShineText
+                            from="var(--o-palette-zinc-50)"
+                            shine={accent(200)}
+                            duration={4200}
+                            width={22}
+                          >
                             {a.titre}
                           </ShineText>
                         </h2>
-                        <p key={`${a.mot}-texte`} className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300 md:o-ml-auto md:o-text-right">
+                        <p
+                          key={`${a.mot}-texte`}
+                          className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-300 md:o-ml-auto md:o-text-right"
+                        >
                           {a.texte}
                         </p>
                       </div>
                     </div>
-                    <div aria-hidden="true" className="o-absolute o-bottom-8 o-left-6 o-right-6 o-h-px o-bg-white-10 md:o-left-12 md:o-right-12">
+                    <div
+                      aria-hidden="true"
+                      className="o-absolute o-bottom-8 o-left-6 o-right-6 o-h-px o-bg-white-10 md:o-left-12 md:o-right-12"
+                    >
                       <div
                         className="o-h-full"
-                        style={{ width: `${String(Math.round((reduced ? 1 : progression) * 100))}%`, backgroundColor: encreSurSombre(), transition: 'width 200ms linear' }}
+                        style={{
+                          width: `${String(Math.round((reduced ? 1 : progression) * 100))}%`,
+                          backgroundColor: encreSurSombre(),
+                          transition: 'width 200ms linear',
+                        }}
                       />
                     </div>
                   </div>
@@ -986,11 +1285,18 @@ export default function Page(): ReactElement {
           </div>
         </div>
 
-        <main id="instrument" className="o-relative o-z-10 o-scroll-mt-24" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
+        <main
+          id="instrument"
+          className="o-relative o-z-10 o-scroll-mt-24"
+          style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+        >
           {/*
             ----- Le mecanisme : l accord --------------------------------------
           */}
-          <section id="accord" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32">
+          <section
+            id="accord"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="o-min-w-0 md:o-col-span-8">
@@ -1009,8 +1315,7 @@ export default function Page(): ReactElement {
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-4 md:o-text-right">
                   T = 4 L² f² µ
-                  <br />
-                  L = 32,5 cm
+                  <br />L = 32,5 cm
                 </p>
               </div>
               <div className="o-mt-16">
@@ -1022,21 +1327,29 @@ export default function Page(): ReactElement {
           {/*
             ----- La coupe, sur une carte qui reflete ---------------------------
           */}
-          <section className="o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32" style={{ backgroundColor: accentDoux(500, 5) }}>
+          <section
+            className="o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32"
+            style={{ backgroundColor: accentDoux(500, 5) }}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 lg:o-grid-cols-12 lg:o-gap-16 lg:o-items-center">
               <div className="o-min-w-0 lg:o-col-span-5">
                 <Reveal>
                   <Indice rang="02">Le gabarit</Indice>
                 </Reveal>
                 <Reveal delay={80}>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-lg o-text-balance" style={{ ...serif('m'), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}>
-                    Trois cent cinquante-six millimetres, et rien qui soit rond par hasard.
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-lg o-text-balance"
+                    style={{ ...serif('m'), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}
+                  >
+                    Trois cent cinquante-six millimetres, et rien qui soit rond par
+                    hasard.
                   </h2>
                 </Reveal>
                 <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300">
-                  Le contour de la caisse est celui d un quatre-quarts : cent soixante-huit millimetres aux
-                  hanches hautes, cent douze a la taille, deux cent huit aux hanches basses. Le meme releve
-                  sert au gabarit de l atelier et au dessin de cette page.
+                  Le contour de la caisse est celui d un quatre-quarts : cent
+                  soixante-huit millimetres aux hanches hautes, cent douze a la taille,
+                  deux cent huit aux hanches basses. Le meme releve sert au gabarit de l
+                  atelier et au dessin de cette page.
                 </p>
                 <dl className="o-m-0 o-mt-10">
                   {(
@@ -1048,9 +1361,16 @@ export default function Page(): ReactElement {
                       ['Ame', '6 mm de diametre'],
                     ] as const
                   ).map(([quoi, valeur]) => (
-                    <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3">
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-                      <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-100">{valeur}</dd>
+                    <div
+                      key={quoi}
+                      className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3"
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                        {quoi}
+                      </dt>
+                      <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-100">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -1075,14 +1395,27 @@ export default function Page(): ReactElement {
               </Reveal>
               <ol className="o-m-0 o-mt-14 o-list-none o-p-0">
                 {CHIFFRES.map((chiffre, rang) => (
-                  <li key={chiffre.valeur} className="o-grid o-items-center o-gap-6 o-border-t o-border-white-10 o-py-12 md:o-grid-cols-12 md:o-gap-10">
+                  <li
+                    key={chiffre.valeur}
+                    className="o-grid o-items-center o-gap-6 o-border-t o-border-white-10 o-py-12 md:o-grid-cols-12 md:o-gap-10"
+                  >
                     <div className="o-min-w-0 md:o-col-span-4">
-                      <Relief taille={rang === 0 ? 'clamp(3.5rem, 10vw, 9rem)' : 'clamp(3rem, 8vw, 7rem)'}>
+                      <Relief
+                        taille={
+                          rang === 0
+                            ? 'clamp(3.5rem, 10vw, 9rem)'
+                            : 'clamp(3rem, 8vw, 7rem)'
+                        }
+                      >
                         {chiffre.valeur}
                       </Relief>
                     </div>
-                    <p className="o-m-0 o-text-xl o-leading-snug o-text-zinc-100 md:o-col-span-5">{chiffre.unite}</p>
-                    <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-3">{chiffre.note}</p>
+                    <p className="o-m-0 o-text-xl o-leading-snug o-text-zinc-100 md:o-col-span-5">
+                      {chiffre.unite}
+                    </p>
+                    <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-3">
+                      {chiffre.note}
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -1092,14 +1425,21 @@ export default function Page(): ReactElement {
           {/*
             ----- L enveloppe ---------------------------------------------------
           */}
-          <section id="atelier" className="o-scroll-mt-24 o-flex o-flex-col o-items-center o-justify-center o-border-t o-border-white-10 o-px-6 o-py-24 o-text-center md:o-py-32">
+          <section
+            id="atelier"
+            className="o-scroll-mt-24 o-flex o-flex-col o-items-center o-justify-center o-border-t o-border-white-10 o-px-6 o-py-24 o-text-center md:o-py-32"
+          >
             <Reveal>
-              <h2 className="o-m-0 o-max-w-2xl o-text-balance" style={{ ...serif('m'), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}>
+              <h2
+                className="o-m-0 o-max-w-2xl o-text-balance"
+                style={{ ...serif('m'), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)' }}
+              >
                 On ecrit d abord. La commande vient apres.
               </h2>
             </Reveal>
             <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-400">
-              L atelier se visite le vendredi apres-midi, sans rendez-vous, a condition d apporter son archet.
+              L atelier se visite le vendredi apres-midi, sans rendez-vous, a condition d
+              apporter son archet.
             </p>
             <div className="o-mt-10 o-w-full">
               <Enveloppe />
@@ -1110,9 +1450,15 @@ export default function Page(): ReactElement {
         {/*
           ----- Le pied : une seule colonne, centree --------------------------
         */}
-        <footer className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-py-16" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
+        <footer
+          className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-py-16"
+          style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+        >
           <div className="o-mx-auto o-flex o-max-w-md o-flex-col o-items-center o-gap-6 o-text-center">
-            <p className="o-m-0" style={{ ...serif('m'), fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }}>
+            <p
+              className="o-m-0"
+              style={{ ...serif('m'), fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }}
+            >
               Chevalet
             </p>
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
@@ -1120,7 +1466,10 @@ export default function Page(): ReactElement {
               <br />
               Vendredi 14 h — 19 h
             </p>
-            <nav aria-label="Rubriques" className="o-flex o-flex-col o-items-center o-gap-3">
+            <nav
+              aria-label="Rubriques"
+              className="o-flex o-flex-col o-items-center o-gap-3"
+            >
               {(
                 [
                   ['#instrument', 'L instrument'],
@@ -1129,16 +1478,22 @@ export default function Page(): ReactElement {
                   ['#haut', 'Remonter'],
                 ] as const
               ).map(([cible, mot]) => (
-                <a key={mot} href={cible} className="o-text-sm o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring">
+                <a
+                  key={mot}
+                  href={cible}
+                  className="o-text-sm o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                >
                   {mot}
                 </a>
               ))}
             </nav>
             <p className="o-m-0 o-max-w-sm o-text-xs o-leading-relaxed o-text-zinc-500">
-              Reparation et sonorite du quatuor. Expertises ecrites sous quinze jours. Aucun instrument n est
-              vendu sans essai d une semaine.
+              Reparation et sonorite du quatuor. Expertises ecrites sous quinze jours.
+              Aucun instrument n est vendu sans essai d une semaine.
             </p>
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">© 2026 Chevalet</p>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+              © 2026 Chevalet
+            </p>
           </div>
         </footer>
       </div>

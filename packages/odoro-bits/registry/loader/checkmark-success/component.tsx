@@ -174,8 +174,7 @@ export function CheckmarkSuccess({
   // variante. Le trace, lui, est exactement le meme.
   const mark = state === 'echec' ? CROSS : CHECK
 
-  const spoken =
-    state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
+  const spoken = state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
 
   const loaderStyle = {
     ...style,

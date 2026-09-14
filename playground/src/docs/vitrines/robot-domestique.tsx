@@ -34,7 +34,14 @@ import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, Check, Play } from '@odoro-cli/icons/filaire'
 import { useMotionState } from '@odoro-cli/engine'
 import { Reveal } from '@odoro-cli/libs/motion'
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react'
 
 import { BentoGrid } from '@/odoro/section/BentoGrid.jsx'
 import { Faq } from '@/odoro/section/Faq.jsx'
@@ -71,22 +78,99 @@ interface Piece {
 }
 
 const PIECES: readonly Piece[] = [
-  { nom: 'Cuisine', heure: 7, duree: 40, quoi: 'Vaisselle du matin rangee, plan de travail essuye, courses listees.', minutesRendues: 25 },
-  { nom: 'Salon', heure: 10, duree: 30, quoi: 'Coussins remis, sol passe, plantes arrosees le mardi et le vendredi.', minutesRendues: 15 },
-  { nom: 'Chambres', heure: 11, duree: 35, quoi: 'Lits faits, linge trie par couleur et porte au panier.', minutesRendues: 20 },
-  { nom: 'Salle de bain', heure: 14, duree: 25, quoi: 'Lavabo et miroir, serviettes changees le samedi.', minutesRendues: 12 },
-  { nom: 'Entree', heure: 17, duree: 15, quoi: 'Chaussures alignees, colis rentres, courrier pose sur la console.', minutesRendues: 8 },
-  { nom: 'Cuisine, le soir', heure: 21, duree: 45, quoi: 'Vaisselle du diner, poubelle sortie la veille de la collecte.', minutesRendues: 30 },
+  {
+    nom: 'Cuisine',
+    heure: 7,
+    duree: 40,
+    quoi: 'Vaisselle du matin rangee, plan de travail essuye, courses listees.',
+    minutesRendues: 25,
+  },
+  {
+    nom: 'Salon',
+    heure: 10,
+    duree: 30,
+    quoi: 'Coussins remis, sol passe, plantes arrosees le mardi et le vendredi.',
+    minutesRendues: 15,
+  },
+  {
+    nom: 'Chambres',
+    heure: 11,
+    duree: 35,
+    quoi: 'Lits faits, linge trie par couleur et porte au panier.',
+    minutesRendues: 20,
+  },
+  {
+    nom: 'Salle de bain',
+    heure: 14,
+    duree: 25,
+    quoi: 'Lavabo et miroir, serviettes changees le samedi.',
+    minutesRendues: 12,
+  },
+  {
+    nom: 'Entree',
+    heure: 17,
+    duree: 15,
+    quoi: 'Chaussures alignees, colis rentres, courrier pose sur la console.',
+    minutesRendues: 8,
+  },
+  {
+    nom: 'Cuisine, le soir',
+    heure: 21,
+    duree: 45,
+    quoi: 'Vaisselle du diner, poubelle sortie la veille de la collecte.',
+    minutesRendues: 30,
+  },
 ]
 
 /** Les capacites, en tuiles inegales. */
 const CAPACITES = [
-  { id: 'mains', title: 'Une seconde paire de mains', body: 'Il porte, range, essuie. Pas plus de trois kilos a la fois, jamais au-dessus de la hauteur d une table.', cols: 2, rows: 2, graine: 'tamaris-chambre-7', alt: 'Salon meuble, range en fin de journee' },
-  { id: 'petits', title: 'Doux avec les petits', body: 'Il s arrete a un metre d un enfant ou d un animal, et repart quand la voie est libre. Sans exception.', cols: 1, rows: 1 },
-  { id: 'colis', title: 'Il prend le colis', body: 'Il reconnait le livreur, ouvre le sas, rentre le paquet, et vous previent d une ligne.', cols: 1, rows: 1 },
-  { id: 'silence', title: 'Le bruit d une bibliotheque', body: 'Au plus fort de la vaisselle, on l entend moins qu un frigo. La nuit, il ne roule pas.', cols: 1, rows: 1 },
-  { id: 'semaine', title: 'Il apprend la maison en une semaine', body: 'Sans carte a dessiner. Il commence par les pieces cochees, et vous dit chaque soir ce qu il a compris.', cols: 1, rows: 1 },
-  { id: 'come', title: 'Fabrique a Come', body: 'Assemble a la main au bord du lac, porte comme un pull prefere, livre en France, mis en route a domicile.', cols: 4, rows: 2, featured: true, graine: 'cobalt-atelier', alt: 'Bras d assemblage dans l atelier, au bord du lac' },
+  {
+    id: 'mains',
+    title: 'Une seconde paire de mains',
+    body: 'Il porte, range, essuie. Pas plus de trois kilos a la fois, jamais au-dessus de la hauteur d une table.',
+    cols: 2,
+    rows: 2,
+    graine: 'tamaris-chambre-7',
+    alt: 'Salon meuble, range en fin de journee',
+  },
+  {
+    id: 'petits',
+    title: 'Doux avec les petits',
+    body: 'Il s arrete a un metre d un enfant ou d un animal, et repart quand la voie est libre. Sans exception.',
+    cols: 1,
+    rows: 1,
+  },
+  {
+    id: 'colis',
+    title: 'Il prend le colis',
+    body: 'Il reconnait le livreur, ouvre le sas, rentre le paquet, et vous previent d une ligne.',
+    cols: 1,
+    rows: 1,
+  },
+  {
+    id: 'silence',
+    title: 'Le bruit d une bibliotheque',
+    body: 'Au plus fort de la vaisselle, on l entend moins qu un frigo. La nuit, il ne roule pas.',
+    cols: 1,
+    rows: 1,
+  },
+  {
+    id: 'semaine',
+    title: 'Il apprend la maison en une semaine',
+    body: 'Sans carte a dessiner. Il commence par les pieces cochees, et vous dit chaque soir ce qu il a compris.',
+    cols: 1,
+    rows: 1,
+  },
+  {
+    id: 'come',
+    title: 'Fabrique a Come',
+    body: 'Assemble a la main au bord du lac, porte comme un pull prefere, livre en France, mis en route a domicile.',
+    cols: 4,
+    rows: 2,
+    featured: true,
+    graine: 'cobalt-atelier',
+    alt: 'Bras d assemblage dans l atelier, au bord du lac',
+  },
 ] as const
 
 /**
@@ -96,20 +180,89 @@ const CAPACITES = [
  * organe, comme sur une planche d atelier, et non quatre cartes egales.
  */
 const REPERES = [
-  ['01', 'La tete', 'Elle s incline vers qui lui parle et se detourne quand la piece est vide. Rien n est enregistre, rien ne sort.'],
-  ['02', 'Le bras', 'Une epaule, un coude, deux doigts. Trois kilos au plus, jamais au-dessus de la hauteur d une table.'],
-  ['03', 'La coque', 'Polymere recycle, quatre vis, demontable a la main. Trente-six decibels au plus fort de la vaisselle.'],
-  ['04', 'Le socle', 'Une roue unique, quarante centimetres par seconde. Il rentre seul se poser dessus pour la nuit.'],
+  [
+    '01',
+    'La tete',
+    'Elle s incline vers qui lui parle et se detourne quand la piece est vide. Rien n est enregistre, rien ne sort.',
+  ],
+  [
+    '02',
+    'Le bras',
+    'Une epaule, un coude, deux doigts. Trois kilos au plus, jamais au-dessus de la hauteur d une table.',
+  ],
+  [
+    '03',
+    'La coque',
+    'Polymere recycle, quatre vis, demontable a la main. Trente-six decibels au plus fort de la vaisselle.',
+  ],
+  [
+    '04',
+    'Le socle',
+    'Une roue unique, quarante centimetres par seconde. Il rentre seul se poser dessus pour la nuit.',
+  ],
 ] as const
 
 /** Le plan du site, dense. */
 const PLAN = [
-  { titre: 'Produit', liens: ['Ce qu il fait', 'La journee', 'Autonomie', 'Fiche technique', 'Accessoires', 'Comparer'] },
-  { titre: 'Acheter', liens: ['Precommander', 'Financement', 'Reprise', 'Revendeurs', 'Entreprises', 'Cadeau'] },
-  { titre: 'Aide', liens: ['Questions', 'Mise en route', 'Garantie', 'Reparations', 'Pieces detachees', 'Etat du service'] },
-  { titre: 'Donnees', liens: ['Ce qu il voit', 'Ce qu il garde', 'Ce qui sort', 'Mises a jour', 'Securite', 'Transparence'] },
-  { titre: 'Maison', liens: ['Come, Italie', 'L atelier', 'Journal', 'Presse', 'Emplois', 'Contact'] },
-  { titre: 'Legal', liens: ['Conditions', 'Confidentialite', 'Cookies', 'Accessibilite', 'Conformite', 'Rappels'] },
+  {
+    titre: 'Produit',
+    liens: [
+      'Ce qu il fait',
+      'La journee',
+      'Autonomie',
+      'Fiche technique',
+      'Accessoires',
+      'Comparer',
+    ],
+  },
+  {
+    titre: 'Acheter',
+    liens: [
+      'Precommander',
+      'Financement',
+      'Reprise',
+      'Revendeurs',
+      'Entreprises',
+      'Cadeau',
+    ],
+  },
+  {
+    titre: 'Aide',
+    liens: [
+      'Questions',
+      'Mise en route',
+      'Garantie',
+      'Reparations',
+      'Pieces detachees',
+      'Etat du service',
+    ],
+  },
+  {
+    titre: 'Donnees',
+    liens: [
+      'Ce qu il voit',
+      'Ce qu il garde',
+      'Ce qui sort',
+      'Mises a jour',
+      'Securite',
+      'Transparence',
+    ],
+  },
+  {
+    titre: 'Maison',
+    liens: ['Come, Italie', 'L atelier', 'Journal', 'Presse', 'Emplois', 'Contact'],
+  },
+  {
+    titre: 'Legal',
+    liens: [
+      'Conditions',
+      'Confidentialite',
+      'Cookies',
+      'Accessibilite',
+      'Conformite',
+      'Rappels',
+    ],
+  },
 ] as const
 
 /* ============================ Le rendu ================================= */
@@ -126,13 +279,23 @@ function heure(h: number): string {
  * qu une fois, de l heure quittee a l heure atteinte. On la laisse jouer le
  * temps d une fusion, puis on fige l heure atteinte.
  */
-function HeureFondue({ de, a }: { readonly de: string; readonly a: string }): ReactElement {
+function HeureFondue({
+  de,
+  a,
+}: {
+  readonly de: string
+  readonly a: string
+}): ReactElement {
   const { reduced } = useMotionState()
   const [fige, setFige] = useState(reduced || de === a)
   useEffect(() => {
     if (fige) return
-    const id = window.setTimeout(() => { setFige(true) }, 1000)
-    return () => { window.clearTimeout(id) }
+    const id = window.setTimeout(() => {
+      setFige(true)
+    }, 1000)
+    return () => {
+      window.clearTimeout(id)
+    }
   }, [fige])
   if (fige) return <span>{a}</span>
   return <MorphText mots={[de, a]} hold={40} morph={820} flou={14} fusion={5} />
@@ -149,7 +312,16 @@ function HeureFondue({ de, a }: { readonly de: string; readonly a: string }): Re
  */
 function RobotDessine(): ReactElement {
   return (
-    <svg viewBox="0 0 200 300" className="o-h-full o-w-full" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      viewBox="0 0 200 300"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <g opacity="0.92">
         {/* L antenne */}
         <circle cx="100" cy="28" r="4" fill="currentColor" stroke="none" />
@@ -245,7 +417,15 @@ function RobotEnVolume(): ReactElement {
         // La visiere : une calotte partielle prise sur l avant de la tete.
         // `phi` vaut un quart de tour au droit du +z, donc la bande s ouvre
         // de part et d autre de la face ; `theta` la descend jusqu a l equateur.
-        const gVisiere = new three.SphereGeometry(0.516, 40, 20, Math.PI / 2 - 0.8, 1.6, 1.02, 0.72)
+        const gVisiere = new three.SphereGeometry(
+          0.516,
+          40,
+          20,
+          Math.PI / 2 - 0.8,
+          1.6,
+          1.02,
+          0.72,
+        )
         const gOeil = new three.SphereGeometry(0.05, 16, 12)
         const gTige = new three.CylinderGeometry(0.016, 0.016, 0.3, 8)
         const gBille = new three.SphereGeometry(0.055, 16, 12)
@@ -254,7 +434,23 @@ function RobotEnVolume(): ReactElement {
         const gCoude = new three.SphereGeometry(0.12, 18, 14)
         const gAvantBras = new three.CylinderGeometry(0.09, 0.074, 0.6, 20)
         const gDoigt = new three.BoxGeometry(0.042, 0.16, 0.06)
-        aLiberer.push(gRoue, gSocle, gCorps, gCeinture, gCol, gTete, gVisiere, gOeil, gTige, gBille, gEpaule, gBrasHaut, gCoude, gAvantBras, gDoigt)
+        aLiberer.push(
+          gRoue,
+          gSocle,
+          gCorps,
+          gCeinture,
+          gCol,
+          gTete,
+          gVisiere,
+          gOeil,
+          gTige,
+          gBille,
+          gEpaule,
+          gBrasHaut,
+          gCoude,
+          gAvantBras,
+          gDoigt,
+        )
 
         const robot = new three.Group()
         robot.name = 'robot'
@@ -322,7 +518,12 @@ function RobotEnVolume(): ReactElement {
         // Sans lumiere de contour ni lampe de dessous, une coque claire sur un
         // fond sombre est une silhouette plate : les trois lumieres de studio
         // ne suffisent pas a un objet pose sur une plaque.
-        eclairer(contexte, { cle: 0xfff1dc, remplissage: 0x8ba1cc, contour: 0xffffff, force: 1.1 })
+        eclairer(contexte, {
+          cle: 0xfff1dc,
+          remplissage: 0x8ba1cc,
+          contour: 0xffffff,
+          force: 1.1,
+        })
         const dessous = new three.PointLight(0xffd9a4, 16, 10, 2)
         dessous.position.set(0, -2.1, 1.9)
         const rasante = new three.PointLight(0xffffff, 13, 12, 2)
@@ -374,74 +575,166 @@ function RobotEnVolume(): ReactElement {
 
 /** La journee : on coche les pieces, la scene epinglee les traverse. */
 function Journee(): ReactElement {
-  const [cochees, setCochees] = useState<readonly string[]>(PIECES.map((p) => p.nom).slice(0, 4))
+  const [cochees, setCochees] = useState<readonly string[]>(
+    PIECES.map((p) => p.nom).slice(0, 4),
+  )
   const basculer = (nom: string): void => {
-    setCochees((avant) => (avant.includes(nom) ? avant.filter((x) => x !== nom) : [...avant, nom]))
+    setCochees((avant) =>
+      avant.includes(nom) ? avant.filter((x) => x !== nom) : [...avant, nom],
+    )
   }
   const retenues = useMemo(() => PIECES.filter((p) => cochees.includes(p.nom)), [cochees])
   const minutes = retenues.reduce((s, p) => s + p.minutesRendues, 0)
   const actes = Math.max(1, retenues.length)
 
   return (
-    <Epingle ecrans={Math.max(2.5, actes * 0.9)} actes={actes} className="o-bg-stone-50 dark:o-bg-zinc-950">
+    <Epingle
+      ecrans={Math.max(2.5, actes * 0.9)}
+      actes={actes}
+      className="o-bg-stone-50 dark:o-bg-zinc-950"
+    >
       {(acte) => {
         const courante = retenues[acte] ?? null
         const precedente = retenues[acte - 1] ?? null
         return (
-          <div className="o-mx-auto o-grid o-h-full o-max-w-7xl o-gap-8 o-px-6 o-py-8 lg:o-grid-cols-12 lg:o-items-center lg:o-gap-12" style={{ paddingTop: '2rem' }}>
+          <div
+            className="o-mx-auto o-grid o-h-full o-max-w-7xl o-gap-8 o-px-6 o-py-8 lg:o-grid-cols-12 lg:o-items-center lg:o-gap-12"
+            style={{ paddingTop: '2rem' }}
+          >
             {/* Les pieces qu il prend : le mecanisme, a gauche. */}
             <div className="lg:o-col-span-4">
-              <Indice rang="02" sombre={false}>La journee</Indice>
-              <h2 className="o-m-0 o-mt-5" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3vw, 2.75rem)' }}>Cochez les pieces. Defilez : la journee passe.</h2>
+              <Indice rang="02" sombre={false}>
+                La journee
+              </Indice>
+              <h2
+                className="o-m-0 o-mt-5"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3vw, 2.75rem)' }}
+              >
+                Cochez les pieces. Defilez : la journee passe.
+              </h2>
               <ul className="o-m-0 o-mt-6 o-list-none o-p-0">
                 {PIECES.map((p) => {
                   const actif = cochees.includes(p.nom)
                   const enCours = courante?.nom === p.nom
                   return (
-                    <li key={p.nom} className="o-border-t o-border-black-10 dark:o-border-zinc-800">
-                      <button type="button" aria-pressed={actif} onClick={() => { basculer(p.nom) }} className="o-flex o-w-full o-items-center o-gap-3 o-py-2.5 o-text-left focus:o-ring">
-                        <span aria-hidden="true" className="o-inline-flex o-size-5 o-shrink-0 o-items-center o-justify-center o-rounded-full o-border-w-1" style={actif ? { ...aplat(), borderColor: 'transparent' } : { borderColor: 'var(--o-theme-line)' }}>
+                    <li
+                      key={p.nom}
+                      className="o-border-t o-border-black-10 dark:o-border-zinc-800"
+                    >
+                      <button
+                        type="button"
+                        aria-pressed={actif}
+                        onClick={() => {
+                          basculer(p.nom)
+                        }}
+                        className="o-flex o-w-full o-items-center o-gap-3 o-py-2.5 o-text-left focus:o-ring"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="o-inline-flex o-size-5 o-shrink-0 o-items-center o-justify-center o-rounded-full o-border-w-1"
+                          style={
+                            actif
+                              ? { ...aplat(), borderColor: 'transparent' }
+                              : { borderColor: 'var(--o-theme-line)' }
+                          }
+                        >
                           {actif && <Icon icon={Check} size={12} />}
                         </span>
-                        <span className={`o-grow o-text-sm ${enCours ? 'o-font-semibold' : 'o-font-medium'}`}>{p.nom}</span>
-                        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{heure(p.heure)}</span>
+                        <span
+                          className={`o-grow o-text-sm ${enCours ? 'o-font-semibold' : 'o-font-medium'}`}
+                        >
+                          {p.nom}
+                        </span>
+                        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                          {heure(p.heure)}
+                        </span>
                       </button>
                     </li>
                   )
                 })}
               </ul>
               <p className="o-m-0 o-mt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                {retenues.length === 0 ? 'Cochez une piece : la journee se dessine.' : `${String(Math.floor(minutes / 60))} h ${String(minutes % 60).padStart(2, '0')} rendues par jour`}
+                {retenues.length === 0
+                  ? 'Cochez une piece : la journee se dessine.'
+                  : `${String(Math.floor(minutes / 60))} h ${String(minutes % 60).padStart(2, '0')} rendues par jour`}
               </p>
             </div>
 
             {/* La scene : l heure, la piece, la frise. */}
             <div className="o-min-w-0 lg:o-col-span-8">
-              <div className="o-rounded-3xl o-p-6 md:o-p-10" style={{ backgroundColor: accentDoux(400, 14) }}>
+              <div
+                className="o-rounded-3xl o-p-6 md:o-p-10"
+                style={{ backgroundColor: accentDoux(400, 14) }}
+              >
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-300">
-                  {courante === null ? 'Aucune piece cochee' : `Acte ${String(acte + 1)} sur ${String(actes)} — ${String(courante.duree)} minutes`}
+                  {courante === null
+                    ? 'Aucune piece cochee'
+                    : `Acte ${String(acte + 1)} sur ${String(actes)} — ${String(courante.duree)} minutes`}
                 </p>
-                <p aria-live="polite" className="o-m-0 o-mt-3 o-tabular-nums" style={{ ...affiche('xl', 300), fontSize: 'clamp(4rem, 11vw, 10rem)', lineHeight: 0.9, color: encre() }}>
-                  {courante === null ? '— h' : <HeureFondue key={courante.nom} de={heure((precedente ?? courante).heure)} a={heure(courante.heure)} />}
+                <p
+                  aria-live="polite"
+                  className="o-m-0 o-mt-3 o-tabular-nums"
+                  style={{
+                    ...affiche('xl', 300),
+                    fontSize: 'clamp(4rem, 11vw, 10rem)',
+                    lineHeight: 0.9,
+                    color: encre(),
+                  }}
+                >
+                  {courante === null ? (
+                    '— h'
+                  ) : (
+                    <HeureFondue
+                      key={courante.nom}
+                      de={heure((precedente ?? courante).heure)}
+                      a={heure(courante.heure)}
+                    />
+                  )}
                 </p>
-                <h3 className="o-m-0 o-mt-6" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.5vw, 3.25rem)' }}>{courante?.nom ?? 'Il attend.'}</h3>
-                <p className="o-m-0 o-mt-3 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">{courante?.quoi ?? 'Il ne fait rien sans qu on le lui ait demande.'}</p>
+                <h3
+                  className="o-m-0 o-mt-6"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.5vw, 3.25rem)',
+                  }}
+                >
+                  {courante?.nom ?? 'Il attend.'}
+                </h3>
+                <p className="o-m-0 o-mt-3 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+                  {courante?.quoi ?? 'Il ne fait rien sans qu on le lui ait demande.'}
+                </p>
 
                 {/* La frise des vingt-quatre heures, et le curseur qui suit le defilement. */}
                 <div className="o-relative o-mt-8" aria-hidden="true">
                   <div className="o-grid o-grid-cols-12 o-border-b o-border-black-10 o-pb-2 o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-border-zinc-800 dark:o-text-zinc-400">
-                    {Array.from({ length: 12 }, (_, k) => <span key={k}>{String(k * 2).padStart(2, '0')}</span>)}
+                    {Array.from({ length: 12 }, (_, k) => (
+                      <span key={k}>{String(k * 2).padStart(2, '0')}</span>
+                    ))}
                   </div>
                   <div className="o-relative o-mt-3 o-h-8">
                     {retenues.map((p) => (
                       <span
                         key={p.nom}
                         className="o-absolute o-inset-y-0 o-rounded-md o-transition-opacity"
-                        style={{ left: `${String((p.heure / 24) * 100)}%`, width: `${String(Math.max(3, (p.duree / 60 / 24) * 100 * 2))}%`, backgroundColor: encre(), opacity: courante?.nom === p.nom ? 1 : 0.35 }}
+                        style={{
+                          left: `${String((p.heure / 24) * 100)}%`,
+                          width: `${String(Math.max(3, (p.duree / 60 / 24) * 100 * 2))}%`,
+                          backgroundColor: encre(),
+                          opacity: courante?.nom === p.nom ? 1 : 0.35,
+                        }}
                       />
                     ))}
                     {/* Le curseur : la progression de la scene, ecrite en `--p`. */}
-                    <span className="o-absolute o-inset-y-0 o-w-px" style={{ left: 'calc(var(--p, 0) * 100%)', backgroundColor: 'var(--o-theme-fg)', boxShadow: '0 0 0 1px var(--o-theme-bg)' } as CSSProperties} />
+                    <span
+                      className="o-absolute o-inset-y-0 o-w-px"
+                      style={
+                        {
+                          left: 'calc(var(--p, 0) * 100%)',
+                          backgroundColor: 'var(--o-theme-fg)',
+                          boxShadow: '0 0 0 1px var(--o-theme-bg)',
+                        } as CSSProperties
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -459,34 +752,97 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="iris" marque="Nubo">
-      <div className="o-bg-stone-50 o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-stone-50 o-text-zinc-950 dark:o-bg-zinc-950 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L ouverture : la cuisine, une nappe chaude ==== */}
-        <header className="o-relative o-isolate o-min-h-screen o-overflow-hidden" style={nuit('stone')}>
-          <img src={photo('perrin-cuisine', 1800, 1100)} alt="" aria-hidden="true" className="o-absolute o-inset-0 o-z-0 o-size-full o-object-cover" style={{ filter: 'sepia(0.25) saturate(0.9)' }} />
-          <Nappe couleurs={[accentDoux(400, 70), 'var(--o-palette-orange-300)', 'var(--o-palette-stone-300)']} opacite={0.45} style={{ mixBlendMode: 'soft-light' }} />
+        <header
+          className="o-relative o-isolate o-min-h-screen o-overflow-hidden"
+          style={nuit('stone')}
+        >
+          <img
+            src={photo('perrin-cuisine', 1800, 1100)}
+            alt=""
+            aria-hidden="true"
+            className="o-absolute o-inset-0 o-z-0 o-size-full o-object-cover"
+            style={{ filter: 'sepia(0.25) saturate(0.9)' }}
+          />
+          <Nappe
+            couleurs={[
+              accentDoux(400, 70),
+              'var(--o-palette-orange-300)',
+              'var(--o-palette-stone-300)',
+            ]}
+            opacite={0.45}
+            style={{ mixBlendMode: 'soft-light' }}
+          />
           <Voile sens="centre" famille="stone" />
           <Grain opacite={0.05} />
 
-          <BarreGelule marque="Nubo" liens={[['#machine', 'La machine'], ['#journee', 'La journee'], ['#quoi', 'Ce qu il fait'], ['#questions', 'Questions']]} action={['#precommande', 'Precommander']} />
+          <BarreGelule
+            marque="Nubo"
+            liens={[
+              ['#machine', 'La machine'],
+              ['#journee', 'La journee'],
+              ['#quoi', 'Ce qu il fait'],
+              ['#questions', 'Questions'],
+            ]}
+            action={['#precommande', 'Precommander']}
+          />
 
           <div className="o-relative o-z-10 o-mx-auto o-flex o-min-h-screen o-max-w-5xl o-flex-col o-items-center o-justify-center o-px-6 o-pb-32 o-pt-28 o-text-center">
             <Surgit>
               <Etiquette>Toujours aimable. Presque invisible.</Etiquette>
             </Surgit>
-            <Surgit delai={120} as="h1" className="o-m-0 o-mt-7 o-max-w-4xl o-text-stone-50" style={affiche('l', 300)}>
-              Une aide plus <Accent couleur={encreSurSombre()}>discrete</Accent> a la maison.
+            <Surgit
+              delai={120}
+              as="h1"
+              className="o-m-0 o-mt-7 o-max-w-4xl o-text-stone-50"
+              style={affiche('l', 300)}
+            >
+              Une aide plus <Accent couleur={encreSurSombre()}>discrete</Accent> a la
+              maison.
             </Surgit>
-            <Surgit delai={400} as="p" className="o-m-0 o-mt-7 o-max-w-xl o-font-mono o-text-sm o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-300">
-              Nubo prend les petites taches du quotidien sans jamais reclamer votre attention.
+            <Surgit
+              delai={400}
+              as="p"
+              className="o-m-0 o-mt-7 o-max-w-xl o-font-mono o-text-sm o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-300"
+            >
+              Nubo prend les petites taches du quotidien sans jamais reclamer votre
+              attention.
             </Surgit>
             <Surgit delai={520} className="o-mt-9">
-              <Actions pleine={['#precommande', <>Precommander <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#journee', <><Icon icon={Play} size={14} aria-hidden="true" /> Voir sa journee</>]} />
+              <Actions
+                pleine={[
+                  '#precommande',
+                  <>
+                    Precommander <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  </>,
+                ]}
+                fantome={[
+                  '#journee',
+                  <>
+                    <Icon icon={Play} size={14} aria-hidden="true" /> Voir sa journee
+                  </>,
+                ]}
+              />
             </Surgit>
           </div>
 
           <div className="o-relative o-z-10 o-mx-auto o-max-w-5xl o-px-6">
             <Surgit delai={700}>
-              <Logos marques={['Elasticpath', 'Sonder', 'Ligne Claire', 'Habitat Nord', 'Maison Perrin', 'Les Tamaris']} titre="Deja dans des foyers a Come, Lyon et Nantes" />
+              <Logos
+                marques={[
+                  'Elasticpath',
+                  'Sonder',
+                  'Ligne Claire',
+                  'Habitat Nord',
+                  'Maison Perrin',
+                  'Les Tamaris',
+                ]}
+                titre="Deja dans des foyers a Come, Lyon et Nantes"
+              />
             </Surgit>
           </div>
         </header>
@@ -497,15 +853,23 @@ export default function Page(): ReactElement {
             <div className="o-mx-auto o-max-w-6xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <Reveal><Indice rang="01" sombre={false}>La machine</Indice></Reveal>
+                  <Reveal>
+                    <Indice rang="01" sombre={false}>
+                      La machine
+                    </Indice>
+                  </Reveal>
                   <Reveal delay={80}>
                     <h2 className="o-m-0 o-mt-6 o-text-balance" style={affiche('m', 300)}>
-                      Un metre douze. <span className="o-text-zinc-500 dark:o-text-zinc-400">Vingt-deux kilos.</span>
+                      Un metre douze.{' '}
+                      <span className="o-text-zinc-500 dark:o-text-zinc-400">
+                        Vingt-deux kilos.
+                      </span>
                     </h2>
                   </Reveal>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-5 md:o-text-right">
-                  Passez le pointeur sur la plaque : il tourne la tete vers vous, et rien de plus. C est tout ce qu il fera jamais de son propre chef.
+                  Passez le pointeur sur la plaque : il tourne la tete vers vous, et rien
+                  de plus. C est tout ce qu il fera jamais de son propre chef.
                 </p>
               </div>
 
@@ -514,7 +878,10 @@ export default function Page(): ReactElement {
                 <figure className="o-m-0 lg:o-order-2 lg:o-col-span-6">
                   <div
                     className="o-relative o-isolate o-aspect-square o-overflow-hidden o-rounded-3xl"
-                    style={{ ...nuit('stone'), backgroundImage: `radial-gradient(58% 54% at 50% 40%, ${accentDoux(500, 34)} 0%, transparent 72%)` }}
+                    style={{
+                      ...nuit('stone'),
+                      backgroundImage: `radial-gradient(58% 54% at 50% 40%, ${accentDoux(500, 34)} 0%, transparent 72%)`,
+                    }}
                   >
                     <RobotEnVolume />
                     <Grain opacite={0.07} />
@@ -534,10 +901,22 @@ export default function Page(): ReactElement {
                     {colonne.map(([numero, titre, texte]) => (
                       <li key={numero}>
                         <Reveal delay={Number(numero) * 60}>
-                          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>({numero})</p>
-                          <p className="o-m-0 o-mt-3 o-text-base o-font-medium">{titre}</p>
-                          <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{texte}</p>
-                          <span aria-hidden="true" className={`o-mt-5 o-block o-h-px o-w-12 o-bg-black-10 dark:o-bg-zinc-800 ${rang === 0 ? 'lg:o-ml-auto' : ''}`} />
+                          <p
+                            className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                            style={{ color: encre() }}
+                          >
+                            ({numero})
+                          </p>
+                          <p className="o-m-0 o-mt-3 o-text-base o-font-medium">
+                            {titre}
+                          </p>
+                          <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                            {texte}
+                          </p>
+                          <span
+                            aria-hidden="true"
+                            className={`o-mt-5 o-block o-h-px o-w-12 o-bg-black-10 dark:o-bg-zinc-800 ${rang === 0 ? 'lg:o-ml-auto' : ''}`}
+                          />
                         </Reveal>
                       </li>
                     ))}
@@ -548,24 +927,38 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= La journee, epinglee : le mecanisme ========= */}
-          <section id="journee" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800">
+          <section
+            id="journee"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800"
+          >
             <Journee />
           </section>
 
           {/* ================= Les capacites, en mosaique ================== */}
-          <section id="quoi" className="o-scroll-mt-24 o-border-t o-border-black-10 o-px-6 o-py-24 dark:o-border-zinc-800 md:o-py-32">
+          <section
+            id="quoi"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 o-px-6 o-py-24 dark:o-border-zinc-800 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <Reveal><Indice rang="03" sombre={false}>Ce qu il fait</Indice></Reveal>
+                  <Reveal>
+                    <Indice rang="03" sombre={false}>
+                      Ce qu il fait
+                    </Indice>
+                  </Reveal>
                   <Reveal delay={80}>
                     <h2 className="o-m-0 o-mt-6 o-text-balance" style={affiche('m', 300)}>
-                      Un robot. <span className="o-text-zinc-500 dark:o-text-zinc-400">Chaque piece.</span>
+                      Un robot.{' '}
+                      <span className="o-text-zinc-500 dark:o-text-zinc-400">
+                        Chaque piece.
+                      </span>
                     </h2>
                   </Reveal>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-col-span-5 md:o-text-right">
-                  Il apprend la maison en une semaine, sans carte a dessiner. Ensuite il fait, et il se tait.
+                  Il apprend la maison en une semaine, sans carte a dessiner. Ensuite il
+                  fait, et il se tait.
                 </p>
               </div>
               <BentoGrid
@@ -580,22 +973,49 @@ export default function Page(): ReactElement {
                   cols: c.cols,
                   rows: c.rows,
                   featured: 'featured' in c ? c.featured : false,
-                  media: 'graine' in c ? <img src={photo(c.graine, 900, 600)} alt={c.alt} className="o-h-full o-w-full o-rounded-lg o-object-cover" style={{ filter: 'sepia(0.2) saturate(0.9)' }} /> : undefined,
+                  media:
+                    'graine' in c ? (
+                      <img
+                        src={photo(c.graine, 900, 600)}
+                        alt={c.alt}
+                        className="o-h-full o-w-full o-rounded-lg o-object-cover"
+                        style={{ filter: 'sepia(0.2) saturate(0.9)' }}
+                      />
+                    ) : undefined,
                 }))}
               />
             </div>
           </section>
 
           {/* ================= C3 : un seul nombre, les heures d autonomie === */}
-          <section aria-label="Autonomie" className="o-relative o-isolate o-overflow-hidden o-px-6 o-py-24 md:o-py-32" style={nuit('stone')}>
-            <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0" style={{ background: `radial-gradient(ellipse at 20% 50%, ${accentDoux(500, 24)} 0%, transparent 55%)` }} />
+          <section
+            aria-label="Autonomie"
+            className="o-relative o-isolate o-overflow-hidden o-px-6 o-py-24 md:o-py-32"
+            style={nuit('stone')}
+          >
+            <div
+              aria-hidden="true"
+              className="o-absolute o-inset-0 o-z-0"
+              style={{
+                background: `radial-gradient(ellipse at 20% 50%, ${accentDoux(500, 24)} 0%, transparent 55%)`,
+              }}
+            />
             <Grain opacite={0.06} />
             <div className="o-relative o-z-10 o-mx-auto o-grid o-max-w-6xl o-items-end o-gap-8 md:o-grid-cols-12">
-              <p className="o-m-0 o-tabular-nums o-text-stone-50 md:o-col-span-7" style={{ ...affiche('xxl', 300), fontSize: 'clamp(6rem, 18vw, 15rem)', lineHeight: 0.85 }}>
+              <p
+                className="o-m-0 o-tabular-nums o-text-stone-50 md:o-col-span-7"
+                style={{
+                  ...affiche('xxl', 300),
+                  fontSize: 'clamp(6rem, 18vw, 15rem)',
+                  lineHeight: 0.85,
+                }}
+              >
                 14 h
               </p>
               <p className="o-m-0 o-max-w-sm o-text-lg o-leading-relaxed o-text-stone-200 md:o-col-span-5 md:o-pb-4">
-                d autonomie, une charge la nuit sur son socle, jamais un arret en plein service. Le seul chiffre que nous mettons en avant : c est le seul que vous sentirez.
+                d autonomie, une charge la nuit sur son socle, jamais un arret en plein
+                service. Le seul chiffre que nous mettons en avant : c est le seul que
+                vous sentirez.
               </p>
             </div>
           </section>
@@ -604,18 +1024,64 @@ export default function Page(): ReactElement {
           <section id="questions" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-py-32">
             <div className="o-mx-auto o-grid o-max-w-6xl o-gap-10 md:o-grid-cols-12">
               <div className="md:o-col-span-4">
-                <Indice rang="04" sombre={false}>Questions</Indice>
-                <h2 className="o-m-0 o-mt-6" style={affiche('m', 300)}>Comment nous mesurons.</h2>
+                <Indice rang="04" sombre={false}>
+                  Questions
+                </Indice>
+                <h2 className="o-m-0 o-mt-6" style={affiche('m', 300)}>
+                  Comment nous mesurons.
+                </h2>
               </div>
               <div className="md:o-col-span-8">
                 <Faq
                   single
                   items={[
-                    { question: 'Qu est-ce qui compte comme une tache finie ?', answer: <p>Une tache dont vous n avez rien eu a refaire dans l heure. Si vous repassez derriere, elle compte comme reprise, et c est ce chiffre qu on publie chaque mois, tel quel.</p> },
-                    { question: 'Que voit-il, et ou vont les images ?', answer: <p>Il voit ce qu il faut pour ne rien casser, et rien ne sort de la maison. Les images sont detruites a la fin de chaque tache, sur l appareil.</p> },
-                    { question: 'Et s il casse quelque chose ?', answer: <p>Il ne l a pas encore fait. Si cela arrive, c est couvert, sans franchise, pendant cinq ans.</p> },
-                    { question: 'Combien de temps pour qu il connaisse la maison ?', answer: <p>Une semaine. Il commence par les pieces cochees, et vous dit chaque soir ce qu il a compris.</p> },
-                    { question: 'Et la nuit ?', answer: <p>Il dort sur son socle, se charge, et ne roule pas. Si vous cochez « cuisine, le soir », il finit avant vingt-deux heures.</p> },
+                    {
+                      question: 'Qu est-ce qui compte comme une tache finie ?',
+                      answer: (
+                        <p>
+                          Une tache dont vous n avez rien eu a refaire dans l heure. Si
+                          vous repassez derriere, elle compte comme reprise, et c est ce
+                          chiffre qu on publie chaque mois, tel quel.
+                        </p>
+                      ),
+                    },
+                    {
+                      question: 'Que voit-il, et ou vont les images ?',
+                      answer: (
+                        <p>
+                          Il voit ce qu il faut pour ne rien casser, et rien ne sort de la
+                          maison. Les images sont detruites a la fin de chaque tache, sur
+                          l appareil.
+                        </p>
+                      ),
+                    },
+                    {
+                      question: 'Et s il casse quelque chose ?',
+                      answer: (
+                        <p>
+                          Il ne l a pas encore fait. Si cela arrive, c est couvert, sans
+                          franchise, pendant cinq ans.
+                        </p>
+                      ),
+                    },
+                    {
+                      question: 'Combien de temps pour qu il connaisse la maison ?',
+                      answer: (
+                        <p>
+                          Une semaine. Il commence par les pieces cochees, et vous dit
+                          chaque soir ce qu il a compris.
+                        </p>
+                      ),
+                    },
+                    {
+                      question: 'Et la nuit ?',
+                      answer: (
+                        <p>
+                          Il dort sur son socle, se charge, et ne roule pas. Si vous
+                          cochez « cuisine, le soir », il finit avant vingt-deux heures.
+                        </p>
+                      ),
+                    },
                   ]}
                 />
               </div>
@@ -623,18 +1089,33 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= A7 : la precommande, une date ================ */}
-          <section id="precommande" className="o-scroll-mt-24 o-border-t o-border-black-10 o-px-6 o-py-24 dark:o-border-zinc-800 md:o-py-36">
+          <section
+            id="precommande"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 o-px-6 o-py-24 dark:o-border-zinc-800 md:o-py-36"
+          >
             <div className="o-mx-auto o-max-w-6xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Premieres livraisons en France a partir du</p>
-              <p className="o-m-0 o-mt-4 o-text-balance" style={{ ...affiche('xl', 300), fontSize: 'clamp(3rem, 11vw, 10rem)', lineHeight: 0.9 }}>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                Premieres livraisons en France a partir du
+              </p>
+              <p
+                className="o-m-0 o-mt-4 o-text-balance"
+                style={{
+                  ...affiche('xl', 300),
+                  fontSize: 'clamp(3rem, 11vw, 10rem)',
+                  lineHeight: 0.9,
+                }}
+              >
                 12 <Accent couleur={encre()}>octobre</Accent> 2026
               </p>
               <div className="o-mt-10 o-flex o-flex-wrap o-items-center o-gap-6">
                 <a href="#precommande" className={GELULE} style={aplat()}>
-                  Precommander un Nubo <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  Precommander un Nubo{' '}
+                  <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                 </a>
                 <p className="o-m-0 o-max-w-md o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                  3 290 EUR, ou 89 EUR par mois sur trois ans<br />Mise en route a domicile, retour libre sous trente jours
+                  3 290 EUR, ou 89 EUR par mois sur trois ans
+                  <br />
+                  Mise en route a domicile, retour libre sous trente jours
                 </p>
               </div>
             </div>
@@ -647,11 +1128,18 @@ export default function Page(): ReactElement {
             <div className="o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-8 sm:o-grid-cols-3 lg:o-grid-cols-6">
               {PLAN.map((col) => (
                 <nav key={col.titre} aria-label={col.titre}>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-50">{col.titre}</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-50">
+                    {col.titre}
+                  </p>
                   <ul className="o-m-0 o-mt-3 o-list-none o-p-0">
                     {col.liens.map((l) => (
                       <li key={l}>
-                        <a href="#journee" className="o-block o-py-0.5 o-text-xs o-no-underline o-text-zinc-600 o-transition-colors hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50">{l}</a>
+                        <a
+                          href="#journee"
+                          className="o-block o-py-0.5 o-text-xs o-no-underline o-text-zinc-600 o-transition-colors hover:o-text-zinc-950 focus:o-ring dark:o-text-zinc-400 dark:hover:o-text-zinc-50"
+                        >
+                          {l}
+                        </a>
                       </li>
                     ))}
                   </ul>

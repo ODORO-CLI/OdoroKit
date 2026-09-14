@@ -171,8 +171,16 @@ export function Pagination(): ReactElement | null {
     <nav aria-label="Pages voisines" className="o-mt-24 o-flex o-flex-col o-gap-6">
       <span aria-hidden="true" className="pg-filet o-h-px o-w-full" />
       <div className="o-flex o-flex-col o-gap-4 sm:o-flex-row">
-        {avant === undefined ? <span className="o-flex-1" /> : <Carte page={avant} sens="avant" />}
-        {apres === undefined ? <span className="o-flex-1" /> : <Carte page={apres} sens="apres" />}
+        {avant === undefined ? (
+          <span className="o-flex-1" />
+        ) : (
+          <Carte page={avant} sens="avant" />
+        )}
+        {apres === undefined ? (
+          <span className="o-flex-1" />
+        ) : (
+          <Carte page={apres} sens="apres" />
+        )}
       </div>
       <p className="o-m-0 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
         Continuez à défiler au bord de la page pour passer à la suivante

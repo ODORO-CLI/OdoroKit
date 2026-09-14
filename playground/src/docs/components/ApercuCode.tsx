@@ -115,7 +115,8 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
 
     void fetch(`/registre/${id}.json`)
       .then(async (reponse) => {
-        if (!reponse.ok) throw new Error(`le registre a repondu ${String(reponse.status)}`)
+        if (!reponse.ok)
+          throw new Error(`le registre a repondu ${String(reponse.status)}`)
         return (await reponse.json()) as EntreeServie
       })
       .then((entree) => {
@@ -172,8 +173,8 @@ export function ApercuCode({ id, children }: ApercuCodeProps): ReactElement {
         {etat.phase === 'echec' && (
           <p className="o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
             Le source n a pas pu etre lu ({etat.raison}). La commande{' '}
-            <code className="o-font-mono">odoro add</code> l’ecrira quand même : elle
-            lit le même registre.
+            <code className="o-font-mono">odoro add</code> l’ecrira quand même : elle lit
+            le même registre.
           </p>
         )}
 

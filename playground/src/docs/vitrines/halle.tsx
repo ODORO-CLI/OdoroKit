@@ -185,7 +185,8 @@ function Sol(): ReactElement {
       <div
         className="o-absolute o-inset-0"
         style={{
-          transform: 'perspective(480px) rotateX(76deg) translateY(calc(var(--o-hl-py, 0) * -8px))',
+          transform:
+            'perspective(480px) rotateX(76deg) translateY(calc(var(--o-hl-py, 0) * -8px))',
           transformOrigin: 'center top',
           backgroundImage: `repeating-linear-gradient(to right, ${trait} 0 1px, transparent 1px 92px), repeating-linear-gradient(to bottom, ${trait} 0 1px, transparent 1px 92px)`,
           maskImage: voile,
@@ -198,8 +199,10 @@ function Sol(): ReactElement {
           background: `radial-gradient(60% 90% at 50% 0%, ${accentDoux(500, 16)} 0%, transparent 70%)`,
           // Sans ce fondu par le haut, le bord du bloc se lit comme un trait
           // qui traverse le mot : une couture, la ou il faut une lueur.
-          maskImage: 'linear-gradient(to bottom, transparent 0%, black 22%, black 66%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 22%, black 66%, transparent 100%)',
+          maskImage:
+            'linear-gradient(to bottom, transparent 0%, black 22%, black 66%, transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent 0%, black 22%, black 66%, transparent 100%)',
         }}
       />
     </div>
@@ -218,7 +221,8 @@ function Sol(): ReactElement {
  * sont toutes absolues, n auraient aucune boite ou se caler.
  */
 function Reflet({ mot }: { readonly mot: string }): ReactElement {
-  const voile = 'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 44%, transparent 86%)'
+  const voile =
+    'linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 44%, transparent 86%)'
   return (
     <div
       aria-hidden="true"
@@ -235,7 +239,10 @@ function Reflet({ mot }: { readonly mot: string }): ReactElement {
     >
       <div
         className="o-absolute o-inset-x-0 o-top-0"
-        style={{ transform: 'scaleY(-1) translateY(-100%)', transformOrigin: 'center top' }}
+        style={{
+          transform: 'scaleY(-1) translateY(-100%)',
+          transformOrigin: 'center top',
+        }}
       >
         <span className="o-invisible o-block">{mot}</span>
         {Array.from({ length: TRANCHES }, (_, rang) => {
@@ -247,7 +254,9 @@ function Reflet({ mot }: { readonly mot: string }): ReactElement {
             <span
               key={rang}
               className="o-absolute o-inset-0 o-block o-will-change-transform"
-              style={{ transform: `translate3d(calc(var(--o-hl-px, 0) * ${(loin * 24 + 2).toFixed(1)}px), 0, 0)` }}
+              style={{
+                transform: `translate3d(calc(var(--o-hl-px, 0) * ${(loin * 24 + 2).toFixed(1)}px), 0, 0)`,
+              }}
             >
               <span
                 data-o-hl-onde=""
@@ -272,11 +281,27 @@ function Reflet({ mot }: { readonly mot: string }): ReactElement {
 }
 
 /** Le mot-marque, lettre a lettre, revele a travers le rideau. */
-function MotMarque({ mot, sous }: { readonly mot: string; readonly sous: string }): ReactElement {
+function MotMarque({
+  mot,
+  sous,
+}: {
+  readonly mot: string
+  readonly sous: string
+}): ReactElement {
   return (
-    <h1 className="o-m-0 o-text-center o-text-stone-50" style={MOT} aria-label={`${mot} — ${sous}`}>
+    <h1
+      className="o-m-0 o-text-center o-text-stone-50"
+      style={MOT}
+      aria-label={`${mot} — ${sous}`}
+    >
       {[...mot].map((lettre, rang) => (
-        <Surgit key={`${lettre}-${String(rang)}`} as="span" delai={140 + rang * 85} distance={42} className="o-inline-block">
+        <Surgit
+          key={`${lettre}-${String(rang)}`}
+          as="span"
+          delai={140 + rang * 85}
+          distance={42}
+          className="o-inline-block"
+        >
           <span aria-hidden="true">{lettre}</span>
         </Surgit>
       ))}
@@ -361,8 +386,15 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Halle">
-      <div className="o-relative o-text-stone-50" style={{ ...nuit('stone'), ...polices }}>
-        <BarreGelule marque="Halle" liens={NAVIGATION} action={['#adresse', 'Rendez-vous']} />
+      <div
+        className="o-relative o-text-stone-50"
+        style={{ ...nuit('stone'), ...polices }}
+      >
+        <BarreGelule
+          marque="Halle"
+          liens={NAVIGATION}
+          action={['#adresse', 'Rendez-vous']}
+        />
 
         {/* ================= L ouverture : le sol qui reflete ============= */}
         <header
@@ -384,8 +416,13 @@ export default function Page(): ReactElement {
             <Surgit>
               <Etiquette>Editeur de mobilier — Nantes, depuis 1954</Etiquette>
             </Surgit>
-            <Surgit delai={620} as="p" className="o-m-0 o-mt-7 o-text-base o-leading-relaxed o-text-stone-300">
-              Six pieces au catalogue. Chacune dessinee une fois, fabriquee a la commande, et reparee tant que la maison existe.
+            <Surgit
+              delai={620}
+              as="p"
+              className="o-m-0 o-mt-7 o-text-base o-leading-relaxed o-text-stone-300"
+            >
+              Six pieces au catalogue. Chacune dessinee une fois, fabriquee a la commande,
+              et reparee tant que la maison existe.
             </Surgit>
           </div>
 
@@ -464,7 +501,14 @@ export default function Page(): ReactElement {
         <div className="o-overflow-hidden o-border-t o-border-white-10 o-px-6 md:o-px-10">
           <Logos
             titre="Editions portees par"
-            marques={['Maison Verdier', 'Comptoir Quatorze', 'Galerie Sillon', 'Le Grand Depot', 'Atelier du Nord', 'Table Ronde']}
+            marques={[
+              'Maison Verdier',
+              'Comptoir Quatorze',
+              'Galerie Sillon',
+              'Le Grand Depot',
+              'Atelier du Nord',
+              'Table Ronde',
+            ]}
           />
         </div>
 
@@ -481,13 +525,17 @@ export default function Page(): ReactElement {
         <section
           id="catalogue"
           className="o-relative o-scroll-mt-24 o-overflow-hidden o-border-t o-border-white-10 o-py-24 md:o-py-32"
-          style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-stone-950) 78%, black)' }}
+          style={{
+            backgroundColor: 'color-mix(in oklab, var(--o-palette-stone-950) 78%, black)',
+          }}
         >
           {/* Le projecteur du fond : ce qui fait qu une piece de face est eclairee. */}
           <div
             aria-hidden="true"
             className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
-            style={{ background: `radial-gradient(46% 52% at 50% 46%, ${accentDoux(400, 15)} 0%, transparent 72%)` }}
+            style={{
+              background: `radial-gradient(46% 52% at 50% 46%, ${accentDoux(400, 15)} 0%, transparent 72%)`,
+            }}
           />
 
           <div className="o-relative o-z-10 o-px-6 md:o-px-10">
@@ -497,7 +545,10 @@ export default function Page(): ReactElement {
                   <Indice rang="01">Le catalogue</Indice>
                 </Reveal>
                 <Reveal delay={80}>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-50" style={{ ...affiche('m', 400), fontSize: 'clamp(2rem, 4.4vw, 4rem)' }}>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-50"
+                    style={{ ...affiche('m', 400), fontSize: 'clamp(2rem, 4.4vw, 4rem)' }}
+                  >
                     <SpotlightText radius={230} rest={0.62}>
                       Six pieces, et le bois de chacune.
                     </SpotlightText>
@@ -531,14 +582,24 @@ export default function Page(): ReactElement {
           </div>
 
           <p className="o-relative o-z-10 o-mx-auto o-mt-10 o-max-w-2xl o-px-6 o-text-center o-text-sm o-leading-relaxed o-text-stone-400">
-            Les prix sont ceux de la piece finie, livree et montee en France metropolitaine. Un devis n ajoute rien d autre que le tissu, s il sort de nos six.
+            Les prix sont ceux de la piece finie, livree et montee en France
+            metropolitaine. Un devis n ajoute rien d autre que le tissu, s il sort de nos
+            six.
           </p>
         </section>
 
         {/* ================= La halle, en photographie ==================== */}
         <section id="halle" className="o-relative o-scroll-mt-24">
-          <div className="o-relative o-overflow-hidden" style={{ height: 'min(78vh, 720px)' }}>
-            <Parallaxe vitesse={0.24} glisse={0.7} echelle={0.06} className="o-absolute o-inset-0">
+          <div
+            className="o-relative o-overflow-hidden"
+            style={{ height: 'min(78vh, 720px)' }}
+          >
+            <Parallaxe
+              vitesse={0.24}
+              glisse={0.7}
+              echelle={0.06}
+              className="o-absolute o-inset-0"
+            >
               <img
                 src={photo('cadre-archive-bois', 1200, 1800)}
                 alt="Charpente de bois assemblee en berceau, eclairee par en dessous, au-dessus d un sol de brique"
@@ -561,7 +622,13 @@ export default function Page(): ReactElement {
                   <Indice rang="02">La halle</Indice>
                 </Reveal>
                 <Reveal delay={80}>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-50" style={{ ...affiche('m', 400), fontSize: 'clamp(1.9rem, 4.2vw, 3.75rem)' }}>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-3xl o-text-stone-50"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.9rem, 4.2vw, 3.75rem)',
+                    }}
+                  >
                     Cinq cents metres carres sous une charpente de 1902.
                   </h2>
                 </Reveal>
@@ -571,7 +638,9 @@ export default function Page(): ReactElement {
           <div className="o-mx-auto o-max-w-6xl o-px-6 o-py-16 md:o-px-10 md:o-py-20">
             <Reveal>
               <p className="o-m-0 o-max-w-2xl o-text-base o-leading-relaxed o-text-stone-300 md:o-ml-auto md:o-text-right">
-                L ancienne halle a bois du quai de la Fosse. On y dessine, on y garnit, on y charge : les trois se voient depuis la porte, et c est voulu. Un editeur qui cache son atelier vend un objet dont il ne repond pas.
+                L ancienne halle a bois du quai de la Fosse. On y dessine, on y garnit, on
+                y charge : les trois se voient depuis la porte, et c est voulu. Un editeur
+                qui cache son atelier vend un objet dont il ne repond pas.
               </p>
             </Reveal>
           </div>
@@ -585,7 +654,13 @@ export default function Page(): ReactElement {
               className="o-scroll-mt-24"
               indice="(03) — L atelier"
               titre={
-                <h2 className="o-m-0 o-text-stone-50" style={{ ...affiche('m', 400), fontSize: 'clamp(1.9rem, 3.6vw, 3.25rem)' }}>
+                <h2
+                  className="o-m-0 o-text-stone-50"
+                  style={{
+                    ...affiche('m', 400),
+                    fontSize: 'clamp(1.9rem, 3.6vw, 3.25rem)',
+                  }}
+                >
                   Ce qui prend du temps
                 </h2>
               }
@@ -593,12 +668,22 @@ export default function Page(): ReactElement {
             >
               <ol className="o-m-0 o-list-none o-border-t o-border-white-10 o-p-0">
                 {TEMPS.map(([quoi, combien, texte], rang) => (
-                  <li key={quoi} className="o-grid o-items-baseline o-gap-3 o-border-b o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-8">
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3" style={{ color: encreSurSombre() }}>
+                  <li
+                    key={quoi}
+                    className="o-grid o-items-baseline o-gap-3 o-border-b o-border-white-10 o-py-8 md:o-grid-cols-12 md:o-gap-8"
+                  >
+                    <p
+                      className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3"
+                      style={{ color: encreSurSombre() }}
+                    >
                       {String(rang + 1).padStart(2, '0')} — {combien}
                     </p>
-                    <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-stone-50 md:o-col-span-3">{quoi}</h3>
-                    <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-400 md:o-col-span-6">{texte}</p>
+                    <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-stone-50 md:o-col-span-3">
+                      {quoi}
+                    </h3>
+                    <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-400 md:o-col-span-6">
+                      {texte}
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -611,7 +696,8 @@ export default function Page(): ReactElement {
                   className="o-overflow-hidden o-rounded-2xl"
                 />
                 <figcaption className="o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
-                  Le tissage des sangles, atelier Berthaud, Cholet — quatre mille metres par an
+                  Le tissage des sangles, atelier Berthaud, Cholet — quatre mille metres
+                  par an
                 </figcaption>
               </figure>
             </Chapitre>
@@ -622,7 +708,9 @@ export default function Page(): ReactElement {
         <section
           id="archives"
           className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
-          style={{ backgroundColor: 'color-mix(in oklab, var(--o-palette-stone-950) 78%, black)' }}
+          style={{
+            backgroundColor: 'color-mix(in oklab, var(--o-palette-stone-950) 78%, black)',
+          }}
         >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 md:o-grid-cols-12 md:o-items-center">
             <div className="md:o-col-span-7">
@@ -640,22 +728,35 @@ export default function Page(): ReactElement {
                 <Indice rang="04">Les archives</Indice>
               </Reveal>
               <Reveal delay={140}>
-                <h2 className="o-m-0 o-mt-5 o-text-stone-50" style={{ ...affiche('m', 400), fontSize: 'clamp(1.8rem, 3.4vw, 3rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-text-stone-50"
+                  style={{ ...affiche('m', 400), fontSize: 'clamp(1.8rem, 3.4vw, 3rem)' }}
+                >
                   Trois mille cent planches, de 1954 a 1989.
                 </h2>
               </Reveal>
               <Reveal delay={200}>
                 <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-stone-300">
-                  Le fonds est consultable sur rendez-vous, et c est de la que sortent les reeditions. Nous n en tirons pas plus de deux par decennie : une planche qui n a pas tenu quarante ans ne merite pas d etre refaite.
+                  Le fonds est consultable sur rendez-vous, et c est de la que sortent les
+                  reeditions. Nous n en tirons pas plus de deux par decennie : une planche
+                  qui n a pas tenu quarante ans ne merite pas d etre refaite.
                 </p>
               </Reveal>
               <Reveal delay={260}>
-                <Spotlight size={280} color={accentDoux(400, 26)} className="o-mt-8 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-6">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                <Spotlight
+                  size={280}
+                  color={accentDoux(400, 26)}
+                  className="o-mt-8 o-rounded-2xl o-border-w-1 o-border-white-10 o-p-6"
+                >
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     Planche 0417
                   </p>
                   <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-stone-300">
-                    Chambre Verrier, 1958. Le fauteuil Veille y figure deja, avec quatre centimetres de plus au dossier — nous les avons rendus en 2019.
+                    Chambre Verrier, 1958. Le fauteuil Veille y figure deja, avec quatre
+                    centimetres de plus au dossier — nous les avons rendus en 2019.
                   </p>
                 </Spotlight>
               </Reveal>
@@ -672,7 +773,10 @@ export default function Page(): ReactElement {
             <Indice rang="05">Sur rendez-vous</Indice>
           </Reveal>
           <Reveal delay={80}>
-            <p className="o-m-0 o-mt-8 o-text-stone-50" style={{ ...affiche('l', 800), fontSize: 'clamp(2.25rem, 8vw, 7.5rem)' }}>
+            <p
+              className="o-m-0 o-mt-8 o-text-stone-50"
+              style={{ ...affiche('l', 800), fontSize: 'clamp(2.25rem, 8vw, 7.5rem)' }}
+            >
               6 quai de la Fosse
               <br />
               Nantes
@@ -696,19 +800,38 @@ export default function Page(): ReactElement {
         {/* ================= Le pied : une lettre, signee ================= */}
         <footer className="o-border-t o-border-white-10 o-px-6 o-pb-12 o-pt-20 md:o-px-10 md:o-pt-28">
           <div className="o-mx-auto o-max-w-3xl">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">Nantes, le 4 fevrier 2026</p>
-            <p className="o-m-0 o-mt-8 o-text-2xl o-leading-snug o-text-stone-50 md:o-text-3xl">Madame, Monsieur,</p>
-            <p className="o-m-0 o-mt-5 o-text-2xl o-leading-snug o-text-stone-200 md:o-text-3xl">
-              Nous editons six pieces et nous n en ajouterons pas cette annee. Chacune est faite a la commande, en onze semaines, et reparee tant que la halle tient debout : le garnissage comme le bois, la premiere fois comme la quatrieme. Nous ne soldons rien, nous ne sortons pas de collection d hiver et nous ne vendons pas en ligne — une piece qui doit durer trente ans se choisit assise. La halle est ouverte le jeudi et le vendredi ; le reste de la semaine, nous travaillons.
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+              Nantes, le 4 fevrier 2026
             </p>
-            <p className="o-m-0 o-mt-10 o-text-3xl o-italic md:o-text-4xl" style={{ color: encreSurSombre() }}>
+            <p className="o-m-0 o-mt-8 o-text-2xl o-leading-snug o-text-stone-50 md:o-text-3xl">
+              Madame, Monsieur,
+            </p>
+            <p className="o-m-0 o-mt-5 o-text-2xl o-leading-snug o-text-stone-200 md:o-text-3xl">
+              Nous editons six pieces et nous n en ajouterons pas cette annee. Chacune est
+              faite a la commande, en onze semaines, et reparee tant que la halle tient
+              debout : le garnissage comme le bois, la premiere fois comme la quatrieme.
+              Nous ne soldons rien, nous ne sortons pas de collection d hiver et nous ne
+              vendons pas en ligne — une piece qui doit durer trente ans se choisit
+              assise. La halle est ouverte le jeudi et le vendredi ; le reste de la
+              semaine, nous travaillons.
+            </p>
+            <p
+              className="o-m-0 o-mt-10 o-text-3xl o-italic md:o-text-4xl"
+              style={{ color: encreSurSombre() }}
+            >
               Claire Roussel, quatrieme generation
             </p>
             <div className="o-mt-16 o-flex o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
-              <a href="#catalogue" className="o-text-stone-200 o-no-underline hover:o-underline focus:o-ring">
+              <a
+                href="#catalogue"
+                className="o-text-stone-200 o-no-underline hover:o-underline focus:o-ring"
+              >
                 Le catalogue
               </a>
-              <a href="#archives" className="o-text-stone-200 o-no-underline hover:o-underline focus:o-ring">
+              <a
+                href="#archives"
+                className="o-text-stone-200 o-no-underline hover:o-underline focus:o-ring"
+              >
                 Les archives
               </a>
               <span>44000 Nantes — jeudi et vendredi, 10 h — 18 h</span>

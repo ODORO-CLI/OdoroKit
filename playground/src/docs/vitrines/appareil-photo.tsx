@@ -81,7 +81,8 @@ import { Aimant } from './scene.jsx'
 const ECRAN = `calc(100vh - ${String(CHROME)}px)`
 
 /** Le chanfrein : un coin coupe en bas a droite. Aucun arrondi sur cette page. */
-const CHANFREIN = 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)'
+const CHANFREIN =
+  'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)'
 
 /* ============================ La feuille =============================== */
 
@@ -112,7 +113,13 @@ function useFeuilleObturateur(): void {
 /* ============================ La grammaire du cadre ==================== */
 
 /** Quatre equerres de coin : un panneau se marque, il ne se borde pas. */
-function Equerres({ couleur, taille = 11 }: { readonly couleur: string; readonly taille?: number }): ReactElement {
+function Equerres({
+  couleur,
+  taille = 11,
+}: {
+  readonly couleur: string
+  readonly taille?: number
+}): ReactElement {
   const coins = [
     { top: 0, left: 0, borderWidth: '2px 0 0 2px' },
     { top: 0, right: 0, borderWidth: '2px 2px 0 0' },
@@ -126,7 +133,13 @@ function Equerres({ couleur, taille = 11 }: { readonly couleur: string; readonly
           key={rang}
           aria-hidden="true"
           className="o-pointer-events-none o-absolute o-block"
-          style={{ ...coin, width: taille, height: taille, borderColor: couleur, borderStyle: 'solid' }}
+          style={{
+            ...coin,
+            width: taille,
+            height: taille,
+            borderColor: couleur,
+            borderStyle: 'solid',
+          }}
         />
       ))}
     </>
@@ -195,10 +208,19 @@ function Diaphragme({
   }
 
   return (
-    <svg viewBox="-110 -110 220 220" width={taille} height={taille} className="o-h-auto o-w-full" aria-hidden="true">
+    <svg
+      viewBox="-110 -110 220 220"
+      width={taille}
+      height={taille}
+      className="o-h-auto o-w-full"
+      aria-hidden="true"
+    >
       {/* La lueur du trou : sans elle, sept lames noires sur un fond noir. */}
       <circle cx="0" cy="0" r={trou + 6} fill={accentDoux(100, 22)} />
-      <g data-o-ob-diaph={respire ? '' : undefined} style={{ '--o-ob-duree': '11s' } as CSSProperties}>
+      <g
+        data-o-ob-diaph={respire ? '' : undefined}
+        style={{ '--o-ob-duree': '11s' } as CSSProperties}
+      >
         {Array.from({ length: lames }, (_, rang) => (
           <path
             key={rang}
@@ -209,8 +231,22 @@ function Diaphragme({
           />
         ))}
       </g>
-      <circle cx="0" cy="0" r={rayon} fill="none" stroke={accentDoux(200, 58)} strokeWidth="1.5" />
-      <circle cx="0" cy="0" r={rayon + 7} fill="none" stroke={accentDoux(200, 30)} strokeWidth="1" />
+      <circle
+        cx="0"
+        cy="0"
+        r={rayon}
+        fill="none"
+        stroke={accentDoux(200, 58)}
+        strokeWidth="1.5"
+      />
+      <circle
+        cx="0"
+        cy="0"
+        r={rayon + 7}
+        fill="none"
+        stroke={accentDoux(200, 30)}
+        strokeWidth="1"
+      />
     </svg>
   )
 }
@@ -218,7 +254,19 @@ function Diaphragme({
 /* ============================ Le triangle ============================== */
 
 /** Les vitesses d obturation offertes, en secondes. */
-const VITESSES = [1 / 8000, 1 / 4000, 1 / 2000, 1 / 1000, 1 / 500, 1 / 250, 1 / 125, 1 / 60, 1 / 30, 1 / 15, 1 / 8]
+const VITESSES = [
+  1 / 8000,
+  1 / 4000,
+  1 / 2000,
+  1 / 1000,
+  1 / 500,
+  1 / 250,
+  1 / 125,
+  1 / 60,
+  1 / 30,
+  1 / 15,
+  1 / 8,
+]
 
 /** Les diaphragmes graves sur la bague. */
 const OUVERTURES = [1.2, 1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22]
@@ -239,7 +287,10 @@ function lumination(t: number, n: number, s: number): number {
 /** L element du tableau le plus proche d une valeur. */
 function approche(table: readonly number[], vise: number): number {
   return table.reduce((meilleur, valeur) =>
-    Math.abs(Math.log2(valeur) - Math.log2(vise)) < Math.abs(Math.log2(meilleur) - Math.log2(vise)) ? valeur : meilleur,
+    Math.abs(Math.log2(valeur) - Math.log2(vise)) <
+    Math.abs(Math.log2(meilleur) - Math.log2(vise))
+      ? valeur
+      : meilleur,
   )
 }
 
@@ -256,7 +307,9 @@ function profondeur(n: number): { avant: number; arriere: number; totale: number
   const hyperfocale = (FOCALE * FOCALE) / (n * CONFUSION) + FOCALE
   const avant = (SUJET * (hyperfocale - FOCALE)) / (hyperfocale + SUJET - 2 * FOCALE)
   const arriere =
-    SUJET >= hyperfocale ? Number.POSITIVE_INFINITY : (SUJET * (hyperfocale - FOCALE)) / (hyperfocale - SUJET)
+    SUJET >= hyperfocale
+      ? Number.POSITIVE_INFINITY
+      : (SUJET * (hyperfocale - FOCALE)) / (hyperfocale - SUJET)
   return {
     avant: avant / 1000,
     arriere: arriere / 1000,
@@ -289,7 +342,12 @@ function Cliche({
   const flouSujet = Math.min(9, fileMicrons / 14)
 
   return (
-    <svg viewBox="0 0 620 300" className="o-h-auto o-w-full" role="img" aria-label={`Le cliche obtenu : fond floute de ${flouFond.toFixed(1)} unites, sujet file de ${String(Math.round(fileMicrons))} microns`}>
+    <svg
+      viewBox="0 0 620 300"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label={`Le cliche obtenu : fond floute de ${flouFond.toFixed(1)} unites, sujet file de ${String(Math.round(fileMicrons))} microns`}
+    >
       <defs>
         <filter id={`fond-${identifiant}`} x="-12%" y="-12%" width="124%" height="124%">
           <feGaussianBlur stdDeviation={flouFond.toFixed(2)} />
@@ -310,13 +368,27 @@ function Cliche({
         <rect y="150" width="620" height="150" fill={accentDoux(800, 26)} />
         {Array.from({ length: 11 }, (_, rang) => (
           <g key={rang}>
-            <path d={`M${String(28 + rang * 58)} 150v-64`} stroke={accentDoux(600, 34)} strokeWidth="7" />
-            <circle cx={28 + rang * 58} cy={78 - (rang % 3) * 8} r={26 + (rang % 4) * 5} fill={accentDoux(600, 30)} />
+            <path
+              d={`M${String(28 + rang * 58)} 150v-64`}
+              stroke={accentDoux(600, 34)}
+              strokeWidth="7"
+            />
+            <circle
+              cx={28 + rang * 58}
+              cy={78 - (rang % 3) * 8}
+              r={26 + (rang % 4) * 5}
+              fill={accentDoux(600, 30)}
+            />
           </g>
         ))}
         <path d="M0 172h620M0 190h620" stroke={accentDoux(400, 34)} strokeWidth="3" />
         {Array.from({ length: 21 }, (_, rang) => (
-          <path key={rang} d={`M${String(10 + rang * 30)} 166v30`} stroke={accentDoux(400, 26)} strokeWidth="3" />
+          <path
+            key={rang}
+            d={`M${String(10 + rang * 30)} 166v30`}
+            stroke={accentDoux(400, 26)}
+            strokeWidth="3"
+          />
         ))}
       </g>
 
@@ -331,7 +403,13 @@ function Cliche({
       </g>
 
       {/* Le grain : il monte avec la sensibilite, et rien d autre. */}
-      <rect width="620" height="300" filter={`url(#grain-${identifiant})`} opacity={grain.toFixed(3)} style={{ mixBlendMode: 'overlay' }} />
+      <rect
+        width="620"
+        height="300"
+        filter={`url(#grain-${identifiant})`}
+        opacity={grain.toFixed(3)}
+        style={{ mixBlendMode: 'overlay' }}
+      />
 
       {/* Le reticule du cadre, en mono. */}
       <g stroke={accentDoux(200, 34)} strokeWidth="1">
@@ -370,10 +448,16 @@ function Molette({
 
       <p
         className="o-m-0 o-mt-3 o-tabular-nums o-text-zinc-50"
-        style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 3.4vw, 3rem)', lineHeight: 0.94 }}
+        style={{
+          ...affiche('m', 300),
+          fontSize: 'clamp(1.9rem, 3.4vw, 3rem)',
+          lineHeight: 0.94,
+        }}
       >
         {valeur}
-        <span className="o-ml-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{unite}</span>
+        <span className="o-ml-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+          {unite}
+        </span>
       </p>
 
       {/* Le barillet : les crans, celui qui est pris marque en haut. */}
@@ -390,8 +474,16 @@ function Molette({
         >
           −
         </button>
-        <div className="o-relative o-min-w-0 o-grow o-overflow-hidden" style={{ height: 34 }}>
-          <svg viewBox="0 0 300 34" className="o-h-full o-w-full" aria-hidden="true" preserveAspectRatio="none">
+        <div
+          className="o-relative o-min-w-0 o-grow o-overflow-hidden"
+          style={{ height: 34 }}
+        >
+          <svg
+            viewBox="0 0 300 34"
+            className="o-h-full o-w-full"
+            aria-hidden="true"
+            preserveAspectRatio="none"
+          >
             {crans.map((_, index) => {
               const x = 6 + (index / Math.max(1, crans.length - 1)) * 288
               const pris = index === rang
@@ -437,7 +529,9 @@ function Triangle(): ReactElement {
   const [vitesse, setVitesse] = useState(4)
   const [ouverture, setOuverture] = useState(3)
   const [sensibilite, setSensibilite] = useState(2)
-  const [verrou, setVerrou] = useState<'vitesse' | 'ouverture' | 'sensibilite'>('sensibilite')
+  const [verrou, setVerrou] = useState<'vitesse' | 'ouverture' | 'sensibilite'>(
+    'sensibilite',
+  )
 
   const t = VITESSES[vitesse] ?? VITESSES[4] ?? 1 / 500
   const n = OUVERTURES[ouverture] ?? 2.8
@@ -457,9 +551,17 @@ function Triangle(): ReactElement {
       const nouveauT = VITESSES[rang] ?? t
       setVitesse(rang)
       if (verrou === 'sensibilite') {
-        setOuverture(OUVERTURES.indexOf(approche(OUVERTURES, Math.sqrt((2 ** il * s * nouveauT) / 100))))
+        setOuverture(
+          OUVERTURES.indexOf(
+            approche(OUVERTURES, Math.sqrt((2 ** il * s * nouveauT) / 100)),
+          ),
+        )
       } else {
-        setSensibilite(SENSIBILITES.indexOf(approche(SENSIBILITES, (100 * (n * n)) / (nouveauT * 2 ** il))))
+        setSensibilite(
+          SENSIBILITES.indexOf(
+            approche(SENSIBILITES, (100 * (n * n)) / (nouveauT * 2 ** il)),
+          ),
+        )
       }
       return
     }
@@ -467,18 +569,32 @@ function Triangle(): ReactElement {
       const nouveauN = OUVERTURES[rang] ?? n
       setOuverture(rang)
       if (verrou === 'sensibilite') {
-        setVitesse(VITESSES.indexOf(approche(VITESSES, (nouveauN * nouveauN * 100) / (s * 2 ** il))))
+        setVitesse(
+          VITESSES.indexOf(
+            approche(VITESSES, (nouveauN * nouveauN * 100) / (s * 2 ** il)),
+          ),
+        )
       } else {
-        setSensibilite(SENSIBILITES.indexOf(approche(SENSIBILITES, (100 * (nouveauN * nouveauN)) / (t * 2 ** il))))
+        setSensibilite(
+          SENSIBILITES.indexOf(
+            approche(SENSIBILITES, (100 * (nouveauN * nouveauN)) / (t * 2 ** il)),
+          ),
+        )
       }
       return
     }
     const nouveauS = SENSIBILITES[rang] ?? s
     setSensibilite(rang)
     if (verrou === 'ouverture') {
-      setVitesse(VITESSES.indexOf(approche(VITESSES, (n * n * 100) / (nouveauS * 2 ** il))))
+      setVitesse(
+        VITESSES.indexOf(approche(VITESSES, (n * n * 100) / (nouveauS * 2 ** il))),
+      )
     } else {
-      setOuverture(OUVERTURES.indexOf(approche(OUVERTURES, Math.sqrt((2 ** il * nouveauS * t) / 100))))
+      setOuverture(
+        OUVERTURES.indexOf(
+          approche(OUVERTURES, Math.sqrt((2 ** il * nouveauS * t) / 100)),
+        ),
+      )
     }
   }
 
@@ -513,7 +629,11 @@ function Triangle(): ReactElement {
                 style={
                   verrou === cle
                     ? { ...aplat(), borderColor: 'transparent', clipPath: CHANFREIN }
-                    : { borderColor: accentDoux(300, 26), color: 'var(--o-theme-muted)', clipPath: CHANFREIN }
+                    : {
+                        borderColor: accentDoux(300, 26),
+                        color: 'var(--o-theme-muted)',
+                        clipPath: CHANFREIN,
+                      }
                 }
               >
                 {mot}
@@ -569,44 +689,87 @@ function Triangle(): ReactElement {
             <Cliche
               flouFond={Math.max(0, 7.5 - champ.totale * 1.35)}
               fileMicrons={trainee}
-              grain={Math.min(0.5, Math.max(0, (Math.log2(s / 100) * 0.055)))}
+              grain={Math.min(0.5, Math.max(0, Math.log2(s / 100) * 0.055))}
             />
           </div>
           <div className="o-min-w-0 sm:o-col-span-3">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Diaphragme</p>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+              Diaphragme
+            </p>
             <div className="o-mt-3">
-              <Diaphragme ouverture={Math.max(0, Math.min(1, 1 - (Math.log2(n) - Math.log2(1.2)) / 4.2))} taille={160} />
+              <Diaphragme
+                ouverture={Math.max(
+                  0,
+                  Math.min(1, 1 - (Math.log2(n) - Math.log2(1.2)) / 4.2),
+                )}
+                taille={160}
+              />
             </div>
           </div>
         </div>
 
-        <dl aria-live="polite" className="o-m-0 o-mt-8 o-grid o-gap-px sm:o-grid-cols-2 lg:o-grid-cols-4" style={{ backgroundColor: 'var(--o-theme-line)' }}>
+        <dl
+          aria-live="polite"
+          className="o-m-0 o-mt-8 o-grid o-gap-px sm:o-grid-cols-2 lg:o-grid-cols-4"
+          style={{ backgroundColor: 'var(--o-theme-line)' }}
+        >
           {(
             [
-              ['Lumination', `IL ${il.toFixed(1).replace('.', ',')}`, 'a 100 ISO equivalent'],
+              [
+                'Lumination',
+                `IL ${il.toFixed(1).replace('.', ',')}`,
+                'a 100 ISO equivalent',
+              ],
               [
                 'Profondeur de champ',
-                champ.totale > 900 ? 'de 6 m a l infini' : `${champ.totale.toFixed(2).replace('.', ',')} m`,
+                champ.totale > 900
+                  ? 'de 6 m a l infini'
+                  : `${champ.totale.toFixed(2).replace('.', ',')} m`,
                 `de ${champ.avant.toFixed(1).replace('.', ',')} m a ${champ.arriere > 900 ? 'l infini' : `${champ.arriere.toFixed(1).replace('.', ',')} m`}`,
               ],
-              ['File du coureur', `${String(Math.round(trainee))} µm`, net ? 'sous le cercle de confusion' : 'au-dessus : le sujet bouge'],
-              ['Bruit', `${String(Math.round(Math.log2(s / 100) * 1.7 + 1.2))} sur 10`, 'mesure sur une plage grise'],
+              [
+                'File du coureur',
+                `${String(Math.round(trainee))} µm`,
+                net ? 'sous le cercle de confusion' : 'au-dessus : le sujet bouge',
+              ],
+              [
+                'Bruit',
+                `${String(Math.round(Math.log2(s / 100) * 1.7 + 1.2))} sur 10`,
+                'mesure sur une plage grise',
+              ],
             ] as const
           ).map(([quoi, valeur, note]) => (
-            <div key={quoi} className="o-px-4 o-py-4" style={{ backgroundColor: 'var(--o-theme-bg)' }}>
-              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-              <dd className="o-m-0 o-mt-2 o-font-mono o-text-sm o-tabular-nums" style={{ color: quoi === 'File du coureur' && !net ? accent(300) : 'var(--o-theme-fg)' }}>
+            <div
+              key={quoi}
+              className="o-px-4 o-py-4"
+              style={{ backgroundColor: 'var(--o-theme-bg)' }}
+            >
+              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                {quoi}
+              </dt>
+              <dd
+                className="o-m-0 o-mt-2 o-font-mono o-text-sm o-tabular-nums"
+                style={{
+                  color:
+                    quoi === 'File du coureur' && !net
+                      ? accent(300)
+                      : 'var(--o-theme-fg)',
+                }}
+              >
                 {valeur}
               </dd>
-              <dd className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500">{note}</dd>
+              <dd className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500">
+                {note}
+              </dd>
             </div>
           ))}
         </dl>
 
         <p className="o-m-0 o-mt-5 o-max-w-2xl o-text-sm o-leading-relaxed o-text-zinc-400">
-          Objectif de 50 mm, mise au point a douze metres, cercle de confusion de 0,03 mm. Le coureur traverse
-          le cadre a quatorze kilometres a l heure. Tant que sa trainee reste sous trente microns sur le
-          capteur, le tirage est net a trente centimetres.
+          Objectif de 50 mm, mise au point a douze metres, cercle de confusion de 0,03 mm.
+          Le coureur traverse le cadre a quatorze kilometres a l heure. Tant que sa
+          trainee reste sous trente microns sur le capteur, le tirage est net a trente
+          centimetres.
         </p>
       </div>
     </div>
@@ -617,11 +780,31 @@ function Triangle(): ReactElement {
 
 /** Ce que la coupe montre, dans l ordre ou la lumiere le traverse. */
 const ORGANES = [
-  { rang: '01', quoi: 'Lentille frontale', note: 'Verre a bas indice, traite sur les deux faces. Elle ne corrige rien : elle collecte.' },
-  { rang: '02', quoi: 'Doublet colle', note: 'Deux verres de dispersion opposee, colles au baume. Ils rattrapent la frange violette des grands diaphragmes.' },
-  { rang: '03', quoi: 'Diaphragme a sept lames', note: 'Place au centre optique. Sept lames donnent quatorze branches aux etoiles des points de lumiere.' },
-  { rang: '04', quoi: 'Rideaux de l obturateur', note: 'Deux rideaux de titane qui descendent l un derriere l autre. Au-dela de 1/250, ils ne sont jamais ouverts ensemble.' },
-  { rang: '05', quoi: 'Capteur 24 x 36', note: 'Sur trois axes motorises : la stabilisation compense jusqu a huit valeurs de pose.' },
+  {
+    rang: '01',
+    quoi: 'Lentille frontale',
+    note: 'Verre a bas indice, traite sur les deux faces. Elle ne corrige rien : elle collecte.',
+  },
+  {
+    rang: '02',
+    quoi: 'Doublet colle',
+    note: 'Deux verres de dispersion opposee, colles au baume. Ils rattrapent la frange violette des grands diaphragmes.',
+  },
+  {
+    rang: '03',
+    quoi: 'Diaphragme a sept lames',
+    note: 'Place au centre optique. Sept lames donnent quatorze branches aux etoiles des points de lumiere.',
+  },
+  {
+    rang: '04',
+    quoi: 'Rideaux de l obturateur',
+    note: 'Deux rideaux de titane qui descendent l un derriere l autre. Au-dela de 1/250, ils ne sont jamais ouverts ensemble.',
+  },
+  {
+    rang: '05',
+    quoi: 'Capteur 24 x 36',
+    note: 'Sur trois axes motorises : la stabilisation compense jusqu a huit valeurs de pose.',
+  },
 ] as const
 
 /**
@@ -634,7 +817,12 @@ const ORGANES = [
 function CoupeBoitier(): ReactElement {
   const { reduced } = useMotionState()
   return (
-    <svg viewBox="0 0 760 340" className="o-h-auto o-w-full" role="img" aria-label="Coupe du boitier : lentille frontale, doublet colle, diaphragme, rideaux et capteur">
+    <svg
+      viewBox="0 0 760 340"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Coupe du boitier : lentille frontale, doublet colle, diaphragme, rideaux et capteur"
+    >
       {/* L axe optique, qui rampe de gauche a droite. */}
       <path
         data-o-ob-tiret={reduced ? undefined : ''}
@@ -645,7 +833,12 @@ function CoupeBoitier(): ReactElement {
       />
 
       {/* Le fut de l objectif. */}
-      <path d="M40 96h300v148H40Z" fill="none" stroke={accentDoux(200, 36)} strokeWidth="1.5" />
+      <path
+        d="M40 96h300v148H40Z"
+        fill="none"
+        stroke={accentDoux(200, 36)}
+        strokeWidth="1.5"
+      />
       <path d="M40 118h300M40 222h300" stroke={accentDoux(200, 16)} strokeWidth="1" />
 
       {/* Les verres : des lentilles en coupe, biconvexes ou concaves. */}
@@ -670,18 +863,48 @@ function CoupeBoitier(): ReactElement {
       ))}
 
       {/* Le diaphragme, vu par la tranche. */}
-      <path d="M214 114v34M214 226v-34" stroke={accent(300)} strokeWidth="5" strokeLinecap="round" />
+      <path
+        d="M214 114v34M214 226v-34"
+        stroke={accent(300)}
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
 
       {/* Le boitier et l oculaire. */}
-      <path d="M340 60h300v220H340Z" fill="none" stroke={accentDoux(200, 42)} strokeWidth="1.5" />
-      <path d="M640 96h64v88h-64" fill="none" stroke={accentDoux(200, 26)} strokeWidth="1.5" />
+      <path
+        d="M340 60h300v220H340Z"
+        fill="none"
+        stroke={accentDoux(200, 42)}
+        strokeWidth="1.5"
+      />
+      <path
+        d="M640 96h64v88h-64"
+        fill="none"
+        stroke={accentDoux(200, 26)}
+        strokeWidth="1.5"
+      />
 
       {/* Les deux rideaux. */}
-      <path d="M392 74v76M392 266v-40" stroke={accent(300)} strokeWidth="6" strokeLinecap="square" />
-      <path d="M408 74v50M408 266v-66" stroke={accentDoux(300, 60)} strokeWidth="6" strokeLinecap="square" />
+      <path
+        d="M392 74v76M392 266v-40"
+        stroke={accent(300)}
+        strokeWidth="6"
+        strokeLinecap="square"
+      />
+      <path
+        d="M408 74v50M408 266v-66"
+        stroke={accentDoux(300, 60)}
+        strokeWidth="6"
+        strokeLinecap="square"
+      />
 
       {/* Le capteur et son berceau. */}
-      <path d="M446 104v132" stroke={accent(200)} strokeWidth="8" strokeLinecap="square" />
+      <path
+        d="M446 104v132"
+        stroke={accent(200)}
+        strokeWidth="8"
+        strokeLinecap="square"
+      />
       <path d="M456 116v108M466 128v84" stroke={accentDoux(200, 26)} strokeWidth="4" />
 
       {/* Les reperes. */}
@@ -695,7 +918,11 @@ function CoupeBoitier(): ReactElement {
         ] as const
       ).map(([mot, x, y]) => (
         <g key={mot}>
-          <path d={`M${String(x)} ${String(y)}V${String(y + 18)}`} stroke={accentDoux(200, 40)} strokeWidth="1" />
+          <path
+            d={`M${String(x)} ${String(y)}V${String(y + 18)}`}
+            stroke={accentDoux(200, 40)}
+            strokeWidth="1"
+          />
           <text
             x={x}
             y={y - 6}
@@ -709,10 +936,25 @@ function CoupeBoitier(): ReactElement {
         </g>
       ))}
 
-      <text x="8" y="326" fontSize="12" fill="currentColor" opacity="0.55" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <text
+        x="8"
+        y="326"
+        fontSize="12"
+        fill="currentColor"
+        opacity="0.55"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         LA LUMIERE ENTRE ICI
       </text>
-      <text x="752" y="326" fontSize="12" textAnchor="end" fill="currentColor" opacity="0.55" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <text
+        x="752"
+        y="326"
+        fontSize="12"
+        textAnchor="end"
+        fill="currentColor"
+        opacity="0.55"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         TIRAGE 20 MM — MONTURE O-1
       </text>
     </svg>
@@ -744,11 +986,22 @@ function Cadran({
 
   return (
     <div className="o-min-w-0">
-      <svg viewBox="0 0 220 160" className="o-h-auto o-w-full" role="img" aria-label={`${titre} : ${affichee}`}>
+      <svg
+        viewBox="0 0 220 160"
+        className="o-h-auto o-w-full"
+        role="img"
+        aria-label={`${titre} : ${affichee}`}
+      >
         {/* L arc gradue. */}
-        <path d="M22 140A98 98 0 0 1 198 140" fill="none" stroke={accentDoux(300, 22)} strokeWidth="1.5" />
+        <path
+          d="M22 140A98 98 0 0 1 198 140"
+          fill="none"
+          stroke={accentDoux(300, 22)}
+          strokeWidth="1.5"
+        />
         {graduations.map((mot, rang) => {
-          const a = ((-124 + (rang / (graduations.length - 1)) * 248 - 90) * Math.PI) / 180
+          const a =
+            ((-124 + (rang / (graduations.length - 1)) * 248 - 90) * Math.PI) / 180
           const x1 = 110 + Math.cos(a) * 86
           const y1 = 138 + Math.sin(a) * 86
           const x2 = 110 + Math.cos(a) * 98
@@ -757,7 +1010,11 @@ function Cadran({
           const ty = 138 + Math.sin(a) * 72
           return (
             <g key={mot}>
-              <path d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`} stroke={accentDoux(300, 34)} strokeWidth="2" />
+              <path
+                d={`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`}
+                stroke={accentDoux(300, 34)}
+                strokeWidth="2"
+              />
               <text
                 x={tx}
                 y={ty + 4}
@@ -774,15 +1031,32 @@ function Cadran({
         })}
 
         {/* L aiguille : elle part du zero et se pose sur la mesure. */}
-        <g data-o-ob-aiguille="" style={{ '--o-ob-angle': `${angle.toFixed(1)}deg`, transformOrigin: '110px 138px' } as CSSProperties}>
+        <g
+          data-o-ob-aiguille=""
+          style={
+            {
+              '--o-ob-angle': `${angle.toFixed(1)}deg`,
+              transformOrigin: '110px 138px',
+            } as CSSProperties
+          }
+        >
           <path d="M110 138 L106 60 L110 48 L114 60 Z" fill={encreSurSombre()} />
         </g>
         <circle cx="110" cy="138" r="7" fill={accentDoux(300, 40)} />
         <circle cx="110" cy="138" r="2.5" fill="var(--o-theme-bg)" />
       </svg>
 
-      <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{titre}</p>
-      <p className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)', lineHeight: 1 }}>
+      <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+        {titre}
+      </p>
+      <p
+        className="o-m-0 o-mt-1 o-tabular-nums o-text-zinc-50"
+        style={{
+          ...affiche('m', 300),
+          fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)',
+          lineHeight: 1,
+        }}
+      >
         {affichee}
       </p>
       <p className="o-m-0 o-mt-2 o-text-xs o-leading-relaxed o-text-zinc-500">{note}</p>
@@ -818,7 +1092,14 @@ function Devis(): ReactElement {
     // douze pour cent au plus. Elle ne porte que sur le materiel.
     const part = Math.min(0.12, Math.max(0, boitiers - 4) * 0.02)
     const remise = Math.round((corps + optiques) * part)
-    return { corps, optiques, annees, remise, part, total: corps + optiques + annees - remise }
+    return {
+      corps,
+      optiques,
+      annees,
+      remise,
+      part,
+      total: corps + optiques + annees - remise,
+    }
   }, [boitiers, objectifs, garantie])
 
   const euros = (montant: number): string => `${montant.toLocaleString('fr-FR')} EUR`
@@ -826,11 +1107,28 @@ function Devis(): ReactElement {
   return (
     <div className="o-grid o-gap-12 lg:o-grid-cols-12 lg:o-gap-16">
       <div className="o-min-w-0 lg:o-col-span-6">
-        <div className="o-flex o-flex-col o-gap-8" style={{ '--o-eslider-accent': encreSurSombre() } as CSSProperties}>
+        <div
+          className="o-flex o-flex-col o-gap-8"
+          style={{ '--o-eslider-accent': encreSurSombre() } as CSSProperties}
+        >
           {(
             [
-              ['Boitiers', boitiers, 1, 12, setBoitiers, `${String(boitiers)} boitier${boitiers > 1 ? 's' : ''}`],
-              ['Objectifs par boitier', objectifs, 0, 4, setObjectifs, `${String(objectifs)}`],
+              [
+                'Boitiers',
+                boitiers,
+                1,
+                12,
+                setBoitiers,
+                `${String(boitiers)} boitier${boitiers > 1 ? 's' : ''}`,
+              ],
+              [
+                'Objectifs par boitier',
+                objectifs,
+                0,
+                4,
+                setObjectifs,
+                `${String(objectifs)}`,
+              ],
               ['Garantie', garantie, 2, 10, setGarantie, `${String(garantie)} ans`],
             ] as const
           ).map(([mot, valeur, min, max, poser, ecrit]) => (
@@ -839,25 +1137,42 @@ function Devis(): ReactElement {
                 {mot}
                 <span className="o-tabular-nums o-text-zinc-50">{ecrit}</span>
               </p>
-              <ElasticSlider label={mot} min={min} max={max} step={1} value={valeur} onChange={poser} showValue={false} stretch={0.07} />
+              <ElasticSlider
+                label={mot}
+                min={min}
+                max={max}
+                step={1}
+                value={valeur}
+                onChange={poser}
+                showValue={false}
+                stretch={0.07}
+              />
             </div>
           ))}
         </div>
 
         <p className="o-m-0 o-mt-8 o-max-w-md o-text-xs o-leading-relaxed o-text-zinc-500">
-          Boitier a {euros(PRIX_BOITIER)}, objectif a {euros(PRIX_OBJECTIF)}, annee de garantie supplementaire
-          a {euros(PRIX_ANNEE)} par boitier. Deux annees sont comprises. Prix hors taxe, livraison sous six
-          semaines depuis l atelier de Besancon.
+          Boitier a {euros(PRIX_BOITIER)}, objectif a {euros(PRIX_OBJECTIF)}, annee de
+          garantie supplementaire a {euros(PRIX_ANNEE)} par boitier. Deux annees sont
+          comprises. Prix hors taxe, livraison sous six semaines depuis l atelier de
+          Besancon.
         </p>
       </div>
 
       <div className="o-min-w-0 lg:o-col-span-6">
         <Plaque className="o-p-8" encreCoins={accent(400)}>
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Total hors taxe</p>
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            Total hors taxe
+          </p>
           <p
             aria-live="polite"
             className="o-m-0 o-mt-3 o-tabular-nums o-text-zinc-50"
-            style={{ ...affiche('l', 300), fontSize: 'clamp(3rem, 9vw, 7.5rem)', lineHeight: 0.86, letterSpacing: '-0.045em' }}
+            style={{
+              ...affiche('l', 300),
+              fontSize: 'clamp(3rem, 9vw, 7.5rem)',
+              lineHeight: 0.86,
+              letterSpacing: '-0.045em',
+            }}
           >
             {detail.total.toLocaleString('fr-FR')}
           </p>
@@ -866,13 +1181,26 @@ function Devis(): ReactElement {
               [
                 [`Boitiers — ${String(boitiers)}`, euros(detail.corps)],
                 [`Objectifs — ${String(boitiers * objectifs)}`, euros(detail.optiques)],
-                [`Garantie — ${String(Math.max(0, garantie - 2))} an${garantie - 2 > 1 ? 's' : ''} de plus`, euros(detail.annees)],
-                [`Remise de parc — ${String(Math.round(detail.part * 100))} %`, `− ${euros(detail.remise)}`],
+                [
+                  `Garantie — ${String(Math.max(0, garantie - 2))} an${garantie - 2 > 1 ? 's' : ''} de plus`,
+                  euros(detail.annees),
+                ],
+                [
+                  `Remise de parc — ${String(Math.round(detail.part * 100))} %`,
+                  `− ${euros(detail.remise)}`,
+                ],
               ] as const
             ).map(([quoi, montant]) => (
-              <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-                <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-100">{montant}</dd>
+              <div
+                key={quoi}
+                className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3"
+              >
+                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  {quoi}
+                </dt>
+                <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-100">
+                  {montant}
+                </dd>
               </div>
             ))}
           </dl>
@@ -899,7 +1227,12 @@ function Devis(): ReactElement {
 /** Le cadran du pied (P45) : l heure de la maison, en direct. */
 function HorlogeCadran(): ReactElement {
   const { reduced } = useMotionState()
-  const [heure, setHeure] = useState<{ h: number; m: number; s: number; texte: string } | null>(null)
+  const [heure, setHeure] = useState<{
+    h: number
+    m: number
+    s: number
+    texte: string
+  } | null>(null)
 
   useEffect(() => {
     const lire = (): void => {
@@ -911,8 +1244,14 @@ function HorlogeCadran(): ReactElement {
         timeZone: 'Europe/Paris',
       })
       const parties = format.formatToParts(new Date())
-      const lu = (quoi: string): number => Number(parties.find((p) => p.type === quoi)?.value ?? '0')
-      setHeure({ h: lu('hour') % 12, m: lu('minute'), s: lu('second'), texte: format.format(new Date()) })
+      const lu = (quoi: string): number =>
+        Number(parties.find((p) => p.type === quoi)?.value ?? '0')
+      setHeure({
+        h: lu('hour') % 12,
+        m: lu('minute'),
+        s: lu('second'),
+        texte: format.format(new Date()),
+      })
     }
     lire()
     const id = window.setInterval(lire, 1000)
@@ -927,8 +1266,21 @@ function HorlogeCadran(): ReactElement {
 
   return (
     <div className="o-flex o-flex-col o-items-center">
-      <svg viewBox="0 0 220 220" className="o-h-auto o-w-full" style={{ maxWidth: 210 }} role="img" aria-label={`Heure de l atelier a Besancon : ${heure?.texte ?? ''}`}>
-        <circle cx="110" cy="110" r="102" fill="none" stroke={accentDoux(300, 22)} strokeWidth="1.5" />
+      <svg
+        viewBox="0 0 220 220"
+        className="o-h-auto o-w-full"
+        style={{ maxWidth: 210 }}
+        role="img"
+        aria-label={`Heure de l atelier a Besancon : ${heure?.texte ?? ''}`}
+      >
+        <circle
+          cx="110"
+          cy="110"
+          r="102"
+          fill="none"
+          stroke={accentDoux(300, 22)}
+          strokeWidth="1.5"
+        />
         {Array.from({ length: 60 }, (_, rang) => {
           const a = ((rang * 6 - 90) * Math.PI) / 180
           const dedans = rang % 5 === 0 ? 84 : 94
@@ -941,15 +1293,45 @@ function HorlogeCadran(): ReactElement {
             />
           )
         })}
-        <g style={{ transform: `rotate(${heures.toFixed(1)}deg)`, transformOrigin: '110px 110px' }}>
-          <path d="M110 110V52" stroke="var(--o-theme-fg)" strokeWidth="5" strokeLinecap="round" />
+        <g
+          style={{
+            transform: `rotate(${heures.toFixed(1)}deg)`,
+            transformOrigin: '110px 110px',
+          }}
+        >
+          <path
+            d="M110 110V52"
+            stroke="var(--o-theme-fg)"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
         </g>
-        <g style={{ transform: `rotate(${minutes.toFixed(1)}deg)`, transformOrigin: '110px 110px' }}>
-          <path d="M110 110V30" stroke="var(--o-theme-fg)" strokeWidth="3" strokeLinecap="round" />
+        <g
+          style={{
+            transform: `rotate(${minutes.toFixed(1)}deg)`,
+            transformOrigin: '110px 110px',
+          }}
+        >
+          <path
+            d="M110 110V30"
+            stroke="var(--o-theme-fg)"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
         </g>
         {!reduced && (
-          <g style={{ transform: `rotate(${secondes.toFixed(1)}deg)`, transformOrigin: '110px 110px' }}>
-            <path d="M110 124V26" stroke={encreSurSombre()} strokeWidth="1.4" strokeLinecap="round" />
+          <g
+            style={{
+              transform: `rotate(${secondes.toFixed(1)}deg)`,
+              transformOrigin: '110px 110px',
+            }}
+          >
+            <path
+              d="M110 124V26"
+              stroke={encreSurSombre()}
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
           </g>
         )}
         <circle cx="110" cy="110" r="5" fill={encreSurSombre()} />
@@ -978,17 +1360,32 @@ export default function Page(): ReactElement {
     <Porte forme="iris" marque="Obturateur">
       <div className="o-relative o-text-zinc-50" style={{ ...polices, ...nuit('zinc') }}>
         {/* ================= L ouverture : le diaphragme ================== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden" style={{ minHeight: ECRAN }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden"
+          style={{ minHeight: ECRAN }}
+        >
           <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0">
-            <GridLines size={56} thickness={1} color={accentDoux(300, 14)} speed={0} fade />
+            <GridLines
+              size={56}
+              thickness={1}
+              color={accentDoux(300, 14)}
+              speed={0}
+              fade
+            />
           </div>
           <div
             aria-hidden="true"
             className="o-pointer-events-none o-absolute o-inset-0 o-z-0"
-            style={{ background: `radial-gradient(48% 56% at 74% 46%, ${accentDoux(400, 22)}, transparent 72%)` }}
+            style={{
+              background: `radial-gradient(48% 56% at 74% 46%, ${accentDoux(400, 22)}, transparent 72%)`,
+            }}
           />
 
-          <BarreCoins marque="Obturateur" liens={NAVIGATION} droite="Besancon — depuis 1977" />
+          <BarreCoins
+            marque="Obturateur"
+            liens={NAVIGATION}
+            droite="Besancon — depuis 1977"
+          />
 
           <div className="o-relative o-z-10 o-grid o-grow o-items-center o-gap-10 o-px-6 o-pb-16 o-pt-10 md:o-px-10 lg:o-grid-cols-12">
             <div className="o-min-w-0 lg:o-col-span-7">
@@ -998,23 +1395,36 @@ export default function Page(): ReactElement {
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase"
-                style={{ ...affiche('l', 800), fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)', lineHeight: 0.86, letterSpacing: '-0.045em' }}
+                style={{
+                  ...affiche('l', 800),
+                  fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)',
+                  lineHeight: 0.86,
+                  letterSpacing: '-0.045em',
+                }}
               >
                 Trois reglages, un seul resultat
               </TitreVague>
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-400">
-                Nous fabriquons un boitier par jour ouvre, a Besancon, et nous publions ce que chaque reglage
-                coute aux deux autres. Le reste est du commerce.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-400"
+              >
+                Nous fabriquons un boitier par jour ouvre, a Besancon, et nous publions ce
+                que chaque reglage coute aux deux autres. Le reste est du commerce.
               </Surgit>
 
-              <Surgit delai={640} className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4">
+              <Surgit
+                delai={640}
+                className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4"
+              >
                 <Aimant force={0.32}>
                   <a
                     href="#triangle"
                     className="o-inline-flex o-items-center o-gap-2 o-px-7 o-py-3.5 o-font-mono o-text-xs o-font-semibold o-uppercase o-tracking-widest o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
                     style={{ ...aplat(), clipPath: CHANFREIN }}
                   >
-                    Ouvrir le triangle <Icon icon={ArrowDown} size={14} aria-hidden="true" />
+                    Ouvrir le triangle{' '}
+                    <Icon icon={ArrowDown} size={14} aria-hidden="true" />
                   </a>
                 </Aimant>
                 <a
@@ -1036,9 +1446,20 @@ export default function Page(): ReactElement {
                     sous le seuil et le mot disparait. Il lui faut du gras. */}
                 <div
                   className="o-mt-2 o-uppercase o-text-zinc-50"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(2.75rem, 5.6vw, 4.5rem)', lineHeight: 1, letterSpacing: '-0.03em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(2.75rem, 5.6vw, 4.5rem)',
+                    lineHeight: 1,
+                    letterSpacing: '-0.03em',
+                  }}
                 >
-                  <MorphText mots={['1/8000 s', 'f/1,2', 'ISO 64', '410 000 vues']} hold={2100} morph={720} flou={10} fusion={2} />
+                  <MorphText
+                    mots={['1/8000 s', 'f/1,2', 'ISO 64', '410 000 vues']}
+                    hold={2100}
+                    morph={720}
+                    flou={10}
+                    fusion={2}
+                  />
                 </div>
               </Surgit>
             </div>
@@ -1062,7 +1483,10 @@ export default function Page(): ReactElement {
 
         <main>
           {/* ================= Le mecanisme : le triangle ================= */}
-          <section id="triangle" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="triangle"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="o-min-w-0 md:o-col-span-8">
@@ -1072,7 +1496,12 @@ export default function Page(): ReactElement {
                   <Reveal delay={80}>
                     <h2
                       className="o-m-0 o-mt-5 o-max-w-3xl o-text-balance o-uppercase"
-                      style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4.2vw, 3.75rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                      style={{
+                        ...affiche('m', 800),
+                        fontSize: 'clamp(1.75rem, 4.2vw, 3.75rem)',
+                        lineHeight: 0.92,
+                        letterSpacing: '-0.04em',
+                      }}
                     >
                       Bougez-en un, les deux autres suivent.
                     </h2>
@@ -1088,7 +1517,13 @@ export default function Page(): ReactElement {
                 {reduced ? (
                   <Triangle />
                 ) : (
-                  <TargetCursor size={30} corner={11} padding={7} color={accent(300)} targets="button, a, [role='slider']">
+                  <TargetCursor
+                    size={30}
+                    corner={11}
+                    padding={7}
+                    color={accent(300)}
+                    targets="button, a, [role='slider']"
+                  >
                     <Triangle />
                   </TargetCursor>
                 )}
@@ -1105,7 +1540,12 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-5 o-max-w-3xl o-text-balance o-uppercase"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 4.2vw, 3.5rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.04em',
+                  }}
                 >
                   Cinq obstacles entre la lumiere et le capteur.
                 </h2>
@@ -1116,13 +1556,21 @@ export default function Page(): ReactElement {
                 </div>
                 <ol className="o-m-0 o-min-w-0 o-list-none o-p-0 lg:o-col-span-5">
                   {ORGANES.map((organe) => (
-                    <li key={organe.rang} className="o-grid o-gap-3 o-border-t o-border-white-10 o-py-5 sm:o-grid-cols-12">
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-2" style={{ color: encreSurSombre() }}>
+                    <li
+                      key={organe.rang}
+                      className="o-grid o-gap-3 o-border-t o-border-white-10 o-py-5 sm:o-grid-cols-12"
+                    >
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-2"
+                        style={{ color: encreSurSombre() }}
+                      >
                         {organe.rang}
                       </p>
                       <div className="o-min-w-0 sm:o-col-span-10">
                         <p className="o-m-0 o-text-base o-text-zinc-100">{organe.quoi}</p>
-                        <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-400">{organe.note}</p>
+                        <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-400">
+                          {organe.note}
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -1132,7 +1580,11 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= Le banc d essai : trois cadrans ============ */}
-          <section id="banc" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(500, 6) }}>
+          <section
+            id="banc"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            style={{ backgroundColor: accentDoux(500, 6) }}
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-16">
                 <div className="o-min-w-0 lg:o-col-span-4">
@@ -1142,16 +1594,25 @@ export default function Page(): ReactElement {
                   <Reveal delay={80}>
                     <h2
                       className="o-m-0 o-mt-5 o-max-w-sm o-text-balance o-uppercase"
-                      style={{ ...affiche('m', 800), fontSize: 'clamp(1.6rem, 3.4vw, 3rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                      style={{
+                        ...affiche('m', 800),
+                        fontSize: 'clamp(1.6rem, 3.4vw, 3rem)',
+                        lineHeight: 0.92,
+                        letterSpacing: '-0.04em',
+                      }}
                     >
                       Chaque boitier passe une nuit sur le banc.
                     </h2>
                   </Reveal>
                   <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-400">
-                    Douze heures de declenchements, une cellule au foyer, un four a paliers. Les trois
-                    aiguilles ci-contre sont les mesures du dernier boitier sorti — le numero 2 118.
+                    Douze heures de declenchements, une cellule au foyer, un four a
+                    paliers. Les trois aiguilles ci-contre sont les mesures du dernier
+                    boitier sorti — le numero 2 118.
                   </p>
-                  <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     Releve du 9 mars, 04 h 12
                   </p>
                 </div>
@@ -1191,7 +1652,10 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= Le devis en trois curseurs ================= */}
-          <section id="parc" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+          <section
+            id="parc"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <Reveal>
                 <Indice rang="04">Le parc</Indice>
@@ -1199,7 +1663,12 @@ export default function Page(): ReactElement {
               <Reveal delay={80}>
                 <h2
                   className="o-m-0 o-mt-5 o-max-w-2xl o-text-balance o-uppercase"
-                  style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3.5rem)', lineHeight: 0.92, letterSpacing: '-0.04em' }}
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 4vw, 3.5rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.04em',
+                  }}
                 >
                   Trois curseurs, et le prix exact.
                 </h2>
@@ -1218,14 +1687,26 @@ export default function Page(): ReactElement {
               <HorlogeCadran />
             </div>
             <div className="o-min-w-0 md:o-col-span-8">
-              <p className="o-m-0 o-uppercase o-text-zinc-50" style={{ ...affiche('m', 800), fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', lineHeight: 0.9, letterSpacing: '-0.04em' }}>
+              <p
+                className="o-m-0 o-uppercase o-text-zinc-50"
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.04em',
+                }}
+              >
                 Obturateur
               </p>
               <p className="o-m-0 o-mt-4 o-max-w-lg o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                12 chemin de la Bergerie, 25000 Besancon — atelier ouvert du lundi au jeudi, 8 h a 17 h.
-                Reparations recues toute l annee, y compris sur les boitiers d avant 1990.
+                12 chemin de la Bergerie, 25000 Besancon — atelier ouvert du lundi au
+                jeudi, 8 h a 17 h. Reparations recues toute l annee, y compris sur les
+                boitiers d avant 1990.
               </p>
-              <nav aria-label="Rubriques" className="o-mt-8 o-flex o-flex-wrap o-gap-x-8 o-gap-y-3">
+              <nav
+                aria-label="Rubriques"
+                className="o-mt-8 o-flex o-flex-wrap o-gap-x-8 o-gap-y-3"
+              >
                 {(
                   [
                     ['#triangle', 'Le triangle'],
@@ -1234,13 +1715,18 @@ export default function Page(): ReactElement {
                     ['mailto:atelier@obturateur.fr', 'atelier@obturateur.fr'],
                   ] as const
                 ).map(([cible, mot]) => (
-                  <a key={mot} href={cible} className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring">
+                  <a
+                    key={mot}
+                    href={cible}
+                    className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-300 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                  >
                     {mot}
                   </a>
                 ))}
               </nav>
               <p className="o-m-0 o-mt-8 o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-                © 2026 Obturateur SAS — les mesures publiees sont celles du banc de la maison
+                © 2026 Obturateur SAS — les mesures publiees sont celles du banc de la
+                maison
               </p>
             </div>
           </div>

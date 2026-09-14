@@ -134,12 +134,15 @@ export function RotatingWords({
     // c'est tout ce que la rotation apportait.
     if (reduced || !vu || words.length < 2) return
 
-    const minuteur = setInterval(() => {
-      setIndex((courant) => {
-        setPrecedent(courant)
-        return (courant + 1) % words.length
-      })
-    }, Math.max(duration, interval))
+    const minuteur = setInterval(
+      () => {
+        setIndex((courant) => {
+          setPrecedent(courant)
+          return (courant + 1) % words.length
+        })
+      },
+      Math.max(duration, interval),
+    )
 
     return () => {
       clearInterval(minuteur)

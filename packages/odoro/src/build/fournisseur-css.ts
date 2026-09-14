@@ -117,7 +117,9 @@ export async function fournisseurDe(root: string): Promise<FournisseurCss | unde
     const relatif = fichierDe(contenu.exports?.[SOUS_CHEMIN])
     if (relatif === undefined) return undefined
 
-    const module_ = (await import(pathToFileURL(resolve(dossier, relatif)).href)) as Partial<
+    const module_ = (await import(
+      pathToFileURL(resolve(dossier, relatif)).href
+    )) as Partial<
       FournisseurCss & {
         generate: (tier?: string) => { readonly classNames: readonly string[] }
       }
@@ -135,7 +137,10 @@ export async function fournisseurDe(root: string): Promise<FournisseurCss | unde
       // plus ancien : le champ reste alors indefini, et le developpement
       // retombe sur la feuille telle qu'elle est livree.
       ...(typeof generate === 'function'
-        ? { classesConnues: (): ReadonlySet<string> => new Set(generate('core').classNames) }
+        ? {
+            classesConnues: (): ReadonlySet<string> =>
+              new Set(generate('core').classNames),
+          }
         : {}),
     }
   } catch {

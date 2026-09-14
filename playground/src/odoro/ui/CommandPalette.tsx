@@ -283,10 +283,14 @@ export function CommandPalette({
 
   // Les resultats sont ranges par groupes consecutifs : l'ordre donne par la
   // page est conserve, et un intitule ne parait qu'au changement de groupe.
-  const segments: { name?: string; items: { command: PaletteCommand; index: number }[] }[] = []
+  const segments: {
+    name?: string
+    items: { command: PaletteCommand; index: number }[]
+  }[] = []
   for (const [index, command] of found.entries()) {
     const tail = segments.at(-1)
-    if (tail !== undefined && tail.name === command.group) tail.items.push({ command, index })
+    if (tail !== undefined && tail.name === command.group)
+      tail.items.push({ command, index })
     else segments.push({ name: command.group, items: [{ command, index }] })
   }
 
@@ -297,7 +301,9 @@ export function CommandPalette({
       {...rest}
       data-o-palette=""
       className={className}
-      style={{ '--o-cmd-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties}
+      style={
+        { '--o-cmd-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties
+      }
       onPointerDown={(event) => {
         // Cliquer a cote de la fenetre, c'est vouloir la fermer.
         if (event.target === event.currentTarget) close()
@@ -313,8 +319,15 @@ export function CommandPalette({
         onKeyDown={onKeyDown}
       >
         <div data-o-palette-field="">
-          <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none"
-            stroke="currentColor" strokeWidth="1.6">
+          <svg
+            viewBox="0 0 16 16"
+            width="15"
+            height="15"
+            aria-hidden="true"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          >
             <circle cx="7" cy="7" r="4.5" />
             <path d="M10.5 10.5 L14 14" strokeLinecap="round" />
           </svg>
@@ -340,7 +353,12 @@ export function CommandPalette({
         {found.length === 0 ? (
           <p data-o-palette-empty="">{empty}</p>
         ) : (
-          <div id={`${baseId}-liste`} role="listbox" aria-label={label} data-o-palette-list="">
+          <div
+            id={`${baseId}-liste`}
+            role="listbox"
+            aria-label={label}
+            data-o-palette-list=""
+          >
             {segments.map((segment) => (
               <div
                 key={segment.name ?? ''}
@@ -366,7 +384,9 @@ export function CommandPalette({
                       run(command.id)
                     }}
                   >
-                    {command.icon !== undefined && <span aria-hidden="true">{command.icon}</span>}
+                    {command.icon !== undefined && (
+                      <span aria-hidden="true">{command.icon}</span>
+                    )}
                     <span data-o-palette-label="">{command.label}</span>
                     {command.hint !== undefined && (
                       <span data-o-palette-hint="">{command.hint}</span>

@@ -121,24 +121,29 @@ export function PlasmaBall({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: PLASMA_BALL_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uFilaments: filaments,
-        uRadius: radius,
-        uSpeed: speed,
-        uPull: pull,
-      },
-      name: 'plasma-ball',
-      // Chaque filament coute deux lectures de bruit et trois exponentielles
-      // par pixel : en qualite basse, ils sont moins nombreux.
-      degrade: (quality) => ({
-        uFilaments: quality === 'low' ? Math.min(filaments, 4) : filaments,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: PLASMA_BALL_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uFilaments: filaments,
+      uRadius: radius,
+      uSpeed: speed,
+      uPull: pull,
+    },
+    name: 'plasma-ball',
+    // Chaque filament coute deux lectures de bruit et trois exponentielles
+    // par pixel : en qualite basse, ils sont moins nombreux.
+    degrade: (quality) => ({
+      uFilaments: quality === 'low' ? Math.min(filaments, 4) : filaments,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

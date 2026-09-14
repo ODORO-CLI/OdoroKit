@@ -65,7 +65,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-900'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-fuchsia-900'
 
 /**
  * Plasma.

@@ -85,11 +85,43 @@ interface Manche {
 }
 
 const SAISON: readonly Manche[] = [
-  { rang: '01', nom: 'Ouverture', lieu: 'Pau — circuit urbain', date: '12 avril', etat: 'courue', resultat: '2e — 1:12.884' },
-  { rang: '02', nom: 'La Bresse', lieu: 'Vosges — 4,2 km', date: '3 mai', etat: 'courue', resultat: '1er — 1:38.207' },
-  { rang: '03', nom: 'Nogaro', lieu: 'Gers — 3,6 km', date: '21 juin', etat: 'prochaine' },
-  { rang: '04', nom: 'Le Val', lieu: 'Var — 2,9 km', date: '13 septembre', etat: 'a venir' },
-  { rang: '05', nom: 'La finale', lieu: 'Magny-Cours — 4,4 km', date: '18 octobre', etat: 'a venir' },
+  {
+    rang: '01',
+    nom: 'Ouverture',
+    lieu: 'Pau — circuit urbain',
+    date: '12 avril',
+    etat: 'courue',
+    resultat: '2e — 1:12.884',
+  },
+  {
+    rang: '02',
+    nom: 'La Bresse',
+    lieu: 'Vosges — 4,2 km',
+    date: '3 mai',
+    etat: 'courue',
+    resultat: '1er — 1:38.207',
+  },
+  {
+    rang: '03',
+    nom: 'Nogaro',
+    lieu: 'Gers — 3,6 km',
+    date: '21 juin',
+    etat: 'prochaine',
+  },
+  {
+    rang: '04',
+    nom: 'Le Val',
+    lieu: 'Var — 2,9 km',
+    date: '13 septembre',
+    etat: 'a venir',
+  },
+  {
+    rang: '05',
+    nom: 'La finale',
+    lieu: 'Magny-Cours — 4,4 km',
+    date: '18 octobre',
+    etat: 'a venir',
+  },
 ]
 
 /** Un etage de la pile : une saison, et ce qu elle a coute. */
@@ -212,7 +244,8 @@ function useFeuilleCourse(): void {
 /* ============================ La grammaire du cadre ==================== */
 
 /** Le chanfrein : un coin coupe en bas a droite, en pourcentage de la boite. */
-const CHANFREIN = 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)'
+const CHANFREIN =
+  'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%)'
 
 /**
  * Quatre equerres de coin.
@@ -220,7 +253,13 @@ const CHANFREIN = 'polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px
  * Un panneau n est pas borde : il est **marque**. C est la difference entre un
  * cadre et un reperage, et c est ce qui donne a la page son air d instrument.
  */
-function Equerres({ couleur, taille = 10 }: { readonly couleur: string; readonly taille?: number }): ReactElement {
+function Equerres({
+  couleur,
+  taille = 10,
+}: {
+  readonly couleur: string
+  readonly taille?: number
+}): ReactElement {
   const coins = [
     { haut: 0, gauche: 0, bords: '2px 0 0 2px' },
     { haut: 0, droite: 0, bords: '2px 2px 0 0' },
@@ -266,7 +305,10 @@ function Plaque({
   readonly style?: CSSProperties
 }): ReactElement {
   return (
-    <div className={`o-relative ${className ?? ''}`} style={{ clipPath: CHANFREIN, backgroundColor: fond, ...style }}>
+    <div
+      className={`o-relative ${className ?? ''}`}
+      style={{ clipPath: CHANFREIN, backgroundColor: fond, ...style }}
+    >
       <Equerres couleur={encreCoins} />
       {children}
     </div>
@@ -290,7 +332,11 @@ function Bouton({
       style={
         pleine
           ? { clipPath: CHANFREIN, backgroundColor: encre(), color: 'var(--o-theme-bg)' }
-          : { clipPath: CHANFREIN, boxShadow: `inset 0 0 0 1px ${accentDoux(700, 40)}`, color: 'inherit' }
+          : {
+              clipPath: CHANFREIN,
+              boxShadow: `inset 0 0 0 1px ${accentDoux(700, 40)}`,
+              color: 'inherit',
+            }
       }
     >
       {children}
@@ -312,7 +358,10 @@ function Courbes(): ReactElement {
     [],
   )
   return (
-    <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden">
+    <div
+      aria-hidden="true"
+      className="o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden"
+    >
       <svg viewBox="0 0 720 460" preserveAspectRatio="none" className="o-h-full o-w-full">
         {lignes.map((d, rang) => (
           <path
@@ -343,7 +392,11 @@ function Courbes(): ReactElement {
 function Couture({ colonnes = 32 }: { readonly colonnes?: number }): ReactElement {
   const rangees = 6
   return (
-    <div aria-hidden="true" className="o-relative o-overflow-hidden" style={{ height: 108 }}>
+    <div
+      aria-hidden="true"
+      className="o-relative o-overflow-hidden"
+      style={{ height: 108 }}
+    >
       <div className="o-absolute o-inset-0 o-flex o-flex-col">
         {Array.from({ length: rangees }, (_, r) => (
           <div key={r} className="o-flex o-grow">
@@ -357,10 +410,12 @@ function Couture({ colonnes = 32 }: { readonly colonnes?: number }): ReactElemen
                   key={c}
                   data-o-cr-case=""
                   className="o-grow"
-                  style={{
-                    backgroundColor: c % 17 === 0 ? accent(500) : 'var(--o-theme-bg)',
-                    '--o-cr-delai': `${String((r * 0.12 + (c / colonnes) * 0.5).toFixed(2))}s`,
-                  } as CSSProperties}
+                  style={
+                    {
+                      backgroundColor: c % 17 === 0 ? accent(500) : 'var(--o-theme-bg)',
+                      '--o-cr-delai': `${String((r * 0.12 + (c / colonnes) * 0.5).toFixed(2))}s`,
+                    } as CSSProperties
+                  }
                 />
               )
             })}
@@ -378,7 +433,12 @@ function Carte(): ReactElement {
   const { reduced } = useMotionState()
   return (
     <div className="o-relative">
-      <svg viewBox="0 0 1000 560" className="o-h-auto o-w-full" role="img" aria-label="Le circuit de La Bresse, quatre virages nommes">
+      <svg
+        viewBox="0 0 1000 560"
+        className="o-h-auto o-w-full"
+        role="img"
+        aria-label="Le circuit de La Bresse, quatre virages nommes"
+      >
         <defs>
           <pattern id="o-cr-points" width="14" height="14" patternUnits="userSpaceOnUse">
             <circle cx="7" cy="7" r="1.5" fill={accentDoux(300, 30)} />
@@ -389,7 +449,12 @@ function Carte(): ReactElement {
         </defs>
 
         {/* Le continent, en points : c est le papier de la carte. */}
-        <rect width="1000" height="560" fill="url(#o-cr-points)" clipPath="url(#o-cr-terre)" />
+        <rect
+          width="1000"
+          height="560"
+          fill="url(#o-cr-points)"
+          clipPath="url(#o-cr-terre)"
+        />
 
         {/* Les axes en tirets, qui rampent. */}
         <g stroke={accentDoux(400, 22)} strokeWidth="1" strokeDasharray="6 8">
@@ -400,7 +465,13 @@ function Carte(): ReactElement {
         </g>
 
         {/* Le tour au repos, puis le tour qui se remplit par-dessus. */}
-        <path d={TRACE} fill="none" stroke={accentDoux(500, 26)} strokeWidth="10" strokeLinejoin="round" />
+        <path
+          d={TRACE}
+          fill="none"
+          stroke={accentDoux(500, 26)}
+          strokeWidth="10"
+          strokeLinejoin="round"
+        />
         <path
           data-o-cr-tour=""
           d={TRACE}
@@ -427,7 +498,15 @@ function Carte(): ReactElement {
         {/* La ligne de depart, en damier. */}
         <g>
           {Array.from({ length: 8 }, (_, i) => (
-            <rect key={i} x={140 + (i % 2) * 7} y={392 + Math.floor(i / 2) * 7} width="7" height="7" fill={i % 3 === 0 ? accent(500) : 'var(--o-theme-fg)'} opacity="0.9" />
+            <rect
+              key={i}
+              x={140 + (i % 2) * 7}
+              y={392 + Math.floor(i / 2) * 7}
+              width="7"
+              height="7"
+              fill={i % 3 === 0 ? accent(500) : 'var(--o-theme-fg)'}
+              opacity="0.9"
+            />
           ))}
         </g>
 
@@ -435,8 +514,29 @@ function Carte(): ReactElement {
         {VIRAGES.map((virage) => (
           <g key={virage.nom}>
             <circle cx={virage.x} cy={virage.y} r="4" fill={accent(500)} />
-            {!reduced && <circle data-o-cr-battement="" cx={virage.x} cy={virage.y} r="4" fill="none" stroke={accent(500)} strokeWidth="1" style={{ transformOrigin: `${String(virage.x)}px ${String(virage.y)}px` }} />}
-            <text x={virage.x + 12} y={virage.y + 4} fontSize="13" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+            {!reduced && (
+              <circle
+                data-o-cr-battement=""
+                cx={virage.x}
+                cy={virage.y}
+                r="4"
+                fill="none"
+                stroke={accent(500)}
+                strokeWidth="1"
+                style={{ transformOrigin: `${String(virage.x)}px ${String(virage.y)}px` }}
+              />
+            )}
+            <text
+              x={virage.x + 12}
+              y={virage.y + 4}
+              fontSize="13"
+              fill="var(--o-theme-muted)"
+              style={{
+                fontFamily: 'var(--o-font-mono)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+              }}
+            >
               {virage.nom}
             </text>
           </g>
@@ -455,7 +555,15 @@ function Carte(): ReactElement {
  * C est la lecon de la reference. Sans le voile, un bloc recouvert reste
  * eclaire et l empilement ne se lit pas — on croit a un defaut de rendu.
  */
-function EtagePile({ etage, rang, dernier }: { readonly etage: Etage; readonly rang: number; readonly dernier: boolean }): ReactElement {
+function EtagePile({
+  etage,
+  rang,
+  dernier,
+}: {
+  readonly etage: Etage
+  readonly rang: number
+  readonly dernier: boolean
+}): ReactElement {
   const { reduced } = useMotionState()
   const carte = useRef<HTMLDivElement>(null)
   const voile = useRef<HTMLDivElement>(null)
@@ -464,15 +572,22 @@ function EtagePile({ etage, rang, dernier }: { readonly etage: Etage; readonly r
     // Seule la seconde moitie compte : avant, l etage n est pas encore
     // recouvert, et le voir reculer sans raison se lit comme un defaut.
     const couvert = Math.max(0, p * 2 - 1)
-    if (carte.current !== null) carte.current.style.transform = `scale(${(1 - couvert * 0.1).toFixed(4)})`
+    if (carte.current !== null)
+      carte.current.style.transform = `scale(${(1 - couvert * 0.1).toFixed(4)})`
     if (voile.current !== null) voile.current.style.opacity = (couvert * 0.55).toFixed(3)
   }, [])
 
-  const { ref } = useScrollScrub<HTMLDivElement>(reduced || dernier ? () => undefined : onProgress, { name: 'pile de saisons' })
+  const { ref } = useScrollScrub<HTMLDivElement>(
+    reduced || dernier ? () => undefined : onProgress,
+    { name: 'pile de saisons' },
+  )
 
   return (
     <div ref={ref} className="o-sticky" style={{ top: CHROME + rang * 18 }}>
-      <div ref={carte} className={reduced ? 'o-origin-top' : 'o-origin-top o-will-change-transform'}>
+      <div
+        ref={carte}
+        className={reduced ? 'o-origin-top' : 'o-origin-top o-will-change-transform'}
+      >
         <Plaque
           fond="var(--o-theme-bg)"
           encreCoins={accent(500)}
@@ -481,26 +596,55 @@ function EtagePile({ etage, rang, dernier }: { readonly etage: Etage; readonly r
         >
           <div className="o-grid o-gap-8 md:o-grid-cols-12">
             <div className="md:o-col-span-4">
-              <p className="o-m-0 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(3rem, 7vw, 6.5rem)', lineHeight: 0.86, letterSpacing: '-0.04em' }}>
+              <p
+                className="o-m-0 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 700),
+                  fontSize: 'clamp(3rem, 7vw, 6.5rem)',
+                  lineHeight: 0.86,
+                  letterSpacing: '-0.04em',
+                }}
+              >
                 <DecodeText duration={900}>{etage.annee}</DecodeText>
               </p>
             </div>
             <div className="md:o-col-span-5">
-              <h3 className="o-m-0 o-uppercase o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 500), fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)', lineHeight: 0.95 }}>
+              <h3
+                className="o-m-0 o-uppercase o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 500),
+                  fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
+                  lineHeight: 0.95,
+                }}
+              >
                 {etage.titre}
               </h3>
-              <p className="o-m-0 o-mt-5 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{etage.texte}</p>
+              <p className="o-m-0 o-mt-5 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                {etage.texte}
+              </p>
             </div>
             <dl className="o-m-0 md:o-col-span-3">
               {etage.releve.map(([quoi, valeur]) => (
-                <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-2">
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-                  <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{valeur}</dd>
+                <div
+                  key={quoi}
+                  className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-2"
+                >
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    {quoi}
+                  </dt>
+                  <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+                    {valeur}
+                  </dd>
                 </div>
               ))}
             </dl>
           </div>
-          <div ref={voile} aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-bg-black" style={{ opacity: 0 }} />
+          <div
+            ref={voile}
+            aria-hidden="true"
+            className="o-pointer-events-none o-absolute o-inset-0 o-bg-black"
+            style={{ opacity: 0 }}
+          />
         </Plaque>
       </div>
     </div>
@@ -543,20 +687,55 @@ function Banc(): ReactElement {
   const secondes = (tour - minutes * 60).toFixed(3).padStart(6, '0')
 
   const curseurs = [
-    { nom: 'Aileron arriere', valeur: aileron, min: 0, max: 12, pas: 1, unite: 'crans', poser: setAileron, note: 'Douze crans : la voiture colle en courbe et bouchonne en ligne droite.' },
-    { nom: 'Pression pneus', valeur: pression, min: 1.2, max: 2, pas: 0.05, unite: 'bar', poser: setPression, note: 'L optimum de ce train est a 1,55 bar. De part et d autre, on perd.' },
-    { nom: 'Rapport final', valeur: rapport, min: 3, max: 7, pas: 1, unite: '', poser: setRapport, note: 'Court, on sort fort des epingles ; long, on tient la ligne droite.' },
+    {
+      nom: 'Aileron arriere',
+      valeur: aileron,
+      min: 0,
+      max: 12,
+      pas: 1,
+      unite: 'crans',
+      poser: setAileron,
+      note: 'Douze crans : la voiture colle en courbe et bouchonne en ligne droite.',
+    },
+    {
+      nom: 'Pression pneus',
+      valeur: pression,
+      min: 1.2,
+      max: 2,
+      pas: 0.05,
+      unite: 'bar',
+      poser: setPression,
+      note: 'L optimum de ce train est a 1,55 bar. De part et d autre, on perd.',
+    },
+    {
+      nom: 'Rapport final',
+      valeur: rapport,
+      min: 3,
+      max: 7,
+      pas: 1,
+      unite: '',
+      poser: setRapport,
+      note: 'Court, on sort fort des epingles ; long, on tient la ligne droite.',
+    },
   ] as const
 
   return (
     <div className="o-grid o-gap-10 md:o-grid-cols-12">
       <div className="md:o-col-span-7">
         {curseurs.map((curseur) => (
-          <div key={curseur.nom} className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-6">
+          <div
+            key={curseur.nom}
+            className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-6"
+          >
             <label className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-              <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">{curseur.nom}</span>
+              <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-400">
+                {curseur.nom}
+              </span>
               <span className="o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
-                {curseur.pas < 1 ? curseur.valeur.toFixed(2).replace('.', ',') : String(curseur.valeur)} {curseur.unite}
+                {curseur.pas < 1
+                  ? curseur.valeur.toFixed(2).replace('.', ',')
+                  : String(curseur.valeur)}{' '}
+                {curseur.unite}
               </span>
               <input
                 type="range"
@@ -570,31 +749,63 @@ function Banc(): ReactElement {
                 className="o-mt-3 o-w-full o-accent-brand-500 focus:o-ring"
               />
             </label>
-            <p className="o-m-0 o-mt-2 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">{curseur.note}</p>
+            <p className="o-m-0 o-mt-2 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+              {curseur.note}
+            </p>
           </div>
         ))}
       </div>
 
       <div className="md:o-col-span-5">
-        <Plaque fond="var(--o-palette-zinc-950)" encreCoins={accent(400)} className="o-p-8" style={nuit('zinc')}>
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Temps au tour estime — La Bresse</p>
-          <p className="o-m-0 o-mt-4 o-tabular-nums o-text-zinc-50" aria-live="polite" style={{ ...affiche('m', 700), fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', lineHeight: 0.9, letterSpacing: '-0.05em' }}>
+        <Plaque
+          fond="var(--o-palette-zinc-950)"
+          encreCoins={accent(400)}
+          className="o-p-8"
+          style={nuit('zinc')}
+        >
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            Temps au tour estime — La Bresse
+          </p>
+          <p
+            className="o-m-0 o-mt-4 o-tabular-nums o-text-zinc-50"
+            aria-live="polite"
+            style={{
+              ...affiche('m', 700),
+              fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+              lineHeight: 0.9,
+              letterSpacing: '-0.05em',
+            }}
+          >
             {minutes}:{secondes}
           </p>
           <dl className="o-m-0 o-mt-8">
             {[
               ['Vitesse de pointe', `${String(pointe)} km/h`],
               ['Usure du train avant', `${String(usure)} %`],
-              ['Ecart au record', `${(tour - 98.207 >= 0 ? '+' : '')}${(tour - 98.207).toFixed(3).replace('.', ',')} s`],
+              [
+                'Ecart au record',
+                `${tour - 98.207 >= 0 ? '+' : ''}${(tour - 98.207).toFixed(3).replace('.', ',')} s`,
+              ],
             ].map(([quoi, valeur]) => (
-              <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-                <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums" style={{ color: encreSurSombre() }}>{valeur}</dd>
+              <div
+                key={quoi}
+                className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-3"
+              >
+                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  {quoi}
+                </dt>
+                <dd
+                  className="o-m-0 o-font-mono o-text-sm o-tabular-nums"
+                  style={{ color: encreSurSombre() }}
+                >
+                  {valeur}
+                </dd>
               </div>
             ))}
           </dl>
           <p className="o-m-0 o-mt-6 o-text-xs o-leading-relaxed o-text-zinc-400">
-            Estimation du banc, pas un chrono. Le record de la piste est a 1:38.207, pose le 3 mai avec l aileron a six crans.
+            Estimation du banc, pas un chrono. Le record de la piste est a 1:38.207, pose
+            le 3 mai avec l aileron a six crans.
           </p>
         </Plaque>
       </div>
@@ -617,35 +828,73 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="compteur" marque="Cardan" sombre={false}>
-      <div className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L ouverture : une planche de bord ============ */}
-        <header className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <Courbes />
-          <BarreCoins marque="Cardan" liens={NAVIGATION} droite="Ecurie — Clermont-Ferrand" sombre={false} />
+          <BarreCoins
+            marque="Cardan"
+            liens={NAVIGATION}
+            droite="Ecurie — Clermont-Ferrand"
+            sombre={false}
+          />
 
           <div className="o-relative o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-10 md:o-px-10">
             <div className="o-grid o-items-end o-gap-8 md:o-grid-cols-12">
               <div className="md:o-col-span-8">
                 <Surgit>
-                  <Etiquette sombre={false}>Championnat de France de la montagne — groupe A</Etiquette>
+                  <Etiquette sombre={false}>
+                    Championnat de France de la montagne — groupe A
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={140}
                   className="o-m-0 o-mt-6 o-uppercase o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('l', 700), fontSize: 'clamp(3rem, 11vw, 10rem)', lineHeight: 0.82, letterSpacing: '-0.045em' }}
+                  style={{
+                    ...affiche('l', 700),
+                    fontSize: 'clamp(3rem, 11vw, 10rem)',
+                    lineHeight: 0.82,
+                    letterSpacing: '-0.045em',
+                  }}
                 >
                   Cardan
                 </TitreVague>
-                <Surgit delai={520} as="p" className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                  Meme coque depuis 2024. Ce qui a change tient dans les reglages, et nous les publions apres chaque manche.
+                <Surgit
+                  delai={520}
+                  as="p"
+                  className="o-m-0 o-mt-6 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+                >
+                  Meme coque depuis 2024. Ce qui a change tient dans les reglages, et nous
+                  les publions apres chaque manche.
                 </Surgit>
               </div>
 
               {/* Le numero de course, marque aux quatre coins. */}
               <Surgit delai={340} className="md:o-col-span-4 md:o-flex md:o-justify-end">
-                <Plaque fond="var(--o-palette-zinc-950)" encreCoins={accent(400)} className="o-px-10 o-py-6 o-text-center" style={nuit('zinc')}>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Voiture</p>
-                  <p className="o-m-0 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(3.5rem, 8vw, 6rem)', lineHeight: 0.86, letterSpacing: '-0.05em' }}>
+                <Plaque
+                  fond="var(--o-palette-zinc-950)"
+                  encreCoins={accent(400)}
+                  className="o-px-10 o-py-6 o-text-center"
+                  style={nuit('zinc')}
+                >
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Voiture
+                  </p>
+                  <p
+                    className="o-m-0 o-tabular-nums o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 700),
+                      fontSize: 'clamp(3.5rem, 8vw, 6rem)',
+                      lineHeight: 0.86,
+                      letterSpacing: '-0.05em',
+                    }}
+                  >
                     04
                   </p>
                 </Plaque>
@@ -657,26 +906,45 @@ export default function Page(): ReactElement {
               trou au milieu : une page d instrumentation ne laisse pas un vide,
               elle y met un releve.
             */}
-            <Surgit delai={520} className="o-grid o-gap-px md:o-grid-cols-4" style={{ backgroundColor: accentDoux(700, 18) }}>
-              {([
-                ['Chassis', 'CN-04 — 2024', 'Aluminium colle, non modifie'],
-                ['Moteur', '2,0 l — 310 ch', 'Atmospherique, boite sequentielle'],
-                ['Masse', '742 kg', 'Avec pilote et plein complet'],
-                ['Classement', '2e — 38 points', 'Apres deux manches sur cinq'],
-              ] as const).map(([quoi, valeur, note]) => (
-                <div key={quoi} className="o-relative o-bg-zinc-50 dark:o-bg-zinc-950 o-px-5 o-py-5">
+            <Surgit
+              delai={520}
+              className="o-grid o-gap-px md:o-grid-cols-4"
+              style={{ backgroundColor: accentDoux(700, 18) }}
+            >
+              {(
+                [
+                  ['Chassis', 'CN-04 — 2024', 'Aluminium colle, non modifie'],
+                  ['Moteur', '2,0 l — 310 ch', 'Atmospherique, boite sequentielle'],
+                  ['Masse', '742 kg', 'Avec pilote et plein complet'],
+                  ['Classement', '2e — 38 points', 'Apres deux manches sur cinq'],
+                ] as const
+              ).map(([quoi, valeur, note]) => (
+                <div
+                  key={quoi}
+                  className="o-relative o-bg-zinc-50 dark:o-bg-zinc-950 o-px-5 o-py-5"
+                >
                   <Equerres couleur={accentDoux(700, 34)} taille={7} />
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</p>
-                  <p className="o-m-0 o-mt-3 o-font-mono o-text-base o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{valeur}</p>
-                  <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">{note}</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    {quoi}
+                  </p>
+                  <p className="o-m-0 o-mt-3 o-font-mono o-text-base o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+                    {valeur}
+                  </p>
+                  <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+                    {note}
+                  </p>
                 </div>
               ))}
             </Surgit>
 
-            <Surgit delai={640} className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-6">
+            <Surgit
+              delai={640}
+              className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-6"
+            >
               <div className="o-flex o-flex-wrap o-gap-3">
                 <Bouton href="#banc">
-                  Ouvrir le banc de reglages <Icon icon={ArrowRight} size={14} aria-hidden="true" />
+                  Ouvrir le banc de reglages{' '}
+                  <Icon icon={ArrowRight} size={14} aria-hidden="true" />
                 </Bouton>
                 <Bouton href="#saison" pleine={false}>
                   La saison en cours
@@ -694,13 +962,25 @@ export default function Page(): ReactElement {
         {/* ================= La couture, puis la carte ==================== */}
         <Couture />
 
-        <section id="circuit" className="o-relative o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={nuit('zinc')}>
+        <section
+          id="circuit"
+          className="o-relative o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={nuit('zinc')}
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
               <Indice rang="01">Le circuit</Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(2rem, 5vw, 4.5rem)', lineHeight: 0.88, letterSpacing: '-0.04em' }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-3xl o-uppercase o-text-zinc-50"
+                style={{
+                  ...affiche('m', 700),
+                  fontSize: 'clamp(2rem, 5vw, 4.5rem)',
+                  lineHeight: 0.88,
+                  letterSpacing: '-0.04em',
+                }}
+              >
                 Quatre kilometres deux, et un seul endroit ou depasser.
               </h2>
             </Reveal>
@@ -723,8 +1003,12 @@ export default function Page(): ReactElement {
                 ['Record', '1:38.207'],
               ].map(([quoi, valeur]) => (
                 <div key={quoi} className="o-border-t o-border-white-10 o-pt-4">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</p>
-                  <p className="o-m-0 o-mt-2 o-font-mono o-text-sm o-tabular-nums o-text-zinc-50">{valeur}</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    {quoi}
+                  </p>
+                  <p className="o-m-0 o-mt-2 o-font-mono o-text-sm o-tabular-nums o-text-zinc-50">
+                    {valeur}
+                  </p>
                 </div>
               ))}
             </div>
@@ -732,13 +1016,26 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= La saison, en manches ======================== */}
-        <section id="saison" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="saison"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
-              <Indice rang="02" sombre={false}>La saison</Indice>
+              <Indice rang="02" sombre={false}>
+                La saison
+              </Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-2xl o-uppercase o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.9, letterSpacing: '-0.04em' }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-2xl o-uppercase o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 700),
+                  fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.04em',
+                }}
+              >
                 Cinq manches, deux courues.
               </h2>
             </Reveal>
@@ -750,29 +1047,73 @@ export default function Page(): ReactElement {
                   <li key={manche.rang} className="o-relative o-min-w-0">
                     {/* Le connecteur en tirets, qui rampe vers la manche en cours. */}
                     {live && !reduced && (
-                      <svg aria-hidden="true" className="o-pointer-events-none o-absolute o-left-0 o-top-6 o-hidden o-h-px o-w-full md:o-block" viewBox="0 0 100 1" preserveAspectRatio="none">
-                        <path data-o-cr-tiret="" d="M-100 0.5H0" stroke={accent(500)} strokeWidth="1" strokeDasharray="6 8" />
+                      <svg
+                        aria-hidden="true"
+                        className="o-pointer-events-none o-absolute o-left-0 o-top-6 o-hidden o-h-px o-w-full md:o-block"
+                        viewBox="0 0 100 1"
+                        preserveAspectRatio="none"
+                      >
+                        <path
+                          data-o-cr-tiret=""
+                          d="M-100 0.5H0"
+                          stroke={accent(500)}
+                          strokeWidth="1"
+                          strokeDasharray="6 8"
+                        />
                       </svg>
                     )}
                     <Plaque
                       fond={live ? 'var(--o-palette-zinc-950)' : 'transparent'}
                       encreCoins={live ? accent(400) : accentDoux(700, 34)}
                       className="o-h-full o-p-5"
-                      style={live ? nuit('zinc') : { boxShadow: `inset 0 0 0 1px ${accentDoux(700, 18)}` }}
+                      style={
+                        live
+                          ? nuit('zinc')
+                          : { boxShadow: `inset 0 0 0 1px ${accentDoux(700, 18)}` }
+                      }
                     >
-                      <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: live ? encreSurSombre() : 'var(--o-theme-muted)' }}>
-                        {live && <span data-o-cr-battement="" aria-hidden="true" className="o-block o-size-1.5" style={{ backgroundColor: accent(500) }} />}
+                      <p
+                        className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{
+                          color: live ? encreSurSombre() : 'var(--o-theme-muted)',
+                        }}
+                      >
+                        {live && (
+                          <span
+                            data-o-cr-battement=""
+                            aria-hidden="true"
+                            className="o-block o-size-1.5"
+                            style={{ backgroundColor: accent(500) }}
+                          />
+                        )}
                         {manche.rang}
                       </p>
-                      <h3 className={`o-m-0 o-mt-4 o-uppercase ${live ? 'o-text-zinc-50' : 'o-text-zinc-950 dark:o-text-zinc-50'}`} style={{ ...affiche('m', 500), fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)', lineHeight: 0.96 }}>
+                      <h3
+                        className={`o-m-0 o-mt-4 o-uppercase ${live ? 'o-text-zinc-50' : 'o-text-zinc-950 dark:o-text-zinc-50'}`}
+                        style={{
+                          ...affiche('m', 500),
+                          fontSize: 'clamp(1.1rem, 1.6vw, 1.5rem)',
+                          lineHeight: 0.96,
+                        }}
+                      >
                         {manche.nom}
                       </h3>
-                      <p className={`o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest ${live ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}>
+                      <p
+                        className={`o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest ${live ? 'o-text-zinc-400' : 'o-text-zinc-500 dark:o-text-zinc-400'}`}
+                      >
                         {manche.lieu}
                         <br />
                         {manche.date}
                       </p>
-                      <p className={`o-m-0 o-mt-4 o-border-t o-pt-3 o-font-mono o-text-xs o-tabular-nums ${live ? 'o-border-white-10' : 'o-border-black-10 dark:o-border-zinc-800'}`} style={{ color: manche.resultat === undefined ? 'var(--o-theme-muted)' : encre() }}>
+                      <p
+                        className={`o-m-0 o-mt-4 o-border-t o-pt-3 o-font-mono o-text-xs o-tabular-nums ${live ? 'o-border-white-10' : 'o-border-black-10 dark:o-border-zinc-800'}`}
+                        style={{
+                          color:
+                            manche.resultat === undefined
+                              ? 'var(--o-theme-muted)'
+                              : encre(),
+                        }}
+                      >
                         {manche.resultat ?? (live ? 'Prochaine' : 'A venir')}
                       </p>
                     </Plaque>
@@ -784,27 +1125,50 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= La pile des saisons ========================== */}
-        <section aria-label="Trois saisons, empilees" className="o-px-6 o-pb-32 md:o-px-10">
+        <section
+          aria-label="Trois saisons, empilees"
+          className="o-px-6 o-pb-32 md:o-px-10"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             {ETAGES.map((etage, rang) => (
-              <EtagePile key={etage.annee} etage={etage} rang={rang} dernier={rang === ETAGES.length - 1} />
+              <EtagePile
+                key={etage.annee}
+                etage={etage}
+                rang={rang}
+                dernier={rang === ETAGES.length - 1}
+              />
             ))}
           </div>
         </section>
 
         {/* ================= Le banc ====================================== */}
-        <section id="banc" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="banc"
+          className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
-              <Indice rang="03" sombre={false}>Le banc</Indice>
+              <Indice rang="03" sombre={false}>
+                Le banc
+              </Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-2xl o-uppercase o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 700), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 0.9, letterSpacing: '-0.04em' }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-2xl o-uppercase o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 700),
+                  fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.04em',
+                }}
+              >
                 Chaque cran se paie ailleurs.
               </h2>
             </Reveal>
             <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-              Reglez la voiture pour La Bresse. Le banc rend un temps au tour, une vitesse de pointe et l usure du train avant : il n existe pas de reglage qui gagne partout.
+              Reglez la voiture pour La Bresse. Le banc rend un temps au tour, une vitesse
+              de pointe et l usure du train avant : il n existe pas de reglage qui gagne
+              partout.
             </p>
             <div className="o-mt-14">
               <Banc />
@@ -813,16 +1177,37 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= L appel : une bande qui defile =============== */}
-        <section aria-labelledby="appel-titre" className="o-py-6" style={{ backgroundColor: accent(500) }}>
+        <section
+          aria-labelledby="appel-titre"
+          className="o-py-6"
+          style={{ backgroundColor: accent(500) }}
+        >
           <h2 id="appel-titre" className="o-sr-only">
             Rouler avec l ecurie
           </h2>
           <Marquee speed={34} pauseOnHover={false} fade={0}>
-            <span className="o-flex o-items-center o-whitespace-nowrap o-uppercase" style={{ ...affiche('m', 700), fontSize: 'clamp(1.5rem, 3.4vw, 3rem)', color: 'var(--o-palette-zinc-950)', letterSpacing: '-0.03em' }}>
-              {['Deux baquets libres pour Nogaro', 'Essais prives le jeudi', 'Partenaires — la voiture est visible en stand', 'Ecrire a stand@cardan.fr'].map((mot) => (
+            <span
+              className="o-flex o-items-center o-whitespace-nowrap o-uppercase"
+              style={{
+                ...affiche('m', 700),
+                fontSize: 'clamp(1.5rem, 3.4vw, 3rem)',
+                color: 'var(--o-palette-zinc-950)',
+                letterSpacing: '-0.03em',
+              }}
+            >
+              {[
+                'Deux baquets libres pour Nogaro',
+                'Essais prives le jeudi',
+                'Partenaires — la voiture est visible en stand',
+                'Ecrire a stand@cardan.fr',
+              ].map((mot) => (
                 <span key={mot} className="o-flex o-items-center">
                   <span className="o-px-8">{mot}</span>
-                  <span aria-hidden="true" className="o-opacity-50" style={{ fontSize: '0.5em' }}>
+                  <span
+                    aria-hidden="true"
+                    className="o-opacity-50"
+                    style={{ fontSize: '0.5em' }}
+                  >
                     ///
                   </span>
                 </span>
@@ -839,24 +1224,79 @@ export default function Page(): ReactElement {
                 Atelier — 9 rue des Fonderies, Clermont-Ferrand
               </p>
               {/* Le plan du stand, dessine : trois travees et la porte. */}
-              <svg viewBox="0 0 620 250" className="o-mt-5 o-w-full" aria-label="Plan de l atelier : trois travees, la porte au sud">
-                <rect x="1" y="1" width="618" height="248" fill="none" stroke={accentDoux(300, 26)} strokeWidth="1" />
-                <path d="M210 1v248M410 1v248" stroke={accentDoux(300, 18)} strokeWidth="1" strokeDasharray="5 7" />
-                <rect x="250" y="96" width="120" height="58" fill="none" stroke={accent(400)} strokeWidth="2" />
-                <text x="262" y="130" fontSize="13" fill={accent(400)} style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+              <svg
+                viewBox="0 0 620 250"
+                className="o-mt-5 o-w-full"
+                aria-label="Plan de l atelier : trois travees, la porte au sud"
+              >
+                <rect
+                  x="1"
+                  y="1"
+                  width="618"
+                  height="248"
+                  fill="none"
+                  stroke={accentDoux(300, 26)}
+                  strokeWidth="1"
+                />
+                <path
+                  d="M210 1v248M410 1v248"
+                  stroke={accentDoux(300, 18)}
+                  strokeWidth="1"
+                  strokeDasharray="5 7"
+                />
+                <rect
+                  x="250"
+                  y="96"
+                  width="120"
+                  height="58"
+                  fill="none"
+                  stroke={accent(400)}
+                  strokeWidth="2"
+                />
+                <text
+                  x="262"
+                  y="130"
+                  fontSize="13"
+                  fill={accent(400)}
+                  style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                >
                   VOITURE 04
                 </text>
-                <text x="20" y="30" fontSize="12" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+                <text
+                  x="20"
+                  y="30"
+                  fontSize="12"
+                  fill="var(--o-theme-muted)"
+                  style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                >
                   TRAVEE A — MOTEUR
                 </text>
-                <text x="228" y="30" fontSize="12" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+                <text
+                  x="228"
+                  y="30"
+                  fontSize="12"
+                  fill="var(--o-theme-muted)"
+                  style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                >
                   TRAVEE B — CHASSIS
                 </text>
-                <text x="428" y="30" fontSize="12" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+                <text
+                  x="428"
+                  y="30"
+                  fontSize="12"
+                  fill="var(--o-theme-muted)"
+                  style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                >
                   TRAVEE C — BANC
                 </text>
                 <path d="M270 249h80" stroke={accent(400)} strokeWidth="4" />
-                <text x="358" y="243" fontSize="12" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+                <text
+                  x="358"
+                  y="243"
+                  fontSize="12"
+                  fill="var(--o-theme-muted)"
+                  style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+                >
                   PORTE
                 </text>
               </svg>
@@ -864,17 +1304,39 @@ export default function Page(): ReactElement {
 
             <div className="o-grid o-gap-8 sm:o-grid-cols-2 md:o-col-span-5">
               {[
-                { titre: 'L ecurie', liens: ['La voiture', 'L equipe', 'Le banc de reglages', 'Les reglages publies'] },
-                { titre: 'Venir', liens: ['Essais prives', 'Stand ouvert le samedi', 'Partenaires', 'Nous ecrire'] },
+                {
+                  titre: 'L ecurie',
+                  liens: [
+                    'La voiture',
+                    'L equipe',
+                    'Le banc de reglages',
+                    'Les reglages publies',
+                  ],
+                },
+                {
+                  titre: 'Venir',
+                  liens: [
+                    'Essais prives',
+                    'Stand ouvert le samedi',
+                    'Partenaires',
+                    'Nous ecrire',
+                  ],
+                },
               ].map((colonne) => (
                 <nav key={colonne.titre} aria-label={colonne.titre}>
-                  <h2 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <h2
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     {colonne.titre}
                   </h2>
                   <ul className="o-m-0 o-mt-4 o-list-none o-space-y-2 o-p-0">
                     {colonne.liens.map((lien) => (
                       <li key={lien}>
-                        <a href="#circuit" className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring">
+                        <a
+                          href="#circuit"
+                          className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 o-no-underline o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                        >
                           {lien}
                         </a>
                       </li>
@@ -883,14 +1345,20 @@ export default function Page(): ReactElement {
                 </nav>
               ))}
               <p className="o-m-0 sm:o-col-span-2">
-                <a href="#banc" className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-uppercase o-tracking-widest o-no-underline focus:o-ring" style={{ color: encreSurSombre() }}>
-                  stand@cardan.fr <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                <a
+                  href="#banc"
+                  className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-uppercase o-tracking-widest o-no-underline focus:o-ring"
+                  style={{ color: encreSurSombre() }}
+                >
+                  stand@cardan.fr{' '}
+                  <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                 </a>
               </p>
             </div>
           </div>
           <p className="o-mx-auto o-mt-14 o-max-w-6xl o-border-t o-border-white-10 o-pt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
-            Ecurie Cardan — association loi 1901 — licence FFSA 2026 — © 2026. Les temps publies sont ceux du chronometrage officiel.
+            Ecurie Cardan — association loi 1901 — licence FFSA 2026 — © 2026. Les temps
+            publies sont ceux du chronometrage officiel.
           </p>
         </footer>
       </div>

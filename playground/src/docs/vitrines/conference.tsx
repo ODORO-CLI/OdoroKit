@@ -66,7 +66,19 @@ import { SegmentedControl } from '@/odoro/ui/SegmentedControl.jsx'
 import { nuit } from './communs.jsx'
 import { paysage, photo } from './media.js'
 import { accent, accentDoux, encre } from './palettes.js'
-import { Actions, affiche, BarreCoins, CHROME, Coin, Etiquette, Grain, Indice, Porte, Surgit, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  CHROME,
+  Coin,
+  Etiquette,
+  Grain,
+  Indice,
+  Porte,
+  Surgit,
+  usePolices,
+} from './marche.jsx'
 import { Chapitre, Epingle } from './scene.jsx'
 
 /** Filet tire de l encre courante : le systeme n a pas d opacite sur couleur. */
@@ -94,7 +106,6 @@ const PLEIN: CSSProperties = { backgroundColor: ENCRE, color: 'var(--o-theme-bg)
 
 /** L accent clair : ce qui s ecrit sur les bandes restees sombres. */
 const CLAIR = accent(200)
-
 
 /** Le genre d une seance. */
 type Genre = 'Conference' | 'Atelier' | 'Table ronde' | 'Pause' | 'Cle'
@@ -460,8 +471,18 @@ function Pastille({ genre }: { readonly genre: Genre }): ReactElement {
  */
 const MOMENTS = [
   { titre: 'L ouverture', note: 'Le hall, le cafe, la premiere voix.', de: 0, a: 620 },
-  { titre: 'La matinee', note: 'Les deux salles tournent : il faut deja choisir.', de: 620, a: 760 },
-  { titre: 'L apres-midi', note: 'Les ateliers longs, vingt-quatre places chacun.', de: 760, a: 900 },
+  {
+    titre: 'La matinee',
+    note: 'Les deux salles tournent : il faut deja choisir.',
+    de: 620,
+    a: 760,
+  },
+  {
+    titre: 'L apres-midi',
+    note: 'Les ateliers longs, vingt-quatre places chacun.',
+    de: 760,
+    a: 900,
+  },
   { titre: 'Le soir', note: 'La cloture, puis ce qui se dit debout.', de: 900, a: 2000 },
 ] as const
 
@@ -469,7 +490,9 @@ const MOMENTS = [
 function seancesDuMoment(journee: Journee, rang: number): readonly Ligne[] {
   const moment = MOMENTS[rang] ?? MOMENTS[0]
   if (moment === undefined) return []
-  return lignes(journee).filter((seance) => seance.debut >= moment.de && seance.debut < moment.a)
+  return lignes(journee).filter(
+    (seance) => seance.debut >= moment.de && seance.debut < moment.a,
+  )
 }
 
 /** Un intervenant annonce. */
@@ -836,7 +859,12 @@ function Ouverture(): ReactElement {
             delai={140}
             as="h1"
             className="o-m-0 o-whitespace-nowrap o-text-slate-50 dark:o-text-slate-50"
-            style={{ ...affiche('xxl', 800), fontSize: 'clamp(4rem, 19vw, 18rem)', lineHeight: 0.8, letterSpacing: '-0.07em' }}
+            style={{
+              ...affiche('xxl', 800),
+              fontSize: 'clamp(4rem, 19vw, 18rem)',
+              lineHeight: 0.8,
+              letterSpacing: '-0.07em',
+            }}
           >
             Nord 26
           </Surgit>
@@ -846,7 +874,8 @@ function Ouverture(): ReactElement {
             className="o-m-0 o-mt-6 o-max-w-3xl o-text-slate-100 dark:o-text-slate-100"
             style={{ ...affiche('m', 300), fontSize: 'clamp(1.35rem, 3.2vw, 2.75rem)' }}
           >
-            Deux jours de conferences ecrites par des gens qui maintiennent ce dont ils parlent.
+            Deux jours de conferences ecrites par des gens qui maintiennent ce dont ils
+            parlent.
           </Surgit>
         </div>
 
@@ -856,7 +885,8 @@ function Ouverture(): ReactElement {
               pleine={[
                 '#billets',
                 <>
-                  Prendre une place <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                  Prendre une place{' '}
+                  <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                 </>,
               ]}
               fantome={['#programme', 'Lire le programme']}
@@ -893,7 +923,10 @@ function Ouverture(): ReactElement {
 function SeanceEpinglee({ seance }: { readonly seance: Ligne }): ReactElement {
   return (
     <li className="o-grid o-items-baseline o-gap-x-5 o-gap-y-1 o-border-b o-border-slate-200 o-py-3 dark:o-border-slate-800 md:o-grid-cols-12 md:o-py-4">
-      <p className="o-m-0 o-font-mono o-text-sm o-tabular-nums md:o-col-span-2" style={{ color: ENCRE }}>
+      <p
+        className="o-m-0 o-font-mono o-text-sm o-tabular-nums md:o-col-span-2"
+        style={{ color: ENCRE }}
+      >
         {heure(seance.debut)}
       </p>
       <div className="o-min-w-0 md:o-col-span-7">
@@ -965,7 +998,10 @@ function Programme({
               label="Journee affichee dans le programme"
               value={choisie.id}
               onChange={surChoix}
-              options={JOURNEES.map((journee) => ({ value: journee.id, label: journee.libelle }))}
+              options={JOURNEES.map((journee) => ({
+                value: journee.id,
+                label: journee.libelle,
+              }))}
             />
             <p
               aria-live="polite"
@@ -992,13 +1028,19 @@ function Programme({
             >
               <div className="o-mx-auto o-grid o-w-full o-max-w-7xl o-gap-8 md:o-grid-cols-12 md:o-gap-12">
                 <div className="md:o-col-span-4">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: ENCRE }}
+                  >
                     {choisie.libelle} novembre 2026
                   </p>
                   <h3
                     key={`${choisie.id}-${String(acte)}`}
                     className="o-m-0 o-mt-4 o-whitespace-nowrap o-text-slate-950 dark:o-text-slate-50"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 3vw, 2.75rem)' }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 3vw, 2.75rem)',
+                    }}
                   >
                     <Shuffle declenchement="montage" step={24} duration={700}>
                       {moment?.titre ?? ''}
@@ -1013,12 +1055,17 @@ function Programme({
                     {moment?.note ?? ''}
                   </p>
                   {/* Les quatre actes, en traits : ou l on en est dans la journee. */}
-                  <ol aria-hidden="true" className="o-m-0 o-mt-8 o-flex o-list-none o-gap-2 o-p-0">
+                  <ol
+                    aria-hidden="true"
+                    className="o-m-0 o-mt-8 o-flex o-list-none o-gap-2 o-p-0"
+                  >
                     {MOMENTS.map((autre, rang) => (
                       <li
                         key={autre.titre}
                         className="o-h-1 o-w-10 o-rounded-full"
-                        style={{ backgroundColor: rang === acte ? ENCRE : 'var(--o-theme-line)' }}
+                        style={{
+                          backgroundColor: rang === acte ? ENCRE : 'var(--o-theme-line)',
+                        }}
                       />
                     ))}
                   </ol>
@@ -1101,7 +1148,10 @@ function Intervenants(): ReactElement {
               <div className="o-min-w-0 md:o-col-span-7">
                 <h3
                   className="o-m-0 o-text-slate-950 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.3rem, 2.4vw, 2.25rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.3rem, 2.4vw, 2.25rem)',
+                  }}
                 >
                   {personne.sujet}
                 </h3>
@@ -1190,8 +1240,8 @@ function Lieu(): ReactElement {
         Hebergement
       </h3>
       <p className="o-mt-2 o-text-sm o-text-slate-600 dark:o-text-slate-400">
-        Trois adresses ont bloque des chambres au tarif de la conference. Le blocage
-        tombe a la date indiquee : apres, le tarif public s applique.
+        Trois adresses ont bloque des chambres au tarif de la conference. Le blocage tombe
+        a la date indiquee : apres, le tarif public s applique.
       </p>
       <ul className="o-mt-4 o-flex o-list-none o-flex-col o-p-0">
         {HOTELS.map((hotel) => (
@@ -1282,13 +1332,19 @@ function Tarifs({
 
         {/* --- Le tableau des paliers ------------------------------------ */}
         <div className="o-mt-12 o-overflow-x-auto">
-          <table className="o-w-full o-min-w-full o-text-left" style={{ borderCollapse: 'collapse' }}>
+          <table
+            className="o-w-full o-min-w-full o-text-left"
+            style={{ borderCollapse: 'collapse' }}
+          >
             <caption className="o-sr-only">
               Le prix de chaque categorie de billet, palier de date par palier de date
             </caption>
             <thead>
               <tr className="o-border-b o-border-slate-300 dark:o-border-slate-700">
-                <th scope="col" className="o-py-3 o-pr-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
+                <th
+                  scope="col"
+                  className="o-py-3 o-pr-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400"
+                >
                   Palier
                 </th>
                 {BILLETS.map((billet) => (
@@ -1313,7 +1369,9 @@ function Tarifs({
                     style={courant ? { backgroundColor: accentDoux(500, 12) } : undefined}
                   >
                     <th scope="row" className="o-py-4 o-pr-6 o-font-normal">
-                      <span className={courant ? 'o-block o-font-medium' : 'o-block'}>{palier.libelle}</span>
+                      <span className={courant ? 'o-block o-font-medium' : 'o-block'}>
+                        {palier.libelle}
+                      </span>
                       <span className="o-mt-0.5 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
                         {palier.quand} — {palier.etat}
                       </span>
@@ -1324,8 +1382,16 @@ function Tarifs({
                         className="o-py-4 o-pl-6 o-text-right o-tabular-nums o-whitespace-nowrap"
                         style={
                           courant
-                            ? { ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.2vw, 2rem)', color: ENCRE }
-                            : { color: 'var(--o-theme-muted)', textDecoration: palier.etat === 'Epuise' ? 'line-through' : undefined }
+                            ? {
+                                ...affiche('m', 300),
+                                fontSize: 'clamp(1.25rem, 2.2vw, 2rem)',
+                                color: ENCRE,
+                              }
+                            : {
+                                color: 'var(--o-theme-muted)',
+                                textDecoration:
+                                  palier.etat === 'Epuise' ? 'line-through' : undefined,
+                              }
                         }
                       >
                         {euros(Math.round(billet.montant * palier.part))}
@@ -1351,10 +1417,16 @@ function Tarifs({
                 label="Categorie de billet"
                 value={choisi.nom}
                 onChange={surChoix}
-                options={BILLETS.map((billet) => ({ value: billet.nom, label: billet.nom }))}
+                options={BILLETS.map((billet) => ({
+                  value: billet.nom,
+                  label: billet.nom,
+                }))}
               />
             </div>
-            <p aria-live="polite" className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+            <p
+              aria-live="polite"
+              className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400"
+            >
               {choisi.note}{' '}
               {choisi.quota === 0
                 ? 'Le direct n a pas de jauge.'
@@ -1368,7 +1440,11 @@ function Tarifs({
             <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-col o-gap-2 o-p-0 o-text-sm">
               {choisi.inclus.map((ligne) => (
                 <li key={ligne} className="o-flex o-items-start o-gap-2">
-                  <span aria-hidden className="o-mt-0.5 o-inline-flex o-shrink-0" style={{ color: ENCRE }}>
+                  <span
+                    aria-hidden
+                    className="o-mt-0.5 o-inline-flex o-shrink-0"
+                    style={{ color: ENCRE }}
+                  >
                     <Icon icon={Check} size={15} />
                   </span>
                   {ligne}
@@ -1414,7 +1490,9 @@ function BarreBillets({
       role="region"
       aria-label="Billetterie"
       className="o-fixed o-inset-x-0 o-bottom-0 o-z-40 o-border-t o-border-slate-300 o-backdrop-blur-xl dark:o-border-slate-700"
-      style={{ backgroundColor: 'color-mix(in oklab, var(--o-theme-bg) 88%, transparent)' }}
+      style={{
+        backgroundColor: 'color-mix(in oklab, var(--o-theme-bg) 88%, transparent)',
+      }}
     >
       <div className="o-mx-auto o-flex o-max-w-7xl o-flex-wrap o-items-center o-gap-x-6 o-gap-y-3 o-px-4 o-py-3 md:o-px-6">
         <p className="max-sm:o-hidden o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
@@ -1431,8 +1509,13 @@ function BarreBillets({
           />
         </div>
         <p className="o-m-0 o-ml-auto o-flex o-items-baseline o-gap-3">
-          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">{choisi.nom}</span>
-          <span className="o-tabular-nums o-text-slate-950 dark:o-text-slate-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.4vw, 1.9rem)' }}>
+          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-text-slate-400">
+            {choisi.nom}
+          </span>
+          <span
+            className="o-tabular-nums o-text-slate-950 dark:o-text-slate-50"
+            style={{ ...affiche('m', 300), fontSize: 'clamp(1.25rem, 2.4vw, 1.9rem)' }}
+          >
             {prix}
           </span>
         </p>
@@ -1546,7 +1629,10 @@ function AppelConferenciers(): ReactElement {
     >
       <div className="o-relative o-z-10 o-mx-auto o-grid o-max-w-7xl o-gap-8 lg:o-grid-cols-12">
         <div className="lg:o-col-span-7">
-          <p className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: CLAIR }}>
+          <p
+            className="o-m-0 o-flex o-items-center o-gap-3 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+            style={{ color: CLAIR }}
+          >
             <span aria-hidden className="o-inline-flex">
               <Icon icon={Mic} size={16} />
             </span>
@@ -1560,15 +1646,15 @@ function AppelConferenciers(): ReactElement {
             Huit creneaux ne sont pas encore attribues.
           </h2>
           <p className="o-mt-4 o-max-w-2xl o-text-base o-leading-relaxed o-text-slate-200 dark:o-text-slate-200">
-            Proposez un sujet en une page : ce que vous avez construit, ce qui a rate,
-            et ce que la salle en retire. Les propositions sont relues a l aveugle par
-            six personnes — nom, employeur et titres retires du dossier — et chaque
-            refus recoit une reponse ecrite.
+            Proposez un sujet en une page : ce que vous avez construit, ce qui a rate, et
+            ce que la salle en retire. Les propositions sont relues a l aveugle par six
+            personnes — nom, employeur et titres retires du dossier — et chaque refus
+            recoit une reponse ecrite.
           </p>
           <p className="o-mt-3 o-max-w-2xl o-text-base o-leading-relaxed o-text-slate-200 dark:o-text-slate-200">
             Les conferenciers retenus sont invites les deux jours, defrayes du train en
-            seconde classe et d une nuit d hotel, et accompagnes par une personne de
-            l equipe pour une repetition si elles le souhaitent. Une premiere fois se
+            seconde classe et d une nuit d hotel, et accompagnes par une personne de l
+            equipe pour une repetition si elles le souhaitent. Une premiere fois se
             prepare a deux.
           </p>
 
@@ -1685,9 +1771,8 @@ function Conduite(): ReactElement {
       </ol>
 
       <p className="o-mt-6 o-max-w-2xl o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-        Un compte rendu anonyme des signalements de l edition precedente est publie
-        chaque annee en janvier : quatre en 2025, dont un ayant conduit a un retrait de
-        badge.
+        Un compte rendu anonyme des signalements de l edition precedente est publie chaque
+        annee en janvier : quatre en 2025, dont un ayant conduit a un retrait de badge.
       </p>
     </section>
   )
@@ -1744,9 +1829,7 @@ function Pied(): ReactElement {
         </Marquee>
       </div>
       {/* La barre de billetterie couvre le bas de l ecran : la ligne se pose au-dessus. */}
-      <div
-        className="o-mx-auto o-mt-12 o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-slate-200 o-px-4 o-py-6 o-pb-28 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-border-slate-800 dark:o-text-slate-400 md:o-px-6"
-      >
+      <div className="o-mx-auto o-mt-12 o-flex o-max-w-7xl o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-slate-200 o-px-4 o-py-6 o-pb-28 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-600 dark:o-border-slate-800 dark:o-text-slate-400 md:o-px-6">
         <p className="o-m-0">
           Nord 26 — Association Nord Commun, 88 rue de la Filature, 59000 Lille —
           contact@nord26.fr
@@ -1791,7 +1874,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="compteur" marque="Nord 26">
-      <div className="o-bg-white o-text-slate-900 dark:o-bg-slate-950 dark:o-text-slate-100" style={polices}>
+      <div
+        className="o-bg-white o-text-slate-900 dark:o-bg-slate-950 dark:o-text-slate-100"
+        style={polices}
+      >
         <Ouverture />
         <main>
           <Programme choisie={jour} surChoix={setJournee} />

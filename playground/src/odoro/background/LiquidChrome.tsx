@@ -65,11 +65,7 @@ export interface LiquidChromeOwnProps {
 export type LiquidChromeProps = Customisable<LiquidChromeOwnProps>
 
 /** Tokens employes par defaut : le fond, l'encre, la teinte de l'horizon. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-fg',
-  '--o-palette-sky-400',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-sky-400'] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
 const DEFAULT_FALLBACK =

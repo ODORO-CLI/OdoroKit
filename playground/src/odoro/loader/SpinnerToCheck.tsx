@@ -170,8 +170,7 @@ export function SpinnerToCheck({
 
   const mark = state === 'echec' ? CROSS : CHECK
 
-  const spoken =
-    state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
+  const spoken = state === 'succes' ? labelSucces : state === 'echec' ? labelEchec : label
 
   const loaderStyle = {
     ...style,

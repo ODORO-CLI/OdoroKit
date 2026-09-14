@@ -107,7 +107,9 @@ interface Web {
   readonly lineAttribute: { needsUpdate: boolean }
   readonly lineColourAttribute: { needsUpdate: boolean }
   readonly nodeAttribute: { needsUpdate: boolean }
-  readonly nodeMaterial: { color: { setRGB: (r: number, g: number, b: number) => unknown } }
+  readonly nodeMaterial: {
+    color: { setRGB: (r: number, g: number, b: number) => unknown }
+  }
 }
 
 /** Nombre pseudo-aleatoire deterministe : la toile est la meme a chaque montage. */
@@ -189,7 +191,8 @@ export function WebThreads({
       const pairs: number[] = []
       for (let a = 0; a < count; a += 1) {
         for (let b = a + 1; b < count; b += 1) {
-          if ((linkCount[a] ?? 0) >= MAX_LINKS || (linkCount[b] ?? 0) >= MAX_LINKS) continue
+          if ((linkCount[a] ?? 0) >= MAX_LINKS || (linkCount[b] ?? 0) >= MAX_LINKS)
+            continue
           const dx = ((base[a * 2] ?? 0) - (base[b * 2] ?? 0)) * width * 0.5
           const dy = ((base[a * 2 + 1] ?? 0) - (base[b * 2 + 1] ?? 0)) * VIEW_HEIGHT * 0.5
           if (dx * dx + dy * dy > radius * radius) continue
@@ -297,7 +300,8 @@ export function WebThreads({
         // Le tremblement de repos : deux sinus de frequences propres au point,
         // jamais un tirage par image — ce dernier ne produirait que du bruit.
         const jx = Math.sin(time * (0.6 + hash(index + 7) * 0.8) + index) * 0.08 * tremble
-        const jy = Math.cos(time * (0.5 + hash(index + 13) * 0.9) + index * 1.7) * 0.08 * tremble
+        const jy =
+          Math.cos(time * (0.5 + hash(index + 13) * 0.9) + index * 1.7) * 0.08 * tremble
 
         // Le pointeur repousse ce qui est a portee, et le fait vibrer.
         let ox = 0
@@ -347,9 +351,12 @@ export function WebThreads({
         const glow = Math.max(0, 1 - Math.hypot(mx, my) / portee)
         for (let end = 0; end < 2; end += 1) {
           const at = (segment * 2 + end) * 3
-          toile.lineColours[at] = (thread?.[0] ?? 0) + ((node?.[0] ?? 0) - (thread?.[0] ?? 0)) * glow
-          toile.lineColours[at + 1] = (thread?.[1] ?? 0) + ((node?.[1] ?? 0) - (thread?.[1] ?? 0)) * glow
-          toile.lineColours[at + 2] = (thread?.[2] ?? 0) + ((node?.[2] ?? 0) - (thread?.[2] ?? 0)) * glow
+          toile.lineColours[at] =
+            (thread?.[0] ?? 0) + ((node?.[0] ?? 0) - (thread?.[0] ?? 0)) * glow
+          toile.lineColours[at + 1] =
+            (thread?.[1] ?? 0) + ((node?.[1] ?? 0) - (thread?.[1] ?? 0)) * glow
+          toile.lineColours[at + 2] =
+            (thread?.[2] ?? 0) + ((node?.[2] ?? 0) - (thread?.[2] ?? 0)) * glow
         }
       }
 
@@ -370,7 +377,11 @@ export function WebThreads({
     const [bg, , node] = shades.current
     toile.nodeMaterial.color.setRGB(node?.[0] ?? 0, node?.[1] ?? 0, node?.[2] ?? 0)
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

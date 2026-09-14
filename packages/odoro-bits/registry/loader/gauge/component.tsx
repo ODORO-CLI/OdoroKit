@@ -181,7 +181,7 @@ export function Gauge({
             opacity={0.4}
             // Une graduation posee en haut, puis tournee jusqu'a sa place
             // sur l'arc : le quart de tour ramene le haut a trois heures.
-            transform={`rotate(${String(START + 90 + tick * (SWEEP * 360) / 4)} 50 50)`}
+            transform={`rotate(${String(START + 90 + (tick * (SWEEP * 360)) / 4)} 50 50)`}
           />
         ))}
         <circle

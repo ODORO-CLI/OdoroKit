@@ -207,9 +207,16 @@ export function GooeyNav({
       const animation = drop.animate(
         [
           { transform: 'translate(0,0) scale(1)', opacity: 1 },
-          { transform: `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(0)`, opacity: 1 },
+          {
+            transform: `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(0)`,
+            opacity: 1,
+          },
         ],
-        { duration: 500 + Math.random() * 400, easing: 'cubic-bezier(0.2, 0, 0, 1)', fill: 'forwards' },
+        {
+          duration: 500 + Math.random() * 400,
+          easing: 'cubic-bezier(0.2, 0, 0, 1)',
+          fill: 'forwards',
+        },
       )
       animation.onfinish = () => drop.remove()
     }

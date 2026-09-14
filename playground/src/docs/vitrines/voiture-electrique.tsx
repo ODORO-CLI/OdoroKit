@@ -98,8 +98,22 @@ interface Batterie {
 
 /** Les deux batteries. */
 const BATTERIES: readonly Batterie[] = [
-  { cle: '60', nom: '60 kWh', capacite: 60, pointe: 150, serie: 'Axe 60', autonomie: 432 },
-  { cle: '82', nom: '82 kWh', capacite: 82, pointe: 270, serie: 'Axe 80', autonomie: 612 },
+  {
+    cle: '60',
+    nom: '60 kWh',
+    capacite: 60,
+    pointe: 150,
+    serie: 'Axe 60',
+    autonomie: 432,
+  },
+  {
+    cle: '82',
+    nom: '82 kWh',
+    capacite: 82,
+    pointe: 270,
+    serie: 'Axe 80',
+    autonomie: 612,
+  },
 ]
 
 /** Une borne de recharge, avec sa puissance et son prix au kilowattheure. */
@@ -123,21 +137,39 @@ const ACTES: readonly {
   {
     titre: 'La nuit, au garage',
     mot: 'On branche en rentrant, on debranche en partant. Le compteur tourne au tarif de nuit.',
-    borne: { nom: 'Borne murale, monophase', kw: 7.4, continu: false, prixKwh: 0.21, ou: 'A la maison, posee 1 190 €' },
+    borne: {
+      nom: 'Borne murale, monophase',
+      kw: 7.4,
+      continu: false,
+      prixKwh: 0.21,
+      ou: 'A la maison, posee 1 190 €',
+    },
     debut: 20,
     fin: 80,
   },
   {
     titre: 'Sur l aire, le temps d un cafe',
     mot: 'La voiture monte a sa pointe, puis redescend. Le calcul compte les trois quarts de la pointe jusqu a quatre-vingts.',
-    borne: { nom: 'Borne ultra-rapide continue', kw: 270, continu: true, prixKwh: 0.59, ou: 'Aires d autoroute, 19 400 points' },
+    borne: {
+      nom: 'Borne ultra-rapide continue',
+      kw: 270,
+      continu: true,
+      prixKwh: 0.59,
+      ou: 'Aires d autoroute, 19 400 points',
+    },
     debut: 10,
     fin: 80,
   },
   {
     titre: 'Viser cent pour cent',
     mot: 'Au-dela de quatre-vingts, la voiture bride : les vingt derniers pour cent coutent plus cher en temps qu en euros.',
-    borne: { nom: 'Borne ultra-rapide continue', kw: 270, continu: true, prixKwh: 0.59, ou: 'Aires d autoroute, 19 400 points' },
+    borne: {
+      nom: 'Borne ultra-rapide continue',
+      kw: 270,
+      continu: true,
+      prixKwh: 0.59,
+      ou: 'Aires d autoroute, 19 400 points',
+    },
     debut: 80,
     fin: 100,
   },
@@ -156,7 +188,13 @@ const RENDEMENT_ALTERNATIF = 0.89
  * pointe ; au-dela, un quart. En alternatif, le chargeur embarque tient sa
  * puissance du debut a la fin, et c est la prise qui limite.
  */
-function dureeCharge(capacite: number, pointe: number, debut: number, fin: number, borne: Borne): number {
+function dureeCharge(
+  capacite: number,
+  pointe: number,
+  debut: number,
+  fin: number,
+  borne: Borne,
+): number {
   const utile = Math.min(borne.kw, borne.continu ? pointe : borne.kw)
   const rendement = borne.continu ? RENDEMENT_CONTINU : RENDEMENT_ALTERNATIF
   const basse = Math.max(0, Math.min(fin, 80) - debut)
@@ -174,7 +212,9 @@ function formaterDuree(minutes: number): string {
   if (minutes < 60) return `${String(minutes)} min`
   const heures = Math.floor(minutes / 60)
   const reste = minutes % 60
-  return reste === 0 ? `${String(heures)} h` : `${String(heures)} h ${String(reste).padStart(2, '0')}`
+  return reste === 0
+    ? `${String(heures)} h`
+    : `${String(heures)} h ${String(reste).padStart(2, '0')}`
 }
 
 /**
@@ -183,13 +223,47 @@ function formaterDuree(minutes: number): string {
  * L homologue d un cote, le releve de l autre : la page ne met aucun nombre
  * en scene, elle les annote. C est la forme C7.
  */
-const NOTES: readonly { readonly marge: string; readonly quoi: string; readonly texte: string }[] = [
-  { marge: '548 km', quoi: 'releve, contre 612 homologues', texte: 'Notre boucle fait 340 kilometres, a 17 degres, climatisation en automatique, deux passages. Le chiffre releve est celui du carnet remis a la livraison, pas celui de la brochure.' },
-  { marge: '16,1 kWh', quoi: 'aux cent, contre 14,6', texte: 'Le cycle compte l energie prise a la prise, pas celle sortie de la batterie : neuf pour cent partent en chaleur dans le chargeur embarque. Nous l ecrivons.' },
-  { marge: '19 min', quoi: 'de 10 a 80 %, contre 18', texte: 'Une minute d ecart sur une aire d autoroute a 12 degres, batterie preconditionnee par le planificateur. Sans preconditionnement, comptez un tiers de plus.' },
-  { marge: '8 ans', quoi: 'ou 240 000 km', texte: 'La batterie est garantie a soixante-dix pour cent de sa capacite, mesuree en atelier sur cycle normalise. Un entretien fait ailleurs ne fait pas tomber la garantie : la facture suffit.' },
-  { marge: '815 €', quoi: 'd entretien sur 100 000 km', texte: 'Pas de vidange, pas de courroie, pas de filtre a air moteur. Un controle tous les deux ans, le liquide de frein, le circuit de refroidissement tous les quatre ans. Nous publions le detail parce que c est la moitie de ce qu on paie ailleurs.' },
-  { marge: '94 cm', quoi: 'aux genoux, place arriere', texte: 'Plancher plat, banquette 40/20/40 rabattable depuis le coffre, trois ceintures trois points. Une berline compacte en donne 78 ; la moyenne du segment, 86.' },
+const NOTES: readonly {
+  readonly marge: string
+  readonly quoi: string
+  readonly texte: string
+}[] = [
+  {
+    marge: '548 km',
+    quoi: 'releve, contre 612 homologues',
+    texte:
+      'Notre boucle fait 340 kilometres, a 17 degres, climatisation en automatique, deux passages. Le chiffre releve est celui du carnet remis a la livraison, pas celui de la brochure.',
+  },
+  {
+    marge: '16,1 kWh',
+    quoi: 'aux cent, contre 14,6',
+    texte:
+      'Le cycle compte l energie prise a la prise, pas celle sortie de la batterie : neuf pour cent partent en chaleur dans le chargeur embarque. Nous l ecrivons.',
+  },
+  {
+    marge: '19 min',
+    quoi: 'de 10 a 80 %, contre 18',
+    texte:
+      'Une minute d ecart sur une aire d autoroute a 12 degres, batterie preconditionnee par le planificateur. Sans preconditionnement, comptez un tiers de plus.',
+  },
+  {
+    marge: '8 ans',
+    quoi: 'ou 240 000 km',
+    texte:
+      'La batterie est garantie a soixante-dix pour cent de sa capacite, mesuree en atelier sur cycle normalise. Un entretien fait ailleurs ne fait pas tomber la garantie : la facture suffit.',
+  },
+  {
+    marge: '815 €',
+    quoi: 'd entretien sur 100 000 km',
+    texte:
+      'Pas de vidange, pas de courroie, pas de filtre a air moteur. Un controle tous les deux ans, le liquide de frein, le circuit de refroidissement tous les quatre ans. Nous publions le detail parce que c est la moitie de ce qu on paie ailleurs.',
+  },
+  {
+    marge: '94 cm',
+    quoi: 'aux genoux, place arriere',
+    texte:
+      'Plancher plat, banquette 40/20/40 rabattable depuis le coffre, trois ceintures trois points. Une berline compacte en donne 78 ; la moyenne du segment, 86.',
+  },
 ]
 
 /**
@@ -199,12 +273,41 @@ const NOTES: readonly { readonly marge: string; readonly quoi: string; readonly 
  * cinq renvois du dessin ont ici leur legende — c est elle qui porte le sens,
  * le dessin etant masque aux lecteurs d ecran.
  */
-const ORGANES: readonly { readonly rang: string; readonly organe: string; readonly texte: string }[] = [
-  { rang: '01', organe: 'La batterie, dans le plancher', texte: 'Quatre-vingt-deux kilowattheures utiles en douze modules boulonnes sous le plancher. Le centre de gravite tombe a quarante-quatre centimetres du sol.' },
-  { rang: '02', organe: 'Le moteur arriere', texte: 'Synchrone a aimants permanents, deux cent dix kilowatts. C est lui qui pousse ; l avant ne s enclenche qu en perte d adherence.' },
-  { rang: '03', organe: 'Le bloc avant', texte: 'Cinquante kilowatts, et cinquante-huit litres de rangement par-dessus. La trappe s ouvre depuis le trottoir, cable de charge dedans.' },
-  { rang: '04', organe: 'L habitacle, plancher plat', texte: 'Quatre-vingt-quatorze centimetres aux genoux a l arriere : ni tunnel de transmission, ni boite, ni echappement a loger.' },
-  { rang: '05', organe: 'Le coffre', texte: 'Cinq cent trente litres sous tablette, mille quatre cent dix banquette rabattue. Seuil de chargement a soixante-douze centimetres.' },
+const ORGANES: readonly {
+  readonly rang: string
+  readonly organe: string
+  readonly texte: string
+}[] = [
+  {
+    rang: '01',
+    organe: 'La batterie, dans le plancher',
+    texte:
+      'Quatre-vingt-deux kilowattheures utiles en douze modules boulonnes sous le plancher. Le centre de gravite tombe a quarante-quatre centimetres du sol.',
+  },
+  {
+    rang: '02',
+    organe: 'Le moteur arriere',
+    texte:
+      'Synchrone a aimants permanents, deux cent dix kilowatts. C est lui qui pousse ; l avant ne s enclenche qu en perte d adherence.',
+  },
+  {
+    rang: '03',
+    organe: 'Le bloc avant',
+    texte:
+      'Cinquante kilowatts, et cinquante-huit litres de rangement par-dessus. La trappe s ouvre depuis le trottoir, cable de charge dedans.',
+  },
+  {
+    rang: '04',
+    organe: 'L habitacle, plancher plat',
+    texte:
+      'Quatre-vingt-quatorze centimetres aux genoux a l arriere : ni tunnel de transmission, ni boite, ni echappement a loger.',
+  },
+  {
+    rang: '05',
+    organe: 'Le coffre',
+    texte:
+      'Cinq cent trente litres sous tablette, mille quatre cent dix banquette rabattue. Seuil de chargement a soixante-douze centimetres.',
+  },
 ]
 
 /**
@@ -214,7 +317,11 @@ const ORGANES: readonly { readonly rang: string; readonly organe: string; readon
  * la figure entre dans le champ : c est le mouvement le plus honnete qu on
  * puisse donner a un chiffre, puisqu il dit le rapport entre les trois.
  */
-const ALLURES: readonly { readonly allure: string; readonly km: number; readonly note: string }[] = [
+const ALLURES: readonly {
+  readonly allure: string
+  readonly km: number
+  readonly note: string
+}[] = [
   { allure: '90 km/h', km: 631, note: 'nationale, regulateur' },
   { allure: '110 km/h', km: 548, note: 'autoroute, deux passages' },
   { allure: '130 km/h', km: 452, note: 'autoroute, pleine charge' },
@@ -230,7 +337,8 @@ const CRENEAUX: readonly {
   readonly plages: readonly { readonly heure: string; readonly libre: boolean }[]
 }[] = [
   {
-    jour: 'Jeudi', date: '17 septembre',
+    jour: 'Jeudi',
+    date: '17 septembre',
     plages: [
       { heure: '9h - 11h', libre: false },
       { heure: '11h - 13h', libre: true },
@@ -239,7 +347,8 @@ const CRENEAUX: readonly {
     ],
   },
   {
-    jour: 'Vendredi', date: '18 septembre',
+    jour: 'Vendredi',
+    date: '18 septembre',
     plages: [
       { heure: '9h - 11h', libre: true },
       { heure: '11h - 13h', libre: false },
@@ -248,7 +357,8 @@ const CRENEAUX: readonly {
     ],
   },
   {
-    jour: 'Samedi', date: '19 septembre',
+    jour: 'Samedi',
+    date: '19 septembre',
     plages: [
       { heure: '9h - 11h', libre: true },
       { heure: '11h - 13h', libre: true },
@@ -257,7 +367,8 @@ const CRENEAUX: readonly {
     ],
   },
   {
-    jour: 'Lundi', date: '21 septembre',
+    jour: 'Lundi',
+    date: '21 septembre',
     plages: [
       { heure: '9h - 11h', libre: true },
       { heure: '11h - 13h', libre: true },
@@ -268,7 +379,16 @@ const CRENEAUX: readonly {
 ]
 
 /** Les reseaux de recharge acceptes par la carte incluse. */
-const PARTENAIRES = ['Ionity', 'Electra', 'Freshmile', 'Izivia', 'Chargemap', 'TotalEnergies', 'Allego', 'Fastned'] as const
+const PARTENAIRES = [
+  'Ionity',
+  'Electra',
+  'Freshmile',
+  'Izivia',
+  'Chargemap',
+  'TotalEnergies',
+  'Allego',
+  'Fastned',
+] as const
 
 /**
  * Le theme sombre force de la plaque de droite et de la scene de charge.
@@ -321,7 +441,14 @@ const RENTRE = 'max(0px, calc((100vw - 72rem) / 2))'
  */
 function Titre({ children }: { readonly children: string }): ReactElement {
   return (
-    <ScrollFloat as="h2" lift={16} period={3800} course={0.35} className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 5vw, 4.5rem)' }}>
+    <ScrollFloat
+      as="h2"
+      lift={16}
+      period={3800}
+      course={0.35}
+      className="o-m-0 o-max-w-3xl o-text-balance o-text-zinc-950 dark:o-text-zinc-50"
+      style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 5vw, 4.5rem)' }}
+    >
       {children}
     </ScrollFloat>
   )
@@ -362,14 +489,34 @@ function Coupe(): ReactElement {
 
   /** Un remplissage qui arrive apres son contour. */
   const apparait = (delai: number): CSSProperties =>
-    reduced ? {} : { opacity: vu ? 1 : 0, transition: `opacity 700ms ease ${String(delai)}ms` }
+    reduced
+      ? {}
+      : { opacity: vu ? 1 : 0, transition: `opacity 700ms ease ${String(delai)}ms` }
 
   /** Un renvoi numerote : le disque, son chiffre, et son fil. */
-  const renvoi = (rang: string, cx: number, cy: number, vers: readonly [number, number]): ReactElement => (
+  const renvoi = (
+    rang: string,
+    cx: number,
+    cy: number,
+    vers: readonly [number, number],
+  ): ReactElement => (
     <g key={rang}>
-      <path d={`M${String(cx)} ${String(cy)}L${String(vers[0])} ${String(vers[1])}`} stroke="currentColor" strokeWidth="1" opacity="0.4" />
+      <path
+        d={`M${String(cx)} ${String(cy)}L${String(vers[0])} ${String(vers[1])}`}
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.4"
+      />
       <circle cx={cx} cy={cy} r="14" fill="currentColor" stroke="none" />
-      <text x={cx} y={cy + 4} textAnchor="middle" fontSize="13" fontFamily="var(--o-vitrine-mono, monospace)" fill="var(--o-theme-bg)" stroke="none">
+      <text
+        x={cx}
+        y={cy + 4}
+        textAnchor="middle"
+        fontSize="13"
+        fontFamily="var(--o-vitrine-mono, monospace)"
+        fill="var(--o-theme-bg)"
+        stroke="none"
+      >
         {rang}
       </text>
     </g>
@@ -414,27 +561,67 @@ function Coupe(): ReactElement {
 
         {/* (01) La batterie : le plancher, et ses douze modules. */}
         <g style={apparait(900)}>
-          <rect x="316" y="282" width="568" height="30" rx="6" fill={accentDoux(500, 34)} stroke="currentColor" />
+          <rect
+            x="316"
+            y="282"
+            width="568"
+            height="30"
+            rx="6"
+            fill={accentDoux(500, 34)}
+            stroke="currentColor"
+          />
           <g opacity="0.45">
             {Array.from({ length: 11 }, (_, k) => (
-              <path key={k} d={`M${String(316 + (k + 1) * 47.3)} 284v26`} strokeWidth="1" />
+              <path
+                key={k}
+                d={`M${String(316 + (k + 1) * 47.3)} 284v26`}
+                strokeWidth="1"
+              />
             ))}
           </g>
         </g>
 
         {/* (02) Le moteur arriere, (03) le bloc avant, (05) le coffre. */}
         <g style={apparait(1100)}>
-          <rect x="884" y="254" width="84" height="44" rx="9" fill={accentDoux(500, 24)} stroke="currentColor" />
+          <rect
+            x="884"
+            y="254"
+            width="84"
+            height="44"
+            rx="9"
+            fill={accentDoux(500, 24)}
+            stroke="currentColor"
+          />
           <circle cx="926" cy="276" r="13" strokeWidth="1.2" />
-          <rect x="108" y="234" width="98" height="38" rx="8" fill={accentDoux(500, 24)} stroke="currentColor" />
+          <rect
+            x="108"
+            y="234"
+            width="98"
+            height="38"
+            rx="8"
+            fill={accentDoux(500, 24)}
+            stroke="currentColor"
+          />
           <circle cx="157" cy="253" r="10" strokeWidth="1.2" />
-          <rect x="984" y="222" width="118" height="34" rx="5" stroke="currentColor" strokeWidth="1.2" />
+          <rect
+            x="984"
+            y="222"
+            width="118"
+            height="34"
+            rx="5"
+            stroke="currentColor"
+            strokeWidth="1.2"
+          />
         </g>
 
         {/* (04) L habitacle : planche, deux sieges, et la cote aux genoux. */}
         <g style={trace(1800, 700)}>
           {/* La planche, la colonne et le volant. */}
-          <path d="M338 234l70 14M404 246l18-34M412 206l20 12" strokeWidth="2" opacity="0.75" />
+          <path
+            d="M338 234l70 14M404 246l18-34M412 206l20 12"
+            strokeWidth="2"
+            opacity="0.75"
+          />
           {/* Les deux sieges : appuie-tete, dossier, assise. */}
           <rect x="450" y="192" width="26" height="16" rx="5" strokeWidth="2" />
           <path d="M458 210l14 72h72" strokeWidth="2.6" />
@@ -488,11 +675,31 @@ function PosteDessine(): ReactElement {
       <rect width="1400" height="900" fill={accentDoux(500, 8)} />
       {/* Le pare-brise et les montants. */}
       <path d="M92 96h1216l-96 236H188Z" stroke={trait} strokeWidth="3" opacity="0.35" />
-      <path d="M188 332 92 96M1212 332l96-236" stroke={trait} strokeWidth="3" opacity="0.35" />
+      <path
+        d="M188 332 92 96M1212 332l96-236"
+        stroke={trait}
+        strokeWidth="3"
+        opacity="0.35"
+      />
       {/* La tete haute, projetee sur le pare-brise. */}
       <g opacity="0.8">
-        <rect x="386" y="168" width="196" height="54" rx="4" stroke={accent(500)} strokeWidth="2" strokeDasharray="7 6" />
-        <text x="404" y="203" fontSize="26" fill={accent(500)} style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.08em' }}>
+        <rect
+          x="386"
+          y="168"
+          width="196"
+          height="54"
+          rx="4"
+          stroke={accent(500)}
+          strokeWidth="2"
+          strokeDasharray="7 6"
+        />
+        <text
+          x="404"
+          y="203"
+          fontSize="26"
+          fill={accent(500)}
+          style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.08em' }}
+        >
           112 km/h
         </text>
       </g>
@@ -500,25 +707,73 @@ function PosteDessine(): ReactElement {
       <path d="M96 332h1208v104H96Z" stroke={trait} strokeWidth="3" />
       <path d="M96 436h1208" stroke={trait} strokeWidth="2" opacity="0.5" />
       {/* L ecran de conduite, derriere le volant. */}
-      <rect x="240" y="352" width="268" height="64" rx="5" stroke={trait} strokeWidth="2.5" fill={accentDoux(500, 16)} />
+      <rect
+        x="240"
+        y="352"
+        width="268"
+        height="64"
+        rx="5"
+        stroke={trait}
+        strokeWidth="2.5"
+        fill={accentDoux(500, 16)}
+      />
       <path d="M262 400h40M318 400h28M362 400h52" stroke={accent(500)} strokeWidth="4" />
       {/* L ecran central. */}
-      <rect x="612" y="344" width="336" height="82" rx="5" stroke={trait} strokeWidth="2.5" fill={accentDoux(500, 16)} />
-      <path d="M636 372h104M636 392h72M636 410h140" stroke={trait} strokeWidth="3" opacity="0.45" />
+      <rect
+        x="612"
+        y="344"
+        width="336"
+        height="82"
+        rx="5"
+        stroke={trait}
+        strokeWidth="2.5"
+        fill={accentDoux(500, 16)}
+      />
+      <path
+        d="M636 372h104M636 392h72M636 410h140"
+        stroke={trait}
+        strokeWidth="3"
+        opacity="0.45"
+      />
       <circle cx="900" cy="386" r="22" stroke={accent(500)} strokeWidth="3" />
       {/* Les aerateurs, une fente continue. */}
-      <path d="M980 368h300M980 386h300M980 404h300" stroke={trait} strokeWidth="2" opacity="0.3" />
+      <path
+        d="M980 368h300M980 386h300M980 404h300"
+        stroke={trait}
+        strokeWidth="2"
+        opacity="0.3"
+      />
       {/* Le volant, a deux branches. */}
       <g stroke={trait} strokeWidth="4">
-        <path d="M256 470c0-58 44-102 100-102s100 44 100 102-44 102-100 102-100-44-100-102Z" opacity="0.9" />
+        <path
+          d="M256 470c0-58 44-102 100-102s100 44 100 102-44 102-100 102-100-44-100-102Z"
+          opacity="0.9"
+        />
         <path d="M276 470h160" />
         <circle cx="356" cy="470" r="26" />
       </g>
       {/* La console basse et le plancher plat. */}
       <path d="M604 470h248v148H604Z" stroke={trait} strokeWidth="2.5" opacity="0.7" />
-      <path d="M640 508h70M640 540h108M640 572h48" stroke={trait} strokeWidth="3" opacity="0.35" />
-      <path d="M96 700h1208" stroke={trait} strokeWidth="2" opacity="0.25" strokeDasharray="10 10" />
-      <text x="106" y="736" fontSize="22" fill="var(--o-theme-muted)" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <path
+        d="M640 508h70M640 540h108M640 572h48"
+        stroke={trait}
+        strokeWidth="3"
+        opacity="0.35"
+      />
+      <path
+        d="M96 700h1208"
+        stroke={trait}
+        strokeWidth="2"
+        opacity="0.25"
+        strokeDasharray="10 10"
+      />
+      <text
+        x="106"
+        y="736"
+        fontSize="22"
+        fill="var(--o-theme-muted)"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         PLANCHER PLAT — AUCUN TUNNEL
       </text>
     </svg>
@@ -558,8 +813,19 @@ function ProfilDessine(): ReactElement {
         <path d="M486 340v150M700 336v154M888 342v148" />
       </g>
       {/* La batterie, marquee dans le plancher — le sujet de la page. */}
-      <path d="M300 546h772v34H300Z" stroke={accent(500)} strokeWidth="3" strokeDasharray="12 8" />
-      <text x="306" y="620" fontSize="22" fill={accent(500)} style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <path
+        d="M300 546h772v34H300Z"
+        stroke={accent(500)}
+        strokeWidth="3"
+        strokeDasharray="12 8"
+      />
+      <text
+        x="306"
+        y="620"
+        fontSize="22"
+        fill={accent(500)}
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         82 kWh DANS LE PLANCHER
       </text>
     </svg>
@@ -576,22 +842,36 @@ function Allures(): ReactElement {
       {ALLURES.map((a, rang) => (
         <div key={a.allure}>
           <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-300">{a.allure}</dt>
-            <dd className="o-m-0 o-font-mono o-text-xl o-font-bold o-tabular-nums" style={{ color: ENCRE_ACCENT }}>
+            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-300">
+              {a.allure}
+            </dt>
+            <dd
+              className="o-m-0 o-font-mono o-text-xl o-font-bold o-tabular-nums"
+              style={{ color: ENCRE_ACCENT }}
+            >
               {a.km} km
             </dd>
           </div>
-          <div aria-hidden="true" className="o-mt-2 o-h-1.5 o-w-full o-rounded-full o-bg-zinc-200 dark:o-bg-zinc-800">
+          <div
+            aria-hidden="true"
+            className="o-mt-2 o-h-1.5 o-w-full o-rounded-full o-bg-zinc-200 dark:o-bg-zinc-800"
+          >
             <div
               className="o-h-full o-rounded-full"
               style={{
-                width: ouvert ? `${String(Math.round((a.km / ALLURE_MAX) * 100))}%` : '0%',
+                width: ouvert
+                  ? `${String(Math.round((a.km / ALLURE_MAX) * 100))}%`
+                  : '0%',
                 backgroundColor: ENCRE_ACCENT,
-                transition: reduced ? undefined : `width 1200ms cubic-bezier(0.22, 1, 0.36, 1) ${String(rang * 160)}ms`,
+                transition: reduced
+                  ? undefined
+                  : `width 1200ms cubic-bezier(0.22, 1, 0.36, 1) ${String(rang * 160)}ms`,
               }}
             />
           </div>
-          <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{a.note}</p>
+          <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+            {a.note}
+          </p>
         </div>
       ))}
     </dl>
@@ -606,48 +886,93 @@ export default function Page(): ReactElement {
   /** Le creneau d essai retenu. */
   const [creneau, setCreneau] = useState<string | undefined>(undefined)
 
-  const choixBatterie = BATTERIES.find((b) => b.cle === batterie) ?? BATTERIES[1] ?? BATTERIES[0]!
+  const choixBatterie =
+    BATTERIES.find((b) => b.cle === batterie) ?? BATTERIES[1] ?? BATTERIES[0]!
 
   return (
     <Porte forme="compteur" marque="Axe">
-      <div className="o-bg-zinc-50 o-text-zinc-900 dark:o-bg-zinc-950 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-zinc-50 o-text-zinc-900 dark:o-bg-zinc-950 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L ouverture : le diptyque ================= */}
-        <section aria-label="Axe 80 Grande Autonomie" className="o-grid md:o-min-h-svh md:o-grid-cols-2">
+        <section
+          aria-label="Axe 80 Grande Autonomie"
+          className="o-grid md:o-min-h-svh md:o-grid-cols-2"
+        >
           <div className="o-flex o-flex-col o-px-6 md:o-px-10 lg:o-px-16">
             <nav
               aria-label="Navigation principale"
               className="o-flex o-flex-wrap o-items-baseline o-gap-x-7 o-gap-y-2 o-border-b o-border-zinc-300 o-py-5 o-font-mono o-text-xs o-uppercase o-tracking-widest dark:o-border-zinc-800"
             >
-              <a href="#poste" className="o-font-bold o-text-zinc-900 o-no-underline dark:o-text-zinc-50 focus:o-ring">
+              <a
+                href="#poste"
+                className="o-font-bold o-text-zinc-900 o-no-underline dark:o-text-zinc-50 focus:o-ring"
+              >
                 Axe
               </a>
               {NAVIGATION.map(([href, libelle]) => (
-                <a key={href} href={href} className="o-text-zinc-600 o-no-underline o-transition-colors hover:o-text-zinc-950 dark:o-text-zinc-300 dark:hover:o-text-zinc-50 focus:o-ring">
+                <a
+                  key={href}
+                  href={href}
+                  className="o-text-zinc-600 o-no-underline o-transition-colors hover:o-text-zinc-950 dark:o-text-zinc-300 dark:hover:o-text-zinc-50 focus:o-ring"
+                >
                   {libelle}
                 </a>
               ))}
-              <a href="#essai" className="o-ml-auto o-font-bold o-no-underline o-transition-colors focus:o-ring" style={{ color: ENCRE_ACCENT }}>
+              <a
+                href="#essai"
+                className="o-ml-auto o-font-bold o-no-underline o-transition-colors focus:o-ring"
+                style={{ color: ENCRE_ACCENT }}
+              >
                 Essai a domicile ↗
               </a>
             </nav>
 
             <div className="o-mt-auto o-py-14 md:o-py-20">
-              <Surgit as="p" className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+              <Surgit
+                as="p"
+                className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+              >
                 Une seule voiture, trois finitions
               </Surgit>
-              <TitreVague delai={100} className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('xl', 800), fontSize: 'clamp(5rem, 16vw, 14rem)', lineHeight: 0.82 }}>
+              <TitreVague
+                delai={100}
+                className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('xl', 800),
+                  fontSize: 'clamp(5rem, 16vw, 14rem)',
+                  lineHeight: 0.82,
+                }}
+              >
                 Axe 80
               </TitreVague>
-              <Surgit delai={360} as="p" className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}>
+              <Surgit
+                delai={360}
+                as="p"
+                className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)',
+                }}
+              >
                 Grande Autonomie
               </Surgit>
               {/* La flottaison est reservee aux titres de section : une accroche
                   d ouverture doit se lire a la premiere image, pas apres un
                   demi-ecran de defilement. */}
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-8 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 md:o-text-lg">
-                Six cent douze kilometres annonces, cinq cent quarante-huit releves. Nous publions les deux.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-8 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 md:o-text-lg"
+              >
+                Six cent douze kilometres annonces, cinq cent quarante-huit releves. Nous
+                publions les deux.
               </Surgit>
-              <Surgit delai={660} className="o-mt-10 o-flex o-flex-wrap o-items-center o-gap-6">
+              <Surgit
+                delai={660}
+                className="o-mt-10 o-flex o-flex-wrap o-items-center o-gap-6"
+              >
                 <a
                   href="#essai"
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-md o-px-6 o-py-3 o-text-base o-font-medium o-no-underline o-transition-opacity hover:o-opacity-90 focus:o-ring"
@@ -664,7 +989,10 @@ export default function Page(): ReactElement {
           </div>
 
           {/* La plaque : elle touche le bord, sans marge ni arrondi. */}
-          <div className="o-relative o-isolate o-overflow-hidden o-bg-zinc-950 max-md:o-h-80" style={{ ...PLAQUE_SOMBRE, ...LUEUR_ROUTE }}>
+          <div
+            className="o-relative o-isolate o-overflow-hidden o-bg-zinc-950 max-md:o-h-80"
+            style={{ ...PLAQUE_SOMBRE, ...LUEUR_ROUTE }}
+          >
             <TerrainWireframe
               aria-hidden="true"
               className="o-absolute o-inset-0 o-z-0"
@@ -678,7 +1006,10 @@ export default function Page(): ReactElement {
             <div
               aria-hidden="true"
               className="o-absolute o-inset-x-0 o-bottom-0 o-z-10 o-h-24"
-              style={{ backgroundImage: 'linear-gradient(to top, color-mix(in oklab, black 82%, transparent), transparent)' }}
+              style={{
+                backgroundImage:
+                  'linear-gradient(to top, color-mix(in oklab, black 82%, transparent), transparent)',
+              }}
             />
             <p className="o-absolute o-bottom-0 o-left-0 o-z-20 o-m-0 o-px-6 o-py-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-100">
               Paris — Lyon, une seule charge
@@ -688,18 +1019,32 @@ export default function Page(): ReactElement {
 
         <main>
           {/* ================= (01) Le poste de conduite, en perspective ================= */}
-          <section id="poste" className="o-scroll-mt-24 o-overflow-hidden o-border-t o-border-zinc-300 o-px-6 o-pb-12 o-pt-20 dark:o-border-zinc-800 md:o-pt-28">
+          <section
+            id="poste"
+            className="o-scroll-mt-24 o-overflow-hidden o-border-t o-border-zinc-300 o-px-6 o-pb-12 o-pt-20 dark:o-border-zinc-800 md:o-pt-28"
+          >
             <div className="o-mx-auto o-max-w-6xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">(01) — Le poste de conduite</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                (01) — Le poste de conduite
+              </p>
               <div className="o-mt-5 o-grid o-items-end o-gap-6 md:o-grid-cols-12">
                 <div className="md:o-col-span-8">
                   <Titre>A hauteur d oeil, sept boutons qui restent.</Titre>
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-4 md:o-text-right">
-                  Ecran de conduite 12,3 pouces<br />ecran central 14 pouces<br />tete haute de serie
+                  Ecran de conduite 12,3 pouces
+                  <br />
+                  ecran central 14 pouces
+                  <br />
+                  tete haute de serie
                 </p>
               </div>
-              <ContainerScroll label="Le poste de conduite de l Axe 80" rotation={22} scale={0.86} className="o-mt-4">
+              <ContainerScroll
+                label="Le poste de conduite de l Axe 80"
+                rotation={22}
+                scale={0.86}
+                className="o-mt-4"
+              >
                 <PosteDessine />
               </ContainerScroll>
             </div>
@@ -707,19 +1052,37 @@ export default function Page(): ReactElement {
 
           {/* ================= (02) La charge, epinglee : trois actes ================= */}
           <section id="charge" className="o-scroll-mt-24">
-            <Epingle ecrans={3.5} actes={3} className="o-text-zinc-50" style={PLAQUE_SOMBRE}>
+            <Epingle
+              ecrans={3.5}
+              actes={3}
+              className="o-text-zinc-50"
+              style={PLAQUE_SOMBRE}
+            >
               {(acte) => {
                 const scene = ACTES[acte] ?? ACTES[0]
                 if (scene === undefined) return null
-                const minutes = dureeCharge(choixBatterie.capacite, choixBatterie.pointe, scene.debut, scene.fin, scene.borne)
+                const minutes = dureeCharge(
+                  choixBatterie.capacite,
+                  choixBatterie.pointe,
+                  scene.debut,
+                  scene.fin,
+                  scene.borne,
+                )
                 const fenetre = scene.fin - scene.debut
                 const energie = (choixBatterie.capacite * fenetre) / 100
-                const prise = energie / (scene.borne.continu ? RENDEMENT_CONTINU : RENDEMENT_ALTERNATIF)
+                const prise =
+                  energie /
+                  (scene.borne.continu ? RENDEMENT_CONTINU : RENDEMENT_ALTERNATIF)
                 const km = Math.round((choixBatterie.autonomie * fenetre) / 100)
                 return (
-                  <div className="o-relative o-flex o-size-full o-flex-col o-bg-zinc-950 o-px-6 o-py-10 md:o-px-10 lg:o-px-16" style={LUEUR_ROUTE}>
+                  <div
+                    className="o-relative o-flex o-size-full o-flex-col o-bg-zinc-950 o-px-6 o-py-10 md:o-px-10 lg:o-px-16"
+                    style={LUEUR_ROUTE}
+                  >
                     <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-4">
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">(02) — La charge, calculee — acte {String(acte + 1)} sur 3</p>
+                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                        (02) — La charge, calculee — acte {String(acte + 1)} sur 3
+                      </p>
                       <div role="group" aria-label="Batterie" className="o-flex o-gap-2">
                         {BATTERIES.map((b) => {
                           const actif = b.cle === choixBatterie.cle
@@ -732,7 +1095,18 @@ export default function Page(): ReactElement {
                                 setBatterie(b.cle)
                               }}
                               className="o-cursor-pointer o-rounded-full o-border-w-1 o-px-4 o-py-1.5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-transition-colors focus:o-ring"
-                              style={actif ? { backgroundColor: VIF, color: 'var(--o-palette-zinc-950)', borderColor: VIF } : { borderColor: 'var(--o-palette-zinc-700)', color: 'var(--o-palette-zinc-200)' }}
+                              style={
+                                actif
+                                  ? {
+                                      backgroundColor: VIF,
+                                      color: 'var(--o-palette-zinc-950)',
+                                      borderColor: VIF,
+                                    }
+                                  : {
+                                      borderColor: 'var(--o-palette-zinc-700)',
+                                      color: 'var(--o-palette-zinc-200)',
+                                    }
+                              }
                             >
                               {b.serie} — {b.nom}
                             </button>
@@ -743,31 +1117,64 @@ export default function Page(): ReactElement {
 
                     <div className="o-my-auto o-grid o-items-center o-gap-10 o-py-8 md:o-grid-cols-12">
                       <div className="md:o-col-span-5">
-                        <p key={scene.titre} className="o-m-0 o-text-zinc-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 5.5vw, 5.5rem)' }}>
+                        <p
+                          key={scene.titre}
+                          className="o-m-0 o-text-zinc-50"
+                          style={{
+                            ...affiche('l', 300),
+                            fontSize: 'clamp(2.25rem, 5.5vw, 5.5rem)',
+                          }}
+                        >
                           {scene.titre}
                         </p>
-                        <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-text-lg">{scene.mot}</p>
+                        <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-text-lg">
+                          {scene.mot}
+                        </p>
                         <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                          {scene.borne.nom} — {scene.borne.kw.toLocaleString('fr-FR')} kW<br />{scene.borne.ou}
+                          {scene.borne.nom} — {scene.borne.kw.toLocaleString('fr-FR')} kW
+                          <br />
+                          {scene.borne.ou}
                         </p>
                       </div>
 
                       <div className="o-flex o-items-center o-justify-center md:o-col-span-3">
-                        <ProgressRing value={scene.fin} size={220} thickness={12} label={`Charge visee, ${String(scene.fin)} pour cent`} className="o-text-3xl o-text-zinc-50" />
+                        <ProgressRing
+                          value={scene.fin}
+                          size={220}
+                          thickness={12}
+                          label={`Charge visee, ${String(scene.fin)} pour cent`}
+                          className="o-text-3xl o-text-zinc-50"
+                        />
                       </div>
 
                       <dl className="o-m-0 o-border-t o-border-zinc-800 md:o-col-span-4">
                         {(
                           [
-                            [`De ${String(scene.debut)} a ${String(scene.fin)} %`, formaterDuree(minutes)],
+                            [
+                              `De ${String(scene.debut)} a ${String(scene.fin)} %`,
+                              formaterDuree(minutes),
+                            ],
                             ['Autonomie reprise', `${String(km)} km`],
                             ['Energie prise', `${prise.toFixed(0)} kWh`],
-                            ['Prix de la session', `${(prise * scene.borne.prixKwh).toFixed(2).replace('.', ',')} €`],
+                            [
+                              'Prix de la session',
+                              `${(prise * scene.borne.prixKwh).toFixed(2).replace('.', ',')} €`,
+                            ],
                           ] as const
                         ).map(([terme, valeur], rang) => (
-                          <div key={terme} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-800 o-py-4">
-                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{terme}</dt>
-                            <dd className={`o-m-0 o-font-mono o-tabular-nums ${rang === 0 ? 'o-text-3xl o-font-bold md:o-text-4xl' : 'o-text-base'}`} style={{ color: rang === 0 ? VIF : 'var(--o-palette-zinc-100)' }}>
+                          <div
+                            key={terme}
+                            className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-800 o-py-4"
+                          >
+                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                              {terme}
+                            </dt>
+                            <dd
+                              className={`o-m-0 o-font-mono o-tabular-nums ${rang === 0 ? 'o-text-3xl o-font-bold md:o-text-4xl' : 'o-text-base'}`}
+                              style={{
+                                color: rang === 0 ? VIF : 'var(--o-palette-zinc-100)',
+                              }}
+                            >
                               {valeur}
                             </dd>
                           </div>
@@ -777,7 +1184,14 @@ export default function Page(): ReactElement {
 
                     <div className="o-flex o-items-center o-gap-3" aria-hidden="true">
                       {ACTES.map((a, rang) => (
-                        <span key={a.titre} className="o-h-1 o-grow o-rounded-full" style={{ backgroundColor: rang <= acte ? VIF : 'var(--o-palette-zinc-800)' }} />
+                        <span
+                          key={a.titre}
+                          className="o-h-1 o-grow o-rounded-full"
+                          style={{
+                            backgroundColor:
+                              rang <= acte ? VIF : 'var(--o-palette-zinc-800)',
+                          }}
+                        />
                       ))}
                     </div>
                   </div>
@@ -787,43 +1201,69 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (03) La coupe : ce que la page ne pouvait dire qu en mots ================= */}
-          <section id="coupe" className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28">
+          <section
+            id="coupe"
+            className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-6xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">(03) — La coupe, echelle 1 / 20</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                (03) — La coupe, echelle 1 / 20
+              </p>
               <div className="o-mt-5 o-grid o-items-end o-gap-6 md:o-grid-cols-12">
                 <div className="md:o-col-span-8">
                   <Titre>Une voiture electrique se juge a ce qu on ne voit pas.</Titre>
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-4 md:o-text-right">
-                  Longueur 4,74 m<br />empattement 2,92 m<br />garde au sol 14 cm
+                  Longueur 4,74 m<br />
+                  empattement 2,92 m<br />
+                  garde au sol 14 cm
                 </p>
               </div>
 
               <figure className="o-m-0 o-mt-12">
-                <div className="o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-zinc-300 o-px-4 o-py-6 o-text-zinc-900 dark:o-border-zinc-800 dark:o-text-zinc-100 md:o-px-10 md:o-py-10" style={{ backgroundColor: accentDoux(500, 5) }}>
+                <div
+                  className="o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-zinc-300 o-px-4 o-py-6 o-text-zinc-900 dark:o-border-zinc-800 dark:o-text-zinc-100 md:o-px-10 md:o-py-10"
+                  style={{ backgroundColor: accentDoux(500, 5) }}
+                >
                   <Coupe />
                 </div>
                 <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                  Fig. 01 — Axe 80 Grande Autonomie, coupe longitudinale, cotes en millimetres au dossier technique
+                  Fig. 01 — Axe 80 Grande Autonomie, coupe longitudinale, cotes en
+                  millimetres au dossier technique
                 </figcaption>
               </figure>
 
               <div className="o-mt-14 o-grid o-gap-12 lg:o-grid-cols-12">
                 <ol className="o-m-0 o-grid o-list-none o-gap-x-10 o-gap-y-7 o-p-0 sm:o-grid-cols-2 lg:o-col-span-7">
                   {ORGANES.map((o) => (
-                    <li key={o.rang} className="o-border-t o-border-zinc-300 o-pt-4 dark:o-border-zinc-800">
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: ENCRE_ACCENT }}>({o.rang})</p>
-                      <p className="o-m-0 o-mt-2 o-text-base o-font-medium o-text-zinc-950 dark:o-text-zinc-50">{o.organe}</p>
-                      <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">{o.texte}</p>
+                    <li
+                      key={o.rang}
+                      className="o-border-t o-border-zinc-300 o-pt-4 dark:o-border-zinc-800"
+                    >
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: ENCRE_ACCENT }}
+                      >
+                        ({o.rang})
+                      </p>
+                      <p className="o-m-0 o-mt-2 o-text-base o-font-medium o-text-zinc-950 dark:o-text-zinc-50">
+                        {o.organe}
+                      </p>
+                      <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+                        {o.texte}
+                      </p>
                     </li>
                   ))}
                 </ol>
 
                 <figure className="o-m-0 lg:o-col-span-5">
                   <figcaption className="o-mb-6 o-border-t o-border-zinc-300 o-pt-4 dark:o-border-zinc-800">
-                    <span className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">L autonomie selon l allure</span>
+                    <span className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                      L autonomie selon l allure
+                    </span>
                     <span className="o-mt-2 o-block o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
-                      Meme boucle de 340 kilometres, meme journee, 17 degres. L homologation en annonce 612 ; aucune des trois allures ne les rend.
+                      Meme boucle de 340 kilometres, meme journee, 17 degres. L
+                      homologation en annonce 612 ; aucune des trois allures ne les rend.
                     </span>
                   </figcaption>
                   <Allures />
@@ -833,20 +1273,37 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (04) Les notes de chantier : chiffres dans la marge (C7) ================= */}
-          <section id="notes" className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28">
+          <section
+            id="notes"
+            className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-6xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">(04) — Notes de chantier</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                (04) — Notes de chantier
+              </p>
               <div className="o-mt-5">
                 <Titre>Ce que la voiture a fait, pas ce qu elle annonce.</Titre>
               </div>
               <ol className="o-m-0 o-mt-14 o-list-none o-border-t o-border-zinc-300 o-p-0 dark:o-border-zinc-800">
                 {NOTES.map((note) => (
-                  <li key={note.marge} className="o-grid o-gap-3 o-border-b o-border-zinc-300 o-py-7 dark:o-border-zinc-800 md:o-grid-cols-12 md:o-gap-8">
+                  <li
+                    key={note.marge}
+                    className="o-grid o-gap-3 o-border-b o-border-zinc-300 o-py-7 dark:o-border-zinc-800 md:o-grid-cols-12 md:o-gap-8"
+                  >
                     <div className="md:o-col-span-3">
-                      <p className="o-m-0 o-font-mono o-text-2xl o-font-bold o-tabular-nums o-tracking-tight md:o-text-3xl" style={{ color: ENCRE_ACCENT }}>{note.marge}</p>
-                      <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{note.quoi}</p>
+                      <p
+                        className="o-m-0 o-font-mono o-text-2xl o-font-bold o-tabular-nums o-tracking-tight md:o-text-3xl"
+                        style={{ color: ENCRE_ACCENT }}
+                      >
+                        {note.marge}
+                      </p>
+                      <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                        {note.quoi}
+                      </p>
                     </div>
-                    <p className="o-m-0 o-max-w-2xl o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-200 md:o-col-span-9 md:o-text-lg">{note.texte}</p>
+                    <p className="o-m-0 o-max-w-2xl o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-200 md:o-col-span-9 md:o-text-lg">
+                      {note.texte}
+                    </p>
                   </li>
                 ))}
               </ol>
@@ -863,31 +1320,61 @@ export default function Page(): ReactElement {
             style={{ ...PLAQUE_SOMBRE, ...LUEUR_ROUTE }}
           >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le protocole, en une phrase</p>
-              <p className="o-m-0 o-mt-10 o-max-w-5xl o-text-balance o-text-zinc-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 6.5vw, 6rem)', lineHeight: 1.02 }}>
-                Une voiture se juge en fevrier, a cent trente, <span className="o-text-zinc-500">avec quatre personnes et un coffre plein.</span>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                Le protocole, en une phrase
+              </p>
+              <p
+                className="o-m-0 o-mt-10 o-max-w-5xl o-text-balance o-text-zinc-50"
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.5rem, 6.5vw, 6rem)',
+                  lineHeight: 1.02,
+                }}
+              >
+                Une voiture se juge en fevrier, a cent trente,{' '}
+                <span className="o-text-zinc-500">
+                  avec quatre personnes et un coffre plein.
+                </span>
               </p>
               <p className="o-m-0 o-mt-12 o-max-w-lg o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                C est la seule boucle que nous publions. Les autres constructeurs publient la leur a vingt-trois degres, seul a bord, coffre vide.
+                C est la seule boucle que nous publions. Les autres constructeurs publient
+                la leur a vingt-trois degres, seul a bord, coffre vide.
               </p>
             </div>
           </section>
 
           {/* ================= (05) A15 : la date d essai, dans une carte ================= */}
-          <section id="essai" className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28" style={{ backgroundColor: accentDoux(500, 7) }}>
+          <section
+            id="essai"
+            className="o-scroll-mt-24 o-border-t o-border-zinc-300 o-px-6 o-py-20 dark:o-border-zinc-800 md:o-py-28"
+            style={{ backgroundColor: accentDoux(500, 7) }}
+          >
             <div className="o-mx-auto o-grid o-max-w-6xl o-items-start o-gap-12 lg:o-grid-cols-12">
               <div className="lg:o-col-span-5">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">(05) — Essai a domicile</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  (05) — Essai a domicile
+                </p>
                 <div className="o-mt-5">
                   <Titre>Deux heures, chez vous, sans vendeur a bord.</Titre>
                 </div>
                 <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
-                  Nous amenons la voiture chargee a 90 %, nous vous laissons les clefs et nous revenons deux heures plus tard. Vous conduisez vos trajets, pas un parcours prepare.
+                  Nous amenons la voiture chargee a 90 %, nous vous laissons les clefs et
+                  nous revenons deux heures plus tard. Vous conduisez vos trajets, pas un
+                  parcours prepare.
                 </p>
                 <ul className="o-m-0 o-mt-8 o-flex o-list-none o-flex-col o-gap-3 o-p-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-700 dark:o-text-zinc-200">
-                  {['214 communes, du lundi au samedi', 'Assurance tous risques, franchise a zero', 'Permis de plus de trois ans, aucune caution'].map((l) => (
+                  {[
+                    '214 communes, du lundi au samedi',
+                    'Assurance tous risques, franchise a zero',
+                    'Permis de plus de trois ans, aucune caution',
+                  ].map((l) => (
                     <li key={l} className="o-flex o-items-center o-gap-3">
-                      <Icon icon={Check} size={14} aria-hidden="true" style={{ color: ENCRE_ACCENT }} />
+                      <Icon
+                        icon={Check}
+                        size={14}
+                        aria-hidden="true"
+                        style={{ color: ENCRE_ACCENT }}
+                      />
                       {l}
                     </li>
                   ))}
@@ -914,12 +1401,20 @@ export default function Page(): ReactElement {
                   evenement.preventDefault()
                 }}
               >
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Choisir une date</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  Choisir une date
+                </p>
                 <div className="o-mt-5 o-grid o-gap-5 sm:o-grid-cols-2">
                   {CRENEAUX.map((jour) => (
-                    <div key={jour.date} className="o-border-t o-border-zinc-200 o-pt-4 dark:o-border-zinc-800">
+                    <div
+                      key={jour.date}
+                      className="o-border-t o-border-zinc-200 o-pt-4 dark:o-border-zinc-800"
+                    >
                       <p className="o-m-0 o-text-lg o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
-                        {jour.jour} <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{jour.date}</span>
+                        {jour.jour}{' '}
+                        <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                          {jour.date}
+                        </span>
                       </p>
                       <ul className="o-m-0 o-mt-3 o-flex o-list-none o-flex-wrap o-gap-2 o-p-0">
                         {jour.plages.map((plage) => {
@@ -952,14 +1447,29 @@ export default function Page(): ReactElement {
                     </div>
                   ))}
                 </div>
-                <p aria-live="polite" className="o-m-0 o-mt-5 o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
+                <p
+                  aria-live="polite"
+                  className="o-m-0 o-mt-5 o-text-sm o-text-zinc-600 dark:o-text-zinc-300"
+                >
                   {creneau === undefined
                     ? 'Aucun creneau retenu. Sept plages restent libres cette semaine ; les autres sont deja prises.'
                     : `Creneau retenu : ${creneau}. Nous confirmons par courriel sous un jour ouvre.`}
                 </p>
                 <div className="o-mt-6 o-grid o-gap-5 o-border-t o-border-zinc-200 o-pt-6 dark:o-border-zinc-800 sm:o-grid-cols-2">
-                  <Input label="Code postal" name="code-postal" inputMode="numeric" placeholder="69004" required />
-                  <Input label="Adresse electronique" type="email" name="courriel" placeholder="vous@exemple.fr" required />
+                  <Input
+                    label="Code postal"
+                    name="code-postal"
+                    inputMode="numeric"
+                    placeholder="69004"
+                    required
+                  />
+                  <Input
+                    label="Adresse electronique"
+                    type="email"
+                    name="courriel"
+                    placeholder="vous@exemple.fr"
+                    required
+                  />
                 </div>
                 <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-4">
                   <button
@@ -981,9 +1491,17 @@ export default function Page(): ReactElement {
         {/* ================= P14 : partenaires en gris, et une ligne ================= */}
         <footer className="o-border-t o-border-zinc-300 o-px-6 o-pb-8 o-pt-6 dark:o-border-zinc-800">
           <div className="o-mx-auto o-max-w-7xl">
-            <LogoBand speed={36} title="Les reseaux de recharge acceptes par la carte incluse" className="o-flex o-flex-col o-gap-6 o-py-8">
+            <LogoBand
+              speed={36}
+              title="Les reseaux de recharge acceptes par la carte incluse"
+              className="o-flex o-flex-col o-gap-6 o-py-8"
+            >
               {PARTENAIRES.map((nom) => (
-                <span key={nom} className="o-text-2xl o-font-bold o-tracking-tight o-text-zinc-500 dark:o-text-zinc-500" style={{ fontFamily: 'var(--o-vitrine-affichage)' }}>
+                <span
+                  key={nom}
+                  className="o-text-2xl o-font-bold o-tracking-tight o-text-zinc-500 dark:o-text-zinc-500"
+                  style={{ fontFamily: 'var(--o-vitrine-affichage)' }}
+                >
                   {nom}
                 </span>
               ))}
@@ -991,7 +1509,12 @@ export default function Page(): ReactElement {
             <p className="o-m-0 o-flex o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-2 o-border-t o-border-zinc-300 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-border-zinc-800 dark:o-text-zinc-400">
               <span>© 2026 Axe Automobiles SAS — Lyon</span>
               <span>12 boulevard Vivier-Merle — 04 72 60 18 40</span>
-              <a href="mailto:essai@axe-automobile.fr" className="o-text-zinc-700 o-no-underline hover:o-underline dark:o-text-zinc-200 focus:o-ring">essai@axe-automobile.fr ↗</a>
+              <a
+                href="mailto:essai@axe-automobile.fr"
+                className="o-text-zinc-700 o-no-underline hover:o-underline dark:o-text-zinc-200 focus:o-ring"
+              >
+                essai@axe-automobile.fr ↗
+              </a>
             </p>
           </div>
         </footer>

@@ -117,7 +117,11 @@ export function AlertDoc(): ReactElement {
             {
               title: 'Titre seul',
               node: (
-                <Alert tone="warning" title="Quota bientôt atteint" className="o-max-w-md" />
+                <Alert
+                  tone="warning"
+                  title="Quota bientôt atteint"
+                  className="o-max-w-md"
+                />
               ),
             },
           ]}

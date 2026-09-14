@@ -66,7 +66,7 @@ function poseAt(phase: number): Pose {
   const depth = Math.cos(phase)
   // Le point est devant sur la moitie du tour centree sur la phase zero ;
   // la bascule tombe entre deux echantillons, pas dessus.
-  const degrees = (((phase * 180) / Math.PI) % 360 + 360) % 360
+  const degrees = ((((phase * 180) / Math.PI) % 360) + 360) % 360
   return {
     y: Math.sin(phase),
     scale: 0.75 + 0.25 * depth,
@@ -222,7 +222,12 @@ export function DnaLoader({
             />
             <span
               data-o-dna-dot=""
-              style={{ ...poseVars(phase), '--o-dna-delay': `${String(delay)}ms` } as CSSProperties}
+              style={
+                {
+                  ...poseVars(phase),
+                  '--o-dna-delay': `${String(delay)}ms`,
+                } as CSSProperties
+              }
             />
             <span
               data-o-dna-dot=""

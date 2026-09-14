@@ -121,7 +121,11 @@ function crystalGeometry(three: SceneContext['three'], sides: number) {
     const low = SHAPE.radius * (0.82 + hash(index * 3 + 1) * 0.36)
     const high = SHAPE.radius * (0.82 + hash(index * 3 + 2) * 0.36)
     lower.push([Math.cos(angle) * low, -SHAPE.body, Math.sin(angle) * low])
-    upper.push([Math.cos(angle) * high, SHAPE.body + (hash(index) - 0.5) * 0.2, Math.sin(angle) * high])
+    upper.push([
+      Math.cos(angle) * high,
+      SHAPE.body + (hash(index) - 0.5) * 0.2,
+      Math.sin(angle) * high,
+    ])
   }
   const bottom: [number, number, number] = [0, -SHAPE.tip, 0]
   const top: [number, number, number] = [0.06, SHAPE.tip, -0.04]
@@ -310,7 +314,11 @@ export function Crystal({
     paint('uColorB', high)
     if (background !== undefined) {
       scene.renderer.setClearColor(
-        new scene.three.Color(background[0], background[1], background[2]).convertSRGBToLinear(),
+        new scene.three.Color(
+          background[0],
+          background[1],
+          background[2],
+        ).convertSRGBToLinear(),
         1,
       )
     }

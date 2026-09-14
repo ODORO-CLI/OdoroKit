@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-line",
-    "--o-palette-brand-500",
-    "--o-duration-fast"
-  ],
+  "tokens": ["--o-theme-line", "--o-palette-brand-500", "--o-duration-fast"],
   "props": [
     {
       "name": "options",

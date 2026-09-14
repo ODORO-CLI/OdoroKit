@@ -249,7 +249,13 @@ export function BlobCursor({
       {children}
       {/* Le filtre gluant. Surface nulle : il n'est la que pour etre reference
           par la couche, jamais pour etre vu. */}
-      <svg aria-hidden width="0" height="0" focusable="false" style={{ position: 'absolute' }}>
+      <svg
+        aria-hidden
+        width="0"
+        height="0"
+        focusable="false"
+        style={{ position: 'absolute' }}
+      >
         <defs>
           <filter id={gooId}>
             <feGaussianBlur

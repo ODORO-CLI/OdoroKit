@@ -440,7 +440,12 @@ describe('le tsconfig genere ne masque pas les paquets', () => {
     'le gabarit %s ne declare pas baseUrl',
     async (template) => {
       const dossier = await mkdtemp(join(tmpdir(), 'odoro-tsconfig-'))
-      await scaffold({ target: dossier, template, packageName: 'essai', version: '9.9.9' })
+      await scaffold({
+        target: dossier,
+        template,
+        packageName: 'essai',
+        version: '9.9.9',
+      })
 
       const brut = await readFile(join(dossier, 'tsconfig.json'), 'utf8')
       expect(brut).not.toContain('baseUrl')

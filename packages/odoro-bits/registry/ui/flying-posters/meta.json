@@ -15,11 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-surface",
-    "--o-theme-line",
-    "--o-theme-muted"
-  ],
+  "tokens": ["--o-theme-surface", "--o-theme-line", "--o-theme-muted"],
   "props": [
     {
       "name": "items",

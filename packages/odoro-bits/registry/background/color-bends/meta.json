@@ -19,11 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-palette-brand-500",
-    "--o-palette-violet-500"
-  ],
+  "tokens": ["--o-theme-bg", "--o-palette-brand-500", "--o-palette-violet-500"],
   "props": [
     {
       "name": "sheets",

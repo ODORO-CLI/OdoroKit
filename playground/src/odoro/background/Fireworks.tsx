@@ -159,22 +159,27 @@ export function Fireworks({
     return () => host.removeEventListener('pointerdown', onDown)
   }, [host, uClicks])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: FIREWORKS_FRAGMENT,
-      colors,
-      uniforms: {
-        uClicks,
-        uSparks: sparks,
-        uGravity: gravity,
-        uDecay: decay,
-        uAuto: auto,
-      },
-      name: 'fireworks',
-      degrade: (quality) => ({
-        uSparks: quality === 'low' ? Math.min(sparks, LOW_SPARKS) : sparks,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: FIREWORKS_FRAGMENT,
+    colors,
+    uniforms: {
+      uClicks,
+      uSparks: sparks,
+      uGravity: gravity,
+      uDecay: decay,
+      uAuto: auto,
+    },
+    name: 'fireworks',
+    degrade: (quality) => ({
+      uSparks: quality === 'low' ? Math.min(sparks, LOW_SPARKS) : sparks,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

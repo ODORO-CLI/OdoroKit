@@ -37,7 +37,16 @@
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight, BookOpenText, Check, TriangleAlert } from '@odoro-cli/icons/filaire'
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { StickyStack } from '@/odoro/section/StickyStack.jsx'
 import { SpotlightText } from '@/odoro/text/SpotlightText.jsx'
@@ -45,7 +54,17 @@ import { ButtonGroupInput } from '@/odoro/ui/ButtonGroupInput.jsx'
 
 import { nuit } from './communs.jsx'
 import { accentDoux, encre, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreFilet, Etiquette, Indice, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreFilet,
+  Etiquette,
+  Indice,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Flotte } from './scene.jsx'
 
 /* ========================= Les constantes de dessin ===================== */
@@ -57,10 +76,12 @@ const FILET = 'color-mix(in oklab, currentColor 15%, transparent)'
 const FILET_FORT = 'color-mix(in oklab, currentColor 38%, transparent)'
 
 /** La voix mono des intitules et des notes. */
-const NOTE = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400'
+const NOTE =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400'
 
 /** La meme voix, sur la bande toujours sombre. */
-const NOTE_SUR_NUIT = 'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400'
+const NOTE_SUR_NUIT =
+  'o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400'
 
 /**
  * Une encre semantique, tiree vers l encre du theme.
@@ -114,18 +135,58 @@ interface Poste {
 
 /** Les quatre postes d actif, dans l ordre de liquidite croissante. */
 const ACTIF: readonly Poste[] = [
-  { cle: 'immo', intitule: 'Immobilisations nettes', aide: 'Materiel, agencements, logiciels, apres amortissement', depart: 180 },
-  { cle: 'stocks', intitule: 'Stocks', aide: 'Marchandises et en-cours au dernier inventaire', depart: 62 },
-  { cle: 'creances', intitule: 'Creances clients', aide: 'Factures emises et non encore encaissees', depart: 145 },
-  { cle: 'treso', intitule: 'Tresorerie', aide: 'Soldes bancaires et placements a vue', depart: 48 },
+  {
+    cle: 'immo',
+    intitule: 'Immobilisations nettes',
+    aide: 'Materiel, agencements, logiciels, apres amortissement',
+    depart: 180,
+  },
+  {
+    cle: 'stocks',
+    intitule: 'Stocks',
+    aide: 'Marchandises et en-cours au dernier inventaire',
+    depart: 62,
+  },
+  {
+    cle: 'creances',
+    intitule: 'Creances clients',
+    aide: 'Factures emises et non encore encaissees',
+    depart: 145,
+  },
+  {
+    cle: 'treso',
+    intitule: 'Tresorerie',
+    aide: 'Soldes bancaires et placements a vue',
+    depart: 48,
+  },
 ]
 
 /** Les quatre postes de passif, du plus stable au plus exigible. */
 const PASSIF: readonly Poste[] = [
-  { cle: 'capitaux', intitule: 'Capitaux propres', aide: 'Capital, reserves, resultat de l exercice', depart: 150 },
-  { cle: 'dettesFi', intitule: 'Dettes financieres', aide: 'Emprunts a plus d un an, hors decouvert', depart: 120 },
-  { cle: 'fournisseurs', intitule: 'Dettes fournisseurs', aide: 'Factures recues et non encore reglees', depart: 110 },
-  { cle: 'autres', intitule: 'Autres dettes', aide: 'Fiscales, sociales, et comptes courants d associes', depart: 55 },
+  {
+    cle: 'capitaux',
+    intitule: 'Capitaux propres',
+    aide: 'Capital, reserves, resultat de l exercice',
+    depart: 150,
+  },
+  {
+    cle: 'dettesFi',
+    intitule: 'Dettes financieres',
+    aide: 'Emprunts a plus d un an, hors decouvert',
+    depart: 120,
+  },
+  {
+    cle: 'fournisseurs',
+    intitule: 'Dettes fournisseurs',
+    aide: 'Factures recues et non encore reglees',
+    depart: 110,
+  },
+  {
+    cle: 'autres',
+    intitule: 'Autres dettes',
+    aide: 'Fiscales, sociales, et comptes courants d associes',
+    depart: 55,
+  },
 ]
 
 /** Un ratio : sa valeur, son seuil, et la phrase qui le lit. */
@@ -152,10 +213,14 @@ function verdict(valeur: number, alerte: number, confort: number): Ratio['etat']
 function teinteEtat(etat: Ratio['etat'], surNuit = false): string {
   if (surNuit) {
     if (etat === 'tenu') return 'var(--o-palette-emerald-400)'
-    return etat === 'a surveiller' ? 'var(--o-palette-amber-400)' : 'var(--o-palette-rose-400)'
+    return etat === 'a surveiller'
+      ? 'var(--o-palette-amber-400)'
+      : 'var(--o-palette-rose-400)'
   }
   if (etat === 'tenu') return semantique('--o-palette-emerald-600')
-  return etat === 'a surveiller' ? semantique('--o-palette-amber-600') : semantique('--o-palette-rose-600')
+  return etat === 'a surveiller'
+    ? semantique('--o-palette-amber-600')
+    : semantique('--o-palette-rose-600')
 }
 
 /** Une ligne de saisie du bilan : l intitule a gauche, le montant en colonne. */
@@ -170,9 +235,15 @@ function Ligne({
 }): ReactElement {
   const id = `poste-${poste.cle}`
   return (
-    <div className="o-grid o-items-baseline o-gap-x-4 o-gap-y-1 o-py-3 sm:o-grid-cols-12" style={{ borderTop: `1px solid ${FILET}` }}>
+    <div
+      className="o-grid o-items-baseline o-gap-x-4 o-gap-y-1 o-py-3 sm:o-grid-cols-12"
+      style={{ borderTop: `1px solid ${FILET}` }}
+    >
       <div className="o-min-w-0 sm:o-col-span-8">
-        <label htmlFor={id} className="o-block o-text-base o-text-zinc-950 dark:o-text-zinc-50">
+        <label
+          htmlFor={id}
+          className="o-block o-text-base o-text-zinc-950 dark:o-text-zinc-50"
+        >
           {poste.intitule}
         </label>
         <p className={`o-m-0 o-mt-0.5 ${NOTE}`}>{poste.aide}</p>
@@ -205,15 +276,30 @@ function CarteRatio({ ratio }: { readonly ratio: Ratio }): ReactElement {
   return (
     <div className="o-min-w-0 o-pt-4" style={{ borderTop: `2px solid ${couleur}` }}>
       <p className={`o-m-0 ${NOTE}`}>{ratio.nom}</p>
-      <p className="o-m-0 o-mt-2 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}>
+      <p
+        className="o-m-0 o-mt-2 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 2.8vw, 2.5rem)' }}
+      >
         {ratio.rendu}
       </p>
-      <p className="o-m-0 o-mt-2 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: couleur }}>
-        <Icon icon={ratio.etat === 'tenu' ? Check : TriangleAlert} size={13} aria-hidden="true" />
+      <p
+        className="o-m-0 o-mt-2 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={{ color: couleur }}
+      >
+        <Icon
+          icon={ratio.etat === 'tenu' ? Check : TriangleAlert}
+          size={13}
+          aria-hidden="true"
+        />
         {ratio.etat}
       </p>
-      <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{ratio.lecture}</p>
-      <p className={`o-m-0 o-mt-3 o-normal-case ${NOTE}`} style={{ textTransform: 'none' }}>
+      <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+        {ratio.lecture}
+      </p>
+      <p
+        className={`o-m-0 o-mt-3 o-normal-case ${NOTE}`}
+        style={{ textTransform: 'none' }}
+      >
         {ratio.calcul} · seuil {ratio.seuil}
       </p>
     </div>
@@ -248,7 +334,8 @@ function Bilan(): ReactElement {
     const besoin = v('stocks') + v('creances') - exigible
     const tresorerieNette = fondsDeRoulement - besoin
     const autonomie = totalPassif === 0 ? 0 : (v('capitaux') / totalPassif) * 100
-    const liquidite = exigible === 0 ? 0 : (v('stocks') + v('creances') + v('treso')) / exigible
+    const liquidite =
+      exigible === 0 ? 0 : (v('stocks') + v('creances') + v('treso')) / exigible
     const couverture = v('immo') === 0 ? 0 : permanents / v('immo')
 
     const ratios: readonly Ratio[] = [
@@ -346,11 +433,21 @@ function Bilan(): ReactElement {
             </p>
             <div className="o-mt-3">
               {ACTIF.map((poste) => (
-                <Ligne key={poste.cle} poste={poste} valeur={lire(poste.cle)} onChange={poser(poste.cle)} />
+                <Ligne
+                  key={poste.cle}
+                  poste={poste}
+                  valeur={lire(poste.cle)}
+                  onChange={poser(poste.cle)}
+                />
               ))}
-              <p className="o-m-0 o-flex o-items-baseline o-justify-between o-gap-4 o-py-3" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+              <p
+                className="o-m-0 o-flex o-items-baseline o-justify-between o-gap-4 o-py-3"
+                style={{ borderTop: `1px solid ${FILET_FORT}` }}
+              >
                 <span className={NOTE}>Total actif</span>
-                <span className="o-font-mono o-text-xl o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{EURO.format(calcul.totalActif)} k€</span>
+                <span className="o-font-mono o-text-xl o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+                  {EURO.format(calcul.totalActif)} k€
+                </span>
               </p>
             </div>
           </div>
@@ -361,11 +458,21 @@ function Bilan(): ReactElement {
             </p>
             <div className="o-mt-3">
               {PASSIF.map((poste) => (
-                <Ligne key={poste.cle} poste={poste} valeur={lire(poste.cle)} onChange={poser(poste.cle)} />
+                <Ligne
+                  key={poste.cle}
+                  poste={poste}
+                  valeur={lire(poste.cle)}
+                  onChange={poser(poste.cle)}
+                />
               ))}
-              <p className="o-m-0 o-flex o-items-baseline o-justify-between o-gap-4 o-py-3" style={{ borderTop: `1px solid ${FILET_FORT}` }}>
+              <p
+                className="o-m-0 o-flex o-items-baseline o-justify-between o-gap-4 o-py-3"
+                style={{ borderTop: `1px solid ${FILET_FORT}` }}
+              >
                 <span className={NOTE}>Total passif</span>
-                <span className="o-font-mono o-text-xl o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{EURO.format(calcul.totalPassif)} k€</span>
+                <span className="o-font-mono o-text-xl o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+                  {EURO.format(calcul.totalPassif)} k€
+                </span>
               </p>
             </div>
           </div>
@@ -374,9 +481,16 @@ function Bilan(): ReactElement {
           <p
             aria-live="polite"
             className="o-m-0 o-flex o-flex-wrap o-items-center o-gap-3 o-rounded-xl o-px-4 o-py-3 o-text-sm o-leading-relaxed"
-            style={{ border: `1px solid ${teinteEtat(calcul.ecart === 0 ? 'tenu' : 'hors norme')}`, color: teinteEtat(calcul.ecart === 0 ? 'tenu' : 'hors norme') }}
+            style={{
+              border: `1px solid ${teinteEtat(calcul.ecart === 0 ? 'tenu' : 'hors norme')}`,
+              color: teinteEtat(calcul.ecart === 0 ? 'tenu' : 'hors norme'),
+            }}
           >
-            <Icon icon={calcul.ecart === 0 ? Check : TriangleAlert} size={15} aria-hidden="true" />
+            <Icon
+              icon={calcul.ecart === 0 ? Check : TriangleAlert}
+              size={15}
+              aria-hidden="true"
+            />
             {calcul.ecart === 0
               ? 'Le bilan est equilibre : actif et passif tombent au meme montant.'
               : `Ecart de ${EURO.format(Math.abs(calcul.ecart))} k€ entre l actif et le passif. Un bilan ne se rend jamais dans cet etat.`}
@@ -392,9 +506,12 @@ function Bilan(): ReactElement {
           ))}
         </div>
         <p className="o-mt-12 o-max-w-2xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-          <span className="o-text-zinc-950 dark:o-text-zinc-50">Ce que cette page ne remplace pas. </span>
-          Six ratios ne font pas un diagnostic : ils disent ou regarder. Le compte de resultat, le carnet de commandes et les echeances de
-          l annee disent le reste, et cela se fait a deux, une heure, autour de la table.
+          <span className="o-text-zinc-950 dark:o-text-zinc-50">
+            Ce que cette page ne remplace pas.{' '}
+          </span>
+          Six ratios ne font pas un diagnostic : ils disent ou regarder. Le compte de
+          resultat, le carnet de commandes et les echeances de l annee disent le reste, et
+          cela se fait a deux, une heure, autour de la table.
         </p>
       </div>
     </div>
@@ -462,14 +579,29 @@ function BarresTresorerie(): ReactElement {
   const base = 250
 
   return (
-    <svg ref={cadre} viewBox="0 0 900 300" role="img" aria-label="Tresorerie mois par mois, en milliers d euros" className="o-w-full" style={{ minWidth: 640 }}>
+    <svg
+      ref={cadre}
+      viewBox="0 0 900 300"
+      role="img"
+      aria-label="Tresorerie mois par mois, en milliers d euros"
+      className="o-w-full"
+      style={{ minWidth: 640 }}
+    >
       {MOIS.map((m, rang) => {
         const x = 46 + rang * 68
         const hauteur = (m.valeur / SOMMET) * 196
         const creux = m.valeur < 32
         return (
           <g key={m.mois}>
-            <text x={x} y={base - hauteur - 12} textAnchor="middle" className="o-font-mono" fontSize="12" fill="currentColor" style={{ color: creux ? 'var(--o-palette-amber-400)' : encreNuit }}>
+            <text
+              x={x}
+              y={base - hauteur - 12}
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="12"
+              fill="currentColor"
+              style={{ color: creux ? 'var(--o-palette-amber-400)' : encreNuit }}
+            >
               {m.valeur}
             </text>
             <line
@@ -491,7 +623,15 @@ function BarresTresorerie(): ReactElement {
                     }
               }
             />
-            <text x={x} y={base + 22} textAnchor="middle" className="o-font-mono" fontSize="11" fill="currentColor" style={gris}>
+            <text
+              x={x}
+              y={base + 22}
+              textAnchor="middle"
+              className="o-font-mono"
+              fontSize="11"
+              fill="currentColor"
+              style={gris}
+            >
               {m.mois}
             </text>
           </g>
@@ -499,8 +639,24 @@ function BarresTresorerie(): ReactElement {
       })}
 
       {/* Le seul trait qui n est pas une barre : la ligne de flottaison. */}
-      <line x1="24" y1={base} x2="876" y2={base} stroke="currentColor" strokeWidth="1" opacity="0.5" style={gris} />
-      <text x="24" y={base - (30 / SOMMET) * 196 - 6} className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <line
+        x1="24"
+        y1={base}
+        x2="876"
+        y2={base}
+        stroke="currentColor"
+        strokeWidth="1"
+        opacity="0.5"
+        style={gris}
+      />
+      <text
+        x="24"
+        y={base - (30 / SOMMET) * 196 - 6}
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         seuil de vigilance — 30 k€
       </text>
       <line
@@ -514,7 +670,14 @@ function BarresTresorerie(): ReactElement {
         opacity="0.45"
         style={gris}
       />
-      <text x="24" y="286" className="o-font-mono" fontSize="10.5" fill="currentColor" style={gris}>
+      <text
+        x="24"
+        y="286"
+        className="o-font-mono"
+        fontSize="10.5"
+        fill="currentColor"
+        style={gris}
+      >
         Milliers d euros, solde de fin de mois — dossier type, exercice 2025
       </text>
     </svg>
@@ -539,7 +702,11 @@ const MISSIONS: readonly {
     quand: 'Tous les mois, du 5 au 12',
     texte:
       'Nous saisissons, nous rapprochons, nous relancons les pieces manquantes. Vous ne classez rien : une photographie suffit, et le reste se fait ici.',
-    points: ['Rapprochement bancaire au fil de l eau', 'Declaration de TVA deposee avant le 20', 'Relance des pieces manquantes, nommement'],
+    points: [
+      'Rapprochement bancaire au fil de l eau',
+      'Declaration de TVA deposee avant le 20',
+      'Relance des pieces manquantes, nommement',
+    ],
   },
   {
     cle: 'revision',
@@ -548,7 +715,11 @@ const MISSIONS: readonly {
     quand: 'Deux fois l an, en juin et en janvier',
     texte:
       'Nous reprenons chaque compte, poste par poste, et nous vous montrons ce qui a bouge. Le bilan n est plus une surprise d avril : il est deja connu en janvier.',
-    points: ['Situation intermediaire a six mois', 'Comptes annuels et liasse fiscale', 'Le projet de bilan relu avec vous avant depot'],
+    points: [
+      'Situation intermediaire a six mois',
+      'Comptes annuels et liasse fiscale',
+      'Le projet de bilan relu avec vous avant depot',
+    ],
   },
   {
     cle: 'conseil',
@@ -557,7 +728,11 @@ const MISSIONS: readonly {
     quand: 'Quand vous appelez, et une fois par trimestre',
     texte:
       'Un recrutement, un investissement, un associe qui part. Nous chiffrons les deux scenarios et nous disons celui que nous prendrions, avec ses risques.',
-    points: ['Previsionnel de tresorerie a douze mois', 'Choix de statut et remuneration du dirigeant', 'Dossier de financement, monte avec vous'],
+    points: [
+      'Previsionnel de tresorerie a douze mois',
+      'Choix de statut et remuneration du dirigeant',
+      'Dossier de financement, monte avec vous',
+    ],
   },
 ]
 
@@ -577,9 +752,36 @@ interface Curseur {
 
 /** Les trois curseurs, et rien de plus : un devis se lit en dix secondes. */
 const CURSEURS: readonly Curseur[] = [
-  { cle: 'chiffre', intitule: 'Chiffre d affaires', unite: 'k€ par an', min: 80, max: 4000, pas: 20, depart: 620, aide: 'Le dernier exercice connu, hors taxes' },
-  { cle: 'salaries', intitule: 'Salaries', unite: 'bulletins par mois', min: 0, max: 60, pas: 1, depart: 9, aide: 'Y compris les temps partiels et les apprentis' },
-  { cle: 'pieces', intitule: 'Pieces comptables', unite: 'par mois', min: 20, max: 900, pas: 10, depart: 180, aide: 'Factures, notes de frais, releves : tout ce qui se saisit' },
+  {
+    cle: 'chiffre',
+    intitule: 'Chiffre d affaires',
+    unite: 'k€ par an',
+    min: 80,
+    max: 4000,
+    pas: 20,
+    depart: 620,
+    aide: 'Le dernier exercice connu, hors taxes',
+  },
+  {
+    cle: 'salaries',
+    intitule: 'Salaries',
+    unite: 'bulletins par mois',
+    min: 0,
+    max: 60,
+    pas: 1,
+    depart: 9,
+    aide: 'Y compris les temps partiels et les apprentis',
+  },
+  {
+    cle: 'pieces',
+    intitule: 'Pieces comptables',
+    unite: 'par mois',
+    min: 20,
+    max: 900,
+    pas: 10,
+    depart: 180,
+    aide: 'Factures, notes de frais, releves : tout ce qui se saisit',
+  },
 ]
 
 /**
@@ -589,7 +791,8 @@ const CURSEURS: readonly Curseur[] = [
  * Celle-ci est affichee sous le total, avec ses quatre termes : le lecteur
  * peut la refaire de tete, et c est le but.
  */
-const FORMULE = '1 400 € de base + 0,90 € par millier de chiffre d affaires + 240 € par bulletin mensuel + 31,20 € par piece mensuelle'
+const FORMULE =
+  '1 400 € de base + 0,90 € par millier de chiffre d affaires + 240 € par bulletin mensuel + 31,20 € par piece mensuelle'
 
 /** L honoraire annuel, en euros, a partir des trois curseurs. */
 function honoraire(chiffre: number, salaries: number, pieces: number): number {
@@ -604,7 +807,11 @@ function honoraire(chiffre: number, salaries: number, pieces: number): number {
  * coute le comportement que celui-ci a deja.
  */
 function Devis(): ReactElement {
-  const [valeurs, setValeurs] = useState<Record<Curseur['cle'], number>>({ chiffre: 620, salaries: 9, pieces: 180 })
+  const [valeurs, setValeurs] = useState<Record<Curseur['cle'], number>>({
+    chiffre: 620,
+    salaries: 9,
+    pieces: 180,
+  })
   const identifiant = useId()
   const total = honoraire(valeurs.chiffre, valeurs.salaries, valeurs.pieces)
 
@@ -618,11 +825,20 @@ function Devis(): ReactElement {
             return (
               <div key={curseur.cle}>
                 <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-                  <label htmlFor={id} className="o-text-base o-text-zinc-950 dark:o-text-zinc-50">
+                  <label
+                    htmlFor={id}
+                    className="o-text-base o-text-zinc-950 dark:o-text-zinc-50"
+                  >
                     {curseur.intitule}
                   </label>
-                  <p className="o-m-0 o-font-mono o-text-lg o-tabular-nums" style={{ color: encre() }}>
-                    {EURO.format(valeur)} <span className="o-text-xs o-uppercase o-tracking-widest">{curseur.unite}</span>
+                  <p
+                    className="o-m-0 o-font-mono o-text-lg o-tabular-nums"
+                    style={{ color: encre() }}
+                  >
+                    {EURO.format(valeur)}{' '}
+                    <span className="o-text-xs o-uppercase o-tracking-widest">
+                      {curseur.unite}
+                    </span>
                   </p>
                 </div>
                 <input
@@ -651,19 +867,31 @@ function Devis(): ReactElement {
         <p
           aria-live="polite"
           className="o-m-0 o-mt-4 o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
-          style={{ ...affiche('xl', 300), fontSize: 'clamp(3rem, 9vw, 7.5rem)', lineHeight: 0.86 }}
+          style={{
+            ...affiche('xl', 300),
+            fontSize: 'clamp(3rem, 9vw, 7.5rem)',
+            lineHeight: 0.86,
+          }}
         >
           {EURO.format(total)} €
         </p>
         <p className="o-m-0 o-mt-5 o-text-lg o-text-zinc-700 dark:o-text-zinc-300">
-          soit <span className="o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{EURO.format(Math.round(total / 12))} €</span> par mois, preleves le 5.
+          soit{' '}
+          <span className="o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+            {EURO.format(Math.round(total / 12))} €
+          </span>{' '}
+          par mois, preleves le 5.
         </p>
-        <p className={`o-m-0 o-mt-8 o-pt-4 ${NOTE}`} style={{ borderTop: `1px solid ${FILET}`, textTransform: 'none' }}>
+        <p
+          className={`o-m-0 o-mt-8 o-pt-4 ${NOTE}`}
+          style={{ borderTop: `1px solid ${FILET}`, textTransform: 'none' }}
+        >
           {FORMULE}
         </p>
         <p className="o-mt-6 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-          Ce montant est celui de la lettre de mission, pas un point de depart. Il ne bouge en cours d annee que si votre activite change, et
-          nous vous le disons avant, jamais apres.
+          Ce montant est celui de la lettre de mission, pas un point de depart. Il ne
+          bouge en cours d annee que si votre activite change, et nous vous le disons
+          avant, jamais apres.
         </p>
         <div className="o-mt-8 o-min-w-0">
           {/*
@@ -689,32 +917,33 @@ function Devis(): ReactElement {
 /* ========================= P18 : l ours du pied ======================== */
 
 /** Les trois colonnes de l ours, de chasse fixe. */
-const OURS: readonly { readonly titre: string; readonly lignes: readonly ReactNode[] }[] = [
-  {
-    titre: 'Le cabinet',
-    lignes: [
-      'Grand Livre, societe d expertise comptable a responsabilite limitee au capital de 60 000 €.',
-      '22 rue Thiers, 76000 Rouen — 02 35 71 08 44. Second bureau au Havre, 5 quai George-V.',
-      'SIREN 504 218 663 — TVA FR 89 504 218 663 — APE 6920Z.',
-    ],
-  },
-  {
-    titre: 'L ordre',
-    lignes: [
-      'Inscrite au tableau de l ordre des experts-comptables de Normandie. Trois experts-comptables diplomes, neuf collaborateurs.',
-      'Responsabilite civile professionnelle souscrite aupres de l assureur agree par l ordre, garantie de 5 M€ par sinistre.',
-      'Aucun maniement de fonds pour le compte des clients, en aucune circonstance : ni encaissement, ni reglement, ni detention.',
-    ],
-  },
-  {
-    titre: 'Le lecteur',
-    lignes: [
-      'Honoraires fixes par lettre de mission annuelle, revisables une fois l an et jamais retroactivement. Le devis engage le cabinet trente jours.',
-      'Reclamation : le conseil regional de l ordre peut etre saisi apres une reclamation ecrite restee sans reponse pendant deux mois.',
-      'Donnees conservees dix ans, duree legale de conservation des pieces comptables, ni cedees ni prospectees. Site partiellement conforme au referentiel d accessibilite.',
-    ],
-  },
-]
+const OURS: readonly { readonly titre: string; readonly lignes: readonly ReactNode[] }[] =
+  [
+    {
+      titre: 'Le cabinet',
+      lignes: [
+        'Grand Livre, societe d expertise comptable a responsabilite limitee au capital de 60 000 €.',
+        '22 rue Thiers, 76000 Rouen — 02 35 71 08 44. Second bureau au Havre, 5 quai George-V.',
+        'SIREN 504 218 663 — TVA FR 89 504 218 663 — APE 6920Z.',
+      ],
+    },
+    {
+      titre: 'L ordre',
+      lignes: [
+        'Inscrite au tableau de l ordre des experts-comptables de Normandie. Trois experts-comptables diplomes, neuf collaborateurs.',
+        'Responsabilite civile professionnelle souscrite aupres de l assureur agree par l ordre, garantie de 5 M€ par sinistre.',
+        'Aucun maniement de fonds pour le compte des clients, en aucune circonstance : ni encaissement, ni reglement, ni detention.',
+      ],
+    },
+    {
+      titre: 'Le lecteur',
+      lignes: [
+        'Honoraires fixes par lettre de mission annuelle, revisables une fois l an et jamais retroactivement. Le devis engage le cabinet trente jours.',
+        'Reclamation : le conseil regional de l ordre peut etre saisi apres une reclamation ecrite restee sans reponse pendant deux mois.',
+        'Donnees conservees dix ans, duree legale de conservation des pieces comptables, ni cedees ni prospectees. Site partiellement conforme au referentiel d accessibilite.',
+      ],
+    },
+  ]
 
 /* ========================= La vitrine ================================== */
 
@@ -741,26 +970,48 @@ function PageDeLivre(): ReactElement {
         className="o-overflow-hidden o-rounded-lg o-bg-white o-shadow-xl dark:o-bg-zinc-900"
         style={{ border: `1px solid ${FILET_FORT}` }}
       >
-        <div className="o-flex o-items-baseline o-justify-between o-gap-4 o-px-5 o-py-3" style={{ borderBottom: `1px solid ${FILET}`, backgroundColor: accentDoux(300, 14) }}>
-          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-700 dark:o-text-zinc-300">Grand livre — 512 Banque</span>
-          <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">Exercice 2026</span>
+        <div
+          className="o-flex o-items-baseline o-justify-between o-gap-4 o-px-5 o-py-3"
+          style={{
+            borderBottom: `1px solid ${FILET}`,
+            backgroundColor: accentDoux(300, 14),
+          }}
+        >
+          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-700 dark:o-text-zinc-300">
+            Grand livre — 512 Banque
+          </span>
+          <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+            Exercice 2026
+          </span>
         </div>
-        <div className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400" style={{ borderBottom: `1px solid ${FILET}` }}>
+        <div
+          className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+          style={{ borderBottom: `1px solid ${FILET}` }}
+        >
           <span className="o-col-span-2">Date</span>
           <span className="o-col-span-6">Libelle</span>
           <span className="o-col-span-2 o-text-right">Debit</span>
           <span className="o-col-span-2 o-text-right">Credit</span>
         </div>
         {ecritures.map(([date, libelle, debit, credit]) => (
-          <div key={`${date}-${libelle}`} className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-2 o-font-mono o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300" style={{ borderBottom: `1px solid ${FILET}` }}>
+          <div
+            key={`${date}-${libelle}`}
+            className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-2 o-font-mono o-text-xs o-tabular-nums o-text-zinc-700 dark:o-text-zinc-300"
+            style={{ borderBottom: `1px solid ${FILET}` }}
+          >
             <span className="o-col-span-2">{date}</span>
             <span className="o-col-span-6 o-truncate">{libelle}</span>
             <span className="o-col-span-2 o-text-right">{debit}</span>
             <span className="o-col-span-2 o-text-right">{credit}</span>
           </div>
         ))}
-        <div className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-3 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50" style={{ borderTop: `2px solid ${FILET_FORT}` }}>
-          <span className="o-col-span-8 o-text-xs o-uppercase o-tracking-widest">Solde au 31/01</span>
+        <div
+          className="o-grid o-grid-cols-12 o-gap-2 o-px-5 o-py-3 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
+          style={{ borderTop: `2px solid ${FILET_FORT}` }}
+        >
+          <span className="o-col-span-8 o-text-xs o-uppercase o-tracking-widest">
+            Solde au 31/01
+          </span>
           <span className="o-col-span-4 o-text-right" style={{ color: encre() }}>
             127 760
           </span>
@@ -776,7 +1027,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="compteur" marque="Grand Livre" sombre={false}>
-      <div className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200" style={polices}>
+      <div
+        className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200"
+        style={polices}
+      >
         {/*
           ----- L affiche d ouverture — Lumen --------------------------------
 
@@ -787,24 +1041,36 @@ export default function Page(): ReactElement {
           <div aria-hidden="true" className="o-absolute o-inset-0 o-z-0" style={PAPIER} />
 
           <div className="o-relative o-z-10">
-            <BarreFilet marque="Grand Livre" liens={NAVIGATION} action={['#devis', 'Un devis en trois curseurs']} sombre={false} />
+            <BarreFilet
+              marque="Grand Livre"
+              liens={NAVIGATION}
+              action={['#devis', 'Un devis en trois curseurs']}
+              sombre={false}
+            />
 
             <div className="o-grid o-items-center o-gap-12 o-px-6 o-pb-20 o-pt-16 md:o-px-8 lg:o-grid-cols-12 lg:o-gap-16 lg:o-pt-24">
               <div className="o-min-w-0 lg:o-col-span-7">
                 <Surgit>
-                  <Etiquette sombre={false}>Expertise comptable — Rouen et Le Havre</Etiquette>
+                  <Etiquette sombre={false}>
+                    Expertise comptable — Rouen et Le Havre
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={120}
                   className="o-m-0 o-mt-7 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 6vw, 6.25rem)' }}
+                  style={{
+                    ...affiche('l', 300),
+                    fontSize: 'clamp(2.5rem, 6vw, 6.25rem)',
+                  }}
                 >
                   Votre bilan, explique avant d etre depose.
                 </TitreVague>
                 <Surgit delai={460}>
                   <p className="o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                    Remplissez huit postes ici meme : la page allume les six ratios que votre banquier regardera, et vous dit lequel ne tient
-                    pas. C est exactement ce que nous faisons, en plus long et avec vos vrais chiffres.
+                    Remplissez huit postes ici meme : la page allume les six ratios que
+                    votre banquier regardera, et vous dit lequel ne tient pas. C est
+                    exactement ce que nous faisons, en plus long et avec vos vrais
+                    chiffres.
                   </p>
                   <div className="o-mt-9">
                     <Actions
@@ -812,7 +1078,8 @@ export default function Page(): ReactElement {
                       pleine={[
                         '#bilan',
                         <>
-                          Remplir le bilan <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                          Remplir le bilan{' '}
+                          <Icon icon={ArrowRight} size={16} aria-hidden="true" />
                         </>,
                       ]}
                       fantome={['#devis', 'Combien ca coute']}
@@ -831,13 +1098,25 @@ export default function Page(): ReactElement {
           {/*
             ----- Le mecanisme : le bilan --------------------------------------
           */}
-          <section id="bilan" aria-labelledby="bilan-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="bilan"
+            aria-labelledby="bilan-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="01" sombre={false}>
                   Le bilan
                 </Indice>
-                <h2 id="bilan-titre" className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+                <h2
+                  id="bilan-titre"
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
                   <SpotlightText radius={180} rest={0.45}>
                     Huit postes, six ratios, une identite.
                   </SpotlightText>
@@ -858,24 +1137,44 @@ export default function Page(): ReactElement {
           {/*
             ----- La coupe sombre : C14, les douze mois au trait ----------------
           */}
-          <section id="tresorerie" aria-labelledby="tresorerie-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={nuit('zinc')}>
+          <section
+            id="tresorerie"
+            aria-labelledby="tresorerie-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={nuit('zinc')}
+          >
             <div className="o-grid o-gap-12 lg:o-grid-cols-12">
               <div className="lg:o-col-span-4">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={{ color: encreSurSombre() }}
+                >
                   Figure unique
                 </p>
-                <h2 id="tresorerie-titre" className="o-m-0 o-mt-5 o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)' }}>
+                <h2
+                  id="tresorerie-titre"
+                  className="o-m-0 o-mt-5 o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3.25rem)',
+                  }}
+                >
                   Le creux d aout n est pas une surprise.
                 </h2>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-300">
-                  Douze soldes de fin de mois, sur un dossier type. Le trou de juillet et d aout est la somme de trois choses connues
-                  d avance : la TVA du deuxieme trimestre, les conges payes, et des clients qui paient en septembre.
+                  Douze soldes de fin de mois, sur un dossier type. Le trou de juillet et
+                  d aout est la somme de trois choses connues d avance : la TVA du
+                  deuxieme trimestre, les conges payes, et des clients qui paient en
+                  septembre.
                 </p>
                 <p className="o-mt-5 o-text-sm o-leading-relaxed o-text-zinc-300">
-                  Un previsionnel de tresorerie le montre en janvier. C est le premier document que nous montons avec un nouveau dossier, et
-                  le seul que nous refusons de facturer a part.
+                  Un previsionnel de tresorerie le montre en janvier. C est le premier
+                  document que nous montons avec un nouveau dossier, et le seul que nous
+                  refusons de facturer a part.
                 </p>
-                <p className={`o-mt-8 ${NOTE_SUR_NUIT}`}>Douze points · un seuil · aucun cadre</p>
+                <p className={`o-mt-8 ${NOTE_SUR_NUIT}`}>
+                  Douze points · un seuil · aucun cadre
+                </p>
               </div>
               <figure className="o-m-0 o-min-w-0 lg:o-col-span-8">
                 {/*
@@ -883,12 +1182,16 @@ export default function Page(): ReactElement {
                   `overflow-y: hidden` explicitement : sinon la cascade met les
                   deux axes a `auto` et la bande avale la molette.
                 */}
-                <div className="o-min-w-0 o-overflow-x-auto o-pb-2" style={{ overflowY: 'hidden' }}>
+                <div
+                  className="o-min-w-0 o-overflow-x-auto o-pb-2"
+                  style={{ overflowY: 'hidden' }}
+                >
                   <BarresTresorerie />
                 </div>
                 <figcaption className="o-mt-6 o-border-t o-border-white-10 o-pt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">
-                  Les deux mois en ambre passent sous le seuil de vigilance. Aucun n a donne lieu a un decouvert : ils etaient prevus, et la
-                  ligne de credit court terme avait ete negociee en mars.
+                  Les deux mois en ambre passent sous le seuil de vigilance. Aucun n a
+                  donne lieu a un decouvert : ils etaient prevus, et la ligne de credit
+                  court terme avait ete negociee en mars.
                 </figcaption>
               </figure>
             </div>
@@ -897,13 +1200,25 @@ export default function Page(): ReactElement {
           {/*
             ----- M-empile : les trois missions qui s empilent ------------------
           */}
-          <section id="missions" aria-labelledby="missions-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderTop: `1px solid ${FILET}` }}>
+          <section
+            id="missions"
+            aria-labelledby="missions-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="02" sombre={false}>
                   Les missions
                 </Indice>
-                <h2 id="missions-titre" className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+                <h2
+                  id="missions-titre"
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
                   Trois missions, dans cet ordre.
                 </h2>
               </div>
@@ -924,18 +1239,38 @@ export default function Page(): ReactElement {
                   >
                     <div className="o-grid o-gap-8 md:o-grid-cols-12">
                       <div className="md:o-col-span-4">
-                        <p className="o-m-0 o-tabular-nums" style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', color: encre() }}>
+                        <p
+                          className="o-m-0 o-tabular-nums"
+                          style={{
+                            ...affiche('l', 300),
+                            fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+                            color: encre(),
+                          }}
+                        >
                           {mission.numero}
                         </p>
-                        <h3 className="o-m-0 o-mt-3 o-text-3xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">{mission.titre}</h3>
+                        <h3 className="o-m-0 o-mt-3 o-text-3xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
+                          {mission.titre}
+                        </h3>
                         <p className={`o-m-0 o-mt-3 ${NOTE}`}>{mission.quand}</p>
                       </div>
                       <div className="o-min-w-0 md:o-col-span-8">
-                        <p className="o-m-0 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">{mission.texte}</p>
+                        <p className="o-m-0 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
+                          {mission.texte}
+                        </p>
                         <ul className="o-m-0 o-mt-8 o-list-none o-p-0">
                           {mission.points.map((point) => (
-                            <li key={point} className="o-flex o-items-baseline o-gap-3 o-py-3 o-text-base o-text-zinc-950 dark:o-text-zinc-50" style={{ borderTop: `1px solid ${FILET}` }}>
-                              <Icon icon={Check} size={15} style={{ color: encre() }} aria-hidden="true" />
+                            <li
+                              key={point}
+                              className="o-flex o-items-baseline o-gap-3 o-py-3 o-text-base o-text-zinc-950 dark:o-text-zinc-50"
+                              style={{ borderTop: `1px solid ${FILET}` }}
+                            >
+                              <Icon
+                                icon={Check}
+                                size={15}
+                                style={{ color: encre() }}
+                                aria-hidden="true"
+                              />
                               {point}
                             </li>
                           ))}
@@ -951,13 +1286,28 @@ export default function Page(): ReactElement {
           {/*
             ----- A26 : le devis en trois curseurs, le total en 120 px ----------
           */}
-          <section id="devis" aria-labelledby="devis-titre" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32" style={{ borderTop: `1px solid ${FILET}`, backgroundColor: accentDoux(300, 7) }}>
+          <section
+            id="devis"
+            aria-labelledby="devis-titre"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-8 md:o-py-32"
+            style={{
+              borderTop: `1px solid ${FILET}`,
+              backgroundColor: accentDoux(300, 7),
+            }}
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="03" sombre={false}>
                   Le devis
                 </Indice>
-                <h2 id="devis-titre" className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 4.25rem)' }}>
+                <h2
+                  id="devis-titre"
+                  className="o-m-0 o-mt-5 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.4vw, 4.25rem)',
+                  }}
+                >
                   Trois curseurs, et le chiffre.
                 </h2>
               </div>
@@ -977,24 +1327,48 @@ export default function Page(): ReactElement {
         {/*
           ----- P18 : l ours en trois colonnes, regle comme un grand livre -----
         */}
-        <footer className="o-px-6 o-pb-10 o-pt-14 md:o-px-8" style={{ borderTop: `2px solid ${FILET_FORT}` }}>
+        <footer
+          className="o-px-6 o-pb-10 o-pt-14 md:o-px-8"
+          style={{ borderTop: `2px solid ${FILET_FORT}` }}
+        >
           <div className="o-flex o-flex-wrap o-items-baseline o-gap-x-6 o-gap-y-2 o-pb-8">
             <span className="o-inline-flex o-items-center o-gap-2 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50">
-              <Icon icon={BookOpenText} size={18} style={{ color: encre() }} aria-hidden="true" />
+              <Icon
+                icon={BookOpenText}
+                size={18}
+                style={{ color: encre() }}
+                aria-hidden="true"
+              />
               Grand Livre
             </span>
             <span className={NOTE}>Experts-comptables inscrits — Rouen et Le Havre</span>
           </div>
 
-          <div className="o-flex o-flex-wrap o-gap-x-12 o-gap-y-10 o-pt-8" style={{ borderTop: `1px solid ${FILET}` }}>
+          <div
+            className="o-flex o-flex-wrap o-gap-x-12 o-gap-y-10 o-pt-8"
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             {OURS.map((colonne, rang) => (
-              <div key={colonne.titre} className="o-min-w-0" style={{ width: '21rem', maxWidth: '100%' }}>
-                <p className="o-m-0 o-flex o-items-baseline o-gap-3 o-pb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-50" style={{ borderBottom: `1px solid ${FILET_FORT}` }}>
-                  <span style={{ color: encre() }}>{String(rang + 1).padStart(2, '0')}</span>
+              <div
+                key={colonne.titre}
+                className="o-min-w-0"
+                style={{ width: '21rem', maxWidth: '100%' }}
+              >
+                <p
+                  className="o-m-0 o-flex o-items-baseline o-gap-3 o-pb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{ borderBottom: `1px solid ${FILET_FORT}` }}
+                >
+                  <span style={{ color: encre() }}>
+                    {String(rang + 1).padStart(2, '0')}
+                  </span>
                   {colonne.titre}
                 </p>
                 {colonne.lignes.map((ligne, index) => (
-                  <p key={index} className="o-m-0 o-py-2.5 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400" style={{ borderBottom: `1px solid ${FILET}` }}>
+                  <p
+                    key={index}
+                    className="o-m-0 o-py-2.5 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+                    style={{ borderBottom: `1px solid ${FILET}` }}
+                  >
                     {ligne}
                   </p>
                 ))}
@@ -1002,7 +1376,10 @@ export default function Page(): ReactElement {
             ))}
           </div>
 
-          <p className={`o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-4 o-pt-6 ${NOTE}`} style={{ borderTop: `1px solid ${FILET}` }}>
+          <p
+            className={`o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-4 o-pt-6 ${NOTE}`}
+            style={{ borderTop: `1px solid ${FILET}` }}
+          >
             <span>© 2026 Grand Livre SARL</span>
             <span>
               <a href="#haut" className="o-no-underline o-text-current focus:o-ring">

@@ -117,10 +117,7 @@ export function ColorShift({
               // le bas efface — le sens qu'a un curseur d'intensite.
               const y = 1 - (event.clientY - box.top) / Math.max(box.height, 1)
 
-              frame.style.setProperty(
-                '--o-cs-hue',
-                `${(x * amplitude).toFixed(1)}deg`,
-              )
+              frame.style.setProperty('--o-cs-hue', `${(x * amplitude).toFixed(1)}deg`)
               frame.style.setProperty('--o-cs-sat', (y * haut).toFixed(3))
             }
       }

@@ -78,10 +78,7 @@ export function RippleClick({
 
       // Distance au coin le plus lointain : l'onde couvre toute la zone,
       // d'ou que parte le clic.
-      const radius = Math.hypot(
-        Math.max(x, box.width - x),
-        Math.max(y, box.height - y),
-      )
+      const radius = Math.hypot(Math.max(x, box.width - x), Math.max(y, box.height - y))
 
       const ripple = document.createElement('span')
       ripple.style.position = 'absolute'

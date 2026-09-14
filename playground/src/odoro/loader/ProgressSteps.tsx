@@ -198,7 +198,9 @@ export function ProgressSteps({
       <span aria-hidden data-o-psteps-rail="">
         <span
           data-o-psteps-fill=""
-          style={indeterminate ? undefined : { transform: `scaleX(${String(clamped / 100)})` }}
+          style={
+            indeterminate ? undefined : { transform: `scaleX(${String(clamped / 100)})` }
+          }
         />
       </span>
       {states.map((state, index) => (

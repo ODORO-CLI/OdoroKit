@@ -48,7 +48,13 @@
  */
 
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
-import { useEffect, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 /** Identifiant de la feuille injectee. */
 const STYLE_ID = 'o-lazy-block'

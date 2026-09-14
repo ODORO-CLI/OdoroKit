@@ -28,15 +28,47 @@ import type { CatalogueEntry } from '../catalogue.generated.js'
 
 /** Les fonds statiques, tous en CSS : la bande ne coute rien. */
 const STATICS: readonly { slug: string; title: string; node: ReactNode }[] = [
-  { slug: 'radial-glow', title: 'Halo', node: <RadialGlow className="o-absolute o-inset-0" /> },
-  { slug: 'mesh-static', title: 'Nappe figee', node: <MeshStatic className="o-absolute o-inset-0" /> },
-  { slug: 'graph-paper', title: 'Papier millimetre', node: <GraphPaper className="o-absolute o-inset-0" /> },
-  { slug: 'blueprint', title: 'Plan technique', node: <Blueprint className="o-absolute o-inset-0" /> },
+  {
+    slug: 'radial-glow',
+    title: 'Halo',
+    node: <RadialGlow className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'mesh-static',
+    title: 'Nappe figee',
+    node: <MeshStatic className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'graph-paper',
+    title: 'Papier millimetre',
+    node: <GraphPaper className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'blueprint',
+    title: 'Plan technique',
+    node: <Blueprint className="o-absolute o-inset-0" />,
+  },
   { slug: 'rings', title: 'Anneaux', node: <Rings className="o-absolute o-inset-0" /> },
-  { slug: 'spot-grid', title: 'Points masques', node: <SpotGrid className="o-absolute o-inset-0" /> },
-  { slug: 'stripes', title: 'Rayures', node: <Stripes className="o-absolute o-inset-0" /> },
-  { slug: 'crosshatch', title: 'Croisillons', node: <Crosshatch className="o-absolute o-inset-0" /> },
-  { slug: 'checker', title: 'Damier', node: <Checker className="o-absolute o-inset-0" /> },
+  {
+    slug: 'spot-grid',
+    title: 'Points masques',
+    node: <SpotGrid className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'stripes',
+    title: 'Rayures',
+    node: <Stripes className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'crosshatch',
+    title: 'Croisillons',
+    node: <Crosshatch className="o-absolute o-inset-0" />,
+  },
+  {
+    slug: 'checker',
+    title: 'Damier',
+    node: <Checker className="o-absolute o-inset-0" />,
+  },
   { slug: 'noise', title: 'Grain', node: <Noise className="o-absolute o-inset-0" /> },
 ]
 

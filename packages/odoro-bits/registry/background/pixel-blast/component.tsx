@@ -164,22 +164,27 @@ export function PixelBlast({
     return () => host.removeEventListener('pointerdown', onDown)
   }, [host, uClicks])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: PIXEL_BLAST_FRAGMENT,
-      colors,
-      uniforms: {
-        uClicks,
-        uPixels: pixels,
-        uCount: count,
-        uGravity: gravity,
-        uAuto: auto,
-      },
-      name: 'pixel-blast',
-      degrade: (quality) => ({
-        uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: PIXEL_BLAST_FRAGMENT,
+    colors,
+    uniforms: {
+      uClicks,
+      uPixels: pixels,
+      uCount: count,
+      uGravity: gravity,
+      uAuto: auto,
+    },
+    name: 'pixel-blast',
+    degrade: (quality) => ({
+      uCount: quality === 'low' ? Math.min(count, LOW_COUNT) : count,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

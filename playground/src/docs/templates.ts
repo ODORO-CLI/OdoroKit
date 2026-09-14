@@ -59,7 +59,12 @@ export const TEMPLATES: readonly Template[] = [
     title: 'React + TypeScript',
     description:
       'Le socle : routeur, styles, moteur d’animation, et trois pages pour montrer comment ils s’articulent.',
-    includes: ['Routeur maison', 'Feuille de styles generee', 'Moteur d animation', 'Trois pages'],
+    includes: [
+      'Routeur maison',
+      'Feuille de styles generee',
+      'Moteur d animation',
+      'Trois pages',
+    ],
     status: 'disponible',
     audience: 'Un site a construire de zero',
   },
@@ -68,7 +73,12 @@ export const TEMPLATES: readonly Template[] = [
     title: 'React + TypeScript + serveur',
     description:
       'Le même socle, avec le serveur : rendu côté serveur, routes d’API, et le necessaire pour deployer.',
-    includes: ['Tout de react-ts', 'Rendu cote serveur', 'Routes d API', 'Configuration de deploiement'],
+    includes: [
+      'Tout de react-ts',
+      'Rendu cote serveur',
+      'Routes d API',
+      'Configuration de deploiement',
+    ],
     status: 'disponible',
     audience: 'Un site qui a besoin d un serveur',
   },

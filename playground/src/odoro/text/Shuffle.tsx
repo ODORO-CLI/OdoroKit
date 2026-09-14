@@ -136,9 +136,7 @@ export function Shuffle({
     const element = ref.current
     if (element === null || reduced) return
 
-    const lettres = [
-      ...element.querySelectorAll<HTMLElement>('[data-o-shuffle-letter]'),
-    ]
+    const lettres = [...element.querySelectorAll<HTMLElement>('[data-o-shuffle-letter]')]
     if (lettres.length === 0) return
 
     let animations: Animation[] = []

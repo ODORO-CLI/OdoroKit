@@ -47,7 +47,21 @@ import { GlassSurface } from '@/odoro/ui/GlassSurface.jsx'
 import { nuit, Voile } from './communs.jsx'
 import { photo } from './media.js'
 import { accentDoux, aplat, encre, encreSurSombre } from './palettes.js'
-import { Accent, Actions, affiche, BarreCoins, CHROME, Coin, Etiquette, Grain, Horloge, Indice, Porte, Surgit, usePolices } from './marche.jsx'
+import {
+  Accent,
+  Actions,
+  affiche,
+  BarreCoins,
+  CHROME,
+  Coin,
+  Etiquette,
+  Grain,
+  Horloge,
+  Indice,
+  Porte,
+  Surgit,
+  usePolices,
+} from './marche.jsx'
 import { Devoile, Eclate, Flotte, Parallaxe, ZoomDefile } from './scene.jsx'
 
 /** Filet tire de l encre courante : le systeme n a pas de classe pour cela. */
@@ -183,16 +197,82 @@ const BIENS = [
  * mis en avant, et ils obeissent au meme filtre.
  */
 const CATALOGUE = [
-  { reference: 'CDR-102', nom: 'Duplex Quai des Chartrons', lieu: 'Bordeaux', type: 'Appartement', surface: 121, pieces: 4, prix: 695000, prixTexte: '695 000 €', dpe: 'C' },
-  { reference: 'CDR-109', nom: 'Le Long Bureau', lieu: 'Nantes', type: 'Atelier', surface: 245, pieces: 5, prix: 810000, prixTexte: '810 000 €', dpe: 'D' },
-  { reference: 'CDR-121', nom: 'Maison Basse de Cenon', lieu: 'Cenon', type: 'Maison', surface: 132, pieces: 5, prix: 465000, prixTexte: '465 000 €', dpe: 'E' },
-  { reference: 'CDR-128', nom: 'Trois pieces sur cour, Belleville', lieu: 'Paris 20e', type: 'Appartement', surface: 68, pieces: 3, prix: 589000, prixTexte: '589 000 €', dpe: 'D' },
-  { reference: 'CDR-134', nom: 'La Maison Blanche d Anglet', lieu: 'Anglet', type: 'Maison', surface: 178, pieces: 6, prix: 1120000, prixTexte: '1 120 000 €', dpe: 'B' },
-  { reference: 'CDR-142', nom: 'Hotel de Sarrance', lieu: 'Pau', type: 'Hotel particulier', surface: 410, pieces: 12, prix: 1490000, prixTexte: '1 490 000 €', dpe: 'F' },
+  {
+    reference: 'CDR-102',
+    nom: 'Duplex Quai des Chartrons',
+    lieu: 'Bordeaux',
+    type: 'Appartement',
+    surface: 121,
+    pieces: 4,
+    prix: 695000,
+    prixTexte: '695 000 €',
+    dpe: 'C',
+  },
+  {
+    reference: 'CDR-109',
+    nom: 'Le Long Bureau',
+    lieu: 'Nantes',
+    type: 'Atelier',
+    surface: 245,
+    pieces: 5,
+    prix: 810000,
+    prixTexte: '810 000 €',
+    dpe: 'D',
+  },
+  {
+    reference: 'CDR-121',
+    nom: 'Maison Basse de Cenon',
+    lieu: 'Cenon',
+    type: 'Maison',
+    surface: 132,
+    pieces: 5,
+    prix: 465000,
+    prixTexte: '465 000 €',
+    dpe: 'E',
+  },
+  {
+    reference: 'CDR-128',
+    nom: 'Trois pieces sur cour, Belleville',
+    lieu: 'Paris 20e',
+    type: 'Appartement',
+    surface: 68,
+    pieces: 3,
+    prix: 589000,
+    prixTexte: '589 000 €',
+    dpe: 'D',
+  },
+  {
+    reference: 'CDR-134',
+    nom: 'La Maison Blanche d Anglet',
+    lieu: 'Anglet',
+    type: 'Maison',
+    surface: 178,
+    pieces: 6,
+    prix: 1120000,
+    prixTexte: '1 120 000 €',
+    dpe: 'B',
+  },
+  {
+    reference: 'CDR-142',
+    nom: 'Hotel de Sarrance',
+    lieu: 'Pau',
+    type: 'Hotel particulier',
+    surface: 410,
+    pieces: 12,
+    prix: 1490000,
+    prixTexte: '1 490 000 €',
+    dpe: 'F',
+  },
 ] as const
 
 /** Les types proposes au filtre, dans l ordre du catalogue. */
-const TYPES = ['Tous les biens', 'Maison', 'Appartement', 'Atelier', 'Hotel particulier'] as const
+const TYPES = [
+  'Tous les biens',
+  'Maison',
+  'Appartement',
+  'Atelier',
+  'Hotel particulier',
+] as const
 
 /** Les communes ou l agence estime, avec leur prix median au metre carre. */
 const COMMUNES = [
@@ -271,7 +351,9 @@ const FICHE_LIEU = [
 function decale(rem: number): string {
   if (rem === 0) return '0rem'
   const course = `${(Math.abs(rem) * 1.3).toFixed(1)}vw`
-  return rem > 0 ? `clamp(0rem, ${course}, ${String(rem)}rem)` : `clamp(${String(rem)}rem, -${course}, 0rem)`
+  return rem > 0
+    ? `clamp(0rem, ${course}, ${String(rem)}rem)`
+    : `clamp(${String(rem)}rem, -${course}, 0rem)`
 }
 
 interface Motif {
@@ -286,12 +368,44 @@ interface Motif {
 }
 
 const MOTIFS: readonly Motif[] = [
-  { place: 'md:o-col-span-7 md:o-col-start-1', ratio: 4 / 3, decalage: 0, vitesse: 0.14, glisse: 0.62 },
-  { place: 'md:o-col-span-4', ratio: 3 / 4, decalage: 5, vitesse: -0.11, glisse: 0.82, etroit: true },
-  { place: 'md:o-col-span-5 md:o-col-start-2', ratio: 1, decalage: 4, vitesse: 0.2, glisse: 0.55 },
+  {
+    place: 'md:o-col-span-7 md:o-col-start-1',
+    ratio: 4 / 3,
+    decalage: 0,
+    vitesse: 0.14,
+    glisse: 0.62,
+  },
+  {
+    place: 'md:o-col-span-4',
+    ratio: 3 / 4,
+    decalage: 5,
+    vitesse: -0.11,
+    glisse: 0.82,
+    etroit: true,
+  },
+  {
+    place: 'md:o-col-span-5 md:o-col-start-2',
+    ratio: 1,
+    decalage: 4,
+    vitesse: 0.2,
+    glisse: 0.55,
+  },
   { place: 'md:o-col-span-5', ratio: 5 / 4, decalage: 1, vitesse: -0.16, glisse: 0.74 },
-  { place: 'md:o-col-span-8 md:o-col-start-1', ratio: 16 / 9, decalage: 7, vitesse: 0.1, glisse: 0.85 },
-  { place: 'md:o-col-span-3', ratio: 3 / 4, decalage: 2, vitesse: -0.22, glisse: 0.68, etroit: true },
+  {
+    place: 'md:o-col-span-8 md:o-col-start-1',
+    ratio: 16 / 9,
+    decalage: 7,
+    vitesse: 0.1,
+    glisse: 0.85,
+  },
+  {
+    place: 'md:o-col-span-3',
+    ratio: 3 / 4,
+    decalage: 2,
+    vitesse: -0.22,
+    glisse: 0.68,
+    etroit: true,
+  },
 ]
 
 /** Un intitule de section : l indice en mono, le titre en grande graisse legere. */
@@ -308,8 +422,13 @@ function Titre({
 }): ReactElement {
   return (
     <div>
-      <Indice rang={rang} sombre={sombre}>{surtitre}</Indice>
-      <h2 className={`o-m-0 o-mt-5 ${sombre ? 'o-text-stone-50' : 'o-text-stone-950 dark:o-text-stone-50'}`} style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}>
+      <Indice rang={rang} sombre={sombre}>
+        {surtitre}
+      </Indice>
+      <h2
+        className={`o-m-0 o-mt-5 ${sombre ? 'o-text-stone-50' : 'o-text-stone-950 dark:o-text-stone-50'}`}
+        style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.5vw, 4.25rem)' }}
+      >
         {children}
       </h2>
     </div>
@@ -323,7 +442,13 @@ function Titre({
  * prix, dans le tiers bas assombri. Le reste de la fiche tient sur une ligne
  * en mono sous l image.
  */
-function Tuile({ bien, rang }: { readonly bien: (typeof BIENS)[number]; readonly rang: number }): ReactElement {
+function Tuile({
+  bien,
+  rang,
+}: {
+  readonly bien: (typeof BIENS)[number]
+  readonly rang: number
+}): ReactElement {
   const motif = MOTIFS[rang % MOTIFS.length] ?? MOTIFS[0]
   if (motif === undefined) return <div />
   const { place, ratio, decalage, vitesse, glisse, etroit = false } = motif
@@ -337,18 +462,38 @@ function Tuile({ bien, rang }: { readonly bien: (typeof BIENS)[number]; readonly
     >
       <a href="#visite" className="o-block o-no-underline o-text-current focus:o-ring">
         <div className="o-relative o-overflow-hidden o-rounded-sm">
-          <HoverZoom src={photo(bien.graine, 1200, 900)} alt={bien.alt} ratio={ratio} zoom={1.1} duration={700} className="o-w-full" />
+          <HoverZoom
+            src={photo(bien.graine, 1200, 900)}
+            alt={bien.alt}
+            ratio={ratio}
+            zoom={1.1}
+            duration={700}
+            className="o-w-full"
+          />
           {/* Le voile du tiers bas, et les chiffres poses dessus. */}
           <div
             className="o-pointer-events-none o-absolute o-inset-0 o-flex o-flex-col o-justify-between o-p-4 o-text-stone-50 md:o-p-5"
-            style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 22%), linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.3) 38%, transparent 60%)' }}
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 22%), linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.3) 38%, transparent 60%)',
+            }}
           >
             <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-200">
               {bien.reference} — {bien.statut}
             </p>
-            <div className={etroit ? 'o-flex o-flex-col o-gap-2' : 'o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-6 o-gap-y-2'}>
+            <div
+              className={
+                etroit
+                  ? 'o-flex o-flex-col o-gap-2'
+                  : 'o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-6 o-gap-y-2'
+              }
+            >
               <div>
-                <h3 className={`o-m-0 o-font-medium o-tracking-tight ${etroit ? 'o-text-lg' : 'o-text-xl md:o-text-2xl'}`}>{bien.nom}</h3>
+                <h3
+                  className={`o-m-0 o-font-medium o-tracking-tight ${etroit ? 'o-text-lg' : 'o-text-xl md:o-text-2xl'}`}
+                >
+                  {bien.nom}
+                </h3>
                 <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-300">
                   {bien.lieu} — {bien.type}
                 </p>
@@ -356,7 +501,12 @@ function Tuile({ bien, rang }: { readonly bien: (typeof BIENS)[number]; readonly
               <p className={`o-m-0 o-tabular-nums ${etroit ? '' : 'o-text-right'}`}>
                 <span
                   className="o-block o-tracking-tight"
-                  style={{ ...affiche('m', 300), fontSize: etroit ? 'clamp(1.25rem, 1.8vw, 1.75rem)' : 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: etroit
+                      ? 'clamp(1.25rem, 1.8vw, 1.75rem)'
+                      : 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                  }}
                 >
                   {bien.prixTexte}
                 </span>
@@ -369,7 +519,8 @@ function Tuile({ bien, rang }: { readonly bien: (typeof BIENS)[number]; readonly
         </div>
       </a>
       <figcaption className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
-        {bien.architecte} · energie {bien.dpe} · climat {bien.ges} · charges {bien.charges} · taxe {bien.taxe}
+        {bien.architecte} · energie {bien.dpe} · climat {bien.ges} · charges{' '}
+        {bien.charges} · taxe {bien.taxe}
       </figcaption>
     </Parallaxe>
   )
@@ -387,7 +538,9 @@ function Recherche(): ReactElement {
   const [budget, setBudget] = useState(2500000)
 
   const retient = (bien: { type: string; surface: number; prix: number }): boolean =>
-    (type === 'Tous les biens' || bien.type === type) && bien.surface >= surface && bien.prix <= budget
+    (type === 'Tous les biens' || bien.type === type) &&
+    bien.surface >= surface &&
+    bien.prix <= budget
 
   const illustres = BIENS.filter(retient)
   const autres = CATALOGUE.filter(retient)
@@ -438,7 +591,10 @@ function Recherche(): ReactElement {
         />
       </form>
 
-      <p aria-live="polite" className="o-mt-5 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+      <p
+        aria-live="polite"
+        className="o-mt-5 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400"
+      >
         <Icon icon={Search} size={13} aria-hidden="true" />
         {total === 0
           ? 'Aucun bien ne repond a ces criteres — elargissez le budget ou la surface.'
@@ -458,11 +614,14 @@ function Recherche(): ReactElement {
       {autres.length > 0 && (
         <div className="o-mt-20 o-grid o-gap-8 md:o-grid-cols-12">
           <p className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-600 dark:o-text-stone-400 md:o-col-span-3">
-            Egalement au catalogue, sans photographie. Le dossier de diagnostics est envoye sur demande.
+            Egalement au catalogue, sans photographie. Le dossier de diagnostics est
+            envoye sur demande.
           </p>
           <div className="o-relative o-overflow-x-auto o-border-t o-border-stone-300 dark:o-border-stone-800 md:o-col-span-9">
             <table className="o-w-full o-min-w-full o-text-left o-text-sm">
-              <caption className="o-sr-only">Les autres biens du catalogue repondant a la recherche</caption>
+              <caption className="o-sr-only">
+                Les autres biens du catalogue repondant a la recherche
+              </caption>
               <thead className="o-sr-only">
                 <tr>
                   <th scope="col">Bien</th>
@@ -474,19 +633,30 @@ function Recherche(): ReactElement {
               </thead>
               <tbody>
                 {autres.map((b) => (
-                  <tr key={b.reference} className="o-border-b o-border-stone-300 dark:o-border-stone-800">
+                  <tr
+                    key={b.reference}
+                    className="o-border-b o-border-stone-300 dark:o-border-stone-800"
+                  >
                     <th scope="row" className="o-py-3 o-pr-4 o-font-normal">
-                      <span className="o-block o-text-stone-900 dark:o-text-stone-100">{b.nom}</span>
+                      <span className="o-block o-text-stone-900 dark:o-text-stone-100">
+                        {b.nom}
+                      </span>
                       <span className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
                         {b.reference} — {b.lieu}
                       </span>
                     </th>
-                    <td className="o-py-3 o-pr-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">{b.type}</td>
+                    <td className="o-py-3 o-pr-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                      {b.type}
+                    </td>
                     <td className="o-py-3 o-pr-4 o-text-right o-font-mono o-text-xs o-tabular-nums o-text-stone-600 dark:o-text-stone-400">
                       {b.surface} m² · {b.pieces} p.
                     </td>
-                    <td className="o-py-3 o-pr-4 o-text-right o-font-mono o-text-xs o-text-stone-600 dark:o-text-stone-400">{b.dpe}</td>
-                    <td className="o-py-3 o-text-right o-font-mono o-tabular-nums o-text-stone-900 dark:o-text-stone-100">{b.prixTexte}</td>
+                    <td className="o-py-3 o-pr-4 o-text-right o-font-mono o-text-xs o-text-stone-600 dark:o-text-stone-400">
+                      {b.dpe}
+                    </td>
+                    <td className="o-py-3 o-text-right o-font-mono o-tabular-nums o-text-stone-900 dark:o-text-stone-100">
+                      {b.prixTexte}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -518,7 +688,16 @@ function Estimation(): ReactElement {
   const bas = Math.round((centre * 0.92) / 1000) * 1000
   const haut = Math.round((centre * 1.08) / 1000) * 1000
 
-  const tauxHonoraires = haut <= 150000 ? 0 : haut <= 400000 ? 0.05 : haut <= 900000 ? 0.042 : haut <= 1500000 ? 0.036 : 0.029
+  const tauxHonoraires =
+    haut <= 150000
+      ? 0
+      : haut <= 400000
+        ? 0.05
+        : haut <= 900000
+          ? 0.042
+          : haut <= 1500000
+            ? 0.036
+            : 0.029
   const honoraires = tauxHonoraires === 0 ? 7500 : Math.round(haut * tauxHonoraires)
 
   return (
@@ -542,7 +721,9 @@ function Estimation(): ReactElement {
         />
 
         <fieldset className="o-p-0">
-          <legend className="o-text-sm o-font-medium o-text-stone-900 dark:o-text-stone-100">Type de bien</legend>
+          <legend className="o-text-sm o-font-medium o-text-stone-900 dark:o-text-stone-100">
+            Type de bien
+          </legend>
           <div className="o-mt-3 o-flex o-flex-wrap o-gap-2">
             {[
               { cle: 'maison', libelle: 'Maison' },
@@ -558,7 +739,11 @@ function Estimation(): ReactElement {
                     setType(t.cle)
                   }}
                   className="o-cursor-pointer o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-font-medium o-transition-colors focus:o-ring"
-                  style={actif ? { ...APLAT, borderColor: 'transparent' } : { borderColor: FILET, color: 'inherit' }}
+                  style={
+                    actif
+                      ? { ...APLAT, borderColor: 'transparent' }
+                      : { borderColor: FILET, color: 'inherit' }
+                  }
                 >
                   {t.libelle}
                 </button>
@@ -599,31 +784,60 @@ function Estimation(): ReactElement {
         className="o-rounded-sm o-p-6 md:o-p-8 lg:o-col-span-7"
         style={{ backgroundColor: accentDoux(400, 10) }}
       >
-        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">Fourchette estimee, hors honoraires</p>
-        <p className="o-m-0 o-mt-3 o-tabular-nums" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)', color: encre() }}>
+        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+          Fourchette estimee, hors honoraires
+        </p>
+        <p
+          className="o-m-0 o-mt-3 o-tabular-nums"
+          style={{
+            ...affiche('m', 300),
+            fontSize: 'clamp(1.75rem, 3.6vw, 3.5rem)',
+            color: encre(),
+          }}
+        >
           {bas.toLocaleString('fr-FR')} € — {haut.toLocaleString('fr-FR')} €
         </p>
 
         <dl className="o-m-0 o-mt-8 o-space-y-3 o-text-sm">
           {[
             ['Prix median de la commune', `${base.toLocaleString('fr-FR')} € le m²`],
-            ['Correction liee a l etat', `${condition.facteur.toFixed(2).replace('.', ',')} ×`],
-            ['Honoraires du bareme', `${honoraires.toLocaleString('fr-FR')} € a la charge du vendeur`],
+            [
+              'Correction liee a l etat',
+              `${condition.facteur.toFixed(2).replace('.', ',')} ×`,
+            ],
+            [
+              'Honoraires du bareme',
+              `${honoraires.toLocaleString('fr-FR')} € a la charge du vendeur`,
+            ],
           ].map(([terme, valeur]) => (
-            <div key={terme} className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3 o-border-b o-pb-3" style={{ borderColor: FILET }}>
-              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">{terme}</dt>
-              <dd className="o-m-0 o-font-mono o-tabular-nums o-text-stone-900 dark:o-text-stone-100">{valeur}</dd>
+            <div
+              key={terme}
+              className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3 o-border-b o-pb-3"
+              style={{ borderColor: FILET }}
+            >
+              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                {terme}
+              </dt>
+              <dd className="o-m-0 o-font-mono o-tabular-nums o-text-stone-900 dark:o-text-stone-100">
+                {valeur}
+              </dd>
             </div>
           ))}
         </dl>
 
-        <a href="#contact" className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring" style={APLAT}>
+        <a
+          href="#contact"
+          className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
+          style={APLAT}
+        >
           Faire confirmer sur place
           <Icon icon={ArrowRight} size={15} aria-hidden="true" />
         </a>
 
         <p className="o-m-0 o-mt-6 o-max-w-md o-text-xs o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-          Indicative, cette estimation ignore l exposition, l etage, la vue et les servitudes. Une estimation ecrite se fait sur place, gratuitement, sans mandat a la cle.
+          Indicative, cette estimation ignore l exposition, l etage, la vue et les
+          servitudes. Une estimation ecrite se fait sur place, gratuitement, sans mandat a
+          la cle.
         </p>
       </Spotlight>
     </div>
@@ -631,15 +845,30 @@ function Estimation(): ReactElement {
 }
 
 /** Un bareme, en mono, sur une bande sombre. */
-function Bareme({ titre, lignes, note }: { readonly titre: string; readonly lignes: readonly (readonly [string, string])[]; readonly note: string }): ReactElement {
+function Bareme({
+  titre,
+  lignes,
+  note,
+}: {
+  readonly titre: string
+  readonly lignes: readonly (readonly [string, string])[]
+  readonly note: string
+}): ReactElement {
   return (
     <div>
-      <h3 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">{titre}</h3>
+      <h3 className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+        {titre}
+      </h3>
       <dl className="o-m-0 o-mt-4 o-border-t o-border-white-10">
         {lignes.map(([terme, valeur]) => (
-          <div key={terme} className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3">
+          <div
+            key={terme}
+            className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-3"
+          >
             <dt className="o-text-sm o-text-stone-200">{terme}</dt>
-            <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-stone-50">{valeur}</dd>
+            <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-stone-50">
+              {valeur}
+            </dd>
           </div>
         ))}
       </dl>
@@ -653,7 +882,10 @@ export default function Page(): ReactElement {
   const polices = usePolices('inter')
   return (
     <Porte forme="compteur" marque="Cadre" sombre={false}>
-      <div className="o-bg-stone-50 o-text-stone-900 dark:o-bg-stone-950 dark:o-text-stone-100" style={polices}>
+      <div
+        className="o-bg-stone-50 o-text-stone-900 dark:o-bg-stone-950 dark:o-text-stone-100"
+        style={polices}
+      >
         {/* ================= La couverture : la photo recule, le mot s ecarte ===== */}
         <ZoomDefile
           de={1.12}
@@ -675,37 +907,74 @@ export default function Page(): ReactElement {
             </div>
           }
         >
-          <BarreCoins marque="Cadre" liens={NAVIGATION} droite={<Horloge ville="Bordeaux" />} />
-          <div id="haut" className="o-relative o-flex o-flex-col o-justify-between o-px-6 md:o-px-8" style={{ minHeight: `calc(100vh - ${String(CHROME + 66)}px)` }}>
+          <BarreCoins
+            marque="Cadre"
+            liens={NAVIGATION}
+            droite={<Horloge ville="Bordeaux" />}
+          />
+          <div
+            id="haut"
+            className="o-relative o-flex o-flex-col o-justify-between o-px-6 md:o-px-8"
+            style={{ minHeight: `calc(100vh - ${String(CHROME + 66)}px)` }}
+          >
             <div className="o-mx-auto o-w-full o-max-w-7xl o-pt-12 md:o-pt-16">
               <Surgit>
                 <Etiquette>Architecture et biens — Bordeaux, depuis 1996</Etiquette>
               </Surgit>
-              <Surgit delai={140} as="p" className="o-m-0 o-mt-6 o-max-w-md o-text-lg o-leading-relaxed o-text-stone-200">
-                Douze lieux dont l architecture est le sujet. La surface, le diagnostic, les charges et le prix : tout est ecrit.
+              <Surgit
+                delai={140}
+                as="p"
+                className="o-m-0 o-mt-6 o-max-w-md o-text-lg o-leading-relaxed o-text-stone-200"
+              >
+                Douze lieux dont l architecture est le sujet. La surface, le diagnostic,
+                les charges et le prix : tout est ecrit.
               </Surgit>
               <Surgit delai={280} className="o-mt-8">
-                <Actions pleine={['#biens', <>Chercher un bien <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#estimation', 'Estimer le votre']} />
+                <Actions
+                  pleine={[
+                    '#biens',
+                    <>
+                      Chercher un bien{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#estimation', 'Estimer le votre']}
+                />
               </Surgit>
             </div>
             {/* Le mot-marque, a la largeur de l ecran ; ses lettres s ecartent au defilement. */}
-            <Surgit delai={420} distance={40} className="o-pointer-events-none o-mt-16 o-w-full">
+            <Surgit
+              delai={420}
+              distance={40}
+              className="o-pointer-events-none o-mt-16 o-w-full"
+            >
               <Eclate
                 mot="Cadre"
                 as="h1"
                 haut={180}
                 bas={70}
                 className="o-m-0 o-flex o-items-end o-justify-center o-whitespace-nowrap o-text-stone-50"
-                style={{ ...affiche('xxl', 800), fontSize: 'clamp(5rem, 24vw, 24rem)', lineHeight: 0.78 }}
+                style={{
+                  ...affiche('xxl', 800),
+                  fontSize: 'clamp(5rem, 24vw, 24rem)',
+                  lineHeight: 0.78,
+                }}
               />
             </Surgit>
           </div>
-          <Coin position="hd">Numero 44 — printemps 2026<br />Photographie Camille Roulet</Coin>
+          <Coin position="hd">
+            Numero 44 — printemps 2026
+            <br />
+            Photographie Camille Roulet
+          </Coin>
         </ZoomDefile>
 
         <main>
           {/* ================= (01) Les biens, en mosaique, chiffres en legende ===== */}
-          <section id="biens" className="o-scroll-mt-24 o-px-6 o-pt-20 md:o-px-8 md:o-pt-28">
+          <section
+            id="biens"
+            className="o-scroll-mt-24 o-px-6 o-pt-20 md:o-px-8 md:o-pt-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-8">
@@ -714,7 +983,9 @@ export default function Page(): ReactElement {
                   </Titre>
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-600 dark:o-text-stone-400 md:o-col-span-4 md:o-text-right">
-                  Prix nets vendeur, hors honoraires<br />Chaque bien visite avant publication
+                  Prix nets vendeur, hors honoraires
+                  <br />
+                  Chaque bien visite avant publication
                 </p>
               </div>
               <Recherche />
@@ -736,7 +1007,12 @@ export default function Page(): ReactElement {
             <div className="o-mx-auto o-max-w-7xl o-px-6 md:o-px-8">
               <div className="o-grid o-gap-10 md:o-grid-cols-12">
                 {/* La photo remonte sur le mot : une image qui chevauche la section. */}
-                <Parallaxe vitesse={0.24} glisse={0.8} className="md:o-col-span-5" style={{ marginTop: 'clamp(-6rem, -8vw, -3rem)' }}>
+                <Parallaxe
+                  vitesse={0.24}
+                  glisse={0.8}
+                  className="md:o-col-span-5"
+                  style={{ marginTop: 'clamp(-6rem, -8vw, -3rem)' }}
+                >
                   <Devoile
                     src={photo('cadre-bien-ferme', 1200, 1500)}
                     alt="La cour interieure de la Grange Basse, sous la charpente de 1780"
@@ -748,20 +1024,36 @@ export default function Page(): ReactElement {
                   />
                 </Parallaxe>
                 <div className="o-pt-4 md:o-col-span-6 md:o-col-start-7 md:o-pt-16">
-                  <Titre rang="02" surtitre="Le lieu du mois">La Grange Basse</Titre>
+                  <Titre rang="02" surtitre="Le lieu du mois">
+                    La Grange Basse
+                  </Titre>
                   <p className="o-m-0 o-mt-6 o-max-w-md o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                    Trois cent deux metres carres sous une charpente de 1780, que Gilles Perraudin a laissee visible. Des murs de vingt-huit centimetres : la maison se chauffe seule jusqu en novembre.
+                    Trois cent deux metres carres sous une charpente de 1780, que Gilles
+                    Perraudin a laissee visible. Des murs de vingt-huit centimetres : la
+                    maison se chauffe seule jusqu en novembre.
                   </p>
                   <dl className="o-m-0 o-mt-10 o-border-t o-border-stone-300 dark:o-border-stone-800">
                     {FICHE_LIEU.map(([cle, valeur]) => (
-                      <div key={cle} className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-stone-300 o-py-2.5 dark:o-border-stone-800">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">{cle}</dt>
-                        <dd className="o-m-0 o-text-right o-text-sm o-tabular-nums o-text-stone-900 dark:o-text-stone-100">{valeur}</dd>
+                      <div
+                        key={cle}
+                        className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-border-b o-border-stone-300 o-py-2.5 dark:o-border-stone-800"
+                      >
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                          {cle}
+                        </dt>
+                        <dd className="o-m-0 o-text-right o-text-sm o-tabular-nums o-text-stone-900 dark:o-text-stone-100">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
-                  <a href="#contact" className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-text-sm o-font-medium o-text-stone-900 o-no-underline dark:o-text-stone-100 focus:o-ring" style={{ borderBottom: '1px solid currentColor', paddingBottom: 4 }}>
-                    Demander une visite <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                  <a
+                    href="#contact"
+                    className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-text-sm o-font-medium o-text-stone-900 o-no-underline dark:o-text-stone-100 focus:o-ring"
+                    style={{ borderBottom: '1px solid currentColor', paddingBottom: 4 }}
+                  >
+                    Demander une visite{' '}
+                    <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                   </a>
                 </div>
               </div>
@@ -791,21 +1083,33 @@ export default function Page(): ReactElement {
                 <br />
                 Chartrons, Bordeaux
               </p>
-              <p className="o-m-0 o-max-w-lg o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.35rem, 2.6vw, 2.5rem)' }}>
+              <p
+                className="o-m-0 o-max-w-lg o-text-stone-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.35rem, 2.6vw, 2.5rem)',
+                }}
+              >
                 On ne vend pas une surface, on vend une place dans une rue.
               </p>
             </figcaption>
           </figure>
 
           {/* ================= (03) L estimation ================================ */}
-          <section id="estimation" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28">
+          <section
+            id="estimation"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-8 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
-                  <Titre rang="03" surtitre="Estimer">Ce que vaut un bien, avant la visite.</Titre>
+                  <Titre rang="03" surtitre="Estimer">
+                    Ce que vaut un bien, avant la visite.
+                  </Titre>
                 </div>
                 <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400 md:o-col-span-5 md:o-justify-self-end">
-                  Le calcul part du prix median de la commune, corrige par l etat du bien. Deux minutes suffisent.
+                  Le calcul part du prix median de la commune, corrige par l etat du bien.
+                  Deux minutes suffisent.
                 </p>
               </div>
               <div className="o-mt-14">
@@ -815,28 +1119,55 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (04) Les honoraires : une bande sombre, en mono ===== */}
-          <section id="honoraires" className="o-scroll-mt-24 o-px-6 o-py-16 md:o-px-8 md:o-py-20" style={nuit('stone')}>
+          <section
+            id="honoraires"
+            className="o-scroll-mt-24 o-px-6 o-py-16 md:o-px-8 md:o-py-20"
+            style={nuit('stone')}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-10 md:o-grid-cols-12">
               <div className="md:o-col-span-4">
                 <Indice rang="04">Honoraires</Indice>
-                <h2 className="o-m-0 o-mt-5 o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3vw, 3rem)' }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-text-stone-50"
+                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3vw, 3rem)' }}
+                >
                   Le bareme, en entier.
                 </h2>
                 <p className="o-m-0 o-mt-5 o-max-w-xs o-text-sm o-leading-relaxed o-text-stone-300">
-                  L affichage des honoraires est une obligation, et les ecrire en petit en est une violation. Toutes taxes comprises, tels qu affiches 18 rue des Chartrons.
+                  L affichage des honoraires est une obligation, et les ecrire en petit en
+                  est une violation. Toutes taxes comprises, tels qu affiches 18 rue des
+                  Chartrons.
                 </p>
               </div>
               <div className="o-grid o-gap-10 sm:o-grid-cols-2 md:o-col-span-8">
-                <Bareme titre="Vente — a la charge du vendeur" lignes={HONORAIRES_VENTE} note="Dus au jour de la signature de l acte authentique, jamais avant." />
-                <Bareme titre="Location — a la charge du locataire" lignes={HONORAIRES_LOCATION} note="Plafonds fixes par le decret du 1er aout 2014 pour une residence principale." />
+                <Bareme
+                  titre="Vente — a la charge du vendeur"
+                  lignes={HONORAIRES_VENTE}
+                  note="Dus au jour de la signature de l acte authentique, jamais avant."
+                />
+                <Bareme
+                  titre="Location — a la charge du locataire"
+                  lignes={HONORAIRES_LOCATION}
+                  note="Plafonds fixes par le decret du 1er aout 2014 pour une residence principale."
+                />
               </div>
             </div>
           </section>
 
           {/* ================= L appel : une carte flottante, disponible, avec l heure ===== */}
-          <section id="contact" aria-label="Joindre l agence" className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-text-stone-50" style={{ ...nuit('stone'), minHeight: '88vh' }}>
+          <section
+            id="contact"
+            aria-label="Joindre l agence"
+            className="o-relative o-isolate o-scroll-mt-24 o-overflow-hidden o-text-stone-50"
+            style={{ ...nuit('stone'), minHeight: '88vh' }}
+          >
             {/* Le bureau derive derriere la carte, et continue de couler apres l arret du geste. */}
-            <Parallaxe vitesse={0.3} echelle={0.06} glisse={0.72} className="o-absolute o-inset-0 o-z-0">
+            <Parallaxe
+              vitesse={0.3}
+              echelle={0.06}
+              glisse={0.72}
+              className="o-absolute o-inset-0 o-z-0"
+            >
               <img
                 src={photo('cadre-agence-bureau', 1600, 1000)}
                 alt=""
@@ -846,74 +1177,143 @@ export default function Page(): ReactElement {
               />
             </Parallaxe>
             <Voile sens="centre" famille="stone" />
-            <div className="o-relative o-z-10 o-flex o-items-center o-justify-center o-px-6 o-py-24" style={{ minHeight: '88vh' }}>
+            <div
+              className="o-relative o-z-10 o-flex o-items-center o-justify-center o-px-6 o-py-24"
+              style={{ minHeight: '88vh' }}
+            >
               <Flotte amplitude={7} duree={7} angle={-2}>
-                <GlassSurface colors={['--o-palette-stone-900', '--o-palette-white']} tint={0.6} blur={22} thickness={1.2} className="o-w-full o-max-w-sm o-rounded-2xl o-p-7">
+                <GlassSurface
+                  colors={['--o-palette-stone-900', '--o-palette-white']}
+                  tint={0.6}
+                  blur={22}
+                  thickness={1.2}
+                  className="o-w-full o-max-w-sm o-rounded-2xl o-p-7"
+                >
                   <p className="o-m-0 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-200">
-                    <span aria-hidden="true" className="o-size-2 o-rounded-full" style={{ backgroundColor: encreSurSombre() }} />
+                    <span
+                      aria-hidden="true"
+                      className="o-size-2 o-rounded-full"
+                      style={{ backgroundColor: encreSurSombre() }}
+                    />
                     Disponible pour une visite
                   </p>
-                  <p className="o-m-0 o-mt-5 o-font-mono o-tabular-nums o-tracking-tight o-text-stone-50" style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.75rem)', lineHeight: 1 }}>
+                  <p
+                    className="o-m-0 o-mt-5 o-font-mono o-tabular-nums o-tracking-tight o-text-stone-50"
+                    style={{ fontSize: 'clamp(1.75rem, 3.4vw, 2.75rem)', lineHeight: 1 }}
+                  >
                     <Horloge ville="Bordeaux" />
                   </p>
                   <p className="o-m-0 o-mt-5 o-text-sm o-leading-relaxed o-text-stone-200">
-                    Helene Fabre repond sous deux jours ouvres. Une estimation ecrite se fait sur place, sans mandat a la cle.
+                    Helene Fabre repond sous deux jours ouvres. Une estimation ecrite se
+                    fait sur place, sans mandat a la cle.
                   </p>
                   <div className="o-mt-6 o-flex o-flex-col o-gap-2 o-border-t o-border-white-20 o-pt-5">
-                    <a href="mailto:bureau@cadre-architecture.fr" className="o-inline-flex o-items-center o-gap-2 o-text-base o-font-medium o-text-stone-50 o-no-underline focus:o-ring">
-                      bureau@cadre-architecture.fr <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                    <a
+                      href="mailto:bureau@cadre-architecture.fr"
+                      className="o-inline-flex o-items-center o-gap-2 o-text-base o-font-medium o-text-stone-50 o-no-underline focus:o-ring"
+                    >
+                      bureau@cadre-architecture.fr{' '}
+                      <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                     </a>
-                    <a href="tel:+33556442188" className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-text-stone-200 o-no-underline focus:o-ring">
+                    <a
+                      href="tel:+33556442188"
+                      className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-text-stone-200 o-no-underline focus:o-ring"
+                    >
                       05 56 44 21 88
                     </a>
                   </div>
                 </GlassSurface>
               </Flotte>
             </div>
-            <Coin position="bg">L agence, 18 rue des Chartrons<br />Photographie Camille Roulet</Coin>
+            <Coin position="bg">
+              L agence, 18 rue des Chartrons
+              <br />
+              Photographie Camille Roulet
+            </Coin>
           </section>
         </main>
 
         {/* ================= Le pied : une carte de visite, en grand ============ */}
         <footer className="o-border-t o-border-stone-300 o-px-6 o-pb-8 o-pt-20 dark:o-border-stone-800 md:o-px-8 md:o-pt-28">
           <div className="o-mx-auto o-max-w-7xl">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">Cadre — architecture et biens</p>
-            <p className="o-m-0 o-mt-6 o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6.5vw, 6.5rem)' }}>
-              18 rue des Chartrons<br />33000 Bordeaux
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+              Cadre — architecture et biens
+            </p>
+            <p
+              className="o-m-0 o-mt-6 o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 6.5vw, 6.5rem)' }}
+            >
+              18 rue des Chartrons
+              <br />
+              33000 Bordeaux
             </p>
             <div className="o-mt-16 o-grid o-gap-10 o-border-t o-border-stone-300 o-pt-10 dark:o-border-stone-800 md:o-grid-cols-3">
               <div>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">Horaires</p>
-                <p className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
-                  Mardi — samedi<br />10 h — 19 h
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                  Horaires
                 </p>
-                <p className="o-m-0 o-mt-2 o-text-sm o-text-stone-600 dark:o-text-stone-400">Le lundi sur rendez-vous.</p>
+                <p className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
+                  Mardi — samedi
+                  <br />
+                  10 h — 19 h
+                </p>
+                <p className="o-m-0 o-mt-2 o-text-sm o-text-stone-600 dark:o-text-stone-400">
+                  Le lundi sur rendez-vous.
+                </p>
               </div>
               <div>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">Acces</p>
-                <p className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
-                  Tram B, arret Chartrons<br />Bus 4 et 15
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                  Acces
                 </p>
-                <p className="o-m-0 o-mt-2 o-text-sm o-text-stone-600 dark:o-text-stone-400">Parking Cite mondiale, a deux cents metres.</p>
+                <p className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
+                  Tram B, arret Chartrons
+                  <br />
+                  Bus 4 et 15
+                </p>
+                <p className="o-m-0 o-mt-2 o-text-sm o-text-stone-600 dark:o-text-stone-400">
+                  Parking Cite mondiale, a deux cents metres.
+                </p>
               </div>
               <div>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">Joindre</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-400">
+                  Joindre
+                </p>
                 <p className="o-m-0 o-mt-3 o-text-2xl o-tracking-tight">
-                  <a href="tel:+33556442188" className="o-text-stone-950 o-no-underline dark:o-text-stone-50 focus:o-ring">05 56 44 21 88</a>
+                  <a
+                    href="tel:+33556442188"
+                    className="o-text-stone-950 o-no-underline dark:o-text-stone-50 focus:o-ring"
+                  >
+                    05 56 44 21 88
+                  </a>
                 </p>
                 <p className="o-m-0 o-mt-2 o-text-sm">
-                  <a href="mailto:bureau@cadre-architecture.fr" className="o-text-stone-600 o-no-underline dark:o-text-stone-400 focus:o-ring">bureau@cadre-architecture.fr</a>
+                  <a
+                    href="mailto:bureau@cadre-architecture.fr"
+                    className="o-text-stone-600 o-no-underline dark:o-text-stone-400 focus:o-ring"
+                  >
+                    bureau@cadre-architecture.fr
+                  </a>
                 </p>
               </div>
             </div>
             <div className="o-mt-16 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-stone-300 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-border-stone-800 dark:o-text-stone-400">
-              <p className="o-m-0">© 2026 Cadre SARL — RCS Bordeaux 409 882 114 — CPI 3301 2018 000 032 411 — Garantie Galian 120 000 €</p>
+              <p className="o-m-0">
+                © 2026 Cadre SARL — RCS Bordeaux 409 882 114 — CPI 3301 2018 000 032 411 —
+                Garantie Galian 120 000 €
+              </p>
               <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-gap-4 o-p-0">
-                {['Mentions legales', 'Donnees personnelles', 'Accessibilite'].map((l) => (
-                  <li key={l}>
-                    <a href="#haut" className="o-text-stone-600 o-no-underline hover:o-text-stone-950 dark:o-text-stone-400 dark:hover:o-text-stone-50 focus:o-ring">{l}</a>
-                  </li>
-                ))}
+                {['Mentions legales', 'Donnees personnelles', 'Accessibilite'].map(
+                  (l) => (
+                    <li key={l}>
+                      <a
+                        href="#haut"
+                        className="o-text-stone-600 o-no-underline hover:o-text-stone-950 dark:o-text-stone-400 dark:hover:o-text-stone-50 focus:o-ring"
+                      >
+                        {l}
+                      </a>
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           </div>

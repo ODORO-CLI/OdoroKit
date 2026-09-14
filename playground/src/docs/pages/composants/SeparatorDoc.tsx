@@ -76,7 +76,7 @@ export function SeparatorDoc(): ReactElement {
           variants={[
             {
               title: 'Vertical',
-              description: 'Le filet s\'etire sur la hauteur de la rangee.',
+              description: "Le filet s'etire sur la hauteur de la rangee.",
               values: { orientation: 'vertical' },
             },
             {

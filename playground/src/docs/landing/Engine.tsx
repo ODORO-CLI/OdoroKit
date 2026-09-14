@@ -63,7 +63,11 @@ export function Engine(): ReactElement {
               Un moteur qui arbitre, pas une librairie qui espère.
             </h2>
           </Reveal>
-          <Stagger preset="fade-up" step={100} className="o-mt-8 o-flex o-flex-col o-gap-6">
+          <Stagger
+            preset="fade-up"
+            step={100}
+            className="o-mt-8 o-flex o-flex-col o-gap-6"
+          >
             {POINTS.map((point) => (
               <div key={point.title} className="o-flex o-gap-4">
                 <span className="o-inline-flex o-size-10 o-shrink-0 o-items-center o-justify-center o-rounded-lg o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-bg-zinc-50 dark:o-bg-zinc-900 o-text-brand-600 dark:o-text-brand-300">
@@ -71,7 +75,9 @@ export function Engine(): ReactElement {
                 </span>
                 <div>
                   <h3 className="o-font-semibold">{point.title}</h3>
-                  <p className="o-mt-1 o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-pretty">{point.text}</p>
+                  <p className="o-mt-1 o-text-sm o-text-zinc-500 dark:o-text-zinc-400 o-text-pretty">
+                    {point.text}
+                  </p>
                 </div>
               </div>
             ))}
@@ -97,17 +103,25 @@ export function Engine(): ReactElement {
               data-beam="from"
               className="o-self-start o-rounded-xl o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-white dark:o-bg-zinc-950 o-p-5"
             >
-              <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">clock.subscribe</p>
+              <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">
+                clock.subscribe
+              </p>
               <p className="o-mt-1 o-text-sm o-font-semibold">Horloge du moteur</p>
-              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">entrées, mises a jour, rendu</p>
+              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                entrées, mises a jour, rendu
+              </p>
             </div>
             <div
               data-beam="to"
               className="o-self-end o-rounded-xl o-border-w-1 o-border-zinc-300 dark:o-border-zinc-700 o-bg-white dark:o-bg-zinc-950 o-p-5"
             >
-              <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">surfaceManager.acquire</p>
+              <p className="o-font-mono o-text-xs o-text-brand-600 dark:o-text-brand-300">
+                surfaceManager.acquire
+              </p>
               <p className="o-mt-1 o-text-sm o-font-semibold">Surface WebGL arbitree</p>
-              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">ogl, three, refus = repli</p>
+              <p className="o-mt-1 o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+                ogl, three, refus = repli
+              </p>
             </div>
           </BeamConnect>
         </Reveal>

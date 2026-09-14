@@ -90,13 +90,17 @@ interface Sample {
 /** Position et cap sur la courbe, a un parametre donne. */
 function sampleAt(t: number): { x: number; y: number; angle: number } {
   const u = 1 - t
-  const x = u * u * u * P0.x + 3 * u * u * t * P1.x + 3 * u * t * t * P2.x + t * t * t * P3.x
-  const y = u * u * u * P0.y + 3 * u * u * t * P1.y + 3 * u * t * t * P2.y + t * t * t * P3.y
+  const x =
+    u * u * u * P0.x + 3 * u * u * t * P1.x + 3 * u * t * t * P2.x + t * t * t * P3.x
+  const y =
+    u * u * u * P0.y + 3 * u * u * t * P1.y + 3 * u * t * t * P2.y + t * t * t * P3.y
 
   // La derivee d'une cubique de Bezier : c'est elle qui donne le cap, et
   // non une orientation posee a l'oeil image par image.
-  const dx = 3 * u * u * (P1.x - P0.x) + 6 * u * t * (P2.x - P1.x) + 3 * t * t * (P3.x - P2.x)
-  const dy = 3 * u * u * (P1.y - P0.y) + 6 * u * t * (P2.y - P1.y) + 3 * t * t * (P3.y - P2.y)
+  const dx =
+    3 * u * u * (P1.x - P0.x) + 6 * u * t * (P2.x - P1.x) + 3 * t * t * (P3.x - P2.x)
+  const dy =
+    3 * u * u * (P1.y - P0.y) + 6 * u * t * (P2.y - P1.y) + 3 * t * t * (P3.y - P2.y)
 
   return { x, y, angle: (Math.atan2(dy, dx) * 180) / Math.PI }
 }
@@ -116,7 +120,8 @@ function buildFlight(): readonly Sample[] {
   let total = 0
   let previous: { x: number; y: number } | undefined
   for (const point of points) {
-    if (previous !== undefined) total += Math.hypot(point.x - previous.x, point.y - previous.y)
+    if (previous !== undefined)
+      total += Math.hypot(point.x - previous.x, point.y - previous.y)
     walked.push(total)
     previous = point
   }

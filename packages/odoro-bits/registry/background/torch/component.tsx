@@ -72,7 +72,8 @@ const DEFAULT_TOKENS = [
 ] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
-const DEFAULT_FALLBACK = 'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-amber-950'
+const DEFAULT_FALLBACK =
+  'o-bg-gradient-to-br o-from-zinc-50 dark:o-from-zinc-950 o-to-amber-950'
 
 /**
  * Torche.
@@ -113,13 +114,18 @@ export function Torch({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: TORCH_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uRadius: radius, uSoftness: softness, uDim: dim },
-      name: 'torch',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: TORCH_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uRadius: radius, uSoftness: softness, uDim: dim },
+    name: 'torch',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

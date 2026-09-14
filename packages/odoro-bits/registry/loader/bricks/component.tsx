@@ -157,11 +157,7 @@ export function Bricks({
     >
       <span className="o-sr-only">{label}</span>
       {ROWS.map((count, row) => (
-        <span
-          key={row}
-          aria-hidden
-          data-o-bricks-row={row % 2 === 1 ? 'offset' : ''}
-        >
+        <span key={row} aria-hidden data-o-bricks-row={row % 2 === 1 ? 'offset' : ''}>
           {Array.from({ length: count }, () => {
             const brick = laid
             laid += 1

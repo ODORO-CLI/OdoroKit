@@ -63,7 +63,19 @@ import { FoldText } from '@/odoro/text/FoldText.jsx'
 import { nuit, Voile } from './communs.jsx'
 import { photo } from './media.js'
 import { accentDoux, aplat, encre, encreSurSombre } from './palettes.js'
-import { Actions, affiche, BarreCoins, Etiquette, Grain, Horloge, Indice, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  BarreCoins,
+  Etiquette,
+  Grain,
+  Horloge,
+  Indice,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Eclate } from './scene.jsx'
 
 import { Reveal } from '@odoro-cli/libs/motion'
@@ -379,10 +391,19 @@ const MATERIEL: readonly (readonly [boolean, string])[] = [
 /** Les conditions, en tableau plutot qu en accordeon. */
 const CONDITIONS: readonly (readonly [string, string])[] = [
   ['Groupe', 'Huit personnes au maximum, quatre au minimum pour partir'],
-  ['Depart non atteint', 'Prevenu a trente jours ; report, echange ou remboursement integral sous huit jours'],
+  [
+    'Depart non atteint',
+    'Prevenu a trente jours ; report, echange ou remboursement integral sous huit jours',
+  ],
   ['Acompte', '30 % a l inscription, solde appele a trente jours du depart'],
-  ['Annulation', 'Sans frais a plus de soixante jours ; 30 % jusqu a trente ; 60 % jusqu a quinze ; totalite en deca'],
-  ['Chambre individuelle', 'Sans supplement en refuge et sous tente ; de 90 a 220 EUR sur les autres voyages'],
+  [
+    'Annulation',
+    'Sans frais a plus de soixante jours ; 30 % jusqu a trente ; 60 % jusqu a quinze ; totalite en deca',
+  ],
+  [
+    'Chambre individuelle',
+    'Sans supplement en refuge et sous tente ; de 90 a 220 EUR sur les autres voyages',
+  ],
   ['Assurance', 'Rapatriement comprise ; annulation en option a 3,9 % du prix'],
 ]
 
@@ -399,12 +420,16 @@ function Profil({ etapes }: { readonly etapes: readonly Etape[] }): ReactElement
     <figure className="o-m-0">
       <div className="o-flex o-items-end o-gap-1" style={{ height: '72px' }}>
         {etapes.map((etape) => (
-          <div key={etape.jour} className="o-flex o-flex-1 o-flex-col o-items-center o-gap-1.5">
+          <div
+            key={etape.jour}
+            className="o-flex o-flex-1 o-flex-col o-items-center o-gap-1.5"
+          >
             <div
               className="o-w-full o-rounded-t-sm"
               style={{
                 height: `${String(Math.max(3, (etape.montee / maximum) * 60))}px`,
-                backgroundColor: etape.montee >= maximum * 0.8 ? encre() : accentDoux(500, 45),
+                backgroundColor:
+                  etape.montee >= maximum * 0.8 ? encre() : accentDoux(500, 45),
               }}
             />
             <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">
@@ -414,8 +439,8 @@ function Profil({ etapes }: { readonly etapes: readonly Etape[] }): ReactElement
         ))}
       </div>
       <figcaption className="o-mt-3 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
-        Denivele positif par jour, en metres. La barre pleine marque la journee
-        la plus dure : {Math.max(...etapes.map((e) => e.montee))} m.
+        Denivele positif par jour, en metres. La barre pleine marque la journee la plus
+        dure : {Math.max(...etapes.map((e) => e.montee))} m.
       </figcaption>
     </figure>
   )
@@ -441,8 +466,19 @@ const PLANCHES: readonly {
   readonly marge?: string
 }[] = [
   { cle: 'ecrins', place: 'o-col-span-12 md:o-col-span-5', ratio: '4 / 5', vitesse: 70 },
-  { cle: 'atlas', place: 'o-col-span-12 md:o-col-span-4 md:o-col-start-7 md:o-mt-32', ratio: '3 / 4', vitesse: -40 },
-  { cle: 'lofoten', place: 'o-col-span-12 md:o-col-span-8 md:o-col-start-3', ratio: '16 / 9', vitesse: 100, marge: '-3rem' },
+  {
+    cle: 'atlas',
+    place: 'o-col-span-12 md:o-col-span-4 md:o-col-start-7 md:o-mt-32',
+    ratio: '3 / 4',
+    vitesse: -40,
+  },
+  {
+    cle: 'lofoten',
+    place: 'o-col-span-12 md:o-col-span-8 md:o-col-start-3',
+    ratio: '16 / 9',
+    vitesse: 100,
+    marge: '-3rem',
+  },
 ]
 
 /**
@@ -452,9 +488,24 @@ const PLANCHES: readonly {
  * quelle heure il y fait jour, et a quelles coordonnees on retrouve le guide.
  */
 const BASES: readonly (readonly [string, string, string, string])[] = [
-  ['Grenoble', 'Europe/Paris', '45,1885 N — 5,7245 E', 'Le bureau — 14 rue Colbert, 38000'],
-  ['Marrakech', 'Africa/Casablanca', '31,6295 N — 7,9811 O', 'Ait Bouguemez — chez Lahcen, Agouti'],
-  ['Svolvaer', 'Europe/Oslo', '68,2342 N — 14,5681 E', 'Reine — rorbu de Hamnoy, Nordland'],
+  [
+    'Grenoble',
+    'Europe/Paris',
+    '45,1885 N — 5,7245 E',
+    'Le bureau — 14 rue Colbert, 38000',
+  ],
+  [
+    'Marrakech',
+    'Africa/Casablanca',
+    '31,6295 N — 7,9811 O',
+    'Ait Bouguemez — chez Lahcen, Agouti',
+  ],
+  [
+    'Svolvaer',
+    'Europe/Oslo',
+    '68,2342 N — 14,5681 E',
+    'Reine — rorbu de Hamnoy, Nordland',
+  ],
 ]
 
 /** La vitrine complete : un carnet de route. */
@@ -470,471 +521,654 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="compteur" marque="Bivouac">
-    <div className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-100" style={polices}>
-      {/* ================= 1. L ouverture ============================== */}
-      <header className="o-relative o-isolate o-min-h-screen o-overflow-hidden" style={nuit('stone')}>
-        {/* Le mot-marque en filigrane, dont les lettres s ecartent au
+      <div
+        className="o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-100"
+        style={polices}
+      >
+        {/* ================= 1. L ouverture ============================== */}
+        <header
+          className="o-relative o-isolate o-min-h-screen o-overflow-hidden"
+          style={nuit('stone')}
+        >
+          {/* Le mot-marque en filigrane, dont les lettres s ecartent au
             defilement — Aerra. Le titre reste une seule chaine pour les
             lecteurs d ecran, et le bloc entier leur est cache : le nom est
             deja dans la barre et dans le pied. */}
-        <div aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-x-0 o-top-20 o-z-0 o-select-none o-text-center">
-          <Eclate
-            mot="BIVOUAC"
-            haut={190}
-            bas={70}
-            as="p"
-            className="o-m-0 o-whitespace-nowrap o-font-bold o-leading-tight o-tracking-tighter"
-            style={{ fontSize: 'min(24vw, 340px)', color: 'color-mix(in oklab, var(--o-theme-fg) 16%, transparent)' }}
+          <div
+            aria-hidden="true"
+            className="o-pointer-events-none o-absolute o-inset-x-0 o-top-20 o-z-0 o-select-none o-text-center"
+          >
+            <Eclate
+              mot="BIVOUAC"
+              haut={190}
+              bas={70}
+              as="p"
+              className="o-m-0 o-whitespace-nowrap o-font-bold o-leading-tight o-tracking-tighter"
+              style={{
+                fontSize: 'min(24vw, 340px)',
+                color: 'color-mix(in oklab, var(--o-theme-fg) 16%, transparent)',
+              }}
+            />
+          </div>
+          <img
+            src={photo('bivouac-ecrins', 1800, 1000)}
+            alt=""
+            aria-hidden="true"
+            className="o-absolute o-inset-x-0 o-bottom-0 o-z-0 o-w-full o-object-cover"
+            style={{
+              height: '80%',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)',
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)',
+            }}
           />
-        </div>
-        <img src={photo('bivouac-ecrins', 1800, 1000)} alt="" aria-hidden="true" className="o-absolute o-inset-x-0 o-bottom-0 o-z-0 o-w-full o-object-cover" style={{ height: '80%', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)', maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%)' }} />
-        <Voile sens="bas" famille="stone" />
-        <Grain />
+          <Voile sens="bas" famille="stone" />
+          <Grain />
 
-        <BarreCoins marque="Bivouac" liens={[['#courses', 'Les courses'], ['#materiel', 'Le materiel'], ['#conditions', 'Les conditions']]} droite="Huit marcheurs au plus" />
+          <BarreCoins
+            marque="Bivouac"
+            liens={[
+              ['#courses', 'Les courses'],
+              ['#materiel', 'Le materiel'],
+              ['#conditions', 'Les conditions'],
+            ]}
+            droite="Huit marcheurs au plus"
+          />
 
-        <div className="o-relative o-z-10 o-mx-auto o-flex o-min-h-screen o-max-w-6xl o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-24 md:o-px-8">
-          <Surgit>
-            <Etiquette>Trois courses — de juin a fevrier</Etiquette>
-          </Surgit>
-          <TitreVague delai={120} className="o-m-0 o-mt-6 o-max-w-4xl o-text-stone-50" style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 5.8vw, 5.75rem)' }}>
-            On vend un itineraire, pas une photographie de crete.
-          </TitreVague>
-          <div className="o-mt-8 o-grid o-items-end o-gap-8 lg:o-grid-cols-12">
-            <Surgit delai={420} as="p" className="o-m-0 o-max-w-xl o-text-lg o-leading-relaxed o-text-stone-300 lg:o-col-span-7">
-              Chaque course est publiee en entier : le denivele de chaque jour, l heure de marche, le refuge du soir, ce qu on porte. Vous saurez a quoi ressemble la troisieme journee avant de payer l acompte.
+          <div className="o-relative o-z-10 o-mx-auto o-flex o-min-h-screen o-max-w-6xl o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-24 md:o-px-8">
+            <Surgit>
+              <Etiquette>Trois courses — de juin a fevrier</Etiquette>
             </Surgit>
-            <Surgit delai={520} className="lg:o-col-span-5 lg:o-justify-self-end">
-              <Actions pleine={['#courses', <>Lire les trois carnets <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#materiel', 'Ce qu il faut emporter']} />
-            </Surgit>
+            <TitreVague
+              delai={120}
+              className="o-m-0 o-mt-6 o-max-w-4xl o-text-stone-50"
+              style={{ ...affiche('l', 300), fontSize: 'clamp(2.25rem, 5.8vw, 5.75rem)' }}
+            >
+              On vend un itineraire, pas une photographie de crete.
+            </TitreVague>
+            <div className="o-mt-8 o-grid o-items-end o-gap-8 lg:o-grid-cols-12">
+              <Surgit
+                delai={420}
+                as="p"
+                className="o-m-0 o-max-w-xl o-text-lg o-leading-relaxed o-text-stone-300 lg:o-col-span-7"
+              >
+                Chaque course est publiee en entier : le denivele de chaque jour, l heure
+                de marche, le refuge du soir, ce qu on porte. Vous saurez a quoi ressemble
+                la troisieme journee avant de payer l acompte.
+              </Surgit>
+              <Surgit delai={520} className="lg:o-col-span-5 lg:o-justify-self-end">
+                <Actions
+                  pleine={[
+                    '#courses',
+                    <>
+                      Lire les trois carnets{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#materiel', 'Ce qu il faut emporter']}
+                />
+              </Surgit>
+            </div>
+            <div className="o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-x-10 o-gap-y-3 o-border-t o-border-white-20 o-pt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400">
+              <Surgit delai={620} as="p" className="o-m-0">
+                Bivouac — Grenoble
+                <br />
+                Atout France IM038210014
+              </Surgit>
+              <Surgit delai={680} as="p" className="o-m-0 sm:o-text-right">
+                Ecrins · Haut Atlas · Lofoten
+                <br />
+                Depart des quatre marcheurs
+              </Surgit>
+            </div>
           </div>
-          <div className="o-mt-12 o-flex o-flex-wrap o-justify-between o-gap-x-10 o-gap-y-3 o-border-t o-border-white-20 o-pt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400">
-            <Surgit delai={620} as="p" className="o-m-0">Bivouac — Grenoble<br />Atout France IM038210014</Surgit>
-            <Surgit delai={680} as="p" className="o-m-0 sm:o-text-right">Ecrins · Haut Atlas · Lofoten<br />Depart des quatre marcheurs</Surgit>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      {/* ================= 2. Les itineraires, en planches qui derivent ===== */}
-      <section aria-labelledby="terrains-titre" className="o-mx-auto o-max-w-5xl o-overflow-hidden o-px-4 o-pb-20 o-pt-16 md:o-px-8 md:o-pt-24">
-        <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
-          <div className="md:o-col-span-7">
-            <Reveal>
-              <Indice rang="01" sombre={false}>Trois itineraires</Indice>
-            </Reveal>
-            <Reveal delay={80}>
-              <h2 id="terrains-titre" className="o-m-0 o-mt-6 o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}>
-                Trois terrains, trois saisons.
-              </h2>
-            </Reveal>
+        {/* ================= 2. Les itineraires, en planches qui derivent ===== */}
+        <section
+          aria-labelledby="terrains-titre"
+          className="o-mx-auto o-max-w-5xl o-overflow-hidden o-px-4 o-pb-20 o-pt-16 md:o-px-8 md:o-pt-24"
+        >
+          <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
+            <div className="md:o-col-span-7">
+              <Reveal>
+                <Indice rang="01" sombre={false}>
+                  Trois itineraires
+                </Indice>
+              </Reveal>
+              <Reveal delay={80}>
+                <h2
+                  id="terrains-titre"
+                  className="o-m-0 o-mt-6 o-text-balance"
+                  style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 5vw, 4.5rem)' }}
+                >
+                  Trois terrains, trois saisons.
+                </h2>
+              </Reveal>
+            </div>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400 md:o-col-span-4 md:o-col-start-7 md:o-justify-self-end md:o-text-right">
+              Les chiffres poses sur les planches
+              <br />
+              sont ceux du carnet complet
+            </p>
           </div>
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400 md:o-col-span-4 md:o-col-start-7 md:o-justify-self-end md:o-text-right">
-            Les chiffres poses sur les planches<br />sont ceux du carnet complet
-          </p>
-        </div>
 
-        <ul className="o-m-0 o-mt-16 o-grid o-list-none o-grid-cols-12 o-gap-x-5 o-gap-y-12 o-p-0">
-          {PLANCHES.map((planche) => {
-            const v = VOYAGES.find((item) => item.cle === planche.cle)
-            if (v === undefined) return null
-            const denivele = denivelePositif(v)
-            return (
-              <li key={v.cle} className={`o-min-w-0 ${planche.place}`} style={planche.marge === undefined ? undefined : { marginBottom: planche.marge }}>
-                <Parallax distance={planche.vitesse} scale={0.04}>
-                  <button
-                    type="button"
-                    aria-label={`Ouvrir le carnet : ${v.nom}`}
-                    onClick={() => {
-                      setCle(v.cle)
-                    }}
-                    className="o-block o-w-full o-cursor-pointer o-text-left focus:o-ring"
-                  >
-                    <figure className="o-m-0">
-                      {/* Les chiffres de la course sont poses sur la
+          <ul className="o-m-0 o-mt-16 o-grid o-list-none o-grid-cols-12 o-gap-x-5 o-gap-y-12 o-p-0">
+            {PLANCHES.map((planche) => {
+              const v = VOYAGES.find((item) => item.cle === planche.cle)
+              if (v === undefined) return null
+              const denivele = denivelePositif(v)
+              return (
+                <li
+                  key={v.cle}
+                  className={`o-min-w-0 ${planche.place}`}
+                  style={
+                    planche.marge === undefined
+                      ? undefined
+                      : { marginBottom: planche.marge }
+                  }
+                >
+                  <Parallax distance={planche.vitesse} scale={0.04}>
+                    <button
+                      type="button"
+                      aria-label={`Ouvrir le carnet : ${v.nom}`}
+                      onClick={() => {
+                        setCle(v.cle)
+                      }}
+                      className="o-block o-w-full o-cursor-pointer o-text-left focus:o-ring"
+                    >
+                      <figure className="o-m-0">
+                        {/* Les chiffres de la course sont poses sur la
                           photographie, en legende : ils n ont pas de barre a
                           eux sur cette page. */}
-                      <div className="o-relative o-overflow-hidden">
-                        <img
-                          src={photo(v.graine, 900, 1100)}
-                          alt={`${v.lieu} — ${v.nom}`}
-                          loading="lazy"
-                          className="o-block o-w-full o-object-cover o-transition-transform hover:o-scale-105"
-                          style={{ aspectRatio: planche.ratio }}
-                        />
-                        <p
-                          className="o-m-0 o-absolute o-inset-x-0 o-bottom-0 o-flex o-flex-wrap o-gap-x-4 o-gap-y-1 o-px-4 o-pb-3 o-pt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-50"
-                          style={{ background: 'linear-gradient(to top, color-mix(in oklab, var(--o-palette-stone-950) 82%, transparent), transparent)' }}
-                        >
-                          <span className="o-tabular-nums">{v.etapes.length} jours</span>
-                          <span className="o-tabular-nums">{denivele.toLocaleString('fr-FR')} m D+</span>
-                          <span className="o-tabular-nums">{v.prix} EUR</span>
-                          <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>
-                            {v.places} place{v.places > 1 ? 's' : ''}
-                          </span>
-                        </p>
-                      </div>
-                      <figcaption className="o-mt-4">
-                        {/* Un mot par volet, et non un titre entier : le
+                        <div className="o-relative o-overflow-hidden">
+                          <img
+                            src={photo(v.graine, 900, 1100)}
+                            alt={`${v.lieu} — ${v.nom}`}
+                            loading="lazy"
+                            className="o-block o-w-full o-object-cover o-transition-transform hover:o-scale-105"
+                            style={{ aspectRatio: planche.ratio }}
+                          />
+                          <p
+                            className="o-m-0 o-absolute o-inset-x-0 o-bottom-0 o-flex o-flex-wrap o-gap-x-4 o-gap-y-1 o-px-4 o-pb-3 o-pt-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-50"
+                            style={{
+                              background:
+                                'linear-gradient(to top, color-mix(in oklab, var(--o-palette-stone-950) 82%, transparent), transparent)',
+                            }}
+                          >
+                            <span className="o-tabular-nums">
+                              {v.etapes.length} jours
+                            </span>
+                            <span className="o-tabular-nums">
+                              {denivele.toLocaleString('fr-FR')} m D+
+                            </span>
+                            <span className="o-tabular-nums">{v.prix} EUR</span>
+                            <span
+                              className="o-tabular-nums"
+                              style={{ color: encreSurSombre() }}
+                            >
+                              {v.places} place{v.places > 1 ? 's' : ''}
+                            </span>
+                          </p>
+                        </div>
+                        <figcaption className="o-mt-4">
+                          {/* Un mot par volet, et non un titre entier : le
                             depliage fait de chaque lettre un bloc en ligne, et
                             une ligne pourrait alors se couper au milieu d un
                             mot. Le nom entier reste porte par le bouton. */}
-                        <span aria-hidden="true" className="o-block o-tracking-tight" style={{ ...affiche('m', 300), fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)' }}>
-                          {v.nom.split(' ').map((mot, rang) => (
-                            <FoldText
-                              key={`${mot}-${String(rang)}`}
-                              as="span"
-                              step={34}
-                              duration={640}
-                              className="o-inline-block"
-                              style={{ marginRight: '0.26em' }}
-                            >
-                              {mot}
-                            </FoldText>
-                          ))}
-                        </span>
-                        <span className="o-mt-2 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                          {v.lieu} — {v.saison}
-                        </span>
-                      </figcaption>
-                    </figure>
-                  </button>
-                </Parallax>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
+                          <span
+                            aria-hidden="true"
+                            className="o-block o-tracking-tight"
+                            style={{
+                              ...affiche('m', 300),
+                              fontSize: 'clamp(1.35rem, 2.4vw, 2.25rem)',
+                            }}
+                          >
+                            {v.nom.split(' ').map((mot, rang) => (
+                              <FoldText
+                                key={`${mot}-${String(rang)}`}
+                                as="span"
+                                step={34}
+                                duration={640}
+                                className="o-inline-block"
+                                style={{ marginRight: '0.26em' }}
+                              >
+                                {mot}
+                              </FoldText>
+                            ))}
+                          </span>
+                          <span className="o-mt-2 o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                            {v.lieu} — {v.saison}
+                          </span>
+                        </figcaption>
+                      </figure>
+                    </button>
+                  </Parallax>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
 
-      {/* ----- Les intercalaires : un onglet par course --------------------- */}
-      <div
-        id="courses"
-        className="o-sticky o-top-0 o-z-30 o-scroll-mt-24 o-border-b o-border-stone-300 dark:o-border-stone-700"
-        style={{ backgroundColor: 'var(--o-theme-bg)' }}
-      >
-        <div className="o-mx-auto o-flex o-max-w-5xl o-items-stretch o-gap-0 o-overflow-x-auto o-px-4 md:o-px-8">
-          <span className="o-flex o-shrink-0 o-items-center o-gap-2 o-pr-6 o-font-mono o-text-xs o-uppercase o-tracking-widest">
-            <Icon icon={Mountain} size={14} style={{ color: encre() }} aria-hidden="true" />
-            Bivouac
-          </span>
-          {VOYAGES.map((v) => {
-            const actif = v.cle === voyage.cle
-            return (
-              <button
-                key={v.cle}
-                type="button"
-                aria-pressed={actif}
-                onClick={() => {
-                  setCle(v.cle)
-                }}
-                className="o-shrink-0 o-px-4 o-py-3 o-text-sm o-transition-colors focus:o-ring"
-                style={
-                  actif
-                    ? { borderBottom: `2px solid ${encre()}`, color: encre(), fontWeight: 600 }
-                    : { borderBottom: '2px solid transparent' }
-                }
-              >
-                {v.nom}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* ----- La fiche d entete -------------------------------------------- */}
-      <header className="o-mx-auto o-max-w-5xl o-px-4 o-py-10 md:o-px-8 md:o-py-14">
-        <p className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-          <Icon icon={MapPin} size={13} aria-hidden="true" />
-          {voyage.lieu} — {voyage.saison}
-        </p>
-        <h2 className="o-mt-4 o-max-w-3xl o-text-3xl o-font-semibold o-leading-tight o-tracking-tight o-text-balance md:o-text-4xl">
-          {voyage.nom}
-        </h2>
-        <p className="o-mt-4 o-max-w-2xl o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-          {voyage.resume}
-        </p>
-
-        <div className="o-mt-9 o-grid o-gap-8 md:o-grid-cols-12">
-          <dl className="o-m-0 o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-4 md:o-col-span-5 md:o-grid-cols-2">
-            {([
-              [Footprints, 'Jours de marche', String(voyage.etapes.length)],
-              [Backpack, 'Effort', voyage.effort],
-              [TrendingUp, 'Denivele positif', `${montee.toLocaleString('fr-FR')} m`],
-              [TrendingDown, 'Denivele negatif', `${descente.toLocaleString('fr-FR')} m`],
-            ] as const).map(([icone, quoi, valeur]) => (
-              <div key={quoi}>
-                <dt className="o-flex o-items-center o-gap-1.5 o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400">
-                  <Icon icon={icone} size={12} aria-hidden="true" />
-                  {quoi}
-                </dt>
-                <dd className="o-m-0 o-mt-1 o-font-mono o-text-lg o-font-semibold o-tabular-nums">
-                  {valeur}
-                </dd>
-              </div>
-            ))}
-          </dl>
-
-          <div className="md:o-col-span-7">
-            <Profil etapes={voyage.etapes} />
-          </div>
-        </div>
-
-        <div className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-6">
-          <p className="o-m-0 o-text-xl o-font-semibold o-tabular-nums">
-            {voyage.prix} EUR
-            <span className="o-ml-2 o-text-sm o-font-normal o-text-stone-500 dark:o-text-stone-400">
-              par personne, tout compris sauf le transport
+        {/* ----- Les intercalaires : un onglet par course --------------------- */}
+        <div
+          id="courses"
+          className="o-sticky o-top-0 o-z-30 o-scroll-mt-24 o-border-b o-border-stone-300 dark:o-border-stone-700"
+          style={{ backgroundColor: 'var(--o-theme-bg)' }}
+        >
+          <div className="o-mx-auto o-flex o-max-w-5xl o-items-stretch o-gap-0 o-overflow-x-auto o-px-4 md:o-px-8">
+            <span className="o-flex o-shrink-0 o-items-center o-gap-2 o-pr-6 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+              <Icon
+                icon={Mountain}
+                size={14}
+                style={{ color: encre() }}
+                aria-hidden="true"
+              />
+              Bivouac
             </span>
-          </p>
-          {voyage.places === 0 ? (
-            <span className="o-rounded-full o-border-w-1 o-border-stone-400 dark:o-border-stone-600 o-px-3 o-py-1 o-text-xs o-font-medium o-text-stone-500 dark:o-text-stone-400">
-              Complet — liste d attente
-            </span>
-          ) : (
-            <span
-              className="o-inline-flex o-items-center o-gap-1.5 o-rounded-full o-px-3 o-py-1 o-text-xs o-font-semibold"
-              style={{ backgroundColor: accentDoux(500, 16), color: encre() }}
-            >
-              <Icon icon={Users} size={12} aria-hidden="true" />
-              {voyage.places} place{voyage.places > 1 ? 's' : ''} restante{voyage.places > 1 ? 's' : ''}
-            </span>
-          )}
-          <a
-            href="#conditions"
-            className="o-ml-auto o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-5 o-py-2.5 o-text-sm o-font-semibold o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
-            style={aplat()}
-          >
-            Reserver cette date
-          </a>
-        </div>
-      </header>
-
-      {/* ----- Le deroule, jour par jour ------------------------------------ */}
-      <section aria-label="Deroule du voyage" className="o-mx-auto o-max-w-5xl o-px-4 o-pb-16 md:o-px-8">
-        <ol className="o-list-none o-m-0 o-p-0">
-          {voyage.etapes.map((etape, rang) => (
-            <li
-              key={etape.jour}
-              className="o-grid o-gap-x-6 o-gap-y-3 o-border-t o-border-stone-300 dark:o-border-stone-700 o-py-6 md:o-grid-cols-12"
-            >
-              {/* Le numero de jour, dans la gouttiere : c est l ancre du carnet. */}
-              <div className="md:o-col-span-2">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                  Jour
-                </p>
-                <p
-                  className="o-m-0 o-font-mono o-text-3xl o-font-bold o-tabular-nums o-leading-tight"
-                  style={{ color: encre() }}
-                >
-                  {String(etape.jour).padStart(2, '0')}
-                </p>
-              </div>
-
-              <div className="md:o-col-span-7">
-                <h3 className="o-m-0 o-text-base o-font-semibold o-tracking-tight">{etape.titre}</h3>
-                <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                  {etape.texte}
-                </p>
-                <p className="o-mt-3 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400">
-                  <Icon icon={Bed} size={12} aria-hidden="true" />
-                  {etape.couchage}
-                </p>
-              </div>
-
-              <dl className="o-m-0 o-flex o-gap-6 md:o-col-span-3 md:o-justify-end">
-                {([
-                  [TrendingUp, `+${String(etape.montee)} m`],
-                  [TrendingDown, `-${String(etape.descente)} m`],
-                  [Footprints, etape.heures],
-                ] as const).map(([icone, valeur]) => (
-                  <div key={valeur} className="o-text-right">
-                    <dt className="o-sr-only">{valeur}</dt>
-                    <dd className="o-m-0 o-flex o-items-center o-gap-1.5 o-font-mono o-text-xs o-tabular-nums o-text-stone-600 dark:o-text-stone-300">
-                      <Icon icon={icone} size={11} aria-hidden="true" />
-                      {valeur}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-
-              {/* Une photographie tous les trois jours : un carnet n est pas un
-                  album, et une image par etape noierait le deroule. */}
-              {rang % 3 === 1 && (
-                <div className="md:o-col-span-12">
-                  <ParallaxImage
-                    src={photo(voyage.graine, 1400, 620)}
-                    alt={`${voyage.nom} — ${etape.titre}`}
-                    ratio={2.4}
-                    strength={0.34}
-                    className="o-mt-2 o-w-full o-rounded-lg o-object-cover"
-                  />
-                </div>
-              )}
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* ----- La vignette : le vol groupe, en bande etroite ----------------- */}
-      <figure className="o-m-0 o-relative o-isolate o-overflow-hidden" style={nuit('stone')}>
-        <Swarm
-          className="o-h-40 o-w-full md:o-h-56"
-          colors={['--o-theme-bg', '--o-vitrine-400']}
-          poster="o-bg-stone-950"
-        />
-        <figcaption className="o-border-t o-border-stone-800 o-px-4 o-py-3 o-font-mono o-text-xs o-text-stone-400 dark:o-text-stone-400 md:o-px-8">
-          <span className="o-font-semibold" style={{ color: encreSurSombre() }}>
-            Migration
-          </span>{' '}
-          — on part quand les cols ouvrent, et on rentre quand ils ferment.
-        </figcaption>
-      </figure>
-
-      {/* ----- Materiel et conditions, en deux colonnes de tableau ---------- */}
-      <div className="o-mx-auto o-grid o-max-w-5xl o-gap-12 o-px-4 o-py-14 md:o-grid-cols-2 md:o-px-8">
-        <section id="materiel" aria-labelledby="materiel-titre" className="o-scroll-mt-24">
-          <h2 id="materiel-titre" className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-            Materiel
-          </h2>
-          <ul className="o-mt-5 o-list-none o-m-0 o-flex o-flex-col o-gap-2.5 o-p-0 o-text-sm">
-            {MATERIEL.map(([fourni, quoi]) => (
-              <li key={quoi} className="o-flex o-items-start o-gap-3">
-                <span
-                  aria-hidden="true"
-                  className="o-mt-0.5 o-inline-flex o-size-4 o-shrink-0 o-items-center o-justify-center o-rounded-sm o-border-w-1"
+            {VOYAGES.map((v) => {
+              const actif = v.cle === voyage.cle
+              return (
+                <button
+                  key={v.cle}
+                  type="button"
+                  aria-pressed={actif}
+                  onClick={() => {
+                    setCle(v.cle)
+                  }}
+                  className="o-shrink-0 o-px-4 o-py-3 o-text-sm o-transition-colors focus:o-ring"
                   style={
-                    fourni
-                      ? { borderColor: 'transparent', backgroundColor: encre(), color: 'var(--o-theme-bg)' }
-                      : { borderColor: 'var(--o-theme-line)' }
+                    actif
+                      ? {
+                          borderBottom: `2px solid ${encre()}`,
+                          color: encre(),
+                          fontWeight: 600,
+                        }
+                      : { borderBottom: '2px solid transparent' }
                   }
                 >
-                  {fourni && <Icon icon={Check} size={11} />}
-                </span>
-                <span className={fourni ? '' : 'o-text-stone-600 dark:o-text-stone-400'}>
-                  {quoi}
-                  {!fourni && (
-                    <span className="o-ml-2 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-500">
-                      a apporter
-                    </span>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section id="conditions" aria-labelledby="conditions-titre" className="o-scroll-mt-24">
-          <h2 id="conditions-titre" className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-            Conditions
-          </h2>
-          <dl className="o-m-0 o-mt-5 o-flex o-flex-col">
-            {CONDITIONS.map(([quoi, valeur]) => (
-              <div key={quoi} className="o-grid o-gap-x-4 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-3">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400">
-                  {quoi}
-                </dt>
-                <dd className="o-m-0 o-text-sm o-leading-relaxed sm:o-col-span-2">{valeur}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="o-mt-6 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
-            Prix par personne, tout compris sauf le transport jusqu au point de
-            depart. Le devis nominatif fait foi.
-          </p>
-        </section>
-      </div>
-
-      {/* ================= L appel : deux panneaux decales ================ */}
-      <section id="partir" aria-labelledby="partir-titre" className="o-mx-auto o-max-w-5xl o-scroll-mt-24 o-px-4 o-pb-20 o-pt-8 md:o-px-8 md:o-pb-28">
-        <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-gap-0">
-          {/* La photographie part de la sixieme colonne et descend ; le
-              panneau la mord d une colonne et remonte. Deux plans decales,
-              pas deux moities. */}
-          <Reveal className="o-order-1 md:o-order-2 md:o-col-span-7 md:o-col-start-6 md:o-row-start-1">
-            <figure className="o-m-0">
-              <img
-                src={photo('bivouac-lofoten', 1200, 900)}
-                alt="Un rorbu au bord de l eau, lumiere de midi en hiver"
-                loading="lazy"
-                className="o-block o-h-auto o-w-full o-object-cover"
-                style={{ aspectRatio: '4 / 3' }}
-              />
-              <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 md:o-text-right">
-                Reine, 14 h 10 — quatre heures de jour au solstice
-              </figcaption>
-            </figure>
-          </Reveal>
-
-          <Reveal delay={120} className="o-order-2 o-relative o-z-10 md:o-order-1 md:o-col-span-6 md:o-col-start-1 md:o-row-start-1 md:o-mt-24">
-            <div className="o-border-w-1 o-border-stone-900 dark:o-border-stone-100 o-p-8 md:o-p-10" style={{ backgroundColor: 'var(--o-theme-bg)' }}>
-              <Indice rang="02" sombre={false}>Partir avec nous</Indice>
-              <h2 id="partir-titre" className="o-m-0 o-mt-6 o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)' }}>
-                Huit marcheurs, jamais neuf.
-              </h2>
-              <dl className="o-m-0 o-mt-8 o-border-t o-border-stone-300 dark:o-border-stone-700">
-                {([
-                  ['Le groupe', 'Quatre au minimum pour partir, huit au maximum'],
-                  ['Le guide', 'Du massif, et il y vit toute l annee'],
-                  ['L acompte', '30 % a l inscription, solde a trente jours'],
-                  ['Si le depart ne se fait pas', 'Rembourse en entier sous huit jours'],
-                ] as const).map(([quoi, valeur]) => (
-                  <div key={quoi} className="o-grid o-gap-x-4 o-gap-y-1 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-12">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">
-                      {quoi}
-                    </dt>
-                    <dd className="o-m-0 o-text-sm o-leading-relaxed sm:o-col-span-7">{valeur}</dd>
-                  </div>
-                ))}
-              </dl>
-              <a
-                href="#courses"
-                className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
-                style={aplat()}
-              >
-                Reserver une date <Icon icon={ArrowRight} size={16} aria-hidden="true" />
-              </a>
-              <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                Au-dela de six inscrits ensemble, appelez : cela se decide de vive voix.
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ================= Le pied : trois horloges, trois positions ====== */}
-      <footer className="o-border-t o-border-stone-900 dark:o-border-stone-100 o-px-4 o-pb-8 o-pt-14 md:o-px-8">
-        <div className="o-mx-auto o-max-w-5xl">
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-            Ou l on est, a cette seconde
-          </p>
-          <ul className="o-m-0 o-mt-8 o-grid o-list-none o-gap-x-8 o-gap-y-10 o-p-0 sm:o-grid-cols-3">
-            {BASES.map(([ville, fuseau, position, quoi]) => (
-              <li key={ville} className="o-min-w-0 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-5">
-                <p className="o-m-0 o-font-mono o-text-lg o-uppercase o-tracking-tight o-tabular-nums md:o-text-xl" style={{ color: encre() }}>
-                  <Horloge ville={ville} fuseau={fuseau} />
-                </p>
-                <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
-                  {position}
-                </p>
-                <p className="o-m-0 o-mt-1.5 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-                  {quoi}
-                </p>
-              </li>
-            ))}
-          </ul>
-
-          <div className="o-mt-14 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-            <span>© 2026 Bivouac SARL — RCS Grenoble 528 411 903 — capital de 40 000 EUR</span>
-            <a
-              href="#partir"
-              className="o-inline-flex o-items-center o-gap-1 o-no-underline o-text-stone-700 dark:o-text-stone-300 hover:o-text-stone-950 dark:hover:o-text-stone-50 focus:o-ring"
-            >
-              courses@bivouac.fr <Icon icon={ArrowUpRight} size={12} aria-hidden="true" />
-            </a>
-            <span>Atout France IM038210014 — garantie financiere APST</span>
+                  {v.nom}
+                </button>
+              )
+            })}
           </div>
         </div>
-      </footer>
-    </div>
+
+        {/* ----- La fiche d entete -------------------------------------------- */}
+        <header className="o-mx-auto o-max-w-5xl o-px-4 o-py-10 md:o-px-8 md:o-py-14">
+          <p className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+            <Icon icon={MapPin} size={13} aria-hidden="true" />
+            {voyage.lieu} — {voyage.saison}
+          </p>
+          <h2 className="o-mt-4 o-max-w-3xl o-text-3xl o-font-semibold o-leading-tight o-tracking-tight o-text-balance md:o-text-4xl">
+            {voyage.nom}
+          </h2>
+          <p className="o-mt-4 o-max-w-2xl o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+            {voyage.resume}
+          </p>
+
+          <div className="o-mt-9 o-grid o-gap-8 md:o-grid-cols-12">
+            <dl className="o-m-0 o-grid o-grid-cols-2 o-gap-x-6 o-gap-y-4 md:o-col-span-5 md:o-grid-cols-2">
+              {(
+                [
+                  [Footprints, 'Jours de marche', String(voyage.etapes.length)],
+                  [Backpack, 'Effort', voyage.effort],
+                  [TrendingUp, 'Denivele positif', `${montee.toLocaleString('fr-FR')} m`],
+                  [
+                    TrendingDown,
+                    'Denivele negatif',
+                    `${descente.toLocaleString('fr-FR')} m`,
+                  ],
+                ] as const
+              ).map(([icone, quoi, valeur]) => (
+                <div key={quoi}>
+                  <dt className="o-flex o-items-center o-gap-1.5 o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400">
+                    <Icon icon={icone} size={12} aria-hidden="true" />
+                    {quoi}
+                  </dt>
+                  <dd className="o-m-0 o-mt-1 o-font-mono o-text-lg o-font-semibold o-tabular-nums">
+                    {valeur}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="md:o-col-span-7">
+              <Profil etapes={voyage.etapes} />
+            </div>
+          </div>
+
+          <div className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-6">
+            <p className="o-m-0 o-text-xl o-font-semibold o-tabular-nums">
+              {voyage.prix} EUR
+              <span className="o-ml-2 o-text-sm o-font-normal o-text-stone-500 dark:o-text-stone-400">
+                par personne, tout compris sauf le transport
+              </span>
+            </p>
+            {voyage.places === 0 ? (
+              <span className="o-rounded-full o-border-w-1 o-border-stone-400 dark:o-border-stone-600 o-px-3 o-py-1 o-text-xs o-font-medium o-text-stone-500 dark:o-text-stone-400">
+                Complet — liste d attente
+              </span>
+            ) : (
+              <span
+                className="o-inline-flex o-items-center o-gap-1.5 o-rounded-full o-px-3 o-py-1 o-text-xs o-font-semibold"
+                style={{ backgroundColor: accentDoux(500, 16), color: encre() }}
+              >
+                <Icon icon={Users} size={12} aria-hidden="true" />
+                {voyage.places} place{voyage.places > 1 ? 's' : ''} restante
+                {voyage.places > 1 ? 's' : ''}
+              </span>
+            )}
+            <a
+              href="#conditions"
+              className="o-ml-auto o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-5 o-py-2.5 o-text-sm o-font-semibold o-no-underline o-transition-opacity hover:o-opacity-85 focus:o-ring"
+              style={aplat()}
+            >
+              Reserver cette date
+            </a>
+          </div>
+        </header>
+
+        {/* ----- Le deroule, jour par jour ------------------------------------ */}
+        <section
+          aria-label="Deroule du voyage"
+          className="o-mx-auto o-max-w-5xl o-px-4 o-pb-16 md:o-px-8"
+        >
+          <ol className="o-list-none o-m-0 o-p-0">
+            {voyage.etapes.map((etape, rang) => (
+              <li
+                key={etape.jour}
+                className="o-grid o-gap-x-6 o-gap-y-3 o-border-t o-border-stone-300 dark:o-border-stone-700 o-py-6 md:o-grid-cols-12"
+              >
+                {/* Le numero de jour, dans la gouttiere : c est l ancre du carnet. */}
+                <div className="md:o-col-span-2">
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                    Jour
+                  </p>
+                  <p
+                    className="o-m-0 o-font-mono o-text-3xl o-font-bold o-tabular-nums o-leading-tight"
+                    style={{ color: encre() }}
+                  >
+                    {String(etape.jour).padStart(2, '0')}
+                  </p>
+                </div>
+
+                <div className="md:o-col-span-7">
+                  <h3 className="o-m-0 o-text-base o-font-semibold o-tracking-tight">
+                    {etape.titre}
+                  </h3>
+                  <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                    {etape.texte}
+                  </p>
+                  <p className="o-mt-3 o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400">
+                    <Icon icon={Bed} size={12} aria-hidden="true" />
+                    {etape.couchage}
+                  </p>
+                </div>
+
+                <dl className="o-m-0 o-flex o-gap-6 md:o-col-span-3 md:o-justify-end">
+                  {(
+                    [
+                      [TrendingUp, `+${String(etape.montee)} m`],
+                      [TrendingDown, `-${String(etape.descente)} m`],
+                      [Footprints, etape.heures],
+                    ] as const
+                  ).map(([icone, valeur]) => (
+                    <div key={valeur} className="o-text-right">
+                      <dt className="o-sr-only">{valeur}</dt>
+                      <dd className="o-m-0 o-flex o-items-center o-gap-1.5 o-font-mono o-text-xs o-tabular-nums o-text-stone-600 dark:o-text-stone-300">
+                        <Icon icon={icone} size={11} aria-hidden="true" />
+                        {valeur}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+
+                {/* Une photographie tous les trois jours : un carnet n est pas un
+                  album, et une image par etape noierait le deroule. */}
+                {rang % 3 === 1 && (
+                  <div className="md:o-col-span-12">
+                    <ParallaxImage
+                      src={photo(voyage.graine, 1400, 620)}
+                      alt={`${voyage.nom} — ${etape.titre}`}
+                      ratio={2.4}
+                      strength={0.34}
+                      className="o-mt-2 o-w-full o-rounded-lg o-object-cover"
+                    />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* ----- La vignette : le vol groupe, en bande etroite ----------------- */}
+        <figure
+          className="o-m-0 o-relative o-isolate o-overflow-hidden"
+          style={nuit('stone')}
+        >
+          <Swarm
+            className="o-h-40 o-w-full md:o-h-56"
+            colors={['--o-theme-bg', '--o-vitrine-400']}
+            poster="o-bg-stone-950"
+          />
+          <figcaption className="o-border-t o-border-stone-800 o-px-4 o-py-3 o-font-mono o-text-xs o-text-stone-400 dark:o-text-stone-400 md:o-px-8">
+            <span className="o-font-semibold" style={{ color: encreSurSombre() }}>
+              Migration
+            </span>{' '}
+            — on part quand les cols ouvrent, et on rentre quand ils ferment.
+          </figcaption>
+        </figure>
+
+        {/* ----- Materiel et conditions, en deux colonnes de tableau ---------- */}
+        <div className="o-mx-auto o-grid o-max-w-5xl o-gap-12 o-px-4 o-py-14 md:o-grid-cols-2 md:o-px-8">
+          <section
+            id="materiel"
+            aria-labelledby="materiel-titre"
+            className="o-scroll-mt-24"
+          >
+            <h2
+              id="materiel-titre"
+              className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400"
+            >
+              Materiel
+            </h2>
+            <ul className="o-mt-5 o-list-none o-m-0 o-flex o-flex-col o-gap-2.5 o-p-0 o-text-sm">
+              {MATERIEL.map(([fourni, quoi]) => (
+                <li key={quoi} className="o-flex o-items-start o-gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="o-mt-0.5 o-inline-flex o-size-4 o-shrink-0 o-items-center o-justify-center o-rounded-sm o-border-w-1"
+                    style={
+                      fourni
+                        ? {
+                            borderColor: 'transparent',
+                            backgroundColor: encre(),
+                            color: 'var(--o-theme-bg)',
+                          }
+                        : { borderColor: 'var(--o-theme-line)' }
+                    }
+                  >
+                    {fourni && <Icon icon={Check} size={11} />}
+                  </span>
+                  <span
+                    className={fourni ? '' : 'o-text-stone-600 dark:o-text-stone-400'}
+                  >
+                    {quoi}
+                    {!fourni && (
+                      <span className="o-ml-2 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-500">
+                        a apporter
+                      </span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section
+            id="conditions"
+            aria-labelledby="conditions-titre"
+            className="o-scroll-mt-24"
+          >
+            <h2
+              id="conditions-titre"
+              className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400"
+            >
+              Conditions
+            </h2>
+            <dl className="o-m-0 o-mt-5 o-flex o-flex-col">
+              {CONDITIONS.map(([quoi, valeur]) => (
+                <div
+                  key={quoi}
+                  className="o-grid o-gap-x-4 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-3"
+                >
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400">
+                    {quoi}
+                  </dt>
+                  <dd className="o-m-0 o-text-sm o-leading-relaxed sm:o-col-span-2">
+                    {valeur}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p className="o-mt-6 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
+              Prix par personne, tout compris sauf le transport jusqu au point de depart.
+              Le devis nominatif fait foi.
+            </p>
+          </section>
+        </div>
+
+        {/* ================= L appel : deux panneaux decales ================ */}
+        <section
+          id="partir"
+          aria-labelledby="partir-titre"
+          className="o-mx-auto o-max-w-5xl o-scroll-mt-24 o-px-4 o-pb-20 o-pt-8 md:o-px-8 md:o-pb-28"
+        >
+          <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-gap-0">
+            {/* La photographie part de la sixieme colonne et descend ; le
+              panneau la mord d une colonne et remonte. Deux plans decales,
+              pas deux moities. */}
+            <Reveal className="o-order-1 md:o-order-2 md:o-col-span-7 md:o-col-start-6 md:o-row-start-1">
+              <figure className="o-m-0">
+                <img
+                  src={photo('bivouac-lofoten', 1200, 900)}
+                  alt="Un rorbu au bord de l eau, lumiere de midi en hiver"
+                  loading="lazy"
+                  className="o-block o-h-auto o-w-full o-object-cover"
+                  style={{ aspectRatio: '4 / 3' }}
+                />
+                <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 md:o-text-right">
+                  Reine, 14 h 10 — quatre heures de jour au solstice
+                </figcaption>
+              </figure>
+            </Reveal>
+
+            <Reveal
+              delay={120}
+              className="o-order-2 o-relative o-z-10 md:o-order-1 md:o-col-span-6 md:o-col-start-1 md:o-row-start-1 md:o-mt-24"
+            >
+              <div
+                className="o-border-w-1 o-border-stone-900 dark:o-border-stone-100 o-p-8 md:o-p-10"
+                style={{ backgroundColor: 'var(--o-theme-bg)' }}
+              >
+                <Indice rang="02" sombre={false}>
+                  Partir avec nous
+                </Indice>
+                <h2
+                  id="partir-titre"
+                  className="o-m-0 o-mt-6 o-text-balance"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.4vw, 3.25rem)',
+                  }}
+                >
+                  Huit marcheurs, jamais neuf.
+                </h2>
+                <dl className="o-m-0 o-mt-8 o-border-t o-border-stone-300 dark:o-border-stone-700">
+                  {(
+                    [
+                      ['Le groupe', 'Quatre au minimum pour partir, huit au maximum'],
+                      ['Le guide', 'Du massif, et il y vit toute l annee'],
+                      ['L acompte', '30 % a l inscription, solde a trente jours'],
+                      [
+                        'Si le depart ne se fait pas',
+                        'Rembourse en entier sous huit jours',
+                      ],
+                    ] as const
+                  ).map(([quoi, valeur]) => (
+                    <div
+                      key={quoi}
+                      className="o-grid o-gap-x-4 o-gap-y-1 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-12"
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">
+                        {quoi}
+                      </dt>
+                      <dd className="o-m-0 o-text-sm o-leading-relaxed sm:o-col-span-7">
+                        {valeur}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <a
+                  href="#courses"
+                  className="o-mt-8 o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
+                  style={aplat()}
+                >
+                  Reserver une date{' '}
+                  <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                </a>
+                <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                  Au-dela de six inscrits ensemble, appelez : cela se decide de vive voix.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ================= Le pied : trois horloges, trois positions ====== */}
+        <footer className="o-border-t o-border-stone-900 dark:o-border-stone-100 o-px-4 o-pb-8 o-pt-14 md:o-px-8">
+          <div className="o-mx-auto o-max-w-5xl">
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+              Ou l on est, a cette seconde
+            </p>
+            <ul className="o-m-0 o-mt-8 o-grid o-list-none o-gap-x-8 o-gap-y-10 o-p-0 sm:o-grid-cols-3">
+              {BASES.map(([ville, fuseau, position, quoi]) => (
+                <li
+                  key={ville}
+                  className="o-min-w-0 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-5"
+                >
+                  <p
+                    className="o-m-0 o-font-mono o-text-lg o-uppercase o-tracking-tight o-tabular-nums md:o-text-xl"
+                    style={{ color: encre() }}
+                  >
+                    <Horloge ville={ville} fuseau={fuseau} />
+                  </p>
+                  <p className="o-m-0 o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+                    {position}
+                  </p>
+                  <p className="o-m-0 o-mt-1.5 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                    {quoi}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            <div className="o-mt-14 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-8 o-gap-y-3 o-border-t o-border-stone-300 dark:o-border-stone-700 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+              <span>
+                © 2026 Bivouac SARL — RCS Grenoble 528 411 903 — capital de 40 000 EUR
+              </span>
+              <a
+                href="#partir"
+                className="o-inline-flex o-items-center o-gap-1 o-no-underline o-text-stone-700 dark:o-text-stone-300 hover:o-text-stone-950 dark:hover:o-text-stone-50 focus:o-ring"
+              >
+                courses@bivouac.fr{' '}
+                <Icon icon={ArrowUpRight} size={12} aria-hidden="true" />
+              </a>
+              <span>Atout France IM038210014 — garantie financiere APST</span>
+            </div>
+          </div>
+        </footer>
+      </div>
     </Porte>
   )
 }

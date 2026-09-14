@@ -151,7 +151,9 @@ export function Eclipse({
           fill="none"
           stroke="currentColor"
           strokeWidth={12}
-          style={{ '--o-eclipse-blur': '7px', '--o-eclipse-peak': '0.28' } as CSSProperties}
+          style={
+            { '--o-eclipse-blur': '7px', '--o-eclipse-peak': '0.28' } as CSSProperties
+          }
         />
         <circle
           data-o-eclipse-halo=""
@@ -161,7 +163,9 @@ export function Eclipse({
           fill="none"
           stroke="currentColor"
           strokeWidth={5}
-          style={{ '--o-eclipse-blur': '3px', '--o-eclipse-peak': '0.85' } as CSSProperties}
+          style={
+            { '--o-eclipse-blur': '3px', '--o-eclipse-peak': '0.85' } as CSSProperties
+          }
         />
         <circle
           data-o-eclipse-disc=""

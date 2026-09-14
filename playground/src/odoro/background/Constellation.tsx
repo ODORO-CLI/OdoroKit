@@ -232,8 +232,14 @@ export function Constellation({
       let index = 0
       for (const node of field) {
         // L'ancre erre : deux sinus par axe, de frequences non multiples.
-        const tx = node.ax + 0.35 * Math.sin(t * 0.41 + node.p1) + 0.18 * Math.sin(t * 0.97 + node.p2)
-        const ty = node.ay + 0.35 * Math.cos(t * 0.37 + node.p2) + 0.18 * Math.cos(t * 0.83 + node.p1)
+        const tx =
+          node.ax +
+          0.35 * Math.sin(t * 0.41 + node.p1) +
+          0.18 * Math.sin(t * 0.97 + node.p2)
+        const ty =
+          node.ay +
+          0.35 * Math.cos(t * 0.37 + node.p2) +
+          0.18 * Math.cos(t * 0.83 + node.p1)
 
         // Ressort amorti vers l'ancre.
         let ax = (tx - node.x) * 3 - node.vx * 2

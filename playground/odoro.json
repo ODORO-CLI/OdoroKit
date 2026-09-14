@@ -4533,11 +4533,11 @@
       ]
     },
     "ui/staggered-menu": {
-      "installedAt": "2026-09-14T15:51:05.031Z",
+      "installedAt": "2026-09-14T16:11:36.278Z",
       "files": [
         {
           "path": "src/odoro/ui/StaggeredMenu.tsx",
-          "hash": "8c6b493c9d09e3e4"
+          "hash": "4621fb34685b6f4b"
         }
       ]
     },

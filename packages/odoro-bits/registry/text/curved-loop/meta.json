@@ -61,10 +61,7 @@
       "type": "'gauche' | 'droite'",
       "default": "gauche",
       "description": "Sens de defilement.",
-      "options": [
-        "gauche",
-        "droite"
-      ]
+      "options": ["gauche", "droite"]
     }
   ],
   "perf": {

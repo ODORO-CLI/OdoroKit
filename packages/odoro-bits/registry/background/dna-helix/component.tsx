@@ -151,7 +151,8 @@ export function DnaHelix({
       camera.position.set(0, 0, 4.2)
       camera.lookAt(0, 0, 0)
 
-      const count = quality === 'low' ? Math.min(points, LOW_POINTS) : Math.max(points, 12)
+      const count =
+        quality === 'low' ? Math.min(points, LOW_POINTS) : Math.max(points, 12)
       const spin = Math.max(turns, 0.25) * Math.PI * 2
 
       const firstPositions = new Float32Array(count * 3)
@@ -255,7 +256,11 @@ export function DnaHelix({
     const mixed = blend(one, other)
     live.bars.color.setRGB(mixed[0], mixed[1], mixed[2])
     scene.renderer.setClearColor(
-      new scene.three.Color(bg?.[0] ?? 0, bg?.[1] ?? 0, bg?.[2] ?? 0).convertSRGBToLinear(),
+      new scene.three.Color(
+        bg?.[0] ?? 0,
+        bg?.[1] ?? 0,
+        bg?.[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, colors, host, ready])

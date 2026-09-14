@@ -98,11 +98,7 @@ export function RevealImage({
   }
 
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={{ ...style, aspectRatio: String(ratio) }}
-    >
+    <div ref={ref} className={className} style={{ ...style, aspectRatio: String(ratio) }}>
       <div className="o-absolute o-inset-0" style={veil}>
         <img
           {...rest}

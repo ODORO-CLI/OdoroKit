@@ -70,8 +70,15 @@ const NAVIGATION: readonly Lien[] = [
 ]
 
 /** La condensee, en capitales : la voix de l affiche. */
-function affichette(corps: 'm' | 'l' | 'xl' | 'xxl', graisse: 300 | 500 | 700 = 500): CSSProperties {
-  return { ...affiche(corps, graisse), textTransform: 'uppercase', letterSpacing: '-0.02em' }
+function affichette(
+  corps: 'm' | 'l' | 'xl' | 'xxl',
+  graisse: 300 | 500 | 700 = 500,
+): CSSProperties {
+  return {
+    ...affiche(corps, graisse),
+    textTransform: 'uppercase',
+    letterSpacing: '-0.02em',
+  }
 }
 
 /* ============================ Les films ================================ */
@@ -176,7 +183,15 @@ const SALLES = [
 /* ============================ La semaine =============================== */
 
 /** Les sept jours ; le lundi est relache. */
-const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] as const
+const JOURS = [
+  'Lundi',
+  'Mardi',
+  'Mercredi',
+  'Jeudi',
+  'Vendredi',
+  'Samedi',
+  'Dimanche',
+] as const
 
 /** Une seance programmee. */
 interface Seance {
@@ -278,9 +293,25 @@ function Perforations({ cote }: { readonly cote: 'gauche' | 'droite' }): ReactEl
       className={`o-pointer-events-none o-absolute o-inset-y-0 o-h-full o-w-8 md:o-w-11 ${cote === 'gauche' ? 'o-left-0' : 'o-right-0'}`}
     >
       <rect width="40" height="400" fill={accentDoux(900, 45)} />
-      <rect x={cote === 'gauche' ? 38 : 0} width="2" height="400" fill={accent(700)} opacity="0.6" />
+      <rect
+        x={cote === 'gauche' ? 38 : 0}
+        width="2"
+        height="400"
+        fill={accent(700)}
+        opacity="0.6"
+      />
       {Array.from({ length: 20 }, (_, rang) => (
-        <rect key={rang} x="11" y={6 + rang * 20} width="18" height="12" rx="2.5" fill="var(--o-palette-zinc-950)" stroke={accent(800)} strokeWidth="0.6" />
+        <rect
+          key={rang}
+          x="11"
+          y={6 + rang * 20}
+          width="18"
+          height="12"
+          rx="2.5"
+          fill="var(--o-palette-zinc-950)"
+          stroke={accent(800)}
+          strokeWidth="0.6"
+        />
       ))}
     </svg>
   )
@@ -300,18 +331,26 @@ function Grille({
 }): ReactElement {
   const duJour = useMemo(() => SEANCES.filter((s) => s.jour === jour), [jour])
   const heures = useMemo(
-    () => Array.from({ length: Math.ceil((AXE_FIN - AXE_DEBUT) / 60) + 1 }, (_, rang) => AXE_DEBUT + rang * 60),
+    () =>
+      Array.from(
+        { length: Math.ceil((AXE_FIN - AXE_DEBUT) / 60) + 1 },
+        (_, rang) => AXE_DEBUT + rang * 60,
+      ),
     [],
   )
 
   if (duJour.length === 0) {
     return (
       <div className="o-border-w-1 o-border-white-10 o-px-6 o-py-20 o-text-center">
-        <p className="o-m-0" style={{ ...affichette('m', 500), fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}>
+        <p
+          className="o-m-0"
+          style={{ ...affichette('m', 500), fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}
+        >
           Relache
         </p>
         <p className="o-m-0 o-mt-4 o-text-sm o-text-zinc-400">
-          La cabine est reglee le lundi, et la moquette de la salle 2 seche. On rouvre mardi a quatorze heures.
+          La cabine est reglee le lundi, et la moquette de la salle 2 seche. On rouvre
+          mardi a quatorze heures.
         </p>
       </div>
     )
@@ -337,10 +376,19 @@ function Grille({
         </div>
 
         {SALLES.map((salle, rangSalle) => (
-          <div key={salle.nom} className="o-relative o-border-b o-border-white-10" style={{ height: 78 }}>
+          <div
+            key={salle.nom}
+            className="o-relative o-border-b o-border-white-10"
+            style={{ height: 78 }}
+          >
             {/* Les filets d heure, derriere les seances. */}
             {heures.map((h) => (
-              <span key={h} aria-hidden="true" className="o-absolute o-inset-y-0 o-w-px o-bg-white-10" style={{ left: `${String(surLAxe(h))}%` }} />
+              <span
+                key={h}
+                aria-hidden="true"
+                className="o-absolute o-inset-y-0 o-w-px o-bg-white-10"
+                style={{ left: `${String(surLAxe(h))}%` }}
+              />
             ))}
             <span className="o-absolute o-left-0 o-top-2 o-z-10 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
               {salle.nom}
@@ -351,7 +399,10 @@ function Grille({
               .map((s) => {
                 const film = filmDe(s.film)
                 const fin = finDe(s)
-                const prise = choisie?.debut === s.debut && choisie.salle === s.salle && choisie.jour === s.jour
+                const prise =
+                  choisie?.debut === s.debut &&
+                  choisie.salle === s.salle &&
+                  choisie.jour === s.jour
                 const tard = fin > DERNIER_BUS
                 return (
                   <button
@@ -369,10 +420,16 @@ function Grille({
                       height: 44,
                       ...(prise
                         ? { ...aplat(), borderColor: 'transparent' }
-                        : { borderColor: tard ? accent(600) : 'var(--o-palette-zinc-700)', backgroundColor: accentDoux(900, 40), color: 'var(--o-palette-zinc-100)' }),
+                        : {
+                            borderColor: tard ? accent(600) : 'var(--o-palette-zinc-700)',
+                            backgroundColor: accentDoux(900, 40),
+                            color: 'var(--o-palette-zinc-100)',
+                          }),
                     }}
                   >
-                    <span className="o-truncate o-text-sm o-font-semibold o-uppercase o-tracking-tight">{film?.titre}</span>
+                    <span className="o-truncate o-text-sm o-font-semibold o-uppercase o-tracking-tight">
+                      {film?.titre}
+                    </span>
                     <span className="o-truncate o-font-mono o-text-xs o-tabular-nums o-opacity-80">
                       {heure(s.debut)} — {heure(fin)}
                       {tard ? ' · bus rate' : ''}
@@ -385,10 +442,22 @@ function Grille({
 
         {/* Le dernier bus, en trait sur toute la grille. */}
         <div className="o-relative o-h-10">
-          <span aria-hidden="true" className="o-absolute o-inset-y-0 o-w-px" style={{ left: `${String(surLAxe(DERNIER_BUS))}%`, backgroundColor: accent(500) }} />
+          <span
+            aria-hidden="true"
+            className="o-absolute o-inset-y-0 o-w-px"
+            style={{
+              left: `${String(surLAxe(DERNIER_BUS))}%`,
+              backgroundColor: accent(500),
+            }}
+          />
           <span
             className="o-absolute o-top-1 o-whitespace-nowrap o-font-mono o-text-xs o-uppercase o-tracking-widest"
-            style={{ left: `${String(surLAxe(DERNIER_BUS))}%`, transform: 'translateX(-100%)', paddingRight: 10, color: encreSurSombre() }}
+            style={{
+              left: `${String(surLAxe(DERNIER_BUS))}%`,
+              transform: 'translateX(-100%)',
+              paddingRight: 10,
+              color: encreSurSombre(),
+            }}
           >
             Dernier bus, ligne 4 — 23 h 51
           </span>
@@ -417,7 +486,11 @@ function Jauge({ seance }: { readonly seance: Seance }): ReactElement {
       <div className="o-mt-4 o-h-6 o-w-full o-overflow-hidden o-border-w-1 o-border-white-20">
         <div
           className="o-h-full o-transition-all"
-          style={{ width: `${String(Math.round(part * 100))}%`, backgroundColor: accent(serre ? 600 : 400), transitionDuration: '420ms' }}
+          style={{
+            width: `${String(Math.round(part * 100))}%`,
+            backgroundColor: accent(serre ? 600 : 400),
+            transitionDuration: '420ms',
+          }}
         />
       </div>
       <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-400">
@@ -427,7 +500,12 @@ function Jauge({ seance }: { readonly seance: Seance }): ReactElement {
       </p>
 
       <div className="o-mt-9">
-        <StarBorder color="--o-vitrine-400" speed={7000} thickness={1} className="o-inline-block o-rounded-full">
+        <StarBorder
+          color="--o-vitrine-400"
+          speed={7000}
+          thickness={1}
+          className="o-inline-block o-rounded-full"
+        >
           <a
             href="#place"
             className="o-inline-flex o-items-center o-gap-3 o-rounded-full o-px-10 o-py-5 o-text-base o-font-semibold o-uppercase o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
@@ -463,41 +541,66 @@ const GENERIQUE: readonly (readonly [string, readonly string[]])[] = [
 export default function Page(): ReactElement {
   const polices = usePolices('oswald')
   const [jour, setJour] = useState(2)
-  const [choisie, setChoisie] = useState<Seance | undefined>(() => SEANCES.find((s) => s.jour === 2))
+  const [choisie, setChoisie] = useState<Seance | undefined>(() =>
+    SEANCES.find((s) => s.jour === 2),
+  )
 
   const film = choisie === undefined ? undefined : filmDe(choisie.film)
   const fin = choisie === undefined ? 0 : finDe(choisie)
 
   return (
     <Porte forme="iris" marque="Salle 3">
-      <div className="o-relative o-overflow-hidden o-text-zinc-50" style={{ ...polices, ...nuit('zinc') }}>
+      <div
+        className="o-relative o-overflow-hidden o-text-zinc-50"
+        style={{ ...polices, ...nuit('zinc') }}
+      >
         {/*
           ----- L ouverture : un photogramme -----------------------------------
         */}
-        <section id="haut" className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: ECRAN }}>
+        <section
+          id="haut"
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: ECRAN }}
+        >
           <Perforations cote="gauche" />
           <Perforations cote="droite" />
           <Grain opacite={0.1} />
 
           <div className="o-relative o-z-20">
-            <BarreCoins marque="Salle 3" liens={NAVIGATION} droite="Nantes, rue du Calvaire" />
+            <BarreCoins
+              marque="Salle 3"
+              liens={NAVIGATION}
+              droite="Nantes, rue du Calvaire"
+            />
           </div>
 
           <div className="o-relative o-z-20 o-flex o-grow o-flex-col o-justify-end o-px-12 o-pb-20 o-pt-10 md:o-px-20">
             <Surgit>
-              <Etiquette>Cinema d art et d essai — trois salles, classe recherche et patrimoine</Etiquette>
+              <Etiquette>
+                Cinema d art et d essai — trois salles, classe recherche et patrimoine
+              </Etiquette>
             </Surgit>
             <TitreVague
               delai={140}
               cadence={70}
               className="o-m-0 o-mt-8 o-max-w-5xl"
-              style={{ ...affichette('xl', 700), fontSize: 'clamp(2.4rem, 8vw, 8rem)', lineHeight: 0.86 }}
+              style={{
+                ...affichette('xl', 700),
+                fontSize: 'clamp(2.4rem, 8vw, 8rem)',
+                lineHeight: 0.86,
+              }}
             >
               Trois salles, aucune publicite.
             </TitreVague>
             <div className="o-mt-12 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-              <Surgit delai={620} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6">
-                Cent quatre-vingts fauteuils, douze minutes d annonces, et rien d autre avant le film. La grille de la semaine dit la duree, la version et l heure de sortie.
+              <Surgit
+                delai={620}
+                as="p"
+                className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-300 md:o-col-span-6"
+              >
+                Cent quatre-vingts fauteuils, douze minutes d annonces, et rien d autre
+                avant le film. La grille de la semaine dit la duree, la version et l heure
+                de sortie.
               </Surgit>
               <Surgit delai={740} className="md:o-col-span-6 md:o-flex md:o-justify-end">
                 <a
@@ -524,7 +627,10 @@ export default function Page(): ReactElement {
         {/*
           ----- Le bandeau : les titres de la semaine (M-bandeau) ---------------
         */}
-        <div className="o-border-t o-border-b o-border-white-10 o-py-6" style={{ backgroundColor: accentDoux(900, 40) }}>
+        <div
+          className="o-border-t o-border-b o-border-white-10 o-py-6"
+          style={{ backgroundColor: accentDoux(900, 40) }}
+        >
           <Bandeau
             mots={FILMS.map((f) => f.titre.toUpperCase())}
             separateur="●"
@@ -539,11 +645,21 @@ export default function Page(): ReactElement {
           {/*
             ----- Le mecanisme : la grille de la semaine -------------------------
           */}
-          <section id="grille" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-14 md:o-py-28">
+          <section
+            id="grille"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-14 md:o-py-28"
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-8">
                 <Indice rang="01">La semaine</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...affichette('m', 700), fontSize: 'clamp(1.9rem, 5vw, 4.5rem)', lineHeight: 0.92 }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-3xl"
+                  style={{
+                    ...affichette('m', 700),
+                    fontSize: 'clamp(1.9rem, 5vw, 4.5rem)',
+                    lineHeight: 0.92,
+                  }}
+                >
                   <FuzzyText as="span" blur={1.1} amplitude={1.3}>
                     Ce qui passe, combien de temps, et a quelle heure vous sortez
                   </FuzzyText>
@@ -574,7 +690,13 @@ export default function Page(): ReactElement {
                       style={
                         actif
                           ? { ...aplat(), borderColor: 'transparent' }
-                          : { borderColor: 'var(--o-palette-zinc-700)', color: relache ? 'var(--o-palette-zinc-500)' : 'var(--o-palette-zinc-200)', backgroundColor: 'transparent' }
+                          : {
+                              borderColor: 'var(--o-palette-zinc-700)',
+                              color: relache
+                                ? 'var(--o-palette-zinc-500)'
+                                : 'var(--o-palette-zinc-200)',
+                              backgroundColor: 'transparent',
+                            }
                       }
                     >
                       {nom}
@@ -593,10 +715,21 @@ export default function Page(): ReactElement {
             {choisie !== undefined && film !== undefined && (
               <div className="o-mt-16 o-grid o-gap-12 lg:o-grid-cols-12">
                 <div className="lg:o-col-span-7">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
-                    {JOURS[choisie.jour]} — {SALLES[choisie.salle]?.nom} — {heure(choisie.debut)}
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
+                    {JOURS[choisie.jour]} — {SALLES[choisie.salle]?.nom} —{' '}
+                    {heure(choisie.debut)}
                   </p>
-                  <h3 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...affichette('m', 700), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)', lineHeight: 0.94 }}>
+                  <h3
+                    className="o-m-0 o-mt-5 o-max-w-2xl"
+                    style={{
+                      ...affichette('m', 700),
+                      fontSize: 'clamp(1.8rem, 4vw, 3.5rem)',
+                      lineHeight: 0.94,
+                    }}
+                  >
                     {film.titre}
                   </h3>
                   <p className="o-m-0 o-mt-4 o-text-base o-text-zinc-300">
@@ -612,17 +745,38 @@ export default function Page(): ReactElement {
                         ['Support', film.support],
                       ] as const
                     ).map(([quoi, valeur]) => (
-                      <div key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-white-10 o-py-4 sm:o-grid-cols-12">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-4">{quoi}</dt>
-                        <dd className="o-m-0 o-text-sm o-text-zinc-100 sm:o-col-span-8">{valeur}</dd>
+                      <div
+                        key={quoi}
+                        className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-white-10 o-py-4 sm:o-grid-cols-12"
+                      >
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 sm:o-col-span-4">
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-text-sm o-text-zinc-100 sm:o-col-span-8">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
 
                   <div className="o-mt-10 o-border-w-1 o-border-white-10 o-p-6">
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Fin de seance</p>
-                    <p className="o-m-0 o-mt-3" style={{ ...affichette('m', 500), fontSize: 'clamp(2rem, 5vw, 4rem)', color: encreSurSombre() }}>
-                      <SplitFlap key={`${String(choisie.debut)}-${String(choisie.salle)}`} declenchement="montage" interval={70} step={45}>
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                      Fin de seance
+                    </p>
+                    <p
+                      className="o-m-0 o-mt-3"
+                      style={{
+                        ...affichette('m', 500),
+                        fontSize: 'clamp(2rem, 5vw, 4rem)',
+                        color: encreSurSombre(),
+                      }}
+                    >
+                      <SplitFlap
+                        key={`${String(choisie.debut)}-${String(choisie.salle)}`}
+                        declenchement="montage"
+                        interval={70}
+                        step={45}
+                      >
                         {heure(fin)}
                       </SplitFlap>
                     </p>
@@ -633,11 +787,16 @@ export default function Page(): ReactElement {
                     </p>
                   </div>
 
-                  <p className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-italic o-leading-relaxed o-text-zinc-300">{film.note}</p>
+                  <p className="o-m-0 o-mt-8 o-max-w-lg o-text-base o-italic o-leading-relaxed o-text-zinc-300">
+                    {film.note}
+                  </p>
                 </div>
 
                 <div className="lg:o-col-span-5">
-                  <div className="o-border-w-1 o-border-white-10 o-p-7 lg:o-sticky" style={{ top: CHROME + 32, backgroundColor: accentDoux(900, 30) }}>
+                  <div
+                    className="o-border-w-1 o-border-white-10 o-p-7 lg:o-sticky"
+                    style={{ top: CHROME + 32, backgroundColor: accentDoux(900, 30) }}
+                  >
                     <Jauge seance={choisie} />
                   </div>
                 </div>
@@ -653,11 +812,24 @@ export default function Page(): ReactElement {
             style={{ backgroundColor: accent(200), color: 'var(--o-palette-zinc-950)' }}
           >
             <div className="o-mx-auto o-w-full o-max-w-6xl">
-              <p className="o-m-0 o-max-w-4xl o-text-balance" style={{ ...affichette('m', 700), fontSize: 'clamp(1.9rem, 5.4vw, 5rem)', lineHeight: 0.94 }}>
-                Une salle de quartier n est pas un ecran de plus. C est un horaire tenu, une copie choisie, et quelqu un en cabine.
+              <p
+                className="o-m-0 o-max-w-4xl o-text-balance"
+                style={{
+                  ...affichette('m', 700),
+                  fontSize: 'clamp(1.9rem, 5.4vw, 5rem)',
+                  lineHeight: 0.94,
+                }}
+              >
+                Une salle de quartier n est pas un ecran de plus. C est un horaire tenu,
+                une copie choisie, et quelqu un en cabine.
               </p>
-              <p className="o-m-0 o-mt-10 o-max-w-xl o-text-base o-leading-relaxed" style={{ color: 'var(--o-palette-zinc-800)' }}>
-                Nous programmons huit semaines a l avance, nous ne deprogrammons pas un film parce qu il a fait vingt entrees, et nous projetons en 35 mm chaque fois que la copie existe et qu elle tient encore.
+              <p
+                className="o-m-0 o-mt-10 o-max-w-xl o-text-base o-leading-relaxed"
+                style={{ color: 'var(--o-palette-zinc-800)' }}
+              >
+                Nous programmons huit semaines a l avance, nous ne deprogrammons pas un
+                film parce qu il a fait vingt entrees, et nous projetons en 35 mm chaque
+                fois que la copie existe et qu elle tient encore.
               </p>
             </div>
           </section>
@@ -665,26 +837,60 @@ export default function Page(): ReactElement {
           {/*
             ----- La maison : les trois salles ------------------------------------
           */}
-          <section id="maison" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-14 md:o-py-28">
+          <section
+            id="maison"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-14 md:o-py-28"
+          >
             <Indice rang="02">La maison</Indice>
-            <h2 className="o-m-0 o-mt-5 o-max-w-3xl" style={{ ...affichette('m', 700), fontSize: 'clamp(1.75rem, 4vw, 3.75rem)', lineHeight: 0.94 }}>
+            <h2
+              className="o-m-0 o-mt-5 o-max-w-3xl"
+              style={{
+                ...affichette('m', 700),
+                fontSize: 'clamp(1.75rem, 4vw, 3.75rem)',
+                lineHeight: 0.94,
+              }}
+            >
               Trois salles, trois manieres de voir
             </h2>
 
             <ol className="o-m-0 o-mt-14 o-list-none o-border-t o-border-white-10 o-p-0">
               {SALLES.map((salle, rang) => (
-                <li key={salle.nom} className="o-grid o-items-baseline o-gap-6 o-border-b o-border-white-10 o-py-10 md:o-grid-cols-12 md:o-gap-10">
-                  <span aria-hidden="true" className="o-tabular-nums md:o-col-span-2" style={{ ...affichette('l', 300), fontSize: 'clamp(3rem, 7vw, 6.5rem)', color: accentDoux(400, 74) }}>
+                <li
+                  key={salle.nom}
+                  className="o-grid o-items-baseline o-gap-6 o-border-b o-border-white-10 o-py-10 md:o-grid-cols-12 md:o-gap-10"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="o-tabular-nums md:o-col-span-2"
+                    style={{
+                      ...affichette('l', 300),
+                      fontSize: 'clamp(3rem, 7vw, 6.5rem)',
+                      color: accentDoux(400, 74),
+                    }}
+                  >
                     {String(rang + 1).padStart(2, '0')}
                   </span>
                   <div className="md:o-col-span-5">
-                    <h3 className="o-m-0" style={{ ...affichette('m', 500), fontSize: 'clamp(1.25rem, 2.4vw, 2rem)' }}>
+                    <h3
+                      className="o-m-0"
+                      style={{
+                        ...affichette('m', 500),
+                        fontSize: 'clamp(1.25rem, 2.4vw, 2rem)',
+                      }}
+                    >
                       {salle.nom}
                     </h3>
-                    <p className="o-m-0 o-mt-3 o-text-base o-leading-relaxed o-text-zinc-300">{salle.note}</p>
+                    <p className="o-m-0 o-mt-3 o-text-base o-leading-relaxed o-text-zinc-300">
+                      {salle.note}
+                    </p>
                   </div>
                   <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-col-span-5 md:o-text-right">
-                    {salle.fauteuils} fauteuils — {salle.fauteuils > 60 ? 'gradin, allee centrale' : salle.fauteuils > 40 ? 'gradin doux' : 'plancher, rangees de six'}
+                    {salle.fauteuils} fauteuils —{' '}
+                    {salle.fauteuils > 60
+                      ? 'gradin, allee centrale'
+                      : salle.fauteuils > 40
+                        ? 'gradin doux'
+                        : 'plancher, rangees de six'}
                   </p>
                 </li>
               ))}
@@ -694,16 +900,34 @@ export default function Page(): ReactElement {
           {/*
             ----- L appel : la place, et un seul bouton (A39) ----------------------
           */}
-          <section id="place" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32" style={{ backgroundColor: accentDoux(900, 35) }}>
+          <section
+            id="place"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-14 md:o-py-32"
+            style={{ backgroundColor: accentDoux(900, 35) }}
+          >
             <div className="o-mx-auto o-max-w-3xl o-text-center">
-              <h2 className="o-m-0 o-text-balance" style={{ ...affichette('l', 700), fontSize: 'clamp(2.25rem, 7vw, 6.5rem)', lineHeight: 0.9 }}>
+              <h2
+                className="o-m-0 o-text-balance"
+                style={{
+                  ...affichette('l', 700),
+                  fontSize: 'clamp(2.25rem, 7vw, 6.5rem)',
+                  lineHeight: 0.9,
+                }}
+              >
                 Six euros cinquante
               </h2>
               <p className="o-m-0 o-mx-auto o-mt-8 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-300">
-                Tarif unique, toutes seances, tous les jours. Quatre euros cinquante avec la carte d adherent, qui coute dix-huit euros l an. Aucune reservation en ligne : la caisse ouvre trente minutes avant.
+                Tarif unique, toutes seances, tous les jours. Quatre euros cinquante avec
+                la carte d adherent, qui coute dix-huit euros l an. Aucune reservation en
+                ligne : la caisse ouvre trente minutes avant.
               </p>
               <div className="o-mt-12 o-flex o-justify-center">
-                <StarBorder color="--o-vitrine-400" speed={6500} thickness={1} className="o-inline-block o-rounded-full">
+                <StarBorder
+                  color="--o-vitrine-400"
+                  speed={6500}
+                  thickness={1}
+                  className="o-inline-block o-rounded-full"
+                >
                   <a
                     href="tel:+33251840933"
                     className="o-inline-flex o-items-center o-gap-3 o-rounded-full o-px-12 o-py-6 o-text-lg o-font-semibold o-uppercase o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
@@ -724,17 +948,24 @@ export default function Page(): ReactElement {
           ----- Le pied : le generique (P25) -------------------------------------
         */}
         <footer className="o-relative o-overflow-hidden o-border-t o-border-white-10 o-px-6 o-pt-16 md:o-px-14">
-          <p className="o-m-0 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">Generique</p>
+          <p className="o-m-0 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
+            Generique
+          </p>
 
           <div className="o-relative o-mt-10 o-overflow-hidden" style={{ height: 460 }}>
             <Parallaxe vitesse={0.55} glisse={0.5} className="o-h-full">
               <div className="o-mx-auto o-flex o-max-w-3xl o-flex-col o-gap-7">
                 {GENERIQUE.map(([role, noms]) => (
                   <div key={role} className="o-grid o-gap-2 sm:o-grid-cols-2 sm:o-gap-10">
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 sm:o-text-right">{role}</p>
+                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 sm:o-text-right">
+                      {role}
+                    </p>
                     <div>
                       {noms.map((nom) => (
-                        <p key={nom} className="o-m-0 o-text-sm o-uppercase o-tracking-wide o-text-zinc-200">
+                        <p
+                          key={nom}
+                          className="o-m-0 o-text-sm o-uppercase o-tracking-wide o-text-zinc-200"
+                        >
                           {nom}
                         </p>
                       ))}
@@ -757,14 +988,22 @@ export default function Page(): ReactElement {
           <p
             aria-hidden="true"
             className="o-m-0 o-mt-6 o-select-none o-whitespace-nowrap o-text-center"
-            style={{ ...affichette('xxl', 700), fontSize: 'clamp(3rem, 17vw, 18rem)', lineHeight: 0.8, color: accentDoux(400, 62) }}
+            style={{
+              ...affichette('xxl', 700),
+              fontSize: 'clamp(3rem, 17vw, 18rem)',
+              lineHeight: 0.8,
+              color: accentDoux(400, 62),
+            }}
           >
             Salle 3
           </p>
 
           <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-py-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500">
             <span>© 2026 Salle 3 — association loi 1901, licence 1-108 442</span>
-            <a href="#haut" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">
+            <a
+              href="#haut"
+              className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+            >
               Remonter ↑
             </a>
           </div>

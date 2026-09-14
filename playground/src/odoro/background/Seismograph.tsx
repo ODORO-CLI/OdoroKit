@@ -71,11 +71,7 @@ export interface SeismographOwnProps {
 export type SeismographProps = Customisable<SeismographOwnProps>
 
 /** Tokens employes par defaut : le papier, l'encre, l'encre fraiche. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-fg',
-  '--o-palette-brand-500',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-fg', '--o-palette-brand-500'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'
@@ -156,22 +152,27 @@ export function Seismograph({
     return () => host.removeEventListener('pointerdown', onDown)
   }, [host, uClicks])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: SEISMOGRAPH_FRAGMENT,
-      colors,
-      uniforms: {
-        uClicks,
-        uTraces: traces,
-        uScroll: scroll,
-        uDecay: decay,
-        uAmplitude: amplitude,
-      },
-      name: 'seismograph',
-      degrade: (quality) => ({
-        uTraces: quality === 'low' ? Math.min(traces, LOW_TRACES) : traces,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: SEISMOGRAPH_FRAGMENT,
+    colors,
+    uniforms: {
+      uClicks,
+      uTraces: traces,
+      uScroll: scroll,
+      uDecay: decay,
+      uAmplitude: amplitude,
+    },
+    name: 'seismograph',
+    degrade: (quality) => ({
+      uTraces: quality === 'low' ? Math.min(traces, LOW_TRACES) : traces,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

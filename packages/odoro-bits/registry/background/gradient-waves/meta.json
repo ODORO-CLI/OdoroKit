@@ -19,11 +19,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-theme-bg",
-    "--o-palette-indigo-400",
-    "--o-palette-cyan-300"
-  ],
+  "tokens": ["--o-theme-bg", "--o-palette-indigo-400", "--o-palette-cyan-300"],
   "props": [
     {
       "name": "bands",

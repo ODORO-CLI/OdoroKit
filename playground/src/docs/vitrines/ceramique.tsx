@@ -44,7 +44,6 @@ import { Icon } from '@odoro-cli/icons'
 import { ArrowDown, ArrowRight, ArrowUpRight } from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
 import {
-
   useEffect,
   useMemo,
   useRef,
@@ -208,61 +207,71 @@ const PALIERS: readonly Palier[] = [
     degres: 100,
     sens: 'montee',
     titre: 'L eau libre part',
-    texte: 'Ce qui restait entre les grains devient vapeur. Elle doit sortir plus vite qu elle ne se forme, sinon la piece eclate.',
+    texte:
+      'Ce qui restait entre les grains devient vapeur. Elle doit sortir plus vite qu elle ne se forme, sinon la piece eclate.',
   },
   {
     degres: 200,
     sens: 'montee',
     titre: 'L eau des pores s en va',
-    texte: 'La terre devient poreuse et cassante. C est le moment ou une piece mal seche se perd sans bruit, dans un coin du four.',
+    texte:
+      'La terre devient poreuse et cassante. C est le moment ou une piece mal seche se perd sans bruit, dans un coin du four.',
   },
   {
     degres: 400,
     sens: 'montee',
     titre: 'Les matieres organiques brulent',
-    texte: 'Racines, fibres, colle de barbotine. Le four fume, l event reste ouvert : ce qui ne brule pas maintenant noircira sous l email.',
+    texte:
+      'Racines, fibres, colle de barbotine. Le four fume, l event reste ouvert : ce qui ne brule pas maintenant noircira sous l email.',
   },
   {
     degres: 573,
     sens: 'montee',
     titre: 'Le quartz change de forme',
-    texte: 'Il gagne pres de deux pour cent de volume, d un coup. Ni montee ni descente brutale de part et d autre de ce chiffre : c est la regle qui tient tout le metier.',
+    texte:
+      'Il gagne pres de deux pour cent de volume, d un coup. Ni montee ni descente brutale de part et d autre de ce chiffre : c est la regle qui tient tout le metier.',
   },
   {
     degres: 700,
     sens: 'montee',
     titre: 'Les carbonates se decomposent',
-    texte: 'Le gaz doit etre sorti avant que l email ne ferme la surface. Un email qui bulle a mille degres a ete pris de vitesse ici.',
+    texte:
+      'Le gaz doit etre sorti avant que l email ne ferme la surface. Un email qui bulle a mille degres a ete pris de vitesse ici.',
   },
   {
     degres: 900,
     sens: 'montee',
     titre: 'Le frittage commence',
-    texte: 'Les grains se soudent les uns aux autres. A partir d ici la piece ne se delite plus dans l eau : elle est devenue ceramique.',
+    texte:
+      'Les grains se soudent les uns aux autres. A partir d ici la piece ne se delite plus dans l eau : elle est devenue ceramique.',
   },
   {
     degres: 1060,
     sens: 'montee',
     titre: 'L email fond et mouille',
-    texte: 'Le verre se forme et s etale. Trente minutes de palier lui laissent le temps de refermer les piqures laissees par les gaz.',
+    texte:
+      'Le verre se forme et s etale. Trente minutes de palier lui laissent le temps de refermer les piqures laissees par les gaz.',
   },
   {
     degres: 1240,
     sens: 'montee',
     titre: 'Le gres se grese',
-    texte: 'La masse se vitrifie de part en part. La piece devient etanche sans email — c est la definition du gres, et le seul motif d aller si haut.',
+    texte:
+      'La masse se vitrifie de part en part. La piece devient etanche sans email — c est la definition du gres, et le seul motif d aller si haut.',
   },
   {
     degres: 573,
     sens: 'descente',
     titre: 'Le quartz revient',
-    texte: 'Meme saut, en sens inverse, sur une piece devenue rigide. C est ici que se fendent les pieces d un four ouvert trop tot, et nulle part ailleurs.',
+    texte:
+      'Meme saut, en sens inverse, sur une piece devenue rigide. C est ici que se fendent les pieces d un four ouvert trop tot, et nulle part ailleurs.',
   },
   {
     degres: 200,
     sens: 'descente',
     titre: 'On peut entrouvrir',
-    texte: 'Deux centimetres de porte, pas davantage. Le four est encore a deux cents degres et l air de l atelier est a dix-huit.',
+    texte:
+      'Deux centimetres de porte, pas davantage. Le four est encore a deux cents degres et l air de l atelier est a dix-huit.',
   },
 ]
 
@@ -308,7 +317,8 @@ function derouler(programme: Programme): Cuisson {
   for (const segment of programme.segments) {
     const monte = segment.vers > temperature
     const duree =
-      segment.palier ?? Math.abs(segment.vers - temperature) / Math.max(1, segment.vitesse ?? 100)
+      segment.palier ??
+      Math.abs(segment.vers - temperature) / Math.max(1, segment.vitesse ?? 100)
     energie += puissance(segment, monte) * duree
     heure += duree
     temperature = segment.vers
@@ -348,11 +358,14 @@ function palierA(cuisson: Cuisson, heure: number): Palier | undefined {
   const enMontee = heure <= cuisson.montee
   const t = temperatureA(cuisson, heure)
   const candidats = PALIERS.filter(
-    (palier) => palier.sens === (enMontee ? 'montee' : 'descente') && (enMontee ? t >= palier.degres : t <= palier.degres),
+    (palier) =>
+      palier.sens === (enMontee ? 'montee' : 'descente') &&
+      (enMontee ? t >= palier.degres : t <= palier.degres),
   )
   if (enMontee) {
     return candidats.reduce<Palier | undefined>(
-      (haut, palier) => (haut === undefined || palier.degres > haut.degres ? palier : haut),
+      (haut, palier) =>
+        haut === undefined || palier.degres > haut.degres ? palier : haut,
       undefined,
     )
   }
@@ -370,7 +383,8 @@ function energieA(programme: Programme, heure: number): number {
   for (const segment of programme.segments) {
     const monte = segment.vers > temperature
     const duree =
-      segment.palier ?? Math.abs(segment.vers - temperature) / Math.max(1, segment.vitesse ?? 100)
+      segment.palier ??
+      Math.abs(segment.vers - temperature) / Math.max(1, segment.vitesse ?? 100)
     const part = Math.max(0, Math.min(duree, heure - curseur))
     energie += puissance(segment, monte) * part
     curseur += duree
@@ -397,8 +411,11 @@ const HAUT = 300
 /** Le trace de la courbe et de son aire, en coordonnees du dessin. */
 function tracerCourbe(cuisson: Cuisson): { ligne: string; aire: string } {
   const enX = (h: number): number => 8 + (h / cuisson.duree) * (LARGE - 16)
-  const enY = (t: number): number => HAUT - 22 - ((t - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
-  const sommets = cuisson.points.map((point) => `${enX(point.h).toFixed(1)} ${enY(point.t).toFixed(1)}`)
+  const enY = (t: number): number =>
+    HAUT - 22 - ((t - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
+  const sommets = cuisson.points.map(
+    (point) => `${enX(point.h).toFixed(1)} ${enY(point.t).toFixed(1)}`,
+  )
   const ligne = `M${sommets.join('L')}`
   const aire = `${ligne}L${enX(cuisson.duree).toFixed(1)} ${String(HAUT - 22)}L8 ${String(HAUT - 22)}Z`
   return { ligne, aire }
@@ -462,9 +479,11 @@ function Four(): ReactElement {
 
   const temperature = temperatureA(cuisson, heure)
   const palier = palierA(cuisson, heure)
-  const phase = heure <= 0.01 ? 'Enfournement' : heure <= cuisson.montee ? 'Montee' : 'Descente'
+  const phase =
+    heure <= 0.01 ? 'Enfournement' : heure <= cuisson.montee ? 'Montee' : 'Descente'
   const enX = 8 + (heure / cuisson.duree) * (LARGE - 16)
-  const enY = HAUT - 22 - ((temperature - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
+  const enY =
+    HAUT - 22 - ((temperature - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
 
   const graduations = useMemo(() => {
     const marches: number[] = []
@@ -506,7 +525,10 @@ function Four(): ReactElement {
               ['Duree portes fermees', heures(cuisson.duree)],
               ['Sommet', `${String(cuisson.sommet)} °C`],
               ['Energie', `${cuisson.energie.toLocaleString('fr-FR')} kWh`],
-              ['Cout du four', `${cuisson.cout.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} EUR`],
+              [
+                'Cout du four',
+                `${cuisson.cout.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} EUR`,
+              ],
             ] as const
           ).map(([quoi, valeur]) => (
             <div
@@ -523,8 +545,9 @@ function Four(): ReactElement {
           ))}
         </dl>
         <p className="o-m-0 o-mt-4 o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
-          Four de 120 litres, 9,6 kW de resistances, electricite a 0,216 EUR le kilowattheure. La descente ne
-          consomme rien : le four est eteint et se refroidit seul.
+          Four de 120 litres, 9,6 kW de resistances, electricite a 0,216 EUR le
+          kilowattheure. La descente ne consomme rien : le four est eteint et se refroidit
+          seul.
         </p>
       </div>
 
@@ -543,10 +566,16 @@ function Four(): ReactElement {
             >
               {/* Les graduations, sans cadre : trois filets et leurs chiffres. */}
               {graduations.map((t) => {
-                const y = HAUT - 22 - ((t - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
+                const y =
+                  HAUT - 22 - ((t - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
                 return (
                   <g key={t}>
-                    <path d={`M8 ${y.toFixed(1)}H${String(LARGE - 8)}`} stroke={accentDoux(700, 14)} strokeWidth="1" strokeDasharray="3 7" />
+                    <path
+                      d={`M8 ${y.toFixed(1)}H${String(LARGE - 8)}`}
+                      stroke={accentDoux(700, 14)}
+                      strokeWidth="1"
+                      strokeDasharray="3 7"
+                    />
                     <text
                       x={LARGE - 12}
                       y={y - 6}
@@ -563,10 +592,19 @@ function Four(): ReactElement {
               })}
 
               {/* Le sol du dessin. */}
-              <path d={`M8 ${String(HAUT - 22)}H${String(LARGE - 8)}`} stroke={accentDoux(700, 34)} strokeWidth="1" />
+              <path
+                d={`M8 ${String(HAUT - 22)}H${String(LARGE - 8)}`}
+                stroke={accentDoux(700, 34)}
+                strokeWidth="1"
+              />
 
               {/* L aire sous la courbe, puis la courbe qui se trace. */}
-              <path key={`${programme.cle}-aire`} d={aire} fill={accentDoux(400, 26)} opacity="0.9" />
+              <path
+                key={`${programme.cle}-aire`}
+                d={aire}
+                fill={accentDoux(400, 26)}
+                opacity="0.9"
+              />
               <path
                 key={`${programme.cle}-ligne`}
                 data-o-cm-trace=""
@@ -581,8 +619,13 @@ function Four(): ReactElement {
               />
 
               {/* Les paliers marquants, poses sur la montee. */}
-              {PALIERS.filter((p) => p.sens === 'montee' && p.degres <= cuisson.sommet).map((p) => {
-                const y = HAUT - 22 - ((p.degres - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
+              {PALIERS.filter(
+                (p) => p.sens === 'montee' && p.degres <= cuisson.sommet,
+              ).map((p) => {
+                const y =
+                  HAUT -
+                  22 -
+                  ((p.degres - DEPART) / (cuisson.sommet - DEPART)) * (HAUT - 52)
                 let x = 8
                 for (let rang = 1; rang < cuisson.points.length; rang += 1) {
                   const a = cuisson.points[rang - 1]
@@ -594,11 +637,22 @@ function Four(): ReactElement {
                     break
                   }
                 }
-                return <circle key={`${String(p.degres)}-${p.titre}`} cx={x} cy={y} r="3.5" fill={accent(600)} />
+                return (
+                  <circle
+                    key={`${String(p.degres)}-${p.titre}`}
+                    cx={x}
+                    cy={y}
+                    r="3.5"
+                    fill={accent(600)}
+                  />
+                )
               })}
 
               {/* Les heures, en abscisse. */}
-              {Array.from({ length: Math.floor(cuisson.duree / 5) + 1 }, (_, rang) => rang * 5).map((h) => (
+              {Array.from(
+                { length: Math.floor(cuisson.duree / 5) + 1 },
+                (_, rang) => rang * 5,
+              ).map((h) => (
                 <text
                   key={`h-${String(h)}`}
                   x={8 + (h / cuisson.duree) * (LARGE - 16)}
@@ -614,9 +668,23 @@ function Four(): ReactElement {
               ))}
 
               {/* La tete de lecture : le trait, la bille, l heure. */}
-              <path d={`M${enX.toFixed(1)} 14V${String(HAUT - 22)}`} stroke={encre()} strokeWidth="1" strokeDasharray="4 5" opacity="0.7" />
+              <path
+                d={`M${enX.toFixed(1)} 14V${String(HAUT - 22)}`}
+                stroke={encre()}
+                strokeWidth="1"
+                strokeDasharray="4 5"
+                opacity="0.7"
+              />
               <circle cx={enX} cy={enY} r="7" fill={encre()} />
-              <circle cx={enX} cy={enY} r="12" fill="none" stroke={encre()} strokeWidth="1" opacity="0.35" />
+              <circle
+                cx={enX}
+                cy={enY}
+                r="12"
+                fill="none"
+                stroke={encre()}
+                strokeWidth="1"
+                opacity="0.35"
+              />
               <text
                 x={enX > LARGE - 120 ? enX - 10 : enX + 12}
                 y="22"
@@ -669,25 +737,36 @@ function Four(): ReactElement {
             </p>
             <p
               className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-900 dark:o-text-stone-50"
-              style={{ ...affiche('m', 300), fontSize: 'clamp(2.75rem, 7vw, 5rem)', lineHeight: 0.88 }}
+              style={{
+                ...affiche('m', 300),
+                fontSize: 'clamp(2.75rem, 7vw, 5rem)',
+                lineHeight: 0.88,
+              }}
             >
               {Math.round(temperature)} °C
             </p>
-            <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+            <p
+              className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              style={{ color: encre() }}
+            >
               {energieA(programme, heure).toLocaleString('fr-FR')} kWh brules
             </p>
           </div>
           <div className="o-min-w-0 md:o-col-span-8">
             {palier === undefined ? (
               <p className="o-m-0 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                Rien encore. Les pieces sont froides, le four monte, et le seul bruit est celui du ventilateur
-                de l event.
+                Rien encore. Les pieces sont froides, le four monte, et le seul bruit est
+                celui du ventilateur de l event.
               </p>
             ) : (
               <div key={`${palier.titre}-${palier.sens}`} data-o-cm-monte="">
                 <h3
                   className="o-m-0 o-text-stone-900 dark:o-text-stone-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.4rem, 2.6vw, 2.25rem)', lineHeight: 1 }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.4rem, 2.6vw, 2.25rem)',
+                    lineHeight: 1,
+                  }}
                 >
                   {palier.degres} °C — {palier.titre}
                 </h3>
@@ -710,11 +789,24 @@ function TourDessine(): ReactElement {
   return (
     <svg viewBox="0 0 320 300" className="o-h-auto o-w-full" aria-hidden="true">
       {/* Le bati. */}
-      <path d="M96 208h128l-14 84H110Z" fill={accentDoux(700, 12)} stroke={accentDoux(700, 40)} strokeWidth="1.5" />
+      <path
+        d="M96 208h128l-14 84H110Z"
+        fill={accentDoux(700, 12)}
+        stroke={accentDoux(700, 40)}
+        strokeWidth="1.5"
+      />
       <path d="M118 232h84M114 258h92" stroke={accentDoux(700, 26)} strokeWidth="1" />
 
       {/* Le plateau, en perspective : une ellipse, et des rayons qui tournent. */}
-      <ellipse cx="160" cy="204" rx="98" ry="30" fill={accentDoux(500, 34)} stroke={accentDoux(700, 50)} strokeWidth="1.5" />
+      <ellipse
+        cx="160"
+        cy="204"
+        rx="98"
+        ry="30"
+        fill={accentDoux(500, 34)}
+        stroke={accentDoux(700, 50)}
+        strokeWidth="1.5"
+      />
       <g transform="translate(160 204) scale(1 0.306)">
         <g data-o-cm-tour="" style={{ '--o-cm-duree': '7s' } as CSSProperties}>
           {Array.from({ length: 24 }, (_, rang) => {
@@ -730,7 +822,14 @@ function TourDessine(): ReactElement {
               />
             )
           })}
-          <circle cx="0" cy="0" r="66" fill="none" stroke={accentDoux(800, 44)} strokeWidth="1" />
+          <circle
+            cx="0"
+            cy="0"
+            r="66"
+            fill="none"
+            stroke={accentDoux(800, 44)}
+            strokeWidth="1"
+          />
         </g>
       </g>
 
@@ -742,8 +841,20 @@ function TourDessine(): ReactElement {
         strokeWidth="2"
         strokeLinejoin="round"
       />
-      <path d="M126 174h68M128 152h64M133 126h56M137 100h48" stroke={accentDoux(700, 34)} strokeWidth="1" />
-      <ellipse cx="160" cy="76" rx="31" ry="9" fill="none" stroke={encre()} strokeWidth="2" />
+      <path
+        d="M126 174h68M128 152h64M133 126h56M137 100h48"
+        stroke={accentDoux(700, 34)}
+        strokeWidth="1"
+      />
+      <ellipse
+        cx="160"
+        cy="76"
+        rx="31"
+        ry="9"
+        fill="none"
+        stroke={encre()}
+        strokeWidth="2"
+      />
     </svg>
   )
 }
@@ -752,24 +863,69 @@ function TourDessine(): ReactElement {
 
 /** Ce que porte chaque etage de la derniere fournee. */
 const ETAGES = [
-  { rang: '03', quoi: 'Bols a the, 18 pieces', note: 'Le haut monte le plus vite : on y met ce qui supporte deux degres d ecart.' },
-  { rang: '02', quoi: 'Assiettes plates, 24 pieces', note: 'Sur la plaque la plus epaisse. Une assiette gauchit si sa plaque plie.' },
-  { rang: '01', quoi: 'Pichets et vases, 9 pieces', note: 'Le bas est le plus froid de deux a trois degres : on y pose les pieces hautes.' },
+  {
+    rang: '03',
+    quoi: 'Bols a the, 18 pieces',
+    note: 'Le haut monte le plus vite : on y met ce qui supporte deux degres d ecart.',
+  },
+  {
+    rang: '02',
+    quoi: 'Assiettes plates, 24 pieces',
+    note: 'Sur la plaque la plus epaisse. Une assiette gauchit si sa plaque plie.',
+  },
+  {
+    rang: '01',
+    quoi: 'Pichets et vases, 9 pieces',
+    note: 'Le bas est le plus froid de deux a trois degres : on y pose les pieces hautes.',
+  },
 ] as const
 
 /** La coupe du four, dans la bande sombre : trois etages et leurs organes. */
 function CoupeDuFour(): ReactElement {
   return (
-    <svg viewBox="0 0 520 420" className="o-h-auto o-w-full" role="img" aria-label="Coupe du four : trois etages de plaques, la sonde, l event et les resistances">
+    <svg
+      viewBox="0 0 520 420"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Coupe du four : trois etages de plaques, la sonde, l event et les resistances"
+    >
       {/* La caisse. */}
-      <rect x="40" y="24" width="400" height="372" fill="none" stroke={accentDoux(300, 42)} strokeWidth="2" />
-      <rect x="62" y="46" width="356" height="328" fill={accentDoux(500, 8)} stroke={accentDoux(300, 22)} strokeWidth="1" />
+      <rect
+        x="40"
+        y="24"
+        width="400"
+        height="372"
+        fill="none"
+        stroke={accentDoux(300, 42)}
+        strokeWidth="2"
+      />
+      <rect
+        x="62"
+        y="46"
+        width="356"
+        height="328"
+        fill={accentDoux(500, 8)}
+        stroke={accentDoux(300, 22)}
+        strokeWidth="1"
+      />
 
       {/* Les resistances, en spires, sur les deux parois. */}
       {Array.from({ length: 14 }, (_, rang) => (
         <g key={rang}>
-          <path d={`M62 ${String(62 + rang * 22)}q10 -8 20 0t20 0`} fill="none" stroke={accent(400)} strokeWidth="2" opacity="0.75" />
-          <path d={`M378 ${String(62 + rang * 22)}q10 -8 20 0t20 0`} fill="none" stroke={accent(400)} strokeWidth="2" opacity="0.75" />
+          <path
+            d={`M62 ${String(62 + rang * 22)}q10 -8 20 0t20 0`}
+            fill="none"
+            stroke={accent(400)}
+            strokeWidth="2"
+            opacity="0.75"
+          />
+          <path
+            d={`M378 ${String(62 + rang * 22)}q10 -8 20 0t20 0`}
+            fill="none"
+            stroke={accent(400)}
+            strokeWidth="2"
+            opacity="0.75"
+          />
         </g>
       ))}
 
@@ -778,7 +934,11 @@ function CoupeDuFour(): ReactElement {
         <g key={y}>
           <rect x="108" y={y} width="264" height="9" fill={accentDoux(200, 60)} />
           {/* Les bequilles. */}
-          <path d={`M124 ${String(y + 9)}v${String(rang === 0 ? 48 : 46)}M356 ${String(y + 9)}v${String(rang === 0 ? 48 : 46)}`} stroke={accentDoux(200, 40)} strokeWidth="5" />
+          <path
+            d={`M124 ${String(y + 9)}v${String(rang === 0 ? 48 : 46)}M356 ${String(y + 9)}v${String(rang === 0 ? 48 : 46)}`}
+            stroke={accentDoux(200, 40)}
+            strokeWidth="5"
+          />
           {Array.from({ length: rang === 2 ? 6 : rang === 1 ? 5 : 3 }, (_, piece) => {
             const x = 130 + piece * (rang === 2 ? 38 : rang === 1 ? 46 : 76)
             const hauteur = rang === 0 ? 56 : rang === 1 ? 12 : 30
@@ -803,14 +963,32 @@ function CoupeDuFour(): ReactElement {
       {/* La sonde, plantee au tiers de la hauteur. */}
       <path d="M440 210h-52" stroke={accent(300)} strokeWidth="3" />
       <circle cx="388" cy="210" r="5" fill={accent(300)} />
-      <text x="446" y="206" fontSize="13" fill="currentColor" opacity="0.75" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <text
+        x="446"
+        y="206"
+        fontSize="13"
+        fill="currentColor"
+        opacity="0.75"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         SONDE
       </text>
 
       {/* L event, en haut a gauche. */}
       <path d="M40 60h-24" stroke={accent(300)} strokeWidth="3" />
-      <path d="M24 56l-8 -8M24 60h-10M24 64l-8 8" stroke={accent(300)} strokeWidth="1.5" />
-      <text x="4" y="40" fontSize="13" fill="currentColor" opacity="0.75" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <path
+        d="M24 56l-8 -8M24 60h-10M24 64l-8 8"
+        stroke={accent(300)}
+        strokeWidth="1.5"
+      />
+      <text
+        x="4"
+        y="40"
+        fontSize="13"
+        fill="currentColor"
+        opacity="0.75"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         EVENT
       </text>
 
@@ -873,15 +1051,54 @@ const TERRES = [
 function Reglette({ part }: { readonly part: number }): ReactElement {
   const apres = 100 - part
   return (
-    <svg viewBox="0 0 240 64" className="o-h-auto o-w-full" role="img" aria-label={`Retrait de ${String(part)} pour cent entre le tour et la sortie du four`}>
+    <svg
+      viewBox="0 0 240 64"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label={`Retrait de ${String(part)} pour cent entre le tour et la sortie du four`}
+    >
       <path d="M8 20h224" stroke={accentDoux(700, 30)} strokeWidth="1" />
-      <rect x="8" y="12" width="224" height="16" fill="none" stroke={accentDoux(700, 40)} strokeWidth="1" />
-      <rect x="8" y="38" width={(224 * apres) / 100} height="16" fill={accentDoux(500, 40)} stroke={encre()} strokeWidth="1.5" />
-      <path d={`M${String(8 + (224 * apres) / 100)} 34v24`} stroke={encre()} strokeWidth="1" strokeDasharray="3 4" />
-      <text x="8" y="8" fontSize="10" fill="currentColor" opacity="0.6" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <rect
+        x="8"
+        y="12"
+        width="224"
+        height="16"
+        fill="none"
+        stroke={accentDoux(700, 40)}
+        strokeWidth="1"
+      />
+      <rect
+        x="8"
+        y="38"
+        width={(224 * apres) / 100}
+        height="16"
+        fill={accentDoux(500, 40)}
+        stroke={encre()}
+        strokeWidth="1.5"
+      />
+      <path
+        d={`M${String(8 + (224 * apres) / 100)} 34v24`}
+        stroke={encre()}
+        strokeWidth="1"
+        strokeDasharray="3 4"
+      />
+      <text
+        x="8"
+        y="8"
+        fontSize="10"
+        fill="currentColor"
+        opacity="0.6"
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         AU TOUR
       </text>
-      <text x={12 + (224 * apres) / 100} y="52" fontSize="11" fill={encre()} style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+      <text
+        x={12 + (224 * apres) / 100}
+        y="52"
+        fontSize="11"
+        fill={encre()}
+        style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+      >
         -{part} %
       </text>
     </svg>
@@ -921,10 +1138,17 @@ function Aires(): ReactElement {
   const enX = (rang: number): number => 10 + (rang / (ANNEE.length - 1)) * (large - 20)
   const enY = (valeur: number): number => haut - 26 - (valeur / plafond) * (haut - 52)
 
-  const chemin = (lire: (mois: (typeof ANNEE)[number]) => number): { ligne: string; aire: string } => {
-    const sommets = ANNEE.map((mois, rang) => `${enX(rang).toFixed(1)} ${enY(lire(mois)).toFixed(1)}`)
+  const chemin = (
+    lire: (mois: (typeof ANNEE)[number]) => number,
+  ): { ligne: string; aire: string } => {
+    const sommets = ANNEE.map(
+      (mois, rang) => `${enX(rang).toFixed(1)} ${enY(lire(mois)).toFixed(1)}`,
+    )
     const ligne = `M${sommets.join('L')}`
-    return { ligne, aire: `${ligne}L${enX(ANNEE.length - 1).toFixed(1)} ${String(haut - 26)}L10 ${String(haut - 26)}Z` }
+    return {
+      ligne,
+      aire: `${ligne}L${enX(ANNEE.length - 1).toFixed(1)} ${String(haut - 26)}L10 ${String(haut - 26)}Z`,
+    }
   }
 
   const sorties = chemin((m) => m.enfournees - m.casse)
@@ -943,8 +1167,20 @@ function Aires(): ReactElement {
       >
         {[100, 200, 300, 400].map((valeur) => (
           <g key={valeur}>
-            <path d={`M10 ${enY(valeur).toFixed(1)}H${String(large - 10)}`} stroke={accentDoux(700, 12)} strokeWidth="1" strokeDasharray="2 8" />
-            <text x="10" y={enY(valeur) - 6} fontSize="11" fill="currentColor" opacity="0.45" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}>
+            <path
+              d={`M10 ${enY(valeur).toFixed(1)}H${String(large - 10)}`}
+              stroke={accentDoux(700, 12)}
+              strokeWidth="1"
+              strokeDasharray="2 8"
+            />
+            <text
+              x="10"
+              y={enY(valeur) - 6}
+              fontSize="11"
+              fill="currentColor"
+              opacity="0.45"
+              style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.1em' }}
+            >
               {valeur}
             </text>
           </g>
@@ -973,7 +1209,11 @@ function Aires(): ReactElement {
           strokeLinejoin="round"
         />
 
-        <path d={`M10 ${String(haut - 26)}H${String(large - 10)}`} stroke={accentDoux(700, 40)} strokeWidth="1" />
+        <path
+          d={`M10 ${String(haut - 26)}H${String(large - 10)}`}
+          stroke={accentDoux(700, 40)}
+          strokeWidth="1"
+        />
         {ANNEE.map((mois, rang) => (
           <text
             key={rang}
@@ -1060,8 +1300,20 @@ function CartePostale(): ReactElement {
                 }}
               >
                 <svg viewBox="0 0 74 90" className="o-h-full o-w-full">
-                  <path d="M22 66c-4-16 2-24 4-36 2-12-8-18-2-28 6-9 26-9 32 0 6 10-2 16 0 28 2 12 8 20 4 36Z" fill="none" stroke={accentDoux(900, 60)} strokeWidth="2" />
-                  <text x="37" y="82" fontSize="9" textAnchor="middle" fill={accentDoux(900, 60)} style={{ fontFamily: 'var(--o-font-mono)' }}>
+                  <path
+                    d="M22 66c-4-16 2-24 4-36 2-12-8-18-2-28 6-9 26-9 32 0 6 10-2 16 0 28 2 12 8 20 4 36Z"
+                    fill="none"
+                    stroke={accentDoux(900, 60)}
+                    strokeWidth="2"
+                  />
+                  <text
+                    x="37"
+                    y="82"
+                    fontSize="9"
+                    textAnchor="middle"
+                    fill={accentDoux(900, 60)}
+                    style={{ fontFamily: 'var(--o-font-mono)' }}
+                  >
                     1280 °C
                   </text>
                 </svg>
@@ -1069,12 +1321,19 @@ function CartePostale(): ReactElement {
             </div>
 
             <div>
-              <p className="o-m-0" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', lineHeight: 0.94 }}>
+              <p
+                className="o-m-0"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                  lineHeight: 0.94,
+                }}
+              >
                 La carte des cuissons
               </p>
               <p className="o-m-0 o-mt-3 o-max-w-sm o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                Quatre pages, les dates des fournees du trimestre, et ce qu on peut y glisser. Passez dessus —
-                le verso est deja timbre.
+                Quatre pages, les dates des fournees du trimestre, et ce qu on peut y
+                glisser. Passez dessus — le verso est deja timbre.
               </p>
             </div>
           </div>
@@ -1095,8 +1354,8 @@ function CartePostale(): ReactElement {
           <div className="o-grid o-h-full o-grid-cols-2">
             <div className="o-flex o-min-w-0 o-flex-col o-justify-between o-border-r o-border-stone-300 dark:o-border-stone-700 o-p-5 md:o-p-6">
               <p className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                Le four tourne le jeudi. Laissez une adresse : la carte part avec la fournee suivante, et rien
-                d autre ne vous sera envoye.
+                Le four tourne le jeudi. Laissez une adresse : la carte part avec la
+                fournee suivante, et rien d autre ne vous sera envoye.
               </p>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
                 Cachet de la fournee — 14 mars
@@ -1111,7 +1370,9 @@ function CartePostale(): ReactElement {
               }}
             >
               <label className="o-block">
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">Nom</span>
+                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                  Nom
+                </span>
                 <input
                   type="text"
                   name="nom"
@@ -1120,7 +1381,9 @@ function CartePostale(): ReactElement {
                 />
               </label>
               <label className="o-block">
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">Adresse</span>
+                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                  Adresse
+                </span>
                 <input
                   type="email"
                   name="adresse"
@@ -1136,7 +1399,10 @@ function CartePostale(): ReactElement {
                 {envoye ? 'Notee' : 'Poster la carte'}
                 <Icon icon={ArrowRight} size={13} aria-hidden="true" />
               </button>
-              <p aria-live="polite" className="o-m-0 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400">
+              <p
+                aria-live="polite"
+                className="o-m-0 o-font-mono o-text-xs o-text-stone-500 dark:o-text-stone-400"
+              >
                 {envoye ? 'Elle partira jeudi, avec la fournee.' : ''}
               </p>
             </form>
@@ -1170,7 +1436,12 @@ function CartePostale(): ReactElement {
  */
 function Signature(): ReactElement {
   return (
-    <svg viewBox="0 0 420 120" className="o-h-auto o-w-full" role="img" aria-label="Signature manuscrite : Perrine Aubel">
+    <svg
+      viewBox="0 0 420 120"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Signature manuscrite : Perrine Aubel"
+    >
       <path
         data-o-cm-trace=""
         d="M18 88c14-46 26-64 34-62 8 2 4 30-2 48-6 18-10 26-4 26 8 0 22-34 30-52 8-18 14-24 18-22 4 2-2 22-8 40-6 18-6 28 2 28 10 0 18-20 26-38 8-18 16-26 20-24 4 2 0 18-6 34-6 16-4 24 4 24 10 0 20-16 28-32M232 44c22-6 42-4 44 6 2 10-20 18-38 16 14 8 34 12 46 6M300 92c30-52 50-72 62-70 10 2 4 24-12 40-16 16-32 24-44 26 16 8 40 8 58-6"
@@ -1195,7 +1466,15 @@ const NAVIGATION = [
 ] as const
 
 /** Un intitule de section, avec son indice. */
-function Titre({ rang, sur, children }: { readonly rang: string; readonly sur: string; readonly children: ReactNode }): ReactElement {
+function Titre({
+  rang,
+  sur,
+  children,
+}: {
+  readonly rang: string
+  readonly sur: string
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <>
       <Reveal>
@@ -1206,7 +1485,11 @@ function Titre({ rang, sur, children }: { readonly rang: string; readonly sur: s
       <Reveal delay={80}>
         <h2
           className="o-m-0 o-mt-5 o-max-w-3xl o-text-balance"
-          style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 4.4vw, 4rem)', lineHeight: 0.95 }}
+          style={{
+            ...affiche('m', 300),
+            fontSize: 'clamp(1.9rem, 4.4vw, 4rem)',
+            lineHeight: 0.95,
+          }}
         >
           {children}
         </h2>
@@ -1221,11 +1504,22 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Tour" sombre={false}>
-      <div className="o-relative o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-50" style={polices}>
-        <BarreGelule marque="Tour" liens={NAVIGATION} action={['#carte', 'Ecrire']} sombre={false} />
+      <div
+        className="o-relative o-bg-stone-50 dark:o-bg-stone-950 o-text-stone-900 dark:o-text-stone-50"
+        style={polices}
+      >
+        <BarreGelule
+          marque="Tour"
+          liens={NAVIGATION}
+          action={['#carte', 'Ecrire']}
+          sombre={false}
+        />
 
         {/* ================= L ouverture : le tour tourne ================= */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-justify-center o-overflow-hidden o-px-6 o-pb-16 o-pt-32 md:o-px-10" style={{ minHeight: ECRAN }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-justify-center o-overflow-hidden o-px-6 o-pb-16 o-pt-32 md:o-px-10"
+          style={{ minHeight: ECRAN }}
+        >
           <Nappe
             couleurs={[accentDoux(300, 46), accentDoux(500, 30), accentDoux(200, 38)]}
             opacite={0.55}
@@ -1239,15 +1533,27 @@ export default function Page(): ReactElement {
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-6 o-max-w-3xl"
-                style={{ ...affiche('l', 300), fontSize: 'clamp(2.75rem, 8.5vw, 8rem)', lineHeight: 0.86 }}
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.75rem, 8.5vw, 8rem)',
+                  lineHeight: 0.86,
+                }}
               >
                 Tout se joue dans la derniere heure.
               </TitreVague>
-              <Surgit delai={540} as="p" className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                Atelier de tournage et quatre programmes de cuisson, publies avec leur courbe, leur duree et
-                ce qu ils coutent en electricite. Rien de ce qui entre dans ce four n est un secret.
+              <Surgit
+                delai={540}
+                as="p"
+                className="o-m-0 o-mt-7 o-max-w-md o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400"
+              >
+                Atelier de tournage et quatre programmes de cuisson, publies avec leur
+                courbe, leur duree et ce qu ils coutent en electricite. Rien de ce qui
+                entre dans ce four n est un secret.
               </Surgit>
-              <Surgit delai={660} className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4">
+              <Surgit
+                delai={660}
+                className="o-mt-9 o-flex o-flex-wrap o-items-center o-gap-4"
+              >
                 <a
                   href="#four"
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-6 o-py-3 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
@@ -1297,24 +1603,35 @@ export default function Page(): ReactElement {
         />
 
         {/* ================= Le manifeste qui s allume ==================== */}
-        <section className="o-flex o-items-center o-px-6 o-py-28 md:o-px-10 md:o-py-40" style={{ minHeight: '70vh' }}>
+        <section
+          className="o-flex o-items-center o-px-6 o-py-28 md:o-px-10 md:o-py-40"
+          style={{ minHeight: '70vh' }}
+        >
           <div className="o-mx-auto o-max-w-5xl">
             <ScrollReveal
               as="p"
               dim={0.28}
               blur={5}
               className="o-m-0 o-text-balance"
-              style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 4.2vw, 3.5rem)', lineHeight: 1.14 }}
+              style={{
+                ...affiche('m', 300),
+                fontSize: 'clamp(1.6rem, 4.2vw, 3.5rem)',
+                lineHeight: 1.14,
+              }}
             >
-              Une piece n est pas ratee au tour. Elle est ratee a cent degres, quand la vapeur n a pas trouve
-              la sortie ; ou a cinq cent soixante-treize, quand le quartz se retourne et qu on a ouvert trop
-              tot. Le four ne se trompe jamais : il obeit, et c est bien le probleme.
+              Une piece n est pas ratee au tour. Elle est ratee a cent degres, quand la
+              vapeur n a pas trouve la sortie ; ou a cinq cent soixante-treize, quand le
+              quartz se retourne et qu on a ouvert trop tot. Le four ne se trompe jamais :
+              il obeit, et c est bien le probleme.
             </ScrollReveal>
           </div>
         </section>
 
         {/* ================= Le mecanisme : la cuisson ==================== */}
-        <section id="four" className="o-scroll-mt-24 o-border-t o-border-stone-200 dark:o-border-stone-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="four"
+          className="o-scroll-mt-24 o-border-t o-border-stone-200 dark:o-border-stone-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="o-min-w-0 md:o-col-span-8">
@@ -1342,23 +1659,39 @@ export default function Page(): ReactElement {
                 <Indice rang="02">Dedans</Indice>
               </Reveal>
               <Reveal delay={80}>
-                <h2 className="o-m-0 o-mt-5 o-max-w-xl o-text-balance o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.8rem, 4vw, 3.5rem)', lineHeight: 0.96 }}>
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-xl o-text-balance o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.8rem, 4vw, 3.5rem)',
+                    lineHeight: 0.96,
+                  }}
+                >
                   Trois etages, et trois degres d ecart entre le haut et le bas.
                 </h2>
               </Reveal>
               <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-stone-300">
-                Un four n est pas une boite egale. L air chaud monte, la sonde est plantee au tiers, et ce
-                qu on met ou n est pas une question de place mais de risque.
+                Un four n est pas une boite egale. L air chaud monte, la sonde est plantee
+                au tiers, et ce qu on met ou n est pas une question de place mais de
+                risque.
               </p>
               <ol className="o-m-0 o-mt-10 o-list-none o-p-0">
                 {ETAGES.map((etage) => (
-                  <li key={etage.rang} className="o-grid o-gap-4 o-border-t o-border-white-10 o-py-5 sm:o-grid-cols-12">
-                    <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-2" style={{ color: encreSurSombre() }}>
+                  <li
+                    key={etage.rang}
+                    className="o-grid o-gap-4 o-border-t o-border-white-10 o-py-5 sm:o-grid-cols-12"
+                  >
+                    <p
+                      className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-2"
+                      style={{ color: encreSurSombre() }}
+                    >
                       {etage.rang}
                     </p>
                     <div className="o-min-w-0 sm:o-col-span-10">
                       <p className="o-m-0 o-text-base o-text-stone-100">{etage.quoi}</p>
-                      <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-stone-400">{etage.note}</p>
+                      <p className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-stone-400">
+                        {etage.note}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -1371,24 +1704,37 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= Les terres =================================== */}
-        <section id="terres" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="terres"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Titre rang="03" sur="Les terres">
               Quatre terres au stock, et leur retrait mesure.
             </Titre>
             <ol className="o-m-0 o-mt-16 o-list-none o-border-t o-border-stone-200 dark:o-border-stone-800 o-p-0">
               {TERRES.map((terre, rang) => (
-                <li key={terre.nom} className="o-grid o-items-center o-gap-6 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-10 md:o-grid-cols-12 md:o-gap-10">
+                <li
+                  key={terre.nom}
+                  className="o-grid o-items-center o-gap-6 o-border-b o-border-stone-200 dark:o-border-stone-800 o-py-10 md:o-grid-cols-12 md:o-gap-10"
+                >
                   <span
                     aria-hidden="true"
                     className="o-tabular-nums md:o-col-span-2"
-                    style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 0.9, color: encre() }}
+                    style={{
+                      ...affiche('l', 300),
+                      fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+                      lineHeight: 0.9,
+                      color: encre(),
+                    }}
                   >
                     {String(rang + 1).padStart(2, '0')}
                   </span>
                   <div className="o-min-w-0 md:o-col-span-5">
                     <h3 className="o-m-0 o-text-2xl o-font-medium o-tracking-tight">
-                      <span className="o-sr-only">{String(rang + 1).padStart(2, '0')} — </span>
+                      <span className="o-sr-only">
+                        {String(rang + 1).padStart(2, '0')} —{' '}
+                      </span>
                       {terre.nom}
                     </h3>
                     <p className="o-m-0 o-mt-3 o-max-w-md o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
@@ -1403,8 +1749,12 @@ export default function Page(): ReactElement {
                       ] as const
                     ).map(([quoi, valeur]) => (
                       <div key={quoi} className="o-py-1">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">{quoi}</dt>
-                        <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums">{valeur}</dd>
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                          {quoi}
+                        </dt>
+                        <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums">
+                          {valeur}
+                        </dd>
                       </div>
                     ))}
                   </dl>
@@ -1418,7 +1768,11 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= L annee, en aires ============================ */}
-        <section id="annee" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ backgroundColor: accentDoux(500, 6) }}>
+        <section
+          id="annee"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ backgroundColor: accentDoux(500, 6) }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-14">
               <div className="o-min-w-0 lg:o-col-span-4">
@@ -1430,15 +1784,20 @@ export default function Page(): ReactElement {
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-5 o-max-w-sm o-text-balance"
-                    style={{ ...affiche('m', 300), fontSize: 'clamp(1.6rem, 2.6vw, 2.5rem)', lineHeight: 1.02 }}
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.6rem, 2.6vw, 2.5rem)',
+                      lineHeight: 1.02,
+                    }}
                   >
-                    Trois mille trois cent vingt-deux pieces, cent quatre-vingt-quinze perdues.
+                    Trois mille trois cent vingt-deux pieces, cent quatre-vingt-quinze
+                    perdues.
                   </h2>
                 </Reveal>
                 <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                  Cinq virgule neuf pour cent de casse sur l annee, dont la moitie en octobre et decembre — les
-                  mois ou l on cuit vite parce que les commandes attendent. C est le seul chiffre que cet
-                  atelier surveille.
+                  Cinq virgule neuf pour cent de casse sur l annee, dont la moitie en
+                  octobre et decembre — les mois ou l on cuit vite parce que les commandes
+                  attendent. C est le seul chiffre que cet atelier surveille.
                 </p>
                 <dl className="o-m-0 o-mt-10">
                   {(
@@ -1448,9 +1807,16 @@ export default function Page(): ReactElement {
                       ['Creux d aout', 'Trois semaines de fermeture'],
                     ] as const
                   ).map(([quoi, valeur]) => (
-                    <div key={quoi} className="o-grid o-gap-1 o-border-t o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-12">
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">{quoi}</dt>
-                      <dd className="o-m-0 o-text-sm o-text-stone-700 dark:o-text-stone-300 sm:o-col-span-7">{valeur}</dd>
+                    <div
+                      key={quoi}
+                      className="o-grid o-gap-1 o-border-t o-border-stone-200 dark:o-border-stone-800 o-py-3 sm:o-grid-cols-12"
+                    >
+                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400 sm:o-col-span-5">
+                        {quoi}
+                      </dt>
+                      <dd className="o-m-0 o-text-sm o-text-stone-700 dark:o-text-stone-300 sm:o-col-span-7">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -1463,18 +1829,25 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= La carte postale ============================= */}
-        <section id="carte" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="carte"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-12 lg:o-grid-cols-12 lg:o-gap-16 lg:o-items-center">
             <div className="o-min-w-0 lg:o-col-span-5">
               <Titre rang="05" sur="Ecrire">
                 Une carte, et rien d autre.
               </Titre>
               <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
-                Pas de lettre mensuelle, pas de code de reduction. Une carte imprimee au trimestre, avec les
-                dates des fournees et deux lignes ecrites a la main.
+                Pas de lettre mensuelle, pas de code de reduction. Une carte imprimee au
+                trimestre, avec les dates des fournees et deux lignes ecrites a la main.
               </p>
               <p className="o-m-0 o-mt-6 o-text-sm">
-                <a href="#four" className="o-no-underline focus:o-ring" style={{ color: 'inherit' }}>
+                <a
+                  href="#four"
+                  className="o-no-underline focus:o-ring"
+                  style={{ color: 'inherit' }}
+                >
                   <UnderlineDraw thickness={2} duration={900} color={encre()}>
                     Voir d abord ce que fait le four
                   </UnderlineDraw>
@@ -1494,11 +1867,18 @@ export default function Page(): ReactElement {
               <Signature />
             </div>
             <p className="o-m-0 o-mt-6 o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Perrine Aubel — 11 rue Guy-Moquet, Malakoff. Atelier ouvert le jeudi de 14 h a 19 h, et le
-              samedi matin sur rendez-vous.
+              Perrine Aubel — 11 rue Guy-Moquet, Malakoff. Atelier ouvert le jeudi de 14 h
+              a 19 h, et le samedi matin sur rendez-vous.
             </p>
             <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
-              © 2026 Tour — <a href="#four" className="o-no-underline focus:o-ring" style={{ color: encre() }}>bonjour@tour-ceramique.fr</a>
+              © 2026 Tour —{' '}
+              <a
+                href="#four"
+                className="o-no-underline focus:o-ring"
+                style={{ color: encre() }}
+              >
+                bonjour@tour-ceramique.fr
+              </a>
             </p>
           </div>
         </footer>

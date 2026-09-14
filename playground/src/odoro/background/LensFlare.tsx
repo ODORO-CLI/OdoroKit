@@ -118,13 +118,18 @@ export function LensFlare({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: LENS_FLARE_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uIntensity: intensity, uGhosts: ghosts, uStreak: streak },
-      name: 'lens-flare',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: LENS_FLARE_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uIntensity: intensity, uGhosts: ghosts, uStreak: streak },
+    name: 'lens-flare',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

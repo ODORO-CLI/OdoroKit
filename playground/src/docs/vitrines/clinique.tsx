@@ -59,7 +59,14 @@ import {
   Users,
 } from '@odoro-cli/icons/filaire'
 import { useMotionState } from '@odoro-cli/engine'
-import { useEffect, useRef, useState, type CSSProperties, type ReactElement, type RefObject } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type RefObject,
+} from 'react'
 
 import { Faq } from '@/odoro/section/Faq.js'
 import { TrueFocus } from '@/odoro/text/TrueFocus.js'
@@ -135,7 +142,15 @@ const ETIQUETTE = 'o-text-xs o-font-medium o-text-slate-600 dark:o-text-slate-40
 const JOURS = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'] as const
 
 /** Les mots qui precedent un nom sans en faire partie. */
-const CIVILITES: ReadonlySet<string> = new Set(['dr', 'docteur', 'pr', 'professeur', 'mme', 'm', 'mr'])
+const CIVILITES: ReadonlySet<string> = new Set([
+  'dr',
+  'docteur',
+  'pr',
+  'professeur',
+  'mme',
+  'm',
+  'mr',
+])
 
 /**
  * Les initiales d un nom de praticien.
@@ -166,7 +181,15 @@ function initiales(nom: string): string {
  * Le dessin est decoratif : le nom et la specialite sont ecrits juste dessous,
  * en texte.
  */
-function Plaque({ nom, specialite, bureau }: { readonly nom: string; readonly specialite: string; readonly bureau: string }): ReactElement {
+function Plaque({
+  nom,
+  specialite,
+  bureau,
+}: {
+  readonly nom: string
+  readonly specialite: string
+  readonly bureau: string
+}): ReactElement {
   const lettres = initiales(nom)
   return (
     <svg
@@ -177,10 +200,36 @@ function Plaque({ nom, specialite, bureau }: { readonly nom: string; readonly sp
     >
       <title>{`Plaque de porte : monogramme ${lettres.split('').join(' ')} — ${specialite.toLowerCase()}, ${bureau.toLowerCase()}`}</title>
       {/* Le double filet grave, a deux ecarts differents. */}
-      <rect x="8" y="8" width="184" height="234" fill="none" stroke={accent(500)} strokeWidth="1" opacity="0.5" />
-      <rect x="14" y="14" width="172" height="222" fill="none" stroke={accent(500)} strokeWidth="0.5" opacity="0.35" />
+      <rect
+        x="8"
+        y="8"
+        width="184"
+        height="234"
+        fill="none"
+        stroke={accent(500)}
+        strokeWidth="1"
+        opacity="0.5"
+      />
+      <rect
+        x="14"
+        y="14"
+        width="172"
+        height="222"
+        fill="none"
+        stroke={accent(500)}
+        strokeWidth="0.5"
+        opacity="0.35"
+      />
       {/* Le cercle du monogramme, ouvert en haut : une plaque n est pas un jeton. */}
-      <circle cx="100" cy="104" r="52" fill="none" stroke={accent(500)} strokeWidth="1.4" opacity="0.55" />
+      <circle
+        cx="100"
+        cy="104"
+        r="52"
+        fill="none"
+        stroke={accent(500)}
+        strokeWidth="1.4"
+        opacity="0.55"
+      />
       <circle cx="100" cy="104" r="52" fill={surfaceTeintee(22)} opacity="0.55" />
       <text
         x="100"
@@ -188,7 +237,12 @@ function Plaque({ nom, specialite, bureau }: { readonly nom: string; readonly sp
         textAnchor="middle"
         dominantBaseline="central"
         fill={encre()}
-        style={{ fontFamily: 'inherit', fontSize: 52, fontWeight: 300, letterSpacing: '0.04em' }}
+        style={{
+          fontFamily: 'inherit',
+          fontSize: 52,
+          fontWeight: 300,
+          letterSpacing: '0.04em',
+        }}
       >
         {lettres}
       </text>
@@ -202,7 +256,18 @@ function Plaque({ nom, specialite, bureau }: { readonly nom: string; readonly sp
         strokeLinejoin="round"
         opacity="0.55"
       />
-      <text x="100" y="214" textAnchor="middle" fill="currentColor" opacity="0.88" style={{ fontFamily: 'ui-monospace, monospace', fontSize: 8, letterSpacing: '0.1em' }}>
+      <text
+        x="100"
+        y="214"
+        textAnchor="middle"
+        fill="currentColor"
+        opacity="0.88"
+        style={{
+          fontFamily: 'ui-monospace, monospace',
+          fontSize: 8,
+          letterSpacing: '0.1em',
+        }}
+      >
         {bureau.toUpperCase()}
       </text>
     </svg>
@@ -215,7 +280,10 @@ function Plaque({ nom, specialite, bureau }: { readonly nom: string; readonly sp
  * Sert aux pastilles de la semaine : elles se posent jour apres jour quand la
  * ligne arrive, au lieu d etre deja la.
  */
-function useVu<T extends HTMLElement>(): { readonly ref: RefObject<T | null>; readonly vu: boolean } {
+function useVu<T extends HTMLElement>(): {
+  readonly ref: RefObject<T | null>
+  readonly vu: boolean
+} {
   const ref = useRef<T>(null)
   const [vu, setVu] = useState(false)
   useEffect(() => {
@@ -247,7 +315,13 @@ function useVu<T extends HTMLElement>(): { readonly ref: RefObject<T | null>; re
  * Les points se posent l un apres l autre quand la ligne entre dans le cadre.
  * Sous mouvement reduit ils sont deja la.
  */
-function Semaine({ jours, nom }: { readonly jours: readonly boolean[]; readonly nom: string }): ReactElement {
+function Semaine({
+  jours,
+  nom,
+}: {
+  readonly jours: readonly boolean[]
+  readonly nom: string
+}): ReactElement {
   const { ref, vu } = useVu<HTMLDivElement>()
   const { reduced } = useMotionState()
   const pose = vu || reduced
@@ -261,7 +335,9 @@ function Semaine({ jours, nom }: { readonly jours: readonly boolean[]; readonly 
           const present = jours[rang] === true
           return (
             <span key={jour} className="o-flex o-flex-col o-items-center o-gap-1.5">
-              <span className={`o-font-mono o-text-xs o-uppercase o-tracking-wider ${present ? 'o-text-slate-800 dark:o-text-slate-100' : 'o-text-slate-500 dark:o-text-slate-400'}`}>
+              <span
+                className={`o-font-mono o-text-xs o-uppercase o-tracking-wider ${present ? 'o-text-slate-800 dark:o-text-slate-100' : 'o-text-slate-500 dark:o-text-slate-400'}`}
+              >
                 {jour}
               </span>
               <span
@@ -272,7 +348,9 @@ function Semaine({ jours, nom }: { readonly jours: readonly boolean[]; readonly 
                   outlineOffset: -1,
                   opacity: present ? 1 : 0.3,
                   transform: pose ? 'scale(1)' : 'scale(0.2)',
-                  transition: reduced ? 'none' : `transform 420ms cubic-bezier(0.16, 1, 0.3, 1) ${String(rang * 70)}ms`,
+                  transition: reduced
+                    ? 'none'
+                    : `transform 420ms cubic-bezier(0.16, 1, 0.3, 1) ${String(rang * 70)}ms`,
                 }}
               />
             </span>
@@ -730,15 +808,39 @@ const APPORTER = [
 /** Les tarifs affiches en salle d attente, repris ici. */
 const TARIFS: readonly (readonly [string, string, string, string, string])[] = [
   ['Consultation de medecine generale', '30 EUR', '30 EUR', '0 EUR', 'Secteur 1'],
-  ['Consultation de suivi, enfant de moins de 6 ans', '35 EUR', '35 EUR', '0 EUR', 'Secteur 1'],
+  [
+    'Consultation de suivi, enfant de moins de 6 ans',
+    '35 EUR',
+    '35 EUR',
+    '0 EUR',
+    'Secteur 1',
+  ],
   ['Consultation le samedi ou apres 20h', '42,50 EUR', '42,50 EUR', '0 EUR', 'Secteur 1'],
-  ['Visite a domicile, patient non mobilisable', '40 EUR', '40 EUR', '0 EUR', 'Secteur 1'],
+  [
+    'Visite a domicile, patient non mobilisable',
+    '40 EUR',
+    '40 EUR',
+    '0 EUR',
+    'Secteur 1',
+  ],
   ['Teleconsultation de renouvellement', '30 EUR', '30 EUR', '0 EUR', 'Secteur 1'],
   ['Consultation de cardiologie', '50 EUR', '50 EUR', '0 EUR', 'Secteur 2'],
   ['Echographie cardiaque', '96,49 EUR', '96,49 EUR', '0 EUR', 'Secteur 2'],
-  ['Consultation de gynecologie', '60 EUR', '30 EUR', '0 a 30 EUR selon mutuelle', 'Secteur 2'],
+  [
+    'Consultation de gynecologie',
+    '60 EUR',
+    '30 EUR',
+    '0 a 30 EUR selon mutuelle',
+    'Secteur 2',
+  ],
   ['Seance de kinesitherapie', '16,13 EUR', '16,13 EUR', '0 EUR', 'Conventionne'],
-  ['Certificat d aptitude au sport', '35 EUR', 'Non rembourse', '35 EUR', 'Hors nomenclature'],
+  [
+    'Certificat d aptitude au sport',
+    '35 EUR',
+    'Non rembourse',
+    '35 EUR',
+    'Hors nomenclature',
+  ],
 ]
 
 /** Les questions posees a l accueil, dans l ordre de frequence. */
@@ -933,7 +1035,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="iris" marque="Clinique Vernet" sombre={false}>
-      <div className="o-bg-white dark:o-bg-slate-950 o-text-slate-700 dark:o-text-slate-300" style={polices}>
+      <div
+        className="o-bg-white dark:o-bg-slate-950 o-text-slate-700 dark:o-text-slate-300"
+        style={polices}
+      >
         {/*
           ---------- L ouverture : le hall, plein cadre ----------
 
@@ -1088,7 +1193,9 @@ export default function Page(): ReactElement {
                             key={autre.mot}
                             className="o-flex o-items-center o-gap-3 o-py-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
                             style={
-                              rang === acte ? ACCENT_ENCRE : { color: 'var(--o-theme-muted)' }
+                              rang === acte
+                                ? ACCENT_ENCRE
+                                : { color: 'var(--o-theme-muted)' }
                             }
                           >
                             <span
@@ -1107,7 +1214,10 @@ export default function Page(): ReactElement {
                     <div className="o-min-w-0 md:o-col-span-8">
                       <h3
                         className="o-m-0 o-max-w-3xl o-text-balance o-text-slate-900 dark:o-text-slate-50"
-                        style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4.4vw, 4rem)' }}
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(1.75rem, 4.4vw, 4rem)',
+                        }}
                       >
                         {pas.titre}
                       </h3>
@@ -1183,7 +1293,11 @@ export default function Page(): ReactElement {
                         <span
                           aria-hidden="true"
                           className={`o-flex o-shrink-0 o-items-center o-justify-center o-rounded-full o-border-w-1 ${premiere ? 'o-size-16' : 'o-size-12'}`}
-                          style={{ ...PASTILLE_DOUCE, borderColor: accent(300), color: encre() }}
+                          style={{
+                            ...PASTILLE_DOUCE,
+                            borderColor: accent(300),
+                            color: encre(),
+                          }}
                         >
                           <Icon icon={item.icone} size={premiere ? 26 : 20} />
                         </span>
@@ -1191,7 +1305,9 @@ export default function Page(): ReactElement {
                           className="o-m-0 o-min-w-0 o-text-slate-900 dark:o-text-slate-50"
                           style={{
                             ...affiche('m', 300),
-                            fontSize: premiere ? 'clamp(1.75rem, 3.4vw, 3.25rem)' : 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                            fontSize: premiere
+                              ? 'clamp(1.75rem, 3.4vw, 3.25rem)'
+                              : 'clamp(1.5rem, 2.6vw, 2.5rem)',
                           }}
                         >
                           {item.nom}
@@ -1222,7 +1338,11 @@ export default function Page(): ReactElement {
               </ol>
 
               <p className="o-m-0 o-mt-10 o-flex o-flex-wrap o-items-center o-gap-x-3 o-gap-y-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
-                <span aria-hidden="true" className="o-block o-size-1.5 o-rounded-full" style={{ backgroundColor: accent(500) }} />
+                <span
+                  aria-hidden="true"
+                  className="o-block o-size-1.5 o-rounded-full"
+                  style={{ backgroundColor: accent(500) }}
+                />
                 Les points marquent les jours de presence au cabinet
               </p>
             </div>
@@ -1268,7 +1388,11 @@ export default function Page(): ReactElement {
               <ul className="o-m-0 o-mt-16 o-grid o-list-none o-gap-x-8 o-gap-y-12 o-p-0 sm:o-grid-cols-2 lg:o-grid-cols-5">
                 {PRATICIENS.map((praticienItem) => (
                   <li key={praticienItem.id}>
-                    <Plaque nom={praticienItem.nom} specialite={praticienItem.specialite} bureau={praticienItem.bureau} />
+                    <Plaque
+                      nom={praticienItem.nom}
+                      specialite={praticienItem.specialite}
+                      bureau={praticienItem.bureau}
+                    />
                     <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
                       {praticienItem.role}
                     </p>
@@ -1394,26 +1518,33 @@ export default function Page(): ReactElement {
                 </p>
               </div>
 
-              <div className="o-mt-14 o-max-w-full o-overflow-x-auto" style={{ contain: 'paint' }}>
+              <div
+                className="o-mt-14 o-max-w-full o-overflow-x-auto"
+                style={{ contain: 'paint' }}
+              >
                 <table className="o-w-full o-min-w-96 o-text-left o-text-sm">
                   <caption className="o-text-left o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
                     Tarifs applicables, en vigueur au 1er janvier
                   </caption>
                   <thead>
                     <tr className="o-border-b o-border-slate-300 dark:o-border-slate-700">
-                      {['Acte', 'Tarif', 'Base de remboursement', 'Reste a charge', 'Secteur'].map(
-                        (titre, rang) => (
-                          <th
-                            key={titre}
-                            scope="col"
-                            className={`o-py-3.5 o-pr-5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400 ${
-                              rang > 0 ? 'o-text-right' : ''
-                            }`}
-                          >
-                            {titre}
-                          </th>
-                        ),
-                      )}
+                      {[
+                        'Acte',
+                        'Tarif',
+                        'Base de remboursement',
+                        'Reste a charge',
+                        'Secteur',
+                      ].map((titre, rang) => (
+                        <th
+                          key={titre}
+                          scope="col"
+                          className={`o-py-3.5 o-pr-5 o-font-mono o-text-xs o-font-normal o-uppercase o-tracking-widest o-text-slate-500 dark:o-text-slate-400 ${
+                            rang > 0 ? 'o-text-right' : ''
+                          }`}
+                        >
+                          {titre}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
@@ -1499,7 +1630,10 @@ export default function Page(): ReactElement {
                 <h2
                   id="faq-titre"
                   className="o-m-0 o-mt-5 o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3rem)',
+                  }}
                 >
                   Les sept questions posees a l accueil.
                 </h2>
@@ -1533,7 +1667,10 @@ export default function Page(): ReactElement {
                 <h2
                   id="rendez-vous-titre"
                   className="o-m-0 o-mt-5 o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.2vw, 3rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 3rem)',
+                  }}
                 >
                   Quatre etapes, trois minutes.
                 </h2>
@@ -1566,392 +1703,418 @@ export default function Page(): ReactElement {
               </div>
 
               <div className="o-min-w-0 lg:o-col-span-8">
-              {confirme ? (
-                <div className="o-mt-10 o-rounded-xl o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-bg-white dark:o-bg-slate-950 o-p-6">
-                  <p
-                    className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-3 o-py-1 o-text-xs o-font-semibold o-text-slate-900 dark:o-text-slate-900"
-                    style={PASTILLE}
+                {confirme ? (
+                  <div className="o-mt-10 o-rounded-xl o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-bg-white dark:o-bg-slate-950 o-p-6">
+                    <p
+                      className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-3 o-py-1 o-text-xs o-font-semibold o-text-slate-900 dark:o-text-slate-900"
+                      style={PASTILLE}
+                    >
+                      <Icon icon={Check} size={14} />
+                      Rendez-vous confirme
+                    </p>
+                    <h3 className="o-mt-5 o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
+                      {creneau}, avec {praticien?.nom ?? 'votre praticien'}
+                    </h3>
+                    <p className="o-mt-3 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                      Dossier{' '}
+                      <span
+                        className="o-font-semibold o-tabular-nums"
+                        style={ACCENT_ENCRE}
+                      >
+                        {dossier}
+                      </span>{' '}
+                      — une confirmation part a {patient.contact}, et un rappel la veille
+                      a 18h. Vous pouvez annuler jusqu a quatre heures avant depuis ce
+                      courriel.
+                    </p>
+                    <ul className="o-mt-5 o-flex o-list-none o-flex-col o-gap-2 o-p-0 o-text-sm o-text-slate-700 dark:o-text-slate-300">
+                      <li>Motif : {motif?.nom ?? '—'}</li>
+                      <li>Duree reservee : {motif?.duree ?? '—'}</li>
+                      <li>
+                        Tarif : {motif?.tarif ?? '—'}, {praticien?.secteur ?? '—'}
+                      </li>
+                      <li>A apporter : carte vitale, mutuelle, ordonnances en cours</li>
+                    </ul>
+                    <button
+                      type="button"
+                      className="o-mt-7 o-text-sm o-font-medium o-text-slate-600 dark:o-text-slate-400 o-underline o-underline-offset-4 hover:o-text-slate-900 dark:hover:o-text-slate-50 focus:o-ring"
+                      onClick={() => {
+                        setConfirme(false)
+                        setEtape(0)
+                        setMotifId('')
+                        setPraticienId('')
+                        setCreneau('')
+                        setPatient({
+                          nom: '',
+                          naissance: '',
+                          contact: '',
+                          traitant: false,
+                        })
+                        setFautes({})
+                      }}
+                    >
+                      Prendre un autre rendez-vous
+                    </button>
+                  </div>
+                ) : (
+                  <Stepper
+                    className="o-mt-10"
+                    label="Prendre rendez-vous"
+                    steps={ETAPES}
+                    value={etape}
+                    onChange={setEtape}
+                    reach="all"
+                    orientation="vertical"
+                    style={
+                      {
+                        '--o-step-accent': accent(200),
+                        '--o-step-ink': 'var(--o-palette-zinc-950)',
+                      } as CSSProperties
+                    }
                   >
-                    <Icon icon={Check} size={14} />
-                    Rendez-vous confirme
-                  </p>
-                  <h3 className="o-mt-5 o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
-                    {creneau}, avec {praticien?.nom ?? 'votre praticien'}
-                  </h3>
-                  <p className="o-mt-3 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                    Dossier{' '}
-                    <span className="o-font-semibold o-tabular-nums" style={ACCENT_ENCRE}>
-                      {dossier}
-                    </span>{' '}
-                    — une confirmation part a {patient.contact}, et un rappel la veille a 18h.
-                    Vous pouvez annuler jusqu a quatre heures avant depuis ce courriel.
-                  </p>
-                  <ul className="o-mt-5 o-flex o-list-none o-flex-col o-gap-2 o-p-0 o-text-sm o-text-slate-700 dark:o-text-slate-300">
-                    <li>Motif : {motif?.nom ?? '—'}</li>
-                    <li>Duree reservee : {motif?.duree ?? '—'}</li>
-                    <li>Tarif : {motif?.tarif ?? '—'}, {praticien?.secteur ?? '—'}</li>
-                    <li>A apporter : carte vitale, mutuelle, ordonnances en cours</li>
-                  </ul>
-                  <button
-                    type="button"
-                    className="o-mt-7 o-text-sm o-font-medium o-text-slate-600 dark:o-text-slate-400 o-underline o-underline-offset-4 hover:o-text-slate-900 dark:hover:o-text-slate-50 focus:o-ring"
-                    onClick={() => {
-                      setConfirme(false)
-                      setEtape(0)
-                      setMotifId('')
-                      setPraticienId('')
-                      setCreneau('')
-                      setPatient({ nom: '', naissance: '', contact: '', traitant: false })
-                      setFautes({})
-                    }}
-                  >
-                    Prendre un autre rendez-vous
-                  </button>
-                </div>
-              ) : (
-                <Stepper
-                  className="o-mt-10"
-                  label="Prendre rendez-vous"
-                  steps={ETAPES}
-                  value={etape}
-                  onChange={setEtape}
-                  reach="all"
-                  orientation="vertical"
-                  style={
-                    {
-                      '--o-step-accent': accent(200),
-                      '--o-step-ink': 'var(--o-palette-zinc-950)',
-                    } as CSSProperties
-                  }
-                >
-                  <div className="o-rounded-xl o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-bg-white dark:o-bg-slate-950 o-p-6">
-                    {etape === 0 ? (
-                      <div>
-                        <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
-                          Pourquoi venez-vous ?
-                        </h3>
-                        <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                          Le motif fixe la duree reservee et ouvre les praticiens qui le
-                          traitent. Aucun document n est demande a cette etape.
-                        </p>
-                        <div
-                          role="radiogroup"
-                          aria-label="Motif de consultation"
-                          className="o-mt-5 o-flex o-flex-col o-gap-2"
-                        >
-                          {MOTIFS.map((item) => (
-                            <Choix
-                              key={item.id}
-                              actif={item.id === motifId}
-                              titre={item.nom}
-                              detail={`${item.duree} — ${item.tarif}`}
-                              onClick={() => {
-                                setMotifId(item.id)
-                                setPraticienId('')
-                                setCreneau('')
-                              }}
-                            />
-                          ))}
-                        </div>
-                        {motif === undefined ? null : (
-                          <p
-                            className="o-mt-5 o-rounded-lg o-p-4 o-text-sm o-leading-relaxed o-text-slate-700 dark:o-text-slate-300"
-                            style={PASTILLE_DOUCE}
-                          >
-                            {motif.note}
+                    <div className="o-rounded-xl o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-bg-white dark:o-bg-slate-950 o-p-6">
+                      {etape === 0 ? (
+                        <div>
+                          <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
+                            Pourquoi venez-vous ?
+                          </h3>
+                          <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                            Le motif fixe la duree reservee et ouvre les praticiens qui le
+                            traitent. Aucun document n est demande a cette etape.
                           </p>
-                        )}
-                      </div>
-                    ) : null}
-
-                    {etape === 1 ? (
-                      <div>
-                        <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
-                          Qui vous recevra ?
-                        </h3>
-                        <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                          {motif === undefined
-                            ? 'Choisissez d abord un motif : la liste des praticiens en depend.'
-                            : `${String(ouverts.length)} praticiens traitent « ${motif.nom.toLowerCase()} ». Le secteur de conventionnement est indique.`}
-                        </p>
-                        <div
-                          role="radiogroup"
-                          aria-label="Praticien"
-                          className="o-mt-5 o-flex o-flex-col o-gap-2"
-                        >
-                          {ouverts.map((item) => (
-                            <Choix
-                              key={item.id}
-                              actif={item.id === praticienId}
-                              titre={`${item.nom} — ${item.specialite}`}
-                              detail={`${item.secteur} · ${item.tarif} · ${item.langues}`}
-                              onClick={() => {
-                                setPraticienId(item.id)
-                                setCreneau('')
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {etape === 2 ? (
-                      <div>
-                        <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
-                          Une heure exacte
-                        </h3>
-                        <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                          {praticien === undefined
-                            ? 'Choisissez d abord un praticien : les creneaux sont les siens.'
-                            : 'Les creneaux grises sont deja pris. Annulation libre jusqu a quatre heures avant.'}
-                        </p>
-                        {praticien === undefined ? null : (
-                          <div className="o-mt-5 o-flex o-flex-col o-gap-5">
-                            {praticien.creneaux.map((jour) => (
-                              <div key={jour.jour}>
-                                <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-slate-500 dark:o-text-slate-400">
-                                  {jour.jour}
-                                </p>
-                                <div
-                                  role="radiogroup"
-                                  aria-label={`Creneaux du ${jour.jour}`}
-                                  className="o-mt-2 o-flex o-flex-wrap o-gap-2"
-                                >
-                                  {jour.heures.map(([heure, libre]) => {
-                                    const valeur = `${jour.jour}, ${heure}`
-                                    const actif = valeur === creneau
-                                    return (
-                                      <button
-                                        key={heure}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={actif}
-                                        disabled={!libre}
-                                        onClick={() => {
-                                          setCreneau(valeur)
-                                        }}
-                                        className={
-                                          libre
-                                            ? actif
-                                              ? 'o-rounded-lg o-border-w-1 o-border-brand-500 o-px-3.5 o-py-2 o-text-sm o-font-medium o-tabular-nums o-text-slate-900 dark:o-text-slate-100 focus:o-ring'
-                                              : 'o-rounded-lg o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-px-3.5 o-py-2 o-text-sm o-tabular-nums o-text-slate-800 dark:o-text-slate-200 hover:o-border-brand-400 o-transition-colors focus:o-ring'
-                                            : 'o-cursor-not-allowed o-rounded-lg o-border-w-1 o-border-slate-100 dark:o-border-slate-900 o-px-3.5 o-py-2 o-text-sm o-tabular-nums o-text-slate-500 dark:o-text-slate-500 o-line-through'
-                                        }
-                                        style={actif ? PASTILLE_DOUCE : undefined}
-                                      >
-                                        {heure}
-                                      </button>
-                                    )
-                                  })}
-                                </div>
-                              </div>
+                          <div
+                            role="radiogroup"
+                            aria-label="Motif de consultation"
+                            className="o-mt-5 o-flex o-flex-col o-gap-2"
+                          >
+                            {MOTIFS.map((item) => (
+                              <Choix
+                                key={item.id}
+                                actif={item.id === motifId}
+                                titre={item.nom}
+                                detail={`${item.duree} — ${item.tarif}`}
+                                onClick={() => {
+                                  setMotifId(item.id)
+                                  setPraticienId('')
+                                  setCreneau('')
+                                }}
+                              />
                             ))}
                           </div>
-                        )}
-                      </div>
-                    ) : null}
-
-                    {etape === 3 ? (
-                      <div>
-                        <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
-                          Vos coordonnees
-                        </h3>
-                        <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
-                          Aucun compte a creer. Ces informations servent a ouvrir votre
-                          dossier et a vous prevenir, rien d autre.
-                        </p>
-                        <div className="o-mt-5 o-flex o-flex-col o-gap-4">
-                          <div>
-                            <label className={ETIQUETTE} htmlFor="rdv-nom">
-                              Nom et prenom
-                            </label>
-                            <input
-                              id="rdv-nom"
-                              type="text"
-                              autoComplete="name"
-                              className={CHAMP}
-                              value={patient.nom}
-                              aria-invalid={fautes['nom'] === undefined ? undefined : true}
-                              aria-describedby={
-                                fautes['nom'] === undefined ? undefined : 'rdv-nom-faute'
-                              }
-                              onChange={(evenement) => {
-                                setPatient({ ...patient, nom: evenement.target.value })
-                              }}
-                            />
-                            {fautes['nom'] === undefined ? null : (
-                              <p
-                                id="rdv-nom-faute"
-                                className="o-mt-1.5 o-text-xs o-font-medium"
-                                style={ACCENT_ENCRE}
-                              >
-                                {fautes['nom']}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <label className={ETIQUETTE} htmlFor="rdv-naissance">
-                              Date de naissance — facultatif avant la venue
-                            </label>
-                            <input
-                              id="rdv-naissance"
-                              type="text"
-                              inputMode="numeric"
-                              placeholder="jj/mm/aaaa"
-                              className={CHAMP}
-                              value={patient.naissance}
-                              onChange={(evenement) => {
-                                setPatient({ ...patient, naissance: evenement.target.value })
-                              }}
-                            />
-                          </div>
-                          <div>
-                            <label className={ETIQUETTE} htmlFor="rdv-contact">
-                              Courriel ou telephone
-                            </label>
-                            <input
-                              id="rdv-contact"
-                              type="text"
-                              autoComplete="email"
-                              className={CHAMP}
-                              value={patient.contact}
-                              aria-invalid={
-                                fautes['contact'] === undefined ? undefined : true
-                              }
-                              aria-describedby={
-                                fautes['contact'] === undefined
-                                  ? undefined
-                                  : 'rdv-contact-faute'
-                              }
-                              onChange={(evenement) => {
-                                setPatient({ ...patient, contact: evenement.target.value })
-                              }}
-                            />
-                            {fautes['contact'] === undefined ? null : (
-                              <p
-                                id="rdv-contact-faute"
-                                className="o-mt-1.5 o-text-xs o-font-medium"
-                                style={ACCENT_ENCRE}
-                              >
-                                {fautes['contact']}
-                              </p>
-                            )}
-                          </div>
-                          <label className="o-flex o-items-start o-gap-3 o-text-sm o-text-slate-700 dark:o-text-slate-300">
-                            <input
-                              type="checkbox"
-                              className="o-mt-0.5 o-size-4 focus:o-ring"
-                              checked={patient.traitant}
-                              onChange={(evenement) => {
-                                setPatient({
-                                  ...patient,
-                                  traitant: evenement.target.checked,
-                                })
-                              }}
-                            />
-                            <span>
-                              Mon medecin traitant declare exerce dans ce cabinet — le
-                              compte-rendu lui sera transmis directement.
-                            </span>
-                          </label>
+                          {motif === undefined ? null : (
+                            <p
+                              className="o-mt-5 o-rounded-lg o-p-4 o-text-sm o-leading-relaxed o-text-slate-700 dark:o-text-slate-300"
+                              style={PASTILLE_DOUCE}
+                            >
+                              {motif.note}
+                            </p>
+                          )}
                         </div>
-                      </div>
-                    ) : null}
+                      ) : null}
 
-                    {/*
+                      {etape === 1 ? (
+                        <div>
+                          <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
+                            Qui vous recevra ?
+                          </h3>
+                          <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                            {motif === undefined
+                              ? 'Choisissez d abord un motif : la liste des praticiens en depend.'
+                              : `${String(ouverts.length)} praticiens traitent « ${motif.nom.toLowerCase()} ». Le secteur de conventionnement est indique.`}
+                          </p>
+                          <div
+                            role="radiogroup"
+                            aria-label="Praticien"
+                            className="o-mt-5 o-flex o-flex-col o-gap-2"
+                          >
+                            {ouverts.map((item) => (
+                              <Choix
+                                key={item.id}
+                                actif={item.id === praticienId}
+                                titre={`${item.nom} — ${item.specialite}`}
+                                detail={`${item.secteur} · ${item.tarif} · ${item.langues}`}
+                                onClick={() => {
+                                  setPraticienId(item.id)
+                                  setCreneau('')
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {etape === 2 ? (
+                        <div>
+                          <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
+                            Une heure exacte
+                          </h3>
+                          <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                            {praticien === undefined
+                              ? 'Choisissez d abord un praticien : les creneaux sont les siens.'
+                              : 'Les creneaux grises sont deja pris. Annulation libre jusqu a quatre heures avant.'}
+                          </p>
+                          {praticien === undefined ? null : (
+                            <div className="o-mt-5 o-flex o-flex-col o-gap-5">
+                              {praticien.creneaux.map((jour) => (
+                                <div key={jour.jour}>
+                                  <p className="o-text-xs o-font-semibold o-uppercase o-tracking-wider o-text-slate-500 dark:o-text-slate-400">
+                                    {jour.jour}
+                                  </p>
+                                  <div
+                                    role="radiogroup"
+                                    aria-label={`Creneaux du ${jour.jour}`}
+                                    className="o-mt-2 o-flex o-flex-wrap o-gap-2"
+                                  >
+                                    {jour.heures.map(([heure, libre]) => {
+                                      const valeur = `${jour.jour}, ${heure}`
+                                      const actif = valeur === creneau
+                                      return (
+                                        <button
+                                          key={heure}
+                                          type="button"
+                                          role="radio"
+                                          aria-checked={actif}
+                                          disabled={!libre}
+                                          onClick={() => {
+                                            setCreneau(valeur)
+                                          }}
+                                          className={
+                                            libre
+                                              ? actif
+                                                ? 'o-rounded-lg o-border-w-1 o-border-brand-500 o-px-3.5 o-py-2 o-text-sm o-font-medium o-tabular-nums o-text-slate-900 dark:o-text-slate-100 focus:o-ring'
+                                                : 'o-rounded-lg o-border-w-1 o-border-slate-200 dark:o-border-slate-800 o-px-3.5 o-py-2 o-text-sm o-tabular-nums o-text-slate-800 dark:o-text-slate-200 hover:o-border-brand-400 o-transition-colors focus:o-ring'
+                                              : 'o-cursor-not-allowed o-rounded-lg o-border-w-1 o-border-slate-100 dark:o-border-slate-900 o-px-3.5 o-py-2 o-text-sm o-tabular-nums o-text-slate-500 dark:o-text-slate-500 o-line-through'
+                                          }
+                                          style={actif ? PASTILLE_DOUCE : undefined}
+                                        >
+                                          {heure}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {etape === 3 ? (
+                        <div>
+                          <h3 className="o-text-lg o-font-semibold o-tracking-tight o-text-slate-900 dark:o-text-slate-50">
+                            Vos coordonnees
+                          </h3>
+                          <p className="o-mt-2 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400">
+                            Aucun compte a creer. Ces informations servent a ouvrir votre
+                            dossier et a vous prevenir, rien d autre.
+                          </p>
+                          <div className="o-mt-5 o-flex o-flex-col o-gap-4">
+                            <div>
+                              <label className={ETIQUETTE} htmlFor="rdv-nom">
+                                Nom et prenom
+                              </label>
+                              <input
+                                id="rdv-nom"
+                                type="text"
+                                autoComplete="name"
+                                className={CHAMP}
+                                value={patient.nom}
+                                aria-invalid={
+                                  fautes['nom'] === undefined ? undefined : true
+                                }
+                                aria-describedby={
+                                  fautes['nom'] === undefined
+                                    ? undefined
+                                    : 'rdv-nom-faute'
+                                }
+                                onChange={(evenement) => {
+                                  setPatient({ ...patient, nom: evenement.target.value })
+                                }}
+                              />
+                              {fautes['nom'] === undefined ? null : (
+                                <p
+                                  id="rdv-nom-faute"
+                                  className="o-mt-1.5 o-text-xs o-font-medium"
+                                  style={ACCENT_ENCRE}
+                                >
+                                  {fautes['nom']}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className={ETIQUETTE} htmlFor="rdv-naissance">
+                                Date de naissance — facultatif avant la venue
+                              </label>
+                              <input
+                                id="rdv-naissance"
+                                type="text"
+                                inputMode="numeric"
+                                placeholder="jj/mm/aaaa"
+                                className={CHAMP}
+                                value={patient.naissance}
+                                onChange={(evenement) => {
+                                  setPatient({
+                                    ...patient,
+                                    naissance: evenement.target.value,
+                                  })
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className={ETIQUETTE} htmlFor="rdv-contact">
+                                Courriel ou telephone
+                              </label>
+                              <input
+                                id="rdv-contact"
+                                type="text"
+                                autoComplete="email"
+                                className={CHAMP}
+                                value={patient.contact}
+                                aria-invalid={
+                                  fautes['contact'] === undefined ? undefined : true
+                                }
+                                aria-describedby={
+                                  fautes['contact'] === undefined
+                                    ? undefined
+                                    : 'rdv-contact-faute'
+                                }
+                                onChange={(evenement) => {
+                                  setPatient({
+                                    ...patient,
+                                    contact: evenement.target.value,
+                                  })
+                                }}
+                              />
+                              {fautes['contact'] === undefined ? null : (
+                                <p
+                                  id="rdv-contact-faute"
+                                  className="o-mt-1.5 o-text-xs o-font-medium"
+                                  style={ACCENT_ENCRE}
+                                >
+                                  {fautes['contact']}
+                                </p>
+                              )}
+                            </div>
+                            <label className="o-flex o-items-start o-gap-3 o-text-sm o-text-slate-700 dark:o-text-slate-300">
+                              <input
+                                type="checkbox"
+                                className="o-mt-0.5 o-size-4 focus:o-ring"
+                                checked={patient.traitant}
+                                onChange={(evenement) => {
+                                  setPatient({
+                                    ...patient,
+                                    traitant: evenement.target.checked,
+                                  })
+                                }}
+                              />
+                              <span>
+                                Mon medecin traitant declare exerce dans ce cabinet — le
+                                compte-rendu lui sera transmis directement.
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {/*
                       Le recapitulatif se remplit a mesure : c est lui qui evite de
                       remonter dans les etapes pour verifier ce qu on a choisi.
                     */}
-                    <dl
-                      className="o-mt-6 o-flex o-flex-col o-gap-2.5 o-rounded-lg o-p-4 o-text-sm"
-                      style={PASTILLE_DOUCE}
-                    >
-                      {/* Sur un aplat teinte, une ardoise fixe ne tient pas : un
+                      <dl
+                        className="o-mt-6 o-flex o-flex-col o-gap-2.5 o-rounded-lg o-p-4 o-text-sm"
+                        style={PASTILLE_DOUCE}
+                      >
+                        {/* Sur un aplat teinte, une ardoise fixe ne tient pas : un
                           accent tres sombre fonce le panneau jusqu a l avaler.
                           L encre suit donc celle du theme, adoucie. */}
-                      <p
-                        className="o-text-xs o-font-semibold o-uppercase o-tracking-wider"
-                        style={{ color: 'color-mix(in oklab, var(--o-theme-fg) 75%, transparent)' }}
-                      >
-                        Recapitulatif
-                      </p>
-                      {[
-                        ['Motif', motif === undefined ? 'A choisir' : motif.nom],
-                        [
-                          'Praticien',
-                          praticien === undefined ? 'A choisir' : praticien.nom,
-                        ],
-                        ['Creneau', creneau === '' ? 'A choisir' : creneau],
-                        [
-                          'Duree et tarif',
-                          motif === undefined
-                            ? 'Selon le motif'
-                            : `${motif.duree} — ${motif.tarif}`,
-                        ],
-                      ].map(([cle, valeur]) => (
-                        <div
-                          key={cle}
-                          className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-4"
-                        >
-                          <dt className="o-text-slate-600 dark:o-text-slate-400">{cle}</dt>
-                          <dd className="o-m-0 o-text-right o-font-medium o-text-slate-900 dark:o-text-slate-100">
-                            {valeur}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-
-                    <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-3">
-                      {etape > 0 ? (
-                        <button
-                          type="button"
-                          className="o-text-sm o-font-medium o-text-slate-600 dark:o-text-slate-400 o-underline o-underline-offset-4 hover:o-text-slate-900 dark:hover:o-text-slate-50 focus:o-ring"
-                          onClick={() => {
-                            setEtape(etape - 1)
+                        <p
+                          className="o-text-xs o-font-semibold o-uppercase o-tracking-wider"
+                          style={{
+                            color:
+                              'color-mix(in oklab, var(--o-theme-fg) 75%, transparent)',
                           }}
                         >
-                          Retour
+                          Recapitulatif
+                        </p>
+                        {[
+                          ['Motif', motif === undefined ? 'A choisir' : motif.nom],
+                          [
+                            'Praticien',
+                            praticien === undefined ? 'A choisir' : praticien.nom,
+                          ],
+                          ['Creneau', creneau === '' ? 'A choisir' : creneau],
+                          [
+                            'Duree et tarif',
+                            motif === undefined
+                              ? 'Selon le motif'
+                              : `${motif.duree} — ${motif.tarif}`,
+                          ],
+                        ].map(([cle, valeur]) => (
+                          <div
+                            key={cle}
+                            className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-4"
+                          >
+                            <dt className="o-text-slate-600 dark:o-text-slate-400">
+                              {cle}
+                            </dt>
+                            <dd className="o-m-0 o-text-right o-font-medium o-text-slate-900 dark:o-text-slate-100">
+                              {valeur}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+
+                      <div className="o-mt-6 o-flex o-flex-wrap o-items-center o-gap-3">
+                        {etape > 0 ? (
+                          <button
+                            type="button"
+                            className="o-text-sm o-font-medium o-text-slate-600 dark:o-text-slate-400 o-underline o-underline-offset-4 hover:o-text-slate-900 dark:hover:o-text-slate-50 focus:o-ring"
+                            onClick={() => {
+                              setEtape(etape - 1)
+                            }}
+                          >
+                            Retour
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          // Les trois premieres etapes se ferment tant qu on n a rien
+                          // choisi ; la derniere reste ouverte, sans quoi le controle
+                          // des champs ne serait jamais atteint et ses messages
+                          // n existeraient pour personne.
+                          disabled={etape < 3 && complet[etape] !== true}
+                          className={
+                            etape === 3 || complet[etape] === true
+                              ? 'o-inline-flex o-items-center o-gap-2 o-rounded-lg o-bg-brand-200 hover:o-bg-brand-300 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-text-slate-900 dark:o-text-slate-900 o-transition-colors focus:o-ring'
+                              : 'o-inline-flex o-cursor-not-allowed o-items-center o-gap-2 o-rounded-lg o-bg-slate-200 dark:o-bg-slate-800 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-text-slate-500 dark:o-text-slate-400'
+                          }
+                          onClick={() => {
+                            if (etape < 3) {
+                              setEtape(etape + 1)
+                              return
+                            }
+                            const releves: Record<string, string> = {}
+                            if (patient.nom.trim() === '') {
+                              releves['nom'] = 'Le dossier a besoin d un nom.'
+                            }
+                            if (patient.contact.trim() === '') {
+                              releves['contact'] =
+                                'Un courriel ou un telephone, pour la confirmation.'
+                            }
+                            setFautes(releves)
+                            if (Object.keys(releves).length === 0) setConfirme(true)
+                          }}
+                        >
+                          {etape < 3 ? 'Etape suivante' : 'Confirmer le rendez-vous'}
+                          <Icon icon={ArrowRight} size={15} />
                         </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        // Les trois premieres etapes se ferment tant qu on n a rien
-                        // choisi ; la derniere reste ouverte, sans quoi le controle
-                        // des champs ne serait jamais atteint et ses messages
-                        // n existeraient pour personne.
-                        disabled={etape < 3 && complet[etape] !== true}
-                        className={
-                          etape === 3 || complet[etape] === true
-                            ? 'o-inline-flex o-items-center o-gap-2 o-rounded-lg o-bg-brand-200 hover:o-bg-brand-300 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-text-slate-900 dark:o-text-slate-900 o-transition-colors focus:o-ring'
-                            : 'o-inline-flex o-cursor-not-allowed o-items-center o-gap-2 o-rounded-lg o-bg-slate-200 dark:o-bg-slate-800 o-px-5 o-py-2.5 o-text-sm o-font-semibold o-text-slate-500 dark:o-text-slate-400'
-                        }
-                        onClick={() => {
-                          if (etape < 3) {
-                            setEtape(etape + 1)
-                            return
-                          }
-                          const releves: Record<string, string> = {}
-                          if (patient.nom.trim() === '') {
-                            releves['nom'] = 'Le dossier a besoin d un nom.'
-                          }
-                          if (patient.contact.trim() === '') {
-                            releves['contact'] =
-                              'Un courriel ou un telephone, pour la confirmation.'
-                          }
-                          setFautes(releves)
-                          if (Object.keys(releves).length === 0) setConfirme(true)
-                        }}
-                      >
-                        {etape < 3 ? 'Etape suivante' : 'Confirmer le rendez-vous'}
-                        <Icon icon={ArrowRight} size={15} />
-                      </button>
-                      <p className="o-text-xs o-text-slate-500 dark:o-text-slate-400">
-                        Etape {etape + 1} sur {ETAPES.length}
-                      </p>
+                        <p className="o-text-xs o-text-slate-500 dark:o-text-slate-400">
+                          Etape {etape + 1} sur {ETAPES.length}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Stepper>
-              )}
+                  </Stepper>
+                )}
               </div>
             </div>
           </section>
@@ -1973,7 +2136,10 @@ export default function Page(): ReactElement {
                 </p>
                 <p
                   className="o-m-0 o-mt-5 o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                  }}
                 >
                   18 rue Vernet
                   <br />
@@ -1990,7 +2156,10 @@ export default function Page(): ReactElement {
                 </p>
                 <p
                   className="o-m-0 o-mt-5 o-text-slate-900 dark:o-text-slate-50"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                  }}
                 >
                   Lundi — vendredi
                   <br />
@@ -2008,7 +2177,10 @@ export default function Page(): ReactElement {
                 </p>
                 <p
                   className="o-m-0 o-mt-5"
-                  style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)' }}
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 2.6vw, 2.5rem)',
+                  }}
                 >
                   <a
                     href="tel:+33147206340"
@@ -2040,15 +2212,15 @@ export default function Page(): ReactElement {
                   Quand c est ferme
                 </dt>
                 <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-slate-600 dark:o-text-slate-400 sm:o-col-span-8">
-                  Urgence vitale : le 15, jour et nuit. Garde de ville : 116 117 des 20h et
-                  le dimanche. Maison medicale de garde, 12 rue de Ponthieu.
+                  Urgence vitale : le 15, jour et nuit. Garde de ville : 116 117 des 20h
+                  et le dimanche. Maison medicale de garde, 12 rue de Ponthieu.
                 </dd>
               </div>
             </dl>
 
             <p className="o-m-0 o-mt-12 o-border-t o-border-slate-200 dark:o-border-slate-800 o-pt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-slate-500 dark:o-text-slate-400">
-              © 2026 Societe civile de moyens Clinique Vernet — Conseil departemental de
-              l Ordre des medecins de Paris — directrice de la publication : Dr Helene
+              © 2026 Societe civile de moyens Clinique Vernet — Conseil departemental de l
+              Ordre des medecins de Paris — directrice de la publication : Dr Helene
               Vernet — donnees de sante chez un hebergeur agree
             </p>
           </div>

@@ -119,18 +119,23 @@ export function Sonar({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: SONAR_FRAGMENT,
-      colors,
-      uniforms: { uPointer, uSpeed: speed, uSpacing: spacing, uFade: fade },
-      name: 'sonar',
-      // Des anneaux serres a densite de pixels reduite scintillent sur leur
-      // front : en qualite basse, ils s'espacent.
-      degrade: (quality) => ({
-        uSpacing: quality === 'low' ? Math.min(spacing, 4) : spacing,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: SONAR_FRAGMENT,
+    colors,
+    uniforms: { uPointer, uSpeed: speed, uSpacing: spacing, uFade: fade },
+    name: 'sonar',
+    // Des anneaux serres a densite de pixels reduite scintillent sur leur
+    // front : en qualite basse, ils s'espacent.
+    degrade: (quality) => ({
+      uSpacing: quality === 'low' ? Math.min(spacing, 4) : spacing,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

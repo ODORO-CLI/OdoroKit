@@ -60,12 +60,38 @@
  * contrat entre la doctrine, le balisage et le controle automatique.
  */
 const ROLES = new Set([
-  'bg-bg', 'bg-bg-alt', 'bg-surface', 'bg-surface-raised', 'bg-ink', 'bg-ink-muted',
-  'bg-accent', 'bg-glow', 'text-bg', 'text-ink', 'text-ink-muted', 'text-ink-subtle',
-  'text-accent', 'text-accent-ink', 'text-glow', 'border-line', 'border-accent',
-  'border-ink', 'from-bg', 'via-bg', 'to-bg', 'from-ink', 'via-ink', 'to-ink',
-  'font-display', 'font-body', 'font-mono', 'font-heading', 'tracking-display',
-  'rounded-od', 'rounded-od-lg', 'ease-od',
+  'bg-bg',
+  'bg-bg-alt',
+  'bg-surface',
+  'bg-surface-raised',
+  'bg-ink',
+  'bg-ink-muted',
+  'bg-accent',
+  'bg-glow',
+  'text-bg',
+  'text-ink',
+  'text-ink-muted',
+  'text-ink-subtle',
+  'text-accent',
+  'text-accent-ink',
+  'text-glow',
+  'border-line',
+  'border-accent',
+  'border-ink',
+  'from-bg',
+  'via-bg',
+  'to-bg',
+  'from-ink',
+  'via-ink',
+  'to-ink',
+  'font-display',
+  'font-body',
+  'font-mono',
+  'font-heading',
+  'tracking-display',
+  'rounded-od',
+  'rounded-od-lg',
+  'ease-od',
 ])
 
 /** Les classes de structure que le systeme nomme autrement. */
@@ -366,7 +392,9 @@ export function bride(chemin, texte, connues, inconnues) {
     (_, liste) => `class="${traduireListe(liste, connues, inconnues)}"`,
   )
   sortie = sortie.replace(/`([a-z0-9][a-z0-9:/\\[\]().,%-]*)`/g, (tout, contenu) =>
-    CLASSE_EN_LIGNE.test(contenu) ? `\`${traduireListe(contenu, connues, inconnues)}\`` : tout,
+    CLASSE_EN_LIGNE.test(contenu)
+      ? `\`${traduireListe(contenu, connues, inconnues)}\``
+      : tout,
   )
 
   for (const [motif, valeur] of OUTILS) sortie = sortie.replace(motif, valeur)

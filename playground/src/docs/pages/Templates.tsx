@@ -33,7 +33,16 @@
  */
 
 import { Icon } from '@odoro-cli/icons'
-import { ArrowRight, ArrowUpRight, ChevronLeft, LayoutGrid, Search, Server, SlidersHorizontal, X } from '@odoro-cli/icons/filaire'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChevronLeft,
+  LayoutGrid,
+  Search,
+  Server,
+  SlidersHorizontal,
+  X,
+} from '@odoro-cli/icons/filaire'
 import { Reveal } from '@odoro-cli/libs/motion'
 import { Link } from '@odoro-cli/libs/router'
 import { SelectMenu } from '@odoro-cli/libs/ui'
@@ -48,11 +57,13 @@ import {
 
 import { CodeBlock } from '../components/CodeBlock.jsx'
 import { TEMPLATES, scaffoldCommand, type Template } from '../templates.js'
+import { TEMPLATES as PROJETS, type TemplateEntry } from '../templates.generated.js'
 import {
-  TEMPLATES as PROJETS,
-  type TemplateEntry,
-} from '../templates.generated.js'
-import { SECTEURS, VITRINES, type Vitrine, type VitrineSecteur } from '../vitrines/index.js'
+  SECTEURS,
+  VITRINES,
+  type Vitrine,
+  type VitrineSecteur,
+} from '../vitrines/index.js'
 
 /* ============================ L apercu ================================= */
 
@@ -159,7 +170,11 @@ function Apercu({ vitrine }: { readonly vitrine: Vitrine }): ReactElement {
     evenement.currentTarget.style.display = 'none'
   }
   return (
-    <div data-o-apercu="" className={`o-relative o-h-60 o-overflow-hidden ${vitrine.apercu}`} aria-hidden="true">
+    <div
+      data-o-apercu=""
+      className={`o-relative o-h-60 o-overflow-hidden ${vitrine.apercu}`}
+      aria-hidden="true"
+    >
       {(['clair', 'sombre'] as const).map((theme) => (
         <img
           key={theme}
@@ -187,7 +202,10 @@ function Apercu({ vitrine }: { readonly vitrine: Vitrine }): ReactElement {
           <span
             key={token}
             className="o-size-4 o-rounded-full o-border-w-1"
-            style={{ backgroundColor: `var(${token})`, borderColor: 'color-mix(in oklab, white 55%, transparent)' }}
+            style={{
+              backgroundColor: `var(${token})`,
+              borderColor: 'color-mix(in oklab, white 55%, transparent)',
+            }}
           />
         ))}
       </span>
@@ -203,8 +221,15 @@ function Apercu({ vitrine }: { readonly vitrine: Vitrine }): ReactElement {
 }
 
 /** Une carte de vitrine. */
-function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly rang: number }): ReactElement {
-  const secteur = SECTEURS.find(([cle]) => cle === vitrine.secteur)?.[1] ?? vitrine.secteur
+function CarteVitrine({
+  vitrine,
+  rang,
+}: {
+  readonly vitrine: Vitrine
+  readonly rang: number
+}): ReactElement {
+  const secteur =
+    SECTEURS.find(([cle]) => cle === vitrine.secteur)?.[1] ?? vitrine.secteur
   const pieces = vitrine.pieces.slice(0, 3)
   const reste = vitrine.pieces.length - pieces.length
   return (
@@ -220,26 +245,37 @@ function CarteVitrine({ vitrine, rang }: { readonly vitrine: Vitrine; readonly r
           <span>{vitrine.metier}</span>
           <span className="o-tabular-nums">{String(rang + 1).padStart(2, '0')}</span>
         </p>
-        <h3 className="o-m-0 o-text-2xl o-font-light o-tracking-tight" style={{ fontFamily: 'var(--o-font-sans)' }}>
+        <h3
+          className="o-m-0 o-text-2xl o-font-light o-tracking-tight"
+          style={{ fontFamily: 'var(--o-font-sans)' }}
+        >
           {vitrine.titre}
         </h3>
-        <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{vitrine.resume}</p>
+        <p className="o-m-0 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+          {vitrine.resume}
+        </p>
         <div className="o-mt-auto o-flex o-flex-wrap o-items-center o-gap-1.5 o-pt-3">
           <span className="tp-touche o-rounded-full o-border-w-1 o-px-2.5 o-py-0.5 o-text-xs o-text-zinc-600 dark:o-text-zinc-300">
             {secteur}
           </span>
           {pieces.map((piece) => (
-            <span key={piece} className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+            <span
+              key={piece}
+              className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
+            >
               {piece.split('/')[1]}
             </span>
           ))}
-          {reste > 0 && <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">+{reste}</span>}
+          {reste > 0 && (
+            <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+              +{reste}
+            </span>
+          )}
         </div>
       </div>
     </Link>
   )
 }
-
 
 /** Une carte de socle echafaudable. */
 /**
@@ -268,15 +304,26 @@ function CarteProjet({ projet }: { readonly projet: TemplateEntry }): ReactEleme
       />
       <div className="o-flex o-flex-col o-gap-3 o-p-6">
         <div className="o-flex o-items-baseline o-justify-between o-gap-3">
-          <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{projet.title}</h3>
+          <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
+            {projet.title}
+          </h3>
           <span className="o-shrink-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
-            {projet.kind === 'site' ? 'Site' : projet.kind === 'starter' ? 'Socle' : 'Bibliothèque'}
+            {projet.kind === 'site'
+              ? 'Site'
+              : projet.kind === 'starter'
+                ? 'Socle'
+                : 'Bibliothèque'}
           </span>
         </div>
-        <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{projet.description}</p>
+        <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+          {projet.description}
+        </p>
         <ul className="o-m-0 o-flex o-flex-wrap o-gap-1.5 o-list-none o-p-0">
           {projet.stack.map((x) => (
-            <li key={x} className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs">
+            <li
+              key={x}
+              className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs"
+            >
               {x}
             </li>
           ))}
@@ -298,22 +345,47 @@ function CarteSocle({ template }: { readonly template: Template }): ReactElement
     <article
       className={[
         'o-flex o-min-w-0 o-flex-col o-gap-3 o-rounded-2xl o-border-w-1 o-p-6',
-        livre ? 'o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900' : 'o-border-dashed o-border-zinc-300 dark:o-border-zinc-700',
+        livre
+          ? 'o-border-zinc-200 dark:o-border-zinc-800 o-bg-white dark:o-bg-zinc-900'
+          : 'o-border-dashed o-border-zinc-300 dark:o-border-zinc-700',
       ].join(' ')}
     >
       <div className="o-flex o-items-center o-gap-2">
-        <Icon icon={template.slug.includes('server') ? Server : LayoutGrid} size={20} className="o-text-brand-600 dark:o-text-brand-400" />
-        <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">{template.title}</h3>
-        {!livre && <span className="o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-text-xs o-opacity-70">à venir</span>}
+        <Icon
+          icon={template.slug.includes('server') ? Server : LayoutGrid}
+          size={20}
+          className="o-text-brand-600 dark:o-text-brand-400"
+        />
+        <h3 className="o-m-0 o-text-lg o-font-semibold o-tracking-tight">
+          {template.title}
+        </h3>
+        {!livre && (
+          <span className="o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-text-xs o-opacity-70">
+            à venir
+          </span>
+        )}
       </div>
-      <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{template.description}</p>
+      <p className="o-m-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+        {template.description}
+      </p>
       <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-gap-1.5 o-p-0">
         {template.includes.map((x) => (
-          <li key={x} className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs">{x}</li>
+          <li
+            key={x}
+            className="o-rounded-md o-bg-zinc-100 dark:o-bg-zinc-800 o-px-2 o-py-1 o-text-xs"
+          >
+            {x}
+          </li>
         ))}
       </ul>
       <div className="o-mt-auto o-min-w-0 o-pt-2">
-        {livre ? <CodeBlock lang="sh" code={scaffoldCommand(template)} /> : <p className="o-m-0 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">Ce socle n’est pas encore livre — la commande ne fonctionnerait pas.</p>}
+        {livre ? (
+          <CodeBlock lang="sh" code={scaffoldCommand(template)} />
+        ) : (
+          <p className="o-m-0 o-text-sm o-italic o-text-zinc-500 dark:o-text-zinc-400">
+            Ce socle n’est pas encore livre — la commande ne fonctionnerait pas.
+          </p>
+        )}
       </div>
     </article>
   )
@@ -372,21 +444,33 @@ function Case({
       <span
         aria-hidden="true"
         className={`o-inline-flex o-size-3.5 o-shrink-0 o-items-center o-justify-center o-border-w-1 ${rond ? 'o-rounded-full' : 'o-rounded-sm'} ${
-          coche ? 'o-border-brand-500 o-bg-brand-500' : 'o-border-zinc-300 dark:o-border-zinc-700'
+          coche
+            ? 'o-border-brand-500 o-bg-brand-500'
+            : 'o-border-zinc-300 dark:o-border-zinc-700'
         }`}
       >
         {coche && (
-          <span className={`o-block o-bg-white ${rond ? 'o-size-1.5 o-rounded-full' : 'o-size-1.5 o-rounded-sm'}`} />
+          <span
+            className={`o-block o-bg-white ${rond ? 'o-size-1.5 o-rounded-full' : 'o-size-1.5 o-rounded-sm'}`}
+          />
         )}
       </span>
       <span className="o-grow">{children}</span>
-      <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">{compte}</span>
+      <span className="o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">
+        {compte}
+      </span>
     </label>
   )
 }
 
 /** Un groupe du volet : un intitule en mono, et ses gelules. */
-function Groupe({ titre, children }: { readonly titre: string; readonly children: ReactElement | ReactElement[] }): ReactElement {
+function Groupe({
+  titre,
+  children,
+}: {
+  readonly titre: string
+  readonly children: ReactElement | ReactElement[]
+}): ReactElement {
   return (
     <fieldset className="o-m-0 o-w-full o-p-0 o-pt-6" style={{ border: 0 }}>
       <legend className="o-flex o-w-full o-items-center o-gap-3 o-pb-2 o-pl-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
@@ -419,7 +503,13 @@ interface Filtres {
   readonly tri: Tri
 }
 
-const VIDE: Filtres = { recherche: '', secteurs: [], tons: [], scene: 'toutes', tri: 'registre' }
+const VIDE: Filtres = {
+  recherche: '',
+  secteurs: [],
+  tons: [],
+  scene: 'toutes',
+  tri: 'registre',
+}
 
 /** Bascule une valeur dans une liste. */
 function basculer<T>(liste: readonly T[], valeur: T): readonly T[] {
@@ -449,7 +539,10 @@ export function Templates(): ReactElement {
   useEffect(() => {
     const surTouche = (e: KeyboardEvent): void => {
       const cible = e.target
-      if (e.key === '/' && !(cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement)) {
+      if (
+        e.key === '/' &&
+        !(cible instanceof HTMLInputElement || cible instanceof HTMLTextAreaElement)
+      ) {
         e.preventDefault()
         champ.current?.focus()
       }
@@ -463,7 +556,8 @@ export function Templates(): ReactElement {
   const visibles = useMemo(() => {
     const mots = filtres.recherche.trim().toLowerCase().split(/\s+/).filter(Boolean)
     let liste = VITRINES.filter((v) => {
-      if (filtres.secteurs.length > 0 && !filtres.secteurs.includes(v.secteur)) return false
+      if (filtres.secteurs.length > 0 && !filtres.secteurs.includes(v.secteur))
+        return false
       if (filtres.tons.length > 0 && !filtres.tons.includes(ton(v))) return false
       if (filtres.scene === 'avec' && !aUneScene(v)) return false
       if (filtres.scene === 'sans' && aUneScene(v)) return false
@@ -473,22 +567,40 @@ export function Templates(): ReactElement {
       }
       return true
     })
-    if (filtres.tri === 'nom') liste = [...liste].sort((a, b) => a.titre.localeCompare(b.titre, 'fr'))
-    if (filtres.tri === 'secteur') liste = [...liste].sort((a, b) => a.secteur.localeCompare(b.secteur, 'fr') || a.titre.localeCompare(b.titre, 'fr'))
+    if (filtres.tri === 'nom')
+      liste = [...liste].sort((a, b) => a.titre.localeCompare(b.titre, 'fr'))
+    if (filtres.tri === 'secteur')
+      liste = [...liste].sort(
+        (a, b) =>
+          a.secteur.localeCompare(b.secteur, 'fr') ||
+          a.titre.localeCompare(b.titre, 'fr'),
+      )
     if (filtres.tri === 'recentes') liste = [...liste].reverse()
     return liste
   }, [filtres])
 
-  const actifs = filtres.secteurs.length + filtres.tons.length + (filtres.scene === 'toutes' ? 0 : 1) + (filtres.recherche.trim() === '' ? 0 : 1)
-  const compteSecteur = (cle: VitrineSecteur): number => VITRINES.filter((v) => v.secteur === cle).length
-  const compteTon = (t: 'sombre' | 'theme'): number => VITRINES.filter((v) => ton(v) === t).length
-  const compteScene = (avec: boolean): number => VITRINES.filter((v) => aUneScene(v) === avec).length
+  const actifs =
+    filtres.secteurs.length +
+    filtres.tons.length +
+    (filtres.scene === 'toutes' ? 0 : 1) +
+    (filtres.recherche.trim() === '' ? 0 : 1)
+  const compteSecteur = (cle: VitrineSecteur): number =>
+    VITRINES.filter((v) => v.secteur === cle).length
+  const compteTon = (t: 'sombre' | 'theme'): number =>
+    VITRINES.filter((v) => ton(v) === t).length
+  const compteScene = (avec: boolean): number =>
+    VITRINES.filter((v) => aUneScene(v) === avec).length
 
   const volet = (
     <div className="o-flex o-flex-col o-gap-4">
       <label className="o-relative o-block">
         <span className="o-sr-only">Rechercher une vitrine</span>
-        <Icon icon={Search} size={16} className="o-pointer-events-none o-absolute o-left-4 o-top-1/2 o-text-zinc-400" style={{ transform: 'translateY(-50%)' }} />
+        <Icon
+          icon={Search}
+          size={16}
+          className="o-pointer-events-none o-absolute o-left-4 o-top-1/2 o-text-zinc-400"
+          style={{ transform: 'translateY(-50%)' }}
+        />
         <input
           ref={champ}
           type="search"
@@ -499,12 +611,24 @@ export function Templates(): ReactElement {
           placeholder="Rechercher — un metier, une piece, un nom"
           className="tp-verre o-w-full o-rounded-full o-border-w-1 o-py-3 o-pl-10 o-pr-10 o-text-sm o-text-zinc-900 dark:o-text-zinc-50 focus:o-ring"
         />
-        <kbd className="tp-touche o-pointer-events-none o-absolute o-right-3 o-top-1/2 o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400" style={{ transform: 'translateY(-50%)' }}>/</kbd>
+        <kbd
+          className="tp-touche o-pointer-events-none o-absolute o-right-3 o-top-1/2 o-rounded-full o-border-w-1 o-px-2 o-py-0.5 o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400"
+          style={{ transform: 'translateY(-50%)' }}
+        >
+          /
+        </kbd>
       </label>
 
       <Groupe titre="Secteur">
         {SECTEURS.map(([cle, libelle]) => (
-          <Case key={cle} coche={filtres.secteurs.includes(cle)} compte={compteSecteur(cle)} onChange={() => { setFiltres((f) => ({ ...f, secteurs: basculer(f.secteurs, cle) })) }}>
+          <Case
+            key={cle}
+            coche={filtres.secteurs.includes(cle)}
+            compte={compteSecteur(cle)}
+            onChange={() => {
+              setFiltres((f) => ({ ...f, secteurs: basculer(f.secteurs, cle) }))
+            }}
+          >
             {libelle}
           </Case>
         ))}
@@ -512,7 +636,14 @@ export function Templates(): ReactElement {
 
       <Groupe titre="Ton">
         {(['sombre', 'theme'] as const).map((t) => (
-          <Case key={t} coche={filtres.tons.includes(t)} compte={compteTon(t)} onChange={() => { setFiltres((f) => ({ ...f, tons: basculer(f.tons, t) })) }}>
+          <Case
+            key={t}
+            coche={filtres.tons.includes(t)}
+            compte={compteTon(t)}
+            onChange={() => {
+              setFiltres((f) => ({ ...f, tons: basculer(f.tons, t) }))
+            }}
+          >
             {t === 'sombre' ? 'Toujours sombre' : 'Suit le theme'}
           </Case>
         ))}
@@ -575,7 +706,8 @@ export function Templates(): ReactElement {
         </h1>
         <p className="o-m-0 o-max-w-prose o-text-pretty o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
           {VITRINES.length} pages d’atterrissage complètes, chacune d’un metier different,
-          batie avec les pieces du registre. Ouvrez-en une : c’est le site, pas une capture.
+          batie avec les pieces du registre. Ouvrez-en une : c’est le site, pas une
+          capture.
         </p>
       </header>
 
@@ -626,7 +758,10 @@ export function Templates(): ReactElement {
           </div>
         </aside>
 
-        <section className={`o-min-w-0 ${replie ? 'lg:o-col-span-12' : 'lg:o-col-span-9'}`} aria-live="polite">
+        <section
+          className={`o-min-w-0 ${replie ? 'lg:o-col-span-12' : 'lg:o-col-span-9'}`}
+          aria-live="polite"
+        >
           <div className="o-mb-5 o-flex o-flex-wrap o-items-center o-justify-between o-gap-3">
             <div className="o-flex o-items-center o-gap-4">
               {/* Il ne parait que le volet replie : sinon, le volet porte sa
@@ -651,7 +786,9 @@ export function Templates(): ReactElement {
                 </button>
               )}
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                {visibles.length === VITRINES.length ? `${String(VITRINES.length)} vitrines` : `${String(visibles.length)} sur ${String(VITRINES.length)}`}
+                {visibles.length === VITRINES.length
+                  ? `${String(VITRINES.length)} vitrines`
+                  : `${String(visibles.length)} sur ${String(VITRINES.length)}`}
               </p>
             </div>
             {/* La liste deroulante est celle de la librairie, pas celle du
@@ -666,7 +803,10 @@ export function Templates(): ReactElement {
               </span>
               <SelectMenu
                 className="o-w-56"
-                options={TRIS.map(([valeur, libelle]) => ({ value: valeur, label: libelle }))}
+                options={TRIS.map(([valeur, libelle]) => ({
+                  value: valeur,
+                  label: libelle,
+                }))}
                 value={filtres.tri}
                 onValueChange={(valeur) => {
                   setFiltres((f) => ({ ...f, tri: valeur as Tri }))
@@ -677,9 +817,19 @@ export function Templates(): ReactElement {
 
           {visibles.length === 0 ? (
             <div className="tp-verre o-rounded-2xl o-border-w-1 o-px-6 o-py-20 o-text-center">
-              <p className="o-m-0 o-text-lg o-font-medium">Aucune vitrine ne répond a ces filtres.</p>
-              <p className="o-m-0 o-mt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">Essayez un mot plus court, ou retirez un filtre.</p>
-              <button type="button" onClick={() => { setFiltres(VIDE) }} className="o-mt-5 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-5 o-py-2.5 o-text-sm focus:o-ring">
+              <p className="o-m-0 o-text-lg o-font-medium">
+                Aucune vitrine ne répond a ces filtres.
+              </p>
+              <p className="o-m-0 o-mt-2 o-text-sm o-text-zinc-500 dark:o-text-zinc-400">
+                Essayez un mot plus court, ou retirez un filtre.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFiltres(VIDE)
+                }}
+                className="o-mt-5 o-inline-flex o-items-center o-gap-2 o-rounded-full o-border-w-1 o-border-zinc-200 dark:o-border-zinc-800 o-px-5 o-py-2.5 o-text-sm focus:o-ring"
+              >
                 <Icon icon={X} size={14} /> Effacer les filtres
               </button>
             </div>
@@ -693,14 +843,13 @@ export function Templates(): ReactElement {
         </section>
       </div>
 
-
       <Reveal>
         <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
           <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Projets livrés</h2>
           <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
             Des sites entiers, avec leur pile propre, livrés dans{' '}
-            <code className="o-font-mono o-text-xs">templates/</code>. On les clone et
-            on les fait tourner — ce ne sont ni des aperçus ni des projets vides.
+            <code className="o-font-mono o-text-xs">templates/</code>. On les clone et on
+            les fait tourner — ce ne sont ni des aperçus ni des projets vides.
           </p>
           <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2 xl:o-grid-cols-3">
             {PROJETS.map((projet) => (
@@ -712,10 +861,16 @@ export function Templates(): ReactElement {
 
       <Reveal>
         <div className="o-mt-16 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-pt-10">
-          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">Socles échafaudables</h2>
+          <h2 className="o-m-0 o-text-xl o-font-bold o-tracking-tight">
+            Socles échafaudables
+          </h2>
           <p className="o-mt-2 o-max-w-prose o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
-            Une vitrine se lit ; un socle s installe. Ces deux-la sortent un projet vide mais cable, ou reposer les pieces du{' '}
-            <Link to="/docs/registry" className="lien">registre</Link>.
+            Une vitrine se lit ; un socle s installe. Ces deux-la sortent un projet vide
+            mais cable, ou reposer les pieces du{' '}
+            <Link to="/docs/registry" className="lien">
+              registre
+            </Link>
+            .
           </p>
           <div className="o-mt-5 o-grid o-gap-4 md:o-grid-cols-2">
             {TEMPLATES.map((t) => (

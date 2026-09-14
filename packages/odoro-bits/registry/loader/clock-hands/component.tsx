@@ -163,7 +163,14 @@ export function ClockHands({
     >
       <span className="o-sr-only">{label}</span>
       <svg aria-hidden viewBox="0 0 100 100" width="100%" height="100%">
-        <circle cx={50} cy={50} r={46} fill="none" stroke="currentColor" strokeWidth={3} />
+        <circle
+          cx={50}
+          cy={50}
+          r={46}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={3}
+        />
         {MARKS.map((mark, index) => (
           <line
             key={index}

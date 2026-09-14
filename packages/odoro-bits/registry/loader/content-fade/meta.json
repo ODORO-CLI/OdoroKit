@@ -15,9 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-ease-standard"
-  ],
+  "tokens": ["--o-ease-standard"],
   "props": [
     {
       "name": "children",

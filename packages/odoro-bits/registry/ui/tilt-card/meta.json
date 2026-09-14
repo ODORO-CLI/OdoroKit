@@ -15,9 +15,7 @@
   ],
   "dependencies": [],
   "registryDependencies": [],
-  "tokens": [
-    "--o-palette-zinc-50"
-  ],
+  "tokens": ["--o-palette-zinc-50"],
   "props": [
     {
       "name": "tilt",

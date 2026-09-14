@@ -74,13 +74,31 @@ interface Calque {
 
 const DEPART: readonly Calque[] = [
   { cle: 'papier', nom: 'Papier', nature: 'fond', visible: true, opacite: 100 },
-  { cle: 'grille', nom: 'Grille de composition', nature: 'reperes', visible: true, opacite: 60 },
+  {
+    cle: 'grille',
+    nom: 'Grille de composition',
+    nature: 'reperes',
+    visible: true,
+    opacite: 60,
+  },
   { cle: 'aplat', nom: 'Aplat', nature: 'forme', visible: true, opacite: 100 },
   { cle: 'arche', nom: 'Arche', nature: 'forme', visible: true, opacite: 100 },
-  { cle: 'trame', nom: 'Trame de demi-teinte', nature: 'trame', visible: true, opacite: 55 },
+  {
+    cle: 'trame',
+    nom: 'Trame de demi-teinte',
+    nature: 'trame',
+    visible: true,
+    opacite: 55,
+  },
   { cle: 'titre', nom: 'Titre', nature: 'texte', visible: true, opacite: 100 },
   { cle: 'legende', nom: 'Legende', nature: 'texte', visible: true, opacite: 100 },
-  { cle: 'coupe', nom: 'Traits de coupe', nature: 'reperes', visible: true, opacite: 100 },
+  {
+    cle: 'coupe',
+    nom: 'Traits de coupe',
+    nature: 'reperes',
+    visible: true,
+    opacite: 100,
+  },
 ]
 
 /**
@@ -133,7 +151,12 @@ function Affiche({
         )
       case 'grille':
         return (
-          <g key={calque.cle} opacity={calque.opacite / 100} stroke={accentDoux(700, 24)} strokeWidth="1">
+          <g
+            key={calque.cle}
+            opacity={calque.opacite / 100}
+            stroke={accentDoux(700, 24)}
+            strokeWidth="1"
+          >
             {Array.from({ length: 11 }, (_, rang) => (
               <path key={`v${String(rang)}`} d={`M${String(40 + rang * 48)} 0 V700`} />
             ))}
@@ -172,7 +195,11 @@ function Affiche({
               y="622"
               fontSize="92"
               fill={accentDoux(900, 88)}
-              style={{ fontFamily: 'var(--o-vitrine-affichage)', fontWeight: 800, letterSpacing: '-0.05em' }}
+              style={{
+                fontFamily: 'var(--o-vitrine-affichage)',
+                fontWeight: 800,
+                letterSpacing: '-0.05em',
+              }}
             >
               CALQUE
             </text>
@@ -186,7 +213,11 @@ function Affiche({
               y="80"
               fontSize="17"
               fill={accentDoux(900, 80)}
-              style={{ fontFamily: 'var(--o-font-mono)', textTransform: 'uppercase', letterSpacing: '0.24em' }}
+              style={{
+                fontFamily: 'var(--o-font-mono)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.24em',
+              }}
             >
               Biennale du signe
             </text>
@@ -203,7 +234,12 @@ function Affiche({
         )
       case 'coupe':
         return (
-          <g key={calque.cle} opacity={calque.opacite / 100} stroke={accentDoux(900, 70)} strokeWidth="1.5">
+          <g
+            key={calque.cle}
+            opacity={calque.opacite / 100}
+            stroke={accentDoux(900, 70)}
+            strokeWidth="1.5"
+          >
             <path d="M0 22h22M22 0v22M538 22h22M538 0v22M0 678h22M22 678v22M538 678h22M538 678v22" />
             <circle cx="280" cy="12" r="6" fill="none" />
             <path d="M272 12h16M280 4v16" />
@@ -242,13 +278,32 @@ function Maquette({ calques }: { readonly calques: readonly Calque[] }): ReactEl
   return (
     <div
       className="o-grid o-overflow-hidden o-rounded-xl"
-      style={{ gridTemplateColumns: '56px 1fr 200px', backgroundColor: accentDoux(300, 16) }}
+      style={{
+        gridTemplateColumns: '56px 1fr 200px',
+        backgroundColor: accentDoux(300, 16),
+      }}
       aria-hidden="true"
     >
       {/* Le rail d outils. */}
-      <div className="o-flex o-flex-col o-items-center o-gap-4 o-py-5" style={{ backgroundColor: accentDoux(400, 24) }}>
-        {['M4 16 12 4l8 12H4Z', 'M4 4h16v16H4z', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z', 'M4 20 20 4M4 4l16 16', 'M3 12h18M12 3v18'].map((d, rang) => (
-          <svg key={rang} viewBox="0 0 24 24" className="o-size-5" fill="none" stroke={accentDoux(900, 60)} strokeWidth="1.6">
+      <div
+        className="o-flex o-flex-col o-items-center o-gap-4 o-py-5"
+        style={{ backgroundColor: accentDoux(400, 24) }}
+      >
+        {[
+          'M4 16 12 4l8 12H4Z',
+          'M4 4h16v16H4z',
+          'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z',
+          'M4 20 20 4M4 4l16 16',
+          'M3 12h18M12 3v18',
+        ].map((d, rang) => (
+          <svg
+            key={rang}
+            viewBox="0 0 24 24"
+            className="o-size-5"
+            fill="none"
+            stroke={accentDoux(900, 60)}
+            strokeWidth="1.6"
+          >
             <path d={d} />
           </svg>
         ))}
@@ -262,17 +317,29 @@ function Maquette({ calques }: { readonly calques: readonly Calque[] }): ReactEl
       </div>
 
       {/* La pile, telle que le logiciel la montre. */}
-      <div className="o-flex o-flex-col o-gap-2 o-p-4" style={{ backgroundColor: accentDoux(300, 24), color: 'var(--o-theme-fg)' }}>
-        <span className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+      <div
+        className="o-flex o-flex-col o-gap-2 o-p-4"
+        style={{ backgroundColor: accentDoux(300, 24), color: 'var(--o-theme-fg)' }}
+      >
+        <span
+          className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest"
+          style={{ color: encre() }}
+        >
           Calques
         </span>
         {[...calques].reverse().map((calque) => (
           <span
             key={calque.cle}
             className="o-flex o-items-center o-gap-2 o-rounded-md o-px-2 o-py-1.5 o-text-xs"
-            style={{ backgroundColor: calque.visible ? accentDoux(200, 14) : 'transparent', opacity: calque.visible ? 1 : 0.45 }}
+            style={{
+              backgroundColor: calque.visible ? accentDoux(200, 14) : 'transparent',
+              opacity: calque.visible ? 1 : 0.45,
+            }}
           >
-            <span className="o-block o-size-2 o-shrink-0 o-rounded-full" style={{ backgroundColor: accent(500) }} />
+            <span
+              className="o-block o-size-2 o-shrink-0 o-rounded-full"
+              style={{ backgroundColor: accent(500) }}
+            />
             <span className="o-truncate">{calque.nom}</span>
           </span>
         ))}
@@ -313,7 +380,11 @@ function Rangee({
         className="o-inline-flex o-size-9 o-cursor-pointer o-items-center o-justify-center o-rounded-lg o-border-w-1 o-transition-colors focus:o-ring"
         style={
           calque.visible
-            ? { backgroundColor: encre(), borderColor: encre(), color: 'var(--o-theme-bg)' }
+            ? {
+                backgroundColor: encre(),
+                borderColor: encre(),
+                color: 'var(--o-theme-bg)',
+              }
             : { borderColor: accentDoux(700, 34), color: 'inherit' }
         }
       >
@@ -386,7 +457,12 @@ const TUILES = [
     rows: 2,
     featured: true,
     media: (
-      <svg viewBox="0 0 260 170" className="o-h-auto o-w-full" role="img" aria-label="Huit calques empiles en perspective, le neuvieme barre">
+      <svg
+        viewBox="0 0 260 170"
+        className="o-h-auto o-w-full"
+        role="img"
+        aria-label="Huit calques empiles en perspective, le neuvieme barre"
+      >
         {Array.from({ length: 9 }, (_, rang) => {
           const y = 14 + rang * 14
           const dernier = rang === 8
@@ -400,7 +476,11 @@ const TUILES = [
                 strokeDasharray={dernier ? '5 5' : undefined}
               />
               {dernier && (
-                <path d={`M92 ${String(y + 30)} L168 ${String(y + 2)}`} stroke={accentDoux(900, 70)} strokeWidth="2" />
+                <path
+                  d={`M92 ${String(y + 30)} L168 ${String(y + 2)}`}
+                  stroke={accentDoux(900, 70)}
+                  strokeWidth="2"
+                />
               )}
             </g>
           )
@@ -473,7 +553,9 @@ export default function Page(): ReactElement {
   const pile = useMemo(() => [...calques].reverse(), [calques])
 
   const modifier = (cle: string, suite: (calque: Calque) => Calque): void => {
-    setCalques((precedents) => precedents.map((calque) => (calque.cle === cle ? suite(calque) : calque)))
+    setCalques((precedents) =>
+      precedents.map((calque) => (calque.cle === cle ? suite(calque) : calque)),
+    )
   }
 
   const deplacer = (cle: string, sens: -1 | 1): void => {
@@ -496,17 +578,29 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Calque" sombre={false}>
-      <div className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200" style={polices}>
+      <div
+        className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-800 dark:o-text-zinc-200"
+        style={polices}
+      >
         {/* La nappe pastel derive derriere toute la page : F-css, sans canevas. */}
         <div aria-hidden="true" className="o-pointer-events-none o-fixed o-inset-0 o-z-0">
           <Nappe
-            couleurs={[accentDoux(300, 62), accentDoux(500, 34), 'color-mix(in oklab, var(--o-vitrine-seconde) 36%, transparent)']}
+            couleurs={[
+              accentDoux(300, 62),
+              accentDoux(500, 34),
+              'color-mix(in oklab, var(--o-vitrine-seconde) 36%, transparent)',
+            ]}
             opacite={0.3}
           />
         </div>
 
         <div className="o-relative o-z-10">
-          <BarreGelule marque="Calque" liens={NAVIGATION} action={['#attente', 'Liste d attente']} sombre={false} />
+          <BarreGelule
+            marque="Calque"
+            liens={NAVIGATION}
+            action={['#attente', 'Liste d attente']}
+            sombre={false}
+          />
 
           {/* ================= L ouverture ============================== */}
           <header
@@ -515,12 +609,18 @@ export default function Page(): ReactElement {
           >
             <div className="o-mx-auto o-w-full o-max-w-6xl o-text-center">
               <Surgit>
-                <Etiquette sombre={false}>Editeur vectoriel — macOS, Windows, Linux</Etiquette>
+                <Etiquette sombre={false}>
+                  Editeur vectoriel — macOS, Windows, Linux
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-8 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...corps('xl', 300), fontSize: 'clamp(3rem, 12vw, 10.5rem)', lineHeight: 0.86 }}
+                style={{
+                  ...corps('xl', 300),
+                  fontSize: 'clamp(3rem, 12vw, 10.5rem)',
+                  lineHeight: 0.86,
+                }}
               >
                 Calque
               </TitreVague>
@@ -528,7 +628,11 @@ export default function Page(): ReactElement {
                 delai={420}
                 as="p"
                 className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...corps('m', 300), fontSize: 'clamp(1.15rem, 2.6vw, 2.25rem)', lineHeight: 1.1 }}
+                style={{
+                  ...corps('m', 300),
+                  fontSize: 'clamp(1.15rem, 2.6vw, 2.25rem)',
+                  lineHeight: 1.1,
+                }}
               >
                 <StrokeText
                   strokeWidth={1.6}
@@ -540,13 +644,23 @@ export default function Page(): ReactElement {
                 </StrokeText>{' '}
                 <Encadre>au plus</Encadre>, et rien qui se cache.
               </Surgit>
-              <Surgit delai={600} as="p" className="o-mx-auto o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Un editeur vectoriel qui tient dans quarante mega-octets, ouvre un fichier en une seconde, et ecrit
-                dans un format que vous pouvez lire sans lui.
+              <Surgit
+                delai={600}
+                as="p"
+                className="o-mx-auto o-m-0 o-mt-8 o-max-w-xl o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+              >
+                Un editeur vectoriel qui tient dans quarante mega-octets, ouvre un fichier
+                en une seconde, et ecrit dans un format que vous pouvez lire sans lui.
               </Surgit>
               <Surgit delai={740} className="o-mt-10 o-flex o-justify-center">
                 <Actions
-                  pleine={['#pile', <>Manipuler la pile <Icon icon={ArrowRight} size={15} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#pile',
+                    <>
+                      Manipuler la pile{' '}
+                      <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#attente', 'Entrer dans la liste']}
                   sombre={false}
                 />
@@ -571,15 +685,24 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= Le mecanisme : la pile de calques ======== */}
-            <section id="pile" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+            <section
+              id="pile"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-6xl">
                 <Reveal>
-                  <Indice rang="01" sombre={false}>La pile</Indice>
+                  <Indice rang="01" sombre={false}>
+                    La pile
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...corps('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...corps('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Montez la trame au-dessus du titre : le titre disparait.
                   </h2>
@@ -590,14 +713,21 @@ export default function Page(): ReactElement {
                     <div className="o-mx-auto o-w-full o-max-w-sm o-shadow-xl">
                       <Affiche calques={calques} prefixe="grand" />
                     </div>
-                    <p className="o-m-0 o-mt-6 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400" aria-live="polite">
-                      {visibles} calque{visibles > 1 ? 's' : ''} visible{visibles > 1 ? 's' : ''} sur {calques.length}
+                    <p
+                      className="o-m-0 o-mt-6 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+                      aria-live="polite"
+                    >
+                      {visibles} calque{visibles > 1 ? 's' : ''} visible
+                      {visibles > 1 ? 's' : ''} sur {calques.length}
                     </p>
                   </div>
 
                   <div className="lg:o-col-span-7">
                     <div className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-b o-border-zinc-300 dark:o-border-zinc-700 o-pb-3">
-                      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                      <p
+                        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                        style={{ color: encre() }}
+                      >
                         Calques — du dessus vers le dessous
                       </p>
                       <button
@@ -630,8 +760,9 @@ export default function Page(): ReactElement {
                       ))}
                     </ul>
                     <p className="o-m-0 o-mt-6 o-max-w-xl o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                      L ordre se change par les deux fleches plutot que par un glisser-deposer : un deplacement qui
-                      n existe qu a la souris n existe pas pour tout le monde.
+                      L ordre se change par les deux fleches plutot que par un
+                      glisser-deposer : un deplacement qui n existe qu a la souris n
+                      existe pas pour tout le monde.
                     </p>
                   </div>
                 </div>
@@ -639,56 +770,97 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ================= La mosaique de Rescale ================== */}
-            <section id="mosaique" className="o-scroll-mt-24 o-px-6 o-pb-24 md:o-px-10 md:o-pb-32">
+            <section
+              id="mosaique"
+              className="o-scroll-mt-24 o-px-6 o-pb-24 md:o-px-10 md:o-pb-32"
+            >
               <div className="o-mx-auto o-max-w-6xl">
                 <Reveal>
-                  <Indice rang="02" sombre={false}>Ce qu il fait</Indice>
+                  <Indice rang="02" sombre={false}>
+                    Ce qu il fait
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mb-12 o-mt-6 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...corps('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...corps('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Six decisions, et tout le reste en decoule.
                   </h2>
                 </Reveal>
-                <BentoGrid items={TUILES} columns={4} rowHeight={168} label="Les six decisions de conception" />
+                <BentoGrid
+                  items={TUILES}
+                  columns={4}
+                  rowHeight={168}
+                  label="Les six decisions de conception"
+                />
               </div>
             </section>
 
             {/* ================= C19 : un seul pourcentage, en anneau ===== */}
-            <section id="anneau" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('zinc')}>
+            <section
+              id="anneau"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+              style={nuit('zinc')}
+            >
               <div className="o-mx-auto o-flex o-max-w-4xl o-flex-wrap o-items-center o-gap-10 md:o-gap-14">
-                <ProgressRing value={94} size={208} thickness={12} label="Part des fichiers ouverts en moins de deux secondes" />
+                <ProgressRing
+                  value={94}
+                  size={208}
+                  thickness={12}
+                  label="Part des fichiers ouverts en moins de deux secondes"
+                />
                 <div className="o-min-w-0 o-w-full md:o-w-auto md:o-flex-1">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{ color: encreSurSombre() }}
+                  >
                     Le seul chiffre de cette page
                   </p>
                   <p
                     className="o-m-0 o-mt-6 o-max-w-xl o-text-zinc-50"
-                    style={{ ...corps('m', 300), fontSize: 'clamp(1.4rem, 3vw, 2.5rem)', lineHeight: 1.12 }}
+                    style={{
+                      ...corps('m', 300),
+                      fontSize: 'clamp(1.4rem, 3vw, 2.5rem)',
+                      lineHeight: 1.12,
+                    }}
                   >
-                    Sur les mille fichiers de la bibliotheque publique, quatre-vingt-quatorze pour cent s ouvrent en
-                    moins de deux secondes — sur un portable de 2019.
+                    Sur les mille fichiers de la bibliotheque publique,
+                    quatre-vingt-quatorze pour cent s ouvrent en moins de deux secondes —
+                    sur un portable de 2019.
                   </p>
                   <p className="o-m-0 o-mt-6 o-max-w-lg o-text-sm o-leading-relaxed o-text-zinc-400">
-                    Les soixante restants sont des affiches de plus de quatre cents objets. Nous les gardons dans la
-                    suite de tests : ce sont elles qui disent ou est la limite.
+                    Les soixante restants sont des affiches de plus de quatre cents
+                    objets. Nous les gardons dans la suite de tests : ce sont elles qui
+                    disent ou est la limite.
                   </p>
                 </div>
               </div>
             </section>
 
             {/* ================= A27 : la liste d attente numerotee ======= */}
-            <section id="attente" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+            <section
+              id="attente"
+              className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            >
               <div className="o-mx-auto o-max-w-3xl">
                 <Reveal>
-                  <Indice rang="03" sombre={false}>La liste d attente</Indice>
+                  <Indice rang="03" sombre={false}>
+                    La liste d attente
+                  </Indice>
                 </Reveal>
                 <Reveal delay={80}>
                   <h2
                     className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
-                    style={{ ...corps('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.5rem)', lineHeight: 1 }}
+                    style={{
+                      ...corps('m', 300),
+                      fontSize: 'clamp(1.85rem, 4vw, 3.5rem)',
+                      lineHeight: 1,
+                    }}
                   >
                     Vous seriez le{' '}
                     <span className="o-tabular-nums" style={{ color: encre() }}>
@@ -704,7 +876,9 @@ export default function Page(): ReactElement {
                     <span
                       key={rang}
                       className="o-block o-size-2 o-rounded-full"
-                      style={{ backgroundColor: rang === 85 ? encre() : accentDoux(500, 34) }}
+                      style={{
+                        backgroundColor: rang === 85 ? encre() : accentDoux(500, 34),
+                      }}
                     />
                   ))}
                 </div>
@@ -719,7 +893,10 @@ export default function Page(): ReactElement {
                     setInscrit(adresse.trim().length > 0)
                   }}
                 >
-                  <label htmlFor="calque-adresse" className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  <label
+                    htmlFor="calque-adresse"
+                    className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400"
+                  >
                     Votre adresse
                   </label>
                   <div className="o-mt-4 o-flex o-flex-wrap o-items-center o-gap-3">
@@ -743,7 +920,10 @@ export default function Page(): ReactElement {
                       Prendre ma place
                     </button>
                   </div>
-                  <p className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400" aria-live="polite">
+                  <p
+                    className="o-m-0 o-mt-5 o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+                    aria-live="polite"
+                  >
                     {inscrit
                       ? `C est note : vous etes le ${rangEcrit(rangAttente + 1)}e. La version 1.0 sort en avril ; les trois mille premiers rangs l ont en mars, et l achat reste a 89 €.`
                       : 'Mille deux cent quatre-vingt-quatre personnes attendent la version 1.0. La liste sert a repartir les acces de la version de mars, et a rien d autre.'}
@@ -758,7 +938,11 @@ export default function Page(): ReactElement {
             <div className="o-mx-auto o-max-w-6xl">
               <p
                 className="o-m-0 o-text-zinc-50"
-                style={{ ...corps('m', 300), fontSize: 'clamp(1.75rem, 6vw, 4.5rem)', lineHeight: 0.92 }}
+                style={{
+                  ...corps('m', 300),
+                  fontSize: 'clamp(1.75rem, 6vw, 4.5rem)',
+                  lineHeight: 0.92,
+                }}
               >
                 Calque
               </p>
@@ -785,8 +969,14 @@ export default function Page(): ReactElement {
                           className="o-flex o-h-24 o-items-end o-p-4 o-text-sm o-font-medium o-no-underline o-transition-opacity hover:o-opacity-80 focus:o-ring"
                           style={
                             clair
-                              ? { backgroundColor: accent(400), color: 'var(--o-palette-zinc-950)' }
-                              : { backgroundColor: 'var(--o-palette-zinc-900)', color: 'var(--o-palette-zinc-100)' }
+                              ? {
+                                  backgroundColor: accent(400),
+                                  color: 'var(--o-palette-zinc-950)',
+                                }
+                              : {
+                                  backgroundColor: 'var(--o-palette-zinc-900)',
+                                  color: 'var(--o-palette-zinc-100)',
+                                }
                           }
                         >
                           {mot}
@@ -798,8 +988,9 @@ export default function Page(): ReactElement {
               </nav>
 
               <p className="o-m-0 o-mt-10 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                Calque est edite par Trame SARL, 14 quai Saint-Vincent, 69001 Lyon · version 0.9.4, publiee le 2
-                septembre 2026 · © 2026 · Accessibilite : partiellement conforme
+                Calque est edite par Trame SARL, 14 quai Saint-Vincent, 69001 Lyon ·
+                version 0.9.4, publiee le 2 septembre 2026 · © 2026 · Accessibilite :
+                partiellement conforme
               </p>
             </div>
           </footer>

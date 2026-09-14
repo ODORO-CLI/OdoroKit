@@ -200,7 +200,9 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
       ? undefined
       : fournisseur.renderUtilitairesPour(fournisseur.classesConnues())
   if (utilitaires !== undefined) {
-    log.info(`utilitaires de developpement : ${String(Math.round(utilitaires.length / 1024))} Ko`)
+    log.info(
+      `utilitaires de developpement : ${String(Math.round(utilitaires.length / 1024))} Ko`,
+    )
   }
 
   const entries = extractEntries(await readFile(indexFile, 'utf8'), config.root)
@@ -309,7 +311,11 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
   /** Sert le document HTML, client de rechargement injecte. */
   const serveHtml = async (response: ServerResponse): Promise<void> => {
     const html = await readFile(indexFile, 'utf8')
-    send(response, injectClient(html, utilitaires !== undefined), MIME['.html'] ?? 'text/html')
+    send(
+      response,
+      injectClient(html, utilitaires !== undefined),
+      MIME['.html'] ?? 'text/html',
+    )
   }
 
   /** Transmet une requete a une origine distante. */

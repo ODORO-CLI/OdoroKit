@@ -74,12 +74,37 @@ const OUVERTURE = '2026-11-14T18:00:00+01:00'
  * documentation reteinter la page. Les quatre autres en imposent une, et la
  * page entiere la suit.
  */
-const COLORIS: readonly { readonly cle: string; readonly nom: string; readonly matiere: string; readonly couleurs?: Couleurs }[] = [
+const COLORIS: readonly {
+  readonly cle: string
+  readonly nom: string
+  readonly matiere: string
+  readonly couleurs?: Couleurs
+}[] = [
   { cle: 'cendre', nom: 'Cendre', matiere: 'daim cendre, tirant tisse' },
-  { cle: 'mousse', nom: 'Mousse', matiere: 'daim vert mousse, tirant ecru', couleurs: ['#4d7c0f', '#0a0a0a', '#d9f99d'] },
-  { cle: 'brique', nom: 'Brique', matiere: 'nubuck brique, tirant noir', couleurs: ['#c2410c', '#0a0a0a', '#fed7aa'] },
-  { cle: 'encre', nom: 'Encre', matiere: 'daim bleu d encre, tirant gris', couleurs: ['#1d4ed8', '#0a0a0a', '#bfdbfe'] },
-  { cle: 'sel', nom: 'Sel', matiere: 'daim gris sel, tirant blanc', couleurs: ['#78716c', '#0a0a0a', '#fafaf9'] },
+  {
+    cle: 'mousse',
+    nom: 'Mousse',
+    matiere: 'daim vert mousse, tirant ecru',
+    couleurs: ['#4d7c0f', '#0a0a0a', '#d9f99d'],
+  },
+  {
+    cle: 'brique',
+    nom: 'Brique',
+    matiere: 'nubuck brique, tirant noir',
+    couleurs: ['#c2410c', '#0a0a0a', '#fed7aa'],
+  },
+  {
+    cle: 'encre',
+    nom: 'Encre',
+    matiere: 'daim bleu d encre, tirant gris',
+    couleurs: ['#1d4ed8', '#0a0a0a', '#bfdbfe'],
+  },
+  {
+    cle: 'sel',
+    nom: 'Sel',
+    matiere: 'daim gris sel, tirant blanc',
+    couleurs: ['#78716c', '#0a0a0a', '#fafaf9'],
+  },
 ]
 
 /** Les pointures de la serie ; deux sont deja closes. */
@@ -96,8 +121,14 @@ const POINTURES: readonly { readonly taille: string; readonly close: boolean }[]
 
 /** Le jour dit, en trois temps. */
 const JOUR_DIT: readonly { readonly heure: string; readonly texte: string }[] = [
-  { heure: '17h50', texte: 'Un seul message part, avec le lien direct et la pointure retenue.' },
-  { heure: '18h00', texte: 'Vingt minutes pour deposer. L ordre d arrivee ne compte pas.' },
+  {
+    heure: '17h50',
+    texte: 'Un seul message part, avec le lien direct et la pointure retenue.',
+  },
+  {
+    heure: '18h00',
+    texte: 'Vingt minutes pour deposer. L ordre d arrivee ne compte pas.',
+  },
   { heure: '18h21', texte: 'Le tirage est rendu. Les perdants ne sont jamais debites.' },
 ]
 
@@ -122,9 +153,19 @@ const PALIERS = [
 ] as const
 
 /** Le corps des trois lignes de l affiche, du plus grand au plus petit. */
-const CORPS_MODELE: CSSProperties = { fontSize: 'clamp(3.25rem, 16vw, 10rem)', lineHeight: 0.86, letterSpacing: '-0.05em' }
-const CORPS_COULEUR: CSSProperties = { fontSize: 'clamp(1.75rem, 9vw, 5rem)', lineHeight: 0.95 }
-const CORPS_REBOURS: CSSProperties = { fontSize: 'clamp(1.5rem, 7vw, 3.75rem)', lineHeight: 1 }
+const CORPS_MODELE: CSSProperties = {
+  fontSize: 'clamp(3.25rem, 16vw, 10rem)',
+  lineHeight: 0.86,
+  letterSpacing: '-0.05em',
+}
+const CORPS_COULEUR: CSSProperties = {
+  fontSize: 'clamp(1.75rem, 9vw, 5rem)',
+  lineHeight: 0.95,
+}
+const CORPS_REBOURS: CSSProperties = {
+  fontSize: 'clamp(1.5rem, 7vw, 3.75rem)',
+  lineHeight: 1,
+}
 
 /**
  * Les deux aplats de l affiche, et leur encre.
@@ -266,23 +307,48 @@ function Affiche({ coloris }: { readonly coloris: string }): ReactElement {
         style={CADRE_AFFICHE}
       >
         <Croix />
-        <Surgit as="p" className="o-m-0 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest" style={ENCRE_VIVE}>
+        <Surgit
+          as="p"
+          className="o-m-0 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest"
+          style={ENCRE_VIVE}
+        >
           <Icon icon={SportShoe} size={14} aria-hidden="true" />
           Paire 44 — Nantes — serie de novembre
         </Surgit>
 
-        <Surgit delai={120} as="h1" className="o-m-0 o-mt-6 o-font-bold o-uppercase o-text-zinc-50" style={{ ...CORPS_MODELE, fontFamily: 'var(--o-vitrine-affichage)' }}>
+        <Surgit
+          delai={120}
+          as="h1"
+          className="o-m-0 o-mt-6 o-font-bold o-uppercase o-text-zinc-50"
+          style={{ ...CORPS_MODELE, fontFamily: 'var(--o-vitrine-affichage)' }}
+        >
           Paire{' '}
-          <DepthText depth={14} step={2} angle={10} speed={8000} couleur={TRANCHE} className="o-align-baseline">
+          <DepthText
+            depth={14}
+            step={2}
+            angle={10}
+            speed={8000}
+            couleur={TRANCHE}
+            className="o-align-baseline"
+          >
             44
           </DepthText>
         </Surgit>
 
-        <Surgit delai={320} as="p" className="o-m-0 o-mt-3 o-font-bold o-uppercase o-tracking-tight o-text-zinc-300" style={{ ...CORPS_COULEUR, fontFamily: 'var(--o-vitrine-affichage)' }}>
+        <Surgit
+          delai={320}
+          as="p"
+          className="o-m-0 o-mt-3 o-font-bold o-uppercase o-tracking-tight o-text-zinc-300"
+          style={{ ...CORPS_COULEUR, fontFamily: 'var(--o-vitrine-affichage)' }}
+        >
           {coloris}
         </Surgit>
 
-        <Surgit delai={460} className="o-mt-8 o-border-t o-border-b o-py-6" style={FILET_PANNEAU}>
+        <Surgit
+          delai={460}
+          className="o-mt-8 o-border-t o-border-b o-py-6"
+          style={FILET_PANNEAU}
+        >
           <Rebours date={OUVERTURE} />
           <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest o-text-zinc-50 md:o-text-sm">
             Depot ouvert le <time dateTime={OUVERTURE}>14 novembre 2026 a 18h00</time>
@@ -307,7 +373,13 @@ function Affiche({ coloris }: { readonly coloris: string }): ReactElement {
 }
 
 /** Un bandeau qui traverse la page de bord a bord. */
-function Bande({ mots, inverse }: { readonly mots: readonly string[]; readonly inverse?: boolean }): ReactElement {
+function Bande({
+  mots,
+  inverse,
+}: {
+  readonly mots: readonly string[]
+  readonly inverse?: boolean
+}): ReactElement {
   return (
     <div style={APLAT_PROFOND}>
       <Marquee speed={28} fade={4} reverse={inverse} className="o-py-3">
@@ -331,7 +403,11 @@ function Bande({ mots, inverse }: { readonly mots: readonly string[]; readonly i
  * les lignes sont ecrites a cote, en clair.
  */
 function Plan(): ReactElement {
-  const arrets: readonly { readonly x: number; readonly y: number; readonly nom: string }[] = [
+  const arrets: readonly {
+    readonly x: number
+    readonly y: number
+    readonly nom: string
+  }[] = [
     { x: 96, y: 128, nom: 'Graslin' },
     { x: 262, y: 168, nom: 'Commerce' },
     { x: 400, y: 150, nom: 'Bouffay' },
@@ -339,11 +415,28 @@ function Plan(): ReactElement {
     { x: 180, y: 262, nom: 'Mediatheque' },
   ]
   return (
-    <div className="o-relative o-w-full o-overflow-hidden" style={{ aspectRatio: '3 / 2' }}>
-      <svg viewBox="0 0 600 400" aria-hidden="true" className="o-absolute o-inset-0 o-size-full" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <div
+      className="o-relative o-w-full o-overflow-hidden"
+      style={{ aspectRatio: '3 / 2' }}
+    >
+      <svg
+        viewBox="0 0 600 400"
+        aria-hidden="true"
+        className="o-absolute o-inset-0 o-size-full"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         {/* La Loire */}
-        <path d="M-10 330 C 120 300, 260 350, 380 320 S 560 290, 620 330 L 620 420 L -10 420 Z" fill="var(--o-palette-zinc-900)" />
-        <path d="M-10 330 C 120 300, 260 350, 380 320 S 560 290, 620 330" stroke="var(--o-palette-zinc-700)" strokeWidth="1.5" />
+        <path
+          d="M-10 330 C 120 300, 260 350, 380 320 S 560 290, 620 330 L 620 420 L -10 420 Z"
+          fill="var(--o-palette-zinc-900)"
+        />
+        <path
+          d="M-10 330 C 120 300, 260 350, 380 320 S 560 290, 620 330"
+          stroke="var(--o-palette-zinc-700)"
+          strokeWidth="1.5"
+        />
         {/* Les rues */}
         <g stroke="var(--o-palette-zinc-700)" strokeWidth="1.2">
           <path d="M20 60 L 580 40" />
@@ -355,29 +448,89 @@ function Plan(): ReactElement {
           <path d="M200 240 L 520 260" />
         </g>
         {/* Rue Crebillon, en gras */}
-        <path d="M100 140 L 262 168" stroke="var(--o-palette-zinc-400)" strokeWidth="2.5" />
-        <text x="126" y="178" fontFamily="var(--o-font-mono)" fontSize="9" fill="var(--o-palette-zinc-400)" letterSpacing="1.5">RUE CREBILLON</text>
+        <path
+          d="M100 140 L 262 168"
+          stroke="var(--o-palette-zinc-400)"
+          strokeWidth="2.5"
+        />
+        <text
+          x="126"
+          y="178"
+          fontFamily="var(--o-font-mono)"
+          fontSize="9"
+          fill="var(--o-palette-zinc-400)"
+          letterSpacing="1.5"
+        >
+          RUE CREBILLON
+        </text>
         {/* Tramway : ligne 1 */}
-        <path d="M-10 120 C 60 118, 80 132, 96 128 S 240 176, 262 168 S 380 140, 400 150 S 560 160, 620 150" stroke={accent(400)} strokeWidth="4" />
+        <path
+          d="M-10 120 C 60 118, 80 132, 96 128 S 240 176, 262 168 S 380 140, 400 150 S 560 160, 620 150"
+          stroke={accent(400)}
+          strokeWidth="4"
+        />
         {/* Ligne 2 */}
-        <path d="M262 -10 C 262 60, 250 120, 262 168 S 250 240, 300 300 S 330 380, 340 420" stroke="var(--o-palette-zinc-50)" strokeWidth="3" strokeDasharray="10 8" />
+        <path
+          d="M262 -10 C 262 60, 250 120, 262 168 S 250 240, 300 300 S 330 380, 340 420"
+          stroke="var(--o-palette-zinc-50)"
+          strokeWidth="3"
+          strokeDasharray="10 8"
+        />
         {/* Ligne 3 */}
-        <path d="M-10 270 C 80 262, 140 268, 180 262 S 330 250, 400 150 S 480 60, 620 40" stroke="var(--o-palette-zinc-500)" strokeWidth="3" />
+        <path
+          d="M-10 270 C 80 262, 140 268, 180 262 S 330 250, 400 150 S 480 60, 620 40"
+          stroke="var(--o-palette-zinc-500)"
+          strokeWidth="3"
+        />
         {/* Les arrets */}
         {arrets.map((a) => (
           <g key={a.nom}>
-            <circle cx={a.x} cy={a.y} r="6" fill="var(--o-palette-zinc-950)" stroke="var(--o-palette-zinc-50)" strokeWidth="2" />
-            <text x={a.x + 11} y={a.y + 3} fontFamily="var(--o-font-mono)" fontSize="9.5" fill="var(--o-palette-zinc-300)" letterSpacing="1">
+            <circle
+              cx={a.x}
+              cy={a.y}
+              r="6"
+              fill="var(--o-palette-zinc-950)"
+              stroke="var(--o-palette-zinc-50)"
+              strokeWidth="2"
+            />
+            <text
+              x={a.x + 11}
+              y={a.y + 3}
+              fontFamily="var(--o-font-mono)"
+              fontSize="9.5"
+              fill="var(--o-palette-zinc-300)"
+              letterSpacing="1"
+            >
               {a.nom.toUpperCase()}
             </text>
           </g>
         ))}
-        <text x="20" y="386" fontFamily="var(--o-font-mono)" fontSize="9" fill="var(--o-palette-zinc-500)" letterSpacing="1.5">LA LOIRE</text>
+        <text
+          x="20"
+          y="386"
+          fontFamily="var(--o-font-mono)"
+          fontSize="9"
+          fill="var(--o-palette-zinc-500)"
+          letterSpacing="1.5"
+        >
+          LA LOIRE
+        </text>
       </svg>
       {/* La boutique : un point qui respire, pose en pourcentage du cadre. */}
-      <div aria-hidden="true" className="o-pointer-events-none o-absolute" style={{ left: '30.5%', top: '37.5%', transform: 'translate(-50%, -50%)' }}>
-        <Respire duree={4} className="o-size-10 o-rounded-full" style={{ backgroundColor: `color-mix(in oklab, ${VIF} 35%, transparent)` }} />
-        <span className="o-absolute o-left-1/2 o-top-1/2 o-size-3 o-rounded-full" style={{ backgroundColor: VIF, transform: 'translate(-50%, -50%)' }} />
+      <div
+        aria-hidden="true"
+        className="o-pointer-events-none o-absolute"
+        style={{ left: '30.5%', top: '37.5%', transform: 'translate(-50%, -50%)' }}
+      >
+        <Respire
+          duree={4}
+          className="o-size-10 o-rounded-full"
+          style={{ backgroundColor: `color-mix(in oklab, ${VIF} 35%, transparent)` }}
+        />
+        <span
+          className="o-absolute o-left-1/2 o-top-1/2 o-size-3 o-rounded-full"
+          style={{ backgroundColor: VIF, transform: 'translate(-50%, -50%)' }}
+        />
       </div>
     </div>
   )
@@ -391,14 +544,33 @@ export default function Page(): ReactElement {
   const [canal, setCanal] = useState<'sms' | 'courriel'>('sms')
 
   const choisi = COLORIS.find((c) => c.cle === coloris) ?? COLORIS[0]
-  const palette = choisi?.couleurs === undefined ? {} : variablesDePalette(choisi.couleurs)
+  const palette =
+    choisi?.couleurs === undefined ? {} : variablesDePalette(choisi.couleurs)
 
   const angles = [
-    { ...image('paire44-profil', 'La Paire 44 vue de profil, semelle claire'), caption: 'Profil gauche — semelle intermediaire injectee' },
-    { ...image('paire44-dessus', 'La Paire 44 vue de dessus, lacage plat'), caption: 'Dessus — lacage plat, huit oeillets' },
-    { ...image('paire44-talon', 'Contrefort de la Paire 44, tirant colore'), caption: 'Contrefort — tirant tisse, thermocolle' },
-    { ...image('paire44-semelle', 'Les deux semelles exterieures de la Paire 44, posees a plat'), caption: 'Semelle — gomme hexagonale' },
-    { ...image('paire44-detail', 'Detail du daim et de la surpiqure de la Paire 44'), caption: 'Detail — daim, surpiqure apparente' },
+    {
+      ...image('paire44-profil', 'La Paire 44 vue de profil, semelle claire'),
+      caption: 'Profil gauche — semelle intermediaire injectee',
+    },
+    {
+      ...image('paire44-dessus', 'La Paire 44 vue de dessus, lacage plat'),
+      caption: 'Dessus — lacage plat, huit oeillets',
+    },
+    {
+      ...image('paire44-talon', 'Contrefort de la Paire 44, tirant colore'),
+      caption: 'Contrefort — tirant tisse, thermocolle',
+    },
+    {
+      ...image(
+        'paire44-semelle',
+        'Les deux semelles exterieures de la Paire 44, posees a plat',
+      ),
+      caption: 'Semelle — gomme hexagonale',
+    },
+    {
+      ...image('paire44-detail', 'Detail du daim et de la surpiqure de la Paire 44'),
+      caption: 'Detail — daim, surpiqure apparente',
+    },
   ]
 
   return (
@@ -413,18 +585,34 @@ export default function Page(): ReactElement {
           <Bande mots={MATIERE} />
 
           {/* ================= (01) Le coloris : un clic reteinte la page ================= */}
-          <section id="coloris" className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-pb-0 o-pt-20 md:o-pt-28">
+          <section
+            id="coloris"
+            className="o-relative o-z-10 o-scroll-mt-24 o-px-6 o-pb-0 o-pt-20 md:o-pt-28"
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 md:o-grid-cols-12 md:o-gap-8">
               <div className="md:o-col-span-5">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">(01) — Le coloris</p>
-                <h2 className="o-m-0 o-mt-5 o-uppercase o-text-zinc-50" style={{ ...affiche('l', 800), fontSize: 'clamp(2.75rem, 7vw, 6.5rem)', lineHeight: 0.88 }}>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                  (01) — Le coloris
+                </p>
+                <h2
+                  className="o-m-0 o-mt-5 o-uppercase o-text-zinc-50"
+                  style={{
+                    ...affiche('l', 800),
+                    fontSize: 'clamp(2.75rem, 7vw, 6.5rem)',
+                    lineHeight: 0.88,
+                  }}
+                >
                   Cinq coloris. Un seul tirage.
                 </h2>
                 <div className="o-mt-8 o-inline-block">
                   <Autocollant angle={-5}>Cliquez : toute la page change</Autocollant>
                 </div>
 
-                <div role="group" aria-label="Choisir un coloris" className="o-mt-10 o-flex o-flex-wrap o-gap-4">
+                <div
+                  role="group"
+                  aria-label="Choisir un coloris"
+                  className="o-mt-10 o-flex o-flex-wrap o-gap-4"
+                >
                   {COLORIS.map((c, rang) => {
                     const actif = c.cle === coloris
                     const teinte = c.couleurs === undefined ? accent(500) : c.couleurs[0]
@@ -439,11 +627,20 @@ export default function Page(): ReactElement {
                           className="o-flex o-size-20 o-cursor-pointer o-flex-col o-items-start o-justify-end o-rounded-none o-border-w-2 o-p-2 o-text-left o-transition-transform hover:o-scale-105 focus:o-ring"
                           style={{
                             backgroundColor: teinte,
-                            borderColor: actif ? 'var(--o-palette-zinc-50)' : 'transparent',
+                            borderColor: actif
+                              ? 'var(--o-palette-zinc-50)'
+                              : 'transparent',
                             transform: `rotate(${String((rang % 2 === 0 ? -1 : 1) * (2 + rang))}deg)`,
                           }}
                         >
-                          <span className="o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest" style={{ color: 'var(--o-palette-zinc-950)', backgroundColor: 'var(--o-palette-white)', padding: '2px 4px' }}>
+                          <span
+                            className="o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest"
+                            style={{
+                              color: 'var(--o-palette-zinc-950)',
+                              backgroundColor: 'var(--o-palette-white)',
+                              padding: '2px 4px',
+                            }}
+                          >
                             {c.nom}
                           </span>
                         </button>
@@ -452,13 +649,19 @@ export default function Page(): ReactElement {
                   })}
                 </div>
 
-                <p aria-live="polite" className="o-m-0 o-mt-8 o-max-w-sm o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
+                <p
+                  aria-live="polite"
+                  className="o-m-0 o-mt-8 o-max-w-sm o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400"
+                >
                   Coloris {choisi?.nom} — {choisi?.matiere}.
                 </p>
               </div>
 
               {/* La photo reteintee, qui chevauche la bande suivante. */}
-              <div className="o-relative o-z-10 md:o-col-span-7 md:o-self-end" style={{ marginBottom: '-7rem' }}>
+              <div
+                className="o-relative o-z-10 md:o-col-span-7 md:o-self-end"
+                style={{ marginBottom: '-7rem' }}
+              >
                 <div className="o-relative">
                   <Duotone
                     key={coloris}
@@ -480,11 +683,25 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (02) Le carrousel, sur l aplat clair ================= */}
-          <section id="angles" className="o-relative o-z-0 o-px-6 o-pb-20 o-pt-40 md:o-pb-28 md:o-pt-48" style={{ ...APLAT_CLAIR, ...ENCRE_CLAIRE }}>
+          <section
+            id="angles"
+            className="o-relative o-z-0 o-px-6 o-pb-20 o-pt-40 md:o-pb-28 md:o-pt-48"
+            style={{ ...APLAT_CLAIR, ...ENCRE_CLAIRE }}
+          >
             <div className="o-mx-auto o-max-w-7xl">
               <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={ENCRE_SUR_CLAIR}>(02) — Cinq angles, aucun rendu de synthese</p>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={ENCRE_SUR_CLAIR}>Feuilletez, ou glissez</p>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={ENCRE_SUR_CLAIR}
+                >
+                  (02) — Cinq angles, aucun rendu de synthese
+                </p>
+                <p
+                  className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={ENCRE_SUR_CLAIR}
+                >
+                  Feuilletez, ou glissez
+                </p>
               </div>
               <div className="o-mt-10 o-w-full o-overflow-hidden">
                 <DepthCarousel
@@ -502,15 +719,28 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= (03) A14 : prevenez-moi, sur le bloc d accent ================= */}
-          <section id="depot" className="o-relative o-scroll-mt-24 o-px-6 o-py-20 md:o-py-28" style={APLAT_PROFOND}>
+          <section
+            id="depot"
+            className="o-relative o-scroll-mt-24 o-px-6 o-py-20 md:o-py-28"
+            style={APLAT_PROFOND}
+          >
             <div className="o-mx-auto o-grid o-max-w-7xl o-gap-14 md:o-grid-cols-12">
               <div className="md:o-col-span-7">
                 <p className="o-m-0 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-80">
                   <Icon icon={Bell} size={14} aria-hidden="true" />
                   (03) — Un seul message, dix minutes avant
                 </p>
-                <h2 className="o-m-0 o-mt-5 o-uppercase" style={{ ...affiche('xl', 800), fontSize: 'clamp(2.75rem, 8vw, 7rem)', lineHeight: 0.86 }}>
-                  Prevenez-<br />moi.
+                <h2
+                  className="o-m-0 o-mt-5 o-uppercase"
+                  style={{
+                    ...affiche('xl', 800),
+                    fontSize: 'clamp(2.75rem, 8vw, 7rem)',
+                    lineHeight: 0.86,
+                  }}
+                >
+                  Prevenez-
+                  <br />
+                  moi.
                 </h2>
 
                 <form
@@ -519,7 +749,11 @@ export default function Page(): ReactElement {
                     evenement.preventDefault()
                   }}
                 >
-                  <div role="group" aria-label="Par quel canal" className="o-flex o-gap-2">
+                  <div
+                    role="group"
+                    aria-label="Par quel canal"
+                    className="o-flex o-gap-2"
+                  >
                     {(
                       [
                         ['sms', 'SMS', MessageSquare],
@@ -536,7 +770,19 @@ export default function Page(): ReactElement {
                             setCanal(cle)
                           }}
                           className="o-inline-flex o-cursor-pointer o-items-center o-gap-2 o-border-w-2 o-px-4 o-py-2 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest o-transition-colors focus:o-ring"
-                          style={actif ? { backgroundColor: 'var(--o-palette-white)', color: 'var(--o-palette-zinc-950)', borderColor: 'var(--o-palette-white)' } : { borderColor: 'color-mix(in oklab, white 40%, transparent)', color: 'var(--o-palette-white)' }}
+                          style={
+                            actif
+                              ? {
+                                  backgroundColor: 'var(--o-palette-white)',
+                                  color: 'var(--o-palette-zinc-950)',
+                                  borderColor: 'var(--o-palette-white)',
+                                }
+                              : {
+                                  borderColor:
+                                    'color-mix(in oklab, white 40%, transparent)',
+                                  color: 'var(--o-palette-white)',
+                                }
+                          }
                         >
                           <Icon icon={icone} size={14} aria-hidden="true" />
                           {mot}
@@ -546,7 +792,9 @@ export default function Page(): ReactElement {
                   </div>
 
                   <label className="o-mt-8 o-block">
-                    <span className="o-sr-only">{canal === 'sms' ? 'Numero de telephone' : 'Adresse electronique'}</span>
+                    <span className="o-sr-only">
+                      {canal === 'sms' ? 'Numero de telephone' : 'Adresse electronique'}
+                    </span>
                     <input
                       type={canal === 'sms' ? 'tel' : 'email'}
                       name={canal}
@@ -554,12 +802,18 @@ export default function Page(): ReactElement {
                       placeholder={canal === 'sms' ? '06 12 34 56 78' : 'vous@exemple.fr'}
                       required
                       className="o-w-full o-bg-transparent o-py-4 o-font-mono o-text-2xl o-text-white focus:o-ring md:o-text-3xl"
-                      style={{ borderRadius: 0, border: 0, borderBottom: '2px solid var(--o-palette-white)' }}
+                      style={{
+                        borderRadius: 0,
+                        border: 0,
+                        borderBottom: '2px solid var(--o-palette-white)',
+                      }}
                     />
                   </label>
 
                   <fieldset className="o-mt-8 o-border-none o-p-0">
-                    <legend className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-80">Votre pointure — le 41 et le 46 sont clos</legend>
+                    <legend className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-80">
+                      Votre pointure — le 41 et le 46 sont clos
+                    </legend>
                     <div className="o-mt-3 o-flex o-flex-wrap o-gap-2">
                       {POINTURES.map((p) => {
                         const retenue = p.taille === pointure
@@ -573,7 +827,19 @@ export default function Page(): ReactElement {
                               setPointure(p.taille)
                             }}
                             className={`o-size-12 o-border-w-2 o-font-mono o-text-base o-font-bold o-tabular-nums o-transition-colors focus:o-ring ${p.close ? 'o-cursor-not-allowed o-line-through o-opacity-50' : 'o-cursor-pointer'}`}
-                            style={retenue ? { backgroundColor: 'var(--o-palette-white)', color: 'var(--o-palette-zinc-950)', borderColor: 'var(--o-palette-white)' } : { borderColor: 'color-mix(in oklab, white 40%, transparent)', color: 'var(--o-palette-white)' }}
+                            style={
+                              retenue
+                                ? {
+                                    backgroundColor: 'var(--o-palette-white)',
+                                    color: 'var(--o-palette-zinc-950)',
+                                    borderColor: 'var(--o-palette-white)',
+                                  }
+                                : {
+                                    borderColor:
+                                      'color-mix(in oklab, white 40%, transparent)',
+                                    color: 'var(--o-palette-white)',
+                                  }
+                            }
                           >
                             {p.taille}
                           </button>
@@ -587,13 +853,19 @@ export default function Page(): ReactElement {
                       <button
                         type="submit"
                         className="o-inline-flex o-cursor-pointer o-items-center o-gap-2 o-px-7 o-py-4 o-font-mono o-text-sm o-font-bold o-uppercase o-tracking-widest o-transition-opacity hover:o-opacity-90 focus:o-ring"
-                        style={{ backgroundColor: 'var(--o-palette-white)', color: 'var(--o-palette-zinc-950)' }}
+                        style={{
+                          backgroundColor: 'var(--o-palette-white)',
+                          color: 'var(--o-palette-zinc-950)',
+                        }}
                       >
                         M alerter le 14 novembre
                       </button>
                     </Aimant>
                     <p className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-opacity-80">
-                      {pointure === undefined ? 'Aucune pointure retenue' : `Pointure ${pointure} retenue`} — coloris {choisi?.nom}. Adresse effacee le 22 novembre.
+                      {pointure === undefined
+                        ? 'Aucune pointure retenue'
+                        : `Pointure ${pointure} retenue`}{' '}
+                      — coloris {choisi?.nom}. Adresse effacee le 22 novembre.
                     </p>
                   </div>
                 </form>
@@ -601,17 +873,33 @@ export default function Page(): ReactElement {
 
               <div aria-hidden="true" className="o-hidden md:o-col-span-1 md:o-block" />
               <aside className="md:o-col-span-4">
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-80">Le jour dit</p>
-                <ol className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0" style={{ borderColor: 'color-mix(in oklab, white 30%, transparent)' }}>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-80">
+                  Le jour dit
+                </p>
+                <ol
+                  className="o-m-0 o-mt-5 o-list-none o-border-t o-p-0"
+                  style={{ borderColor: 'color-mix(in oklab, white 30%, transparent)' }}
+                >
                   {JOUR_DIT.map((t) => (
-                    <li key={t.heure} className="o-grid o-grid-cols-12 o-gap-3 o-border-b o-py-4" style={{ borderColor: 'color-mix(in oklab, white 30%, transparent)' }}>
-                      <span className="o-col-span-3 o-font-mono o-text-sm o-font-bold o-tabular-nums">{t.heure}</span>
-                      <span className="o-col-span-9 o-text-sm o-leading-relaxed">{t.texte}</span>
+                    <li
+                      key={t.heure}
+                      className="o-grid o-grid-cols-12 o-gap-3 o-border-b o-py-4"
+                      style={{
+                        borderColor: 'color-mix(in oklab, white 30%, transparent)',
+                      }}
+                    >
+                      <span className="o-col-span-3 o-font-mono o-text-sm o-font-bold o-tabular-nums">
+                        {t.heure}
+                      </span>
+                      <span className="o-col-span-9 o-text-sm o-leading-relaxed">
+                        {t.texte}
+                      </span>
                     </li>
                   ))}
                 </ol>
                 <p className="o-m-0 o-mt-6 o-text-sm o-leading-relaxed o-opacity-90">
-                  Une paire par personne, verifiee sur la carte et l adresse. Nous rachetons la paire au prix paye, pendant un an.
+                  Une paire par personne, verifiee sur la carte et l adresse. Nous
+                  rachetons la paire au prix paye, pendant un an.
                 </p>
               </aside>
             </div>
@@ -619,34 +907,83 @@ export default function Page(): ReactElement {
         </main>
 
         {/* ================= P13 : le plan du lieu, et les lignes ================= */}
-        <footer className="o-border-t o-px-6 o-pb-10 o-pt-16 o-text-zinc-50" style={FILET_NUIT}>
+        <footer
+          className="o-border-t o-px-6 o-pb-10 o-pt-16 o-text-zinc-50"
+          style={FILET_NUIT}
+        >
           <div className="o-mx-auto o-grid o-max-w-7xl o-gap-12 md:o-grid-cols-12">
             <div className="md:o-col-span-7">
               <Plan />
             </div>
             <div className="o-flex o-flex-col o-justify-between md:o-col-span-5">
               <div>
-                <p className="o-m-0 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest" style={ENCRE_VIVE}>
+                <p
+                  className="o-m-0 o-inline-flex o-items-center o-gap-2 o-font-mono o-text-xs o-font-bold o-uppercase o-tracking-widest"
+                  style={ENCRE_VIVE}
+                >
                   <Icon icon={SportShoe} size={16} aria-hidden="true" />
                   Paire 44 — la boutique
                 </p>
-                <p className="o-m-0 o-mt-5 o-uppercase o-text-zinc-50" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)', lineHeight: 0.95 }}>
-                  7 rue Crebillon<br />44000 Nantes
+                <p
+                  className="o-m-0 o-mt-5 o-uppercase o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)',
+                    lineHeight: 0.95,
+                  }}
+                >
+                  7 rue Crebillon
+                  <br />
+                  44000 Nantes
                 </p>
                 <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                  Mardi au samedi, 11h a 19h<br />Le 14 novembre : ferme, tout se passe ici
+                  Mardi au samedi, 11h a 19h
+                  <br />
+                  Le 14 novembre : ferme, tout se passe ici
                 </p>
-                <dl className="o-m-0 o-mt-8 o-border-t o-font-mono o-text-xs o-uppercase o-tracking-widest" style={FILET_NUIT}>
+                <dl
+                  className="o-m-0 o-mt-8 o-border-t o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                  style={FILET_NUIT}
+                >
                   {(
                     [
-                      ['Tram 1', 'Arret Commerce, a deux minutes', accent(400), undefined],
-                      ['Tram 2', 'Arret Commerce, par le quai', 'var(--o-palette-zinc-50)', '10 8'],
-                      ['Tram 3', 'Arret Bouffay, puis la rue', 'var(--o-palette-zinc-500)', undefined],
+                      [
+                        'Tram 1',
+                        'Arret Commerce, a deux minutes',
+                        accent(400),
+                        undefined,
+                      ],
+                      [
+                        'Tram 2',
+                        'Arret Commerce, par le quai',
+                        'var(--o-palette-zinc-50)',
+                        '10 8',
+                      ],
+                      [
+                        'Tram 3',
+                        'Arret Bouffay, puis la rue',
+                        'var(--o-palette-zinc-500)',
+                        undefined,
+                      ],
                     ] as const
                   ).map(([ligne, ou, teinte, tirets]) => (
-                    <div key={ligne} className="o-grid o-grid-cols-12 o-items-center o-gap-3 o-border-b o-py-3" style={FILET_NUIT}>
+                    <div
+                      key={ligne}
+                      className="o-grid o-grid-cols-12 o-items-center o-gap-3 o-border-b o-py-3"
+                      style={FILET_NUIT}
+                    >
                       <span className="o-col-span-3 o-flex o-items-center o-gap-2 o-text-zinc-50">
-                        <svg aria-hidden="true" width="28" height="6" viewBox="0 0 28 6"><line x1="0" y1="3" x2="28" y2="3" stroke={teinte} strokeWidth="4" strokeDasharray={tirets} /></svg>
+                        <svg aria-hidden="true" width="28" height="6" viewBox="0 0 28 6">
+                          <line
+                            x1="0"
+                            y1="3"
+                            x2="28"
+                            y2="3"
+                            stroke={teinte}
+                            strokeWidth="4"
+                            strokeDasharray={tirets}
+                          />
+                        </svg>
                         {ligne}
                       </span>
                       <span className="o-col-span-9 o-text-zinc-400">{ou}</span>
@@ -654,7 +991,10 @@ export default function Page(): ReactElement {
                   ))}
                 </dl>
               </div>
-              <nav aria-label="Pied de page" className="o-mt-10 o-flex o-flex-wrap o-gap-x-6 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+              <nav
+                aria-label="Pied de page"
+                className="o-mt-10 o-flex o-flex-wrap o-gap-x-6 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+              >
                 {(
                   [
                     ['#coloris', 'Coloris'],
@@ -663,14 +1003,21 @@ export default function Page(): ReactElement {
                     ['mailto:tirage@paire44.fr', 'tirage@paire44.fr'],
                   ] as const
                 ).map(([href, mot]) => (
-                  <a key={href} href={href} className="o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-zinc-50 focus:o-ring">
+                  <a
+                    key={href}
+                    href={href}
+                    className="o-no-underline o-text-zinc-300 o-transition-colors hover:o-text-zinc-50 focus:o-ring"
+                  >
                     {mot} ↗
                   </a>
                 ))}
               </nav>
             </div>
           </div>
-          <p className="o-mx-auto o-mt-12 o-max-w-7xl o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500" style={FILET_NUIT}>
+          <p
+            className="o-mx-auto o-mt-12 o-max-w-7xl o-border-t o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500"
+            style={FILET_NUIT}
+          >
             © 2026 Paire 44 SAS — Nantes — vitrine de demonstration
           </p>
         </footer>

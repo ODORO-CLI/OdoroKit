@@ -67,11 +67,7 @@ export type FogDriftProps = Customisable<FogDriftOwnProps>
  * Le neutre du theme fait la nappe proche : il grise un fond clair et
  * eclaircit un fond sombre, ce qui est exactement ce qu'une brume fait.
  */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-theme-muted',
-  '--o-palette-sky-300',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-theme-muted', '--o-palette-sky-300'] as const
 
 /** Repli par defaut : un degrade fige, dans les memes tons. */
 const DEFAULT_FALLBACK =

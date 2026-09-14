@@ -263,7 +263,9 @@ export function Stepper({
                 </span>
                 <span data-o-step-text="">
                   <span>{step.label}</span>
-                  {step.hint !== undefined && <span data-o-step-hint="">{step.hint}</span>}
+                  {step.hint !== undefined && (
+                    <span data-o-step-hint="">{step.hint}</span>
+                  )}
                 </span>
               </button>
               {index < steps.length - 1 && (

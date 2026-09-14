@@ -51,12 +51,29 @@ import { SplitReveal } from '@/odoro/text/SplitReveal.jsx'
 import { nuit } from './communs.jsx'
 import { photo } from './media.js'
 import { accentDoux, aplat, encre, encreSurSombre } from './palettes.js'
-import { Actions, affiche, Autocollant, BarreCoins, Etiquette, Indice, Manifeste, Porte, Surgit, TitreVague, usePolices } from './marche.jsx'
+import {
+  Actions,
+  affiche,
+  Autocollant,
+  BarreCoins,
+  Etiquette,
+  Indice,
+  Manifeste,
+  Porte,
+  Surgit,
+  TitreVague,
+  usePolices,
+} from './marche.jsx'
 import { Epingle, Rail } from './scene.jsx'
 import { eclairer, teinte, Volume } from './volume.jsx'
 
 /** Les programmes, tels que le cartouche les filtre. */
-const PROGRAMMES = ['Logement', 'Equipement public', 'Rehabilitation', 'Tertiaire'] as const
+const PROGRAMMES = [
+  'Logement',
+  'Equipement public',
+  'Rehabilitation',
+  'Tertiaire',
+] as const
 type Programme = (typeof PROGRAMMES)[number]
 
 /** Un ouvrage livre, rendu comme une planche. */
@@ -242,7 +259,10 @@ const NOTES: readonly {
 /** La legende du dossier, sur la derniere planche du rail. */
 const LEGENDE: readonly (readonly [string, string])[] = [
   ['Surface', 'Surface de plancher au sens du code de l urbanisme'],
-  ['Cout', 'Montant des travaux au decompte final, hors honoraires et hors foncier, par metre carre'],
+  [
+    'Cout',
+    'Montant des travaux au decompte final, hors honoraires et hors foncier, par metre carre',
+  ],
   ['MOA', 'Maitrise d ouvrage — le commanditaire, non le financeur'],
   ['Bois', 'Structure principale en bois ou en materiau biosource'],
 ]
@@ -288,11 +308,31 @@ const MAQUETTE: readonly Masse[] = [
   { cle: 'refend-3', x: 0, y: 0.16, z: 0, l: 0.09, h: 1.02, p: 2.5, seuil: 0.18 },
   { cle: 'refend-4', x: 1.08, y: 0.16, z: 0, l: 0.09, h: 1.02, p: 2.5, seuil: 0.22 },
   { cle: 'refend-5', x: 2.16, y: 0.16, z: 0, l: 0.09, h: 1.02, p: 2.5, seuil: 0.26 },
-  { cle: 'plancher', x: 0, y: 1.18, z: 0, l: 5, h: 0.14, p: 2.9, seuil: 0.33, socle: true },
+  {
+    cle: 'plancher',
+    x: 0,
+    y: 1.18,
+    z: 0,
+    l: 5,
+    h: 0.14,
+    p: 2.9,
+    seuil: 0.33,
+    socle: true,
+  },
   { cle: 'barre', x: -1, y: 1.32, z: -0.42, l: 3.1, h: 1.02, p: 1.5, seuil: 0.42 },
   { cle: 'tour', x: 1.92, y: 1.32, z: 0.28, l: 1.16, h: 2.1, p: 1.16, seuil: 0.5 },
   { cle: 'aile', x: -1.62, y: 1.32, z: 0.86, l: 1.7, h: 0.6, p: 1, seuil: 0.57 },
-  { cle: 'casquette', x: -0.5, y: 2.34, z: -0.2, l: 2.4, h: 0.11, p: 1.95, seuil: 0.64, socle: true },
+  {
+    cle: 'casquette',
+    x: -0.5,
+    y: 2.34,
+    z: -0.2,
+    l: 2.4,
+    h: 0.11,
+    p: 1.95,
+    seuil: 0.64,
+    socle: true,
+  },
   { cle: 'gabarit', x: 0, y: 0.16, z: 0, l: 5.4, h: 3.4, p: 3.2, seuil: 0.8, fil: true },
 ]
 
@@ -350,19 +390,46 @@ function Axonometrie(): ReactElement {
   }
   const rangees = [...MAQUETTE].sort((a, b) => a.y + a.x + a.z - (b.y + b.x + b.z))
   return (
-    <svg viewBox="0 0 352 300" className="o-h-full o-w-full" aria-hidden="true" fill="none" strokeLinejoin="round">
+    <svg
+      viewBox="0 0 352 300"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+      strokeLinejoin="round"
+    >
       {rangees.map((m) => {
         const gauche = m.x - m.l / 2
         const droite = m.x + m.l / 2
         const arriere = m.z - m.p / 2
         const avant = m.z + m.p / 2
         const haut = m.y + m.h
-        const dessus = [point(gauche, haut, arriere), point(droite, haut, arriere), point(droite, haut, avant), point(gauche, haut, avant)].join(' ')
-        const flanc = [point(droite, haut, arriere), point(droite, haut, avant), point(droite, m.y, avant), point(droite, m.y, arriere)].join(' ')
-        const face = [point(gauche, haut, avant), point(droite, haut, avant), point(droite, m.y, avant), point(gauche, m.y, avant)].join(' ')
+        const dessus = [
+          point(gauche, haut, arriere),
+          point(droite, haut, arriere),
+          point(droite, haut, avant),
+          point(gauche, haut, avant),
+        ].join(' ')
+        const flanc = [
+          point(droite, haut, arriere),
+          point(droite, haut, avant),
+          point(droite, m.y, avant),
+          point(droite, m.y, arriere),
+        ].join(' ')
+        const face = [
+          point(gauche, haut, avant),
+          point(droite, haut, avant),
+          point(droite, m.y, avant),
+          point(gauche, m.y, avant),
+        ].join(' ')
         if (m.fil === true) {
           return (
-            <g key={m.cle} stroke={encreSurSombre()} strokeWidth="1" strokeDasharray="5 4" opacity="0.75">
+            <g
+              key={m.cle}
+              stroke={encreSurSombre()}
+              strokeWidth="1"
+              strokeDasharray="5 4"
+              opacity="0.75"
+            >
               <polygon points={dessus} />
               <polygon points={flanc} />
               <polygon points={face} />
@@ -409,14 +476,23 @@ function Cartouche({
   return (
     <div className={`o-w-full o-border-w-1 ${FILET} md:o-max-w-sm`}>
       <dl className="o-m-0 o-grid o-grid-cols-3 max-md:o-hidden">
-        {([
-          ['Ordre', 'S12841'],
-          ['Planches', `${String(nombre)} / ${String(PLANCHES.length)}`],
-          ['Surface', `${surface.toLocaleString('fr-FR')} m2`],
-        ] as const).map(([quoi, valeur], rang) => (
-          <div key={quoi} className={`o-px-3 o-py-2 ${rang < 2 ? `o-border-r ${FILET}` : ''}`}>
-            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-            <dd className="o-m-0 o-mt-0.5 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{valeur}</dd>
+        {(
+          [
+            ['Ordre', 'S12841'],
+            ['Planches', `${String(nombre)} / ${String(PLANCHES.length)}`],
+            ['Surface', `${surface.toLocaleString('fr-FR')} m2`],
+          ] as const
+        ).map(([quoi, valeur], rang) => (
+          <div
+            key={quoi}
+            className={`o-px-3 o-py-2 ${rang < 2 ? `o-border-r ${FILET}` : ''}`}
+          >
+            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
+              {quoi}
+            </dt>
+            <dd className="o-m-0 o-mt-0.5 o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+              {valeur}
+            </dd>
           </div>
         ))}
       </dl>
@@ -438,7 +514,12 @@ function Cartouche({
               className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-transition-colors focus:o-ring"
               style={
                 actif
-                  ? { color: encre(), fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px' }
+                  ? {
+                      color: encre(),
+                      fontWeight: 700,
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '3px',
+                    }
                   : { color: 'var(--o-theme-muted)' }
               }
             >
@@ -452,11 +533,23 @@ function Cartouche({
 }
 
 /** Une case de cartouche technique, en pied de planche. */
-function Case({ quoi, children, dernier = false }: { readonly quoi: string; readonly children: ReactNode; readonly dernier?: boolean }): ReactElement {
+function Case({
+  quoi,
+  children,
+  dernier = false,
+}: {
+  readonly quoi: string
+  readonly children: ReactNode
+  readonly dernier?: boolean
+}): ReactElement {
   return (
     <div className={`o-min-w-0 o-px-3 o-py-2 ${dernier ? '' : `o-border-r ${FILET}`}`}>
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-0.5 o-truncate o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">{children}</dd>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-500 dark:o-text-zinc-400">
+        {quoi}
+      </dt>
+      <dd className="o-m-0 o-mt-0.5 o-truncate o-font-mono o-text-sm o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50">
+        {children}
+      </dd>
     </div>
   )
 }
@@ -465,39 +558,77 @@ function Case({ quoi, children, dernier = false }: { readonly quoi: string; read
 function PlancheRail({ planche }: { readonly planche: Planche }): ReactElement {
   return (
     <article className="o-mr-6 o-shrink-0 md:o-mr-8" style={{ width: LARGEUR_PLANCHE }}>
-      <div className="o-relative o-overflow-hidden o-bg-zinc-100 dark:o-bg-zinc-900" style={{ height: 'min(36vh, 420px)' }}>
-        <img src={photo(planche.graine, 1500, 900)} alt={`${planche.nom}, ${planche.lieu}`} decoding="async" className="o-absolute o-inset-0 o-size-full o-object-cover" />
-        <span aria-hidden="true" className="o-absolute o-left-3 o-top-3 o-rounded-full o-bg-zinc-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-50">
+      <div
+        className="o-relative o-overflow-hidden o-bg-zinc-100 dark:o-bg-zinc-900"
+        style={{ height: 'min(36vh, 420px)' }}
+      >
+        <img
+          src={photo(planche.graine, 1500, 900)}
+          alt={`${planche.nom}, ${planche.lieu}`}
+          decoding="async"
+          className="o-absolute o-inset-0 o-size-full o-object-cover"
+        />
+        <span
+          aria-hidden="true"
+          className="o-absolute o-left-3 o-top-3 o-rounded-full o-bg-zinc-950 o-px-2.5 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-50"
+        >
           PL. {planche.rang}
         </span>
       </div>
       <div className={`o-border-w-1 ${FILET}`} style={{ borderTopWidth: 0 }}>
-        <div className={`o-flex o-flex-wrap o-items-baseline o-gap-x-4 o-gap-y-1 o-border-b ${FILET} o-px-3 o-py-2.5`}>
-          <SplitReveal as="h3" by="words" stagger={70} distance={14} className="o-m-0 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-xl">
+        <div
+          className={`o-flex o-flex-wrap o-items-baseline o-gap-x-4 o-gap-y-1 o-border-b ${FILET} o-px-3 o-py-2.5`}
+        >
+          <SplitReveal
+            as="h3"
+            by="words"
+            stagger={70}
+            distance={14}
+            className="o-m-0 o-text-lg o-font-semibold o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-xl"
+          >
             {planche.nom}
           </SplitReveal>
-          <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">{planche.lieu}</span>
+          <span className="o-font-mono o-text-xs o-text-zinc-500 dark:o-text-zinc-400">
+            {planche.lieu}
+          </span>
           {planche.bois === true && (
-            <span className="o-rounded-full o-px-2 o-py-0.5 o-font-mono o-text-xs" style={{ backgroundColor: accentDoux(500, 16), color: encre() }}>
+            <span
+              className="o-rounded-full o-px-2 o-py-0.5 o-font-mono o-text-xs"
+              style={{ backgroundColor: accentDoux(500, 16), color: encre() }}
+            >
               Bois
             </span>
           )}
-          <span className="o-ml-auto o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">{planche.annee}</span>
+          <span className="o-ml-auto o-font-mono o-text-xs o-tabular-nums o-text-zinc-500 dark:o-text-zinc-400">
+            {planche.annee}
+          </span>
         </div>
         <dl className="o-m-0 o-grid o-grid-cols-2 sm:o-grid-cols-4">
           <Case quoi="Surface">{planche.surface.toLocaleString('fr-FR')} m2</Case>
           <Case quoi="Cout">{planche.cout.toLocaleString('fr-FR')} EUR / m2</Case>
           <Case quoi="Programme">{planche.programme}</Case>
-          <Case quoi="MOA" dernier>{planche.ouvrage}</Case>
+          <Case quoi="MOA" dernier>
+            {planche.ouvrage}
+          </Case>
         </dl>
-        <p className={`o-m-0 o-border-t ${FILET} o-px-3 o-py-2.5 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 max-md:o-hidden`}>{planche.texte}</p>
+        <p
+          className={`o-m-0 o-border-t ${FILET} o-px-3 o-py-2.5 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 max-md:o-hidden`}
+        >
+          {planche.texte}
+        </p>
       </div>
     </article>
   )
 }
 
 /** Un champ du formulaire en ligne : une ligne soulignee, rien d autre. */
-function Champ({ nom, type = 'text' }: { readonly nom: string; readonly type?: string }): ReactElement {
+function Champ({
+  nom,
+  type = 'text',
+}: {
+  readonly nom: string
+  readonly type?: string
+}): ReactElement {
   return (
     <label className="o-block o-grow">
       <span className="o-sr-only">{nom}</span>
@@ -526,7 +657,10 @@ export default function Page(): ReactElement {
 
   const maquette = useMemo(() => {
     /** Ce qui a ete monte, relu a chaque image pour faire sortir les masses. */
-    let masses: readonly { readonly groupe: SceneContext['scene']['children'][number]; readonly seuil: number }[] = []
+    let masses: readonly {
+      readonly groupe: SceneContext['scene']['children'][number]
+      readonly seuil: number
+    }[] = []
 
     /**
      * La camera, a une progression donnee.
@@ -548,7 +682,11 @@ export default function Page(): ReactElement {
       // Perpendiculaire a la visee, dans le plan horizontal.
       const dx = -lateral * Math.cos(angle)
       const dz = lateral * Math.sin(angle)
-      camera.position.set(Math.sin(angle) * rayon + dx, 2.4 + p * 2.6, Math.cos(angle) * rayon + dz)
+      camera.position.set(
+        Math.sin(angle) * rayon + dx,
+        2.4 + p * 2.6,
+        Math.cos(angle) * rayon + dz,
+      )
       // La visee descend a mesure que la camera monte : sans cela la maquette
       // glisserait vers le bas du cadre au fur et a mesure du survol.
       camera.lookAt(dx, (etroit ? 3.4 : 1.7) - p * 0.5, dz)
@@ -571,10 +709,26 @@ export default function Page(): ReactElement {
           const socle = teinte('--o-vitrine-500', '#a49c8e')
           const trace = teinte('--o-vitrine-200', '#e6e1d8')
 
-          const matiereEtage = new three.MeshStandardMaterial({ color: beton, roughness: 0.58, metalness: 0.06 })
-          const matiereSocle = new three.MeshStandardMaterial({ color: socle, roughness: 0.82, metalness: 0.04 })
-          const filDesAretes = new three.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.34 })
-          const filDuGabarit = new three.LineBasicMaterial({ color: trace, transparent: true, opacity: 0.55 })
+          const matiereEtage = new three.MeshStandardMaterial({
+            color: beton,
+            roughness: 0.58,
+            metalness: 0.06,
+          })
+          const matiereSocle = new three.MeshStandardMaterial({
+            color: socle,
+            roughness: 0.82,
+            metalness: 0.04,
+          })
+          const filDesAretes = new three.LineBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.34,
+          })
+          const filDuGabarit = new three.LineBasicMaterial({
+            color: trace,
+            transparent: true,
+            opacity: 0.55,
+          })
 
           // La maquette est posee a l origine, un quart de tour de biais : la
           // camera, elle, se decale — voir `poser`.
@@ -592,7 +746,10 @@ export default function Page(): ReactElement {
               cage.position.y = m.h / 2
               groupe.add(cage)
             } else {
-              const bloc = new three.Mesh(forme, m.socle === true ? matiereSocle : matiereEtage)
+              const bloc = new three.Mesh(
+                forme,
+                m.socle === true ? matiereSocle : matiereEtage,
+              )
               bloc.position.y = m.h / 2
               const traits = new three.LineSegments(aretes, filDesAretes)
               traits.position.y = m.h / 2
@@ -608,7 +765,12 @@ export default function Page(): ReactElement {
           masses = montees.map(({ groupe, seuil }) => ({ groupe, seuil }))
           scene.add(racine)
 
-          eclairer(contexte, { cle: 0xfff3e2, remplissage: 0x8fa2cc, contour: 0xffffff, force: 1.2 })
+          eclairer(contexte, {
+            cle: 0xfff3e2,
+            remplissage: 0x8fa2cc,
+            contour: 0xffffff,
+            force: 1.2,
+          })
           // Une rasante sous la dalle : sans elle, les refends se referment en
           // une seule tache et la maquette redevient un bloc.
           const rasante = new three.PointLight(0xffffff, 30, 30, 2)
@@ -630,7 +792,10 @@ export default function Page(): ReactElement {
         }}
         animer={({ camera }, { delta }) => {
           const parent = cadre.current?.parentElement
-          const brut = parent === null || parent === undefined ? 0 : Number.parseFloat(parent.style.getPropertyValue('--p'))
+          const brut =
+            parent === null || parent === undefined
+              ? 0
+              : Number.parseFloat(parent.style.getPropertyValue('--p'))
           const vise = Number.isFinite(brut) ? Math.min(1, Math.max(0, brut)) : 0
           // Un suivi amorti : le defilement d une molette est saccade, une
           // camera d architecte ne l est pas.
@@ -659,318 +824,499 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="trou" marque="Sillon" sombre={false}>
-    <div className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100" style={polices}>
-      {/* ================= 1. L ouverture, de gouttiere a gouttiere ======= */}
-      <header id="haut" className="o-relative o-isolate o-flex o-min-h-screen o-flex-col o-overflow-hidden o-bg-white dark:o-bg-zinc-950">
-        <BarreCoins marque="Sillon" liens={[['#maquette', 'La maquette'], ['#dossier', 'Le dossier'], ['#notes', 'Les notes'], ['#contact', 'Nous ecrire']]} droite="Brest — depuis 2014" sombre={false} />
+      <div
+        className="o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100"
+        style={polices}
+      >
+        {/* ================= 1. L ouverture, de gouttiere a gouttiere ======= */}
+        <header
+          id="haut"
+          className="o-relative o-isolate o-flex o-min-h-screen o-flex-col o-overflow-hidden o-bg-white dark:o-bg-zinc-950"
+        >
+          <BarreCoins
+            marque="Sillon"
+            liens={[
+              ['#maquette', 'La maquette'],
+              ['#dossier', 'Le dossier'],
+              ['#notes', 'Les notes'],
+              ['#contact', 'Nous ecrire'],
+            ]}
+            droite="Brest — depuis 2014"
+            sombre={false}
+          />
 
-        <div className="o-relative o-z-10 o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-6 o-pt-10 md:o-px-8">
-          <div className="o-grid o-gap-8 md:o-grid-cols-12">
-            <div className="o-min-w-0 md:o-col-span-8">
-              <Surgit>
-                <Etiquette sombre={false}>Dossier de references — huit ouvrages livres</Etiquette>
+          <div className="o-relative o-z-10 o-flex o-grow o-flex-col o-justify-between o-gap-10 o-px-6 o-pb-6 o-pt-10 md:o-px-8">
+            <div className="o-grid o-gap-8 md:o-grid-cols-12">
+              <div className="o-min-w-0 md:o-col-span-8">
+                <Surgit>
+                  <Etiquette sombre={false}>
+                    Dossier de references — huit ouvrages livres
+                  </Etiquette>
+                </Surgit>
+                <TitreVague
+                  delai={120}
+                  className="o-m-0 o-mt-6 o-max-w-4xl o-text-zinc-950 dark:o-text-zinc-50"
+                  style={affiche('l', 300)}
+                >
+                  Huit ouvrages livres, avec leur cout au decompte final.
+                </TitreVague>
+              </div>
+              <Surgit
+                delai={360}
+                className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4"
+              >
+                <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                  Le cout indique est celui des travaux, ramene au metre carre de
+                  plancher. Celui du decompte final, pas celui de l estimation.
+                </p>
+                <Actions
+                  sombre={false}
+                  pleine={[
+                    '#dossier',
+                    <>
+                      Ouvrir le dossier{' '}
+                      <Icon icon={ArrowRight} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
+                  fantome={['#notes', 'Les notes de chantier']}
+                />
               </Surgit>
-              <TitreVague delai={120} className="o-m-0 o-mt-6 o-max-w-4xl o-text-zinc-950 dark:o-text-zinc-50" style={affiche('l', 300)}>
-                Huit ouvrages livres, avec leur cout au decompte final.
-              </TitreVague>
             </div>
-            <Surgit delai={360} className="o-flex o-flex-col o-justify-end o-gap-6 md:o-col-span-4">
-              <p className="o-m-0 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Le cout indique est celui des travaux, ramene au metre carre de plancher. Celui du decompte final, pas celui de l estimation.
-              </p>
-              <Actions sombre={false} pleine={['#dossier', <>Ouvrir le dossier <Icon icon={ArrowRight} size={16} aria-hidden="true" /></>]} fantome={['#notes', 'Les notes de chantier']} />
+
+            {/* La photographie pleine largeur, qui derive contre le defilement ;
+              sa legende est posee dans la marge, en mono, comme sur un rendu. */}
+            <Surgit delai={560} as="div">
+              <ParallaxImage
+                src={photo('sillon-blosne', 1800, 900)}
+                alt="Logements au Blosne, facade en zinc et balcons filants"
+                ratio={2.6}
+                strength={0.3}
+                className="o-w-full o-object-cover"
+              />
+              <div className="o-mt-3 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                <p className="o-m-0">
+                  <span style={{ color: encre() }}>PL. 01</span> — Les Ateliers du Blosne,
+                  Rennes — 1 840 EUR / m2
+                </p>
+                <p className="o-m-0">Ordre des architectes S12841 — Bretagne</p>
+              </div>
             </Surgit>
           </div>
+        </header>
 
-          {/* La photographie pleine largeur, qui derive contre le defilement ;
-              sa legende est posee dans la marge, en mono, comme sur un rendu. */}
-          <Surgit delai={560} as="div">
-            <ParallaxImage
-              src={photo('sillon-blosne', 1800, 900)}
-              alt="Logements au Blosne, facade en zinc et balcons filants"
-              ratio={2.6}
-              strength={0.3}
-              className="o-w-full o-object-cover"
-            />
-            <div className="o-mt-3 o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-x-6 o-gap-y-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-              <p className="o-m-0">
-                <span style={{ color: encre() }}>PL. 01</span> — Les Ateliers du Blosne, Rennes — 1 840 EUR / m2
-              </p>
-              <p className="o-m-0">Ordre des architectes S12841 — Bretagne</p>
-            </div>
-          </Surgit>
-        </div>
-      </header>
-
-      <main>
-        {/* ================= 2. PL. 00 — la maquette de masses ==============
+        <main>
+          {/* ================= 2. PL. 00 — la maquette de masses ==============
             Une coupe sombre au milieu d une page blanche, epinglee trois ecrans
             et demi. La maquette se monte pendant qu on la contourne : la dalle,
             les refends, les volumes, puis le gabarit du plan local en fil. */}
-        <section id="maquette" className="o-scroll-mt-24" aria-label="Planche 00 — maquette de masses">
-          <Epingle ecrans={3.6} actes={TEMPS.length} style={nuit('zinc')}>
-            {(acte, progression) => {
-              const t = TEMPS[acte] ?? TEMPS[0]
-              return (
-                <div ref={cadre} className="o-absolute o-inset-0 o-overflow-hidden">
-                  {/* Le decor, sous le repli : un degrade CSS, la ou la page
+          <section
+            id="maquette"
+            className="o-scroll-mt-24"
+            aria-label="Planche 00 — maquette de masses"
+          >
+            <Epingle ecrans={3.6} actes={TEMPS.length} style={nuit('zinc')}>
+              {(acte, progression) => {
+                const t = TEMPS[acte] ?? TEMPS[0]
+                return (
+                  <div ref={cadre} className="o-absolute o-inset-0 o-overflow-hidden">
+                    {/* Le decor, sous le repli : un degrade CSS, la ou la page
                       portait un fond en three.js. */}
-                  <div
-                    aria-hidden="true"
-                    className="o-absolute o-inset-0 o-z-0"
-                    style={{
-                      background: [
-                        `radial-gradient(58% 52% at 68% 46%, ${accentDoux(400, 30)}, transparent 70%)`,
-                        `radial-gradient(74% 62% at 12% 96%, ${accentDoux(700, 20)}, transparent 76%)`,
-                        'linear-gradient(180deg, var(--o-palette-zinc-950) 0%, var(--o-palette-zinc-900) 100%)',
-                      ].join(', '),
-                    }}
-                  />
-                  {maquette}
+                    <div
+                      aria-hidden="true"
+                      className="o-absolute o-inset-0 o-z-0"
+                      style={{
+                        background: [
+                          `radial-gradient(58% 52% at 68% 46%, ${accentDoux(400, 30)}, transparent 70%)`,
+                          `radial-gradient(74% 62% at 12% 96%, ${accentDoux(700, 20)}, transparent 76%)`,
+                          'linear-gradient(180deg, var(--o-palette-zinc-950) 0%, var(--o-palette-zinc-900) 100%)',
+                        ].join(', '),
+                      }}
+                    />
+                    {maquette}
 
-                  {/* Le meme degrade repris par-dessus le canevas, en clair :
+                    {/* Le meme degrade repris par-dessus le canevas, en clair :
                       une surface three.js est opaque, et un degrade pose
                       dessous ne se verrait jamais. */}
-                  <div
-                    aria-hidden="true"
-                    className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
-                    style={{
-                      background: [
-                        'radial-gradient(60% 54% at 70% 44%, color-mix(in oklab, var(--o-vitrine-400) 16%, transparent), transparent 72%)',
-                        'radial-gradient(78% 64% at 8% 98%, color-mix(in oklab, var(--o-vitrine-700) 30%, transparent), transparent 74%)',
-                      ].join(', '),
-                    }}
-                  />
+                    <div
+                      aria-hidden="true"
+                      className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
+                      style={{
+                        background: [
+                          'radial-gradient(60% 54% at 70% 44%, color-mix(in oklab, var(--o-vitrine-400) 16%, transparent), transparent 72%)',
+                          'radial-gradient(78% 64% at 8% 98%, color-mix(in oklab, var(--o-vitrine-700) 30%, transparent), transparent 74%)',
+                        ].join(', '),
+                      }}
+                    />
 
-                  {/* Les voiles qui gardent la colonne de texte lisible : par la
+                    {/* Les voiles qui gardent la colonne de texte lisible : par la
                       gauche sur un grand cadre, par le haut sur un petit. */}
-                  <div
-                    aria-hidden="true"
-                    className="o-pointer-events-none o-absolute o-inset-0 o-z-10 max-md:o-hidden"
-                    style={{ background: 'linear-gradient(90deg, var(--o-palette-zinc-950) 6%, color-mix(in oklab, var(--o-palette-zinc-950) 62%, transparent) 40%, transparent 64%)' }}
-                  />
-                  <div
-                    aria-hidden="true"
-                    className="o-pointer-events-none o-absolute o-inset-0 o-z-10 md:o-hidden"
-                    style={{ background: 'linear-gradient(180deg, color-mix(in oklab, var(--o-palette-zinc-950) 90%, transparent) 0%, color-mix(in oklab, var(--o-palette-zinc-950) 86%, transparent) 62%, transparent 100%)' }}
-                  />
+                    <div
+                      aria-hidden="true"
+                      className="o-pointer-events-none o-absolute o-inset-0 o-z-10 max-md:o-hidden"
+                      style={{
+                        background:
+                          'linear-gradient(90deg, var(--o-palette-zinc-950) 6%, color-mix(in oklab, var(--o-palette-zinc-950) 62%, transparent) 40%, transparent 64%)',
+                      }}
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="o-pointer-events-none o-absolute o-inset-0 o-z-10 md:o-hidden"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, color-mix(in oklab, var(--o-palette-zinc-950) 90%, transparent) 0%, color-mix(in oklab, var(--o-palette-zinc-950) 86%, transparent) 62%, transparent 100%)',
+                      }}
+                    />
 
-                  <div className="o-relative o-z-20 o-flex o-h-full o-flex-col o-justify-center o-px-6 md:o-px-8">
-                    <div className="o-grid o-gap-x-8 o-gap-y-10 md:o-grid-cols-12">
-                      {/* La marge : le numero de planche, les quatre temps, la cote. */}
-                      <div className="md:o-col-span-3">
-                        <Indice rang="00">La maquette</Indice>
-                        <ol className="o-m-0 o-mt-8 o-list-none o-p-0">
-                          {TEMPS.map((autre, rang) => (
-                            <li
-                              key={autre.mot}
-                              className="o-flex o-items-center o-gap-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest"
-                              style={{ color: rang === acte ? encreSurSombre() : 'var(--o-theme-muted)' }}
-                            >
-                              <span aria-hidden="true" className="o-h-px o-transition-all" style={{ width: rang === acte ? 26 : 8, backgroundColor: 'currentColor' }} />
-                              {autre.mot}
-                            </li>
-                          ))}
-                        </ol>
-                        <p className="o-m-0 o-mt-10 o-font-mono o-text-4xl o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-text-5xl">{t.cote}</p>
-                        <p className="o-m-0 o-mt-1 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">{t.quoi}</p>
+                    <div className="o-relative o-z-20 o-flex o-h-full o-flex-col o-justify-center o-px-6 md:o-px-8">
+                      <div className="o-grid o-gap-x-8 o-gap-y-10 md:o-grid-cols-12">
+                        {/* La marge : le numero de planche, les quatre temps, la cote. */}
+                        <div className="md:o-col-span-3">
+                          <Indice rang="00">La maquette</Indice>
+                          <ol className="o-m-0 o-mt-8 o-list-none o-p-0">
+                            {TEMPS.map((autre, rang) => (
+                              <li
+                                key={autre.mot}
+                                className="o-flex o-items-center o-gap-3 o-py-1 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                                style={{
+                                  color:
+                                    rang === acte
+                                      ? encreSurSombre()
+                                      : 'var(--o-theme-muted)',
+                                }}
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className="o-h-px o-transition-all"
+                                  style={{
+                                    width: rang === acte ? 26 : 8,
+                                    backgroundColor: 'currentColor',
+                                  }}
+                                />
+                                {autre.mot}
+                              </li>
+                            ))}
+                          </ol>
+                          <p className="o-m-0 o-mt-10 o-font-mono o-text-4xl o-tabular-nums o-tracking-tight o-text-zinc-50 md:o-text-5xl">
+                            {t.cote}
+                          </p>
+                          <p className="o-m-0 o-mt-1 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-400">
+                            {t.quoi}
+                          </p>
+                        </div>
+
+                        {/* Le propos, cale a gauche de la maquette. */}
+                        <div className="o-min-w-0 md:o-col-span-4">
+                          <h2
+                            className="o-m-0 o-max-w-md o-text-balance o-text-zinc-50"
+                            style={{
+                              ...affiche('m', 300),
+                              fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                            }}
+                          >
+                            {t.titre}
+                          </h2>
+                          <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">
+                            {t.texte}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Le propos, cale a gauche de la maquette. */}
-                      <div className="o-min-w-0 md:o-col-span-4">
-                        <h2 className="o-m-0 o-max-w-md o-text-balance o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)' }}>
-                          {t.titre}
-                        </h2>
-                        <p className="o-m-0 o-mt-6 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">{t.texte}</p>
-                      </div>
+                      <p className="o-pointer-events-none o-absolute o-bottom-16 o-right-6 o-m-0 o-text-right o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 max-md:o-hidden md:o-bottom-20 md:o-right-8">
+                        PL. 00 — maquette de masses
+                        <br />
+                        Echelle 1 / 200 — tilleul et carton bois
+                      </p>
                     </div>
 
-                    <p className="o-pointer-events-none o-absolute o-bottom-16 o-right-6 o-m-0 o-text-right o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 max-md:o-hidden md:o-bottom-20 md:o-right-8">
-                      PL. 00 — maquette de masses<br />
-                      Echelle 1 / 200 — tilleul et carton bois
-                    </p>
+                    {/* La reglette : ou l on en est du montage. */}
+                    <div
+                      aria-hidden="true"
+                      className="o-absolute o-bottom-8 o-left-6 o-right-6 o-z-20 o-h-px o-bg-white-10 md:o-left-8 md:o-right-8"
+                    >
+                      <div
+                        className="o-h-full"
+                        style={{
+                          width: `${String(Math.round(progression * 100))}%`,
+                          backgroundColor: encreSurSombre(),
+                          transition: 'width 220ms linear',
+                        }}
+                      />
+                    </div>
                   </div>
+                )
+              }}
+            </Epingle>
+          </section>
 
-                  {/* La reglette : ou l on en est du montage. */}
-                  <div aria-hidden="true" className="o-absolute o-bottom-8 o-left-6 o-right-6 o-z-20 o-h-px o-bg-white-10 md:o-left-8 md:o-right-8">
-                    <div className="o-h-full" style={{ width: `${String(Math.round(progression * 100))}%`, backgroundColor: encreSurSombre(), transition: 'width 220ms linear' }} />
+          {/* ================= 3. Le rail des planches ========================= */}
+          <div id="dossier" className={`o-scroll-mt-24 o-border-t ${FILET}`}>
+            <Rail
+              ecrans={3.2}
+              entete={
+                <div className="o-px-6 o-pb-4 o-pt-6 md:o-px-8">
+                  <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-10 o-gap-y-4">
+                    <div>
+                      <Indice rang="01" sombre={false}>
+                        Le dossier
+                      </Indice>
+                      <h2
+                        className="o-m-0 o-mt-3 o-text-zinc-950 dark:o-text-zinc-50"
+                        style={{
+                          ...affiche('m', 300),
+                          fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)',
+                        }}
+                      >
+                        Le dossier, planche par planche.
+                      </h2>
+                    </div>
+                    <Cartouche
+                      programme={programme}
+                      onProgramme={setProgramme}
+                      nombre={retenues.length}
+                      surface={surface}
+                    />
                   </div>
                 </div>
-              )
-            }}
-          </Epingle>
-        </section>
+              }
+            >
+              <div aria-hidden="true" className="o-w-6 o-shrink-0 md:o-w-8" />
 
-        {/* ================= 3. Le rail des planches ========================= */}
-        <div id="dossier" className={`o-scroll-mt-24 o-border-t ${FILET}`}>
-          <Rail
-            ecrans={3.2}
-            entete={
-              <div className="o-px-6 o-pb-4 o-pt-6 md:o-px-8">
-                <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-x-10 o-gap-y-4">
-                  <div>
-                    <Indice rang="01" sombre={false}>Le dossier</Indice>
-                    <h2 className="o-m-0 o-mt-3 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.6vw, 3.25rem)' }}>
-                      Le dossier, planche par planche.
-                    </h2>
-                  </div>
-                  <Cartouche programme={programme} onProgramme={setProgramme} nombre={retenues.length} surface={surface} />
-                </div>
+              {retenues.map((planche) => (
+                <PlancheRail key={planche.rang} planche={planche} />
+              ))}
+
+              {/* La derniere planche : la legende du dossier. */}
+              <div
+                className="o-mr-6 o-shrink-0 o-self-center md:o-mr-8"
+                style={{ width: 'clamp(260px, 34vw, 420px)' }}
+              >
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  Legende du dossier
+                </p>
+                <dl className={`o-m-0 o-mt-4 o-border-t ${FILET}`}>
+                  {LEGENDE.map(([signe, quoi]) => (
+                    <div
+                      key={signe}
+                      className={`o-grid o-grid-cols-4 o-gap-x-3 o-border-b ${FILET} o-py-2.5`}
+                    >
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-wider"
+                        style={{ color: encre() }}
+                      >
+                        {signe}
+                      </dt>
+                      <dd className="o-m-0 o-col-span-3 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                        {quoi}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+                  {retenues.length === PLANCHES.length
+                    ? 'Dossier complet — huit planches.'
+                    : `Extrait — ${String(retenues.length)} planche${retenues.length > 1 ? 's' : ''} sur huit.`}
+                </p>
               </div>
-            }
-          >
-            <div aria-hidden="true" className="o-w-6 o-shrink-0 md:o-w-8" />
+              <div aria-hidden="true" className="o-w-6 o-shrink-0 md:o-w-8" />
+            </Rail>
+          </div>
 
-            {retenues.map((planche) => (
-              <PlancheRail key={planche.rang} planche={planche} />
-            ))}
-
-            {/* La derniere planche : la legende du dossier. */}
-            <div className="o-mr-6 o-shrink-0 o-self-center md:o-mr-8" style={{ width: 'clamp(260px, 34vw, 420px)' }}>
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Legende du dossier</p>
-              <dl className={`o-m-0 o-mt-4 o-border-t ${FILET}`}>
-                {LEGENDE.map(([signe, quoi]) => (
-                  <div key={signe} className={`o-grid o-grid-cols-4 o-gap-x-3 o-border-b ${FILET} o-py-2.5`}>
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider" style={{ color: encre() }}>{signe}</dt>
-                    <dd className="o-m-0 o-col-span-3 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{quoi}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="o-m-0 o-mt-4 o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                {retenues.length === PLANCHES.length ? 'Dossier complet — huit planches.' : `Extrait — ${String(retenues.length)} planche${retenues.length > 1 ? 's' : ''} sur huit.`}
-              </p>
-            </div>
-            <div aria-hidden="true" className="o-w-6 o-shrink-0 md:o-w-8" />
-          </Rail>
-        </div>
-
-        {/* ================= 4. Le parti pris : un ecran de texte seul ======
+          {/* ================= 4. Le parti pris : un ecran de texte seul ======
             Rien d autre qu une phrase, dont la premiere moitie est eteinte, et
             une photographie en bichromie qui deborde sur les notes : c est la
             seule fois ou le dossier sort de son cadre. */}
-        <section className={`o-relative o-border-t ${FILET} o-px-6 o-pb-0 o-pt-24 md:o-px-8 md:o-pt-36`}>
-          <div className="o-grid o-gap-x-8 o-gap-y-12 md:o-grid-cols-12">
-            <div className="o-min-w-0 md:o-col-span-8">
-              <Indice rang="02" sombre={false}>Le parti pris</Indice>
-              <div className="o-mt-10">
-                <Manifeste sombre={false} eteint="Un plan ne dit rien du prix, et un rendu ne dit rien de la lumiere.">
-                  Alors nous montrons huit chantiers finis, la facture ouverte, et les deux journees passees sur site avant le premier trait.
-                </Manifeste>
+          <section
+            className={`o-relative o-border-t ${FILET} o-px-6 o-pb-0 o-pt-24 md:o-px-8 md:o-pt-36`}
+          >
+            <div className="o-grid o-gap-x-8 o-gap-y-12 md:o-grid-cols-12">
+              <div className="o-min-w-0 md:o-col-span-8">
+                <Indice rang="02" sombre={false}>
+                  Le parti pris
+                </Indice>
+                <div className="o-mt-10">
+                  <Manifeste
+                    sombre={false}
+                    eteint="Un plan ne dit rien du prix, et un rendu ne dit rien de la lumiere."
+                  >
+                    Alors nous montrons huit chantiers finis, la facture ouverte, et les
+                    deux journees passees sur site avant le premier trait.
+                  </Manifeste>
+                </div>
+                <div className="o-mt-14 o-flex o-flex-wrap o-items-center o-gap-x-8 o-gap-y-6">
+                  <Autocollant angle={-4}>Rev. C — septembre 2026</Autocollant>
+                  <p className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                    Onze personnes, jamais plus de trois chantiers en travaux
+                  </p>
+                </div>
               </div>
-              <div className="o-mt-14 o-flex o-flex-wrap o-items-center o-gap-x-8 o-gap-y-6">
-                <Autocollant angle={-4}>Rev. C — septembre 2026</Autocollant>
-                <p className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                  Onze personnes, jamais plus de trois chantiers en travaux
-                </p>
-              </div>
-            </div>
 
-            {/* La photographie deborde de sa section : elle passe par-dessus le
+              {/* La photographie deborde de sa section : elle passe par-dessus le
                 filet des notes de chantier, un peu comme un tirage pose de
                 travers sur le dossier suivant. */}
-            <figure className="o-relative o-z-10 o-m-0 o-min-w-0 md:o-col-span-4" style={{ marginBottom: 'clamp(-9rem, -8vw, -3rem)' }}>
-              <Duotone
-                src={photo('sillon-conserverie', 900, 1200)}
-                alt="Ancienne conserverie Kerlan, cuves de saumure conservees dans la cour"
-                ratio={0.78}
-                hover={false}
-                shadow="var(--o-palette-zinc-950)"
-                light="var(--o-vitrine-200)"
-                className="o-w-full"
-              />
-              <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                <span style={{ color: encre() }}>PL. 07</span> — Kerlan, Douarnenez<br />
-                Les cuves de saumure sont restees
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        {/* ================= 5. Les notes de chantier, chiffres dans la marge ===== */}
-        <section id="notes" className={`o-scroll-mt-24 o-border-t ${FILET} o-px-6 o-py-20 md:o-px-8 md:o-py-28`}>
-          <div className="o-grid o-gap-x-8 o-gap-y-10 md:o-grid-cols-12">
-            <div className="md:o-col-span-3">
-              <Indice rang="03" sombre={false}>Notes de chantier</Indice>
-            </div>
-            <h2 className="o-m-0 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50 md:o-col-span-6" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.2vw, 3.75rem)' }}>
-              Cinq prescriptions, et le chiffre qui les tient.
-            </h2>
-          </div>
-
-          <ol className={`o-m-0 o-mt-16 o-list-none o-border-t ${FILET} o-p-0`}>
-            {NOTES.map((note) => (
-              <li key={note.rang} className={`o-grid o-gap-x-8 o-gap-y-3 o-border-b ${FILET} o-py-8 md:o-grid-cols-12`}>
-                {/* La marge : le chiffre en mono, et ce qu il compte. */}
-                <div className="md:o-col-span-3">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>{note.rang}</p>
-                  <p className="o-m-0 o-mt-2 o-font-mono o-text-3xl o-tabular-nums o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-4xl">{note.chiffre}</p>
-                  <p className="o-m-0 o-mt-1 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">{note.quoi}</p>
-                </div>
-                <div className="md:o-col-span-6">
-                  <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-2xl">{note.titre}</h3>
-                  <p className="o-m-0 o-mt-3 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{note.texte}</p>
-                </div>
-                {/* La colonne de droite reste vide : c est la marge du dossier. */}
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* ================= 6. Le formulaire en ligne, et son disque ======= */}
-        <section id="contact" className={`o-scroll-mt-24 o-border-t ${FILET} o-px-6 o-py-20 md:o-px-8 md:o-py-28`}>
-          <div className="o-grid o-gap-x-8 o-gap-y-8 md:o-grid-cols-12">
-            <div className="md:o-col-span-3">
-              <Indice rang="04" sombre={false}>Un projet</Indice>
-              <p className="o-m-0 o-mt-6 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                Reponse sous cinq jours ouvres.<br />agence@sillon-architecture.fr<br />22 rue de Siam, 29200 Brest
-              </p>
-            </div>
-            <div className="md:o-col-span-9">
-              <h2 className="o-m-0 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.2vw, 3.75rem)' }}>
-                Ecrivez-nous avant la premiere esquisse.
-              </h2>
-              <form
-                className="o-mt-12 o-flex o-flex-wrap o-items-end o-gap-x-8 o-gap-y-6"
-                aria-label="Nous ecrire"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                }}
+              <figure
+                className="o-relative o-z-10 o-m-0 o-min-w-0 md:o-col-span-4"
+                style={{ marginBottom: 'clamp(-9rem, -8vw, -3rem)' }}
               >
-                <Champ nom="Votre nom" />
-                <Champ nom="Votre courriel" type="email" />
-                <Magnetic strength={0.4} radius={140}>
-                  <button
-                    type="submit"
-                    aria-label="Envoyer"
-                    className="o-inline-flex o-size-16 o-shrink-0 o-items-center o-justify-center o-rounded-full o-transition-transform hover:o-scale-105 focus:o-ring md:o-size-20"
-                    style={aplat()}
-                  >
-                    <Icon icon={ArrowUpRight} size={22} aria-hidden="true" />
-                  </button>
-                </Magnetic>
-              </form>
+                <Duotone
+                  src={photo('sillon-conserverie', 900, 1200)}
+                  alt="Ancienne conserverie Kerlan, cuves de saumure conservees dans la cour"
+                  ratio={0.78}
+                  hover={false}
+                  shadow="var(--o-palette-zinc-950)"
+                  light="var(--o-vitrine-200)"
+                  className="o-w-full"
+                />
+                <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  <span style={{ color: encre() }}>PL. 07</span> — Kerlan, Douarnenez
+                  <br />
+                  Les cuves de saumure sont restees
+                </figcaption>
+              </figure>
             </div>
-          </div>
-        </section>
-      </main>
+          </section>
 
-      {/* ================= 7. Le pied : une seule ligne ==================== */}
-      <footer className="o-border-t o-border-zinc-900 dark:o-border-zinc-100 o-px-6 o-py-5 md:o-px-8">
-        <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-          <span className="o-text-zinc-950 dark:o-text-zinc-50">Sillon architecture</span>
-          <nav aria-label="Pied de page" className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-1">
-            {([['#maquette', 'La maquette'], ['#dossier', 'Le dossier'], ['#notes', 'Les notes'], ['#contact', 'Nous ecrire'], ['#haut', 'Haut de page']] as const).map(([href, mot]) => (
-              <a key={href} href={href} className="o-no-underline o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-950 dark:hover:o-text-zinc-50 o-transition-colors focus:o-ring">
-                {mot}
-              </a>
-            ))}
-          </nav>
-          <span>
-            © 2026 — SARL au capital de 30 000 EUR — RCS Brest 801 447 220 — MAF 148 902 K
-          </span>
-        </div>
-      </footer>
-    </div>
+          {/* ================= 5. Les notes de chantier, chiffres dans la marge ===== */}
+          <section
+            id="notes"
+            className={`o-scroll-mt-24 o-border-t ${FILET} o-px-6 o-py-20 md:o-px-8 md:o-py-28`}
+          >
+            <div className="o-grid o-gap-x-8 o-gap-y-10 md:o-grid-cols-12">
+              <div className="md:o-col-span-3">
+                <Indice rang="03" sombre={false}>
+                  Notes de chantier
+                </Indice>
+              </div>
+              <h2
+                className="o-m-0 o-max-w-2xl o-text-zinc-950 dark:o-text-zinc-50 md:o-col-span-6"
+                style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.2vw, 3.75rem)' }}
+              >
+                Cinq prescriptions, et le chiffre qui les tient.
+              </h2>
+            </div>
+
+            <ol className={`o-m-0 o-mt-16 o-list-none o-border-t ${FILET} o-p-0`}>
+              {NOTES.map((note) => (
+                <li
+                  key={note.rang}
+                  className={`o-grid o-gap-x-8 o-gap-y-3 o-border-b ${FILET} o-py-8 md:o-grid-cols-12`}
+                >
+                  {/* La marge : le chiffre en mono, et ce qu il compte. */}
+                  <div className="md:o-col-span-3">
+                    <p
+                      className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                      style={{ color: encre() }}
+                    >
+                      {note.rang}
+                    </p>
+                    <p className="o-m-0 o-mt-2 o-font-mono o-text-3xl o-tabular-nums o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-4xl">
+                      {note.chiffre}
+                    </p>
+                    <p className="o-m-0 o-mt-1 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+                      {note.quoi}
+                    </p>
+                  </div>
+                  <div className="md:o-col-span-6">
+                    <h3 className="o-m-0 o-text-xl o-font-medium o-tracking-tight o-text-zinc-950 dark:o-text-zinc-50 md:o-text-2xl">
+                      {note.titre}
+                    </h3>
+                    <p className="o-m-0 o-mt-3 o-max-w-lg o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+                      {note.texte}
+                    </p>
+                  </div>
+                  {/* La colonne de droite reste vide : c est la marge du dossier. */}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          {/* ================= 6. Le formulaire en ligne, et son disque ======= */}
+          <section
+            id="contact"
+            className={`o-scroll-mt-24 o-border-t ${FILET} o-px-6 o-py-20 md:o-px-8 md:o-py-28`}
+          >
+            <div className="o-grid o-gap-x-8 o-gap-y-8 md:o-grid-cols-12">
+              <div className="md:o-col-span-3">
+                <Indice rang="04" sombre={false}>
+                  Un projet
+                </Indice>
+                <p className="o-m-0 o-mt-6 o-max-w-xs o-font-mono o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+                  Reponse sous cinq jours ouvres.
+                  <br />
+                  agence@sillon-architecture.fr
+                  <br />
+                  22 rue de Siam, 29200 Brest
+                </p>
+              </div>
+              <div className="md:o-col-span-9">
+                <h2
+                  className="o-m-0 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(2rem, 4.2vw, 3.75rem)',
+                  }}
+                >
+                  Ecrivez-nous avant la premiere esquisse.
+                </h2>
+                <form
+                  className="o-mt-12 o-flex o-flex-wrap o-items-end o-gap-x-8 o-gap-y-6"
+                  aria-label="Nous ecrire"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                  }}
+                >
+                  <Champ nom="Votre nom" />
+                  <Champ nom="Votre courriel" type="email" />
+                  <Magnetic strength={0.4} radius={140}>
+                    <button
+                      type="submit"
+                      aria-label="Envoyer"
+                      className="o-inline-flex o-size-16 o-shrink-0 o-items-center o-justify-center o-rounded-full o-transition-transform hover:o-scale-105 focus:o-ring md:o-size-20"
+                      style={aplat()}
+                    >
+                      <Icon icon={ArrowUpRight} size={22} aria-hidden="true" />
+                    </button>
+                  </Magnetic>
+                </form>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        {/* ================= 7. Le pied : une seule ligne ==================== */}
+        <footer className="o-border-t o-border-zinc-900 dark:o-border-zinc-100 o-px-6 o-py-5 md:o-px-8">
+          <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-x-8 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+            <span className="o-text-zinc-950 dark:o-text-zinc-50">
+              Sillon architecture
+            </span>
+            <nav
+              aria-label="Pied de page"
+              className="o-flex o-flex-wrap o-gap-x-6 o-gap-y-1"
+            >
+              {(
+                [
+                  ['#maquette', 'La maquette'],
+                  ['#dossier', 'Le dossier'],
+                  ['#notes', 'Les notes'],
+                  ['#contact', 'Nous ecrire'],
+                  ['#haut', 'Haut de page'],
+                ] as const
+              ).map(([href, mot]) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="o-no-underline o-text-zinc-500 dark:o-text-zinc-400 hover:o-text-zinc-950 dark:hover:o-text-zinc-50 o-transition-colors focus:o-ring"
+                >
+                  {mot}
+                </a>
+              ))}
+            </nav>
+            <span>
+              © 2026 — SARL au capital de 30 000 EUR — RCS Brest 801 447 220 — MAF 148 902
+              K
+            </span>
+          </div>
+        </footer>
+      </div>
     </Porte>
   )
 }

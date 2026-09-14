@@ -103,12 +103,12 @@ export function SkeletonDoc(): ReactElement {
           variants={[
             {
               title: 'Cercle',
-              description: 'La silhouette d\'un avatar.',
+              description: "La silhouette d'un avatar.",
               values: { variant: 'circle' },
             },
             {
               title: 'Rectangle',
-              description: 'La silhouette d\'un media.',
+              description: "La silhouette d'un media.",
               values: { variant: 'rect' },
             },
             {

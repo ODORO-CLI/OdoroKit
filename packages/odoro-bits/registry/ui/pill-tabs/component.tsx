@@ -181,7 +181,10 @@ export function PillTabs({
 
     indicator.animate(
       [
-        { transform: `translateX(${String(previous.left)}px)`, width: `${String(previous.width)}px` },
+        {
+          transform: `translateX(${String(previous.left)}px)`,
+          width: `${String(previous.width)}px`,
+        },
         { transform: `translateX(${String(left)}px)`, width: `${String(width)}px` },
       ],
       { duration: 220, easing: 'cubic-bezier(0.2, 0, 0, 1)' },

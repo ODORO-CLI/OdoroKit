@@ -207,7 +207,7 @@ export function SonarLoader({
                 // L'echo s'allume quand le faisceau l'atteint : son delai
                 // est sa part de tour, en negatif pour que la remanence soit
                 // deja en place a la premiere image.
-                '--o-sonar-delay': `${String(Math.round(((echo.angle / 360) - 1) * speed))}ms`,
+                '--o-sonar-delay': `${String(Math.round((echo.angle / 360 - 1) * speed))}ms`,
               } as CSSProperties
             }
           />

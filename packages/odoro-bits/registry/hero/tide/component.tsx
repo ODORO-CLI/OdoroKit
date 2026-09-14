@@ -231,7 +231,11 @@ export function Tide({
     paint('uCrest', crest)
     if (deep !== undefined) {
       scene.renderer.setClearColor(
-        new scene.three.Color(deep[0] ?? 0, deep[1] ?? 0, deep[2] ?? 0).convertSRGBToLinear(),
+        new scene.three.Color(
+          deep[0] ?? 0,
+          deep[1] ?? 0,
+          deep[2] ?? 0,
+        ).convertSRGBToLinear(),
         1,
       )
     }

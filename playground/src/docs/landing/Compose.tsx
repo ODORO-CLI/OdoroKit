@@ -42,11 +42,16 @@ const EXAMPLES: readonly Example[] = [
     render: (
       <div className="o-relative o-flex o-min-h-80 o-flex-col o-justify-center o-overflow-hidden o-rounded-2xl o-bg-white dark:o-bg-zinc-950 o-p-8 o-text-zinc-900 dark:o-text-zinc-50">
         <RadialGlow className="o-absolute o-inset-0" y={0.3} strength={0.5} />
-        <SplitReveal as="h2" by="words" className="o-relative o-text-3xl o-font-bold o-tracking-tight">
+        <SplitReveal
+          as="h2"
+          by="words"
+          className="o-relative o-text-3xl o-font-bold o-tracking-tight"
+        >
           Un titre révèle mot a mot
         </SplitReveal>
         <p className="o-relative o-mt-3 o-max-w-sm o-text-sm o-text-zinc-600 dark:o-text-zinc-300">
-          Deux entrées, aucune configuration : le fond lit la palette, le titre lit le texte.
+          Deux entrées, aucune configuration : le fond lit la palette, le titre lit le
+          texte.
         </p>
       </div>
     ),
@@ -63,7 +68,12 @@ const EXAMPLES: readonly Example[] = [
 </RevealGrid>`,
     render: (
       <div className="o-relative o-min-h-80 o-overflow-hidden o-rounded-2xl o-bg-white dark:o-bg-zinc-950 o-p-8 o-text-zinc-900 dark:o-text-zinc-50">
-        <SpotGrid className="o-absolute o-inset-0 o-opacity-60" gap={20} dot={2} vignette={0.6} />
+        <SpotGrid
+          className="o-absolute o-inset-0 o-opacity-60"
+          gap={20}
+          dot={2}
+          vignette={0.6}
+        />
         <RevealGrid columns={3} stagger={90} className="o-relative">
           {['Fonds', 'Texte', 'Effets', 'Sections', 'Images', 'Rideaux'].map((item) => (
             <TiltCard key={item} tilt={10} glare={0.25}>
@@ -87,7 +97,12 @@ const EXAMPLES: readonly Example[] = [
 </h2>`,
     render: (
       <div className="o-relative o-flex o-min-h-80 o-flex-col o-justify-center o-overflow-hidden o-rounded-2xl o-bg-white dark:o-bg-zinc-950 o-p-8 o-text-zinc-900 dark:o-text-zinc-50">
-        <Stripes className="o-absolute o-inset-0 o-opacity-30" width={6} gap={28} angle={45} />
+        <Stripes
+          className="o-absolute o-inset-0 o-opacity-30"
+          width={6}
+          gap={28}
+          angle={45}
+        />
         <h2 className="o-relative o-text-3xl o-font-bold o-tracking-tight o-text-balance">
           Une seule source :{' '}
           <HighlightSweep as="span" declenchement="vue" thickness={0.5}>

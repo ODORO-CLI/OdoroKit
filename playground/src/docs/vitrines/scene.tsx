@@ -265,11 +265,17 @@ export function Parallaxe({
   // Deux horloges possibles, une seule active : le declencheur du moteur quand
   // l image est calee, la traversee amortie quand elle glisse.
   const doux = glisse > 0 && !reduced
-  useScrollScrub<HTMLElement>(doux || reduced ? () => undefined : onProgress, { element: hote, name: 'parallaxe' })
+  useScrollScrub<HTMLElement>(doux || reduced ? () => undefined : onProgress, {
+    element: hote,
+    name: 'parallaxe',
+  })
   useTraversee(doux ? hote : null, onProgress, { raideur: raideurDe(glisse) })
   return (
     <Balise ref={setHote} className={className} style={style}>
-      <div ref={cible} className={reduced ? 'o-h-full' : 'o-h-full o-will-change-transform'}>
+      <div
+        ref={cible}
+        className={reduced ? 'o-h-full' : 'o-h-full o-will-change-transform'}
+      >
         {children}
       </div>
     </Balise>
@@ -315,19 +321,26 @@ export function ZoomDefile({
   const voile = useRef<HTMLDivElement>(null)
   const onProgress = useCallback(
     (p: number) => {
-      if (image.current !== null) image.current.style.transform = `scale(${(de + (a - de) * p).toFixed(4)})`
+      if (image.current !== null)
+        image.current.style.transform = `scale(${(de + (a - de) * p).toFixed(4)})`
       if (voile.current !== null) voile.current.style.opacity = (p * assombrir).toFixed(3)
     },
     [de, a, assombrir],
   )
   const doux = glisse > 0 && !reduced
   const [hote, setHote] = useState<HTMLElement | null>(null)
-  const { ref } = useScrollScrub<HTMLDivElement>(doux || reduced ? () => undefined : onProgress, {
-    start: 'top top',
-    end: 'bottom top',
-    name: 'zoom au defilement',
+  const { ref } = useScrollScrub<HTMLDivElement>(
+    doux || reduced ? () => undefined : onProgress,
+    {
+      start: 'top top',
+      end: 'bottom top',
+      name: 'zoom au defilement',
+    },
+  )
+  useTraversee(doux ? hote : null, onProgress, {
+    raideur: raideurDe(glisse),
+    epingle: true,
   })
-  useTraversee(doux ? hote : null, onProgress, { raideur: raideurDe(glisse), epingle: true })
   return (
     <div
       ref={(element: HTMLDivElement | null) => {
@@ -337,10 +350,19 @@ export function ZoomDefile({
       className={`o-relative o-isolate o-overflow-hidden ${className ?? ''}`}
       style={style}
     >
-      <div ref={image} className="o-absolute o-inset-0 o-will-change-transform o-origin-center" style={{ transform: reduced ? undefined : `scale(${String(de)})` }}>
+      <div
+        ref={image}
+        className="o-absolute o-inset-0 o-will-change-transform o-origin-center"
+        style={{ transform: reduced ? undefined : `scale(${String(de)})` }}
+      >
         {fond}
       </div>
-      <div ref={voile} aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-bg-black" style={{ opacity: 0 }} />
+      <div
+        ref={voile}
+        aria-hidden="true"
+        className="o-pointer-events-none o-absolute o-inset-0 o-bg-black"
+        style={{ opacity: 0 }}
+      />
       <div className="o-relative">{children}</div>
     </div>
   )
@@ -396,14 +418,28 @@ export function Epingle({
     name: 'epingle',
   })
   const courant = reduced ? nombre - 1 : acte
-  const contenu = typeof children === 'function' ? children(courant, reduced ? 1 : acte / Math.max(1, nombre - 1)) : children
+  const contenu =
+    typeof children === 'function'
+      ? children(courant, reduced ? 1 : acte / Math.max(1, nombre - 1))
+      : children
   return (
-    <div ref={ref} data-o-epingle className={`o-relative ${className ?? ''}`} style={{ height: reduced ? 'auto' : `calc(${String(ecrans)} * 100vh)`, ...style }}>
+    <div
+      ref={ref}
+      data-o-epingle
+      className={`o-relative ${className ?? ''}`}
+      style={{ height: reduced ? 'auto' : `calc(${String(ecrans)} * 100vh)`, ...style }}
+    >
       <div
         ref={scene}
         data-acte={courant}
-        className={reduced ? 'o-relative o-overflow-hidden' : 'o-sticky o-overflow-hidden'}
-        style={reduced ? { minHeight: ECRAN, '--p': 1 } as CSSProperties : { top: CHROME, height: ECRAN, '--p': 0 } as CSSProperties}
+        className={
+          reduced ? 'o-relative o-overflow-hidden' : 'o-sticky o-overflow-hidden'
+        }
+        style={
+          reduced
+            ? ({ minHeight: ECRAN, '--p': 1 } as CSSProperties)
+            : ({ top: CHROME, height: ECRAN, '--p': 0 } as CSSProperties)
+        }
       >
         {contenu}
       </div>
@@ -459,11 +495,22 @@ export function Rail({
     )
   }
   return (
-    <div ref={ref} data-o-epingle className={`o-relative ${className ?? ''}`} style={{ height: `calc(${String(ecrans)} * 100vh)`, ...style }}>
-      <div className="o-sticky o-flex o-flex-col o-overflow-hidden" style={{ top: CHROME, height: ECRAN }}>
+    <div
+      ref={ref}
+      data-o-epingle
+      className={`o-relative ${className ?? ''}`}
+      style={{ height: `calc(${String(ecrans)} * 100vh)`, ...style }}
+    >
+      <div
+        className="o-sticky o-flex o-flex-col o-overflow-hidden"
+        style={{ top: CHROME, height: ECRAN }}
+      >
         {entete}
         <div className="o-flex o-min-h-0 o-grow o-items-center">
-          <div ref={piste} className="o-flex o-w-max o-items-stretch o-will-change-transform">
+          <div
+            ref={piste}
+            className="o-flex o-w-max o-items-stretch o-will-change-transform"
+          >
             {children}
           </div>
         </div>
@@ -498,12 +545,28 @@ export function Bandeau({
   readonly taille?: string
 }): ReactElement {
   return (
-    <Marquee speed={vitesse} reverse={inverse} pauseOnHover={false} fade={0} className={className} style={style}>
-      <span className="o-flex o-items-center o-whitespace-nowrap" style={{ fontSize: taille, lineHeight: 1 }}>
+    <Marquee
+      speed={vitesse}
+      reverse={inverse}
+      pauseOnHover={false}
+      fade={0}
+      className={className}
+      style={style}
+    >
+      <span
+        className="o-flex o-items-center o-whitespace-nowrap"
+        style={{ fontSize: taille, lineHeight: 1 }}
+      >
         {mots.map((mot, rang) => (
           <span key={`${mot}-${String(rang)}`} className="o-flex o-items-center">
             <span className="o-px-6">{mot}</span>
-            <span aria-hidden="true" className="o-opacity-40" style={{ fontSize: '0.4em' }}>{separateur}</span>
+            <span
+              aria-hidden="true"
+              className="o-opacity-40"
+              style={{ fontSize: '0.4em' }}
+            >
+              {separateur}
+            </span>
           </span>
         ))}
       </span>
@@ -553,11 +616,13 @@ export function Devoile({
       const el = image.current
       if (el === null) return
       const centre = p * 2 - 1
-      el.style.transform = `translate3d(0, ${(-centre * derive).toFixed(1)}px, 0) scale(${(1 + (derive / 800)).toFixed(3)})`
+      el.style.transform = `translate3d(0, ${(-centre * derive).toFixed(1)}px, 0) scale(${(1 + derive / 800).toFixed(3)})`
     },
     [derive],
   )
-  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : onProgress, { name: 'devoile' })
+  const { ref } = useScrollScrub<HTMLDivElement>(reduced ? () => undefined : onProgress, {
+    name: 'devoile',
+  })
   const cache: Record<string, string> = {
     bas: 'inset(100% 0 0 0)',
     haut: 'inset(0 0 100% 0)',
@@ -572,13 +637,24 @@ export function Devoile({
         style={{
           aspectRatio: ratio,
           clipPath: reduced || vu ? 'inset(0 0 0 0)' : cache[depuis],
-          transition: reduced ? undefined : 'clip-path 1200ms cubic-bezier(0.22, 1, 0.36, 1)',
+          transition: reduced
+            ? undefined
+            : 'clip-path 1200ms cubic-bezier(0.22, 1, 0.36, 1)',
         }}
       >
-        <img ref={image} src={src} alt={alt} loading="lazy" decoding="async" className={`o-absolute o-inset-0 o-size-full o-object-cover o-will-change-transform ${imgClassName ?? ''}`} />
+        <img
+          ref={image}
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className={`o-absolute o-inset-0 o-size-full o-object-cover o-will-change-transform ${imgClassName ?? ''}`}
+        />
       </div>
       {legende !== undefined && (
-        <figcaption className="o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-70">{legende}</figcaption>
+        <figcaption className="o-mt-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-70">
+          {legende}
+        </figcaption>
       )}
     </figure>
   )
@@ -610,15 +686,29 @@ export function Chapitre({
   /** Colonnes (sur douze) prises par l etiquette. */
   readonly largeur?: 3 | 4 | 5
 }): ReactElement {
-  const gauche = { 3: 'md:o-col-span-3', 4: 'md:o-col-span-4', 5: 'md:o-col-span-5' }[largeur]
-  const droite = { 3: 'md:o-col-span-9', 4: 'md:o-col-span-8', 5: 'md:o-col-span-7' }[largeur]
+  const gauche = { 3: 'md:o-col-span-3', 4: 'md:o-col-span-4', 5: 'md:o-col-span-5' }[
+    largeur
+  ]
+  const droite = { 3: 'md:o-col-span-9', 4: 'md:o-col-span-8', 5: 'md:o-col-span-7' }[
+    largeur
+  ]
   return (
-    <section id={id} className={`o-grid o-gap-8 md:o-grid-cols-12 md:o-gap-12 ${className ?? ''}`} style={style}>
+    <section
+      id={id}
+      className={`o-grid o-gap-8 md:o-grid-cols-12 md:o-gap-12 ${className ?? ''}`}
+      style={style}
+    >
       <div className={gauche}>
         <div className="md:o-sticky" style={{ top: CHROME + 32 }}>
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-60">{indice}</p>
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-60">
+            {indice}
+          </p>
           <div className="o-mt-4">{titre}</div>
-          {texte !== undefined && <div className="o-mt-4 o-max-w-sm o-text-sm o-leading-relaxed o-opacity-80">{texte}</div>}
+          {texte !== undefined && (
+            <div className="o-mt-4 o-max-w-sm o-text-sm o-leading-relaxed o-opacity-80">
+              {texte}
+            </div>
+          )}
         </div>
       </div>
       <div className={`o-min-w-0 ${droite}`}>{children}</div>
@@ -651,13 +741,15 @@ export function Flotte({
     <div
       data-o-vs-flotte=""
       className={className}
-      style={{
-        '--o-vs-amp': `${String(amplitude)}px`,
-        '--o-vs-duree': `${String(duree)}s`,
-        '--o-vs-delai': `${String(delai)}s`,
-        '--o-vs-rot': `${String(angle)}deg`,
-        ...style,
-      } as CSSProperties}
+      style={
+        {
+          '--o-vs-amp': `${String(amplitude)}px`,
+          '--o-vs-duree': `${String(duree)}s`,
+          '--o-vs-delai': `${String(delai)}s`,
+          '--o-vs-rot': `${String(angle)}deg`,
+          ...style,
+        } as CSSProperties
+      }
     >
       {children}
     </div>
@@ -689,20 +781,27 @@ export function Nappe({
     { left: '15%', top: '55%', width: '45vw', height: '45vw', delai: -17, duree: 24 },
   ]
   return (
-    <div data-o-vs-nappe="" aria-hidden="true" className={`o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden ${className ?? ''}`} style={{ opacity: opacite, ...style }}>
+    <div
+      data-o-vs-nappe=""
+      aria-hidden="true"
+      className={`o-pointer-events-none o-absolute o-inset-0 o-overflow-hidden ${className ?? ''}`}
+      style={{ opacity: opacite, ...style }}
+    >
       {taches.map((t, rang) => (
         <span
           key={rang}
           className={`o-absolute o-block o-rounded-full ${flou}`}
-          style={{
-            left: t.left,
-            top: t.top,
-            width: t.width,
-            height: t.height,
-            background: couleurs[rang],
-            '--o-vs-delai': `${String(t.delai)}s`,
-            '--o-vs-duree': `${String(t.duree)}s`,
-          } as CSSProperties}
+          style={
+            {
+              left: t.left,
+              top: t.top,
+              width: t.width,
+              height: t.height,
+              background: couleurs[rang],
+              '--o-vs-delai': `${String(t.delai)}s`,
+              '--o-vs-duree': `${String(t.duree)}s`,
+            } as CSSProperties
+          }
         />
       ))}
     </div>
@@ -710,10 +809,24 @@ export function Nappe({
 }
 
 /** Un cercle qui respire : s ouvre et se ferme au rythme d une inspiration. */
-export function Respire({ duree = 8, className, style, children }: { readonly duree?: number; readonly className?: string; readonly style?: CSSProperties; readonly children?: ReactNode }): ReactElement {
+export function Respire({
+  duree = 8,
+  className,
+  style,
+  children,
+}: {
+  readonly duree?: number
+  readonly className?: string
+  readonly style?: CSSProperties
+  readonly children?: ReactNode
+}): ReactElement {
   useFeuilleScene()
   return (
-    <div data-o-vs-respire="" className={className} style={{ '--o-vs-duree': `${String(duree)}s`, ...style } as CSSProperties}>
+    <div
+      data-o-vs-respire=""
+      className={className}
+      style={{ '--o-vs-duree': `${String(duree)}s`, ...style } as CSSProperties}
+    >
       {children}
     </div>
   )
@@ -722,7 +835,15 @@ export function Respire({ duree = 8, className, style, children }: { readonly du
 /* ============================ Aimant =================================== */
 
 /** Un bouton aimante, seulement sous un pointeur fin. */
-export function Aimant({ force = 0.35, className, children }: { readonly force?: number; readonly className?: string; readonly children: ReactNode }): ReactElement {
+export function Aimant({
+  force = 0.35,
+  className,
+  children,
+}: {
+  readonly force?: number
+  readonly className?: string
+  readonly children: ReactNode
+}): ReactElement {
   const [fin, setFin] = useState(false)
   useEffect(() => {
     setFin(window.matchMedia('(pointer: fine)').matches)
@@ -774,14 +895,21 @@ export function Eclate({
     name: 'lettres eclatees',
   })
   return (
-    <Balise ref={setHote} className={className} style={{ '--p': 0, ...style } as CSSProperties} aria-label={mot}>
+    <Balise
+      ref={setHote}
+      className={className}
+      style={{ '--p': 0, ...style } as CSSProperties}
+      aria-label={mot}
+    >
       {[...mot].map((lettre, rang) => (
         <span
           key={`${lettre}-${String(rang)}`}
           aria-hidden="true"
           className="o-inline-block o-will-change-transform"
           style={{
-            transform: reduced ? undefined : `translate3d(0, calc(var(--p) * ${String(-(rang % 2 === 0 ? haut : bas))}px), 0)`,
+            transform: reduced
+              ? undefined
+              : `translate3d(0, calc(var(--p) * ${String(-(rang % 2 === 0 ? haut : bas))}px), 0)`,
             opacity: reduced ? 1 : `calc(1 - var(--p) * 0.6)`,
           }}
         >
@@ -801,7 +929,17 @@ export function Eclate({
  * enfant fixe : le pied ne bouge pas, la page glisse dessus. Sous mouvement
  * reduit, un pied ordinaire.
  */
-export function PiedColle({ hauteur = 520, className, style, children }: { readonly hauteur?: number; readonly className?: string; readonly style?: CSSProperties; readonly children: ReactNode }): ReactElement {
+export function PiedColle({
+  hauteur = 520,
+  className,
+  style,
+  children,
+}: {
+  readonly hauteur?: number
+  readonly className?: string
+  readonly style?: CSSProperties
+  readonly children: ReactNode
+}): ReactElement {
   const { reduced } = useMotionState()
   if (reduced) {
     return (
@@ -811,7 +949,10 @@ export function PiedColle({ hauteur = 520, className, style, children }: { reado
     )
   }
   return (
-    <div className={`o-relative ${className ?? ''}`} style={{ height: hauteur, clipPath: 'inset(0 0 0 0)', ...style }}>
+    <div
+      className={`o-relative ${className ?? ''}`}
+      style={{ height: hauteur, clipPath: 'inset(0 0 0 0)', ...style }}
+    >
       <div className="o-fixed o-bottom-0 o-left-0 o-w-full" style={{ height: hauteur }}>
         {children}
       </div>
@@ -922,7 +1063,8 @@ export function Profondeur({
       scene.current?.style.setProperty('--p', p.toFixed(4))
       rapport.current?.(p)
       if (actes !== undefined) {
-        const brut = decoupe.current === undefined ? Math.floor(p * actes) : decoupe.current(p)
+        const brut =
+          decoupe.current === undefined ? Math.floor(p * actes) : decoupe.current(p)
         const rang = Math.min(actes - 1, Math.max(0, brut))
         setActe((precedent) => (precedent === rang ? precedent : rang))
       }
@@ -945,10 +1087,20 @@ export function Profondeur({
       ref={scene}
       data-acte={acte}
       className={`o-relative o-isolate o-overflow-hidden ${className ?? ''}`}
-      style={{ height: reduced ? ECRAN : ECRAN, '--p': 0, '--px': 0, '--py': 0, ...style } as CSSProperties}
+      style={
+        {
+          height: reduced ? ECRAN : ECRAN,
+          '--p': 0,
+          '--px': 0,
+          '--py': 0,
+          ...style,
+        } as CSSProperties
+      }
     >
       <DecorContexte.Provider value={{ sens, course }}>{children}</DecorContexte.Provider>
-      {!reduced && hud !== undefined && <div className="o-absolute o-inset-0 o-z-30">{hud(acte)}</div>}
+      {!reduced && hud !== undefined && (
+        <div className="o-absolute o-inset-0 o-z-30">{hud(acte)}</div>
+      )}
     </div>
   )
 
@@ -969,7 +1121,12 @@ export function Profondeur({
   }
 
   return (
-    <div ref={setHote} data-o-epingle className="o-relative" style={{ height: `calc(${String(ecrans)} * 100vh)` }}>
+    <div
+      ref={setHote}
+      data-o-epingle
+      className="o-relative"
+      style={{ height: `calc(${String(ecrans)} * 100vh)` }}
+    >
       <div className="o-sticky" style={{ top: CHROME }}>
         {decor}
       </div>
@@ -1012,7 +1169,10 @@ export function Couche({
   return (
     <div
       className={`o-absolute o-inset-0 o-will-change-transform ${className ?? ''}`}
-      style={{ transform: `${glissement} scale(calc(1 + var(--p, 0) * ${zoom.toFixed(3)}))`, ...style }}
+      style={{
+        transform: `${glissement} scale(calc(1 + var(--p, 0) * ${zoom.toFixed(3)}))`,
+        ...style,
+      }}
     >
       {children}
     </div>

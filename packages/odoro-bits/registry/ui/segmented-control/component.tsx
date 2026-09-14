@@ -174,7 +174,9 @@ export function SegmentedControl({
   }
 
   const radios = (): HTMLButtonElement[] =>
-    Array.from(hostRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? [])
+    Array.from(
+      hostRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? [],
+    )
 
   /** Pose la glissiere sous l'option choisie. Sans option, elle se replie. */
   const place = (): void => {

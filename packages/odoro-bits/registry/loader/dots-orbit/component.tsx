@@ -134,7 +134,13 @@ export function DotsOrbit({
       <span className="o-sr-only">{label}</span>
       <svg aria-hidden width={size} height={size} viewBox="0 0 100 100">
         {ORBITS.map((orbit) => (
-          <circle key={orbit.radius} data-o-dots-orbit-track="" cx="50" cy="50" r={orbit.radius} />
+          <circle
+            key={orbit.radius}
+            data-o-dots-orbit-track=""
+            cx="50"
+            cy="50"
+            r={orbit.radius}
+          />
         ))}
         {ORBITS.map((orbit) => (
           <g
@@ -147,7 +153,12 @@ export function DotsOrbit({
               } as CSSProperties
             }
           >
-            <circle data-o-dots-orbit-dot="" cx="50" cy={50 - orbit.radius} r={orbit.dot} />
+            <circle
+              data-o-dots-orbit-dot=""
+              cx="50"
+              cy={50 - orbit.radius}
+              r={orbit.dot}
+            />
           </g>
         ))}
       </svg>

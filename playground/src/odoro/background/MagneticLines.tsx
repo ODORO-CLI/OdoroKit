@@ -118,19 +118,24 @@ export function MagneticLines({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: MAGNETIC_LINES_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uLines: lines,
-        uSpread: spread,
-        uSpeed: speed,
-        uPotential: potential ? 1 : 0,
-      },
-      name: 'magnetic-lines',
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: MAGNETIC_LINES_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uLines: lines,
+      uSpread: spread,
+      uSpeed: speed,
+      uPotential: potential ? 1 : 0,
+    },
+    name: 'magnetic-lines',
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

@@ -144,7 +144,14 @@ export function YinYang({
       <span className="o-sr-only">{label}</span>
       <svg aria-hidden viewBox="0 0 100 100" width="100%" height="100%">
         <g data-o-yin-yang-disc="">
-          <circle cx={50} cy={50} r={RADIUS} fill="none" stroke="currentColor" strokeWidth={3} />
+          <circle
+            cx={50}
+            cy={50}
+            r={RADIUS}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+          />
           <path d={DARK} fill="currentColor" fillRule="evenodd" />
           <circle cx={50} cy={50 - RADIUS / 2} r={EYE} fill="currentColor" />
         </g>

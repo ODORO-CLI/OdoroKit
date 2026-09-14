@@ -75,12 +75,48 @@ interface LigneEau {
 }
 
 const LIGNES: readonly LigneEau[] = [
-  { numero: 1, allure: 'rapide', nom: 'Ligne rapide', note: 'Crawl, virages culbute, depassement autorise au milieu.', capacite: 6 },
-  { numero: 2, allure: 'rapide', nom: 'Ligne rapide', note: 'La meme, mais c est celle du club le soir.', capacite: 6 },
-  { numero: 3, allure: 'moyen', nom: 'Ligne moyenne', note: 'Le tout-venant. C est la que tombent les trois quarts des gens.', capacite: 8 },
-  { numero: 4, allure: 'moyen', nom: 'Ligne moyenne', note: 'Idem, cote fenetres. Un peu plus fraiche le matin.', capacite: 8 },
-  { numero: 5, allure: 'tranquille', nom: 'Ligne calme', note: 'Brasse, dos, palmes interdites. On ne double pas.', capacite: 8 },
-  { numero: 6, allure: 'tranquille', nom: 'Ligne reservee', note: 'Cours, aquagym, scolaires. Libre entre les creneaux.', capacite: 10 },
+  {
+    numero: 1,
+    allure: 'rapide',
+    nom: 'Ligne rapide',
+    note: 'Crawl, virages culbute, depassement autorise au milieu.',
+    capacite: 6,
+  },
+  {
+    numero: 2,
+    allure: 'rapide',
+    nom: 'Ligne rapide',
+    note: 'La meme, mais c est celle du club le soir.',
+    capacite: 6,
+  },
+  {
+    numero: 3,
+    allure: 'moyen',
+    nom: 'Ligne moyenne',
+    note: 'Le tout-venant. C est la que tombent les trois quarts des gens.',
+    capacite: 8,
+  },
+  {
+    numero: 4,
+    allure: 'moyen',
+    nom: 'Ligne moyenne',
+    note: 'Idem, cote fenetres. Un peu plus fraiche le matin.',
+    capacite: 8,
+  },
+  {
+    numero: 5,
+    allure: 'tranquille',
+    nom: 'Ligne calme',
+    note: 'Brasse, dos, palmes interdites. On ne double pas.',
+    capacite: 8,
+  },
+  {
+    numero: 6,
+    allure: 'tranquille',
+    nom: 'Ligne reservee',
+    note: 'Cours, aquagym, scolaires. Libre entre les creneaux.',
+    capacite: 10,
+  },
 ]
 
 /** Les creneaux d une journee ordinaire, en heures pleines. */
@@ -121,12 +157,48 @@ interface Cours {
 }
 
 const COURS: readonly Cours[] = [
-  { nom: 'Bebes nageurs', debut: 9, fin: 10, public: '6 mois a 3 ans, avec un parent', places: 3 },
-  { nom: 'Apprentissage enfants', debut: 10, fin: 11.5, public: '5 a 10 ans, trois niveaux', places: 0 },
-  { nom: 'Aquagym', debut: 12, fin: 12.75, public: 'Tous ages, dans le petit bain', places: 7 },
-  { nom: 'Perfectionnement crawl', debut: 14, fin: 15.5, public: 'Sait nager 200 m sans arret', places: 4 },
-  { nom: 'Aquaphobie', debut: 16, fin: 17, public: 'Adultes, huit personnes au plus', places: 2 },
-  { nom: 'Entrainement club', debut: 19, fin: 21, public: 'Licencies du Cercle Nord', places: 0 },
+  {
+    nom: 'Bebes nageurs',
+    debut: 9,
+    fin: 10,
+    public: '6 mois a 3 ans, avec un parent',
+    places: 3,
+  },
+  {
+    nom: 'Apprentissage enfants',
+    debut: 10,
+    fin: 11.5,
+    public: '5 a 10 ans, trois niveaux',
+    places: 0,
+  },
+  {
+    nom: 'Aquagym',
+    debut: 12,
+    fin: 12.75,
+    public: 'Tous ages, dans le petit bain',
+    places: 7,
+  },
+  {
+    nom: 'Perfectionnement crawl',
+    debut: 14,
+    fin: 15.5,
+    public: 'Sait nager 200 m sans arret',
+    places: 4,
+  },
+  {
+    nom: 'Aquaphobie',
+    debut: 16,
+    fin: 17,
+    public: 'Adultes, huit personnes au plus',
+    places: 2,
+  },
+  {
+    nom: 'Entrainement club',
+    debut: 19,
+    fin: 21,
+    public: 'Licencies du Cercle Nord',
+    places: 0,
+  },
 ]
 
 /** Une heure ecrite court : « 12 h 45 ». */
@@ -176,10 +248,25 @@ function useFeuillePiscine(): void {
  */
 function Coupe(): ReactElement {
   return (
-    <svg viewBox="0 0 1080 300" className="o-h-auto o-w-full" role="img" aria-label="Coupe du bassin : vingt-cinq metres, de 1,10 m au petit bain a 3,50 m au plongeoir">
+    <svg
+      viewBox="0 0 1080 300"
+      className="o-h-auto o-w-full"
+      role="img"
+      aria-label="Coupe du bassin : vingt-cinq metres, de 1,10 m au petit bain a 3,50 m au plongeoir"
+    >
       {/* Le creux du bassin. */}
-      <path d="M60 60 L60 148 L520 148 L1020 250 L1020 60" fill={accentDoux(400, 26)} stroke="none" />
-      <path d="M60 60 L60 148 L520 148 L1020 250 L1020 60" fill="none" stroke={accent(500)} strokeWidth="3" strokeLinejoin="round" />
+      <path
+        d="M60 60 L60 148 L520 148 L1020 250 L1020 60"
+        fill={accentDoux(400, 26)}
+        stroke="none"
+      />
+      <path
+        d="M60 60 L60 148 L520 148 L1020 250 L1020 60"
+        fill="none"
+        stroke={accent(500)}
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
       <defs>
         <clipPath id="o-pi-bassin">
           <rect x="60" y="40" width="960" height="40" />
@@ -197,12 +284,35 @@ function Coupe(): ReactElement {
       </g>
 
       {/* Les cotes. */}
-      <path d="M110 62 V148" stroke={accentDoux(800, 46)} strokeWidth="1" strokeDasharray="3 5" />
-      <text x="120" y="112" fontSize="19" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-fg)' }}>
+      <path
+        d="M110 62 V148"
+        stroke={accentDoux(800, 46)}
+        strokeWidth="1"
+        strokeDasharray="3 5"
+      />
+      <text
+        x="120"
+        y="112"
+        fontSize="19"
+        fill="currentColor"
+        style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-fg)' }}
+      >
         1,10 m
       </text>
-      <path d="M960 62 V244" stroke={accentDoux(800, 46)} strokeWidth="1" strokeDasharray="3 5" />
-      <text x="950" y="160" fontSize="19" textAnchor="end" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-fg)' }}>
+      <path
+        d="M960 62 V244"
+        stroke={accentDoux(800, 46)}
+        strokeWidth="1"
+        strokeDasharray="3 5"
+      />
+      <text
+        x="950"
+        y="160"
+        fontSize="19"
+        textAnchor="end"
+        fill="currentColor"
+        style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-fg)' }}
+      >
         3,50 m
       </text>
 
@@ -210,16 +320,44 @@ function Coupe(): ReactElement {
       {[170, 300, 430, 560, 690, 820].map((x, rang) => (
         <g key={x}>
           <circle cx={x} cy={62} r="7" fill={accent(500)} />
-          <text x={x} y={40} fontSize="17" textAnchor="middle" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-muted)' }}>
+          <text
+            x={x}
+            y={40}
+            fontSize="17"
+            textAnchor="middle"
+            fill="currentColor"
+            style={{ fontFamily: 'var(--o-font-mono)', color: 'var(--o-theme-muted)' }}
+          >
             {String(rang + 1)}
           </text>
         </g>
       ))}
 
-      <text x="60" y="286" fontSize="17" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em', color: 'var(--o-theme-muted)' }}>
+      <text
+        x="60"
+        y="286"
+        fontSize="17"
+        fill="currentColor"
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          letterSpacing: '0.12em',
+          color: 'var(--o-theme-muted)',
+        }}
+      >
         PETIT BAIN
       </text>
-      <text x="1020" y="286" fontSize="17" textAnchor="end" fill="currentColor" style={{ fontFamily: 'var(--o-font-mono)', letterSpacing: '0.12em', color: 'var(--o-theme-muted)' }}>
+      <text
+        x="1020"
+        y="286"
+        fontSize="17"
+        textAnchor="end"
+        fill="currentColor"
+        style={{
+          fontFamily: 'var(--o-font-mono)',
+          letterSpacing: '0.12em',
+          color: 'var(--o-theme-muted)',
+        }}
+      >
         GRAND BAIN — 25 M
       </text>
     </svg>
@@ -264,7 +402,9 @@ function Lignes(): ReactElement {
       {/* ------- Les commandes ------- */}
       <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
         <div className="md:o-col-span-5">
-          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Ce que vous venez faire</p>
+          <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+            Ce que vous venez faire
+          </p>
           <div className="o-mt-4 o-flex o-flex-wrap o-gap-2">
             {ALLURES.map((choix) => {
               const actif = choix.id === allure
@@ -277,9 +417,19 @@ function Lignes(): ReactElement {
                     setAllure(choix.id)
                   }}
                   className={`o-rounded-full o-border-w-1 o-px-4 o-py-2 o-text-sm o-transition-colors focus:o-ring ${
-                    actif ? '' : 'o-border-black-20 dark:o-border-zinc-700 hover:o-bg-black-10 dark:hover:o-bg-zinc-900'
+                    actif
+                      ? ''
+                      : 'o-border-black-20 dark:o-border-zinc-700 hover:o-bg-black-10 dark:hover:o-bg-zinc-900'
                   }`}
-                  style={actif ? { backgroundColor: encre(), color: 'var(--o-theme-bg)', borderColor: encre() } : undefined}
+                  style={
+                    actif
+                      ? {
+                          backgroundColor: encre(),
+                          color: 'var(--o-theme-bg)',
+                          borderColor: encre(),
+                        }
+                      : undefined
+                  }
                 >
                   {choix.mot}
                 </button>
@@ -309,11 +459,19 @@ function Lignes(): ReactElement {
 
       {/* ------- La carte de chaleur ------- */}
       <div className="o-mt-12 o-overflow-x-auto" style={{ overflowY: 'hidden' }}>
-        <table className="o-text-left" style={{ minWidth: 720, width: '100%', borderCollapse: 'collapse' }}>
-          <caption className="o-sr-only">Nageurs par ligne d eau et par creneau, moyenne d un mois de comptages</caption>
+        <table
+          className="o-text-left"
+          style={{ minWidth: 720, width: '100%', borderCollapse: 'collapse' }}
+        >
+          <caption className="o-sr-only">
+            Nageurs par ligne d eau et par creneau, moyenne d un mois de comptages
+          </caption>
           <thead>
             <tr>
-              <th scope="col" className="o-py-2 o-pr-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-font-normal o-text-zinc-500 dark:o-text-zinc-400">
+              <th
+                scope="col"
+                className="o-py-2 o-pr-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-font-normal o-text-zinc-500 dark:o-text-zinc-400"
+              >
                 Ligne
               </th>
               {CRENEAUX.map((creneau, index) => (
@@ -334,11 +492,19 @@ function Lignes(): ReactElement {
               const retenue = presentes.includes(ligne.numero)
               return (
                 <tr key={ligne.numero} style={{ opacity: retenue ? 1 : 0.4 }}>
-                  <th scope="row" className="o-whitespace-nowrap o-py-1 o-pr-4 o-text-sm o-font-normal">
-                    <span className="o-font-mono o-tabular-nums" style={{ color: retenue ? encre() : 'var(--o-theme-muted)' }}>
+                  <th
+                    scope="row"
+                    className="o-whitespace-nowrap o-py-1 o-pr-4 o-text-sm o-font-normal"
+                  >
+                    <span
+                      className="o-font-mono o-tabular-nums"
+                      style={{ color: retenue ? encre() : 'var(--o-theme-muted)' }}
+                    >
                       {String(ligne.numero)}
                     </span>
-                    <span className="o-ml-3 o-text-zinc-600 dark:o-text-zinc-400">{ligne.nom}</span>
+                    <span className="o-ml-3 o-text-zinc-600 dark:o-text-zinc-400">
+                      {ligne.nom}
+                    </span>
                   </th>
                   {releve.map((nageurs, index) => {
                     const part = Math.min(1, nageurs / ligne.capacite)
@@ -348,7 +514,9 @@ function Lignes(): ReactElement {
                         key={CRENEAUX[index] ?? index}
                         className="o-px-1 o-py-1 o-text-center o-font-mono o-text-xs o-tabular-nums"
                         style={{
-                          backgroundColor: fermee ? 'var(--o-theme-surface)' : accentDoux(500, Math.round(part * 50)),
+                          backgroundColor: fermee
+                            ? 'var(--o-theme-surface)'
+                            : accentDoux(500, Math.round(part * 50)),
                           color: 'var(--o-theme-fg)',
                           outline: index === colonne ? `2px solid ${encre()}` : undefined,
                           outlineOffset: -2,
@@ -372,15 +540,27 @@ function Lignes(): ReactElement {
       <div className="o-mt-12 o-grid o-gap-8 md:o-grid-cols-12">
         <div className="md:o-col-span-7">
           <div className="o-rounded-2xl o-p-7" style={nuit('slate')}>
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Le creneau que nous vous donnerions</p>
-            <p className="o-m-0 o-mt-4 o-text-zinc-50" aria-live="polite" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.4vw, 2.5rem)', lineHeight: 1.02 }}>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+              Le creneau que nous vous donnerions
+            </p>
+            <p
+              className="o-m-0 o-mt-4 o-text-zinc-50"
+              aria-live="polite"
+              style={{
+                ...affiche('m', 300),
+                fontSize: 'clamp(1.5rem, 3.4vw, 2.5rem)',
+                lineHeight: 1.02,
+              }}
+            >
               {conseil === null
                 ? 'Aucune ligne ouverte pour cette allure.'
                 : `Ligne ${String(conseil.ligne.numero)}, a ${heure(CRENEAUX[conseil.index] ?? 0)}`}
             </p>
             {conseil !== null && (
               <p className="o-m-0 o-mt-4 o-max-w-md o-text-sm o-leading-relaxed o-text-zinc-300">
-                {conseil.ligne.note} A cette heure-la elle tourne a {String(Math.round(conseil.part * 100))} pour cent de sa capacite, soit le creux de la semaine pour cette allure.
+                {conseil.ligne.note} A cette heure-la elle tourne a{' '}
+                {String(Math.round(conseil.part * 100))} pour cent de sa capacite, soit le
+                creux de la semaine pour cette allure.
               </p>
             )}
           </div>
@@ -388,13 +568,26 @@ function Lignes(): ReactElement {
         <div className="md:o-col-span-5">
           <dl className="o-m-0">
             {[
-              ['A cette heure', `${String((AFFLUENCE.reduce((somme, releve) => somme + (releve[colonne] ?? 0), 0)))} nageurs dans le bassin`],
-              ['Lignes ouvertes', `${String(AFFLUENCE.filter((releve) => (releve[colonne] ?? 0) > 0).length)} sur 6`],
+              [
+                'A cette heure',
+                `${String(AFFLUENCE.reduce((somme, releve) => somme + (releve[colonne] ?? 0), 0))} nageurs dans le bassin`,
+              ],
+              [
+                'Lignes ouvertes',
+                `${String(AFFLUENCE.filter((releve) => (releve[colonne] ?? 0) > 0).length)} sur 6`,
+              ],
               ['Temperature de l eau', '28,2 °C — relevee a 7 h'],
             ].map(([quoi, valeur]) => (
-              <div key={quoi} className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-py-4">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-                <dd className="o-m-0 o-mt-2 o-text-lg o-text-zinc-950 dark:o-text-zinc-50">{valeur}</dd>
+              <div
+                key={quoi}
+                className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-py-4"
+              >
+                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  {quoi}
+                </dt>
+                <dd className="o-m-0 o-mt-2 o-text-lg o-text-zinc-950 dark:o-text-zinc-50">
+                  {valeur}
+                </dd>
               </div>
             ))}
           </dl>
@@ -427,8 +620,21 @@ function Horloge(): ReactElement {
   }, [])
 
   return (
-    <svg viewBox="0 0 200 200" className="o-h-auto o-w-full" style={{ maxWidth: 240 }} role="img" aria-label="Horloge du hall">
-      <circle cx="100" cy="100" r="94" fill="none" stroke={accentDoux(700, 30)} strokeWidth="2" />
+    <svg
+      viewBox="0 0 200 200"
+      className="o-h-auto o-w-full"
+      style={{ maxWidth: 240 }}
+      role="img"
+      aria-label="Horloge du hall"
+    >
+      <circle
+        cx="100"
+        cy="100"
+        r="94"
+        fill="none"
+        stroke={accentDoux(700, 30)}
+        strokeWidth="2"
+      />
       {Array.from({ length: 12 }, (_, rang) => {
         const angle = (rang * 30 * Math.PI) / 180
         const interieur = rang % 3 === 0 ? 74 : 82
@@ -442,10 +648,35 @@ function Horloge(): ReactElement {
           />
         )
       })}
-      <path d="M100 100V46" stroke="var(--o-theme-fg)" strokeWidth="6" strokeLinecap="round" style={{ transformOrigin: '100px 100px', transform: `rotate(${String(angles.h)}deg)` }} />
-      <path d="M100 100V26" stroke="var(--o-theme-fg)" strokeWidth="4" strokeLinecap="round" style={{ transformOrigin: '100px 100px', transform: `rotate(${String(angles.m)}deg)` }} />
+      <path
+        d="M100 100V46"
+        stroke="var(--o-theme-fg)"
+        strokeWidth="6"
+        strokeLinecap="round"
+        style={{
+          transformOrigin: '100px 100px',
+          transform: `rotate(${String(angles.h)}deg)`,
+        }}
+      />
+      <path
+        d="M100 100V26"
+        stroke="var(--o-theme-fg)"
+        strokeWidth="4"
+        strokeLinecap="round"
+        style={{
+          transformOrigin: '100px 100px',
+          transform: `rotate(${String(angles.m)}deg)`,
+        }}
+      />
       {!reduced && (
-        <path data-o-pi-seconde="" d="M100 108V24" stroke={accent(500)} strokeWidth="2" strokeLinecap="round" style={{ transformOrigin: '100px 100px' }} />
+        <path
+          data-o-pi-seconde=""
+          d="M100 108V24"
+          stroke={accent(500)}
+          strokeWidth="2"
+          strokeLinecap="round"
+          style={{ transformOrigin: '100px 100px' }}
+        />
       )}
       <circle cx="100" cy="100" r="6" fill="var(--o-theme-fg)" />
     </svg>
@@ -471,9 +702,15 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Bassin Nord">
-      <div className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* ================= L ouverture : l eau ========================== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-14 o-pt-32 md:o-px-10" style={{ ...nuit('slate'), minHeight: `calc(100vh - ${String(CHROME)}px)` }}>
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-justify-between o-overflow-hidden o-px-6 o-pb-14 o-pt-32 md:o-px-10"
+          style={{ ...nuit('slate'), minHeight: `calc(100vh - ${String(CHROME)}px)` }}
+        >
           <WaterSurface
             aria-hidden="true"
             className="o-absolute o-inset-0 o-z-0"
@@ -489,7 +726,11 @@ export default function Page(): ReactElement {
           <Voile sens="haut-bas" famille="slate" />
           <Grain opacite={0.05} />
 
-          <BarreGelule marque="Bassin Nord" liens={NAVIGATION} action={['#cours', 'S inscrire']} />
+          <BarreGelule
+            marque="Bassin Nord"
+            liens={NAVIGATION}
+            action={['#cours', 'S inscrire']}
+          />
 
           <div className="o-relative o-z-20">
             <Surgit>
@@ -505,8 +746,13 @@ export default function Page(): ReactElement {
           </div>
 
           <div className="o-relative o-z-20 o-flex o-flex-wrap o-items-end o-justify-between o-gap-8">
-            <Surgit delai={520} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-200">
-              Vingt-cinq metres, six lignes, vingt-huit degres. Cette page ne vous vend rien : elle vous dit a quelle heure la ligne qui vous convient est vide.
+            <Surgit
+              delai={520}
+              as="p"
+              className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-200"
+            >
+              Vingt-cinq metres, six lignes, vingt-huit degres. Cette page ne vous vend
+              rien : elle vous dit a quelle heure la ligne qui vous convient est vide.
             </Surgit>
             <Surgit delai={640}>
               <a
@@ -532,22 +778,37 @@ export default function Page(): ReactElement {
         </header>
 
         {/* ================= Le batiment : une seule photographie ========= */}
-        <section id="bassin" className="o-relative o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-10 md:o-pt-32">
+        <section
+          id="bassin"
+          className="o-relative o-scroll-mt-24 o-px-6 o-pt-24 md:o-px-10 md:o-pt-32"
+        >
           <div className="o-mx-auto o-grid o-max-w-6xl o-gap-10 md:o-grid-cols-12 md:o-gap-14">
             <div className="md:o-col-span-5">
               <Reveal>
-                <Indice rang="01" sombre={false}>Le batiment</Indice>
+                <Indice rang="01" sombre={false}>
+                  Le batiment
+                </Indice>
               </Reveal>
               <Reveal delay={80}>
-                <h2 className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.25rem)', lineHeight: 0.96 }}>
+                <h2
+                  className="o-m-0 o-mt-6 o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.85rem, 4vw, 3.25rem)',
+                    lineHeight: 0.96,
+                  }}
+                >
                   Une nef de brique, et de l eau dedans.
                 </h2>
               </Reveal>
               <p className="o-m-0 o-mt-6 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Construite en 1928 sur le modele des bains-douches municipaux, la halle a garde ses voutes, sa faience et ses quatre colonnes de granit — qui traversent le bassin et qu il faut apprendre a contourner.
+                Construite en 1928 sur le modele des bains-douches municipaux, la halle a
+                garde ses voutes, sa faience et ses quatre colonnes de granit — qui
+                traversent le bassin et qu il faut apprendre a contourner.
               </p>
               <p className="o-m-0 o-mt-4 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Le chauffage est passe au bois en 2019 ; c est ce qui permet de tenir vingt-huit degres sans facturer une entree au prix d un cinema.
+                Le chauffage est passe au bois en 2019 ; c est ce qui permet de tenir
+                vingt-huit degres sans facturer une entree au prix d un cinema.
               </p>
               <dl className="o-m-0 o-mt-10">
                 {[
@@ -555,9 +816,16 @@ export default function Page(): ReactElement {
                   ['Classement', 'Inscrit a l inventaire, 2004'],
                   ['Entree', '3,40 EUR — 1,70 EUR pour la ville'],
                 ].map(([quoi, valeur]) => (
-                  <div key={quoi} className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-black-10 dark:o-border-zinc-800 o-py-3">
-                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-                    <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-950 dark:o-text-zinc-50">{valeur}</dd>
+                  <div
+                    key={quoi}
+                    className="o-flex o-items-baseline o-justify-between o-gap-4 o-border-t o-border-black-10 dark:o-border-zinc-800 o-py-3"
+                  >
+                    <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                      {quoi}
+                    </dt>
+                    <dd className="o-m-0 o-font-mono o-text-sm o-text-zinc-950 dark:o-text-zinc-50">
+                      {valeur}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -569,7 +837,12 @@ export default function Page(): ReactElement {
               chose sort de son cadre, et il fallait que ce soit celui-la.
             */}
             <div className="md:o-col-span-7">
-              <Parallaxe vitesse={0.14} glisse={0.82} className="o-relative o-z-10" style={{ marginBottom: -140 }}>
+              <Parallaxe
+                vitesse={0.14}
+                glisse={0.82}
+                className="o-relative o-z-10"
+                style={{ marginBottom: -140 }}
+              >
                 <figure className="o-m-0">
                   <ScrollRevealImage
                     src={photo('cadre-archive-piscine', 1000, 1500)}
@@ -579,7 +852,8 @@ export default function Page(): ReactElement {
                     span={0.5}
                   />
                   <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                    La halle, vue de la galerie haute — les quatre colonnes sont dans l eau
+                    La halle, vue de la galerie haute — les quatre colonnes sont dans l
+                    eau
                   </figcaption>
                 </figure>
               </Parallaxe>
@@ -588,9 +862,20 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= La coupe du bassin =========================== */}
-        <section aria-labelledby="coupe-titre" className="o-px-6 o-pb-24 o-pt-40 md:o-px-10 md:o-pb-32 md:o-pt-48">
+        <section
+          aria-labelledby="coupe-titre"
+          className="o-px-6 o-pb-24 o-pt-40 md:o-px-10 md:o-pb-32 md:o-pt-48"
+        >
           <div className="o-mx-auto o-max-w-6xl">
-            <h2 id="coupe-titre" className="o-m-0 o-max-w-xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', lineHeight: 1 }}>
+            <h2
+              id="coupe-titre"
+              className="o-m-0 o-max-w-xl o-text-zinc-950 dark:o-text-zinc-50"
+              style={{
+                ...affiche('m', 300),
+                fontSize: 'clamp(1.5rem, 3vw, 2.5rem)',
+                lineHeight: 1,
+              }}
+            >
               Ou l on a pied, et ou l on n en a plus.
             </h2>
             <div className="o-mt-12">
@@ -600,13 +885,25 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= Les lignes d eau : le mecanisme ============== */}
-        <section id="lignes" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32">
+        <section
+          id="lignes"
+          className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
-              <Indice rang="02" sombre={false}>Les lignes d eau</Indice>
+              <Indice rang="02" sombre={false}>
+                Les lignes d eau
+              </Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4.2vw, 3.5rem)', lineHeight: 0.96 }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-3xl o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.85rem, 4.2vw, 3.5rem)',
+                  lineHeight: 0.96,
+                }}
+              >
                 <WaveText amplitude={5} speed={2600}>
                   Six lignes, treize heures
                 </WaveText>
@@ -615,7 +912,8 @@ export default function Page(): ReactElement {
               </h2>
             </Reveal>
             <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-              Dites-nous ce que vous venez faire et a quelle heure vous pouvez venir : la carte ci-dessous est un mois de comptages, et elle repond a votre place.
+              Dites-nous ce que vous venez faire et a quelle heure vous pouvez venir : la
+              carte ci-dessous est un mois de comptages, et elle repond a votre place.
             </p>
             <div className="o-mt-14">
               <Lignes />
@@ -624,13 +922,24 @@ export default function Page(): ReactElement {
         </section>
 
         {/* ================= Les cours : la frise de la journee (A23) ===== */}
-        <section id="cours" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={nuit('slate')}>
+        <section
+          id="cours"
+          className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={nuit('slate')}
+        >
           <div className="o-mx-auto o-max-w-6xl">
             <Reveal>
               <Indice rang="03">Les cours</Indice>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.85rem, 4vw, 3.25rem)', lineHeight: 0.96 }}>
+              <h2
+                className="o-m-0 o-mt-6 o-max-w-2xl o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.85rem, 4vw, 3.25rem)',
+                  lineHeight: 0.96,
+                }}
+              >
                 Prenez votre place sur la ligne 6.
               </h2>
             </Reveal>
@@ -654,17 +963,31 @@ export default function Page(): ReactElement {
                   {COURS.map((seance) => {
                     const choisi = seance.nom === cours
                     const libre = seance.places > 0
-                    const gauche = ((seance.debut - debutFrise) / (finFrise - debutFrise)) * 100
-                    const large = ((seance.fin - seance.debut) / (finFrise - debutFrise)) * 100
+                    const gauche =
+                      ((seance.debut - debutFrise) / (finFrise - debutFrise)) * 100
+                    const large =
+                      ((seance.fin - seance.debut) / (finFrise - debutFrise)) * 100
                     return (
-                      <li key={seance.nom} className="o-flex o-items-center o-border-b o-border-white-10" style={{ height: 58 }}>
+                      <li
+                        key={seance.nom}
+                        className="o-flex o-items-center o-border-b o-border-white-10"
+                        style={{ height: 58 }}
+                      >
                         <span
                           className="o-shrink-0 o-truncate o-pr-4 o-text-sm"
-                          style={{ width: 220, color: libre ? 'var(--o-palette-slate-100)' : 'var(--o-palette-slate-400)' }}
+                          style={{
+                            width: 220,
+                            color: libre
+                              ? 'var(--o-palette-slate-100)'
+                              : 'var(--o-palette-slate-400)',
+                          }}
                         >
                           {seance.nom}
                         </span>
-                        <span className="o-relative o-block o-grow" style={{ height: 34 }}>
+                        <span
+                          className="o-relative o-block o-grow"
+                          style={{ height: 34 }}
+                        >
                           <button
                             type="button"
                             disabled={!libre}
@@ -679,13 +1002,23 @@ export default function Page(): ReactElement {
                               minWidth: 118,
                               border: 0,
                               cursor: libre ? 'pointer' : 'not-allowed',
-                              backgroundColor: choisi ? encreSurSombre() : libre ? 'var(--o-palette-slate-800)' : 'color-mix(in oklab, var(--o-palette-slate-100) 9%, var(--o-palette-slate-950))',
-                              color: choisi ? 'var(--o-palette-slate-950)' : libre ? 'var(--o-palette-slate-100)' : 'var(--o-palette-slate-400)',
+                              backgroundColor: choisi
+                                ? encreSurSombre()
+                                : libre
+                                  ? 'var(--o-palette-slate-800)'
+                                  : 'color-mix(in oklab, var(--o-palette-slate-100) 9%, var(--o-palette-slate-950))',
+                              color: choisi
+                                ? 'var(--o-palette-slate-950)'
+                                : libre
+                                  ? 'var(--o-palette-slate-100)'
+                                  : 'var(--o-palette-slate-400)',
                             }}
                           >
                             <span className="o-sr-only">{seance.nom} — </span>
                             <span>{heure(seance.debut)}</span>
-                            <span>{libre ? `${String(seance.places)} pl.` : 'complet'}</span>
+                            <span>
+                              {libre ? `${String(seance.places)} pl.` : 'complet'}
+                            </span>
                           </button>
                         </span>
                       </li>
@@ -698,12 +1031,24 @@ export default function Page(): ReactElement {
             <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12">
               <div className="md:o-col-span-7">
                 <div className={`${verre(true)} o-p-6`}>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">Seance retenue</p>
-                  <p className="o-m-0 o-mt-3 o-text-zinc-50" aria-live="polite" style={{ ...affiche('m', 300), fontSize: 'clamp(1.35rem, 2.8vw, 2rem)', lineHeight: 1.04 }}>
-                    {retenu?.nom ?? ''} — {heure(retenu?.debut ?? 0)} a {heure(retenu?.fin ?? 0)}
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+                    Seance retenue
+                  </p>
+                  <p
+                    className="o-m-0 o-mt-3 o-text-zinc-50"
+                    aria-live="polite"
+                    style={{
+                      ...affiche('m', 300),
+                      fontSize: 'clamp(1.35rem, 2.8vw, 2rem)',
+                      lineHeight: 1.04,
+                    }}
+                  >
+                    {retenu?.nom ?? ''} — {heure(retenu?.debut ?? 0)} a{' '}
+                    {heure(retenu?.fin ?? 0)}
                   </p>
                   <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-300">
-                    {retenu?.public ?? ''}. Inscription au trimestre, reglable en trois fois, et remboursee au prorata si la halle ferme.
+                    {retenu?.public ?? ''}. Inscription au trimestre, reglable en trois
+                    fois, et remboursee au prorata si la halle ferme.
                   </p>
                 </div>
               </div>
@@ -711,9 +1056,13 @@ export default function Page(): ReactElement {
                 <a
                   href="#cours"
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-7 o-py-4 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
-                  style={{ backgroundColor: encreSurSombre(), color: 'var(--o-palette-slate-950)' }}
+                  style={{
+                    backgroundColor: encreSurSombre(),
+                    color: 'var(--o-palette-slate-950)',
+                  }}
                 >
-                  S inscrire a cette seance <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                  S inscrire a cette seance{' '}
+                  <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                 </a>
               </div>
             </div>
@@ -727,7 +1076,14 @@ export default function Page(): ReactElement {
               <Horloge />
             </div>
             <div>
-              <p className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', lineHeight: 1.08 }}>
+              <p
+                className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                style={{
+                  ...affiche('m', 300),
+                  fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                  lineHeight: 1.08,
+                }}
+              >
                 12 rue des Bains
                 <br />
                 Halle nord

@@ -159,7 +159,8 @@ export function MorphText({
 
   useEffect(() => {
     const element = hote.current
-    const taille = element === null ? 0 : Number.parseFloat(getComputedStyle(element).fontSize)
+    const taille =
+      element === null ? 0 : Number.parseFloat(getComputedStyle(element).fontSize)
     setCorps(Number.isFinite(taille) ? taille : 0)
     // CORPS_MINIMAL : en deca, le seuil mangerait les jambages et le mot
     // disparaitrait. Le fondu croise prend alors le relais — il est ecrit en

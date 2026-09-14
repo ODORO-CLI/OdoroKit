@@ -41,7 +41,14 @@
  */
 
 import { mergePresentation, useMotionState, type Customisable } from '@odoro-cli/engine'
-import { Children, useEffect, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  Children,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { useInView } from '@/odoro/hooks/useInView'
 

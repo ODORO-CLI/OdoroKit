@@ -240,8 +240,11 @@ export function ImageParticles({
 
       const ground = readTokenColour(background, host)
       renderer.setClearColor(
-        new three.Color(ground?.[0] ?? 0.98, ground?.[1] ?? 0.98, ground?.[2] ?? 0.98)
-          .convertSRGBToLinear(),
+        new three.Color(
+          ground?.[0] ?? 0.98,
+          ground?.[1] ?? 0.98,
+          ground?.[2] ?? 0.98,
+        ).convertSRGBToLinear(),
         1,
       )
 
@@ -351,8 +354,11 @@ export function ImageParticles({
     const ground = readTokenColour(background, host)
     if (ground === undefined) return
     scene.renderer.setClearColor(
-      new scene.three.Color(ground[0] ?? 0, ground[1] ?? 0, ground[2] ?? 0)
-        .convertSRGBToLinear(),
+      new scene.three.Color(
+        ground[0] ?? 0,
+        ground[1] ?? 0,
+        ground[2] ?? 0,
+      ).convertSRGBToLinear(),
       1,
     )
   }, [theme, background, host])

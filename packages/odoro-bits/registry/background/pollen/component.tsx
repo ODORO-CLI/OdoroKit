@@ -130,21 +130,26 @@ export function Pollen({
     return () => subscription.unsubscribe()
   }, [pointer, uPointer])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: POLLEN_FRAGMENT,
-      colors,
-      uniforms: {
-        uPointer,
-        uSpeed: speed,
-        uDensity: density,
-        uBlur: blur,
-        uParallax: parallax,
-        uSpread: SPREAD,
-      },
-      name: 'pollen',
-      degrade: (quality) => ({ uSpread: quality === 'low' ? LOW_SPREAD : SPREAD }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: POLLEN_FRAGMENT,
+    colors,
+    uniforms: {
+      uPointer,
+      uSpeed: speed,
+      uDensity: density,
+      uBlur: blur,
+      uParallax: parallax,
+      uSpread: SPREAD,
+    },
+    name: 'pollen',
+    degrade: (quality) => ({ uSpread: quality === 'low' ? LOW_SPREAD : SPREAD }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

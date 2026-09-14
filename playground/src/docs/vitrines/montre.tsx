@@ -52,7 +52,15 @@
 import { useMotionState } from '@odoro-cli/engine'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowDown, ArrowUpRight } from '@odoro-cli/icons/filaire'
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 
 import { CircularText } from '@/odoro/text/CircularText.jsx'
 import { FlipCard } from '@/odoro/ui/FlipCard.jsx'
@@ -177,22 +185,26 @@ const ACTES = [
   {
     mot: 'Le barillet',
     titre: 'Un ressort plat, enroule dans son tambour.',
-    texte: 'Trente-deux centimetres d acier de deux dixiemes, roules a froid. On lui donne vingt tours de couronne ; il les rend sur soixante-huit heures, et il les rend de plus en plus mollement. Tout le reste du mouvement existe pour corriger cela.',
+    texte:
+      'Trente-deux centimetres d acier de deux dixiemes, roules a froid. On lui donne vingt tours de couronne ; il les rend sur soixante-huit heures, et il les rend de plus en plus mollement. Tout le reste du mouvement existe pour corriger cela.',
   },
   {
     mot: 'Le rouage',
     titre: 'Quatre roues, et la vitesse qui monte.',
-    texte: 'A chaque engrenage le couple descend et la vitesse monte. Le barillet fait un tour en sept heures, la roue de centre un tour par heure, la roue de seconde un tour par minute. Aucune de ces durees n est reglee : elles sont comptees en dents.',
+    texte:
+      'A chaque engrenage le couple descend et la vitesse monte. Le barillet fait un tour en sept heures, la roue de centre un tour par heure, la roue de seconde un tour par minute. Aucune de ces durees n est reglee : elles sont comptees en dents.',
   },
   {
     mot: 'L echappement',
     titre: 'La seule piece qui dise non.',
-    texte: 'L ancre retient la roue, la lache une dent a la fois, et profite du passage pour rendre au balancier l energie qu il vient de perdre dans l air et dans ses pivots. Sans elle, le rouage se deviderait en trois secondes.',
+    texte:
+      'L ancre retient la roue, la lache une dent a la fois, et profite du passage pour rendre au balancier l energie qu il vient de perdre dans l air et dans ses pivots. Sans elle, le rouage se deviderait en trois secondes.',
   },
   {
     mot: 'Le balancier',
     titre: 'Une masse, un spiral, et rien d autre.',
-    texte: 'Sa periode ne depend ni du ressort qui faiblit ni de la position du poignet : seulement de son inertie et de la raideur du spiral. C est la raison pour laquelle une montre mecanique peut etre juste, et c est la seule.',
+    texte:
+      'Sa periode ne depend ni du ressort qui faiblit ni de la position du poignet : seulement de son inertie et de la raideur du spiral. C est la raison pour laquelle une montre mecanique peut etre juste, et c est la seule.',
   },
 ] as const
 
@@ -205,12 +217,30 @@ const NAVIGATION = [
 
 /** L etiquette du pied : ce qu il y a dans la boite. */
 const ETIQUETTE = [
-  ['Composition', 'Boitier acier 316L brosse main, glace saphir bombee, fond visse a six pans, joint nitrile'],
-  ['Mouvement', 'Calibre maison, remontage manuel, ponts anglees a la lime, spiral plat en alliage a module constant'],
-  ['Origine', 'Ebauche fraisee a Morteau, terminee, assemblee et reglee rue des Granges a Besancon'],
-  ['Reglage', 'Six positions, trois temperatures, quinze jours de marche avant expedition'],
-  ['Entretien', 'Revision tous les six ans ; huile epilame sur les pierres d echappement, graisse sur le barillet'],
-  ['Garantie', 'Cinq ans, piece et main d oeuvre, sur presentation du bulletin de marche signe'],
+  [
+    'Composition',
+    'Boitier acier 316L brosse main, glace saphir bombee, fond visse a six pans, joint nitrile',
+  ],
+  [
+    'Mouvement',
+    'Calibre maison, remontage manuel, ponts anglees a la lime, spiral plat en alliage a module constant',
+  ],
+  [
+    'Origine',
+    'Ebauche fraisee a Morteau, terminee, assemblee et reglee rue des Granges a Besancon',
+  ],
+  [
+    'Reglage',
+    'Six positions, trois temperatures, quinze jours de marche avant expedition',
+  ],
+  [
+    'Entretien',
+    'Revision tous les six ans ; huile epilame sur les pierres d echappement, graisse sur le barillet',
+  ],
+  [
+    'Garantie',
+    'Cinq ans, piece et main d oeuvre, sur presentation du bulletin de marche signe',
+  ],
 ] as const
 
 /* ============================ Les valeurs deduites ===================== */
@@ -243,7 +273,10 @@ function cadenceDe(alternances: number): Cadence {
 
 /** Un nombre a la francaise, avec l espace des milliers. */
 function nombre(valeur: number, decimales = 0): string {
-  return valeur.toLocaleString('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+  return valeur.toLocaleString('fr-FR', {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })
 }
 
 /** Une marche signee : « + 3 s / j », « - 2 s / j ». */
@@ -261,7 +294,14 @@ function signe(valeur: number): string {
  * a crochet de l echappement, un biais a la moitie donne la dent symetrique
  * d une roue de transmission.
  */
-function roue(cx: number, cy: number, rayon: number, creux: number, dents: number, biais = 0.5): string {
+function roue(
+  cx: number,
+  cy: number,
+  rayon: number,
+  creux: number,
+  dents: number,
+  biais = 0.5,
+): string {
   const pas = (Math.PI * 2) / dents
   const point = (angle: number, r: number): string =>
     `${(cx + Math.cos(angle) * r).toFixed(1)} ${(cy + Math.sin(angle) * r).toFixed(1)}`
@@ -277,12 +317,20 @@ function roue(cx: number, cy: number, rayon: number, creux: number, dents: numbe
 }
 
 /** Une spirale d Archimede : le ressort du barillet, le spiral du balancier. */
-function spirale(cx: number, cy: number, petit: number, grand: number, tours: number): string {
+function spirale(
+  cx: number,
+  cy: number,
+  petit: number,
+  grand: number,
+  tours: number,
+): string {
   const total = tours * Math.PI * 2
   const points: string[] = []
   for (let a = 0; a <= total; a += 0.16) {
     const r = petit + ((grand - petit) * a) / total
-    points.push(`${(cx + Math.cos(a) * r).toFixed(1)} ${(cy + Math.sin(a) * r).toFixed(1)}`)
+    points.push(
+      `${(cx + Math.cos(a) * r).toFixed(1)} ${(cy + Math.sin(a) * r).toFixed(1)}`,
+    )
   }
   return `M${points.join('L')}`
 }
@@ -331,7 +379,12 @@ function Mouvement({
   const filet = 'var(--o-palette-stone-600)'
 
   return (
-    <svg viewBox="0 0 580 348" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 580 348"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       <defs>
         <radialGradient id="o-montre-platine" cx="0.42" cy="0.3" r="0.8">
           <stop offset="0" stopColor={laiton} stopOpacity="0.2" />
@@ -343,74 +396,191 @@ function Mouvement({
       {/* Le mecanisme garde ses coordonnees propres ; le decalage laisse les
           marges libres pour les legendes, qui ne mordent alors sur rien. */}
       <g transform="translate(26, 10)">
-      {/* La platine, et le cercle de perlage qui la borde. */}
-      <circle cx="230" cy="165" r="152" fill="url(#o-montre-platine)" stroke={filet} strokeWidth="1.2" />
-      <circle cx="230" cy="165" r="141" stroke={filet} strokeWidth="0.8" strokeDasharray="2 5" opacity="0.7" />
+        {/* La platine, et le cercle de perlage qui la borde. */}
+        <circle
+          cx="230"
+          cy="165"
+          r="152"
+          fill="url(#o-montre-platine)"
+          stroke={filet}
+          strokeWidth="1.2"
+        />
+        <circle
+          cx="230"
+          cy="165"
+          r="141"
+          stroke={filet}
+          strokeWidth="0.8"
+          strokeDasharray="2 5"
+          opacity="0.7"
+        />
 
-      {/* Le barillet : la roue, et le ressort enroule dedans. */}
-      <g>
-        <path d={roue(112, 96, 56, 49, 42)} fill={laitonSombre} fillOpacity="0.5" stroke={laiton} strokeWidth="1.1" />
-        <path d={spirale(112, 96, 6, 42, 5.5)} stroke={acier} strokeWidth="1.6" opacity="0.8" />
-        <circle cx="112" cy="96" r="7" fill={acier} />
-      </g>
+        {/* Le barillet : la roue, et le ressort enroule dedans. */}
+        <g>
+          <path
+            d={roue(112, 96, 56, 49, 42)}
+            fill={laitonSombre}
+            fillOpacity="0.5"
+            stroke={laiton}
+            strokeWidth="1.1"
+          />
+          <path
+            d={spirale(112, 96, 6, 42, 5.5)}
+            stroke={acier}
+            strokeWidth="1.6"
+            opacity="0.8"
+          />
+          <circle cx="112" cy="96" r="7" fill={acier} />
+        </g>
 
-      {/* Le rouage : centre, moyenne, seconde. Trois roues, aucune animee —
+        {/* Le rouage : centre, moyenne, seconde. Trois roues, aucune animee —
           leur tour dure une heure, huit minutes et une minute. */}
-      <path d={roue(226, 92, 44, 38, 30)} fill={laitonSombre} fillOpacity="0.42" stroke={laiton} strokeWidth="1.1" />
-      <circle cx="226" cy="92" r="6" fill={acier} />
-      <path d={roue(312, 150, 37, 31, 26)} fill={laitonSombre} fillOpacity="0.42" stroke={laiton} strokeWidth="1.1" />
-      <circle cx="312" cy="150" r="5.5" fill={acier} />
-      <path d={roue(296, 240, 33, 27, 24)} fill={laitonSombre} fillOpacity="0.42" stroke={laiton} strokeWidth="1.1" />
-      <circle cx="296" cy="240" r="5" fill={acier} />
+        <path
+          d={roue(226, 92, 44, 38, 30)}
+          fill={laitonSombre}
+          fillOpacity="0.42"
+          stroke={laiton}
+          strokeWidth="1.1"
+        />
+        <circle cx="226" cy="92" r="6" fill={acier} />
+        <path
+          d={roue(312, 150, 37, 31, 26)}
+          fill={laitonSombre}
+          fillOpacity="0.42"
+          stroke={laiton}
+          strokeWidth="1.1"
+        />
+        <circle cx="312" cy="150" r="5.5" fill={acier} />
+        <path
+          d={roue(296, 240, 33, 27, 24)}
+          fill={laitonSombre}
+          fillOpacity="0.42"
+          stroke={laiton}
+          strokeWidth="1.1"
+        />
+        <circle cx="296" cy="240" r="5" fill={acier} />
 
-      {/* La roue d echappement : quinze dents a crochet, un cran par
+        {/* La roue d echappement : quinze dents a crochet, un cran par
           alternance. `steps(15)` fait tomber la dent, il ne la fait pas
           glisser — c est toute la difference entre un echappement et un
           moulin. */}
-      <g
-        data-o-montre-bat=""
-        style={{ transformOrigin: '206px 246px', ...anime(`o-montre-roue ${(alternance * DENTS).toFixed(3)}s steps(${String(DENTS)}, end) infinite`) }}
-      >
-        <path d={roue(206, 246, 34, 24, DENTS, 0.24)} fill={accent(500)} fillOpacity="0.32" stroke={accent(200)} strokeWidth="1.3" />
-        <circle cx="206" cy="246" r="5" fill={acier} />
-      </g>
+        <g
+          data-o-montre-bat=""
+          style={{
+            transformOrigin: '206px 246px',
+            ...anime(
+              `o-montre-roue ${(alternance * DENTS).toFixed(3)}s steps(${String(DENTS)}, end) infinite`,
+            ),
+          }}
+        >
+          <path
+            d={roue(206, 246, 34, 24, DENTS, 0.24)}
+            fill={accent(500)}
+            fillOpacity="0.32"
+            stroke={accent(200)}
+            strokeWidth="1.3"
+          />
+          <circle cx="206" cy="246" r="5" fill={acier} />
+        </g>
 
-      {/* L ancre : deux bras a palettes vers la roue, une fourchette vers le
+        {/* L ancre : deux bras a palettes vers la roue, une fourchette vers le
           balancier, et le pivot au milieu. */}
-      <g
-        data-o-montre-bat=""
-        style={{ transformOrigin: '150px 228px', ...anime(`o-montre-ancre ${oscillation.toFixed(3)}s linear infinite`) }}
-      >
-        <path d="M150 228 L186 212" stroke={acier} strokeWidth="9" strokeLinecap="round" />
-        <path d="M150 228 L190 246" stroke={acier} strokeWidth="9" strokeLinecap="round" />
-        <path d="M150 228 L108 232" stroke={acier} strokeWidth="6" strokeLinecap="round" opacity="0.9" />
-        <rect x="182" y="206" width="9" height="11" rx="1.5" fill={accent(400)} transform="rotate(-24 186 212)" />
-        <rect x="186" y="241" width="9" height="11" rx="1.5" fill={accent(400)} transform="rotate(22 190 246)" />
-        <circle cx="150" cy="228" r="7" fill={filet} stroke={acier} strokeWidth="1.5" />
-      </g>
+        <g
+          data-o-montre-bat=""
+          style={{
+            transformOrigin: '150px 228px',
+            ...anime(`o-montre-ancre ${oscillation.toFixed(3)}s linear infinite`),
+          }}
+        >
+          <path
+            d="M150 228 L186 212"
+            stroke={acier}
+            strokeWidth="9"
+            strokeLinecap="round"
+          />
+          <path
+            d="M150 228 L190 246"
+            stroke={acier}
+            strokeWidth="9"
+            strokeLinecap="round"
+          />
+          <path
+            d="M150 228 L108 232"
+            stroke={acier}
+            strokeWidth="6"
+            strokeLinecap="round"
+            opacity="0.9"
+          />
+          <rect
+            x="182"
+            y="206"
+            width="9"
+            height="11"
+            rx="1.5"
+            fill={accent(400)}
+            transform="rotate(-24 186 212)"
+          />
+          <rect
+            x="186"
+            y="241"
+            width="9"
+            height="11"
+            rx="1.5"
+            fill={accent(400)}
+            transform="rotate(22 190 246)"
+          />
+          <circle cx="150" cy="228" r="7" fill={filet} stroke={acier} strokeWidth="1.5" />
+        </g>
 
-      {/* Le balancier : le volant, ses deux bras, et le spiral. L amplitude
+        {/* Le balancier : le volant, ses deux bras, et le spiral. L amplitude
           est celle du carnet de reglage, pas une valeur choisie. */}
-      <g
-        data-o-montre-bat=""
-        style={{
-          transformOrigin: '86px 212px',
-          '--o-montre-amplitude': `${String(Math.round(calibre.amplitude / 2))}deg`,
-          ...anime(`o-montre-balancier ${oscillation.toFixed(3)}s ease-in-out infinite`),
-        } as CSSProperties}
-      >
-        <path d={spirale(86, 212, 5, 30, 9)} stroke={acier} strokeWidth="1" opacity="0.75" />
-        <circle cx="86" cy="212" r="52" stroke={laiton} strokeWidth="7" opacity="0.92" />
-        <path d="M34 212 H138 M86 160 V264" stroke={laiton} strokeWidth="4.5" opacity="0.75" />
-        <circle cx="86" cy="212" r="7" fill={acier} />
-        <circle cx="122" cy="174" r="5" fill={accent(400)} />
-        <circle cx="50" cy="250" r="5" fill={accent(400)} />
-      </g>
-
+        <g
+          data-o-montre-bat=""
+          style={
+            {
+              transformOrigin: '86px 212px',
+              '--o-montre-amplitude': `${String(Math.round(calibre.amplitude / 2))}deg`,
+              ...anime(
+                `o-montre-balancier ${oscillation.toFixed(3)}s ease-in-out infinite`,
+              ),
+            } as CSSProperties
+          }
+        >
+          <path
+            d={spirale(86, 212, 5, 30, 9)}
+            stroke={acier}
+            strokeWidth="1"
+            opacity="0.75"
+          />
+          <circle
+            cx="86"
+            cy="212"
+            r="52"
+            stroke={laiton}
+            strokeWidth="7"
+            opacity="0.92"
+          />
+          <path
+            d="M34 212 H138 M86 160 V264"
+            stroke={laiton}
+            strokeWidth="4.5"
+            opacity="0.75"
+          />
+          <circle cx="86" cy="212" r="7" fill={acier} />
+          <circle cx="122" cy="174" r="5" fill={accent(400)} />
+          <circle cx="50" cy="250" r="5" fill={accent(400)} />
+        </g>
       </g>
 
       {legendes && (
-        <g fill="var(--o-palette-stone-200)" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11, letterSpacing: '0.1em' }}>
+        <g
+          fill="var(--o-palette-stone-200)"
+          style={{
+            fontFamily: 'var(--o-font-mono)',
+            fontSize: 11,
+            letterSpacing: '0.1em',
+          }}
+        >
           {/* Les filets de renvoi : `fill` explicitement nul, sans quoi ils
               heriteraient du remplissage du groupe et se fermeraient en
               triangles pleins. */}
@@ -421,13 +591,30 @@ function Mouvement({
             <path d="M252 284 L306 318" />
             <path d="M374 166 L448 166" />
           </g>
-          <text x="24" y="32">Barillet</text>
-          <text x="24" y="44" fill="var(--o-palette-stone-400)" style={{ fontSize: 9.5 }}>68 h de reserve</text>
-          <text x="10" y="320">Balancier</text>
-          <text x="196" y="322">Ancre</text>
+          <text x="24" y="32">
+            Barillet
+          </text>
+          <text x="24" y="44" fill="var(--o-palette-stone-400)" style={{ fontSize: 9.5 }}>
+            68 h de reserve
+          </text>
+          <text x="10" y="320">
+            Balancier
+          </text>
+          <text x="196" y="322">
+            Ancre
+          </text>
           <text x="310" y="322">{`Echappement · ${String(DENTS)} dents`}</text>
-          <text x="452" y="163">Rouage</text>
-          <text x="452" y="177" fill="var(--o-palette-stone-400)" style={{ fontSize: 9.5 }}>1 tour / min</text>
+          <text x="452" y="163">
+            Rouage
+          </text>
+          <text
+            x="452"
+            y="177"
+            fill="var(--o-palette-stone-400)"
+            style={{ fontSize: 9.5 }}
+          >
+            1 tour / min
+          </text>
         </g>
       )}
     </svg>
@@ -443,7 +630,13 @@ function Mouvement({
  * seul chiffre que la maison met en scene. L echelle va de vingt secondes
  * perdues a vingt secondes gagnees ; au-dela, la piece repart a l etabli.
  */
-function CadranDeMarche({ marche, amplitude }: { readonly marche: number; readonly amplitude: number }): ReactElement {
+function CadranDeMarche({
+  marche,
+  amplitude,
+}: {
+  readonly marche: number
+  readonly amplitude: number
+}): ReactElement {
   const borne = 20
   const course = 124
   const angle = (Math.max(-borne, Math.min(borne, marche)) / borne) * course
@@ -485,11 +678,13 @@ function CadranDeMarche({ marche, amplitude }: { readonly marche: number; readon
           strokeWidth="3"
           opacity="0.7"
         />
-        {([
-          [-20, 46, 150],
-          [0, 130, 28],
-          [20, 214, 150],
-        ] as const).map(([valeur, x, y]) => (
+        {(
+          [
+            [-20, 46, 150],
+            [0, 130, 28],
+            [20, 214, 150],
+          ] as const
+        ).map(([valeur, x, y]) => (
           <text
             key={valeur}
             x={x}
@@ -502,14 +697,31 @@ function CadranDeMarche({ marche, amplitude }: { readonly marche: number; readon
           </text>
         ))}
         {/* L aiguille, qui rejoint sa valeur en une demi-seconde. */}
-        <g style={{ transformOrigin: '130px 140px', transform: `rotate(${angle.toFixed(1)}deg)`, transition: 'transform 620ms cubic-bezier(0.16, 1, 0.3, 1)' }}>
+        <g
+          style={{
+            transformOrigin: '130px 140px',
+            transform: `rotate(${angle.toFixed(1)}deg)`,
+            transition: 'transform 620ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
           <path d="M130 140 L126 60 L130 46 L134 60 Z" fill={encreSurSombre()} />
           <path d="M130 140 L130 158" stroke={encreSurSombre()} strokeWidth="3" />
         </g>
-        <circle cx="130" cy="140" r="8" fill="var(--o-palette-stone-900)" stroke="var(--o-palette-stone-500)" strokeWidth="1.5" />
+        <circle
+          cx="130"
+          cy="140"
+          r="8"
+          fill="var(--o-palette-stone-900)"
+          stroke="var(--o-palette-stone-500)"
+          strokeWidth="1.5"
+        />
       </svg>
       <figcaption className="o-mt-2 o-text-center o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
-        Marche moyenne — <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>{signe(marche)} s / j</span> — amplitude {String(amplitude)}°
+        Marche moyenne —{' '}
+        <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>
+          {signe(marche)} s / j
+        </span>{' '}
+        — amplitude {String(amplitude)}°
       </figcaption>
     </figure>
   )
@@ -518,14 +730,31 @@ function CadranDeMarche({ marche, amplitude }: { readonly marche: number; readon
 /* ============================ Les petites pieces ======================= */
 
 /** Une valeur deduite, posee sur un filet : libelle en mono, chiffre en clair. */
-function Valeur({ quoi, children, note }: { readonly quoi: string; readonly children: ReactNode; readonly note?: string }): ReactElement {
+function Valeur({
+  quoi,
+  children,
+  note,
+}: {
+  readonly quoi: string
+  readonly children: ReactNode
+  readonly note?: string
+}): ReactElement {
   return (
     <div className="o-border-t o-border-white-10 o-py-4">
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)' }}>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+        {quoi}
+      </dt>
+      <dd
+        className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)' }}
+      >
         {children}
       </dd>
-      {note !== undefined && <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-stone-500">{note}</p>}
+      {note !== undefined && (
+        <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-stone-500">
+          {note}
+        </p>
+      )}
     </div>
   )
 }
@@ -546,10 +775,22 @@ function CodeBarres({ graine }: { readonly graine: string }): ReactElement {
         const gauche = x
         x += largeur + 1.4
         return rang % 2 === 0 ? (
-          <rect key={rang} x={gauche.toFixed(1)} y="0" width={largeur.toFixed(1)} height="34" fill="var(--o-palette-stone-200)" />
+          <rect
+            key={rang}
+            x={gauche.toFixed(1)}
+            y="0"
+            width={largeur.toFixed(1)}
+            height="34"
+            fill="var(--o-palette-stone-200)"
+          />
         ) : null
       })}
-      <text x="0" y="43" fill="var(--o-palette-stone-400)" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 8, letterSpacing: '0.22em' }}>
+      <text
+        x="0"
+        y="43"
+        fill="var(--o-palette-stone-400)"
+        style={{ fontFamily: 'var(--o-font-mono)', fontSize: 8, letterSpacing: '0.22em' }}
+      >
         {graine}
       </text>
     </svg>
@@ -584,306 +825,391 @@ export default function Page(): ReactElement {
   const [piste, setPiste] = useState<HTMLElement | null>(null)
 
   const mouvement = (
-      <Volume
-        nom="mouvement mecanique"
-        className="o-absolute o-inset-0 o-z-0"
-        piste={piste}
-        trajectoire={[
-          { at: 0, position: [0.15, 0.4, 5.4], lookAt: [1.0, 0.45, 0] },
-          { at: 0.36, position: [0.7, 0.75, 4.3], lookAt: [1.05, 0.5, 0] },
-          { at: 0.7, position: [0.95, 0.25, 3.2], lookAt: [0.95, 0.15, 0] },
-          { at: 1, position: [0.7, 0.05, 2.4], lookAt: [0.68, 0.02, 0] },
-        ]}
-        repli={
-          <div className="o-flex o-h-full o-items-center o-justify-center o-p-10">
-            <div className="o-w-full o-max-w-2xl o-opacity-90">
-              <Mouvement calibre={calibre} part={part} />
-            </div>
+    <Volume
+      nom="mouvement mecanique"
+      className="o-absolute o-inset-0 o-z-0"
+      piste={piste}
+      trajectoire={[
+        { at: 0, position: [0.15, 0.4, 5.4], lookAt: [1.0, 0.45, 0] },
+        { at: 0.36, position: [0.7, 0.75, 4.3], lookAt: [1.05, 0.5, 0] },
+        { at: 0.7, position: [0.95, 0.25, 3.2], lookAt: [0.95, 0.15, 0] },
+        { at: 1, position: [0.7, 0.05, 2.4], lookAt: [0.68, 0.02, 0] },
+      ]}
+      repli={
+        <div className="o-flex o-h-full o-items-center o-justify-center o-p-10">
+          <div className="o-w-full o-max-w-2xl o-opacity-90">
+            <Mouvement calibre={calibre} part={part} />
           </div>
-        }
-        construire={(contexte) => {
-          const { scene, camera, three } = contexte
-          const laiton = teinte('--o-vitrine-400', '#d8a657')
-          const laitonFonce = teinte('--o-vitrine-700', '#8a6224')
-          const rubisTeinte = teinte('--o-vitrine-500', '#c0392b')
-          const acier = teinte('--o-vitrine-100', '#e7e5e4')
+        </div>
+      }
+      construire={(contexte) => {
+        const { scene, camera, three } = contexte
+        const laiton = teinte('--o-vitrine-400', '#d8a657')
+        const laitonFonce = teinte('--o-vitrine-700', '#8a6224')
+        const rubisTeinte = teinte('--o-vitrine-500', '#c0392b')
+        const acier = teinte('--o-vitrine-100', '#e7e5e4')
 
-          // Le canevas est opaque : son arriere-plan est le fond de la page.
-          // Une nuit chaude, tres sombre, tiree de l accent de la vitrine et
-          // non d un neutre du systeme — les jetons de palette sont ecrits en
-          // `oklch()`, que three.js ne sait pas lire, alors que les nuances
-          // `--o-vitrine-*` sont calculees et rendues en clair.
-          scene.background = new three.Color(teinte('--o-vitrine-950', '#1c1917')).multiplyScalar(0.16)
+        // Le canevas est opaque : son arriere-plan est le fond de la page.
+        // Une nuit chaude, tres sombre, tiree de l accent de la vitrine et
+        // non d un neutre du systeme — les jetons de palette sont ecrits en
+        // `oklch()`, que three.js ne sait pas lire, alors que les nuances
+        // `--o-vitrine-*` sont calculees et rendues en clair.
+        scene.background = new three.Color(
+          teinte('--o-vitrine-950', '#1c1917'),
+        ).multiplyScalar(0.16)
 
-          const geometries: { dispose: () => void }[] = []
-          const matieres: { dispose: () => void }[] = []
+        const geometries: { dispose: () => void }[] = []
+        const matieres: { dispose: () => void }[] = []
 
-          /** Une roue dentee extrudee : le meme trace qu au dessin. */
-          const roueDentee = (dents: number, rayon: number, creux: number, epaisseur: number, trou: number, biais = 0.5): InstanceType<typeof three.ExtrudeGeometry> => {
-            const forme = new three.Shape()
-            const pas = (Math.PI * 2) / dents
-            for (let i = 0; i < dents; i += 1) {
-              const a = i * pas
-              const poser = (angle: number, r: number, premier = false): void => {
-                const x = Math.cos(angle) * r
-                const y = Math.sin(angle) * r
-                if (premier) forme.moveTo(x, y)
-                else forme.lineTo(x, y)
-              }
-              poser(a, creux, i === 0)
-              poser(a + pas * 0.16, rayon)
-              poser(a + pas * biais, rayon)
-              poser(a + pas * 0.74, creux)
+        /** Une roue dentee extrudee : le meme trace qu au dessin. */
+        const roueDentee = (
+          dents: number,
+          rayon: number,
+          creux: number,
+          epaisseur: number,
+          trou: number,
+          biais = 0.5,
+        ): InstanceType<typeof three.ExtrudeGeometry> => {
+          const forme = new three.Shape()
+          const pas = (Math.PI * 2) / dents
+          for (let i = 0; i < dents; i += 1) {
+            const a = i * pas
+            const poser = (angle: number, r: number, premier = false): void => {
+              const x = Math.cos(angle) * r
+              const y = Math.sin(angle) * r
+              if (premier) forme.moveTo(x, y)
+              else forme.lineTo(x, y)
             }
-            forme.closePath()
-            const percage = new three.Path()
-            percage.absarc(0, 0, trou, 0, Math.PI * 2, true)
-            forme.holes.push(percage)
-            return new three.ExtrudeGeometry(forme, {
-              depth: epaisseur,
-              bevelEnabled: true,
-              bevelThickness: 0.006,
-              bevelSize: 0.006,
-              bevelSegments: 1,
-              curveSegments: 12,
-            })
+            poser(a, creux, i === 0)
+            poser(a + pas * 0.16, rayon)
+            poser(a + pas * biais, rayon)
+            poser(a + pas * 0.74, creux)
           }
-
-          const matiereLaiton = new three.MeshPhysicalMaterial({
-            color: laiton,
-            metalness: 0.62,
-            roughness: 0.3,
-            clearcoat: 0.5,
-            clearcoatRoughness: 0.22,
+          forme.closePath()
+          const percage = new three.Path()
+          percage.absarc(0, 0, trou, 0, Math.PI * 2, true)
+          forme.holes.push(percage)
+          return new three.ExtrudeGeometry(forme, {
+            depth: epaisseur,
+            bevelEnabled: true,
+            bevelThickness: 0.006,
+            bevelSize: 0.006,
+            bevelSegments: 1,
+            curveSegments: 12,
           })
-          const matiereLaitonFonce = new three.MeshPhysicalMaterial({
-            color: new three.Color(laitonFonce).multiplyScalar(0.5),
-            metalness: 0.35,
-            roughness: 0.82,
-          })
-          // Les ponts sont plus sombres que les roues : sans cet ecart, deux
-          // plaques claires posees en travers se lisent comme des batons.
-          const matierePont = new three.MeshPhysicalMaterial({
-            color: teinte('--o-vitrine-600', '#a1741f'),
-            metalness: 0.5,
-            roughness: 0.44,
-            clearcoat: 0.35,
-          })
-          const matiereAcier = new three.MeshPhysicalMaterial({
-            color: acier,
-            metalness: 0.45,
-            roughness: 0.22,
-            clearcoat: 1,
-            clearcoatRoughness: 0.06,
-          })
-          const matiereRubis = new three.MeshPhysicalMaterial({
-            color: rubisTeinte,
-            metalness: 0.1,
-            roughness: 0.04,
-            transmission: 0.55,
-            thickness: 0.1,
-            emissive: new three.Color(rubisTeinte).multiplyScalar(0.22),
-          })
-          matieres.push(matiereLaiton, matiereLaitonFonce, matierePont, matiereAcier, matiereRubis)
+        }
 
-          const bloc = new three.Group()
-          bloc.name = 'mouvement'
+        const matiereLaiton = new three.MeshPhysicalMaterial({
+          color: laiton,
+          metalness: 0.62,
+          roughness: 0.3,
+          clearcoat: 0.5,
+          clearcoatRoughness: 0.22,
+        })
+        const matiereLaitonFonce = new three.MeshPhysicalMaterial({
+          color: new three.Color(laitonFonce).multiplyScalar(0.5),
+          metalness: 0.35,
+          roughness: 0.82,
+        })
+        // Les ponts sont plus sombres que les roues : sans cet ecart, deux
+        // plaques claires posees en travers se lisent comme des batons.
+        const matierePont = new three.MeshPhysicalMaterial({
+          color: teinte('--o-vitrine-600', '#a1741f'),
+          metalness: 0.5,
+          roughness: 0.44,
+          clearcoat: 0.35,
+        })
+        const matiereAcier = new three.MeshPhysicalMaterial({
+          color: acier,
+          metalness: 0.45,
+          roughness: 0.22,
+          clearcoat: 1,
+          clearcoatRoughness: 0.06,
+        })
+        const matiereRubis = new three.MeshPhysicalMaterial({
+          color: rubisTeinte,
+          metalness: 0.1,
+          roughness: 0.04,
+          transmission: 0.55,
+          thickness: 0.1,
+          emissive: new three.Color(rubisTeinte).multiplyScalar(0.22),
+        })
+        matieres.push(
+          matiereLaiton,
+          matiereLaitonFonce,
+          matierePont,
+          matiereAcier,
+          matiereRubis,
+        )
 
-          // La platine, et le cercle de perlage creuse a sa peripherie.
-          const gPlatine = new three.CylinderGeometry(1.52, 1.52, 0.1, 96)
-          geometries.push(gPlatine)
-          const platine = new three.Mesh(gPlatine, matiereLaitonFonce)
-          platine.rotation.x = Math.PI / 2
-          platine.position.z = -0.1
-          const gChant = new three.TorusGeometry(1.52, 0.022, 8, 120)
-          geometries.push(gChant)
-          const chant = new three.Mesh(gChant, matiereAcier)
-          chant.position.z = -0.05
-          bloc.add(platine, chant)
+        const bloc = new three.Group()
+        bloc.name = 'mouvement'
 
-          /** Pose une roue a sa place, sous son nom, dans son plan. */
-          const poserRoue = (nom: string, geo: InstanceType<typeof three.ExtrudeGeometry>, x: number, y: number, z: number, matiere: typeof matiereLaiton): void => {
-            geometries.push(geo)
-            const maille = new three.Mesh(geo, matiere)
-            maille.name = nom
-            maille.position.set(x, y, z)
-            bloc.add(maille)
-          }
+        // La platine, et le cercle de perlage creuse a sa peripherie.
+        const gPlatine = new three.CylinderGeometry(1.52, 1.52, 0.1, 96)
+        geometries.push(gPlatine)
+        const platine = new three.Mesh(gPlatine, matiereLaitonFonce)
+        platine.rotation.x = Math.PI / 2
+        platine.position.z = -0.1
+        const gChant = new three.TorusGeometry(1.52, 0.022, 8, 120)
+        geometries.push(gChant)
+        const chant = new three.Mesh(gChant, matiereAcier)
+        chant.position.z = -0.05
+        bloc.add(platine, chant)
 
-          poserRoue('barillet', roueDentee(42, 0.52, 0.455, 0.07, 0.055), -0.62, 0.48, -0.02, matiereLaiton)
-          poserRoue('centre', roueDentee(30, 0.41, 0.355, 0.05, 0.045), 0.0, 0.52, 0.0, matiereLaiton)
-          poserRoue('moyenne', roueDentee(26, 0.34, 0.29, 0.05, 0.04), 0.62, 0.06, 0.02, matiereLaiton)
-          poserRoue('seconde', roueDentee(24, 0.3, 0.25, 0.05, 0.036), 0.46, -0.66, 0.04, matiereLaiton)
-          poserRoue('echappement', roueDentee(DENTS, 0.25, 0.17, 0.035, 0.03, 0.24), -0.08, -0.86, 0.06, matiereAcier)
+        /** Pose une roue a sa place, sous son nom, dans son plan. */
+        const poserRoue = (
+          nom: string,
+          geo: InstanceType<typeof three.ExtrudeGeometry>,
+          x: number,
+          y: number,
+          z: number,
+          matiere: typeof matiereLaiton,
+        ): void => {
+          geometries.push(geo)
+          const maille = new three.Mesh(geo, matiere)
+          maille.name = nom
+          maille.position.set(x, y, z)
+          bloc.add(maille)
+        }
 
-          // L ancre : deux bras a palettes, une fourchette, un pivot. Trois
-          // barres suffisent a la faire lire, et elles se voient de loin.
-          const ancre = new three.Group()
-          ancre.name = 'ancre'
-          const gBras = new three.BoxGeometry(0.34, 0.05, 0.04)
-          const gFourchette = new three.BoxGeometry(0.3, 0.04, 0.035)
-          const gPalette = new three.BoxGeometry(0.06, 0.08, 0.045)
-          const gPivot = new three.CylinderGeometry(0.045, 0.045, 0.1, 20)
-          geometries.push(gBras, gFourchette, gPalette, gPivot)
-          const brasA = new three.Mesh(gBras, matiereAcier)
-          brasA.position.set(0.16, 0.08, 0)
-          brasA.rotation.z = 0.42
-          const brasB = new three.Mesh(gBras, matiereAcier)
-          brasB.position.set(0.16, -0.08, 0)
-          brasB.rotation.z = -0.42
-          const fourchette = new three.Mesh(gFourchette, matiereAcier)
-          fourchette.position.set(-0.16, 0.02, 0)
-          fourchette.rotation.z = -0.08
-          const paletteA = new three.Mesh(gPalette, matiereRubis)
-          paletteA.position.set(0.31, 0.16, 0)
-          const paletteB = new three.Mesh(gPalette, matiereRubis)
-          paletteB.position.set(0.31, -0.16, 0)
-          const pivotAncre = new three.Mesh(gPivot, matiereAcier)
-          pivotAncre.rotation.x = Math.PI / 2
-          ancre.add(brasA, brasB, fourchette, paletteA, paletteB, pivotAncre)
-          ancre.position.set(-0.46, -0.62, 0.08)
-          bloc.add(ancre)
+        poserRoue(
+          'barillet',
+          roueDentee(42, 0.52, 0.455, 0.07, 0.055),
+          -0.62,
+          0.48,
+          -0.02,
+          matiereLaiton,
+        )
+        poserRoue(
+          'centre',
+          roueDentee(30, 0.41, 0.355, 0.05, 0.045),
+          0.0,
+          0.52,
+          0.0,
+          matiereLaiton,
+        )
+        poserRoue(
+          'moyenne',
+          roueDentee(26, 0.34, 0.29, 0.05, 0.04),
+          0.62,
+          0.06,
+          0.02,
+          matiereLaiton,
+        )
+        poserRoue(
+          'seconde',
+          roueDentee(24, 0.3, 0.25, 0.05, 0.036),
+          0.46,
+          -0.66,
+          0.04,
+          matiereLaiton,
+        )
+        poserRoue(
+          'echappement',
+          roueDentee(DENTS, 0.25, 0.17, 0.035, 0.03, 0.24),
+          -0.08,
+          -0.86,
+          0.06,
+          matiereAcier,
+        )
 
-          // Le balancier : le volant, sa croisee, ses deux vis de reglage, et
-          // le spiral en fil fin. Sans le spiral, c est une roue.
-          const balancier = new three.Group()
-          balancier.name = 'balancier'
-          const gVolant = new three.TorusGeometry(0.46, 0.035, 10, 72)
-          const gCroisee = new three.BoxGeometry(0.92, 0.036, 0.03)
-          const gVis = new three.CylinderGeometry(0.04, 0.04, 0.05, 14)
-          geometries.push(gVolant, gCroisee, gVis)
-          const volant = new three.Mesh(gVolant, matiereLaiton)
-          const croiseeA = new three.Mesh(gCroisee, matiereLaiton)
-          const croiseeB = new three.Mesh(gCroisee, matiereLaiton)
-          croiseeB.rotation.z = Math.PI / 2
-          const visA = new three.Mesh(gVis, matiereAcier)
-          visA.position.set(0.325, 0.325, 0)
-          visA.rotation.x = Math.PI / 2
-          const visB = new three.Mesh(gVis, matiereAcier)
-          visB.position.set(-0.325, -0.325, 0)
-          visB.rotation.x = Math.PI / 2
+        // L ancre : deux bras a palettes, une fourchette, un pivot. Trois
+        // barres suffisent a la faire lire, et elles se voient de loin.
+        const ancre = new three.Group()
+        ancre.name = 'ancre'
+        const gBras = new three.BoxGeometry(0.34, 0.05, 0.04)
+        const gFourchette = new three.BoxGeometry(0.3, 0.04, 0.035)
+        const gPalette = new three.BoxGeometry(0.06, 0.08, 0.045)
+        const gPivot = new three.CylinderGeometry(0.045, 0.045, 0.1, 20)
+        geometries.push(gBras, gFourchette, gPalette, gPivot)
+        const brasA = new three.Mesh(gBras, matiereAcier)
+        brasA.position.set(0.16, 0.08, 0)
+        brasA.rotation.z = 0.42
+        const brasB = new three.Mesh(gBras, matiereAcier)
+        brasB.position.set(0.16, -0.08, 0)
+        brasB.rotation.z = -0.42
+        const fourchette = new three.Mesh(gFourchette, matiereAcier)
+        fourchette.position.set(-0.16, 0.02, 0)
+        fourchette.rotation.z = -0.08
+        const paletteA = new three.Mesh(gPalette, matiereRubis)
+        paletteA.position.set(0.31, 0.16, 0)
+        const paletteB = new three.Mesh(gPalette, matiereRubis)
+        paletteB.position.set(0.31, -0.16, 0)
+        const pivotAncre = new three.Mesh(gPivot, matiereAcier)
+        pivotAncre.rotation.x = Math.PI / 2
+        ancre.add(brasA, brasB, fourchette, paletteA, paletteB, pivotAncre)
+        ancre.position.set(-0.46, -0.62, 0.08)
+        bloc.add(ancre)
 
-          const points: InstanceType<typeof three.Vector3>[] = []
-          for (let a = 0; a <= Math.PI * 2 * 9; a += 0.14) {
-            const r = 0.05 + (0.33 * a) / (Math.PI * 2 * 9)
-            points.push(new three.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0.09))
-          }
-          const gSpiral = new three.BufferGeometry().setFromPoints(points)
-          const filSpiral = new three.LineBasicMaterial({ color: acier, transparent: true, opacity: 0.7 })
-          geometries.push(gSpiral)
-          matieres.push(filSpiral)
-          balancier.add(volant, croiseeA, croiseeB, visA, visB, new three.Line(gSpiral, filSpiral))
-          balancier.position.set(-0.9, -0.36, 0.12)
-          bloc.add(balancier)
+        // Le balancier : le volant, sa croisee, ses deux vis de reglage, et
+        // le spiral en fil fin. Sans le spiral, c est une roue.
+        const balancier = new three.Group()
+        balancier.name = 'balancier'
+        const gVolant = new three.TorusGeometry(0.46, 0.035, 10, 72)
+        const gCroisee = new three.BoxGeometry(0.92, 0.036, 0.03)
+        const gVis = new three.CylinderGeometry(0.04, 0.04, 0.05, 14)
+        geometries.push(gVolant, gCroisee, gVis)
+        const volant = new three.Mesh(gVolant, matiereLaiton)
+        const croiseeA = new three.Mesh(gCroisee, matiereLaiton)
+        const croiseeB = new three.Mesh(gCroisee, matiereLaiton)
+        croiseeB.rotation.z = Math.PI / 2
+        const visA = new three.Mesh(gVis, matiereAcier)
+        visA.position.set(0.325, 0.325, 0)
+        visA.rotation.x = Math.PI / 2
+        const visB = new three.Mesh(gVis, matiereAcier)
+        visB.position.set(-0.325, -0.325, 0)
+        visB.rotation.x = Math.PI / 2
 
-          // Les rubis du rouage : sept pierres, posees sur les pivots.
-          const gRubis = new three.CylinderGeometry(0.045, 0.045, 0.03, 18)
-          geometries.push(gRubis)
-          for (const [x, y] of [[-0.62, 0.48], [0, 0.52], [0.62, 0.06], [0.46, -0.66], [-0.08, -0.86], [-0.46, -0.62], [-0.9, -0.36]] as const) {
-            const pierre = new three.Mesh(gRubis, matiereRubis)
-            pierre.position.set(x, y, 0.16)
-            pierre.rotation.x = Math.PI / 2
-            bloc.add(pierre)
-          }
+        const points: InstanceType<typeof three.Vector3>[] = []
+        for (let a = 0; a <= Math.PI * 2 * 9; a += 0.14) {
+          const r = 0.05 + (0.33 * a) / (Math.PI * 2 * 9)
+          points.push(new three.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0.09))
+        }
+        const gSpiral = new three.BufferGeometry().setFromPoints(points)
+        const filSpiral = new three.LineBasicMaterial({
+          color: acier,
+          transparent: true,
+          opacity: 0.7,
+        })
+        geometries.push(gSpiral)
+        matieres.push(filSpiral)
+        balancier.add(
+          volant,
+          croiseeA,
+          croiseeB,
+          visA,
+          visB,
+          new three.Line(gSpiral, filSpiral),
+        )
+        balancier.position.set(-0.9, -0.36, 0.12)
+        bloc.add(balancier)
 
-          // Les ponts : deux plaques anglees posees sur le rouage, percees
-          // pour laisser voir les roues dessous.
-          const gPont = new three.BoxGeometry(0.96, 0.3, 0.05)
-          geometries.push(gPont)
-          const pontA = new three.Mesh(gPont, matierePont)
-          pontA.position.set(0.3, 0.3, 0.2)
-          pontA.rotation.z = -0.42
-          const pontB = new three.Mesh(gPont, matierePont)
-          pontB.position.set(-0.34, -0.78, 0.2)
-          pontB.rotation.z = 0.2
-          pontB.scale.set(0.72, 0.8, 1)
-          bloc.add(pontA, pontB)
+        // Les rubis du rouage : sept pierres, posees sur les pivots.
+        const gRubis = new three.CylinderGeometry(0.045, 0.045, 0.03, 18)
+        geometries.push(gRubis)
+        for (const [x, y] of [
+          [-0.62, 0.48],
+          [0, 0.52],
+          [0.62, 0.06],
+          [0.46, -0.66],
+          [-0.08, -0.86],
+          [-0.46, -0.62],
+          [-0.9, -0.36],
+        ] as const) {
+          const pierre = new three.Mesh(gRubis, matiereRubis)
+          pierre.position.set(x, y, 0.16)
+          pierre.rotation.x = Math.PI / 2
+          bloc.add(pierre)
+        }
 
-          bloc.rotation.x = -0.72
-          bloc.rotation.y = 0.34
-          bloc.rotation.z = 0.1
-          bloc.position.set(1.12, 0.66, 0)
-          bloc.scale.setScalar(0.74)
-          scene.add(bloc)
+        // Les ponts : deux plaques anglees posees sur le rouage, percees
+        // pour laisser voir les roues dessous.
+        const gPont = new three.BoxGeometry(0.96, 0.3, 0.05)
+        geometries.push(gPont)
+        const pontA = new three.Mesh(gPont, matierePont)
+        pontA.position.set(0.3, 0.3, 0.2)
+        pontA.rotation.z = -0.42
+        const pontB = new three.Mesh(gPont, matierePont)
+        pontB.position.set(-0.34, -0.78, 0.2)
+        pontB.rotation.z = 0.2
+        pontB.scale.set(0.72, 0.8, 1)
+        bloc.add(pontA, pontB)
 
-          // Un laiton sans lampe rasante est une tache noire : la cle chaude
-          // devant, le remplissage froid a gauche, le contour derriere, et
-          // deux rasantes qui posent le trait clair sur le chant des roues.
-          // Une lampe de dessous eclaire la platine par le bas du cadre.
-          eclairer(contexte, { cle: 0xfff0d2, remplissage: 0x8fa2cc, contour: 0xffffff, force: 1.3 })
-          const rasanteGauche = new three.PointLight(0xffffff, 26, 14, 2)
-          rasanteGauche.position.set(-0.9, 2.1, 2.6)
-          const rasanteDroite = new three.PointLight(0xfff4e0, 30, 14, 2)
-          rasanteDroite.position.set(3.4, 1.3, 1.9)
-          const dessous = new three.PointLight(0xffd9a0, 22, 12, 2)
-          dessous.position.set(1.0, -1.5, 1.7)
-          const rase = new three.SpotLight(0xffffff, 40, 14, 0.6, 0.7, 2)
-          rase.position.set(-1.0, -1.4, 2.9)
-          rase.target.position.set(0.9, 0.4, 0)
-          scene.add(rasanteGauche, rasanteDroite, dessous, rase, rase.target)
+        bloc.rotation.x = -0.72
+        bloc.rotation.y = 0.34
+        bloc.rotation.z = 0.1
+        bloc.position.set(1.12, 0.66, 0)
+        bloc.scale.setScalar(0.74)
+        scene.add(bloc)
 
-          camera.position.set(0.15, 0.4, 5.4)
-          camera.lookAt(1.0, 0.45, 0)
+        // Un laiton sans lampe rasante est une tache noire : la cle chaude
+        // devant, le remplissage froid a gauche, le contour derriere, et
+        // deux rasantes qui posent le trait clair sur le chant des roues.
+        // Une lampe de dessous eclaire la platine par le bas du cadre.
+        eclairer(contexte, {
+          cle: 0xfff0d2,
+          remplissage: 0x8fa2cc,
+          contour: 0xffffff,
+          force: 1.3,
+        })
+        const rasanteGauche = new three.PointLight(0xffffff, 26, 14, 2)
+        rasanteGauche.position.set(-0.9, 2.1, 2.6)
+        const rasanteDroite = new three.PointLight(0xfff4e0, 30, 14, 2)
+        rasanteDroite.position.set(3.4, 1.3, 1.9)
+        const dessous = new three.PointLight(0xffd9a0, 22, 12, 2)
+        dessous.position.set(1.0, -1.5, 1.7)
+        const rase = new three.SpotLight(0xffffff, 40, 14, 0.6, 0.7, 2)
+        rase.position.set(-1.0, -1.4, 2.9)
+        rase.target.position.set(0.9, 0.4, 0)
+        scene.add(rasanteGauche, rasanteDroite, dessous, rase, rase.target)
 
-          return () => {
-            for (const g of geometries) g.dispose()
-            for (const m of matieres) m.dispose()
-          }
-        }}
-        animer={({ scene }, { delta, time }) => {
-          const bloc = scene.getObjectByName('mouvement')
-          if (bloc === undefined) return
-          const { battements, part: cadenceVue } = marche.current
+        camera.position.set(0.15, 0.4, 5.4)
+        camera.lookAt(1.0, 0.45, 0)
 
-          // Le temps du mouvement : le temps reel, divise par le ralenti.
-          // Un cumul, et non `time * part` — sans quoi changer de cran ferait
-          // sauter le mecanisme d un quart de tour.
-          horloge.current += delta * cadenceVue
+        return () => {
+          for (const g of geometries) g.dispose()
+          for (const m of matieres) m.dispose()
+        }
+      }}
+      animer={({ scene }, { delta, time }) => {
+        const bloc = scene.getObjectByName('mouvement')
+        if (bloc === undefined) return
+        const { battements, part: cadenceVue } = marche.current
 
-          const t = horloge.current
-          const alternances = t * battements
+        // Le temps du mouvement : le temps reel, divise par le ralenti.
+        // Un cumul, et non `time * part` — sans quoi changer de cran ferait
+        // sauter le mecanisme d un quart de tour.
+        horloge.current += delta * cadenceVue
 
-          const balancier = scene.getObjectByName('balancier')
-          if (balancier !== undefined) {
-            // L amplitude du carnet, en radians, sur une demi-periode.
-            balancier.rotation.z = Math.sin(alternances * Math.PI) * 2.4
-          }
+        const t = horloge.current
+        const alternances = t * battements
 
-          const ancre = scene.getObjectByName('ancre')
-          if (ancre !== undefined) {
-            // Une bascule franche, et non une sinusoide : l ancre est
-            // immobile entre deux chutes, et bascule d un coup.
-            ancre.rotation.z = Math.tanh(Math.cos(alternances * Math.PI) * 6) * 0.12
-          }
+        const balancier = scene.getObjectByName('balancier')
+        if (balancier !== undefined) {
+          // L amplitude du carnet, en radians, sur une demi-periode.
+          balancier.rotation.z = Math.sin(alternances * Math.PI) * 2.4
+        }
 
-          const echappement = scene.getObjectByName('echappement')
-          if (echappement !== undefined) {
-            // Une dent par alternance, et la chute en fin de course : c est
-            // le saut qu on vient voir, pas la rotation.
-            const dent = Math.floor(alternances)
-            const chute = Math.min(1, (alternances - dent) * 7)
-            echappement.rotation.z = -((dent + chute * chute * (3 - 2 * chute)) * (Math.PI * 2)) / DENTS
-          }
+        const ancre = scene.getObjectByName('ancre')
+        if (ancre !== undefined) {
+          // Une bascule franche, et non une sinusoide : l ancre est
+          // immobile entre deux chutes, et bascule d un coup.
+          ancre.rotation.z = Math.tanh(Math.cos(alternances * Math.PI) * 6) * 0.12
+        }
 
-          const seconde = scene.getObjectByName('seconde')
-          if (seconde !== undefined) seconde.rotation.z = -(t * Math.PI * 2) / 60
-          const moyenne = scene.getObjectByName('moyenne')
-          if (moyenne !== undefined) moyenne.rotation.z = (t * Math.PI * 2) / 480
-          const centre = scene.getObjectByName('centre')
-          if (centre !== undefined) centre.rotation.z = -(t * Math.PI * 2) / 3600
-          const barillet = scene.getObjectByName('barillet')
-          if (barillet !== undefined) barillet.rotation.z = (t * Math.PI * 2) / 25200
+        const echappement = scene.getObjectByName('echappement')
+        if (echappement !== undefined) {
+          // Une dent par alternance, et la chute en fin de course : c est
+          // le saut qu on vient voir, pas la rotation.
+          const dent = Math.floor(alternances)
+          const chute = Math.min(1, (alternances - dent) * 7)
+          echappement.rotation.z =
+            -((dent + chute * chute * (3 - 2 * chute)) * (Math.PI * 2)) / DENTS
+        }
 
-          // Le mouvement respire d un degre sous la loupe : une piece posee
-          // sur un porte-piece n est jamais parfaitement d aplomb.
-          bloc.rotation.y = 0.24 + Math.sin(time * 0.32) * 0.05
-        }}
-      />
+        const seconde = scene.getObjectByName('seconde')
+        if (seconde !== undefined) seconde.rotation.z = -(t * Math.PI * 2) / 60
+        const moyenne = scene.getObjectByName('moyenne')
+        if (moyenne !== undefined) moyenne.rotation.z = (t * Math.PI * 2) / 480
+        const centre = scene.getObjectByName('centre')
+        if (centre !== undefined) centre.rotation.z = -(t * Math.PI * 2) / 3600
+        const barillet = scene.getObjectByName('barillet')
+        if (barillet !== undefined) barillet.rotation.z = (t * Math.PI * 2) / 25200
+
+        // Le mouvement respire d un degre sous la loupe : une piece posee
+        // sur un porte-piece n est jamais parfaitement d aplomb.
+        bloc.rotation.y = 0.24 + Math.sin(time * 0.32) * 0.05
+      }}
+    />
   )
 
   return (
     <Porte forme="compteur" marque="Balancier">
-      <div className="o-relative o-text-stone-50" style={{ ...polices, ...nuit('stone') }}>
+      <div
+        className="o-relative o-text-stone-50"
+        style={{ ...polices, ...nuit('stone') }}
+      >
         <style>{REGLE}</style>
 
         {/*
@@ -894,7 +1220,10 @@ export default function Page(): ReactElement {
           cette meme enveloppe, qui fait cinq ecrans.
         */}
         <div className="o-relative" ref={setPiste}>
-          <div className="o-sticky o-z-0 o-overflow-hidden" style={{ top: CHROME, height: ECRAN }}>
+          <div
+            className="o-sticky o-z-0 o-overflow-hidden"
+            style={{ top: CHROME, height: ECRAN }}
+          >
             {mouvement}
             {/* La lueur d etabli, par-dessus le canevas : sous lui, elle ne se
                 verrait pas — le moteur ouvre ses contextes opaques. */}
@@ -910,7 +1239,8 @@ export default function Page(): ReactElement {
               aria-hidden="true"
               className="o-pointer-events-none o-absolute o-inset-0 o-z-10"
               style={{
-                background: 'linear-gradient(to top, var(--o-palette-stone-950) 0%, color-mix(in oklab, var(--o-palette-stone-950) 62%, transparent) 34%, transparent 72%)',
+                background:
+                  'linear-gradient(to top, var(--o-palette-stone-950) 0%, color-mix(in oklab, var(--o-palette-stone-950) 62%, transparent) 34%, transparent 72%)',
               }}
             />
             <Grain opacite={0.07} />
@@ -918,28 +1248,57 @@ export default function Page(): ReactElement {
 
           <div className="o-relative o-z-10" style={{ marginTop: `calc(-1 * ${ECRAN})` }}>
             {/* ----- L ouverture ------------------------------------------- */}
-            <section id="haut" className="o-relative o-flex o-flex-col" style={{ minHeight: ECRAN }}>
-              <BarreCoins marque="Balancier" liens={NAVIGATION} droite={<Horloge ville="Besancon" />} />
+            <section
+              id="haut"
+              className="o-relative o-flex o-flex-col"
+              style={{ minHeight: ECRAN }}
+            >
+              <BarreCoins
+                marque="Balancier"
+                liens={NAVIGATION}
+                droite={<Horloge ville="Besancon" />}
+              />
 
               <div className="o-flex o-grow o-flex-col o-justify-end o-px-6 o-pb-20 o-pt-12 md:o-px-12 md:o-pb-24">
                 <Surgit>
-                  <Etiquette>Besancon — rue des Granges, atelier ouvert depuis 1974</Etiquette>
+                  <Etiquette>
+                    Besancon — rue des Granges, atelier ouvert depuis 1974
+                  </Etiquette>
                 </Surgit>
                 <TitreVague
                   delai={140}
                   className="o-m-0 o-mt-6 o-max-w-3xl"
-                  style={{ ...affiche('l', 300), fontSize: 'clamp(2.75rem, 8.4vw, 9rem)', letterSpacing: '-0.03em' }}
+                  style={{
+                    ...affiche('l', 300),
+                    fontSize: 'clamp(2.75rem, 8.4vw, 9rem)',
+                    letterSpacing: '-0.03em',
+                  }}
                 >
                   Le temps ne coule pas. Il bat.
                 </TitreVague>
 
                 <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-                  <Surgit delai={560} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-stone-300 md:o-col-span-6">
-                    Ni pile ni quartz : un ressort, quatre roues, et un balancier qui decoupe la seconde en huit. Celui-ci tourne devant vous a sa vraie frequence — ralentissez-le, et regardez la dent tomber.
+                  <Surgit
+                    delai={560}
+                    as="p"
+                    className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-stone-300 md:o-col-span-6"
+                  >
+                    Ni pile ni quartz : un ressort, quatre roues, et un balancier qui
+                    decoupe la seconde en huit. Celui-ci tourne devant vous a sa vraie
+                    frequence — ralentissez-le, et regardez la dent tomber.
                   </Surgit>
-                  <Surgit delai={680} className="md:o-col-span-6 md:o-flex md:o-justify-end">
+                  <Surgit
+                    delai={680}
+                    className="md:o-col-span-6 md:o-flex md:o-justify-end"
+                  >
                     <Actions
-                      pleine={['#echappement', <>Ralentir l echappement <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                      pleine={[
+                        '#echappement',
+                        <>
+                          Ralentir l echappement{' '}
+                          <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                        </>,
+                      ]}
                       fantome={['#calibres', 'Les quatre calibres']}
                     />
                   </Surgit>
@@ -947,8 +1306,16 @@ export default function Page(): ReactElement {
               </div>
 
               {/* Le poincon tournant : le seul ornement de l ouverture. */}
-              <Surgit delai={820} className="o-pointer-events-none o-absolute o-right-16 o-top-24 o-hidden lg:o-block">
-                <CircularText size={122} speed={34} className="o-font-mono o-text-xs o-uppercase" style={{ color: encreSurSombre() }}>
+              <Surgit
+                delai={820}
+                className="o-pointer-events-none o-absolute o-right-16 o-top-24 o-hidden lg:o-block"
+              >
+                <CircularText
+                  size={122}
+                  speed={34}
+                  className="o-font-mono o-text-xs o-uppercase"
+                  style={{ color: encreSurSombre() }}
+                >
                   {'· BALANCIER · BESANCON '}
                 </CircularText>
               </Surgit>
@@ -968,85 +1335,163 @@ export default function Page(): ReactElement {
             {reduced ? (
               <ol className="o-m-0 o-list-none o-p-0">
                 {ACTES.map((a, rang) => (
-                  <li key={a.mot} className="o-border-t o-border-white-10 o-px-6 o-py-12 md:o-px-12">
+                  <li
+                    key={a.mot}
+                    className="o-border-t o-border-white-10 o-px-6 o-py-12 md:o-px-12"
+                  >
                     <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-baseline">
-                      <p aria-hidden="true" className="o-m-0 o-tabular-nums md:o-col-span-3" style={{ ...affiche('xl', 300), fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', lineHeight: 0.9, color: accentDoux(300, 62) }}>
+                      <p
+                        aria-hidden="true"
+                        className="o-m-0 o-tabular-nums md:o-col-span-3"
+                        style={{
+                          ...affiche('xl', 300),
+                          fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                          lineHeight: 0.9,
+                          color: accentDoux(300, 62),
+                        }}
+                      >
                         {String(rang + 1).padStart(2, '0')}
                       </p>
                       <div className="o-min-w-0 md:o-col-span-9">
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
+                        <p
+                          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encreSurSombre() }}
+                        >
                           {a.mot}
                         </p>
-                        <h2 className="o-m-0 o-mt-3 o-max-w-3xl o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3.4vw, 2.5rem)' }}>
+                        <h2
+                          className="o-m-0 o-mt-3 o-max-w-3xl o-text-balance"
+                          style={{
+                            ...affiche('m', 300),
+                            fontSize: 'clamp(1.5rem, 3.4vw, 2.5rem)',
+                          }}
+                        >
                           {a.titre}
                         </h2>
-                        <p className="o-m-0 o-mt-4 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-300">{a.texte}</p>
+                        <p className="o-m-0 o-mt-4 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-300">
+                          {a.texte}
+                        </p>
                       </div>
                     </div>
                   </li>
                 ))}
               </ol>
             ) : (
-            <Epingle ecrans={4} actes={ACTES.length}>
-              {(acte, progression) => {
-                const a = ACTES[acte] ?? ACTES[0]
-                return (
-                  <div className="o-relative o-flex o-h-full o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-20 md:o-px-12 md:o-pb-20">
-                    <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
-                      <p
-                        aria-hidden="true"
-                        className="o-m-0 o-tabular-nums md:o-col-span-3"
-                        style={{ ...affiche('xl', 300), fontSize: 'clamp(3.5rem, 11vw, 10rem)', lineHeight: 0.82, color: accentDoux(300, 62) }}
-                      >
-                        {String(acte + 1).padStart(2, '0')}
-                      </p>
-                      <div className="o-min-w-0 md:o-col-span-9">
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encreSurSombre() }}>
-                          {a.mot}
+              <Epingle ecrans={4} actes={ACTES.length}>
+                {(acte, progression) => {
+                  const a = ACTES[acte] ?? ACTES[0]
+                  return (
+                    <div className="o-relative o-flex o-h-full o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-20 md:o-px-12 md:o-pb-20">
+                      <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-end">
+                        <p
+                          aria-hidden="true"
+                          className="o-m-0 o-tabular-nums md:o-col-span-3"
+                          style={{
+                            ...affiche('xl', 300),
+                            fontSize: 'clamp(3.5rem, 11vw, 10rem)',
+                            lineHeight: 0.82,
+                            color: accentDoux(300, 62),
+                          }}
+                        >
+                          {String(acte + 1).padStart(2, '0')}
                         </p>
-                        <h2 className="o-m-0 o-mt-4 o-max-w-3xl o-text-balance" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4.4vw, 3.75rem)' }}>
-                          {a.titre}
-                        </h2>
-                        <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-300">{a.texte}</p>
+                        <div className="o-min-w-0 md:o-col-span-9">
+                          <p
+                            className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                            style={{ color: encreSurSombre() }}
+                          >
+                            {a.mot}
+                          </p>
+                          <h2
+                            className="o-m-0 o-mt-4 o-max-w-3xl o-text-balance"
+                            style={{
+                              ...affiche('m', 300),
+                              fontSize: 'clamp(1.75rem, 4.4vw, 3.75rem)',
+                            }}
+                          >
+                            {a.titre}
+                          </h2>
+                          <p className="o-m-0 o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-300">
+                            {a.texte}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* La chaine cinematique : quatre maillons qui se
+                        remplissent, un par acte. */}
+                      <ol
+                        aria-hidden="true"
+                        className="o-m-0 o-mt-10 o-flex o-list-none o-gap-2 o-p-0"
+                      >
+                        {ACTES.map((autre, rang) => (
+                          <li
+                            key={autre.mot}
+                            className="o-flex o-grow o-flex-col o-gap-2"
+                          >
+                            <span
+                              className="o-block o-h-0.5 o-transition-all"
+                              style={{
+                                backgroundColor:
+                                  rang <= acte
+                                    ? encreSurSombre()
+                                    : 'var(--o-palette-stone-800)',
+                              }}
+                            />
+                            <span
+                              className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                              style={{
+                                color:
+                                  rang === acte
+                                    ? encreSurSombre()
+                                    : 'var(--o-palette-stone-400)',
+                              }}
+                            >
+                              {autre.mot}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                      <div aria-hidden="true" className="o-mt-3 o-h-px o-bg-white-10">
+                        <div
+                          className="o-h-full"
+                          style={{
+                            width: `${String(Math.round((reduced ? 1 : progression) * 100))}%`,
+                            backgroundColor: accent(400),
+                            transition: 'width 220ms linear',
+                          }}
+                        />
                       </div>
                     </div>
-
-                    {/* La chaine cinematique : quatre maillons qui se
-                        remplissent, un par acte. */}
-                    <ol aria-hidden="true" className="o-m-0 o-mt-10 o-flex o-list-none o-gap-2 o-p-0">
-                      {ACTES.map((autre, rang) => (
-                        <li key={autre.mot} className="o-flex o-grow o-flex-col o-gap-2">
-                          <span
-                            className="o-block o-h-0.5 o-transition-all"
-                            style={{ backgroundColor: rang <= acte ? encreSurSombre() : 'var(--o-palette-stone-800)' }}
-                          />
-                          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: rang === acte ? encreSurSombre() : 'var(--o-palette-stone-400)' }}>
-                            {autre.mot}
-                          </span>
-                        </li>
-                      ))}
-                    </ol>
-                    <div aria-hidden="true" className="o-mt-3 o-h-px o-bg-white-10">
-                      <div className="o-h-full" style={{ width: `${String(Math.round((reduced ? 1 : progression) * 100))}%`, backgroundColor: accent(400), transition: 'width 220ms linear' }} />
-                    </div>
-                  </div>
-                )
-              }}
-            </Epingle>
+                  )
+                }}
+              </Epingle>
             )}
           </div>
         </div>
 
-        <main className="o-relative o-z-10" style={{ backgroundColor: 'var(--o-palette-stone-950)' }}>
+        <main
+          className="o-relative o-z-10"
+          style={{ backgroundColor: 'var(--o-palette-stone-950)' }}
+        >
           {/*
             ----- Le mecanisme : l echappement, ralentissable -----------------
           */}
-          <section id="echappement" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28">
+          <section
+            id="echappement"
+            className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28"
+          >
             <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
               <div className="md:o-col-span-7">
                 <Indice rang="01">L echappement</Indice>
-                <h2 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...affiche('m', 300), fontSize: 'clamp(1.875rem, 4.2vw, 3.5rem)' }}>
-                  {cadence.battements.toLocaleString('fr-FR')} fois par seconde, une dent tombe.
+                <h2
+                  className="o-m-0 o-mt-5 o-max-w-2xl"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.875rem, 4.2vw, 3.5rem)',
+                  }}
+                >
+                  {cadence.battements.toLocaleString('fr-FR')} fois par seconde, une dent
+                  tombe.
                 </h2>
               </div>
               <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-stone-400 md:o-col-span-5 md:o-text-right">
@@ -1060,7 +1505,9 @@ export default function Page(): ReactElement {
               {/* Les commandes : le calibre, puis le ralenti. */}
               <div className="o-flex o-flex-col o-gap-8 lg:o-col-span-4">
                 <div>
-                  <p className="o-m-0 o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">Le calibre</p>
+                  <p className="o-m-0 o-mb-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                    Le calibre
+                  </p>
                   <PillTabs
                     label="Calibre du mouvement"
                     items={CALIBRES.map((c) => ({ id: c.cle, label: c.reference }))}
@@ -1068,14 +1515,23 @@ export default function Page(): ReactElement {
                     onValueChange={setCle}
                     size="sm"
                   />
-                  <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-stone-300">{calibre.note}</p>
+                  <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-stone-300">
+                    {calibre.note}
+                  </p>
                 </div>
 
                 <div>
-                  <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">Le ralenti</p>
+                  <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                    Le ralenti
+                  </p>
                   <div
                     className="o-rounded-2xl o-border-w-1 o-border-white-10 o-px-4 o-py-2"
-                    style={{ '--o-wheel-accent': encreSurSombre(), backgroundColor: accentDoux(700, 8) } as CSSProperties}
+                    style={
+                      {
+                        '--o-wheel-accent': encreSurSombre(),
+                        backgroundColor: accentDoux(700, 8),
+                      } as CSSProperties
+                    }
                   >
                     <OptionWheel
                       label="Vitesse d observation"
@@ -1106,17 +1562,31 @@ export default function Page(): ReactElement {
 
                 <div className="o-mt-8 o-grid o-gap-8 sm:o-grid-cols-12 sm:o-items-center">
                   <div className="sm:o-col-span-5">
-                    <CadranDeMarche marche={calibre.marche} amplitude={calibre.amplitude} />
+                    <CadranDeMarche
+                      marche={calibre.marche}
+                      amplitude={calibre.amplitude}
+                    />
                   </div>
                   <dl className="o-m-0 sm:o-col-span-7">
-                    <Valeur quoi="Alternances a l heure">{nombre(calibre.alternances)}</Valeur>
-                    <Valeur quoi="Battements par seconde" note={`Soit ${nombre(cadence.hertz, 1)} hertz au balancier : une oscillation vaut deux alternances.`}>
+                    <Valeur quoi="Alternances a l heure">
+                      {nombre(calibre.alternances)}
+                    </Valeur>
+                    <Valeur
+                      quoi="Battements par seconde"
+                      note={`Soit ${nombre(cadence.hertz, 1)} hertz au balancier : une oscillation vaut deux alternances.`}
+                    >
                       {nombre(cadence.battements, 0)}
                     </Valeur>
-                    <Valeur quoi={`Tours de la roue d echappement, par minute`} note={`${String(DENTS)} dents, une lachee par alternance.`}>
+                    <Valeur
+                      quoi={`Tours de la roue d echappement, par minute`}
+                      note={`${String(DENTS)} dents, une lachee par alternance.`}
+                    >
                       {nombre(cadence.toursParMinute, 0)}
                     </Valeur>
-                    <Valeur quoi="Alternances comptees en un jour" note={`Reserve de marche : ${String(calibre.reserve)} heures, barillet arme a fond.`}>
+                    <Valeur
+                      quoi="Alternances comptees en un jour"
+                      note={`Reserve de marche : ${String(calibre.reserve)} heures, barillet arme a fond.`}
+                    >
                       {nombre(cadence.parJour)}
                     </Valeur>
                   </dl>
@@ -1134,16 +1604,24 @@ export default function Page(): ReactElement {
             style={{ minHeight: '70vh', backgroundColor: accentDoux(800, 10) }}
           >
             <Manifeste eteint="Une montre a quartz est plus juste que la notre, elle coute vingt fois moins cher, et personne ne la fait reparer.">
-              Un mecanisme se repare, se regle, et se transmet. C est tout ce que nous vendons.
+              Un mecanisme se repare, se regle, et se transmet. C est tout ce que nous
+              vendons.
             </Manifeste>
             <dl className="o-m-0 o-mt-16 o-grid o-gap-x-10 o-gap-y-2 md:o-grid-cols-4">
               {CALIBRES.map((c) => (
                 <div key={c.cle} className="o-border-t o-border-white-10 o-py-5">
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: c.cle === cle ? encreSurSombre() : 'var(--o-palette-stone-400)' }}>
+                  <dt
+                    className="o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                    style={{
+                      color:
+                        c.cle === cle ? encreSurSombre() : 'var(--o-palette-stone-400)',
+                    }}
+                  >
                     {c.reference} — {c.nom}
                   </dt>
                   <dd className="o-m-0 o-mt-2 o-text-sm o-leading-relaxed o-text-stone-300">
-                    {nombre(c.alternances)} A / h · {String(c.reserve)} h de reserve · {c.diametre} sur {c.hauteur}
+                    {nombre(c.alternances)} A / h · {String(c.reserve)} h de reserve ·{' '}
+                    {c.diametre} sur {c.hauteur}
                   </dd>
                 </div>
               ))}
@@ -1171,18 +1649,44 @@ export default function Page(): ReactElement {
                   style={{ backgroundColor: accentDoux(900, 22), aspectRatio: '85 / 54' }}
                 >
                   {/* Le poincon de la maison : un balancier grave, en creux. */}
-                  <svg viewBox="0 0 140 140" aria-hidden="true" className="o-pointer-events-none o-absolute o-right-6 o-top-1/2 o-w-32 o-opacity-40" style={{ transform: 'translateY(-50%)' }} fill="none">
-                    <path d={spirale(70, 70, 4, 30, 8)} stroke={accent(300)} strokeWidth="1" />
+                  <svg
+                    viewBox="0 0 140 140"
+                    aria-hidden="true"
+                    className="o-pointer-events-none o-absolute o-right-6 o-top-1/2 o-w-32 o-opacity-40"
+                    style={{ transform: 'translateY(-50%)' }}
+                    fill="none"
+                  >
+                    <path
+                      d={spirale(70, 70, 4, 30, 8)}
+                      stroke={accent(300)}
+                      strokeWidth="1"
+                    />
                     <circle cx="70" cy="70" r="54" stroke={accent(300)} strokeWidth="5" />
-                    <path d="M16 70 H124 M70 16 V124" stroke={accent(300)} strokeWidth="3" />
+                    <path
+                      d="M16 70 H124 M70 16 V124"
+                      stroke={accent(300)}
+                      strokeWidth="3"
+                    />
                     <circle cx="70" cy="70" r="7" fill={accent(300)} />
                   </svg>
                   <div className="o-relative o-flex o-items-start o-justify-between o-gap-6">
-                    <p className="o-m-0" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}>Balancier</p>
-                    <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">Est. 1974</span>
+                    <p
+                      className="o-m-0"
+                      style={{
+                        ...affiche('m', 300),
+                        fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+                      }}
+                    >
+                      Balancier
+                    </p>
+                    <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                      Est. 1974
+                    </span>
                   </div>
                   <div className="o-relative">
-                    <p className="o-m-0 o-text-sm o-text-stone-200">Atelier d horlogerie mecanique</p>
+                    <p className="o-m-0 o-text-sm o-text-stone-200">
+                      Atelier d horlogerie mecanique
+                    </p>
                     <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
                       14 rue des Granges — 25000 Besancon
                     </p>
@@ -1192,22 +1696,40 @@ export default function Page(): ReactElement {
               back={
                 <div
                   className="o-flex o-h-full o-flex-col o-justify-between o-rounded-sm o-border-w-1 o-p-8"
-                  style={{ ...aplat(), aspectRatio: '85 / 54', borderColor: 'transparent' }}
+                  style={{
+                    ...aplat(),
+                    aspectRatio: '85 / 54',
+                    borderColor: 'transparent',
+                  }}
                 >
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-70">Au verso</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-opacity-70">
+                    Au verso
+                  </p>
                   <dl className="o-m-0 o-flex o-flex-col o-gap-1.5 o-text-sm">
-                    {([
-                      ['Rendez-vous', 'Du mardi au vendredi, 9 h - 12 h et 14 h - 18 h'],
-                      ['A apporter', 'La montre, son ecrin, et le bulletin s il existe'],
-                      ['Devis', 'Sous quinze jours, apres demontage complet'],
-                    ] as const).map(([quoi, valeur]) => (
+                    {(
+                      [
+                        [
+                          'Rendez-vous',
+                          'Du mardi au vendredi, 9 h - 12 h et 14 h - 18 h',
+                        ],
+                        [
+                          'A apporter',
+                          'La montre, son ecrin, et le bulletin s il existe',
+                        ],
+                        ['Devis', 'Sous quinze jours, apres demontage complet'],
+                      ] as const
+                    ).map(([quoi, valeur]) => (
                       <div key={quoi} className="o-grid o-gap-x-4 sm:o-grid-cols-12">
-                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-opacity-70 sm:o-col-span-4">{quoi}</dt>
+                        <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-opacity-70 sm:o-col-span-4">
+                          {quoi}
+                        </dt>
                         <dd className="o-m-0 sm:o-col-span-8">{valeur}</dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">atelier@balancier-horlogerie.fr</p>
+                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest">
+                    atelier@balancier-horlogerie.fr
+                  </p>
                 </div>
               }
             />
@@ -1228,12 +1750,23 @@ export default function Page(): ReactElement {
           Pas un plan du site : l etiquette qu on trouve dans la boite, avec sa
           composition, son origine et son numero de lot.
         */}
-        <footer className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-10 o-pt-14 md:o-px-12" style={{ backgroundColor: 'var(--o-palette-stone-950)' }}>
+        <footer
+          className="o-relative o-z-10 o-border-t o-border-white-10 o-px-6 o-pb-10 o-pt-14 md:o-px-12"
+          style={{ backgroundColor: 'var(--o-palette-stone-950)' }}
+        >
           <div className="o-mx-auto o-max-w-5xl o-rounded-sm o-border-w-1 o-border-white-20 o-p-6 md:o-p-10">
             <div className="o-flex o-flex-wrap o-items-start o-justify-between o-gap-6 o-border-b o-border-white-10 o-pb-6">
               <div>
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">Etiquette de la piece</p>
-                <p className="o-m-0 o-mt-2" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 3vw, 2.25rem)' }}>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
+                  Etiquette de la piece
+                </p>
+                <p
+                  className="o-m-0 o-mt-2"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                  }}
+                >
                   Balancier {calibre.reference} — {calibre.nom}
                 </p>
               </div>
@@ -1242,15 +1775,26 @@ export default function Page(): ReactElement {
 
             <dl className="o-m-0 o-mt-2">
               {ETIQUETTE.map(([terme, valeur]) => (
-                <div key={terme} className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-4 sm:o-grid-cols-12">
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400 sm:o-col-span-3">{terme}</dt>
-                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300 sm:o-col-span-9">{valeur}</dd>
+                <div
+                  key={terme}
+                  className="o-grid o-gap-x-6 o-gap-y-1 o-border-b o-border-white-10 o-py-4 sm:o-grid-cols-12"
+                >
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400 sm:o-col-span-3">
+                    {terme}
+                  </dt>
+                  <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-300 sm:o-col-span-9">
+                    {valeur}
+                  </dd>
                 </div>
               ))}
               <div className="o-grid o-gap-x-6 o-gap-y-1 o-py-4 sm:o-grid-cols-12">
-                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400 sm:o-col-span-3">Lot</dt>
+                <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400 sm:o-col-span-3">
+                  Lot
+                </dt>
                 <dd className="o-m-0 o-font-mono o-text-sm o-tabular-nums o-text-stone-200 sm:o-col-span-9">
-                  {calibre.reference} / 2026 / 041 — serie de quarante, {nombre(calibre.alternances)} A / h, marche {signe(calibre.marche)} s / j
+                  {calibre.reference} / 2026 / 041 — serie de quarante,{' '}
+                  {nombre(calibre.alternances)} A / h, marche {signe(calibre.marche)} s /
+                  j
                 </dd>
               </div>
             </dl>
@@ -1259,7 +1803,12 @@ export default function Page(): ReactElement {
           <div className="o-mx-auto o-mt-10 o-flex o-max-w-5xl o-flex-wrap o-items-center o-justify-between o-gap-4 o-border-t o-border-white-10 o-pt-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-400">
             <span>© 2026 Balancier</span>
             <span>14 rue des Granges, 25000 Besancon — sur rendez-vous</span>
-            <a href="#haut" className="o-text-stone-400 o-no-underline hover:o-text-stone-50 focus:o-ring">Remonter ↑</a>
+            <a
+              href="#haut"
+              className="o-text-stone-400 o-no-underline hover:o-text-stone-50 focus:o-ring"
+            >
+              Remonter ↑
+            </a>
           </div>
         </footer>
       </div>

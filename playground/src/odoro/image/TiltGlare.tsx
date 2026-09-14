@@ -207,12 +207,7 @@ export function TiltGlare({
   return (
     <div ref={host} className={className} style={hostStyle} data-o-tilt-glare="">
       <div ref={inner} data-o-tg-inner="">
-        <img
-          {...rest}
-          src={src}
-          alt={alt}
-          className="o-size-full o-object-cover"
-        />
+        <img {...rest} src={src} alt={alt} className="o-size-full o-object-cover" />
       </div>
     </div>
   )

@@ -99,11 +99,7 @@ export interface DotMatrixOwnProps {
 export type DotMatrixProps = Customisable<DotMatrixOwnProps>
 
 /** Tokens employes par defaut : deux teintes de points, puis le fond. */
-const DEFAULT_TOKENS = [
-  '--o-theme-fg',
-  '--o-theme-muted',
-  '--o-theme-bg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-fg', '--o-theme-muted', '--o-theme-bg'] as const
 
 /**
  * Repli par defaut : la meme trame, immobile.

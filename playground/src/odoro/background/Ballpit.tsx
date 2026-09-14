@@ -203,7 +203,10 @@ export function Ballpit({
       context.current = scene
       const { three, camera, renderer, quality } = scene
 
-      const total = Math.min(quality === 'low' ? Math.min(count, LOW_BALLS) : count, MAX_BALLS)
+      const total = Math.min(
+        quality === 'low' ? Math.min(count, LOW_BALLS) : count,
+        MAX_BALLS,
+      )
 
       camera.position.set(0, 0, CAMERA_DISTANCE)
       camera.lookAt(0, 0, 0)
@@ -216,7 +219,10 @@ export function Ballpit({
       renderer.setClearColor(paint(readTokenColour(BACKGROUND_TOKEN, host)), 1)
 
       const geometry = new three.SphereGeometry(1, 24, 16)
-      const material = new three.MeshStandardMaterial({ roughness: 0.38, metalness: 0.05 })
+      const material = new three.MeshStandardMaterial({
+        roughness: 0.38,
+        metalness: 0.05,
+      })
       const mesh = new three.InstancedMesh(geometry, material, MAX_BALLS)
       mesh.count = total
       mesh.name = 'ballpit'
@@ -237,11 +243,18 @@ export function Ballpit({
         positions[index * 3 + 1] = 3 + hash(index * 3 + 3) * 8
         positions[index * 3 + 2] = (hash(index * 3 + 4) - 0.5) * DEPTH
 
-        dummy.position.set(at(positions, index * 3), at(positions, index * 3 + 1), at(positions, index * 3 + 2))
+        dummy.position.set(
+          at(positions, index * 3),
+          at(positions, index * 3 + 1),
+          at(positions, index * 3 + 2),
+        )
         dummy.scale.setScalar(radius)
         dummy.updateMatrix()
         mesh.setMatrixAt(index, dummy.matrix)
-        mesh.setColorAt(index, tints[index % tints.length] ?? tints[0] ?? new three.Color())
+        mesh.setColorAt(
+          index,
+          tints[index % tints.length] ?? tints[0] ?? new three.Color(),
+        )
       }
       mesh.instanceMatrix.needsUpdate = true
       if (mesh.instanceColor !== null) mesh.instanceColor.needsUpdate = true
@@ -412,7 +425,11 @@ export function Ballpit({
         const base = index * 3
         const radius = at(radii, index)
         matrix.makeScale(radius, radius, radius)
-        matrix.setPosition(at(positions, base), at(positions, base + 1), at(positions, base + 2))
+        matrix.setPosition(
+          at(positions, base),
+          at(positions, base + 1),
+          at(positions, base + 2),
+        )
         mesh.setMatrixAt(index, matrix)
       }
       mesh.instanceMatrix.needsUpdate = true

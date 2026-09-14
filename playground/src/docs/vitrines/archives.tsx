@@ -362,10 +362,22 @@ const PASTILLES: readonly (readonly [valeur: string, quoi: string])[] = [
 
 /** Ce qu il faut savoir avant de venir. */
 const SALLE: readonly (readonly [string, string])[] = [
-  ['Inscription', 'Gratuite, a l annee, sur presentation d une piece d identite. Elle se fait en dix minutes au bureau d accueil, et vaut pour les quatre salles.'],
-  ['Horaires', 'Du mardi au vendredi, 9 h — 17 h sans interruption. Dernier appel de documents a 16 h 15, dernier retour a 16 h 45.'],
-  ['Commandes', 'Cinq articles a la fois, trois levees par jour : 9 h 15, 11 h et 14 h 30. Une commande passee la veille est sur la table a l ouverture.'],
-  ['Ce qui entre', 'Un crayon a papier, des feuilles volantes, un ordinateur, un appareil photographique sans flash. Rien d autre, et les sacs restent au vestiaire.'],
+  [
+    'Inscription',
+    'Gratuite, a l annee, sur presentation d une piece d identite. Elle se fait en dix minutes au bureau d accueil, et vaut pour les quatre salles.',
+  ],
+  [
+    'Horaires',
+    'Du mardi au vendredi, 9 h — 17 h sans interruption. Dernier appel de documents a 16 h 15, dernier retour a 16 h 45.',
+  ],
+  [
+    'Commandes',
+    'Cinq articles a la fois, trois levees par jour : 9 h 15, 11 h et 14 h 30. Une commande passee la veille est sur la table a l ouverture.',
+  ],
+  [
+    'Ce qui entre',
+    'Un crayon a papier, des feuilles volantes, un ordinateur, un appareil photographique sans flash. Rien d autre, et les sacs restent au vestiaire.',
+  ],
 ]
 
 /* ============================ La plaque ================================ */
@@ -392,26 +404,47 @@ function Plaque(): ReactElement {
       }}
     >
       {/* Les quatre vis de la plaque. */}
-      {(['o-left-3 o-top-3', 'o-right-3 o-top-3', 'o-bottom-3 o-left-3', 'o-bottom-3 o-right-3'] as const).map((coin) => (
+      {(
+        [
+          'o-left-3 o-top-3',
+          'o-right-3 o-top-3',
+          'o-bottom-3 o-left-3',
+          'o-bottom-3 o-right-3',
+        ] as const
+      ).map((coin) => (
         <span
           key={coin}
           aria-hidden="true"
           className={`o-absolute o-block o-size-2.5 o-rounded-full ${coin}`}
-          style={{ backgroundColor: accentDoux(600, 40), boxShadow: 'inset 0 1px 0 rgb(255 255 255 / 0.4)' }}
+          style={{
+            backgroundColor: accentDoux(600, 40),
+            boxShadow: 'inset 0 1px 0 rgb(255 255 255 / 0.4)',
+          }}
         />
       ))}
-      <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={grave}>
+      <p
+        className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+        style={grave}
+      >
         Departement — service des archives
       </p>
       <p
         className="o-m-0 o-mt-5 o-uppercase o-text-zinc-800 dark:o-text-zinc-100"
-        style={{ ...affiche('m', 500), fontSize: 'clamp(1.35rem, 3vw, 2.25rem)', lineHeight: 1.05, letterSpacing: '0.02em' }}
+        style={{
+          ...affiche('m', 500),
+          fontSize: 'clamp(1.35rem, 3vw, 2.25rem)',
+          lineHeight: 1.05,
+          letterSpacing: '0.02em',
+        }}
       >
         2 rue du Fonds
         <br />
         54000 Nancy
       </p>
-      <p className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest" style={grave}>
+      <p
+        className="o-m-0 o-mt-6 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest"
+        style={grave}
+      >
         Salle de lecture du mardi au vendredi, 9 h — 17 h
         <br />
         Entree libre · 03 83 00 00 00
@@ -432,7 +465,8 @@ const NAVIGATION = [
 const PIECE_NUMERISEE = {
   src: photo('fonds-deux'),
   alt: 'Dessin au fusain : une dune et une rive, trait rapide sur papier a grain.',
-  credit: 'Fons Heijnsbroek, dessin au fusain, 1990 — domaine public (CC0), Wikimedia Commons.',
+  credit:
+    'Fons Heijnsbroek, dessin au fusain, 1990 — domaine public (CC0), Wikimedia Commons.',
 } as const
 
 export default function Page(): ReactElement {
@@ -459,10 +493,21 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Fonds" sombre={false}>
-      <div className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100" style={polices}>
+      <div
+        className="o-bg-zinc-50 dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-100"
+        style={polices}
+      >
         {/* ================= L ouverture : la grille et le filigrane ====== */}
-        <header className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden" style={{ minHeight: `calc(100vh - ${String(CHROME)}px)`, ...grille }}>
-          <BarreCoins marque="Fonds" liens={NAVIGATION} droite="Archives departementales — Nancy" sombre={false} />
+        <header
+          className="o-relative o-isolate o-flex o-flex-col o-overflow-hidden"
+          style={{ minHeight: `calc(100vh - ${String(CHROME)}px)`, ...grille }}
+        >
+          <BarreCoins
+            marque="Fonds"
+            liens={NAVIGATION}
+            droite="Archives departementales — Nancy"
+            sombre={false}
+          />
 
           {/* Le mot-marque en contour, derriere tout. */}
           <span
@@ -481,21 +526,37 @@ export default function Page(): ReactElement {
           <div className="o-relative o-grid o-grow o-items-center o-gap-10 o-px-6 o-pb-12 md:o-grid-cols-12 md:o-px-10">
             <div className="o-min-w-0 md:o-col-span-7">
               <Surgit>
-                <Etiquette sombre={false}>Depot public · 38 km lineaires · 1247 — 2019</Etiquette>
+                <Etiquette sombre={false}>
+                  Depot public · 38 km lineaires · 1247 — 2019
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 cadence={80}
                 className="o-m-0 o-mt-7 o-text-zinc-950 dark:o-text-zinc-50"
-                style={{ ...affiche('xl', 800), fontSize: 'clamp(3rem, 13vw, 12rem)', lineHeight: 0.82, letterSpacing: '-0.05em' }}
+                style={{
+                  ...affiche('xl', 800),
+                  fontSize: 'clamp(3rem, 13vw, 12rem)',
+                  lineHeight: 0.82,
+                  letterSpacing: '-0.05em',
+                }}
               >
                 Fonds
               </TitreVague>
-              <Surgit delai={520} as="p" className="o-m-0 o-mt-7 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                Tout ce qui est ici porte une cote. Cette page la fabrique avec vous, du fonds a la piece, et vous donne la notice a chaque pas.
+              <Surgit
+                delai={520}
+                as="p"
+                className="o-m-0 o-mt-7 o-max-w-lg o-text-lg o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400"
+              >
+                Tout ce qui est ici porte une cote. Cette page la fabrique avec vous, du
+                fonds a la piece, et vous donne la notice a chaque pas.
               </Surgit>
               <Surgit delai={620} className="o-mt-8">
-                <Actions pleine={['#inventaire', 'Descendre dans une cote']} fantome={['#salle', 'La salle de lecture']} sombre={false} />
+                <Actions
+                  pleine={['#inventaire', 'Descendre dans une cote']}
+                  fantome={['#salle', 'La salle de lecture']}
+                  sombre={false}
+                />
               </Surgit>
             </div>
 
@@ -505,7 +566,15 @@ export default function Page(): ReactElement {
                 className="o-relative o-mx-auto o-flex o-aspect-square o-w-full o-max-w-sm o-items-center o-justify-center"
                 style={{ boxShadow: `inset 0 0 0 1px ${accentDoux(700, 22)}` }}
               >
-                <MagnetLines className="o-absolute o-inset-0" rows={11} columns={11} length={22} thickness={1} reach={220} color={accentDoux(700, 62)} />
+                <MagnetLines
+                  className="o-absolute o-inset-0"
+                  rows={11}
+                  columns={11}
+                  length={22}
+                  thickness={1}
+                  reach={220}
+                  color={accentDoux(700, 62)}
+                />
                 <p className="o-pointer-events-none o-absolute o-bottom-4 o-left-4 o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
                   Magasin 3 — epis 1 a 121
                 </p>
@@ -515,14 +584,29 @@ export default function Page(): ReactElement {
         </header>
 
         {/* ================= C26 : les pastilles ========================== */}
-        <section aria-label="Le depot en chiffres" className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-12 md:o-px-10">
+        <section
+          aria-label="Le depot en chiffres"
+          className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-12 md:o-px-10"
+        >
           <ul className="o-mx-auto o-m-0 o-flex o-max-w-6xl o-list-none o-flex-wrap o-items-center o-gap-4 o-p-0">
             {PASTILLES.map(([valeur, quoi]) => (
-              <li key={quoi} className="o-flex o-min-w-0 o-items-center o-gap-3 o-rounded-full o-px-5 o-py-2.5" style={{ boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}` }}>
-                <span className="o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 500), fontSize: 'clamp(1.15rem, 2vw, 1.6rem)' }}>
+              <li
+                key={quoi}
+                className="o-flex o-min-w-0 o-items-center o-gap-3 o-rounded-full o-px-5 o-py-2.5"
+                style={{ boxShadow: `inset 0 0 0 1px ${accentDoux(700, 26)}` }}
+              >
+                <span
+                  className="o-tabular-nums o-text-zinc-950 dark:o-text-zinc-50"
+                  style={{
+                    ...affiche('m', 500),
+                    fontSize: 'clamp(1.15rem, 2vw, 1.6rem)',
+                  }}
+                >
                   {valeur}
                 </span>
-                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</span>
+                <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  {quoi}
+                </span>
               </li>
             ))}
           </ul>
@@ -530,32 +614,57 @@ export default function Page(): ReactElement {
 
         <main>
           {/* ================= Le mecanisme : la cote ====================== */}
-          <section id="inventaire" className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+          <section
+            id="inventaire"
+            className="o-scroll-mt-24 o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Chapitre
                 indice="(01) — L inventaire"
                 largeur={3}
                 titre={
-                  <h2 className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 500), fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)', lineHeight: 0.98, letterSpacing: '-0.03em' }}>
+                  <h2
+                    className="o-m-0 o-text-zinc-950 dark:o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 500),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)',
+                      lineHeight: 0.98,
+                      letterSpacing: '-0.03em',
+                    }}
+                  >
                     La cote se fabrique en descendant.
                   </h2>
                 }
                 texte="Quatre niveaux : le fonds, la serie, l article, la piece. Chacun a sa notice ; le suivant ne redit que ce qui change. Trois articles seulement sont decrits jusqu au document."
               >
                 {/* La cote en cours, en grand. */}
-                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Cote</p>
+                <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                  Cote
+                </p>
                 <p
                   className="o-m-0 o-mt-2 o-break-words o-text-zinc-950 dark:o-text-zinc-50"
-                  style={{ ...affiche('m', 500), fontFamily: 'var(--o-font-mono)', fontSize: 'clamp(1.5rem, 4vw, 3rem)', lineHeight: 1, letterSpacing: '-0.02em' }}
+                  style={{
+                    ...affiche('m', 500),
+                    fontFamily: 'var(--o-font-mono)',
+                    fontSize: 'clamp(1.5rem, 4vw, 3rem)',
+                    lineHeight: 1,
+                    letterSpacing: '-0.02em',
+                  }}
                   aria-live="polite"
                 >
                   {courant?.cote ?? '—'}
                 </p>
 
                 {/* Les colonnes de la descente. */}
-                <div className="o-mt-8 o-grid o-gap-px sm:o-grid-cols-2 lg:o-grid-cols-4" style={{ backgroundColor: accentDoux(700, 18) }}>
+                <div
+                  className="o-mt-8 o-grid o-gap-px sm:o-grid-cols-2 lg:o-grid-cols-4"
+                  style={{ backgroundColor: accentDoux(700, 18) }}
+                >
                   {colonnes.map((colonne, niveau) => (
-                    <div key={NIVEAUX[niveau] ?? niveau} className="o-min-w-0 o-bg-zinc-50 dark:o-bg-zinc-950 o-p-3">
+                    <div
+                      key={NIVEAUX[niveau] ?? niveau}
+                      className="o-min-w-0 o-bg-zinc-50 dark:o-bg-zinc-950 o-p-3"
+                    >
                       <p className="o-m-0 o-px-2 o-pb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
                         {NIVEAUX[niveau] ?? ''}
                       </p>
@@ -572,16 +681,27 @@ export default function Page(): ReactElement {
                                 aria-pressed={pris}
                                 className="o-block o-w-full o-cursor-pointer o-px-2 o-py-2.5 o-text-left o-transition-colors focus:o-ring"
                                 style={{
-                                  backgroundColor: pris ? accentDoux(500, 16) : 'transparent',
+                                  backgroundColor: pris
+                                    ? accentDoux(500, 16)
+                                    : 'transparent',
                                   border: 'none',
                                   color: 'inherit',
-                                  boxShadow: pris ? `inset 2px 0 0 ${accent(500)}` : 'none',
+                                  boxShadow: pris
+                                    ? `inset 2px 0 0 ${accent(500)}`
+                                    : 'none',
                                 }}
                               >
-                                <span className="o-block o-font-mono o-text-xs o-tabular-nums" style={{ color: pris ? encre() : 'var(--o-theme-muted)' }}>
+                                <span
+                                  className="o-block o-font-mono o-text-xs o-tabular-nums"
+                                  style={{
+                                    color: pris ? encre() : 'var(--o-theme-muted)',
+                                  }}
+                                >
                                   {noeud.cote}
                                 </span>
-                                <span className="o-mt-1 o-block o-text-sm o-leading-snug">{noeud.intitule}</span>
+                                <span className="o-mt-1 o-block o-text-sm o-leading-snug">
+                                  {noeud.intitule}
+                                </span>
                               </button>
                             </li>
                           )
@@ -603,10 +723,20 @@ export default function Page(): ReactElement {
                   <div className="o-mt-10 o-border-t o-border-black-10 dark:o-border-zinc-800 o-pt-10">
                     <div className="o-grid o-gap-10 md:o-grid-cols-12">
                       <div className="o-min-w-0 md:o-col-span-7">
-                        <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest" style={{ color: encre() }}>
+                        <p
+                          className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest"
+                          style={{ color: encre() }}
+                        >
                           Notice — niveau {NIVEAUX[chemin.length - 1] ?? 'fonds'}
                         </p>
-                        <h3 className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-50" style={{ ...affiche('m', 500), fontSize: 'clamp(1.35rem, 2.6vw, 2rem)', lineHeight: 1.02 }}>
+                        <h3
+                          className="o-m-0 o-mt-4 o-text-zinc-950 dark:o-text-zinc-50"
+                          style={{
+                            ...affiche('m', 500),
+                            fontSize: 'clamp(1.35rem, 2.6vw, 2rem)',
+                            lineHeight: 1.02,
+                          }}
+                        >
                           {courant.intitule}
                         </h3>
                         <BlurWords
@@ -620,11 +750,19 @@ export default function Page(): ReactElement {
                           {courant.note}
                         </BlurWords>
 
-                        {courant.enfants === undefined && chemin.length < NIVEAUX.length && (
-                          <p className="o-m-0 o-mt-6 o-max-w-xl o-px-4 o-py-3 o-text-sm o-leading-relaxed" style={{ backgroundColor: accentDoux(500, 12), color: 'inherit' }}>
-                            Cet article n est pas decrit a la piece : il se demande en entier et se depouille en salle.
-                          </p>
-                        )}
+                        {courant.enfants === undefined &&
+                          chemin.length < NIVEAUX.length && (
+                            <p
+                              className="o-m-0 o-mt-6 o-max-w-xl o-px-4 o-py-3 o-text-sm o-leading-relaxed"
+                              style={{
+                                backgroundColor: accentDoux(500, 12),
+                                color: 'inherit',
+                              }}
+                            >
+                              Cet article n est pas decrit a la piece : il se demande en
+                              entier et se depouille en salle.
+                            </p>
+                          )}
                       </div>
 
                       <dl className="o-m-0 o-min-w-0 md:o-col-span-5">
@@ -634,9 +772,16 @@ export default function Page(): ReactElement {
                           ['Producteur', courant.producteur],
                           ['Communicabilite', courant.acces],
                         ].map(([quoi, valeur]) => (
-                          <div key={quoi} className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-3">
-                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-                            <dd className="o-m-0 o-mt-1 o-text-sm o-text-zinc-900 dark:o-text-zinc-100">{valeur}</dd>
+                          <div
+                            key={quoi}
+                            className="o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-3"
+                          >
+                            <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+                              {quoi}
+                            </dt>
+                            <dd className="o-m-0 o-mt-1 o-text-sm o-text-zinc-900 dark:o-text-zinc-100">
+                              {valeur}
+                            </dd>
                           </div>
                         ))}
                       </dl>
@@ -645,9 +790,17 @@ export default function Page(): ReactElement {
                     {/* La piece numerisee, quand on arrive au document. */}
                     {courant.numerise === true && (
                       <figure className="o-m-0 o-mt-10">
-                        <RevealImage src={PIECE_NUMERISEE.src} alt={PIECE_NUMERISEE.alt} ratio={4 / 3} direction="up" duration={1000} className="o-w-full" />
+                        <RevealImage
+                          src={PIECE_NUMERISEE.src}
+                          alt={PIECE_NUMERISEE.alt}
+                          ratio={4 / 3}
+                          direction="up"
+                          duration={1000}
+                          className="o-w-full"
+                        />
                         <figcaption className="o-mt-3 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                          {courant.cote} — numerise a 600 ppp, couleur, avec mire. Credits au pied de page.
+                          {courant.cote} — numerise a 600 ppp, couleur, avec mire. Credits
+                          au pied de page.
                         </figcaption>
                       </figure>
                     )}
@@ -658,13 +811,25 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= La salle de lecture ========================= */}
-          <section id="salle" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={nuit('zinc')}>
+          <section
+            id="salle"
+            className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+            style={nuit('zinc')}
+          >
             <div className="o-mx-auto o-max-w-6xl">
               <Chapitre
                 indice="(02) — La salle"
                 largeur={3}
                 titre={
-                  <h2 className="o-m-0 o-text-zinc-50" style={{ ...affiche('m', 500), fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)', lineHeight: 0.98, letterSpacing: '-0.03em' }}>
+                  <h2
+                    className="o-m-0 o-text-zinc-50"
+                    style={{
+                      ...affiche('m', 500),
+                      fontSize: 'clamp(1.75rem, 3.2vw, 2.75rem)',
+                      lineHeight: 0.98,
+                      letterSpacing: '-0.03em',
+                    }}
+                  >
                     Soixante-deux places, trois levees par jour.
                   </h2>
                 }
@@ -672,12 +837,23 @@ export default function Page(): ReactElement {
               >
                 <ol className="o-m-0 o-list-none o-border-t o-border-white-10 o-p-0">
                   {SALLE.map(([quoi, texte], rang) => (
-                    <li key={quoi} className="o-grid o-gap-3 o-border-b o-border-white-10 o-py-6 md:o-grid-cols-12 md:o-gap-8">
-                      <span aria-hidden="true" className="o-font-mono o-text-xs o-tabular-nums md:o-col-span-1" style={{ color: encreSurSombre() }}>
+                    <li
+                      key={quoi}
+                      className="o-grid o-gap-3 o-border-b o-border-white-10 o-py-6 md:o-grid-cols-12 md:o-gap-8"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="o-font-mono o-text-xs o-tabular-nums md:o-col-span-1"
+                        style={{ color: encreSurSombre() }}
+                      >
                         {String(rang + 1).padStart(2, '0')}
                       </span>
-                      <h3 className="o-m-0 o-min-w-0 o-text-lg o-font-semibold o-text-zinc-50 md:o-col-span-4">{quoi}</h3>
-                      <p className="o-m-0 o-min-w-0 o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-7">{texte}</p>
+                      <h3 className="o-m-0 o-min-w-0 o-text-lg o-font-semibold o-text-zinc-50 md:o-col-span-4">
+                        {quoi}
+                      </h3>
+                      <p className="o-m-0 o-min-w-0 o-text-sm o-leading-relaxed o-text-zinc-400 md:o-col-span-7">
+                        {texte}
+                      </p>
                     </li>
                   ))}
                 </ol>
@@ -686,16 +862,23 @@ export default function Page(): ReactElement {
           </section>
 
           {/* ================= A42 : la plaque gravee ====================== */}
-          <section id="venir" className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={grille}>
+          <section
+            id="venir"
+            className="o-scroll-mt-24 o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+            style={grille}
+          >
             <div className="o-mx-auto o-max-w-4xl">
               <Reveal>
-                <Indice rang="03" sombre={false}>Venir</Indice>
+                <Indice rang="03" sombre={false}>
+                  Venir
+                </Indice>
               </Reveal>
               <div className="o-mt-12">
                 <Plaque />
               </div>
               <p className="o-mx-auto o-m-0 o-mt-10 o-max-w-xl o-text-center o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
-                La plaque est a droite de la porte cochere. L entree des lecteurs est la seconde, sous l auvent ; la premiere est celle du quai de dechargement.
+                La plaque est a droite de la porte cochere. L entree des lecteurs est la
+                seconde, sous l auvent ; la premiere est celle du quai de dechargement.
               </p>
               <p className="o-m-0 o-mt-8 o-text-center">
                 <a
@@ -703,7 +886,8 @@ export default function Page(): ReactElement {
                   className="o-inline-flex o-items-center o-gap-2 o-rounded-full o-px-7 o-py-3.5 o-text-sm o-font-semibold o-no-underline o-transition-transform hover:o-scale-105 focus:o-ring"
                   style={aplat()}
                 >
-                  Preparer sa venue <Icon icon={ArrowRight} size={15} aria-hidden="true" />
+                  Preparer sa venue{' '}
+                  <Icon icon={ArrowRight} size={15} aria-hidden="true" />
                 </a>
               </p>
             </div>
@@ -713,14 +897,13 @@ export default function Page(): ReactElement {
         {/* ================= P41 : le releve des credits ================== */}
         <footer className="o-border-t o-border-black-10 dark:o-border-zinc-800 o-px-6 o-py-14 md:o-px-10">
           <div className="o-mx-auto o-max-w-6xl">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">Credits</p>
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+              Credits
+            </p>
 
             <dl className="o-m-0 o-mt-8 o-border-t o-border-black-10 dark:o-border-zinc-800">
               {[
-                [
-                  'Photographie',
-                  PIECE_NUMERISEE.credit,
-                ],
+                ['Photographie', PIECE_NUMERISEE.credit],
                 [
                   'Reproductions',
                   'Les autres pieces montrees sur ce site sont des dessins originaux realises pour la page : aucune reproduction du fonds n y figure sans mention.',
@@ -738,15 +921,25 @@ export default function Page(): ReactElement {
                   'Reproduction des documents libres de droits autorisee avec mention de la cote. Pour les autres, une demande ecrite est necessaire.',
                 ],
               ].map(([quoi, valeur]) => (
-                <div key={quoi} className="o-grid o-gap-2 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-4 md:o-grid-cols-12 md:o-gap-8">
-                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-3">{quoi}</dt>
-                  <dd className="o-m-0 o-min-w-0 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-9">{valeur}</dd>
+                <div
+                  key={quoi}
+                  className="o-grid o-gap-2 o-border-b o-border-black-10 dark:o-border-zinc-800 o-py-4 md:o-grid-cols-12 md:o-gap-8"
+                >
+                  <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-3">
+                    {quoi}
+                  </dt>
+                  <dd className="o-m-0 o-min-w-0 o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300 md:o-col-span-9">
+                    {valeur}
+                  </dd>
                 </div>
               ))}
             </dl>
 
             <div className="o-mt-10 o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
-              <nav aria-label="Pied de page" className="o-flex o-flex-wrap o-gap-x-7 o-gap-y-2">
+              <nav
+                aria-label="Pied de page"
+                className="o-flex o-flex-wrap o-gap-x-7 o-gap-y-2"
+              >
                 {NAVIGATION.map(([cible, mot]) => (
                   <a
                     key={cible}
@@ -763,12 +956,14 @@ export default function Page(): ReactElement {
                   className="o-inline-flex o-items-center o-gap-2 o-font-mono o-text-sm o-uppercase o-tracking-widest o-no-underline focus:o-ring"
                   style={{ color: encre() }}
                 >
-                  lecture@archives-fonds.fr <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
+                  lecture@archives-fonds.fr{' '}
+                  <Icon icon={ArrowUpRight} size={15} aria-hidden="true" />
                 </a>
               </p>
             </div>
             <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-              © 2026 — service des archives, 2 rue du Fonds, Nancy — cotes et notices de demonstration
+              © 2026 — service des archives, 2 rue du Fonds, Nancy — cotes et notices de
+              demonstration
             </p>
           </div>
         </footer>

@@ -63,7 +63,10 @@ function findScroller(start: HTMLElement): HTMLElement | null {
   let node = start.parentElement
   while (node !== null) {
     const overflow = getComputedStyle(node).overflowY
-    if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) {
+    if (
+      (overflow === 'auto' || overflow === 'scroll') &&
+      node.scrollHeight > node.clientHeight
+    ) {
       return node
     }
     node = node.parentElement

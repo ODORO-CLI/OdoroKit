@@ -187,9 +187,25 @@ const USAGES: Readonly<Record<number, string>> = {
 
 /** Les trois bandes du pied, et leur temperature. */
 const BANDES = [
-  { kelvin: 2200, titre: 'L atelier', lignes: ['14 rue des Rosiers', '93400 Saint-Ouen', 'Ouvert le samedi, 11 h a 18 h'] },
-  { kelvin: 3500, titre: 'Les pieces', lignes: ['Coupole — AJ-38-S', 'Tige — AJ-165-L', 'Applique — AJ-22-A'] },
-  { kelvin: 5000, titre: 'La maison', lignes: ['Garantie dix ans, source comprise', 'Reparation a l atelier, sans terme', '© 2026 Abat-Jour'] },
+  {
+    kelvin: 2200,
+    titre: 'L atelier',
+    lignes: ['14 rue des Rosiers', '93400 Saint-Ouen', 'Ouvert le samedi, 11 h a 18 h'],
+  },
+  {
+    kelvin: 3500,
+    titre: 'Les pieces',
+    lignes: ['Coupole — AJ-38-S', 'Tige — AJ-165-L', 'Applique — AJ-22-A'],
+  },
+  {
+    kelvin: 5000,
+    titre: 'La maison',
+    lignes: [
+      'Garantie dix ans, source comprise',
+      'Reparation a l atelier, sans terme',
+      '© 2026 Abat-Jour',
+    ],
+  },
 ] as const
 
 /* ============================ La physique ============================== */
@@ -284,7 +300,10 @@ function photometrieDe(piece: Piece): Photometrie {
 
 /** Un nombre a la francaise. */
 function nombre(valeur: number, decimales = 0): string {
-  return valeur.toLocaleString('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+  return valeur.toLocaleString('fr-FR', {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })
 }
 
 /* ============================ Les teintes ============================== */
@@ -325,7 +344,13 @@ function fond(kelvin: number, part: number, nuance = 500): string {
  * couleur du cran choisi : c est le meme segment que le reste de la page, donc
  * la lampe ne peut pas se desaccorder du halo qui l entoure.
  */
-function Lampe({ piece, kelvin }: { readonly piece: Piece; readonly kelvin: number }): ReactElement {
+function Lampe({
+  piece,
+  kelvin,
+}: {
+  readonly piece: Piece
+  readonly kelvin: number
+}): ReactElement {
   const metal = lueur(kelvin, 200)
   const source = lueur(kelvin, 100)
   const cone = voile(kelvin, 34, 300)
@@ -336,7 +361,12 @@ function Lampe({ piece, kelvin }: { readonly piece: Piece; readonly kelvin: numb
   const ouverture = Math.tan((piece.faisceau * Math.PI) / 360) * 300
 
   return (
-    <svg viewBox="0 0 360 460" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 360 460"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       <defs>
         <linearGradient id={identifiant} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={cone} stopOpacity="0.85" />
@@ -351,31 +381,87 @@ function Lampe({ piece, kelvin }: { readonly piece: Piece; readonly kelvin: numb
       {piece.type === 'suspension' && (
         <>
           <path d="M180 0 V96" stroke={metal} strokeWidth="2" opacity="0.6" />
-          <path d={`M180 148 L${String(180 - ouverture)} 448 H${String(180 + ouverture)} Z`} fill={`url(#${identifiant})`} />
-          <path d="M118 148 Q180 82 242 148 Z" fill="var(--o-palette-zinc-900)" stroke={metal} strokeWidth="2" />
+          <path
+            d={`M180 148 L${String(180 - ouverture)} 448 H${String(180 + ouverture)} Z`}
+            fill={`url(#${identifiant})`}
+          />
+          <path
+            d="M118 148 Q180 82 242 148 Z"
+            fill="var(--o-palette-zinc-900)"
+            stroke={metal}
+            strokeWidth="2"
+          />
           <ellipse cx="180" cy="148" rx="62" ry="11" fill={source} opacity="0.9" />
-          <circle cx="180" cy="148" r="74" fill={`url(#${identifiant}-source)`} opacity="0.6" />
+          <circle
+            cx="180"
+            cy="148"
+            r="74"
+            fill={`url(#${identifiant}-source)`}
+            opacity="0.6"
+          />
         </>
       )}
 
       {piece.type === 'lampadaire' && (
         <>
-          <path d={`M180 150 L${String(180 - ouverture)} 448 H${String(180 + ouverture)} Z`} fill={`url(#${identifiant})`} />
-          <path d="M136 92 L224 92 L246 150 L114 150 Z" fill="var(--o-palette-zinc-900)" stroke={metal} strokeWidth="2" />
+          <path
+            d={`M180 150 L${String(180 - ouverture)} 448 H${String(180 + ouverture)} Z`}
+            fill={`url(#${identifiant})`}
+          />
+          <path
+            d="M136 92 L224 92 L246 150 L114 150 Z"
+            fill="var(--o-palette-zinc-900)"
+            stroke={metal}
+            strokeWidth="2"
+          />
           <ellipse cx="180" cy="150" rx="66" ry="10" fill={source} opacity="0.9" />
-          <circle cx="180" cy="150" r="70" fill={`url(#${identifiant}-source)`} opacity="0.55" />
+          <circle
+            cx="180"
+            cy="150"
+            r="70"
+            fill={`url(#${identifiant}-source)`}
+            opacity="0.55"
+          />
           <path d="M180 150 V424" stroke={metal} strokeWidth="4" />
-          <ellipse cx="180" cy="428" rx="52" ry="12" fill="var(--o-palette-zinc-900)" stroke={metal} strokeWidth="2" />
+          <ellipse
+            cx="180"
+            cy="428"
+            rx="52"
+            ry="12"
+            fill="var(--o-palette-zinc-900)"
+            stroke={metal}
+            strokeWidth="2"
+          />
         </>
       )}
 
       {piece.type === 'applique' && (
         <>
-          <path d={`M198 176 L${String(198 - ouverture)} 448 H${String(198 + ouverture)} Z`} fill={`url(#${identifiant})`} />
-          <path d="M96 60 V420" stroke={metal} strokeWidth="2" opacity="0.45" strokeDasharray="6 6" />
-          <path d="M96 130 H140 A 58 58 0 1 1 140 234 H96 Z" fill="var(--o-palette-zinc-900)" stroke={metal} strokeWidth="2" />
+          <path
+            d={`M198 176 L${String(198 - ouverture)} 448 H${String(198 + ouverture)} Z`}
+            fill={`url(#${identifiant})`}
+          />
+          <path
+            d="M96 60 V420"
+            stroke={metal}
+            strokeWidth="2"
+            opacity="0.45"
+            strokeDasharray="6 6"
+          />
+          <path
+            d="M96 130 H140 A 58 58 0 1 1 140 234 H96 Z"
+            fill="var(--o-palette-zinc-900)"
+            stroke={metal}
+            strokeWidth="2"
+          />
           <ellipse cx="186" cy="182" rx="12" ry="34" fill={source} opacity="0.9" />
-          <circle cx="190" cy="182" r="64" fill={`url(#${identifiant}-source)`} opacity="0.5" />
+          <circle
+            cx="190"
+            cy="182"
+            r="64"
+            fill={`url(#${identifiant}-source)`}
+            opacity="0.5"
+          />
         </>
       )}
     </svg>
@@ -398,7 +484,13 @@ const REGLE = [
  * qui ondule lentement — c est la reference mirror-hall, et c est ce qui donne
  * a un fond noir une profondeur qu aucun degrade ne donne.
  */
-function SurLeSol({ children, hauteur }: { readonly children: ReactNode; readonly hauteur: number }): ReactElement {
+function SurLeSol({
+  children,
+  hauteur,
+}: {
+  readonly children: ReactNode
+  readonly hauteur: number
+}): ReactElement {
   return (
     <div className="o-relative o-flex o-flex-col o-items-center">
       <div style={{ height: hauteur }}>{children}</div>
@@ -430,7 +522,13 @@ function SurLeSol({ children, hauteur }: { readonly children: ReactNode; readonl
  * valeur qui se deplace le long d elle, elle se lit comme un thermometre — et
  * c est bien une temperature.
  */
-function Echelle({ kelvin, onChange }: { readonly kelvin: number; readonly onChange: (kelvin: number) => void }): ReactElement {
+function Echelle({
+  kelvin,
+  onChange,
+}: {
+  readonly kelvin: number
+  readonly onChange: (kelvin: number) => void
+}): ReactElement {
   const rang = CRANS.findIndex((cran) => cran.kelvin === kelvin)
   const courant = CRANS[rang] ?? CRANS[2]
   // Le froid est en haut, le chaud en bas : c est le sens d un thermometre, et
@@ -443,17 +541,34 @@ function Echelle({ kelvin, onChange }: { readonly kelvin: number; readonly onCha
       <div className="o-relative o-w-40 o-text-right sm:o-w-52">
         <div
           className="o-absolute o-right-0"
-          style={{ top: `${String(haut)}%`, transform: 'translateY(-50%)', transition: 'top 420ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+          style={{
+            top: `${String(haut)}%`,
+            transform: 'translateY(-50%)',
+            transition: 'top 420ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
         >
-          <p className="o-m-0 o-tabular-nums" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4.4vw, 3.5rem)', lineHeight: 1, color: lueur(kelvin, 200) }}>
+          <p
+            className="o-m-0 o-tabular-nums"
+            style={{
+              ...affiche('m', 300),
+              fontSize: 'clamp(2rem, 4.4vw, 3.5rem)',
+              lineHeight: 1,
+              color: lueur(kelvin, 200),
+            }}
+          >
             {nombre(kelvin)} K
           </p>
-          <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{courant.nom}</p>
+          <p className="o-m-0 o-mt-1 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+            {courant.nom}
+          </p>
         </div>
       </div>
 
       {/* La reglette, et ses huit crans. */}
-      <ul className="o-m-0 o-flex o-list-none o-flex-col o-justify-between o-p-0" style={{ minHeight: 320 }}>
+      <ul
+        className="o-m-0 o-flex o-list-none o-flex-col o-justify-between o-p-0"
+        style={{ minHeight: 320 }}
+      >
         {[...CRANS].reverse().map((cran) => {
           const actif = cran.kelvin === kelvin
           return (
@@ -461,15 +576,24 @@ function Echelle({ kelvin, onChange }: { readonly kelvin: number; readonly onCha
               <button
                 type="button"
                 aria-pressed={actif}
-                onClick={() => { onChange(cran.kelvin) }}
+                onClick={() => {
+                  onChange(cran.kelvin)
+                }}
                 className="o-flex o-cursor-pointer o-items-center o-gap-3 o-py-1 focus:o-ring"
               >
                 <span
                   aria-hidden="true"
                   className="o-block o-h-0.5 o-transition-all"
-                  style={{ width: actif ? 54 : 26, backgroundColor: actif ? lueur(cran.kelvin, 200) : 'var(--o-palette-zinc-600)' }}
+                  style={{
+                    width: actif ? 54 : 26,
+                    backgroundColor: actif
+                      ? lueur(cran.kelvin, 200)
+                      : 'var(--o-palette-zinc-600)',
+                  }}
                 />
-                <span className={`o-font-mono o-text-xs o-tabular-nums ${actif ? 'o-text-zinc-50' : 'o-text-zinc-400'}`}>
+                <span
+                  className={`o-font-mono o-text-xs o-tabular-nums ${actif ? 'o-text-zinc-50' : 'o-text-zinc-400'}`}
+                >
                   <span className="o-sr-only">Temperature de couleur </span>
                   {nombre(cran.kelvin)}
                 </span>
@@ -485,7 +609,13 @@ function Echelle({ kelvin, onChange }: { readonly kelvin: number; readonly onCha
 /* ============================ La courbe de Planck ====================== */
 
 /** La courbe de Planck sur le visible, tracee point par point. */
-function Spectre({ lumiere: l, kelvin }: { readonly lumiere: Lumiere; readonly kelvin: number }): ReactElement {
+function Spectre({
+  lumiere: l,
+  kelvin,
+}: {
+  readonly lumiere: Lumiere
+  readonly kelvin: number
+}): ReactElement {
   const trait = lueur(kelvin, 200)
   const gauche = 54
   const droite = 686
@@ -496,7 +626,9 @@ function Spectre({ lumiere: l, kelvin }: { readonly lumiere: Lumiere; readonly k
   const y = (valeur: number): number => bas - valeur * (bas - haut)
 
   const trace = useMemo(() => {
-    const points = l.courbe.map((valeur, rang) => `${x(ONDES[rang] ?? 380).toFixed(1)} ${y(valeur).toFixed(1)}`)
+    const points = l.courbe.map(
+      (valeur, rang) => `${x(ONDES[rang] ?? 380).toFixed(1)} ${y(valeur).toFixed(1)}`,
+    )
     return {
       ligne: `M${points.join('L')}`,
       aire: `M${String(gauche)} ${String(bas)}L${points.join('L')}L${String(droite)} ${String(bas)}Z`,
@@ -504,27 +636,52 @@ function Spectre({ lumiere: l, kelvin }: { readonly lumiere: Lumiere; readonly k
   }, [l.courbe])
 
   return (
-    <svg viewBox="0 0 720 280" className="o-h-full o-w-full" fill="none" aria-hidden="true">
+    <svg
+      viewBox="0 0 720 280"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+    >
       <g stroke="var(--o-palette-zinc-800)" strokeWidth="1">
         {[380, 450, 500, 550, 600, 650, 700, 780].map((onde) => (
-          <line key={onde} x1={x(onde).toFixed(1)} y1={haut} x2={x(onde).toFixed(1)} y2={bas} />
+          <line
+            key={onde}
+            x1={x(onde).toFixed(1)}
+            y1={haut}
+            x2={x(onde).toFixed(1)}
+            y2={bas}
+          />
         ))}
         {[0, 0.25, 0.5, 0.75, 1].map((part) => (
-          <line key={part} x1={gauche} y1={y(part).toFixed(1)} x2={droite} y2={y(part).toFixed(1)} opacity={part === 0 ? 1 : 0.5} />
+          <line
+            key={part}
+            x1={gauche}
+            y1={y(part).toFixed(1)}
+            x2={droite}
+            y2={y(part).toFixed(1)}
+            opacity={part === 0 ? 1 : 0.5}
+          />
         ))}
       </g>
 
       <path d={trace.aire} fill={trait} fillOpacity="0.18" />
       <path d={trace.ligne} stroke={trait} strokeWidth="2.6" strokeLinejoin="round" />
 
-      <g fill="var(--o-palette-zinc-400)" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}>
+      <g
+        fill="var(--o-palette-zinc-400)"
+        style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11 }}
+      >
         {[380, 450, 500, 550, 600, 650, 700, 780].map((onde) => (
           <text key={onde} x={x(onde).toFixed(1)} y="260" textAnchor="middle">
             {String(onde)}
           </text>
         ))}
-        <text x={gauche} y="14">Luminance, rapportee a son maximum</text>
-        <text x={droite} y="276" textAnchor="end">Longueur d onde, en nanometres</text>
+        <text x={gauche} y="14">
+          Luminance, rapportee a son maximum
+        </text>
+        <text x={droite} y="276" textAnchor="end">
+          Longueur d onde, en nanometres
+        </text>
       </g>
     </svg>
   )
@@ -533,11 +690,24 @@ function Spectre({ lumiere: l, kelvin }: { readonly lumiere: Lumiere; readonly k
 /* ============================ Les petites pieces ======================= */
 
 /** Une valeur lue, sur son filet. */
-function Valeur({ quoi, valeur, note }: { readonly quoi: string; readonly valeur: string; readonly note: string }): ReactElement {
+function Valeur({
+  quoi,
+  valeur,
+  note,
+}: {
+  readonly quoi: string
+  readonly valeur: string
+  readonly note: string
+}): ReactElement {
   return (
     <div className="o-border-t o-border-white-10 o-py-4">
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-1.5 o-tabular-nums o-text-zinc-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.375rem, 2.4vw, 2rem)' }}>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
+        {quoi}
+      </dt>
+      <dd
+        className="o-m-0 o-mt-1.5 o-tabular-nums o-text-zinc-50"
+        style={{ ...affiche('m', 300), fontSize: 'clamp(1.375rem, 2.4vw, 2rem)' }}
+      >
         {valeur}
       </dd>
       <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-400">{note}</p>
@@ -546,14 +716,26 @@ function Valeur({ quoi, valeur, note }: { readonly quoi: string; readonly valeur
 }
 
 /** Un choix : une gelule bordee, pleine quand elle est prise. */
-function Choix({ actif, onClick, children }: { readonly actif: boolean; readonly onClick: () => void; readonly children: ReactNode }): ReactElement {
+function Choix({
+  actif,
+  onClick,
+  children,
+}: {
+  readonly actif: boolean
+  readonly onClick: () => void
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <button
       type="button"
       aria-pressed={actif}
       onClick={onClick}
       className="o-rounded-full o-border-w-1 o-px-4 o-py-1.5 o-text-sm o-transition-colors focus:o-ring"
-      style={actif ? { ...aplat(), borderColor: 'transparent' } : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-zinc-300)' }}
+      style={
+        actif
+          ? { ...aplat(), borderColor: 'transparent' }
+          : { borderColor: 'var(--o-theme-line)', color: 'var(--o-palette-zinc-300)' }
+      }
     >
       {children}
     </button>
@@ -590,7 +772,11 @@ export default function Page(): ReactElement {
         />
 
         <div className="o-relative o-z-10">
-          <BarreFilet marque="Abat-Jour" liens={NAVIGATION} action={['#catalogue', 'Le catalogue']} />
+          <BarreFilet
+            marque="Abat-Jour"
+            liens={NAVIGATION}
+            action={['#catalogue', 'Le catalogue']}
+          />
 
           <main>
             {/*
@@ -600,31 +786,73 @@ export default function Page(): ReactElement {
               l echelle est a droite. Regler un cran reteinte le halo, la
               source, le reflet, les filets, et tout ce qui suit.
             */}
-            <GlowCursor size={420} intensity={0.28} trail={0.4} color={voile(kelvin, 60, 300)}>
-              <section id="lumiere" className="o-relative o-scroll-mt-24 o-overflow-hidden o-px-6 o-pb-14 o-pt-10 md:o-px-12" style={{ minHeight: ECRAN }}>
-                <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-items-center" style={{ minHeight: `calc(${ECRAN} - 6rem)` }}>
+            <GlowCursor
+              size={420}
+              intensity={0.28}
+              trail={0.4}
+              color={voile(kelvin, 60, 300)}
+            >
+              <section
+                id="lumiere"
+                className="o-relative o-scroll-mt-24 o-overflow-hidden o-px-6 o-pb-14 o-pt-10 md:o-px-12"
+                style={{ minHeight: ECRAN }}
+              >
+                <div
+                  className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-items-center"
+                  style={{ minHeight: `calc(${ECRAN} - 6rem)` }}
+                >
                   <div className="lg:o-col-span-4">
                     <Surgit>
                       <Etiquette>Saint-Ouen — sources remplacables</Etiquette>
                     </Surgit>
-                    <h1 className="o-m-0 o-mt-6" style={{ ...affiche('l', 400), fontSize: 'clamp(2.25rem, 5.4vw, 4.75rem)', lineHeight: 0.96 }}>
+                    <h1
+                      className="o-m-0 o-mt-6"
+                      style={{
+                        ...affiche('l', 400),
+                        fontSize: 'clamp(2.25rem, 5.4vw, 4.75rem)',
+                        lineHeight: 0.96,
+                      }}
+                    >
                       {['Une', 'piece,', 'une', 'seule'].map((mot, rang) => (
-                        <Surgit key={mot} as="span" delai={140 + rang * 70} className="o-inline-block" style={{ marginRight: '0.22em' }}>
+                        <Surgit
+                          key={mot}
+                          as="span"
+                          delai={140 + rang * 70}
+                          className="o-inline-block"
+                          style={{ marginRight: '0.22em' }}
+                        >
                           {mot}
                         </Surgit>
                       ))}
                       <Surgit as="span" delai={440} className="o-inline-block">
-                        <GradientFlow speed={6200} angle={100} from={lueur(kelvin, 100)} to={lueur(kelvin, 400)}>
+                        <GradientFlow
+                          speed={6200}
+                          angle={100}
+                          from={lueur(kelvin, 100)}
+                          to={lueur(kelvin, 400)}
+                        >
                           temperature.
                         </GradientFlow>
                       </Surgit>
                     </h1>
-                    <Surgit delai={580} as="p" className="o-m-0 o-mt-8 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300">
-                      Choisir un luminaire sans choisir sa temperature, c est choisir un tissu sans regarder la couleur. Reglez l echelle : la page entiere change de lumiere.
+                    <Surgit
+                      delai={580}
+                      as="p"
+                      className="o-m-0 o-mt-8 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-300"
+                    >
+                      Choisir un luminaire sans choisir sa temperature, c est choisir un
+                      tissu sans regarder la couleur. Reglez l echelle : la page entiere
+                      change de lumiere.
                     </Surgit>
                     <Surgit delai={720} className="o-mt-8">
                       <Actions
-                        pleine={['#spectre', <>Voir le spectre <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                        pleine={[
+                          '#spectre',
+                          <>
+                            Voir le spectre{' '}
+                            <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                          </>,
+                        ]}
                         fantome={['#pieces', 'Les trois pieces']}
                       />
                     </Surgit>
@@ -632,7 +860,11 @@ export default function Page(): ReactElement {
 
                   {/* La lampe, qui flotte au bout de son fil. */}
                   <div className="o-flex o-min-w-0 o-justify-center lg:o-col-span-5">
-                    <Flotte amplitude={reduced ? 0 : 9} duree={9} className="o-w-full o-max-w-xs">
+                    <Flotte
+                      amplitude={reduced ? 0 : 9}
+                      duree={9}
+                      className="o-w-full o-max-w-xs"
+                    >
                       <SurLeSol hauteur={420}>
                         <Lampe piece={piece} kelvin={kelvin} />
                       </SurLeSol>
@@ -659,12 +891,23 @@ export default function Page(): ReactElement {
             {/*
               ----- Le spectre, et ce qui s en deduit -----------------------
             */}
-            <section id="spectre" className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28">
+            <section
+              id="spectre"
+              className="o-scroll-mt-24 o-border-t o-border-white-10 o-px-6 o-py-20 md:o-px-12 md:o-py-28"
+            >
               <div className="o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
                 <div className="md:o-col-span-7">
                   <Indice rang="01">Le spectre</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-2xl" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', lineHeight: 1 }}>
-                    A {nombre(kelvin)} kelvins, {nombre(lumiere.visible * 100, 1)} pour cent du rayonnement se voit.
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-2xl"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    A {nombre(kelvin)} kelvins, {nombre(lumiere.visible * 100, 1)} pour
+                    cent du rayonnement se voit.
                   </h2>
                 </div>
                 <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400 md:o-col-span-5 md:o-text-right">
@@ -676,12 +919,19 @@ export default function Page(): ReactElement {
 
               <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-12">
                 <div className="o-min-w-0 lg:o-col-span-7">
-                  <div className="o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-white-10 o-p-4 md:o-p-6" style={{ backgroundColor: fond(kelvin, 9, 800) }}>
+                  <div
+                    className="o-overflow-hidden o-rounded-2xl o-border-w-1 o-border-white-10 o-p-4 md:o-p-6"
+                    style={{ backgroundColor: fond(kelvin, 9, 800) }}
+                  >
                     <Spectre lumiere={lumiere} kelvin={kelvin} />
                   </div>
                   <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-300">
-                    La courbe est tracee sur le visible seulement. Le maximum de Planck, lui, tombe a{' '}
-                    <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>{nombre(lumiere.wien)} nm</span> :{' '}
+                    La courbe est tracee sur le visible seulement. Le maximum de Planck,
+                    lui, tombe a{' '}
+                    <span className="o-tabular-nums" style={{ color: encreSurSombre() }}>
+                      {nombre(lumiere.wien)} nm
+                    </span>{' '}
+                    :{' '}
                     {lumiere.wien > 780
                       ? 'dans l infrarouge, hors du dessin. Une source de cette temperature chauffe donc plus qu elle n eclaire.'
                       : 'dans le visible, ce qui est le cas d un ciel du nord et de presque rien d autre.'}
@@ -726,12 +976,20 @@ export default function Page(): ReactElement {
               <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
                 <div>
                   <Indice rang="02">Les huit lumieres</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-xl" style={{ ...affiche('m', 400), fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)', lineHeight: 1 }}>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-xl"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
+                  >
                     Chacune sert a une chose, et a une seule.
                   </h2>
                 </div>
                 <p className="o-m-0 o-max-w-xs o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-400">
-                  La largeur d un panneau vaut son mired : l ecart qu on percoit, pas l ecart en kelvins.
+                  La largeur d un panneau vaut son mired : l ecart qu on percoit, pas l
+                  ecart en kelvins.
                 </p>
               </div>
 
@@ -739,24 +997,45 @@ export default function Page(): ReactElement {
                 {CRANS.map((cran) => {
                   const actif = cran.kelvin === kelvin
                   return (
-                    <li key={cran.kelvin} style={{ flexGrow: 1e6 / cran.kelvin, flexBasis: 0, minWidth: 108 }}>
+                    <li
+                      key={cran.kelvin}
+                      style={{ flexGrow: 1e6 / cran.kelvin, flexBasis: 0, minWidth: 108 }}
+                    >
                       <button
                         type="button"
                         aria-pressed={actif}
-                        onClick={() => { setKelvin(cran.kelvin) }}
+                        onClick={() => {
+                          setKelvin(cran.kelvin)
+                        }}
                         className="o-flex o-w-full o-cursor-pointer o-flex-col o-justify-end o-p-4 o-text-left o-transition-transform hover:o-scale-105 focus:o-ring"
                         style={{
                           minHeight: 210,
                           backgroundColor: fond(cran.kelvin, 34, 500),
-                          boxShadow: actif ? `inset 0 0 0 2px ${lueur(cran.kelvin, 200)}` : `inset 0 0 0 1px ${voile(cran.kelvin, 34, 500)}`,
+                          boxShadow: actif
+                            ? `inset 0 0 0 2px ${lueur(cran.kelvin, 200)}`
+                            : `inset 0 0 0 1px ${voile(cran.kelvin, 34, 500)}`,
                         }}
                       >
-                        <span aria-hidden="true" className="o-mb-4 o-block o-h-10 o-w-10 o-rounded-full" style={{ backgroundColor: lueur(cran.kelvin, 200), boxShadow: `0 0 34px 6px ${voile(cran.kelvin, 55, 300)}` }} />
-                        <span className="o-block o-font-mono o-text-xs o-tabular-nums" style={{ color: lueur(cran.kelvin, 200) }}>
+                        <span
+                          aria-hidden="true"
+                          className="o-mb-4 o-block o-h-10 o-w-10 o-rounded-full"
+                          style={{
+                            backgroundColor: lueur(cran.kelvin, 200),
+                            boxShadow: `0 0 34px 6px ${voile(cran.kelvin, 55, 300)}`,
+                          }}
+                        />
+                        <span
+                          className="o-block o-font-mono o-text-xs o-tabular-nums"
+                          style={{ color: lueur(cran.kelvin, 200) }}
+                        >
                           {nombre(cran.kelvin)} K
                         </span>
-                        <span className="o-mt-1 o-block o-text-sm o-font-semibold o-text-zinc-50">{cran.nom}</span>
-                        <span className="o-mt-2 o-block o-text-xs o-leading-relaxed o-text-zinc-400">{USAGES[cran.kelvin] ?? ''}</span>
+                        <span className="o-mt-1 o-block o-text-sm o-font-semibold o-text-zinc-50">
+                          {cran.nom}
+                        </span>
+                        <span className="o-mt-2 o-block o-text-xs o-leading-relaxed o-text-zinc-400">
+                          {USAGES[cran.kelvin] ?? ''}
+                        </span>
                       </button>
                     </li>
                   )
@@ -775,13 +1054,26 @@ export default function Page(): ReactElement {
               <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
                 <div>
                   <Indice rang="03">Les trois pieces</Indice>
-                  <h2 className="o-m-0 o-mt-5 o-max-w-xl" style={{ ...affiche('m', 400), fontSize: 'clamp(1.75rem, 4vw, 3.25rem)', lineHeight: 1 }}>
+                  <h2
+                    className="o-m-0 o-mt-5 o-max-w-xl"
+                    style={{
+                      ...affiche('m', 400),
+                      fontSize: 'clamp(1.75rem, 4vw, 3.25rem)',
+                      lineHeight: 1,
+                    }}
+                  >
                     {piece.nom} — {nombre(photo.eclairement)} lux sous elle.
                   </h2>
                 </div>
                 <div className="o-flex o-flex-wrap o-gap-2">
                   {PIECES.map((p) => (
-                    <Choix key={p.cle} actif={p.cle === clePiece} onClick={() => { setClePiece(p.cle) }}>
+                    <Choix
+                      key={p.cle}
+                      actif={p.cle === clePiece}
+                      onClick={() => {
+                        setClePiece(p.cle)
+                      }}
+                    >
                       {p.nom}
                     </Choix>
                   ))}
@@ -790,20 +1082,32 @@ export default function Page(): ReactElement {
 
               <div className="o-mt-12 o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-12 lg:o-items-center">
                 <div className="o-min-w-0 lg:o-col-span-5">
-                  <ReflectiveCard shine={0.16} brush={0.08} className="o-rounded-2xl o-p-6">
+                  <ReflectiveCard
+                    shine={0.16}
+                    brush={0.08}
+                    className="o-rounded-2xl o-p-6"
+                  >
                     <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400">
                       {piece.reference} — {piece.type}
                     </p>
-                    <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-200">{piece.note}</p>
+                    <p className="o-m-0 o-mt-3 o-text-sm o-leading-relaxed o-text-zinc-200">
+                      {piece.note}
+                    </p>
                     <dl className="o-m-0 o-mt-6 o-flex o-flex-col o-gap-3 o-border-t o-border-white-10 o-pt-5 o-text-sm">
-                      {([
-                        ['Matiere', piece.matiere],
-                        ['Cotes', piece.cotes],
-                        ['Prix', `${nombre(piece.prix)} EUR, source comprise`],
-                      ] as const).map(([quoi, valeur]) => (
+                      {(
+                        [
+                          ['Matiere', piece.matiere],
+                          ['Cotes', piece.cotes],
+                          ['Prix', `${nombre(piece.prix)} EUR, source comprise`],
+                        ] as const
+                      ).map(([quoi, valeur]) => (
                         <div key={quoi} className="o-grid o-gap-1 sm:o-grid-cols-12">
-                          <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-400 sm:o-col-span-3">{quoi}</dt>
-                          <dd className="o-m-0 o-text-zinc-200 sm:o-col-span-9">{valeur}</dd>
+                          <dt className="o-font-mono o-text-xs o-uppercase o-tracking-wider o-text-zinc-400 sm:o-col-span-3">
+                            {quoi}
+                          </dt>
+                          <dd className="o-m-0 o-text-zinc-200 sm:o-col-span-9">
+                            {valeur}
+                          </dd>
                         </div>
                       ))}
                     </dl>
@@ -842,12 +1146,26 @@ export default function Page(): ReactElement {
               className="o-flex o-flex-col o-justify-center o-border-t o-border-white-10 o-px-6 o-py-24 md:o-px-12"
               style={{ minHeight: '62vh', backgroundColor: fond(kelvin, 8, 800) }}
             >
-              <p className="o-m-0 o-max-w-4xl o-text-balance" style={{ ...affiche('m', 400), fontSize: 'clamp(1.625rem, 3.6vw, 3.5rem)', lineHeight: 1.12 }}>
-                <span className="o-text-zinc-500">Nous editons trois luminaires et nous en vendons peu. </span>
-                <span className="o-text-zinc-50">Ce qui se decide vraiment, dans une piece, c est la temperature — et elle ne coute rien.</span>
+              <p
+                className="o-m-0 o-max-w-4xl o-text-balance"
+                style={{
+                  ...affiche('m', 400),
+                  fontSize: 'clamp(1.625rem, 3.6vw, 3.5rem)',
+                  lineHeight: 1.12,
+                }}
+              >
+                <span className="o-text-zinc-500">
+                  Nous editons trois luminaires et nous en vendons peu.{' '}
+                </span>
+                <span className="o-text-zinc-50">
+                  Ce qui se decide vraiment, dans une piece, c est la temperature — et
+                  elle ne coute rien.
+                </span>
               </p>
               <p className="o-m-0 o-mt-10 o-max-w-xl o-text-base o-leading-relaxed o-text-zinc-300">
-                Les sources sont des modules standard, achetables partout, remplacables au tournevis. Nous ne soudons rien dans un abat-jour : une lampe qu on jette parce que sa diode est morte est une lampe ratee.
+                Les sources sont des modules standard, achetables partout, remplacables au
+                tournevis. Nous ne soudons rien dans un abat-jour : une lampe qu on jette
+                parce que sa diode est morte est une lampe ratee.
               </p>
             </section>
 
@@ -868,7 +1186,13 @@ export default function Page(): ReactElement {
                 transition: 'background-color 800ms ease',
               }}
             >
-              <span style={{ ...affiche('xl', 400), fontSize: 'clamp(2rem, 8vw, 7.5rem)', lineHeight: 0.94 }}>
+              <span
+                style={{
+                  ...affiche('xl', 400),
+                  fontSize: 'clamp(2rem, 8vw, 7.5rem)',
+                  lineHeight: 0.94,
+                }}
+              >
                 Demander le catalogue
               </span>
               <Icon icon={ArrowUpRight} size={40} aria-hidden="true" />
@@ -890,7 +1214,10 @@ export default function Page(): ReactElement {
                 style={{ backgroundColor: fond(bande.kelvin, 34, 600) }}
               >
                 <div className="o-grid o-gap-6 md:o-grid-cols-12 md:o-items-baseline">
-                  <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3" style={{ color: lueur(bande.kelvin, 200) }}>
+                  <p
+                    className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest md:o-col-span-3"
+                    style={{ color: lueur(bande.kelvin, 200) }}
+                  >
                     {nombre(bande.kelvin)} K — {bande.titre}
                   </p>
                   <ul className="o-m-0 o-flex o-list-none o-flex-col o-gap-1 o-p-0 o-text-sm o-text-zinc-200 md:o-col-span-9">
@@ -901,10 +1228,22 @@ export default function Page(): ReactElement {
                 </div>
               </div>
             ))}
-            <div className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-px-6 o-py-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-px-12" style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}>
+            <div
+              className="o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-px-6 o-py-6 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-400 md:o-px-12"
+              style={{ backgroundColor: 'var(--o-palette-zinc-950)' }}
+            >
               <span>Abat-Jour — editeur de luminaires</span>
-              <span>{reduced ? 'Reflet fige — mouvement reduit' : 'Le sol est en resine noire, coulee sur place'}</span>
-              <a href="#lumiere" className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring">Remonter ↑</a>
+              <span>
+                {reduced
+                  ? 'Reflet fige — mouvement reduit'
+                  : 'Le sol est en resine noire, coulee sur place'}
+              </span>
+              <a
+                href="#lumiere"
+                className="o-text-zinc-400 o-no-underline hover:o-text-zinc-50 focus:o-ring"
+              >
+                Remonter ↑
+              </a>
             </div>
           </footer>
         </div>

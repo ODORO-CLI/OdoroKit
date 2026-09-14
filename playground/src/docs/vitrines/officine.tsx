@@ -97,7 +97,10 @@ const NAVIGATION = [
 const MARQUEUR_GAUCHE = ['DISTILLE', 'POUR LA PEAU.', 'FAIT POUR DURER.'] as const
 const MARQUEUR_DROIT = ['COMPOSE', 'POUR L INVISIBLE.', 'PORTE A DESSEIN.'] as const
 
-const TITRE = ['EXTRAIT A 22 %. REACTIF A LA PEAU.', 'SILLAGE DE DOUZE HEURES. SERIE LIMITEE.'] as const
+const TITRE = [
+  'EXTRAIT A 22 %. REACTIF A LA PEAU.',
+  'SILLAGE DE DOUZE HEURES. SERIE LIMITEE.',
+] as const
 
 const BADGE_GAUCHE = {
   legende: 'DEP.2021',
@@ -107,11 +110,36 @@ const BADGE_DROIT = { lignes: ['LIVRAISON MONDIALE', 'RAPIDE ET SECURISEE'] } as
 
 /** Les cinq lignes de specification, avec le pictogramme redessine. */
 const SPECIFICATIONS = [
-  { rang: '01', icone: 'froid', titre: 'TETE STABILISEE', texte: 'UN DEPART D AGRUMES FROIDS QUI NE S EVAPORE PAS.' },
-  { rang: '02', icone: 'chaleur', titre: 'COEUR D AMBRE CHAUD', texte: 'AMBRE ET BENJOIN PORTENT LA CHALEUR SANS ALOURDIR LA COMPOSITION.' },
-  { rang: '03', icone: 'colonne', titre: 'FOND RENFORCE', texte: 'MOUSSE DE CHENE ET VETIVER DONNENT AU FOND SA COLONNE VERTEBRALE.' },
-  { rang: '04', icone: 'diffusion', titre: 'DIFFUSION MAITRISEE', texte: 'UN SILLAGE MESURE QUI RESTE PRES DU CORPS PLUTOT QUE D EMPLIR UNE PIECE.' },
-  { rang: '05', icone: 'fiole', titre: 'CONCENTRATION EXTRAIT', texte: 'VINGT-DEUX POUR CENT DE CONCENTRE POUR LA PROFONDEUR ET LA TENUE.' },
+  {
+    rang: '01',
+    icone: 'froid',
+    titre: 'TETE STABILISEE',
+    texte: 'UN DEPART D AGRUMES FROIDS QUI NE S EVAPORE PAS.',
+  },
+  {
+    rang: '02',
+    icone: 'chaleur',
+    titre: 'COEUR D AMBRE CHAUD',
+    texte: 'AMBRE ET BENJOIN PORTENT LA CHALEUR SANS ALOURDIR LA COMPOSITION.',
+  },
+  {
+    rang: '03',
+    icone: 'colonne',
+    titre: 'FOND RENFORCE',
+    texte: 'MOUSSE DE CHENE ET VETIVER DONNENT AU FOND SA COLONNE VERTEBRALE.',
+  },
+  {
+    rang: '04',
+    icone: 'diffusion',
+    titre: 'DIFFUSION MAITRISEE',
+    texte: 'UN SILLAGE MESURE QUI RESTE PRES DU CORPS PLUTOT QUE D EMPLIR UNE PIECE.',
+  },
+  {
+    rang: '05',
+    icone: 'fiole',
+    titre: 'CONCENTRATION EXTRAIT',
+    texte: 'VINGT-DEUX POUR CENT DE CONCENTRE POUR LA PROFONDEUR ET LA TENUE.',
+  },
 ] as const
 
 /**
@@ -119,34 +147,116 @@ const SPECIFICATIONS = [
  * eux-memes inventes : ils ne servent qu a porter l etat de survol.
  */
 const EXTRAITS = [
-  { rang: '01', nom: 'OMBRE D OUD', prix: '280 EUR', liquide: '#5a3a26', puces: ['EXTRAIT 22 %', 'SERIE LIMITEE'] },
-  { rang: '02', nom: 'VETIVER DES CHAMPS', prix: '240 EUR', liquide: '#5f7a4f', puces: ['PARFUM 18 %', 'MIXTE'] },
-  { rang: '03', nom: 'AMBRE THERMAL', prix: '310 EUR', liquide: 'var(--o-vitrine-500)', puces: ['FOND D AMBRE', 'DOUZE HEURES'] },
-  { rang: '04', nom: 'IRIS DE PIERRE', prix: '190 EUR', liquide: '#7a6f94', puces: ['COLOGNE 12 %', 'PRES DE LA PEAU'] },
+  {
+    rang: '01',
+    nom: 'OMBRE D OUD',
+    prix: '280 EUR',
+    liquide: '#5a3a26',
+    puces: ['EXTRAIT 22 %', 'SERIE LIMITEE'],
+  },
+  {
+    rang: '02',
+    nom: 'VETIVER DES CHAMPS',
+    prix: '240 EUR',
+    liquide: '#5f7a4f',
+    puces: ['PARFUM 18 %', 'MIXTE'],
+  },
+  {
+    rang: '03',
+    nom: 'AMBRE THERMAL',
+    prix: '310 EUR',
+    liquide: 'var(--o-vitrine-500)',
+    puces: ['FOND D AMBRE', 'DOUZE HEURES'],
+  },
+  {
+    rang: '04',
+    nom: 'IRIS DE PIERRE',
+    prix: '190 EUR',
+    liquide: '#7a6f94',
+    puces: ['COLOGNE 12 %', 'PRES DE LA PEAU'],
+  },
 ] as const
 
 /** Les cinq couches de la pyramide, du sommet volatil a la resine du fond. */
 const COUCHES = [
-  { rang: '01', icone: 'sommet', titre: 'NOTES DE TETE', texte: 'Les premieres minutes : agrumes froids, poivre rose, une arete de metal.' },
-  { rang: '02', icone: 'grille', titre: 'STRUCTURE DU COEUR', texte: 'Iris et feuille de violette tiennent l ensemble.' },
-  { rang: '03', icone: 'plume', titre: 'AMBRE THERMAL', texte: 'Ambre et benjoin portent la chaleur sans alourdir le fond du parfum.' },
-  { rang: '04', icone: 'cube', titre: 'MEMBRANE FUMEE', texte: 'Goudron de bouleau et encens laissent respirer le sucre sans gourmandise.' },
-  { rang: '05', icone: 'vague', titre: 'FOND DE PEAU', texte: 'Musc, vetiver et santal se posent pour la longue tenue.' },
+  {
+    rang: '01',
+    icone: 'sommet',
+    titre: 'NOTES DE TETE',
+    texte: 'Les premieres minutes : agrumes froids, poivre rose, une arete de metal.',
+  },
+  {
+    rang: '02',
+    icone: 'grille',
+    titre: 'STRUCTURE DU COEUR',
+    texte: 'Iris et feuille de violette tiennent l ensemble.',
+  },
+  {
+    rang: '03',
+    icone: 'plume',
+    titre: 'AMBRE THERMAL',
+    texte: 'Ambre et benjoin portent la chaleur sans alourdir le fond du parfum.',
+  },
+  {
+    rang: '04',
+    icone: 'cube',
+    titre: 'MEMBRANE FUMEE',
+    texte: 'Goudron de bouleau et encens laissent respirer le sucre sans gourmandise.',
+  },
+  {
+    rang: '05',
+    icone: 'vague',
+    titre: 'FOND DE PEAU',
+    texte: 'Musc, vetiver et santal se posent pour la longue tenue.',
+  },
 ] as const
 
 const QUESTIONS = [
-  { rang: '01', question: 'COMBIEN DE TEMPS TIENT L EXTRAIT ?', reponse: 'Entre huit et douze heures sur la plupart des peaux. La concentration en extrait porte le fond jusqu a la fin de la journee.' },
-  { rang: '02', question: 'QUELLES MATIERES DANS L EXTRAIT ?', reponse: 'Oud naturel, absolu d iris, vetiver et un fond d ambre stabilise, assembles pour la profondeur et la tenue.' },
-  { rang: '03', question: 'COMMENT CONSERVER LE FLACON ?', reponse: 'Debout, a l abri de la lumiere et de la chaleur. Les deux abiment la tete bien avant le fond.' },
-  { rang: '04', question: 'LIVREZ-VOUS A L INTERNATIONAL ?', reponse: 'Oui. Livraison mondiale, securisee et suivie sur chaque commande.' },
-  { rang: '05', question: 'PUIS-JE RETOURNER MA COMMANDE ?', reponse: 'Oui. Un flacon non ouvert peut etre retourne ou echange dans le delai indique.' },
+  {
+    rang: '01',
+    question: 'COMBIEN DE TEMPS TIENT L EXTRAIT ?',
+    reponse:
+      'Entre huit et douze heures sur la plupart des peaux. La concentration en extrait porte le fond jusqu a la fin de la journee.',
+  },
+  {
+    rang: '02',
+    question: 'QUELLES MATIERES DANS L EXTRAIT ?',
+    reponse:
+      'Oud naturel, absolu d iris, vetiver et un fond d ambre stabilise, assembles pour la profondeur et la tenue.',
+  },
+  {
+    rang: '03',
+    question: 'COMMENT CONSERVER LE FLACON ?',
+    reponse:
+      'Debout, a l abri de la lumiere et de la chaleur. Les deux abiment la tete bien avant le fond.',
+  },
+  {
+    rang: '04',
+    question: 'LIVREZ-VOUS A L INTERNATIONAL ?',
+    reponse: 'Oui. Livraison mondiale, securisee et suivie sur chaque commande.',
+  },
+  {
+    rang: '05',
+    question: 'PUIS-JE RETOURNER MA COMMANDE ?',
+    reponse:
+      'Oui. Un flacon non ouvert peut etre retourne ou echange dans le delai indique.',
+  },
 ] as const
 
 const COLONNES_PIED = [
   { titre: 'BOUTIQUE', liens: ['EXTRAITS', 'PARFUMS', 'EDITIONS'] },
   { titre: 'COMPOSITION', liens: ['MATIERES', 'ORIGINES'] },
   { titre: 'MAISON', liens: [] },
-  { titre: 'AIDE', liens: ['CONFIDENTIALITE', 'Conditions generales', 'COMMENT LE PORTER', 'LIVRAISON ET RETOURS', 'FAQ'] },
+  {
+    titre: 'AIDE',
+    liens: [
+      'CONFIDENTIALITE',
+      'Conditions generales',
+      'COMMENT LE PORTER',
+      'LIVRAISON ET RETOURS',
+      'FAQ',
+    ],
+  },
 ] as const
 
 const RESEAUX = ['INSTAGRAM', 'YOUTUBE', 'TIK-TOK'] as const
@@ -204,9 +314,30 @@ const FEUILLE = [
 /* ============================ Les icones =============================== */
 
 /** Un trait de 24 unites, en encre courante. */
-function Trait({ d, boite = '0 0 24 24', taille = 24, className }: { readonly d: string; readonly boite?: string; readonly taille?: number; readonly className?: string }): ReactElement {
+function Trait({
+  d,
+  boite = '0 0 24 24',
+  taille = 24,
+  className,
+}: {
+  readonly d: string
+  readonly boite?: string
+  readonly taille?: number
+  readonly className?: string
+}): ReactElement {
   return (
-    <svg viewBox={boite} width={taille} height={taille} fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
+    <svg
+      viewBox={boite}
+      width={taille}
+      height={taille}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
       <path d={d} />
     </svg>
   )
@@ -216,11 +347,15 @@ function Trait({ d, boite = '0 0 24 24', taille = 24, className }: { readonly d:
 const PICTOS: Readonly<Record<string, string>> = {
   globe: 'M2 12a10 6 0 1 0 20 0a10 6 0 1 0-20 0M8 12a4 6 0 1 0 8 0a4 6 0 1 0-8 0M2 12h20',
   reticule: 'M12 6a6 6 0 1 0 0 12a6 6 0 1 0 0-12M12 2v4M12 18v4M2 12h4M18 12h4M12 12h.01',
-  froid: 'M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5',
-  chaleur: 'M9 4a2 2 0 0 1 4 0v9.3a3.5 3.5 0 1 1-4 0ZM11 9v6M17 5.5l1.5-1.5M19 9h2M16 3.5V2',
+  froid:
+    'M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5',
+  chaleur:
+    'M9 4a2 2 0 0 1 4 0v9.3a3.5 3.5 0 1 1-4 0ZM11 9v6M17 5.5l1.5-1.5M19 9h2M16 3.5V2',
   colonne: 'M12 3v18M8 6h8M8 10h8M8 14h8M8 18h8',
-  diffusion: 'M5 19a1 1 0 1 0 0-2a1 1 0 0 0 0 2ZM9 15a4 4 0 0 1 4 4M9 10a9 9 0 0 1 9 9M9 5a14 14 0 0 1 14 14',
-  fiole: 'M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3M7.5 15h9',
+  diffusion:
+    'M5 19a1 1 0 1 0 0-2a1 1 0 0 0 0 2ZM9 15a4 4 0 0 1 4 4M9 10a9 9 0 0 1 9 9M9 5a14 14 0 0 1 14 14',
+  fiole:
+    'M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3M7.5 15h9',
   sommet: 'M12 4l8 4-8 4-8-4ZM4 12l8 4 8-4M4 16l8 4 8-4',
   grille: 'M6 6h12v12H6ZM10 2v4M14 2v4M10 18v4M14 18v4M2 10h4M2 14h4M18 10h4M18 14h4',
   plume: 'M20 4c-6 0-11 3-14 9l-3 7 7-3c6-3 9-8 10-13ZM4 20l9-9M8 16h4M10 12h4',
@@ -231,7 +366,15 @@ const PICTOS: Readonly<Record<string, string>> = {
 /** L equerre d un marqueur : un angle droit, retourne selon le coin. */
 function Equerre({ retourne = '' }: { readonly retourne?: string }): ReactElement {
   return (
-    <svg viewBox="0 0 11 11" width="11" height="11" fill="none" stroke="currentColor" aria-hidden="true" style={{ transform: retourne }}>
+    <svg
+      viewBox="0 0 11 11"
+      width="11"
+      height="11"
+      fill="none"
+      stroke="currentColor"
+      aria-hidden="true"
+      style={{ transform: retourne }}
+    >
       <path d="M.5 10.5V.5h10" />
     </svg>
   )
@@ -240,7 +383,15 @@ function Equerre({ retourne = '' }: { readonly retourne?: string }): ReactElemen
 /** La fleche des boutons et du bulletin. */
 function Fleche(): ReactElement {
   return (
-    <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+    <svg
+      viewBox="0 0 10 6"
+      width="10"
+      height="6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      aria-hidden="true"
+    >
       <path d="M0 3h9M6 .5L9 3 6 5.5" />
     </svg>
   )
@@ -257,7 +408,11 @@ function anneau(cx: number, cy: number, r: number): string {
 function Sigle({ taille = 18 }: { readonly taille?: number }): ReactElement {
   return (
     <svg viewBox="0 0 24 24" width={taille} height={taille} aria-hidden="true">
-      <path d={`${anneau(12, 12, 12)} ${anneau(12, 12, 12 * 0.7)}`} fill="currentColor" fillRule="evenodd" />
+      <path
+        d={`${anneau(12, 12, 12)} ${anneau(12, 12, 12 * 0.7)}`}
+        fill="currentColor"
+        fillRule="evenodd"
+      />
     </svg>
   )
 }
@@ -265,7 +420,10 @@ function Sigle({ taille = 18 }: { readonly taille?: number }): ReactElement {
 /** Le logotype : le sigle, puis le nom en mono espace. */
 function Logotype({ taille = 'o-text-sm' }: { readonly taille?: string }): ReactElement {
   return (
-    <span className={`o-inline-flex o-items-center o-gap-2 ${taille} o-font-bold`} style={{ letterSpacing: '.3em' }}>
+    <span
+      className={`o-inline-flex o-items-center o-gap-2 ${taille} o-font-bold`}
+      style={{ letterSpacing: '.3em' }}
+    >
       <Sigle taille={taille === 'o-text-sm' ? 16 : 22} />
       ODORO
     </span>
@@ -279,32 +437,102 @@ function Logotype({ taille = 'o-text-sm' }: { readonly taille?: string }): React
  * col, bouchon strie, etiquette. C est le repli de la scene, et c est aussi
  * chaque flacon des collections, avec son liquide teinte.
  */
-function FlaconDessine({ liquide, etiquette = true, className }: { readonly liquide: string; readonly etiquette?: boolean; readonly className?: string }): ReactElement {
+function FlaconDessine({
+  liquide,
+  etiquette = true,
+  className,
+}: {
+  readonly liquide: string
+  readonly etiquette?: boolean
+  readonly className?: string
+}): ReactElement {
   const stries = Array.from({ length: 9 }, (_, i) => 74 + i * 6.5)
   return (
-    <svg viewBox="0 0 200 330" className={className} fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 200 330"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       {/* Le corps, avec ses chanfreins, rempli du liquide. */}
-      <path d="M40 132l14-14h92l14 14v170l-14 14H54l-14-14Z" fill={liquide} fillOpacity="0.72" />
+      <path
+        d="M40 132l14-14h92l14 14v170l-14 14H54l-14-14Z"
+        fill={liquide}
+        fillOpacity="0.72"
+      />
       <path d="M40 132l14-14h92l14 14v170l-14 14H54l-14-14Z" />
       {/* Le reflet : une bande claire le long du chanfrein gauche. */}
-      <path d="M50 140v154" stroke="var(--o-theme-bg)" strokeOpacity="0.45" strokeWidth="5" />
+      <path
+        d="M50 140v154"
+        stroke="var(--o-theme-bg)"
+        strokeOpacity="0.45"
+        strokeWidth="5"
+      />
       {/* L epaule et le col. */}
       <path d="M72 118v-10l8-6h40l8 6v10" />
       <path d="M84 102V80h32v22" />
       {/* Le bouchon strie. */}
-      <rect x="70" y="30" width="60" height="46" rx="6" fill="var(--o-theme-fg)" fillOpacity="0.72" />
+      <rect
+        x="70"
+        y="30"
+        width="60"
+        height="46"
+        rx="6"
+        fill="var(--o-theme-fg)"
+        fillOpacity="0.72"
+      />
       <rect x="70" y="30" width="60" height="46" rx="6" />
       {stries.map((x) => (
-        <path key={x} d={`M${String(x)} 34v38`} stroke="var(--o-theme-bg)" strokeOpacity="0.35" />
+        <path
+          key={x}
+          d={`M${String(x)} 34v38`}
+          stroke="var(--o-theme-bg)"
+          strokeOpacity="0.35"
+        />
       ))}
       {/* L etiquette. */}
       {etiquette && (
         <>
-          <rect x="60" y="176" width="80" height="78" fill="var(--o-theme-bg)" fillOpacity="0.92" stroke="currentColor" strokeOpacity="0.6" />
-          <text x="100" y="212" textAnchor="middle" fill="currentColor" stroke="none" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 17, fontWeight: 700, letterSpacing: '.12em' }}>
+          <rect
+            x="60"
+            y="176"
+            width="80"
+            height="78"
+            fill="var(--o-theme-bg)"
+            fillOpacity="0.92"
+            stroke="currentColor"
+            strokeOpacity="0.6"
+          />
+          <text
+            x="100"
+            y="212"
+            textAnchor="middle"
+            fill="currentColor"
+            stroke="none"
+            style={{
+              fontFamily: 'var(--o-font-mono)',
+              fontSize: 17,
+              fontWeight: 700,
+              letterSpacing: '.12em',
+            }}
+          >
             ODORO
           </text>
-          <text x="100" y="236" textAnchor="middle" fill="currentColor" stroke="none" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 6.5, letterSpacing: '.1em' }}>
+          <text
+            x="100"
+            y="236"
+            textAnchor="middle"
+            fill="currentColor"
+            stroke="none"
+            style={{
+              fontFamily: 'var(--o-font-mono)',
+              fontSize: 6.5,
+              letterSpacing: '.1em',
+            }}
+          >
             EXTRAIT DE PARFUM
           </text>
         </>
@@ -408,7 +636,12 @@ function melangerPose(a: Pose, b: Pose, t: number, tourT = t): Pose {
 function horsChamp(p: Pose, aspect: number): boolean {
   const demiHauteur = p.part / 2
   const demiLargeur = (p.part * 0.62) / (2 * aspect)
-  return p.x + demiLargeur < -0.5 || p.x - demiLargeur > 0.5 || p.y - demiHauteur > 0.5 || p.y + demiHauteur < -0.5
+  return (
+    p.x + demiLargeur < -0.5 ||
+    p.x - demiLargeur > 0.5 ||
+    p.y - demiHauteur > 0.5 ||
+    p.y + demiHauteur < -0.5
+  )
 }
 
 /**
@@ -438,7 +671,14 @@ function useMecanique(
     const heros = refs.heros.current
     const details = refs.details.current
     const questions = refs.questions.current
-    if (lampe === null || boite === null || heros === null || details === null || questions === null) return
+    if (
+      lampe === null ||
+      boite === null ||
+      heros === null ||
+      details === null ||
+      questions === null
+    )
+      return
 
     const fin = window.matchMedia('(pointer: fine)').matches
     let brutX = 0
@@ -500,7 +740,12 @@ function useMecanique(
 
         let cible: Pose
         if (etroit) {
-          cible = e > 0 ? POSES_ETROITES.cache : p2 > 0 ? POSES_ETROITES.sortie : melangerPose(POSES_ETROITES.heros, POSES_ETROITES.sortie, derive(p1))
+          cible =
+            e > 0
+              ? POSES_ETROITES.cache
+              : p2 > 0
+                ? POSES_ETROITES.sortie
+                : melangerPose(POSES_ETROITES.heros, POSES_ETROITES.sortie, derive(p1))
         } else if (e > 0) {
           cible = melangerPose(POSES.arrivee, POSES.questions, douce(e))
         } else if (p2 > 0) {
@@ -525,8 +770,12 @@ function useMecanique(
         const largeurPx = Math.min(W * 0.8, H * 1.55)
         const filigraneL = largeurPx / W
         const hauteurPx = largeurPx / 4
-        const torcheU = engage ? (douxX - cadre.left - (W - largeurPx) / 2) / largeurPx : -1
-        const torcheV = engage ? (douxY - (cadre.top + H / 2 - filigraneY * H - hauteurPx / 2)) / hauteurPx : -1
+        const torcheU = engage
+          ? (douxX - cadre.left - (W - largeurPx) / 2) / largeurPx
+          : -1
+        const torcheV = engage
+          ? (douxY - (cadre.top + H / 2 - filigraneY * H - hauteurPx / 2)) / hauteurPx
+          : -1
 
         etat.current = {
           pose: courant,
@@ -564,7 +813,12 @@ const PROFONDEUR_FILIGRANE = 1.8
 type Trois = SceneContext['three']
 
 /** Un rectangle arrondi, en forme a extruder. */
-function rectangleArrondi(three: Trois, l: number, h: number, r: number): InstanceType<Trois['Shape']> {
+function rectangleArrondi(
+  three: Trois,
+  l: number,
+  h: number,
+  r: number,
+): InstanceType<Trois['Shape']> {
   const forme = new three.Shape()
   const x = -l / 2
   const y = -h / 2
@@ -581,7 +835,12 @@ function rectangleArrondi(three: Trois, l: number, h: number, r: number): Instan
 }
 
 /** Le profil d un bouchon strie : un cercle a cannelures. */
-function profilStrie(three: Trois, rayon: number, cannelures: number, creux: number): InstanceType<Trois['Shape']> {
+function profilStrie(
+  three: Trois,
+  rayon: number,
+  cannelures: number,
+  creux: number,
+): InstanceType<Trois['Shape']> {
   const forme = new three.Shape()
   const pas = (Math.PI * 2) / cannelures
   for (let i = 0; i <= cannelures * 2; i += 1) {
@@ -599,12 +858,20 @@ function profilStrie(three: Trois, rayon: number, cannelures: number, creux: num
 /** La police mono de la page, lue sur la racine de la vitrine. */
 function policeMono(): string {
   const racine = document.querySelector<HTMLElement>('.of-racine')
-  const lue = racine === null ? '' : getComputedStyle(racine).getPropertyValue('--o-font-mono').trim()
+  const lue =
+    racine === null
+      ? ''
+      : getComputedStyle(racine).getPropertyValue('--o-font-mono').trim()
   return lue === '' ? 'ui-monospace, monospace' : lue
 }
 
 /** L etiquette, dessinee dans un canevas : papier, filet, deux lignes. */
-function dessinerEtiquette(toile: HTMLCanvasElement, papier: string, encreTexte: string, filet: string): void {
+function dessinerEtiquette(
+  toile: HTMLCanvasElement,
+  papier: string,
+  encreTexte: string,
+  filet: string,
+): void {
   const l = toile.width
   const h = toile.height
   const pot = toile.getContext('2d')
@@ -674,7 +941,11 @@ function estSombre(): boolean {
  * Rendu sur un fond blanc (ou noir en theme sombre) que le melange du canevas
  * efface : voir l en-tete du module.
  */
-function construireScene(contexte: SceneContext, etat: RefObject<Etat>, sombre: RefObject<boolean>): () => void {
+function construireScene(
+  contexte: SceneContext,
+  etat: RefObject<Etat>,
+  sombre: RefObject<boolean>,
+): () => void {
   const { scene, camera, three } = contexte
   const geometries: { dispose: () => void }[] = []
   const matieres: { dispose: () => void }[] = []
@@ -708,8 +979,16 @@ function construireScene(contexte: SceneContext, etat: RefObject<Etat>, sombre: 
     transparent: true,
     emissive: new three.Color(ambreFonce).multiplyScalar(0.06),
   })
-  const bouchon = new three.MeshStandardMaterial({ color: olive, metalness: 0.12, roughness: 0.62 })
-  const bouchonClair = new three.MeshStandardMaterial({ color: olive.clone().multiplyScalar(1.5), metalness: 0.12, roughness: 0.5 })
+  const bouchon = new three.MeshStandardMaterial({
+    color: olive,
+    metalness: 0.12,
+    roughness: 0.62,
+  })
+  const bouchonClair = new three.MeshStandardMaterial({
+    color: olive.clone().multiplyScalar(1.5),
+    metalness: 0.12,
+    roughness: 0.5,
+  })
   matieres.push(verre, bouchon, bouchonClair)
 
   const flacon = new three.Group()
@@ -787,7 +1066,11 @@ function construireScene(contexte: SceneContext, etat: RefObject<Etat>, sombre: 
   texEtiquette.colorSpace = three.SRGBColorSpace
   texEtiquette.anisotropy = 4
   textures.push(texEtiquette)
-  const matEtiquette = new three.MeshStandardMaterial({ map: texEtiquette, roughness: 0.92, metalness: 0 })
+  const matEtiquette = new three.MeshStandardMaterial({
+    map: texEtiquette,
+    roughness: 0.92,
+    metalness: 0,
+  })
   matieres.push(matEtiquette)
   const gEtiquette = new three.PlaneGeometry(0.9, 0.45)
   geometries.push(gEtiquette)
@@ -814,8 +1097,21 @@ function construireScene(contexte: SceneContext, etat: RefObject<Etat>, sombre: 
   texDisque.wrapT = three.ClampToEdgeWrapping
   textures.push(texDisque)
 
-  const matFiligrane = new three.MeshBasicMaterial({ map: texFiligrane, transparent: true, opacity: 0.3, depthWrite: false, toneMapped: false })
-  const matTorche = new three.MeshBasicMaterial({ map: texFiligrane, alphaMap: texDisque, transparent: true, opacity: 0.55, depthWrite: false, toneMapped: false })
+  const matFiligrane = new three.MeshBasicMaterial({
+    map: texFiligrane,
+    transparent: true,
+    opacity: 0.3,
+    depthWrite: false,
+    toneMapped: false,
+  })
+  const matTorche = new three.MeshBasicMaterial({
+    map: texFiligrane,
+    alphaMap: texDisque,
+    transparent: true,
+    opacity: 0.55,
+    depthWrite: false,
+    toneMapped: false,
+  })
   matieres.push(matFiligrane, matTorche)
   const gPlan = new three.PlaneGeometry(1, 0.25)
   geometries.push(gPlan)
@@ -832,7 +1128,12 @@ function construireScene(contexte: SceneContext, etat: RefObject<Etat>, sombre: 
   // Une cle chaude, un remplissage froid, un contour ; puis ce qui fait le
   // verre : une rasante a droite et une lampe de dessous, qui posent le
   // trait clair sur le chanfrein et allument le corps par le bas.
-  eclairer(contexte, { cle: 0xfff1dc, remplissage: 0x9fb0c8, contour: 0xfff4e6, force: 1.1 })
+  eclairer(contexte, {
+    cle: 0xfff1dc,
+    remplissage: 0x9fb0c8,
+    contour: 0xfff4e6,
+    force: 1.1,
+  })
   const rasante = new three.PointLight(0xffffff, 30, 16, 2)
   rasante.position.set(3.4, 1.3, 2.2)
   const dessous = new three.PointLight(0xffd9a0, 22, 12, 2)
@@ -889,7 +1190,17 @@ function animerScene(contexte: SceneContext, temps: number, etat: RefObject<Etat
   const rappel = flacon.userData['appliquerTheme'] as (() => void) | undefined
   rappel?.()
 
-  const { pose, px, py, filigraneY, filigraneL, filigraneVisible, torcheU, torcheV, torcheVisible } = etat.current
+  const {
+    pose,
+    px,
+    py,
+    filigraneY,
+    filigraneL,
+    filigraneVisible,
+    torcheU,
+    torcheV,
+    torcheVisible,
+  } = etat.current
 
   // La camera recule pour donner au flacon la hauteur voulue, et se decale
   // pour le poser ou la page le veut : une translation, jamais une rotation.
@@ -925,7 +1236,14 @@ function animerScene(contexte: SceneContext, temps: number, etat: RefObject<Etat
   // passage se fait par `unknown`, faute de quoi TypeScript refuse deux types
   // qui ne se recouvrent pas. La torche est un maillage, pose plus haut dans
   // `construire`, et sa matiere porte bien une carte d opacite.
-  type Torche = { material: { alphaMap: { repeat: { set: (x: number, y: number) => unknown }; offset: { set: (x: number, y: number) => unknown } } | null } }
+  type Torche = {
+    material: {
+      alphaMap: {
+        repeat: { set: (x: number, y: number) => unknown }
+        offset: { set: (x: number, y: number) => unknown }
+      } | null
+    }
+  }
   const mat = (torche as unknown as Torche).material
   if (mat.alphaMap !== null) {
     const sU = 0.44
@@ -938,7 +1256,15 @@ function animerScene(contexte: SceneContext, temps: number, etat: RefObject<Etat
 /* ============================ Les pieces ============================== */
 
 /** Un panneau opaque de la page : la cellule du papier, bordee du filet. */
-function Panneau({ children, className = '', style }: { readonly children: ReactNode; readonly className?: string; readonly style?: CSSProperties }): ReactElement {
+function Panneau({
+  children,
+  className = '',
+  style,
+}: {
+  readonly children: ReactNode
+  readonly className?: string
+  readonly style?: CSSProperties
+}): ReactElement {
   return (
     <div className={`of-panneau ${className}`} style={style}>
       {children}
@@ -947,9 +1273,18 @@ function Panneau({ children, className = '', style }: { readonly children: React
 }
 
 /** Un bouton cadre : le libelle, une fleche, et l accent au survol. */
-function BoutonCadre({ children, cible }: { readonly children: string; readonly cible: string }): ReactElement {
+function BoutonCadre({
+  children,
+  cible,
+}: {
+  readonly children: string
+  readonly cible: string
+}): ReactElement {
   return (
-    <a href={cible} className="of-bouton of-large o-inline-flex o-items-center o-gap-6 o-px-8 o-py-4 o-text-sm o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring">
+    <a
+      href={cible}
+      className="of-bouton of-large o-inline-flex o-items-center o-gap-6 o-px-8 o-py-4 o-text-sm o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
+    >
       {children}
       <Fleche />
     </a>
@@ -957,9 +1292,27 @@ function BoutonCadre({ children, cible }: { readonly children: string; readonly 
 }
 
 /** Un intitule de section : le masthead en mono, a l encre d accent. */
-function Masthead({ children, id, className = '' }: { readonly children: string; readonly id?: string; readonly className?: string }): ReactElement {
+function Masthead({
+  children,
+  id,
+  className = '',
+}: {
+  readonly children: string
+  readonly id?: string
+  readonly className?: string
+}): ReactElement {
   return (
-    <h2 id={id} className={`o-m-0 o-uppercase ${className}`} style={{ fontSize: 'clamp(2.25rem, 4.9vw, 4.4rem)', lineHeight: 0.9, letterSpacing: '-0.01em', fontWeight: 700, color: encre() }}>
+    <h2
+      id={id}
+      className={`o-m-0 o-uppercase ${className}`}
+      style={{
+        fontSize: 'clamp(2.25rem, 4.9vw, 4.4rem)',
+        lineHeight: 0.9,
+        letterSpacing: '-0.01em',
+        fontWeight: 700,
+        color: encre(),
+      }}
+    >
       <DecodeText as="span" trigger="view" duration={900}>
         {children}
       </DecodeText>
@@ -973,11 +1326,20 @@ function Masthead({ children, id, className = '' }: { readonly children: string;
  * Ouvert au survol d un pointeur fin, a l activation sinon ; ferme par
  * Echap, par la sortie du groupe ou par un clic ailleurs.
  */
-function Rubrique({ mot, cible, sousMenu }: { readonly mot: string; readonly cible: string; readonly sousMenu?: readonly (readonly [string, string])[] }): ReactElement {
+function Rubrique({
+  mot,
+  cible,
+  sousMenu,
+}: {
+  readonly mot: string
+  readonly cible: string
+  readonly sousMenu?: readonly (readonly [string, string])[]
+}): ReactElement {
   const id = useId()
   const [ouvert, setOuvert] = useState(false)
   const groupe = useRef<HTMLDivElement>(null)
-  const classes = 'of-large o-text-xs o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring'
+  const classes =
+    'of-large o-text-xs o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring'
 
   useEffect(() => {
     if (!ouvert) return
@@ -1003,7 +1365,8 @@ function Rubrique({ mot, cible, sousMenu }: { readonly mot: string; readonly cib
     )
   }
 
-  const survol = (): boolean => window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  const survol = (): boolean =>
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
   return (
     <div
@@ -1029,15 +1392,35 @@ function Rubrique({ mot, cible, sousMenu }: { readonly mot: string; readonly cib
         className={`o-inline-flex o-cursor-pointer o-items-center o-gap-2 o-border-none o-bg-transparent o-p-0 o-font-mono ${classes}`}
       >
         {mot}
-        <svg viewBox="0 0 6 5" width="6" height="5" aria-hidden="true" style={{ transform: ouvert ? 'rotate(180deg)' : undefined, transition: 'transform 150ms' }}>
+        <svg
+          viewBox="0 0 6 5"
+          width="6"
+          height="5"
+          aria-hidden="true"
+          style={{
+            transform: ouvert ? 'rotate(180deg)' : undefined,
+            transition: 'transform 150ms',
+          }}
+        >
           <path d="M3 5L0 0h6Z" fill="currentColor" />
         </svg>
       </button>
-      <div className={`o-absolute o-left-0 o-top-full o-pt-4 ${ouvert ? 'o-visible' : 'o-invisible'}`} style={{ zIndex: 5 }}>
-        <ul id={id} className="of-panneau o-m-0 o-flex o-w-max o-list-none o-flex-col o-gap-3 o-p-4" style={{ opacity: ouvert ? 1 : 0, transition: 'opacity 150ms' }}>
+      <div
+        className={`o-absolute o-left-0 o-top-full o-pt-4 ${ouvert ? 'o-visible' : 'o-invisible'}`}
+        style={{ zIndex: 5 }}
+      >
+        <ul
+          id={id}
+          className="of-panneau o-m-0 o-flex o-w-max o-list-none o-flex-col o-gap-3 o-p-4"
+          style={{ opacity: ouvert ? 1 : 0, transition: 'opacity 150ms' }}
+        >
           {sousMenu.map(([entree, href]) => (
             <li key={entree}>
-              <a href={href} tabIndex={ouvert ? undefined : -1} className="of-lien of-large o-block o-whitespace-nowrap o-text-xs o-uppercase o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring">
+              <a
+                href={href}
+                tabIndex={ouvert ? undefined : -1}
+                className="of-lien of-large o-block o-whitespace-nowrap o-text-xs o-uppercase o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring"
+              >
                 {entree}
               </a>
             </li>
@@ -1052,19 +1435,33 @@ function Rubrique({ mot, cible, sousMenu }: { readonly mot: string; readonly cib
 function Entete(): ReactElement {
   return (
     <header className="o-relative o-z-20 o-flex o-flex-wrap o-items-center o-gap-x-6 o-gap-y-4 o-px-5 o-py-5 md:o-px-10 md:o-py-6">
-      <a href="#haut" className="o-order-1 o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring" aria-label="Odoro, retour en haut">
+      <a
+        href="#haut"
+        className="o-order-1 o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
+        aria-label="Odoro, retour en haut"
+      >
         <Logotype />
       </a>
-      <nav aria-label="Rubriques" className="o-order-3 o-w-full md:o-order-2 md:o-w-auto md:o-flex-1">
+      <nav
+        aria-label="Rubriques"
+        className="o-order-3 o-w-full md:o-order-2 md:o-w-auto md:o-flex-1"
+      >
         <ul className="o-m-0 o-flex o-list-none o-flex-wrap o-gap-x-8 o-gap-y-3 o-p-0 md:o-justify-center md:o-gap-16">
           {NAVIGATION.map((r) => (
             <li key={r.mot}>
-              <Rubrique mot={r.mot} cible={r.cible} sousMenu={'sousMenu' in r ? r.sousMenu : undefined} />
+              <Rubrique
+                mot={r.mot}
+                cible={r.cible}
+                sousMenu={'sousMenu' in r ? r.sousMenu : undefined}
+              />
             </li>
           ))}
         </ul>
       </nav>
-      <a href="#collections" className="of-large o-order-2 o-ml-auto o-text-xs o-uppercase o-whitespace-nowrap o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring md:o-order-3 md:o-ml-0">
+      <a
+        href="#collections"
+        className="of-large o-order-2 o-ml-auto o-text-xs o-uppercase o-whitespace-nowrap o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring md:o-order-3 md:o-ml-0"
+      >
         PANIER [ 0 ]
       </a>
     </header>
@@ -1072,10 +1469,21 @@ function Entete(): ReactElement {
 }
 
 /** Un marqueur du heros : trois lignes entre deux equerres. */
-function Marqueur({ lignes, cote, delai }: { readonly lignes: readonly string[]; readonly cote: 'gauche' | 'droit'; readonly delai: number }): ReactElement {
+function Marqueur({
+  lignes,
+  cote,
+  delai,
+}: {
+  readonly lignes: readonly string[]
+  readonly cote: 'gauche' | 'droit'
+  readonly delai: number
+}): ReactElement {
   const droite = cote === 'droit'
   return (
-    <Surgit delai={delai} className={`o-flex o-flex-col o-gap-4 ${droite ? 'o-items-end o-text-right' : 'o-items-start'}`}>
+    <Surgit
+      delai={delai}
+      className={`o-flex o-flex-col o-gap-4 ${droite ? 'o-items-end o-text-right' : 'o-items-start'}`}
+    >
       <Equerre retourne={droite ? 'scaleX(-1)' : ''} />
       <p className="of-large o-m-0 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-950 dark:o-text-zinc-50 sm:o-text-sm">
         {lignes.map((l) => (
@@ -1090,14 +1498,31 @@ function Marqueur({ lignes, cote, delai }: { readonly lignes: readonly string[];
 }
 
 /** Un badge de coin du heros : un pictogramme, une legende, des lignes. */
-function Badge({ picto, legende, lignes, delai }: { readonly picto: string; readonly legende?: string; readonly lignes: readonly string[]; readonly delai: number }): ReactElement {
+function Badge({
+  picto,
+  legende,
+  lignes,
+  delai,
+}: {
+  readonly picto: string
+  readonly legende?: string
+  readonly lignes: readonly string[]
+  readonly delai: number
+}): ReactElement {
   return (
-    <Surgit delai={delai} className="of-cadre o-flex o-items-stretch o-gap-4 o-p-4 o-text-zinc-950 dark:o-text-zinc-50">
+    <Surgit
+      delai={delai}
+      className="of-cadre o-flex o-items-stretch o-gap-4 o-p-4 o-text-zinc-950 dark:o-text-zinc-50"
+    >
       <div className="o-flex o-w-16 o-shrink-0 o-flex-col o-items-center o-justify-center o-gap-2">
         <Trait d={PICTOS[picto] ?? ''} taille={28} />
         {legende !== undefined && <span className="of-large o-text-xs">{legende}</span>}
       </div>
-      <span aria-hidden="true" className="o-w-px o-shrink-0 o-self-stretch" style={{ backgroundColor: 'var(--of-filet)' }} />
+      <span
+        aria-hidden="true"
+        className="o-w-px o-shrink-0 o-self-stretch"
+        style={{ backgroundColor: 'var(--of-filet)' }}
+      />
       <p className="of-large o-m-0 o-self-center o-text-xs o-uppercase o-leading-relaxed">
         {lignes.map((l) => (
           <span key={l} className="o-block">
@@ -1110,18 +1535,39 @@ function Badge({ picto, legende, lignes, delai }: { readonly picto: string; read
 }
 
 /** Une ligne de specification : le rang en haut, le pictogramme en bas, le texte a droite. */
-function Specification({ rang, icone, titre, texte }: { readonly rang: string; readonly icone: string; readonly titre: string; readonly texte: string }): ReactElement {
+function Specification({
+  rang,
+  icone,
+  titre,
+  texte,
+}: {
+  readonly rang: string
+  readonly icone: string
+  readonly titre: string
+  readonly texte: string
+}): ReactElement {
   return (
     <Panneau className="o-flex o-items-stretch o-gap-6 o-p-4">
       <div className="o-flex o-shrink-0 o-flex-col o-items-start o-justify-between o-gap-4">
-        <span aria-hidden="true" className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+        <span
+          aria-hidden="true"
+          className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400"
+        >
           {rang}
         </span>
-        <Trait d={PICTOS[icone] ?? ''} taille={26} className="o-text-zinc-950 dark:o-text-zinc-50" />
+        <Trait
+          d={PICTOS[icone] ?? ''}
+          taille={26}
+          className="o-text-zinc-950 dark:o-text-zinc-50"
+        />
       </div>
       <div className="o-flex o-min-w-0 o-flex-1 o-flex-col o-gap-2">
-        <h3 className="of-large o-m-0 o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">{titre}</h3>
-        <p className="o-m-0 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{texte}</p>
+        <h3 className="of-large o-m-0 o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">
+          {titre}
+        </h3>
+        <p className="o-m-0 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+          {texte}
+        </p>
       </div>
     </Panneau>
   )
@@ -1133,27 +1579,56 @@ function Specification({ rang, icone, titre, texte }: { readonly rang: string; r
  * a l encre pleine, comme dans la source. Les quatre nuanciers changent la
  * vue — ici, le liquide se relit sous un autre angle de lumiere.
  */
-function CarteExtrait({ rang, nom, prix, liquide, puces }: (typeof EXTRAITS)[number]): ReactElement {
+function CarteExtrait({
+  rang,
+  nom,
+  prix,
+  liquide,
+  puces,
+}: (typeof EXTRAITS)[number]): ReactElement {
   const [vue, setVue] = useState(0)
   const reflets = ['0.72', '0.6', '0.82', '0.5']
   return (
     <li className="o-min-w-0">
       <TiltCard tilt={5} glare={0} className="o-h-full">
-        <article className="of-carte of-cadre o-relative o-flex o-h-full o-flex-col o-justify-between o-gap-6 o-p-4 o-text-zinc-950 dark:o-text-zinc-50" style={{ minHeight: '27rem' }}>
+        <article
+          className="of-carte of-cadre o-relative o-flex o-h-full o-flex-col o-justify-between o-gap-6 o-p-4 o-text-zinc-950 dark:o-text-zinc-50"
+          style={{ minHeight: '27rem' }}
+        >
           <div className="o-flex o-items-start o-justify-between">
-            <span aria-hidden="true" className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+            <span
+              aria-hidden="true"
+              className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400"
+            >
               {rang}
             </span>
-            <svg viewBox="0 0 13 13" width="13" height="13" aria-hidden="true" className="o-opacity-60">
+            <svg
+              viewBox="0 0 13 13"
+              width="13"
+              height="13"
+              aria-hidden="true"
+              className="o-opacity-60"
+            >
               <path d="M6.5 0v13M0 6.5h13" stroke="currentColor" strokeWidth="1.2" />
             </svg>
           </div>
-          <div className="o-pointer-events-none o-absolute o-inset-x-0 o-top-1/2 o-flex o-justify-center" style={{ transform: 'translateY(-52%)' }}>
-            <div className="o-w-40" style={{ opacity: reflets[vue] ?? '0.72', transition: 'opacity 250ms' }}>
+          <div
+            className="o-pointer-events-none o-absolute o-inset-x-0 o-top-1/2 o-flex o-justify-center"
+            style={{ transform: 'translateY(-52%)' }}
+          >
+            <div
+              className="o-w-40"
+              style={{ opacity: reflets[vue] ?? '0.72', transition: 'opacity 250ms' }}
+            >
               <FlaconDessine liquide={liquide} etiquette className="o-w-full" />
             </div>
           </div>
-          <div role="group" aria-label={`${nom} — vue`} className="o-absolute o-right-4 o-top-1/2 o-flex o-flex-col o-gap-2" style={{ transform: 'translateY(-50%)' }}>
+          <div
+            role="group"
+            aria-label={`${nom} — vue`}
+            className="o-absolute o-right-4 o-top-1/2 o-flex o-flex-col o-gap-2"
+            style={{ transform: 'translateY(-50%)' }}
+          >
             {reflets.map((_, i) => (
               <button
                 key={i}
@@ -1164,28 +1639,45 @@ function CarteExtrait({ rang, nom, prix, liquide, puces }: (typeof EXTRAITS)[num
                   setVue(i)
                 }}
                 className="o-size-3 o-cursor-pointer o-border-w-1 o-p-0 focus:o-ring"
-                style={{ backgroundColor: i === vue ? 'currentColor' : 'transparent', borderColor: 'currentColor', opacity: i === vue ? 1 : 0.5 }}
+                style={{
+                  backgroundColor: i === vue ? 'currentColor' : 'transparent',
+                  borderColor: 'currentColor',
+                  opacity: i === vue ? 1 : 0.5,
+                }}
               />
             ))}
           </div>
           <div className="o-relative o-flex o-flex-col o-gap-4">
             <div className="o-flex o-items-baseline o-justify-between o-gap-4">
-              <h3 className="o-m-0 o-text-xl o-font-bold o-uppercase" style={{ lineHeight: 1, maxWidth: '12rem' }}>
+              <h3
+                className="o-m-0 o-text-xl o-font-bold o-uppercase"
+                style={{ lineHeight: 1, maxWidth: '12rem' }}
+              >
                 <DecodeText as="span" trigger="view" duration={800}>
                   {nom}
                 </DecodeText>
               </h3>
-              <span className="of-prix o-shrink-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">{prix}</span>
+              <span className="of-prix o-shrink-0 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+                {prix}
+              </span>
             </div>
             <div className="o-relative o-h-10">
               <ul className="of-puces o-absolute o-inset-0 o-m-0 o-flex o-list-none o-items-center o-gap-2 o-p-0">
                 {puces.map((p) => (
-                  <li key={p} className="of-large o-flex o-h-full o-items-center o-border-w-1 o-px-3 o-text-xs o-uppercase o-whitespace-nowrap o-text-zinc-600 dark:o-text-zinc-400" style={{ borderColor: 'var(--of-filet)' }}>
+                  <li
+                    key={p}
+                    className="of-large o-flex o-h-full o-items-center o-border-w-1 o-px-3 o-text-xs o-uppercase o-whitespace-nowrap o-text-zinc-600 dark:o-text-zinc-400"
+                    style={{ borderColor: 'var(--of-filet)' }}
+                  >
                     {p}
                   </li>
                 ))}
               </ul>
-              <a href="#collections" className="of-achat of-large o-absolute o-inset-0 o-flex o-items-center o-justify-between o-border-w-1 o-px-3 o-text-xs o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring" style={{ borderColor: 'currentColor' }}>
+              <a
+                href="#collections"
+                className="of-achat of-large o-absolute o-inset-0 o-flex o-items-center o-justify-between o-border-w-1 o-px-3 o-text-xs o-uppercase o-no-underline o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
+                style={{ borderColor: 'currentColor' }}
+              >
                 ACHETER
                 <span className="o-sr-only">{` — ${nom}, ${prix}`}</span>
                 <Fleche />
@@ -1211,8 +1703,19 @@ const PLAQUES = COUCHES.map((_, i) => {
 function Pyramide({ actif }: { readonly actif: number }): ReactElement {
   const encreTrait = 'var(--o-theme-fg)'
   return (
-    <svg viewBox="0 0 400 520" className="o-h-full o-w-full" fill="none" aria-hidden="true" style={{ overflow: 'visible' }}>
-      <path d="M200 20v490" stroke={encreTrait} strokeOpacity="0.25" strokeDasharray="2 6" />
+    <svg
+      viewBox="0 0 400 520"
+      className="o-h-full o-w-full"
+      fill="none"
+      aria-hidden="true"
+      style={{ overflow: 'visible' }}
+    >
+      <path
+        d="M200 20v490"
+        stroke={encreTrait}
+        strokeOpacity="0.25"
+        strokeDasharray="2 6"
+      />
       {PLAQUES.map((p, i) => {
         const g = 200 - p.l / 2
         const d = 200 + p.l / 2
@@ -1222,10 +1725,38 @@ function Pyramide({ actif }: { readonly actif: number }): ReactElement {
         const teinteCote = accentDoux(500 + i * 100, 55 + i * 10)
         const surligne = i === actif
         return (
-          <g key={p.cy} style={{ opacity: actif < 0 || surligne ? 1 : 0.55, transition: 'opacity 300ms' }}>
-            <path d={`M${String(g)} ${String(p.cy)}L200 ${String(p.cy + e)}L${String(d)} ${String(p.cy)}v${String(t)}L200 ${String(p.cy + e + t)}L${String(g)} ${String(p.cy + t)}Z`} fill={teinteCote} stroke={encreTrait} strokeOpacity="0.5" />
-            <path d={`M${String(g)} ${String(p.cy)}L200 ${String(p.cy - e)}L${String(d)} ${String(p.cy)}L200 ${String(p.cy + e)}Z`} fill={teinteHaut} stroke={encreTrait} strokeOpacity={surligne ? '0.9' : '0.5'} strokeWidth={surligne ? 1.6 : 1} />
-            <text x={g - 10} y={p.cy + 4} textAnchor="end" fill={encreTrait} fillOpacity="0.6" style={{ fontFamily: 'var(--o-font-mono)', fontSize: 11, letterSpacing: '.1em' }}>
+          <g
+            key={p.cy}
+            style={{
+              opacity: actif < 0 || surligne ? 1 : 0.55,
+              transition: 'opacity 300ms',
+            }}
+          >
+            <path
+              d={`M${String(g)} ${String(p.cy)}L200 ${String(p.cy + e)}L${String(d)} ${String(p.cy)}v${String(t)}L200 ${String(p.cy + e + t)}L${String(g)} ${String(p.cy + t)}Z`}
+              fill={teinteCote}
+              stroke={encreTrait}
+              strokeOpacity="0.5"
+            />
+            <path
+              d={`M${String(g)} ${String(p.cy)}L200 ${String(p.cy - e)}L${String(d)} ${String(p.cy)}L200 ${String(p.cy + e)}Z`}
+              fill={teinteHaut}
+              stroke={encreTrait}
+              strokeOpacity={surligne ? '0.9' : '0.5'}
+              strokeWidth={surligne ? 1.6 : 1}
+            />
+            <text
+              x={g - 10}
+              y={p.cy + 4}
+              textAnchor="end"
+              fill={encreTrait}
+              fillOpacity="0.6"
+              style={{
+                fontFamily: 'var(--o-font-mono)',
+                fontSize: 11,
+                letterSpacing: '.1em',
+              }}
+            >
               {COUCHES[i]?.rang}
             </text>
           </g>
@@ -1236,18 +1767,43 @@ function Pyramide({ actif }: { readonly actif: number }): ReactElement {
 }
 
 /** Une carte de couche : le rang, le pictogramme, le titre et le corps. */
-function CarteCouche({ couche, className = '', style, off = false }: { readonly couche: (typeof COUCHES)[number]; readonly className?: string; readonly style?: CSSProperties; readonly off?: boolean }): ReactElement {
+function CarteCouche({
+  couche,
+  className = '',
+  style,
+  off = false,
+}: {
+  readonly couche: (typeof COUCHES)[number]
+  readonly className?: string
+  readonly style?: CSSProperties
+  readonly off?: boolean
+}): ReactElement {
   return (
-    <Panneau className={`of-couche o-flex o-items-stretch o-gap-6 o-p-4 ${className}`} style={style} {...(off ? { 'data-off': '' } : {})}>
+    <Panneau
+      className={`of-couche o-flex o-items-stretch o-gap-6 o-p-4 ${className}`}
+      style={style}
+      {...(off ? { 'data-off': '' } : {})}
+    >
       <div className="o-flex o-shrink-0 o-flex-col o-items-start o-justify-between o-gap-4">
-        <span aria-hidden="true" className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+        <span
+          aria-hidden="true"
+          className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400"
+        >
           {couche.rang}
         </span>
-        <Trait d={PICTOS[couche.icone] ?? ''} taille={26} className="o-text-zinc-950 dark:o-text-zinc-50" />
+        <Trait
+          d={PICTOS[couche.icone] ?? ''}
+          taille={26}
+          className="o-text-zinc-950 dark:o-text-zinc-50"
+        />
       </div>
       <div className="o-flex o-min-w-0 o-flex-1 o-flex-col o-gap-2">
-        <h3 className="of-large o-m-0 o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">{couche.titre}</h3>
-        <p className="o-m-0 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">{couche.texte}</p>
+        <h3 className="of-large o-m-0 o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">
+          {couche.titre}
+        </h3>
+        <p className="o-m-0 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400">
+          {couche.texte}
+        </p>
       </div>
     </Panneau>
   )
@@ -1264,7 +1820,10 @@ function CarteCouche({ couche, className = '', style, off = false }: { readonly 
  */
 function SceneComposition({ acte }: { readonly acte: number }): ReactElement {
   const boite = { g: 26, l: 36, h: 10, ht: 80 }
-  const ancres = PLAQUES.map((p) => ({ x: boite.g + p.ancreX * boite.l, y: boite.h + p.ancreY * boite.ht }))
+  const ancres = PLAQUES.map((p) => ({
+    x: boite.g + p.ancreX * boite.l,
+    y: boite.h + p.ancreY * boite.ht,
+  }))
   const hautsCartes = ancres.map((a) => Math.min(76, Math.max(8, a.y - 5)))
   const ancre = ancres[acte] ?? ancres[0]
   const hautCarte = hautsCartes[acte] ?? 8
@@ -1274,28 +1833,79 @@ function SceneComposition({ acte }: { readonly acte: number }): ReactElement {
         <Masthead id="composition-titre">CHIMIE COMPOSEE POUR DURER</Masthead>
       </div>
       <p className="o-m-0 o-max-w-md o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 sm:o-text-sm md:o-absolute md:o-bottom-10 md:o-left-10 md:o-w-80 lg:o-w-96">
-        Chaque note a une raison d etre. Du sommet volatil jusqu a la resine du fond, l extrait est construit pour tenir sans perdre sa forme.
+        Chaque note a une raison d etre. Du sommet volatil jusqu a la resine du fond, l
+        extrait est construit pour tenir sans perdre sa forme.
       </p>
 
-      <div className="o-mx-auto o-w-full o-max-w-xs md:o-absolute md:o-max-w-none" style={{ height: '38vh', ...({ '--of-pyr': 1 } as CSSProperties) }}>
-        <div className="o-h-full md:o-absolute" style={{ left: `${String(boite.g)}%`, top: `${String(boite.h)}%`, width: `${String(boite.l)}%`, height: `${String(boite.ht)}%` }}>
+      <div
+        className="o-mx-auto o-w-full o-max-w-xs md:o-absolute md:o-max-w-none"
+        style={{ height: '38vh', ...({ '--of-pyr': 1 } as CSSProperties) }}
+      >
+        <div
+          className="o-h-full md:o-absolute"
+          style={{
+            left: `${String(boite.g)}%`,
+            top: `${String(boite.h)}%`,
+            width: `${String(boite.l)}%`,
+            height: `${String(boite.ht)}%`,
+          }}
+        >
           <Pyramide actif={acte} />
         </div>
       </div>
 
       {/* La ligne de rappel et son carre, sur grand ecran seulement. */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" className="o-pointer-events-none o-absolute o-inset-0 o-hidden o-h-full o-w-full md:o-block">
-        <line x1={66} y1={hautCarte + 6} x2={ancre?.x ?? 50} y2={ancre?.y ?? 50} stroke="var(--of-filet)" strokeWidth="1" vectorEffect="non-scaling-stroke" style={{ transition: 'all 700ms cubic-bezier(.16,1,.3,1)' }} />
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        className="o-pointer-events-none o-absolute o-inset-0 o-hidden o-h-full o-w-full md:o-block"
+      >
+        <line
+          x1={66}
+          y1={hautCarte + 6}
+          x2={ancre?.x ?? 50}
+          y2={ancre?.y ?? 50}
+          stroke="var(--of-filet)"
+          strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
+          style={{ transition: 'all 700ms cubic-bezier(.16,1,.3,1)' }}
+        />
       </svg>
-      <span aria-hidden="true" className="o-absolute o-hidden o-size-2 md:o-block" style={{ left: `calc(${String(ancre?.x ?? 50)}% - 4px)`, top: `calc(${String(ancre?.y ?? 50)}% - 4px)`, backgroundColor: 'var(--o-theme-fg)', transition: 'all 700ms cubic-bezier(.16,1,.3,1)' }} />
+      <span
+        aria-hidden="true"
+        className="o-absolute o-hidden o-size-2 md:o-block"
+        style={{
+          left: `calc(${String(ancre?.x ?? 50)}% - 4px)`,
+          top: `calc(${String(ancre?.y ?? 50)}% - 4px)`,
+          backgroundColor: 'var(--o-theme-fg)',
+          transition: 'all 700ms cubic-bezier(.16,1,.3,1)',
+        }}
+      />
 
       {COUCHES.map((c, i) => (
-        <CarteCouche key={c.rang} couche={c} off={i !== acte} className="md:o-absolute md:o-right-10 md:o-w-80 lg:o-w-96" style={{ top: `${String(hautsCartes[i] ?? 8)}%` }} />
+        <CarteCouche
+          key={c.rang}
+          couche={c}
+          off={i !== acte}
+          className="md:o-absolute md:o-right-10 md:o-w-80 lg:o-w-96"
+          style={{ top: `${String(hautsCartes[i] ?? 8)}%` }}
+        />
       ))}
 
-      <ol aria-hidden="true" className="o-m-0 o-flex o-list-none o-gap-2 o-p-0 md:o-absolute md:o-bottom-10 md:o-right-10 md:o-w-80 lg:o-w-96">
+      <ol
+        aria-hidden="true"
+        className="o-m-0 o-flex o-list-none o-gap-2 o-p-0 md:o-absolute md:o-bottom-10 md:o-right-10 md:o-w-80 lg:o-w-96"
+      >
         {COUCHES.map((c, i) => (
-          <li key={c.rang} className="o-h-0.5 o-flex-1" style={{ backgroundColor: i <= acte ? encre() : 'var(--of-filet)', transition: 'background-color 300ms' }} />
+          <li
+            key={c.rang}
+            className="o-h-0.5 o-flex-1"
+            style={{
+              backgroundColor: i <= acte ? encre() : 'var(--of-filet)',
+              transition: 'background-color 300ms',
+            }}
+          />
         ))}
       </ol>
     </div>
@@ -1307,12 +1917,20 @@ function Question({ rang, question, reponse }: (typeof QUESTIONS)[number]): Reac
   return (
     <Panneau className="o-flex o-flex-col o-gap-4 o-p-4 md:o-flex-row md:o-items-start md:o-gap-0">
       <dt className="o-flex o-shrink-0 o-flex-col o-gap-3 md:o-w-48 md:o-pr-6">
-        <span className="of-large o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">{question}</span>
-        <span aria-hidden="true" className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+        <span className="of-large o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">
+          {question}
+        </span>
+        <span
+          aria-hidden="true"
+          className="o-text-sm o-text-zinc-600 dark:o-text-zinc-400"
+        >
           {rang}
         </span>
       </dt>
-      <dd className="of-filet o-m-0 o-min-w-0 o-flex-1 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-border-l md:o-pl-6" style={{ minHeight: '4.5rem' }}>
+      <dd
+        className="of-filet o-m-0 o-min-w-0 o-flex-1 o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 md:o-border-l md:o-pl-6"
+        style={{ minHeight: '4.5rem' }}
+      >
         {reponse}
       </dd>
     </Panneau>
@@ -1330,19 +1948,43 @@ function Bulletin(): ReactElement {
         e.preventDefault()
       }}
     >
-      <label htmlFor={idCourriel} className="of-large o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50">
+      <label
+        htmlFor={idCourriel}
+        className="of-large o-text-sm o-font-bold o-uppercase o-text-zinc-950 dark:o-text-zinc-50"
+      >
         AVANT LE PROCHAIN LOT.
       </label>
-      <div className="o-flex o-items-center o-border-w-1 o-pr-4 o-text-zinc-950 dark:o-text-zinc-50" style={{ borderColor: 'currentColor' }}>
-        <input id={idCourriel} type="email" name="courriel" autoComplete="email" placeholder="Votre e-mail" className="of-champ of-large o-min-w-0 o-flex-1 o-border-none o-bg-transparent o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring" />
-        <button type="submit" className="o-inline-flex o-cursor-pointer o-items-center o-border-none o-bg-transparent o-p-2 o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring">
+      <div
+        className="o-flex o-items-center o-border-w-1 o-pr-4 o-text-zinc-950 dark:o-text-zinc-50"
+        style={{ borderColor: 'currentColor' }}
+      >
+        <input
+          id={idCourriel}
+          type="email"
+          name="courriel"
+          autoComplete="email"
+          placeholder="Votre e-mail"
+          className="of-champ of-large o-min-w-0 o-flex-1 o-border-none o-bg-transparent o-px-4 o-py-3 o-font-mono o-text-xs o-uppercase o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
+        />
+        <button
+          type="submit"
+          className="o-inline-flex o-cursor-pointer o-items-center o-border-none o-bg-transparent o-p-2 o-text-zinc-950 dark:o-text-zinc-50 focus:o-ring"
+        >
           <span className="o-sr-only">S inscrire</span>
           <Fleche />
         </button>
       </div>
       <div className="o-flex o-items-center o-gap-3 o-text-zinc-950 dark:o-text-zinc-50">
-        <input id={idConsentement} type="checkbox" name="consentement" className="of-case o-size-3 o-shrink-0 o-cursor-pointer o-rounded-none focus:o-ring" />
-        <label htmlFor={idConsentement} className="of-large o-text-xs o-uppercase o-text-zinc-600 dark:o-text-zinc-400">
+        <input
+          id={idConsentement}
+          type="checkbox"
+          name="consentement"
+          className="of-case o-size-3 o-shrink-0 o-cursor-pointer o-rounded-none focus:o-ring"
+        />
+        <label
+          htmlFor={idConsentement}
+          className="of-large o-text-xs o-uppercase o-text-zinc-600 dark:o-text-zinc-400"
+        >
           J ACCEPTE DE RECEVOIR VOS NOUVELLES.
         </label>
       </div>
@@ -1374,7 +2016,10 @@ export default function Page(): ReactElement {
       sombre.current = estSombre()
     }
     const observateur = new MutationObserver(relire)
-    observateur.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] })
+    observateur.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'class', 'style'],
+    })
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     media.addEventListener('change', relire)
     return () => {
@@ -1383,10 +2028,16 @@ export default function Page(): ReactElement {
     }
   }, [])
 
-  const construire = useCallback((contexte: SceneContext) => construireScene(contexte, etat, sombre), [])
-  const animer = useCallback((contexte: SceneContext, image: { readonly time: number }) => {
-    animerScene(contexte, image.time, etat)
-  }, [])
+  const construire = useCallback(
+    (contexte: SceneContext) => construireScene(contexte, etat, sombre),
+    [],
+  )
+  const animer = useCallback(
+    (contexte: SceneContext, image: { readonly time: number }) => {
+      animerScene(contexte, image.time, etat)
+    },
+    [],
+  )
 
   const encreForte = 'o-text-zinc-950 dark:o-text-zinc-50'
 
@@ -1413,7 +2064,17 @@ export default function Page(): ReactElement {
               animer={animer}
               repli={
                 <div className="o-relative o-flex o-h-full o-items-center o-justify-center">
-                  <span aria-hidden="true" className="o-pointer-events-none o-absolute o-select-none o-font-bold" style={{ fontSize: 'min(27vw, 46vh)', lineHeight: 1, color: 'color-mix(in oklab, var(--o-theme-fg) 14%, transparent)', top: '48%', transform: 'translateY(-50%)' }}>
+                  <span
+                    aria-hidden="true"
+                    className="o-pointer-events-none o-absolute o-select-none o-font-bold"
+                    style={{
+                      fontSize: 'min(27vw, 46vh)',
+                      lineHeight: 1,
+                      color: 'color-mix(in oklab, var(--o-theme-fg) 14%, transparent)',
+                      top: '48%',
+                      transform: 'translateY(-50%)',
+                    }}
+                  >
                     ODORO
                   </span>
                   <div className="o-relative" style={{ height: '58%' }}>
@@ -1426,28 +2087,52 @@ export default function Page(): ReactElement {
 
           <div className="o-relative o-z-10" style={{ marginTop: `calc(-1 * ${ECRAN})` }}>
             {/* ----- Le heros ---------------------------------------------- */}
-            <section id="haut" ref={heros} aria-labelledby="titre-page" className="o-relative o-flex o-flex-col" style={{ minHeight: ECRAN }}>
+            <section
+              id="haut"
+              ref={heros}
+              aria-labelledby="titre-page"
+              className="o-relative o-flex o-flex-col"
+              style={{ minHeight: ECRAN }}
+            >
               <Entete />
 
               {/* Les deux marqueurs, de part et d autre. */}
               <div className="of-fleches o-flex o-justify-between o-gap-4 o-px-5 md:o-absolute md:o-top-1/2 md:o-px-0">
-                <div className="md:o-absolute md:o-left-0 md:o-top-0" style={{ transform: 'translateY(-50%)' }}>
+                <div
+                  className="md:o-absolute md:o-left-0 md:o-top-0"
+                  style={{ transform: 'translateY(-50%)' }}
+                >
                   <Marqueur lignes={MARQUEUR_GAUCHE} cote="gauche" delai={140} />
                 </div>
-                <div className="md:o-absolute md:o-right-0 md:o-top-0" style={{ transform: 'translateY(-50%)' }}>
+                <div
+                  className="md:o-absolute md:o-right-0 md:o-top-0"
+                  style={{ transform: 'translateY(-50%)' }}
+                >
                   <Marqueur lignes={MARQUEUR_DROIT} cote="droit" delai={220} />
                 </div>
               </div>
 
               {/* La place du flacon, sur ecran etroit : il est dans le canevas
                   derriere, plus petit, et la colonne lui laisse cette hauteur. */}
-              <div aria-hidden="true" className="o-grow md:o-hidden" style={{ minHeight: '34vh' }} />
+              <div
+                aria-hidden="true"
+                className="o-grow md:o-hidden"
+                style={{ minHeight: '34vh' }}
+              />
               <div className="o-hidden o-grow md:o-block" />
 
               <div className="o-flex o-flex-col o-items-center o-gap-8 o-px-5 o-pt-8">
-                <h1 id="titre-page" className={`of-large o-m-0 o-flex o-flex-col o-items-center o-text-center o-text-sm o-uppercase o-leading-relaxed sm:o-text-base ${encreForte}`}>
+                <h1
+                  id="titre-page"
+                  className={`of-large o-m-0 o-flex o-flex-col o-items-center o-text-center o-text-sm o-uppercase o-leading-relaxed sm:o-text-base ${encreForte}`}
+                >
                   {TITRE.map((ligne, i) => (
-                    <Surgit key={ligne} as="span" delai={260 + i * 110} className="o-block">
+                    <Surgit
+                      key={ligne}
+                      as="span"
+                      delai={260 + i * 110}
+                      className="o-block"
+                    >
                       <DecodeText as="span" trigger="mount" duration={1100}>
                         {ligne}
                       </DecodeText>
@@ -1462,19 +2147,34 @@ export default function Page(): ReactElement {
               </div>
 
               <div className="o-mt-10 o-grid o-gap-3 o-px-5 o-pb-8 sm:o-grid-cols-2 md:o-flex md:o-justify-between md:o-px-10 md:o-pb-10">
-                <Badge picto="globe" legende={BADGE_GAUCHE.legende} lignes={BADGE_GAUCHE.lignes} delai={480} />
+                <Badge
+                  picto="globe"
+                  legende={BADGE_GAUCHE.legende}
+                  lignes={BADGE_GAUCHE.lignes}
+                  delai={480}
+                />
                 <Badge picto="reticule" lignes={BADGE_DROIT.lignes} delai={540} />
               </div>
             </section>
 
             {/* ----- La matiere premiere ---------------------------------- */}
-            <section id="details" ref={details} aria-labelledby="details-titre" className="o-relative o-scroll-mt-24 o-px-5 o-py-16 md:o-px-10 md:o-py-24" style={{ minHeight: ECRAN }}>
-              <div className="o-grid o-gap-10 md:o-h-full md:o-grid-cols-12 md:o-gap-6" style={{ minHeight: `calc(${ECRAN} - 12rem)` }}>
+            <section
+              id="details"
+              ref={details}
+              aria-labelledby="details-titre"
+              className="o-relative o-scroll-mt-24 o-px-5 o-py-16 md:o-px-10 md:o-py-24"
+              style={{ minHeight: ECRAN }}
+            >
+              <div
+                className="o-grid o-gap-10 md:o-h-full md:o-grid-cols-12 md:o-gap-6"
+                style={{ minHeight: `calc(${ECRAN} - 12rem)` }}
+              >
                 <div className="o-flex o-flex-col o-justify-between o-gap-8 md:o-col-span-4">
                   <div className="o-flex o-flex-col o-gap-6">
                     <Masthead id="details-titre">MATIERE PREMIERE.</Masthead>
                     <p className="o-m-0 o-max-w-sm o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 sm:o-text-sm">
-                      Un extrait pense pour la chimie de la peau, l air qui change et tout ce qui arrive apres la premiere heure.
+                      Un extrait pense pour la chimie de la peau, l air qui change et tout
+                      ce qui arrive apres la premiere heure.
                     </p>
                   </div>
                   <div className="o-hidden md:o-block">
@@ -1496,7 +2196,12 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ----- Les collections ---------------------------------------- */}
-            <section id="collections" aria-labelledby="collections-titre" className="o-relative o-flex o-scroll-mt-24 o-flex-col o-justify-between o-gap-10 o-px-5 o-py-16 md:o-px-10 md:o-py-24" style={{ minHeight: ECRAN }}>
+            <section
+              id="collections"
+              aria-labelledby="collections-titre"
+              className="o-relative o-flex o-scroll-mt-24 o-flex-col o-justify-between o-gap-10 o-px-5 o-py-16 md:o-px-10 md:o-py-24"
+              style={{ minHeight: ECRAN }}
+            >
               <div className="o-flex o-flex-col o-gap-6 md:o-flex-row md:o-items-start md:o-justify-between">
                 <Masthead id="collections-titre">COLLECTIONS.</Masthead>
                 <p className="o-m-0 o-max-w-xs o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 sm:o-text-sm md:o-mr-12 md:o-mt-2">
@@ -1514,14 +2219,22 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ----- La composition ------------------------------------------ */}
-            <section id="composition" aria-labelledby="composition-titre" className="o-relative o-scroll-mt-24">
+            <section
+              id="composition"
+              aria-labelledby="composition-titre"
+              className="o-relative o-scroll-mt-24"
+            >
               {reduced ? (
                 <div className="o-flex o-flex-col o-gap-8 o-px-5 o-py-16 md:o-px-10">
                   <Masthead>CHIMIE COMPOSEE POUR DURER</Masthead>
                   <p className="o-m-0 o-max-w-md o-text-xs o-uppercase o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-400 sm:o-text-sm">
-                    Chaque note a une raison d etre. Du sommet volatil jusqu a la resine du fond, l extrait est construit pour tenir sans perdre sa forme.
+                    Chaque note a une raison d etre. Du sommet volatil jusqu a la resine
+                    du fond, l extrait est construit pour tenir sans perdre sa forme.
                   </p>
-                  <div className="o-mx-auto o-w-full o-max-w-sm" style={{ height: '52vh' }}>
+                  <div
+                    className="o-mx-auto o-w-full o-max-w-sm"
+                    style={{ height: '52vh' }}
+                  >
                     <Pyramide actif={-1} />
                   </div>
                   <ol className="o-m-0 o-grid o-list-none o-gap-3 o-p-0 sm:o-grid-cols-2">
@@ -1540,7 +2253,13 @@ export default function Page(): ReactElement {
             </section>
 
             {/* ----- Bon a savoir ------------------------------------------- */}
-            <section id="questions" ref={questions} aria-labelledby="questions-titre" className="o-relative o-scroll-mt-24 o-px-5 o-py-16 md:o-px-10 md:o-py-24" style={{ minHeight: ECRAN }}>
+            <section
+              id="questions"
+              ref={questions}
+              aria-labelledby="questions-titre"
+              className="o-relative o-scroll-mt-24 o-px-5 o-py-16 md:o-px-10 md:o-py-24"
+              style={{ minHeight: ECRAN }}
+            >
               <div className="o-grid o-gap-10 md:o-grid-cols-12">
                 <div className="md:o-col-span-5">
                   <Masthead id="questions-titre">BON A SAVOIR.</Masthead>
@@ -1558,21 +2277,31 @@ export default function Page(): ReactElement {
         {/* ----- Le pied ------------------------------------------------- */}
         <footer className="o-relative o-z-10 o-px-5 o-pb-8 o-pt-14 md:o-px-10">
           <div className="o-grid o-gap-10 md:o-grid-cols-12">
-            <a href="#haut" className={`o-no-underline md:o-col-span-3 ${encreForte} focus:o-ring`} aria-label="Odoro, retour en haut">
+            <a
+              href="#haut"
+              className={`o-no-underline md:o-col-span-3 ${encreForte} focus:o-ring`}
+              aria-label="Odoro, retour en haut"
+            >
               <Logotype taille="o-text-xl" />
             </a>
             <nav aria-label="Plan du site" className="md:o-col-span-6">
               <ul className="o-m-0 o-grid o-list-none o-grid-cols-2 o-gap-8 o-p-0 md:o-grid-cols-4">
                 {COLONNES_PIED.map((col) => (
                   <li key={col.titre} className="o-flex o-flex-col o-gap-4">
-                    <a href="#haut" className={`of-large o-text-sm o-font-bold o-uppercase o-no-underline ${encreForte} focus:o-ring`}>
+                    <a
+                      href="#haut"
+                      className={`of-large o-text-sm o-font-bold o-uppercase o-no-underline ${encreForte} focus:o-ring`}
+                    >
                       {col.titre}
                     </a>
                     {col.liens.length > 0 && (
                       <ul className="o-m-0 o-flex o-list-none o-flex-col o-gap-2 o-p-0">
                         {col.liens.map((lien) => (
                           <li key={lien}>
-                            <a href="#haut" className="of-lien of-large o-text-xs o-uppercase o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring">
+                            <a
+                              href="#haut"
+                              className="of-lien of-large o-text-xs o-uppercase o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring"
+                            >
                               {lien}
                             </a>
                           </li>
@@ -1587,14 +2316,23 @@ export default function Page(): ReactElement {
               <Bulletin />
             </div>
           </div>
-          <div aria-hidden="true" className="o-mt-14 o-h-px o-w-full" style={{ backgroundColor: 'var(--of-filet)' }} />
+          <div
+            aria-hidden="true"
+            className="o-mt-14 o-h-px o-w-full"
+            style={{ backgroundColor: 'var(--of-filet)' }}
+          />
           <div className="o-mt-6 o-flex o-flex-col-reverse o-gap-4 sm:o-flex-row sm:o-items-center sm:o-justify-between">
-            <p className="of-large o-m-0 o-text-xs o-uppercase o-text-zinc-600 dark:o-text-zinc-400">© 2026 ODORO. TOUS DROITS RESERVES.</p>
+            <p className="of-large o-m-0 o-text-xs o-uppercase o-text-zinc-600 dark:o-text-zinc-400">
+              © 2026 ODORO. TOUS DROITS RESERVES.
+            </p>
             <ul className="of-large o-m-0 o-flex o-list-none o-flex-wrap o-items-center o-gap-3 o-p-0 o-text-xs o-uppercase o-text-zinc-600 dark:o-text-zinc-400">
               {RESEAUX.map((r, i) => (
                 <li key={r} className="o-flex o-items-center o-gap-3">
                   {i > 0 && <span aria-hidden="true">/</span>}
-                  <a href="#haut" className="of-lien o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring">
+                  <a
+                    href="#haut"
+                    className="of-lien o-no-underline o-text-zinc-600 dark:o-text-zinc-400 focus:o-ring"
+                  >
                     {r}
                   </a>
                 </li>

@@ -69,11 +69,7 @@ export interface DataStreamOwnProps {
 export type DataStreamProps = Customisable<DataStreamOwnProps>
 
 /** Tokens employes par defaut : le fond, les segments, leur tete. */
-const DEFAULT_TOKENS = [
-  '--o-theme-bg',
-  '--o-palette-blue-500',
-  '--o-theme-fg',
-] as const
+const DEFAULT_TOKENS = ['--o-theme-bg', '--o-palette-blue-500', '--o-theme-fg'] as const
 
 /** Repli par defaut : une teinte figee, dans les memes tons. */
 const DEFAULT_FALLBACK = 'o-bg-zinc-50 dark:o-bg-zinc-950'

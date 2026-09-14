@@ -58,7 +58,9 @@ function rollKeyframes(): string {
     const start = digit * 10
     const end = start + MOVE_SHARE * 10
     stops.push(`${String(start)}%{transform:translateY(${(-digit * LINE).toFixed(2)}em)}`)
-    stops.push(`${end.toFixed(1)}%{transform:translateY(${(-(digit + 1) * LINE).toFixed(2)}em)}`)
+    stops.push(
+      `${end.toFixed(1)}%{transform:translateY(${(-(digit + 1) * LINE).toFixed(2)}em)}`,
+    )
   }
   stops.push(`100%{transform:translateY(${(-10 * LINE).toFixed(2)}em)}`)
   return `@keyframes o-crl-roll{${stops.join('')}}`

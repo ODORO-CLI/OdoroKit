@@ -170,7 +170,15 @@ export function BatteryFill({
           strokeWidth={3}
           opacity={0.5}
         />
-        <rect x="91" y="15" width="7.5" height="18" rx="3" fill="currentColor" opacity={0.5} />
+        <rect
+          x="91"
+          y="15"
+          width="7.5"
+          height="18"
+          rx="3"
+          fill="currentColor"
+          opacity={0.5}
+        />
         <rect
           data-o-battery-level=""
           x={LEFT}
@@ -180,7 +188,11 @@ export function BatteryFill({
           rx="4"
           fill="currentColor"
           fillOpacity={indeterminate ? 0.45 : 1}
-          style={indeterminate ? undefined : { transform: `scaleX(${(clamped / 100).toFixed(4)})` }}
+          style={
+            indeterminate
+              ? undefined
+              : { transform: `scaleX(${(clamped / 100).toFixed(4)})` }
+          }
         />
         {indeterminate ? (
           <path data-o-battery-bolt="" d={BOLT} fill="currentColor" />

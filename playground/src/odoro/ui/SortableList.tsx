@@ -191,7 +191,9 @@ export function SortableList({
   const keepFocus = useRef<string | null>(null)
 
   const rowElements = (): HTMLLIElement[] =>
-    Array.from(listRef.current?.querySelectorAll<HTMLLIElement>('[data-o-sort-row]') ?? [])
+    Array.from(
+      listRef.current?.querySelectorAll<HTMLLIElement>('[data-o-sort-row]') ?? [],
+    )
 
   const commit = (next: readonly string[]): void => {
     if (value === undefined) setInternal(next)
@@ -251,7 +253,10 @@ export function SortableList({
 
   // --- Glisser -------------------------------------------------------------
 
-  const onPointerDown = (id: string, event: ReactPointerEvent<HTMLButtonElement>): void => {
+  const onPointerDown = (
+    id: string,
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ): void => {
     if (disabled || event.button !== 0) return
     const elements = rowElements()
     const from = rows.indexOf(id)
@@ -270,7 +275,9 @@ export function SortableList({
     const first = rects[0]
     const second = rects[1]
     const gap =
-      first === undefined || second === undefined ? 0 : second.top - first.top - first.height
+      first === undefined || second === undefined
+        ? 0
+        : second.top - first.top - first.height
     const steps = rects.map((rect) => rect.height + gap)
     const heldStep = steps[from] ?? 0
     const startY = event.clientY
@@ -372,7 +379,8 @@ export function SortableList({
     }
 
     if (grabbed !== id) return
-    const to = event.key === 'ArrowUp' ? at - 1 : event.key === 'ArrowDown' ? at + 1 : null
+    const to =
+      event.key === 'ArrowUp' ? at - 1 : event.key === 'ArrowDown' ? at + 1 : null
     if (to === null) return
     event.preventDefault()
     if (to < 0 || to >= rows.length) return
@@ -392,7 +400,9 @@ export function SortableList({
       data-o-sort=""
       data-o-sort-disabled={disabled ? '' : undefined}
       className={className}
-      style={{ '--o-sort-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties}
+      style={
+        { '--o-sort-accent': 'var(--o-palette-brand-500)', ...style } as CSSProperties
+      }
     >
       <ol ref={listRef}>
         {rows.map((id) => {
@@ -424,7 +434,13 @@ export function SortableList({
                   if (keepFocus.current === null && grabbed === id) setGrabbed(null)
                 }}
               >
-                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor">
+                <svg
+                  viewBox="0 0 16 16"
+                  width="14"
+                  height="14"
+                  aria-hidden="true"
+                  fill="currentColor"
+                >
                   <circle cx="6" cy="4" r="1.3" />
                   <circle cx="10" cy="4" r="1.3" />
                   <circle cx="6" cy="8" r="1.3" />

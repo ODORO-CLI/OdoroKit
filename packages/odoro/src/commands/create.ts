@@ -389,9 +389,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
         ))
 
   if (!templates.includes(template)) {
-    prompts.cancel(
-      `Unknown template: "${template}". Available: ${templates.join(', ')}.`,
-    )
+    prompts.cancel(`Unknown template: "${template}". Available: ${templates.join(', ')}.`)
     return 1
   }
 
@@ -454,7 +452,9 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   scaffoldOptions.modules = modules
 
   const { files } = await scaffold(scaffoldOptions)
-  spinner.stop(`${String(files.length)} files written to ${colors.cyan(basename(target))}`)
+  spinner.stop(
+    `${String(files.length)} files written to ${colors.cyan(basename(target))}`,
+  )
 
   if (withGit && !existsSync(resolve(target, '.git'))) {
     try {

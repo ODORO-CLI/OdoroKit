@@ -88,9 +88,36 @@ interface Taille {
 
 /** Les trois tailles cousues a l atelier. */
 const TAILLES = [
-  { cle: 'petit', nom: 'Le petit', largeur: 24, profondeur: 7, hauteur: 19, rabat: 13, sangle: 122, pour: 'Un carnet, un livre de poche, des cles' },
-  { cle: 'moyen', nom: 'Le moyen', largeur: 32, profondeur: 9, hauteur: 26, rabat: 17, sangle: 138, pour: 'Un ordinateur de treize pouces, un dossier' },
-  { cle: 'grand', nom: 'Le grand', largeur: 38, profondeur: 12, hauteur: 30, rabat: 19, sangle: 146, pour: 'Deux jours dehors, ou un appareil et ses optiques' },
+  {
+    cle: 'petit',
+    nom: 'Le petit',
+    largeur: 24,
+    profondeur: 7,
+    hauteur: 19,
+    rabat: 13,
+    sangle: 122,
+    pour: 'Un carnet, un livre de poche, des cles',
+  },
+  {
+    cle: 'moyen',
+    nom: 'Le moyen',
+    largeur: 32,
+    profondeur: 9,
+    hauteur: 26,
+    rabat: 17,
+    sangle: 138,
+    pour: 'Un ordinateur de treize pouces, un dossier',
+  },
+  {
+    cle: 'grand',
+    nom: 'Le grand',
+    largeur: 38,
+    profondeur: 12,
+    hauteur: 30,
+    rabat: 19,
+    sangle: 146,
+    pour: 'Deux jours dehors, ou un appareil et ses optiques',
+  },
 ] as const satisfies readonly Taille[]
 
 /** Une epaisseur de croupon, et ce qu elle change. */
@@ -234,7 +261,10 @@ function devisDe(t: Taille, cuir: Cuir): Devis {
 
 /** Un nombre a la francaise. */
 function nombre(valeur: number, decimales = 0): string {
-  return valeur.toLocaleString('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+  return valeur.toLocaleString('fr-FR', {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })
 }
 
 /** Un montant en euros. */
@@ -342,7 +372,8 @@ function Patron({ taille }: { readonly taille: Taille }): ReactElement {
         width: largeurScene * CM,
         height: hauteurScene * CM,
         transformStyle: 'preserve-3d',
-        transform: 'rotateX(calc(56deg - var(--p, 0) * 38deg)) rotateZ(calc(var(--p, 0) * -12deg))',
+        transform:
+          'rotateX(calc(56deg - var(--p, 0) * 38deg)) rotateZ(calc(var(--p, 0) * -12deg))',
       }}
     >
       {/* Le dos, et le rabat qui le prolonge sans couture. Il se releve vers
@@ -365,7 +396,16 @@ function Patron({ taille }: { readonly taille: Taille }): ReactElement {
       </Panneau>
 
       {/* Le fond : la seule piece qui ne bouge pas. */}
-      <Panneau nom="Fond" largeur={L} hauteur={P} gauche={H} haut={H + R} origine="center" pivot="none" teinte={34} />
+      <Panneau
+        nom="Fond"
+        largeur={L}
+        hauteur={P}
+        gauche={H}
+        haut={H + R}
+        origine="center"
+        pivot="none"
+        teinte={34}
+      />
 
       {/* Le devant, qui remonte vers l avant. */}
       <Panneau
@@ -418,7 +458,10 @@ function Patron({ taille }: { readonly taille: Taille }): ReactElement {
           opacity: 'calc(1 - var(--p, 0) * 1.6)',
         }}
       >
-        <span className="o-absolute o-left-3 o-top-1 o-font-mono o-text-xs o-uppercase o-tracking-wider" style={{ color: encre() }}>
+        <span
+          className="o-absolute o-left-3 o-top-1 o-font-mono o-text-xs o-uppercase o-tracking-wider"
+          style={{ color: encre() }}
+        >
           Sangle
         </span>
         <span className="o-absolute o-bottom-1 o-right-3 o-font-mono o-text-xs o-tabular-nums o-text-zinc-600 dark:o-text-zinc-300">
@@ -442,7 +485,9 @@ function CarteAPoinconner(): ReactElement {
   const pleine = perces.length >= CASES
 
   const poinconner = (rang: number): void => {
-    setPerces((liste) => (liste.includes(rang) ? liste.filter((n) => n !== rang) : [...liste, rang]))
+    setPerces((liste) =>
+      liste.includes(rang) ? liste.filter((n) => n !== rang) : [...liste, rang],
+    )
   }
 
   return (
@@ -455,7 +500,14 @@ function CarteAPoinconner(): ReactElement {
       }}
     >
       <div className="o-flex o-flex-wrap o-items-baseline o-justify-between o-gap-3">
-        <p className="o-m-0" style={{ ...affiche('m', 800), fontSize: 'clamp(1.25rem, 2.6vw, 1.875rem)', lineHeight: 1 }}>
+        <p
+          className="o-m-0"
+          style={{
+            ...affiche('m', 800),
+            fontSize: 'clamp(1.25rem, 2.6vw, 1.875rem)',
+            lineHeight: 1,
+          }}
+        >
           Carte d entretien
         </p>
         <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-300">
@@ -464,7 +516,8 @@ function CarteAPoinconner(): ReactElement {
       </div>
 
       <p className="o-m-0 o-mt-3 o-max-w-sm o-text-sm o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-300">
-        Un poincon par nourrissage a l atelier. A la huitieme case, la reparation est offerte — couture, bouclerie, tranches refaites.
+        Un poincon par nourrissage a l atelier. A la huitieme case, la reparation est
+        offerte — couture, bouclerie, tranches refaites.
       </p>
 
       <ul className="o-m-0 o-mt-6 o-grid o-list-none o-grid-cols-4 o-gap-3 o-p-0 sm:o-grid-cols-8">
@@ -476,7 +529,9 @@ function CarteAPoinconner(): ReactElement {
                 <button
                   type="button"
                   aria-pressed={perce}
-                  onClick={() => { poinconner(rang) }}
+                  onClick={() => {
+                    poinconner(rang)
+                  }}
                   className="o-flex o-aspect-square o-w-full o-cursor-pointer o-items-center o-justify-center o-font-mono o-text-sm o-tabular-nums o-transition-colors focus:o-ring"
                   style={{
                     borderRadius: 999,
@@ -485,7 +540,9 @@ function CarteAPoinconner(): ReactElement {
                     color: perce ? 'var(--o-theme-bg)' : 'var(--o-theme-muted)',
                   }}
                 >
-                  <span className="o-sr-only">{perce ? 'Case poinconnee ' : 'Case libre '}</span>
+                  <span className="o-sr-only">
+                    {perce ? 'Case poinconnee ' : 'Case libre '}
+                  </span>
                   {perce ? '✕' : String(rang + 1)}
                 </button>
               </RippleClick>
@@ -494,7 +551,11 @@ function CarteAPoinconner(): ReactElement {
         })}
       </ul>
 
-      <p aria-live="polite" className="o-m-0 o-mt-6 o-text-sm o-font-semibold" style={{ color: encre() }}>
+      <p
+        aria-live="polite"
+        className="o-m-0 o-mt-6 o-text-sm o-font-semibold"
+        style={{ color: encre() }}
+      >
         {pleine
           ? 'Carte pleine. Rapportez-la : la prochaine reparation ne vous coute rien.'
           : `${String(CASES - perces.length)} entretiens avant la reparation offerte.`}
@@ -506,7 +567,15 @@ function CarteAPoinconner(): ReactElement {
 /* ============================ Les petites pieces ======================= */
 
 /** Un choix : une gelule bordee, pleine quand elle est prise. */
-function Choix({ actif, onClick, children }: { readonly actif: boolean; readonly onClick: () => void; readonly children: ReactNode }): ReactElement {
+function Choix({
+  actif,
+  onClick,
+  children,
+}: {
+  readonly actif: boolean
+  readonly onClick: () => void
+  readonly children: ReactNode
+}): ReactElement {
   return (
     <button
       type="button"
@@ -525,14 +594,35 @@ function Choix({ actif, onClick, children }: { readonly actif: boolean; readonly
 }
 
 /** Une valeur du devis, posee sur un filet. */
-function Ligne({ quoi, valeur, note }: { readonly quoi: string; readonly valeur: string; readonly note?: string }): ReactElement {
+function Ligne({
+  quoi,
+  valeur,
+  note,
+}: {
+  readonly quoi: string
+  readonly valeur: string
+  readonly note?: string
+}): ReactElement {
   return (
     <div className="o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-py-3.5">
-      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">{quoi}</dt>
-      <dd className="o-m-0 o-mt-1 o-tabular-nums" style={{ ...affiche('m', 800), fontSize: 'clamp(1.125rem, 2vw, 1.625rem)', lineHeight: 1.05 }}>
+      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
+        {quoi}
+      </dt>
+      <dd
+        className="o-m-0 o-mt-1 o-tabular-nums"
+        style={{
+          ...affiche('m', 800),
+          fontSize: 'clamp(1.125rem, 2vw, 1.625rem)',
+          lineHeight: 1.05,
+        }}
+      >
         {valeur}
       </dd>
-      {note !== undefined && <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">{note}</p>}
+      {note !== undefined && (
+        <p className="o-m-0 o-mt-1 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
+          {note}
+        </p>
+      )}
     </div>
   )
 }
@@ -553,7 +643,10 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="lettres" marque="Sangle" sombre={false}>
-      <div className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50" style={polices}>
+      <div
+        className="o-relative o-bg-white dark:o-bg-zinc-950 o-text-zinc-900 dark:o-text-zinc-50"
+        style={polices}
+      >
         {/* Le papier : une trame de coupe, tres pale, comme le papier kraft
             quadrille sur lequel un patron se trace. */}
         <div
@@ -569,33 +662,63 @@ export default function Page(): ReactElement {
         />
 
         <div className="o-relative o-z-10">
-          <BarreCoins marque="Sangle" liens={NAVIGATION} droite="Graulhet, Tarn" sombre={false} />
+          <BarreCoins
+            marque="Sangle"
+            liens={NAVIGATION}
+            droite="Graulhet, Tarn"
+            sombre={false}
+          />
 
           <main>
             {/*
               ----- L ouverture : le nom, et la premiere phrase --------------
             */}
-            <section id="haut" className="o-relative o-flex o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-10 md:o-px-12" style={{ minHeight: `calc(${ECRAN} * 0.82)` }}>
+            <section
+              id="haut"
+              className="o-relative o-flex o-flex-col o-justify-end o-px-6 o-pb-16 o-pt-10 md:o-px-12"
+              style={{ minHeight: `calc(${ECRAN} * 0.82)` }}
+            >
               <Surgit>
-                <Etiquette sombre={false}>Graulhet — croupons entiers, coupe a la main</Etiquette>
+                <Etiquette sombre={false}>
+                  Graulhet — croupons entiers, coupe a la main
+                </Etiquette>
               </Surgit>
 
               <TitreVague
                 delai={140}
                 className="o-m-0 o-mt-7 o-max-w-4xl"
-                style={{ ...affiche('l', 800), fontSize: 'clamp(2.25rem, 7.2vw, 7.5rem)', lineHeight: 0.92 }}
+                style={{
+                  ...affiche('l', 800),
+                  fontSize: 'clamp(2.25rem, 7.2vw, 7.5rem)',
+                  lineHeight: 0.92,
+                }}
               >
                 Six morceaux plats, et deux aiguilles.
               </TitreVague>
 
               <div className="o-mt-10 o-grid o-gap-8 md:o-grid-cols-12 md:o-items-end">
-                <Surgit delai={560} as="p" className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 md:o-col-span-6">
-                  Un sac ne se dessine pas en volume : il se dessine a plat, et le volume arrive quand on plie. Le patron est ici, cote au centimetre, et il se monte au defilement.
+                <Surgit
+                  delai={560}
+                  as="p"
+                  className="o-m-0 o-max-w-md o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 md:o-col-span-6"
+                >
+                  Un sac ne se dessine pas en volume : il se dessine a plat, et le volume
+                  arrive quand on plie. Le patron est ici, cote au centimetre, et il se
+                  monte au defilement.
                 </Surgit>
-                <Surgit delai={700} className="md:o-col-span-6 md:o-flex md:o-justify-end">
+                <Surgit
+                  delai={700}
+                  className="md:o-col-span-6 md:o-flex md:o-justify-end"
+                >
                   <Actions
                     sombre={false}
-                    pleine={['#patron', <>Plier le patron <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                    pleine={[
+                      '#patron',
+                      <>
+                        Plier le patron{' '}
+                        <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                      </>,
+                    ]}
                     fantome={['#montage', 'Les six etapes']}
                   />
                 </Surgit>
@@ -609,7 +732,12 @@ export default function Page(): ReactElement {
                   step={52}
                   duration={720}
                   className="o-m-0"
-                  style={{ ...affiche('xl', 300), fontSize: 'clamp(2.5rem, 12vw, 11rem)', lineHeight: 0.86, color: accentDoux(600, 62) }}
+                  style={{
+                    ...affiche('xl', 300),
+                    fontSize: 'clamp(2.5rem, 12vw, 11rem)',
+                    lineHeight: 0.86,
+                    color: accentDoux(600, 62),
+                  }}
                 >
                   Sangle
                 </FoldText>
@@ -619,19 +747,38 @@ export default function Page(): ReactElement {
             {/*
               ----- Le mecanisme : le patron qui se plie --------------------
             */}
-            <div id="patron" className="o-scroll-mt-24 o-border-t o-border-zinc-200 dark:o-border-zinc-800">
+            <div
+              id="patron"
+              className="o-scroll-mt-24 o-border-t o-border-zinc-200 dark:o-border-zinc-800"
+            >
               <Epingle ecrans={3}>
                 <div className="o-flex o-h-full o-flex-col o-overflow-hidden o-px-6 o-py-8 md:o-px-12">
                   <div className="o-flex o-flex-wrap o-items-end o-justify-between o-gap-6">
                     <div>
-                      <Indice rang="01" sombre={false}>Le patron</Indice>
-                      <h2 className="o-m-0 o-mt-4 o-max-w-lg" style={{ ...affiche('m', 800), fontSize: 'clamp(1.5rem, 3.2vw, 2.5rem)', lineHeight: 1 }}>
-                        {taille.nom} — {nombre(taille.largeur)} x {nombre(taille.profondeur)} x {nombre(taille.hauteur)} cm.
+                      <Indice rang="01" sombre={false}>
+                        Le patron
+                      </Indice>
+                      <h2
+                        className="o-m-0 o-mt-4 o-max-w-lg"
+                        style={{
+                          ...affiche('m', 800),
+                          fontSize: 'clamp(1.5rem, 3.2vw, 2.5rem)',
+                          lineHeight: 1,
+                        }}
+                      >
+                        {taille.nom} — {nombre(taille.largeur)} x{' '}
+                        {nombre(taille.profondeur)} x {nombre(taille.hauteur)} cm.
                       </h2>
                     </div>
                     <div className="o-flex o-flex-wrap o-gap-2">
                       {TAILLES.map((t) => (
-                        <Choix key={t.cle} actif={t.cle === cleTaille} onClick={() => { setCleTaille(t.cle) }}>
+                        <Choix
+                          key={t.cle}
+                          actif={t.cle === cleTaille}
+                          onClick={() => {
+                            setCleTaille(t.cle)
+                          }}
+                        >
                           {t.nom}
                         </Choix>
                       ))}
@@ -651,12 +798,25 @@ export default function Page(): ReactElement {
 
                     <div className="o-hidden o-flex-col o-justify-center lg:o-col-span-4 lg:o-flex">
                       <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
-                        {reduced ? 'Patron monte — mouvement reduit' : 'Defilez : les panneaux se redressent'}
+                        {reduced
+                          ? 'Patron monte — mouvement reduit'
+                          : 'Defilez : les panneaux se redressent'}
                       </p>
                       <dl className="o-m-0 o-mt-4">
-                        <Ligne quoi="Contenance" valeur={`${nombre(devis.contenance, 1)} litres`} />
-                        <Ligne quoi="Cuir achete" valeur={`${nombre(devis.achetee, 1)} dm²`} note={`Dont ${nombre(CHUTES * 100)} % de chutes, placement compris.`} />
-                        <Ligne quoi="Couture" valeur={`${nombre(devis.couture)} cm`} note={`${nombre(devis.points)} points a six au centimetre.`} />
+                        <Ligne
+                          quoi="Contenance"
+                          valeur={`${nombre(devis.contenance, 1)} litres`}
+                        />
+                        <Ligne
+                          quoi="Cuir achete"
+                          valeur={`${nombre(devis.achetee, 1)} dm²`}
+                          note={`Dont ${nombre(CHUTES * 100)} % de chutes, placement compris.`}
+                        />
+                        <Ligne
+                          quoi="Couture"
+                          valeur={`${nombre(devis.couture)} cm`}
+                          note={`${nombre(devis.points)} points a six au centimetre.`}
+                        />
                       </dl>
                     </div>
                   </div>
@@ -670,49 +830,102 @@ export default function Page(): ReactElement {
             <section className="o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-px-6 o-py-16 md:o-px-12 md:o-py-24">
               <div className="o-grid o-gap-10 lg:o-grid-cols-12 lg:o-gap-14">
                 <div className="lg:o-col-span-7">
-                  <h2 className="o-m-0 o-max-w-xl" style={{ ...affiche('m', 800), fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)', lineHeight: 1 }}>
+                  <h2
+                    className="o-m-0 o-max-w-xl"
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
+                  >
                     Ce qu il y a sur la table de coupe.
                   </h2>
                   <ol className="o-m-0 o-mt-10 o-list-none o-p-0">
                     {PANNEAUX.map(([quoi, texte], rang) => (
-                      <li key={quoi} className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-py-5 sm:o-grid-cols-12">
+                      <li
+                        key={quoi}
+                        className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-py-5 sm:o-grid-cols-12"
+                      >
                         <span className="o-flex o-items-baseline o-gap-4 sm:o-col-span-4">
-                          <span className="o-font-mono o-text-xs o-tabular-nums" style={{ color: encre() }}>
+                          <span
+                            className="o-font-mono o-text-xs o-tabular-nums"
+                            style={{ color: encre() }}
+                          >
                             {String(rang + 1).padStart(2, '0')}
                           </span>
-                          <span style={{ ...affiche('m', 800), fontSize: 'clamp(1.125rem, 2vw, 1.5rem)', lineHeight: 1 }}>{quoi}</span>
+                          <span
+                            style={{
+                              ...affiche('m', 800),
+                              fontSize: 'clamp(1.125rem, 2vw, 1.5rem)',
+                              lineHeight: 1,
+                            }}
+                          >
+                            {quoi}
+                          </span>
                         </span>
-                        <span className="o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 sm:o-col-span-8">{texte}</span>
+                        <span className="o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300 sm:o-col-span-8">
+                          {texte}
+                        </span>
                       </li>
                     ))}
                   </ol>
                 </div>
 
                 <div className="lg:o-col-span-5">
-                  <div className="o-p-6 md:o-p-8" style={{ backgroundColor: accentDoux(400, 12), borderRadius: 6 }}>
+                  <div
+                    className="o-p-6 md:o-p-8"
+                    style={{ backgroundColor: accentDoux(400, 12), borderRadius: 6 }}
+                  >
                     <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-600 dark:o-text-zinc-300">
                       Le devis, pour {taille.nom.toLowerCase()}
                     </p>
                     <div className="o-mt-4 o-flex o-flex-wrap o-gap-2">
                       {CUIRS.map((c) => (
-                        <Choix key={c.cle} actif={c.cle === cleCuir} onClick={() => { setCleCuir(c.cle) }}>
+                        <Choix
+                          key={c.cle}
+                          actif={c.cle === cleCuir}
+                          onClick={() => {
+                            setCleCuir(c.cle)
+                          }}
+                        >
                           {c.nom}
                         </Choix>
                       ))}
                     </div>
-                    <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">{cuir.note}</p>
+                    <p className="o-m-0 o-mt-3 o-text-xs o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+                      {cuir.note}
+                    </p>
 
                     <dl className="o-m-0 o-mt-6">
-                      <Ligne quoi="Surface des panneaux" valeur={`${nombre(devis.surface, 1)} dm²`} />
-                      <Ligne quoi="Masse du sac vide" valeur={`${nombre(devis.masse)} g`} note={`${nombre(cuir.epaisseur, 1)} mm d epaisseur, ${nombre(DENSITE, 2)} g par centimetre cube.`} />
-                      <Ligne quoi="Heures de selle" valeur={`${nombre(devis.heures, 1)} h`} note={`${nombre(POINTS_PAR_HEURE)} points a l heure, les deux aiguilles.`} />
-                      <Ligne quoi="Cuir seul" valeur={euros(devis.cuir)} note={`${nombre(cuir.prix, 2)} EUR le decimetre carre, ${cuir.tannage.toLowerCase()}.`} />
+                      <Ligne
+                        quoi="Surface des panneaux"
+                        valeur={`${nombre(devis.surface, 1)} dm²`}
+                      />
+                      <Ligne
+                        quoi="Masse du sac vide"
+                        valeur={`${nombre(devis.masse)} g`}
+                        note={`${nombre(cuir.epaisseur, 1)} mm d epaisseur, ${nombre(DENSITE, 2)} g par centimetre cube.`}
+                      />
+                      <Ligne
+                        quoi="Heures de selle"
+                        valeur={`${nombre(devis.heures, 1)} h`}
+                        note={`${nombre(POINTS_PAR_HEURE)} points a l heure, les deux aiguilles.`}
+                      />
+                      <Ligne
+                        quoi="Cuir seul"
+                        valeur={euros(devis.cuir)}
+                        note={`${nombre(cuir.prix, 2)} EUR le decimetre carre, ${cuir.tannage.toLowerCase()}.`}
+                      />
                     </dl>
                     <p className="o-m-0 o-mt-6 o-text-xs o-leading-relaxed o-text-zinc-500 dark:o-text-zinc-400">
-                      Le prix de vente ajoute la bouclerie, le fil, la teinte et les heures. Il est ecrit sur le devis nominatif, ligne par ligne, et jamais arrondi.
+                      Le prix de vente ajoute la bouclerie, le fil, la teinte et les
+                      heures. Il est ecrit sur le devis nominatif, ligne par ligne, et
+                      jamais arrondi.
                     </p>
                   </div>
-                  <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">{taille.pour}.</p>
+                  <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
+                    {taille.pour}.
+                  </p>
                 </div>
               </div>
             </section>
@@ -725,8 +938,17 @@ export default function Page(): ReactElement {
               className="o-scroll-mt-24 o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-px-6 o-py-16 md:o-px-12 md:o-py-24"
               style={{ backgroundColor: accentDoux(400, 7) }}
             >
-              <Indice rang="02" sombre={false}>Le montage</Indice>
-              <h2 className="o-m-0 o-mt-4 o-max-w-2xl" style={{ ...affiche('m', 800), fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)', lineHeight: 1 }}>
+              <Indice rang="02" sombre={false}>
+                Le montage
+              </Indice>
+              <h2
+                className="o-m-0 o-mt-4 o-max-w-2xl"
+                style={{
+                  ...affiche('m', 800),
+                  fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)',
+                  lineHeight: 1,
+                }}
+              >
                 Six etapes, et une seule qui ne sert qu a l oeil.
               </h2>
 
@@ -739,7 +961,10 @@ export default function Page(): ReactElement {
                   reach="all"
                 >
                   <div className="o-grid o-gap-8 o-pt-8 md:o-grid-cols-12">
-                    <p className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-200 md:o-col-span-7" style={{ fontSize: 'clamp(1rem, 1.6vw, 1.25rem)' }}>
+                    <p
+                      className="o-m-0 o-text-base o-leading-relaxed o-text-zinc-700 dark:o-text-zinc-200 md:o-col-span-7"
+                      style={{ fontSize: 'clamp(1rem, 1.6vw, 1.25rem)' }}
+                    >
                       {DETAIL_ETAPES[etape] ?? DETAIL_ETAPES[0]}
                     </p>
                     <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-leading-relaxed o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 md:o-col-span-5 md:o-text-right">
@@ -762,12 +987,23 @@ export default function Page(): ReactElement {
             >
               <div className="o-grid o-gap-12 lg:o-grid-cols-12 lg:o-items-center">
                 <div className="lg:o-col-span-5">
-                  <Indice rang="03" sombre={false}>La carte</Indice>
-                  <h2 className="o-m-0 o-mt-4 o-max-w-md" style={{ ...affiche('m', 800), fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)', lineHeight: 1 }}>
+                  <Indice rang="03" sombre={false}>
+                    La carte
+                  </Indice>
+                  <h2
+                    className="o-m-0 o-mt-4 o-max-w-md"
+                    style={{
+                      ...affiche('m', 800),
+                      fontSize: 'clamp(1.625rem, 3.4vw, 2.75rem)',
+                      lineHeight: 1,
+                    }}
+                  >
                     Un sac nourri deux fois par an tient trente ans.
                   </h2>
                   <p className="o-m-0 o-mt-5 o-max-w-sm o-text-base o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
-                    Nous ne vendons pas d entretien : nous le faisons. Passez le samedi, laissez le sac deux heures, repartez avec un poincon de plus sur la carte.
+                    Nous ne vendons pas d entretien : nous le faisons. Passez le samedi,
+                    laissez le sac deux heures, repartez avec un poincon de plus sur la
+                    carte.
                   </p>
                   <div className="o-mt-8">
                     <a
@@ -797,7 +1033,16 @@ export default function Page(): ReactElement {
           <footer className="o-border-t o-border-zinc-200 dark:o-border-zinc-800 o-px-6 o-pb-10 o-pt-14 md:o-px-12">
             <div className="o-grid md:o-grid-cols-12">
               <div className="md:o-col-start-7 md:o-col-span-6 o-text-right">
-                <p className="o-m-0" style={{ ...affiche('m', 800), fontSize: 'clamp(1.75rem, 4vw, 3rem)', lineHeight: 1 }}>Sangle</p>
+                <p
+                  className="o-m-0"
+                  style={{
+                    ...affiche('m', 800),
+                    fontSize: 'clamp(1.75rem, 4vw, 3rem)',
+                    lineHeight: 1,
+                  }}
+                >
+                  Sangle
+                </p>
                 <p className="o-m-0 o-mt-4 o-text-sm o-leading-relaxed o-text-zinc-600 dark:o-text-zinc-300">
                   11 rue de la Megisserie
                   <br />
@@ -808,7 +1053,10 @@ export default function Page(): ReactElement {
                 <ul className="o-m-0 o-mt-6 o-flex o-list-none o-flex-col o-gap-1.5 o-p-0">
                   {NAVIGATION.map(([cible, mot]) => (
                     <li key={cible}>
-                      <a href={cible} className="o-text-sm o-text-zinc-600 dark:o-text-zinc-300 o-no-underline hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring">
+                      <a
+                        href={cible}
+                        className="o-text-sm o-text-zinc-600 dark:o-text-zinc-300 o-no-underline hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring"
+                      >
                         {mot}
                       </a>
                     </li>
@@ -817,7 +1065,10 @@ export default function Page(): ReactElement {
                 <p className="o-m-0 o-mt-8 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400">
                   © 2026 Sangle — cotes en centimetres
                 </p>
-                <a href="#haut" className="o-mt-3 o-inline-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 o-no-underline hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring">
+                <a
+                  href="#haut"
+                  className="o-mt-3 o-inline-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-zinc-500 dark:o-text-zinc-400 o-no-underline hover:o-text-zinc-950 dark:hover:o-text-zinc-50 focus:o-ring"
+                >
                   Remonter ↑
                 </a>
               </div>

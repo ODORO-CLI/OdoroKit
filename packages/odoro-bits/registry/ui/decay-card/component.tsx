@@ -139,7 +139,8 @@ export function DecayCard({
     const map = displacement.current
     const matrix = saturation.current
     const picture = image.current
-    if (host === null || map === null || matrix === null || picture === null || reduced) return
+    if (host === null || map === null || matrix === null || picture === null || reduced)
+      return
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
 
     let lastX = 0
@@ -186,7 +187,10 @@ export function DecayCard({
           picture.style.filter = `url(#${filterId})`
         }
         map.setAttribute('scale', current.toFixed(1))
-        matrix.setAttribute('values', (1 - Math.min(1, current / strength) * 0.8).toFixed(3))
+        matrix.setAttribute(
+          'values',
+          (1 - Math.min(1, current / strength) * 0.8).toFixed(3),
+        )
       },
       { priority: CLOCK_PRIORITY.render, name: 'degradation' },
     )

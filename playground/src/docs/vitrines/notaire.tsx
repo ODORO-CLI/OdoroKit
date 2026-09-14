@@ -131,7 +131,11 @@ interface Poste {
 }
 
 /** Le decompte complet, pour un prix, une nature et un departement. */
-function decompter(prix: number, nature: string, taux: number): {
+function decompter(
+  prix: number,
+  nature: string,
+  taux: number,
+): {
   readonly postes: readonly Poste[]
   readonly total: number
   readonly parts: Readonly<Record<'etat' | 'etude' | 'tiers', number>>
@@ -171,11 +175,41 @@ function decompter(prix: number, nature: string, taux: number): {
           montant: publicite,
           poche: 'etat' as const,
         },
-    { cle: 'communale', nom: 'Taxe communale', detail: '1,20 % du prix, pour la commune du bien', montant: communale, poche: 'etat' },
-    { cle: 'assiette', nom: 'Assiette et recouvrement', detail: '2,37 % de la taxe departementale, pour le Tresor', montant: assiette, poche: 'etat' },
-    { cle: 'securite', nom: 'Securite immobiliere', detail: '0,10 % du prix, pour le service de la publicite fonciere', montant: securite, poche: 'etat' },
-    { cle: 'debours', nom: 'Debours', detail: 'Cadastre, etat civil, syndic, geometre — avances puis refactures a l euro', montant: DEBOURS, poche: 'tiers' },
-    { cle: 'tva', nom: 'Taxe sur la valeur ajoutee', detail: '20 % sur les emoluments et les debours', montant: taxe, poche: 'etat' },
+    {
+      cle: 'communale',
+      nom: 'Taxe communale',
+      detail: '1,20 % du prix, pour la commune du bien',
+      montant: communale,
+      poche: 'etat',
+    },
+    {
+      cle: 'assiette',
+      nom: 'Assiette et recouvrement',
+      detail: '2,37 % de la taxe departementale, pour le Tresor',
+      montant: assiette,
+      poche: 'etat',
+    },
+    {
+      cle: 'securite',
+      nom: 'Securite immobiliere',
+      detail: '0,10 % du prix, pour le service de la publicite fonciere',
+      montant: securite,
+      poche: 'etat',
+    },
+    {
+      cle: 'debours',
+      nom: 'Debours',
+      detail: 'Cadastre, etat civil, syndic, geometre — avances puis refactures a l euro',
+      montant: DEBOURS,
+      poche: 'tiers',
+    },
+    {
+      cle: 'tva',
+      nom: 'Taxe sur la valeur ajoutee',
+      detail: '20 % sur les emoluments et les debours',
+      montant: taxe,
+      poche: 'etat',
+    },
   ]
   const postes = bruts.filter((p) => p.montant > 0)
 
@@ -210,8 +244,21 @@ function euros(n: number): string {
 function MinuteDessinee(): ReactElement {
   const lignes = Array.from({ length: 14 }, (_, rang) => 96 + rang * 17)
   return (
-    <svg viewBox="0 0 320 420" className="o-h-full o-w-full" aria-hidden="true" fill="none">
-      <rect x="18" y="14" width="284" height="392" fill={accentDoux(200, 30)} stroke={accent(500)} strokeOpacity="0.5" />
+    <svg
+      viewBox="0 0 320 420"
+      className="o-h-full o-w-full"
+      aria-hidden="true"
+      fill="none"
+    >
+      <rect
+        x="18"
+        y="14"
+        width="284"
+        height="392"
+        fill={accentDoux(200, 30)}
+        stroke={accent(500)}
+        strokeOpacity="0.5"
+      />
       <path d="M18 14h284v392" stroke={accent(700)} strokeOpacity="0.28" />
       {/* L en-tete de l acte, et la mention marginale. */}
       <rect x="44" y="40" width="132" height="9" fill={accent(600)} fillOpacity="0.55" />
@@ -229,7 +276,12 @@ function MinuteDessinee(): ReactElement {
         />
       ))}
       {/* Le pli au tiers : une etude plie ses minutes, toujours au meme endroit. */}
-      <path d="M18 148h284M18 282h284" stroke={accent(700)} strokeOpacity="0.18" strokeDasharray="3 5" />
+      <path
+        d="M18 148h284M18 282h284"
+        stroke={accent(700)}
+        strokeOpacity="0.18"
+        strokeDasharray="3 5"
+      />
       {/* Le paraphe, d un seul trait. */}
       <path
         d="M52 372c22-26 32-38 40-34 7 4-8 22-14 32-4 7 0 10 8 6 12-6 24-24 34-38 6-9 12-8 10 2-2 8-8 18-6 22 3 5 14-2 26-16"
@@ -239,7 +291,13 @@ function MinuteDessinee(): ReactElement {
       />
       {/* Le sceau. */}
       <g transform="translate(244 358)">
-        <circle r="34" fill={accent(600)} fillOpacity="0.16" stroke={accent(600)} strokeOpacity="0.7" />
+        <circle
+          r="34"
+          fill={accent(600)}
+          fillOpacity="0.16"
+          stroke={accent(600)}
+          strokeOpacity="0.7"
+        />
         <circle r="25" stroke={accent(700)} strokeOpacity="0.5" strokeDasharray="2 4" />
         {Array.from({ length: 24 }, (_, rang) => {
           const angle = (rang * Math.PI) / 12
@@ -252,7 +310,13 @@ function MinuteDessinee(): ReactElement {
             />
           )
         })}
-        <path d="M-11 6 -3 14 12 -8" stroke={encre()} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M-11 6 -3 14 12 -8"
+          stroke={encre()}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </g>
     </svg>
   )
@@ -267,12 +331,42 @@ interface Etape {
 
 /** Les six etapes d une vente, du compromis a la remise des clefs. */
 const VENTE: readonly Etape[] = [
-  { jour: 'J', titre: 'Le compromis', texte: 'Signe a l etude ou sous seing prive. Le depot de garantie, cinq a dix pour cent, est sequestre sur le compte de l etude.' },
-  { jour: 'J + 10', titre: 'La retractation', texte: 'Dix jours pour l acquereur, sans motif et sans penalite. Le delai part de la premiere presentation du recommande.' },
-  { jour: 'J + 30', titre: 'Les pieces', texte: 'Urbanisme, cadastre, etat civil, syndic, diagnostics. C est ce qui prend le plus de temps, et ce qu on ne peut pas accelerer.' },
-  { jour: 'J + 45', titre: 'Le pret', texte: 'Offre emise, puis onze jours de reflexion imposes par la loi avant acceptation. Aucun notaire ne peut les raccourcir.' },
-  { jour: 'J + 75', titre: 'L acte authentique', texte: 'Lecture integrale, signature electronique, remise des clefs. Les fonds partent le jour meme au vendeur.' },
-  { jour: 'J + 90', titre: 'La publication', texte: 'L acte est publie au service de la publicite fonciere. Le titre de propriete arrive ensuite, par courrier.' },
+  {
+    jour: 'J',
+    titre: 'Le compromis',
+    texte:
+      'Signe a l etude ou sous seing prive. Le depot de garantie, cinq a dix pour cent, est sequestre sur le compte de l etude.',
+  },
+  {
+    jour: 'J + 10',
+    titre: 'La retractation',
+    texte:
+      'Dix jours pour l acquereur, sans motif et sans penalite. Le delai part de la premiere presentation du recommande.',
+  },
+  {
+    jour: 'J + 30',
+    titre: 'Les pieces',
+    texte:
+      'Urbanisme, cadastre, etat civil, syndic, diagnostics. C est ce qui prend le plus de temps, et ce qu on ne peut pas accelerer.',
+  },
+  {
+    jour: 'J + 45',
+    titre: 'Le pret',
+    texte:
+      'Offre emise, puis onze jours de reflexion imposes par la loi avant acceptation. Aucun notaire ne peut les raccourcir.',
+  },
+  {
+    jour: 'J + 75',
+    titre: 'L acte authentique',
+    texte:
+      'Lecture integrale, signature electronique, remise des clefs. Les fonds partent le jour meme au vendeur.',
+  },
+  {
+    jour: 'J + 90',
+    titre: 'La publication',
+    texte:
+      'L acte est publie au service de la publicite fonciere. Le titre de propriete arrive ensuite, par courrier.',
+  },
 ]
 
 /**
@@ -287,7 +381,10 @@ function FriseVente(): ReactElement {
   return (
     <ol className="o-m-0 o-grid o-list-none o-gap-0 o-p-0 md:o-grid-cols-6">
       {VENTE.map((etape, rang) => (
-        <li key={etape.jour} className="o-relative o-flex o-gap-5 o-pb-10 md:o-block md:o-pb-0 md:o-pr-5">
+        <li
+          key={etape.jour}
+          className="o-relative o-flex o-gap-5 o-pb-10 md:o-block md:o-pb-0 md:o-pr-5"
+        >
           {/*
             Le trait, en deux exemplaires plutot qu un seul a bascule : une
             classe de largeur et sa variante `md:` se disputent la meme
@@ -307,14 +404,24 @@ function FriseVente(): ReactElement {
           <span
             aria-hidden="true"
             className="o-relative o-mt-3 o-block o-size-3 o-shrink-0 o-rounded-full md:o-mt-0"
-            style={{ backgroundColor: rang === 0 ? encre() : 'var(--o-theme-bg)', border: `2px solid ${encre()}` }}
+            style={{
+              backgroundColor: rang === 0 ? encre() : 'var(--o-theme-bg)',
+              border: `2px solid ${encre()}`,
+            }}
           />
           <div className="o-min-w-0 md:o-mt-6">
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums" style={{ color: encre() }}>
+            <p
+              className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums"
+              style={{ color: encre() }}
+            >
               {etape.jour}
             </p>
-            <h3 className="o-m-0 o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-stone-950 dark:o-text-stone-50">{etape.titre}</h3>
-            <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{etape.texte}</p>
+            <h3 className="o-m-0 o-mt-2 o-text-lg o-font-semibold o-tracking-tight o-text-stone-950 dark:o-text-stone-50">
+              {etape.titre}
+            </h3>
+            <p className="o-m-0 o-mt-2 o-max-w-xs o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+              {etape.texte}
+            </p>
           </div>
         </li>
       ))}
@@ -332,7 +439,13 @@ function FriseVente(): ReactElement {
  * honnete de montrer un rapport de un a huit : un camembert le ferait
  * disparaitre, une liste de pourcentages le ferait oublier.
  */
-function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | 'etude' | 'tiers', number>>; readonly total: number }): ReactElement {
+function Reglette({
+  parts,
+  total,
+}: {
+  readonly parts: Readonly<Record<'etat' | 'etude' | 'tiers', number>>
+  readonly total: number
+}): ReactElement {
   // Un pas de graduation qui donne entre huit et seize traits, quel que soit
   // le montant : au-dela, la reglette devient une trame.
   const pas = total > 40000 ? 5000 : total > 16000 ? 2000 : 1000
@@ -340,7 +453,13 @@ function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | '
 
   return (
     <figure className="o-m-0">
-      <div className="o-relative o-h-16 o-w-full o-overflow-hidden o-border-w-1" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: 'var(--o-theme-bg)' }}>
+      <div
+        className="o-relative o-h-16 o-w-full o-overflow-hidden o-border-w-1"
+        style={{
+          borderColor: 'var(--o-theme-line)',
+          backgroundColor: 'var(--o-theme-bg)',
+        }}
+      >
         <div className="o-flex o-h-full">
           {POCHES.map((poche) => (
             <div
@@ -363,7 +482,12 @@ function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | '
               <span
                 key={rang}
                 className="o-absolute o-top-0 o-w-px"
-                style={{ left: `${String(x * 100)}%`, height: majeure ? '100%' : '38%', backgroundColor: 'var(--o-palette-zinc-950)', opacity: majeure ? 0.55 : 0.3 }}
+                style={{
+                  left: `${String(x * 100)}%`,
+                  height: majeure ? '100%' : '38%',
+                  backgroundColor: 'var(--o-palette-zinc-950)',
+                  opacity: majeure ? 0.55 : 0.3,
+                }}
               />
             )
           })}
@@ -371,7 +495,10 @@ function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | '
       </div>
 
       {/* L echelle, sous la reglette. */}
-      <div aria-hidden="true" className="o-mt-1 o-flex o-justify-between o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400">
+      <div
+        aria-hidden="true"
+        className="o-mt-1 o-flex o-justify-between o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400"
+      >
         <span>0</span>
         <span>
           {(pas * 5).toLocaleString('fr-FR')} EUR entre deux grandes graduations
@@ -381,15 +508,28 @@ function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | '
 
       <figcaption className="o-mt-6 o-grid o-gap-4 sm:o-grid-cols-3">
         {POCHES.map((poche) => (
-          <div key={poche.cle} className="o-border-t o-pt-3" style={{ borderColor: 'var(--o-theme-line)' }}>
+          <div
+            key={poche.cle}
+            className="o-border-t o-pt-3"
+            style={{ borderColor: 'var(--o-theme-line)' }}
+          >
             <span className="o-flex o-items-center o-gap-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
-              <span aria-hidden="true" className="o-size-2.5" style={{ backgroundColor: accent(poche.nuance) }} />
+              <span
+                aria-hidden="true"
+                className="o-size-2.5"
+                style={{ backgroundColor: accent(poche.nuance) }}
+              />
               {poche.nom}
             </span>
-            <p className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)' }}>
+            <p
+              className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('m', 300), fontSize: 'clamp(1.5rem, 2.6vw, 2.25rem)' }}
+            >
               {Math.round((parts[poche.cle] / total) * 100)} %
             </p>
-            <p className="o-m-0 o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400">{euros(parts[poche.cle])}</p>
+            <p className="o-m-0 o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400">
+              {euros(parts[poche.cle])}
+            </p>
           </div>
         ))}
       </figcaption>
@@ -403,7 +543,9 @@ function Reglette({ parts, total }: { readonly parts: Readonly<Record<'etat' | '
 function Frais(): ReactElement {
   const [prix, setPrix] = useState(300000)
   const [nature, setNature] = useState<string>('ancien')
-  const [departement, setDepartement] = useState<(typeof DEPARTEMENTS)[number]>(DEPARTEMENTS[0])
+  const [departement, setDepartement] = useState<(typeof DEPARTEMENTS)[number]>(
+    DEPARTEMENTS[0],
+  )
 
   const { postes, total, parts } = useMemo(
     () => decompter(prix, nature, departement.taux),
@@ -425,11 +567,18 @@ function Frais(): ReactElement {
       {/* Les trois reglages. */}
       <div className="o-grid o-gap-8 md:o-grid-cols-12">
         <div className="md:o-col-span-7">
-          <label htmlFor="notaire-prix" className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+          <label
+            htmlFor="notaire-prix"
+            className="o-block o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300"
+          >
             Le prix d achat
           </label>
-          <p className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 5vw, 4rem)' }}>
-            {prix.toLocaleString('fr-FR')} <span className="o-text-stone-500 dark:o-text-stone-400">EUR</span>
+          <p
+            className="o-m-0 o-mt-2 o-tabular-nums o-text-stone-950 dark:o-text-stone-50"
+            style={{ ...affiche('m', 300), fontSize: 'clamp(2.25rem, 5vw, 4rem)' }}
+          >
+            {prix.toLocaleString('fr-FR')}{' '}
+            <span className="o-text-stone-500 dark:o-text-stone-400">EUR</span>
           </p>
           <input
             id="notaire-prix"
@@ -444,7 +593,10 @@ function Frais(): ReactElement {
             className="o-mt-4 o-w-full o-cursor-pointer focus:o-ring"
             style={{ accentColor: encre() }}
           />
-          <p aria-hidden="true" className="o-m-0 o-mt-1 o-flex o-justify-between o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400">
+          <p
+            aria-hidden="true"
+            className="o-m-0 o-mt-1 o-flex o-justify-between o-font-mono o-text-xs o-tabular-nums o-text-stone-500 dark:o-text-stone-400"
+          >
             <span>80 000</span>
             <span>900 000</span>
           </p>
@@ -452,11 +604,20 @@ function Frais(): ReactElement {
 
         <div className="o-flex o-flex-col o-gap-6 md:o-col-span-5">
           <div>
-            <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">La nature du bien</p>
-            <SegmentedControl label="La nature du bien" options={NATURES} value={nature} onChange={setNature} />
+            <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+              La nature du bien
+            </p>
+            <SegmentedControl
+              label="La nature du bien"
+              options={NATURES}
+              value={nature}
+              onChange={setNature}
+            />
           </div>
           <div>
-            <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">Le departement</p>
+            <p className="o-m-0 o-mb-2 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+              Le departement
+            </p>
             <div className="o-flex o-flex-wrap o-gap-2">
               {DEPARTEMENTS.map((d) => {
                 const actif = d.cle === departement.cle
@@ -472,16 +633,23 @@ function Frais(): ReactElement {
                     style={
                       actif
                         ? { ...aplat(), borderColor: 'transparent' }
-                        : { borderColor: 'var(--o-theme-line)', color: 'var(--o-theme-fg)', backgroundColor: 'transparent' }
+                        : {
+                            borderColor: 'var(--o-theme-line)',
+                            color: 'var(--o-theme-fg)',
+                            backgroundColor: 'transparent',
+                          }
                     }
                   >
-                    {d.nom} — {(d.taux * 100).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} %
+                    {d.nom} —{' '}
+                    {(d.taux * 100).toLocaleString('fr-FR', { minimumFractionDigits: 2 })}{' '}
+                    %
                   </button>
                 )
               })}
             </div>
             <p className="o-m-0 o-mt-2 o-max-w-xs o-text-xs o-leading-relaxed o-text-stone-500 dark:o-text-stone-400">
-              Quatre departements seulement ont garde le taux plancher. Le notaire n y est pour rien : c est un vote du conseil departemental.
+              Quatre departements seulement ont garde le taux plancher. Le notaire n y est
+              pour rien : c est un vote du conseil departemental.
             </p>
           </div>
         </div>
@@ -496,17 +664,27 @@ function Frais(): ReactElement {
       <div className="o-mt-14 o-grid o-gap-10 md:o-grid-cols-12">
         <dl aria-live="polite" className="o-m-0 md:o-col-span-7">
           {postes.map((poste) => (
-            <div key={poste.cle} className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-py-4 md:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
+            <div
+              key={poste.cle}
+              className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-py-4 md:o-grid-cols-12"
+              style={{ borderColor: 'var(--o-theme-line)' }}
+            >
               <dt className="md:o-col-span-7">
                 <span className="o-flex o-items-center o-gap-2 o-text-base o-font-medium o-text-stone-950 dark:o-text-stone-50">
                   <span
                     aria-hidden="true"
                     className="o-size-2.5 o-shrink-0"
-                    style={{ backgroundColor: accent(POCHES.find((p) => p.cle === poste.poche)?.nuance ?? 500) }}
+                    style={{
+                      backgroundColor: accent(
+                        POCHES.find((p) => p.cle === poste.poche)?.nuance ?? 500,
+                      ),
+                    }}
                   />
                   {poste.nom}
                 </span>
-                <span className="o-mt-1 o-block o-max-w-md o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">{poste.detail}</span>
+                <span className="o-mt-1 o-block o-max-w-md o-text-sm o-leading-relaxed o-text-stone-600 dark:o-text-stone-400">
+                  {poste.detail}
+                </span>
               </dt>
               <dd className="o-m-0 o-font-mono o-tabular-nums o-text-stone-900 dark:o-text-stone-100 md:o-col-span-5 md:o-text-right">
                 {euros(poste.montant)}
@@ -516,16 +694,34 @@ function Frais(): ReactElement {
         </dl>
 
         <div className="md:o-col-span-5">
-          <div className="o-border-w-1 o-p-6 md:o-sticky" style={{ borderColor: encre(), backgroundColor: accentDoux(300, 12), top: CHROME + 32 }}>
-            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">Total a verser a la signature</p>
-            <p className="o-m-0 o-mt-3 o-whitespace-nowrap o-tabular-nums o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 3.4vw, 3rem)' }}>
+          <div
+            className="o-border-w-1 o-p-6 md:o-sticky"
+            style={{
+              borderColor: encre(),
+              backgroundColor: accentDoux(300, 12),
+              top: CHROME + 32,
+            }}
+          >
+            <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-600 dark:o-text-stone-300">
+              Total a verser a la signature
+            </p>
+            <p
+              className="o-m-0 o-mt-3 o-whitespace-nowrap o-tabular-nums o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('m', 300), fontSize: 'clamp(1.9rem, 3.4vw, 3rem)' }}
+            >
               {euros(total)}
             </p>
             <p className="o-m-0 o-mt-2 o-font-mono o-text-xs o-tabular-nums o-text-stone-600 dark:o-text-stone-300">
-              soit {((total / prix) * 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 })} % du prix
+              soit{' '}
+              {((total / prix) * 100).toLocaleString('fr-FR', {
+                maximumFractionDigits: 2,
+              })}{' '}
+              % du prix
             </p>
             <p className="o-m-0 o-mt-5 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Les fonds sont appeles huit jours avant la signature, sur le compte de l etude a la Caisse des depots. Le solde non employe est restitue dans le mois.
+              Les fonds sont appeles huit jours avant la signature, sur le compte de l
+              etude a la Caisse des depots. Le solde non employe est restitue dans le
+              mois.
             </p>
             <div className="o-mt-6">
               <CopyButton
@@ -561,32 +757,56 @@ function PiedMillimetre(): ReactElement {
   ].join(', ')
 
   return (
-    <footer className="o-relative o-overflow-hidden o-border-t" style={{ borderColor: 'var(--o-theme-line)' }}>
+    <footer
+      className="o-relative o-overflow-hidden o-border-t"
+      style={{ borderColor: 'var(--o-theme-line)' }}
+    >
       <div
         aria-hidden="true"
         className="o-pointer-events-none o-absolute o-inset-0"
-        style={{ backgroundImage: trame, backgroundSize: '50px 50px, 50px 50px, 10px 10px, 10px 10px' }}
+        style={{
+          backgroundImage: trame,
+          backgroundSize: '50px 50px, 50px 50px, 10px 10px, 10px 10px',
+        }}
       />
       <div className="o-relative o-mx-auto o-max-w-7xl o-px-6 o-py-16 md:o-px-10">
         {/* La cote du haut : la largeur du bloc. */}
         <div aria-hidden="true" className="o-mb-10 o-flex o-items-center o-gap-3">
           <span className="o-size-1.5 o-rotate-45" style={{ backgroundColor: encre() }} />
-          <span className="o-h-px o-grow" style={{ backgroundColor: encre(), opacity: 0.6 }} />
-          <span className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums" style={{ color: encre() }}>
+          <span
+            className="o-h-px o-grow"
+            style={{ backgroundColor: encre(), opacity: 0.6 }}
+          />
+          <span
+            className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-tabular-nums"
+            style={{ color: encre() }}
+          >
             1 440 mm
           </span>
-          <span className="o-h-px o-grow" style={{ backgroundColor: encre(), opacity: 0.6 }} />
+          <span
+            className="o-h-px o-grow"
+            style={{ backgroundColor: encre(), opacity: 0.6 }}
+          />
           <span className="o-size-1.5 o-rotate-45" style={{ backgroundColor: encre() }} />
         </div>
 
         <div className="o-grid o-gap-10 md:o-grid-cols-12">
           <div className="md:o-col-span-5">
-            <p className="o-m-0 o-flex o-items-center o-gap-3 o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
-              <Icon icon={Scale} size={26} aria-hidden="true" style={{ color: encre() }} />
+            <p
+              className="o-m-0 o-flex o-items-center o-gap-3 o-text-stone-950 dark:o-text-stone-50"
+              style={{ ...affiche('m', 300), fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+            >
+              <Icon
+                icon={Scale}
+                size={26}
+                aria-hidden="true"
+                style={{ color: encre() }}
+              />
               Minute
             </p>
             <p className="o-m-0 o-mt-4 o-max-w-sm o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Etude notariale Vaury &amp; Delaunay, titulaire d un office cree en 1908. Deux notaires associes, neuf collaborateurs.
+              Etude notariale Vaury &amp; Delaunay, titulaire d un office cree en 1908.
+              Deux notaires associes, neuf collaborateurs.
             </p>
             <dl className="o-m-0 o-mt-8 o-grid o-gap-x-6 o-gap-y-2 o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-grid-cols-2">
               {(
@@ -599,7 +819,10 @@ function PiedMillimetre(): ReactElement {
               ).map(([quoi, valeur]) => (
                 <div key={quoi}>
                   <dt className="o-text-stone-500 dark:o-text-stone-400">{quoi}</dt>
-                  <dd className="o-m-0 o-mt-1 o-normal-case o-text-stone-800 dark:o-text-stone-200" style={{ letterSpacing: 0 }}>
+                  <dd
+                    className="o-m-0 o-mt-1 o-normal-case o-text-stone-800 dark:o-text-stone-200"
+                    style={{ letterSpacing: 0 }}
+                  >
                     {valeur}
                   </dd>
                 </div>
@@ -610,13 +833,42 @@ function PiedMillimetre(): ReactElement {
           {/* Les trois colonnes de liens, chacune cotee. */}
           {(
             [
-              ['Les actes', [['#frais', 'Vente et acquisition'], ['#vente', 'Delais et pieces'], ['#minute', 'Conservation'], ['#devis', 'Demander un devis']] as const, '320'],
-              ['La maison', [['#haut', 'L office'], ['#frais', 'Le tarif reglemente'], ['#minute', 'Le depot'], ['#devis', 'Nous ecrire']] as const, '320'],
-              ['Mentions', [['#minute', 'Chambre des notaires'], ['#minute', 'Mediation de la consommation'], ['#minute', 'Donnees personnelles'], ['#haut', 'Remonter']] as const, '320'],
+              [
+                'Les actes',
+                [
+                  ['#frais', 'Vente et acquisition'],
+                  ['#vente', 'Delais et pieces'],
+                  ['#minute', 'Conservation'],
+                  ['#devis', 'Demander un devis'],
+                ] as const,
+                '320',
+              ],
+              [
+                'La maison',
+                [
+                  ['#haut', 'L office'],
+                  ['#frais', 'Le tarif reglemente'],
+                  ['#minute', 'Le depot'],
+                  ['#devis', 'Nous ecrire'],
+                ] as const,
+                '320',
+              ],
+              [
+                'Mentions',
+                [
+                  ['#minute', 'Chambre des notaires'],
+                  ['#minute', 'Mediation de la consommation'],
+                  ['#minute', 'Donnees personnelles'],
+                  ['#haut', 'Remonter'],
+                ] as const,
+                '320',
+              ],
             ] as const
           ).map(([titre, liens, cote]) => (
             <div key={titre} className="o-relative md:o-col-span-2">
-              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">{titre}</p>
+              <p className="o-m-0 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                {titre}
+              </p>
               <ul className="o-m-0 o-mt-4 o-flex o-list-none o-flex-col o-gap-2 o-p-0">
                 {liens.map(([cible, mot]) => (
                   <li key={`${cible}-${mot}`}>
@@ -630,11 +882,19 @@ function PiedMillimetre(): ReactElement {
                 ))}
               </ul>
               {/* La cote verticale de la colonne. */}
-              <span aria-hidden="true" className="o-absolute o-bottom-0 o-right-0 o-top-0 o-hidden o-w-px md:o-block" style={{ backgroundColor: encre(), opacity: 0.35 }} />
+              <span
+                aria-hidden="true"
+                className="o-absolute o-bottom-0 o-right-0 o-top-0 o-hidden o-w-px md:o-block"
+                style={{ backgroundColor: encre(), opacity: 0.35 }}
+              />
               <span
                 aria-hidden="true"
                 className="o-absolute o-right-1 o-top-1/2 o-hidden o-font-mono o-text-xs o-tabular-nums md:o-block"
-                style={{ color: encre(), transform: 'rotate(90deg)', transformOrigin: 'right center' }}
+                style={{
+                  color: encre(),
+                  transform: 'rotate(90deg)',
+                  transformOrigin: 'right center',
+                }}
               >
                 {cote}
               </span>
@@ -643,7 +903,10 @@ function PiedMillimetre(): ReactElement {
         </div>
 
         {/* La cartouche : echelle, date, indice — comme au bas d un plan. */}
-        <dl className="o-m-0 o-mt-14 o-grid o-gap-px o-border-w-1 sm:o-grid-cols-4" style={{ borderColor: encre(), backgroundColor: 'var(--o-theme-line)' }}>
+        <dl
+          className="o-m-0 o-mt-14 o-grid o-gap-px o-border-w-1 sm:o-grid-cols-4"
+          style={{ borderColor: encre(), backgroundColor: 'var(--o-theme-line)' }}
+        >
           {(
             [
               ['Echelle', '1 : 1'],
@@ -652,16 +915,27 @@ function PiedMillimetre(): ReactElement {
               ['Piece', 'Pied de page'],
             ] as const
           ).map(([quoi, valeur]) => (
-            <div key={quoi} className="o-px-4 o-py-3" style={{ backgroundColor: 'var(--o-theme-bg)' }}>
-              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">{quoi}</dt>
-              <dd className="o-m-0 o-mt-1 o-font-mono o-text-sm o-tabular-nums o-text-stone-900 dark:o-text-stone-100">{valeur}</dd>
+            <div
+              key={quoi}
+              className="o-px-4 o-py-3"
+              style={{ backgroundColor: 'var(--o-theme-bg)' }}
+            >
+              <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
+                {quoi}
+              </dt>
+              <dd className="o-m-0 o-mt-1 o-font-mono o-text-sm o-tabular-nums o-text-stone-900 dark:o-text-stone-100">
+                {valeur}
+              </dd>
             </div>
           ))}
         </dl>
 
         <p className="o-m-0 o-mt-8 o-flex o-flex-wrap o-items-center o-justify-between o-gap-4 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
           <span>© 2026 Minute — Vaury &amp; Delaunay, notaires associes</span>
-          <a href="#haut" className="o-text-stone-500 o-no-underline hover:o-text-stone-950 focus:o-ring dark:o-text-stone-400 dark:hover:o-text-stone-50">
+          <a
+            href="#haut"
+            className="o-text-stone-500 o-no-underline hover:o-text-stone-950 focus:o-ring dark:o-text-stone-400 dark:hover:o-text-stone-50"
+          >
             Remonter ↑
           </a>
         </p>
@@ -679,36 +953,70 @@ export default function Page(): ReactElement {
 
   return (
     <Porte forme="zoom" marque="Minute" sombre={false}>
-      <div className="o-relative o-overflow-hidden" style={{ ...polices, backgroundColor: accentDoux(200, 12) }}>
+      <div
+        className="o-relative o-overflow-hidden"
+        style={{ ...polices, backgroundColor: accentDoux(200, 12) }}
+      >
         {/*
           ----- L ouverture : du papier, une gouttiere, la minute dessinee -----
         */}
-        <section id="haut" className="o-relative o-isolate o-flex o-flex-col" style={{ minHeight: ECRAN }}>
-          <Filigrane taille={30} opacite={6} className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-4 o-z-0">
+        <section
+          id="haut"
+          className="o-relative o-isolate o-flex o-flex-col"
+          style={{ minHeight: ECRAN }}
+        >
+          <Filigrane
+            taille={30}
+            opacite={6}
+            className="o-pointer-events-none o-absolute o-inset-x-0 o-bottom-4 o-z-0"
+          >
             MINUTE
           </Filigrane>
 
-          <BarreCoins marque="Minute — notaires" liens={NAVIGATION} droite="Lyon, quai Saint-Antoine" sombre={false} />
+          <BarreCoins
+            marque="Minute — notaires"
+            liens={NAVIGATION}
+            droite="Lyon, quai Saint-Antoine"
+            sombre={false}
+          />
 
           <div className="o-relative o-z-10 o-mx-auto o-grid o-w-full o-max-w-7xl o-grow o-items-center o-gap-10 o-px-6 o-pb-20 o-pt-10 md:o-grid-cols-12 md:o-px-10">
             <div className="md:o-col-span-8">
               <Surgit>
-                <Etiquette sombre={false}>Office cree en 1908 — deux notaires associes</Etiquette>
+                <Etiquette sombre={false}>
+                  Office cree en 1908 — deux notaires associes
+                </Etiquette>
               </Surgit>
               <TitreVague
                 delai={140}
                 cadence={78}
                 className="o-m-0 o-mt-7 o-max-w-4xl o-text-stone-950 dark:o-text-stone-50"
-                style={{ ...affiche('l', 300), fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)', letterSpacing: '-0.045em', lineHeight: 0.94 }}
+                style={{
+                  ...affiche('l', 300),
+                  fontSize: 'clamp(2.5rem, 7.6vw, 7.5rem)',
+                  letterSpacing: '-0.045em',
+                  lineHeight: 0.94,
+                }}
               >
                 Les frais de notaire, ecrits en entier.
               </TitreVague>
-              <Surgit delai={560} as="p" className="o-m-0 o-mt-10 o-max-w-lg o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-                Sur cent euros verses le jour de la signature, douze reviennent a l etude. Voici les quatre-vingt-huit autres, et a qui ils vont.
+              <Surgit
+                delai={560}
+                as="p"
+                className="o-m-0 o-mt-10 o-max-w-lg o-text-lg o-leading-relaxed o-text-stone-700 dark:o-text-stone-300"
+              >
+                Sur cent euros verses le jour de la signature, douze reviennent a l etude.
+                Voici les quatre-vingt-huit autres, et a qui ils vont.
               </Surgit>
               <Surgit delai={700} className="o-mt-9">
                 <Actions
-                  pleine={['#frais', <>Faire le calcul <Icon icon={ArrowDown} size={16} aria-hidden="true" /></>]}
+                  pleine={[
+                    '#frais',
+                    <>
+                      Faire le calcul{' '}
+                      <Icon icon={ArrowDown} size={16} aria-hidden="true" />
+                    </>,
+                  ]}
                   fantome={['#devis', 'Demander un devis']}
                   sombre={false}
                 />
@@ -717,8 +1025,15 @@ export default function Page(): ReactElement {
 
             {/* La minute deborde sur la bande de mentions : une page dessinee
                 prend ce risque-la, et c est ce qui la distingue d une grille. */}
-            <Parallaxe vitesse={0.2} glisse={0.62} className="o-hidden md:o-col-span-4 md:o-block">
-              <div className="o-mx-auto o-w-full o-max-w-xs" style={{ transform: 'translateY(9%) rotate(-2.2deg)' }}>
+            <Parallaxe
+              vitesse={0.2}
+              glisse={0.62}
+              className="o-hidden md:o-col-span-4 md:o-block"
+            >
+              <div
+                className="o-mx-auto o-w-full o-max-w-xs"
+                style={{ transform: 'translateY(9%) rotate(-2.2deg)' }}
+              >
                 <MinuteDessinee />
               </div>
             </Parallaxe>
@@ -749,19 +1064,30 @@ export default function Page(): ReactElement {
         {/*
           ----- Chapitre 01 : le mecanisme, les frais --------------------------
         */}
-        <section id="frais" className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28">
+        <section
+          id="frais"
+          className="o-scroll-mt-24 o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Chapitre
               indice="(01) — Le calcul"
               largeur={4}
               titre={
-                <h2 className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', letterSpacing: '-0.04em' }}>
+                <h2
+                  className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                    letterSpacing: '-0.04em',
+                  }}
+                >
                   Ce que vous versez, et ou cela va
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-stone-700 dark:o-text-stone-300">
-                  Bougez le prix : les sept postes se recalculent aux taux en vigueur, et la reglette montre la longueur reelle de chacun.
+                  Bougez le prix : les sept postes se recalculent aux taux en vigueur, et
+                  la reglette montre la longueur reelle de chacun.
                 </p>
               }
             >
@@ -773,7 +1099,10 @@ export default function Page(): ReactElement {
         {/*
           ----- La coupe sombre : un ecran de texte seul ------------------------
         */}
-        <section className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36" style={nuit('stone')}>
+        <section
+          className="o-flex o-items-center o-px-6 o-py-24 md:o-px-10 md:o-py-36"
+          style={nuit('stone')}
+        >
           <div className="o-mx-auto o-w-full o-max-w-7xl">
             <Manifeste eteint="On appelle cela des frais de notaire.">
               Ce sont des impots, et nous les encaissons pour le compte de l Etat.
@@ -786,7 +1115,8 @@ export default function Page(): ReactElement {
               step={42}
               className="o-m-0 o-mt-10 o-max-w-2xl o-text-base o-leading-relaxed o-text-stone-300"
             >
-              Le tarif est fixe par arrete. Il est le meme dans les six mille etudes de France, et il ne se negocie pas.
+              Le tarif est fixe par arrete. Il est le meme dans les six mille etudes de
+              France, et il ne se negocie pas.
             </BlurWords>
           </div>
         </section>
@@ -794,19 +1124,31 @@ export default function Page(): ReactElement {
         {/*
           ----- Chapitre 02 : la vente, et ses delais reels ---------------------
         */}
-        <section id="vente" className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <section
+          id="vente"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Chapitre
               indice="(02) — Le calendrier"
               largeur={3}
               titre={
-                <h2 className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', letterSpacing: '-0.04em' }}>
+                <h2
+                  className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                    letterSpacing: '-0.04em',
+                  }}
+                >
                   Quatre-vingt-dix jours, dont trente d attente
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-stone-700 dark:o-text-stone-300">
-                  Deux delais sur six sont imposes par la loi. Une etude qui promet une vente en six semaines vous promet ce qu elle ne peut pas tenir.
+                  Deux delais sur six sont imposes par la loi. Une etude qui promet une
+                  vente en six semaines vous promet ce qu elle ne peut pas tenir.
                 </p>
               }
             >
@@ -818,19 +1160,34 @@ export default function Page(): ReactElement {
         {/*
           ----- Chapitre 03 : la minute --------------------------------------
         */}
-        <section id="minute" className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28" style={{ borderColor: 'var(--o-theme-line)', backgroundColor: accentDoux(300, 8) }}>
+        <section
+          id="minute"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-20 md:o-px-10 md:o-py-28"
+          style={{
+            borderColor: 'var(--o-theme-line)',
+            backgroundColor: accentDoux(300, 8),
+          }}
+        >
           <div className="o-mx-auto o-max-w-7xl">
             <Chapitre
               indice="(03) — Le depot"
               largeur={4}
               titre={
-                <h2 className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50" style={{ ...affiche('m', 300), fontSize: 'clamp(1.75rem, 3.4vw, 3rem)', letterSpacing: '-0.04em' }}>
+                <h2
+                  className="o-m-0 o-max-w-sm o-text-balance o-text-stone-950 dark:o-text-stone-50"
+                  style={{
+                    ...affiche('m', 300),
+                    fontSize: 'clamp(1.75rem, 3.4vw, 3rem)',
+                    letterSpacing: '-0.04em',
+                  }}
+                >
                   L original ne sort jamais
                 </h2>
               }
               texte={
                 <p className="o-m-0 o-text-stone-700 dark:o-text-stone-300">
-                  Ce que vous emportez est une copie authentique. L original — la minute — reste au rang des minutes de l etude.
+                  Ce que vous emportez est une copie authentique. L original — la minute —
+                  reste au rang des minutes de l etude.
                 </p>
               }
             >
@@ -838,17 +1195,38 @@ export default function Page(): ReactElement {
                 <dl className="o-m-0 md:o-col-span-7">
                   {(
                     [
-                      ['La minute', 'L acte signe, revetu du sceau. Elle est conservee au coffre, et elle n en sort que sur requisition d un juge.'],
-                      ['La copie authentique', 'Le document que vous recevez. Il a la meme force probante, et il se remplace : demandez-le, on le refait.'],
-                      ['Soixante-quinze ans', 'Duree de conservation a l etude. Passe ce delai, la minute part aux archives departementales, ou elle devient publique.'],
-                      ['Le repertoire', 'Chaque minute est inscrite le jour meme, a la suite, sous un numero qui ne se reutilise pas. C est ce registre qui fait foi de la date.'],
+                      [
+                        'La minute',
+                        'L acte signe, revetu du sceau. Elle est conservee au coffre, et elle n en sort que sur requisition d un juge.',
+                      ],
+                      [
+                        'La copie authentique',
+                        'Le document que vous recevez. Il a la meme force probante, et il se remplace : demandez-le, on le refait.',
+                      ],
+                      [
+                        'Soixante-quinze ans',
+                        'Duree de conservation a l etude. Passe ce delai, la minute part aux archives departementales, ou elle devient publique.',
+                      ],
+                      [
+                        'Le repertoire',
+                        'Chaque minute est inscrite le jour meme, a la suite, sous un numero qui ne se reutilise pas. C est ce registre qui fait foi de la date.',
+                      ],
                     ] as const
                   ).map(([terme, valeur]) => (
-                    <div key={terme} className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-py-5 sm:o-grid-cols-12" style={{ borderColor: 'var(--o-theme-line)' }}>
-                      <dt className="o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-4" style={{ color: encre() }}>
+                    <div
+                      key={terme}
+                      className="o-grid o-gap-x-6 o-gap-y-1 o-border-t o-py-5 sm:o-grid-cols-12"
+                      style={{ borderColor: 'var(--o-theme-line)' }}
+                    >
+                      <dt
+                        className="o-font-mono o-text-xs o-uppercase o-tracking-widest sm:o-col-span-4"
+                        style={{ color: encre() }}
+                      >
                         {terme}
                       </dt>
-                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300 sm:o-col-span-8">{valeur}</dd>
+                      <dd className="o-m-0 o-text-sm o-leading-relaxed o-text-stone-700 dark:o-text-stone-300 sm:o-col-span-8">
+                        {valeur}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -866,19 +1244,29 @@ export default function Page(): ReactElement {
         {/*
           ----- L appel : un devis demande par courrier, en une ligne (A38) -----
         */}
-        <section id="devis" className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-10 md:o-py-32" style={{ borderColor: 'var(--o-theme-line)' }}>
+        <section
+          id="devis"
+          className="o-scroll-mt-24 o-border-t o-px-6 o-py-24 md:o-px-10 md:o-py-32"
+          style={{ borderColor: 'var(--o-theme-line)' }}
+        >
           <div className="o-mx-auto o-max-w-4xl o-text-center">
             <Indice rang="04" sombre={false}>
               Le devis
             </Indice>
             <h2
               className="o-m-0 o-mt-6 o-text-balance o-text-stone-950 dark:o-text-stone-50"
-              style={{ ...affiche('l', 300), fontSize: 'clamp(2rem, 5.4vw, 4.75rem)', letterSpacing: '-0.045em', lineHeight: 0.96 }}
+              style={{
+                ...affiche('l', 300),
+                fontSize: 'clamp(2rem, 5.4vw, 4.75rem)',
+                letterSpacing: '-0.045em',
+                lineHeight: 0.96,
+              }}
             >
               Une ligne suffit.
             </h2>
             <p className="o-m-0 o-mx-auto o-mt-6 o-max-w-xl o-text-base o-leading-relaxed o-text-stone-700 dark:o-text-stone-300">
-              Laissez une adresse. Un clerc vous renvoie sous quarante-huit heures un devis chiffre sur votre dossier reel — pas une fourchette, un montant.
+              Laissez une adresse. Un clerc vous renvoie sous quarante-huit heures un
+              devis chiffre sur votre dossier reel — pas une fourchette, un montant.
             </p>
             <div className="o-mt-10 o-flex o-justify-center">
               <ButtonGroupInput
@@ -895,7 +1283,11 @@ export default function Page(): ReactElement {
             </div>
             <p className="o-m-0 o-mt-5 o-font-mono o-text-xs o-uppercase o-tracking-widest o-text-stone-500 dark:o-text-stone-400">
               ou{' '}
-              <a href="mailto:etude@minute-notaires.fr" className="o-no-underline focus:o-ring" style={{ color: encre() }}>
+              <a
+                href="mailto:etude@minute-notaires.fr"
+                className="o-no-underline focus:o-ring"
+                style={{ color: encre() }}
+              >
                 etude@minute-notaires.fr
                 <Icon icon={ArrowUpRight} size={13} aria-hidden="true" />
               </a>{' '}

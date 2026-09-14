@@ -152,18 +152,23 @@ export function PixelTrail({
     return () => subscription.unsubscribe()
   }, [pointer, uTrail])
 
-  const { ref, setHost: setShaderHost, ready, refused, colours } =
-    useTokenShader<HTMLDivElement>({
-      fragment: PIXEL_TRAIL_FRAGMENT,
-      colors,
-      uniforms: { uTrail, uPixel: pixel, uLife: life, uLevels: levels },
-      name: 'pixel-trail',
-      // Une trame fine coute autant qu'une grossiere, mais son filet de
-      // separation disparait a densite de pixels reduite.
-      degrade: (quality) => ({
-        uPixel: quality === 'low' ? Math.min(pixel, 18) : pixel,
-      }),
-    })
+  const {
+    ref,
+    setHost: setShaderHost,
+    ready,
+    refused,
+    colours,
+  } = useTokenShader<HTMLDivElement>({
+    fragment: PIXEL_TRAIL_FRAGMENT,
+    colors,
+    uniforms: { uTrail, uPixel: pixel, uLife: life, uLevels: levels },
+    name: 'pixel-trail',
+    // Une trame fine coute autant qu'une grossiere, mais son filet de
+    // separation disparait a densite de pixels reduite.
+    degrade: (quality) => ({
+      uPixel: quality === 'low' ? Math.min(pixel, 18) : pixel,
+    }),
+  })
 
   useOnReady(onReady, ready ? { colours, refused } : null, ref.current)
 

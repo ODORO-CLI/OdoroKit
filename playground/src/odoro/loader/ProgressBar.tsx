@@ -168,7 +168,9 @@ export function ProgressBar({
       <span aria-hidden data-o-pbar-track="">
         <span
           data-o-pbar-fill=""
-          style={indeterminate ? undefined : { transform: `scaleX(${String(clamped / 100)})` }}
+          style={
+            indeterminate ? undefined : { transform: `scaleX(${String(clamped / 100)})` }
+          }
         />
       </span>
     </span>
