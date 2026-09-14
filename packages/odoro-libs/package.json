@@ -1,6 +1,6 @@
 {
   "name": "@odoro-cli/libs",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "license": "UNLICENSED",
   "author": "BouBouw",
@@ -63,7 +63,7 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
-    "odoro": ">=0.3.2"
+    "odoro": ">=0.3.3"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
