@@ -250,6 +250,47 @@ export async function transformModule(
  * @example
  * const module = wrapStyle('/src/App.css', 'body { margin: 0 }')
  */
+/**
+ * La requete demande-t-elle la feuille pour elle-meme ?
+ *
+ * ## Deux usages, une seule adresse
+ *
+ * `import './a.css'` attend un **module** qui injecte la feuille : c'est ce
+ * qui permet de la remplacer a chaud sans recharger la page.
+ *
+ * `<link rel="stylesheet" href="./a.css">` attend la **feuille**. Servir le
+ * module a sa place lui donne du JavaScript la ou il attend du CSS, et le
+ * navigateur refuse avec un « strict MIME checking » qui ne nomme pas la
+ * cause. C'etait le sort de toute feuille reliee par une balise, celle des
+ * bibliotheques comprise.
+ *
+ * ## Ce qui les distingue
+ *
+ * Le navigateur le dit : `Sec-Fetch-Dest` vaut `style` pour une balise et
+ * `script` pour un import. L'en-tete est envoye par tous les navigateurs qui
+ * appliquent cette verification — donc par tous ceux que la question concerne.
+ *
+ * `?direct` reste accepte : c'est la convention ecrite a la main, et des pages
+ * l'emploient deja.
+ *
+ * @example
+ * feuilleDemandee({ 'sec-fetch-dest': 'style' }, '/a.css')  // true
+ * feuilleDemandee({ 'sec-fetch-dest': 'script' }, '/a.css') // false
+ * feuilleDemandee({}, '/a.css?direct')                      // true
+ */
+export function feuilleDemandee(
+  entetes: Readonly<Record<string, string | string[] | undefined>>,
+  url: string,
+): boolean {
+  if (url.includes('?direct')) return true
+  if (entetes['sec-fetch-dest'] === 'style') return true
+
+  // Repli pour les clients sans `Sec-Fetch-Dest` — un `curl`, un ancien
+  // navigateur : on lit ce qu'ils acceptent.
+  const accepte = entetes['accept']
+  return typeof accepte === 'string' && accepte.includes('text/css')
+}
+
 export function wrapStyle(url: string, css: string): string {
   return `const id = ${JSON.stringify(`odoro-style:${url}`)}
 const css = ${JSON.stringify(css)}

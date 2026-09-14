@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../config.js'
 import { ModuleGraph, detectSelfAccepting } from './graph.js'
 import { extractEntries, injectClient } from './server.js'
 import {
+  feuilleDemandee,
   applyAlias,
   depFileName,
   fileToUrl,
@@ -245,5 +246,38 @@ describe('ModuleGraph', () => {
     graph.ensure('/a.ts', '/a.ts')
     graph.clear()
     expect(graph.size).toBe(0)
+  })
+})
+
+describe('feuilleDemandee', () => {
+  it('rend la feuille a une balise <link>', () => {
+    // Le cas qui echouait : le navigateur recevait du JavaScript la ou il
+    // attendait du CSS, et refusait sur un « strict MIME checking ».
+    expect(feuilleDemandee({ 'sec-fetch-dest': 'style' }, '/a.css')).toBe(true)
+  })
+
+  it('rend le module injecteur a un import', () => {
+    // C'est lui qui porte le remplacement a chaud : le rendre en CSS brut
+    // ferait recharger la page a chaque edition de feuille.
+    expect(feuilleDemandee({ 'sec-fetch-dest': 'script' }, '/a.css')).toBe(false)
+  })
+
+  it('honore encore la convention ecrite a la main', () => {
+    expect(feuilleDemandee({}, '/a.css?direct')).toBe(true)
+  })
+
+  it('retombe sur ce que le client accepte, faute de Sec-Fetch-Dest', () => {
+    expect(feuilleDemandee({ accept: 'text/css,*/*;q=0.1' }, '/a.css')).toBe(true)
+    expect(feuilleDemandee({ accept: '*/*' }, '/a.css')).toBe(false)
+  })
+
+  it('ne se laisse pas prendre a un en-tete repete', () => {
+    // Node rend un tableau quand un en-tete arrive deux fois : le lire comme
+    // une chaine y trouverait n'importe quoi.
+    expect(feuilleDemandee({ accept: ['text/css', '*/*'] }, '/a.css')).toBe(false)
+  })
+
+  it('rend le module par defaut', () => {
+    expect(feuilleDemandee({}, '/a.css')).toBe(false)
   })
 })

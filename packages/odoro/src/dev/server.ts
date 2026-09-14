@@ -53,6 +53,7 @@ import {
   transformModule,
   urlToFile,
   wrapAsset,
+  feuilleDemandee,
   wrapStyle,
 } from './transform.js'
 
@@ -428,7 +429,7 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
 
         if (existsSync(file) && statSync(file).isFile()) {
           if (hasExtension(path, STYLE_EXTENSIONS)) {
-            await serveStyle(response, file, url.includes('?direct'))
+            await serveStyle(response, file, feuilleDemandee(incoming.headers, url))
             return
           }
           if (hasExtension(path, ASSET_EXTENSIONS)) {

@@ -76,10 +76,25 @@ export async function startPreviewServer(
       .map((nom) => join(candidate, nom))
       .find((chemin) => existsSync(chemin) && statSync(chemin).isFile())
 
-    const file =
-      existsSync(candidate) && statSync(candidate).isFile()
-        ? candidate
-        : (dansLeDossier ?? join(config.outDir, 'index.html'))
+    const existant =
+      existsSync(candidate) && statSync(candidate).isFile() ? candidate : dansLeDossier
+
+    // Un chemin portant une extension designe un fichier, pas une route.
+    //
+    // Sans cette distinction, tout ce qui manquait tombait sur le repli
+    // monopage : une feuille de style absente — ou simplement mal nommee —
+    // revenait en 200 avec du HTML, et le navigateur la refusait sur un
+    // « strict MIME checking » qui ne dit rien de la cause. Un 404 la nomme.
+    //
+    // C'est ce que fait deja le serveur de developpement ; l'apercu doit s'y
+    // tenir, puisqu'il est cense montrer ce qu'un hebergeur statique rendra.
+    if (existant === undefined && extname(relativePath) !== '') {
+      response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+      response.end(`Introuvable : /${relativePath}`)
+      return
+    }
+
+    const file = existant ?? join(config.outDir, 'index.html')
 
     if (!file.startsWith(config.outDir)) {
       response.writeHead(403, { 'Content-Type': 'text/plain' })
