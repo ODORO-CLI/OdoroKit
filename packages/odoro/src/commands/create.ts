@@ -11,6 +11,13 @@ import { basename, resolve } from 'node:path'
 import * as prompts from '@clack/prompts'
 import colors from 'picocolors'
 
+import {
+  MODULES,
+  MODULES_PAR_DEFAUT,
+  lireModules,
+  resoudre,
+  type ModuleId,
+} from '../scaffold/modules.js'
 import { type OverwriteMode, scaffold } from '../scaffold/scaffold.js'
 import {
   PACKAGE_MANAGERS,
@@ -39,6 +46,12 @@ export interface CreateOptions {
   install?: boolean
   /** Accepte toutes les valeurs par defaut sans rien demander. */
   yes?: boolean
+  /**
+   * Modules retenus, sous la forme `libs,router,icons`, sans demander.
+   *
+   * `aucun` n'en retient aucun : un projet React nu, sans style Odoro.
+   */
+  modules?: string
   /** Conduite a tenir si le dossier cible n'est pas vide. */
   overwrite?: OverwriteMode
 }
@@ -115,6 +128,58 @@ async function askDatabase(): Promise<DatabaseOutcome> {
     // que la connexion a ete etablie.
     note: 'Forme de l URL verifiee. La connexion sera etablie au premier demarrage.',
   }
+}
+
+/**
+ * Demande ce que le projet embarque.
+ *
+ * ## Une liste a cocher, et non une suite de oui/non
+ *
+ * Les modules ne dependent pas les uns des autres — sauf le routeur, qui vit
+ * dans les bibliotheques — et les poser en questions successives ferait cinq
+ * ecrans pour un choix qui tient en un. La liste montre en plus, d'un coup
+ * d'oeil, ce que le projet **n'aura pas**, ce qu'une suite de questions cache.
+ *
+ * ## Rien n'est obligatoire
+ *
+ * On peut tout decocher. Le projet part alors sans feuille de style Odoro et
+ * sans routeur, en React nu — c'est un choix legitime pour qui apporte son
+ * propre systeme, et il valait mieux le rendre vrai que d'afficher une case
+ * verrouillee. `required: false` est donc voulu : la liste vide est une
+ * reponse, pas une erreur.
+ *
+ * @returns Les modules retenus, ou `undefined` si la saisie est refusee.
+ */
+async function askModules(
+  options: CreateOptions,
+): Promise<readonly ModuleId[] | undefined> {
+  if (options.modules !== undefined) {
+    const lu = lireModules(options.modules)
+    if (lu.erreur !== undefined) {
+      prompts.cancel(lu.erreur)
+      return undefined
+    }
+    return annoncer(resoudre(lu.modules))
+  }
+
+  if (options.yes === true) return MODULES_PAR_DEFAUT
+
+  const choisis = ensure(
+    await prompts.multiselect<ModuleId>({
+      message: 'Que met-on dans le projet ?',
+      initialValues: [...MODULES_PAR_DEFAUT],
+      required: false,
+      options: MODULES.map((m) => ({ value: m.id, label: m.label, hint: m.hint })),
+    }),
+  )
+
+  return annoncer(resoudre(choisis))
+}
+
+/** Dit ce que la resolution a du retirer, puis rend la selection retenue. */
+function annoncer(resolution: ReturnType<typeof resoudre>): readonly ModuleId[] {
+  for (const mot of resolution.avertissements) prompts.log.warn(mot)
+  return resolution.modules
 }
 
 /** Interrompt proprement si l'utilisateur annule une question. */
@@ -217,6 +282,9 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     return 1
   }
 
+  const modules = await askModules(options)
+  if (modules === undefined) return 1
+
   const detected = detectPackageManager()
   const manager = (options.pm ??
     (options.yes === true
@@ -270,6 +338,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     root,
   }
   if (overwrite !== undefined) scaffoldOptions.overwrite = overwrite
+  scaffoldOptions.modules = modules
 
   const { files } = await scaffold(scaffoldOptions)
   spinner.stop(`${files.length} fichiers ecrits dans ${colors.cyan(basename(target))}`)
@@ -307,6 +376,10 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   const steps = [
     `cd ${basename(target)}`,
     ...(withInstall ? [] : [installCommand(manager)]),
+    // Le registre ne s'installe pas : ses entrees sont copiees dans le projet,
+    // une par une. La commande est donc rappelee ici plutot qu'ajoutee aux
+    // dependances, ou elle n'aurait rien a faire.
+    ...(modules.includes('registre') ? ['odoro init', 'odoro add text/count-up'] : []),
     runCommand(manager, 'dev'),
   ]
 

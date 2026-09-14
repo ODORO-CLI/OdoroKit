@@ -119,6 +119,7 @@ ${colors.bold('Options du registre')}
 
 ${colors.bold('Options de create')}
   --template <nom>   Template a utiliser
+  --modules <liste>  libs,router,icons,engine,registre — ou "aucun"
   --pm <nom>         Gestionnaire de paquets (pnpm, npm, yarn, bun)
   --no-git           N'initialise pas de depot git
   --no-install       N'installe pas les dependances
@@ -208,6 +209,7 @@ export async function run(argv: readonly string[]): Promise<number> {
       if (positional[0] !== undefined) options.name = positional[0]
       if (typeof flags['template'] === 'string') options.template = flags['template']
       if (typeof flags['pm'] === 'string') options.pm = flags['pm']
+      if (typeof flags['modules'] === 'string') options.modules = flags['modules']
       if (typeof flags['git'] === 'boolean') options.git = flags['git']
       if (typeof flags['install'] === 'boolean') options.install = flags['install']
       if (flags['yes'] === true) options.yes = true

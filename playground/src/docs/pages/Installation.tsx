@@ -30,6 +30,28 @@ pnpm dev       # serveur de developpement
 pnpm build     # build de production
 pnpm preview   # apercu du build`}
         />
+        <p className="o-mt-6 o-text-sm o-text-zinc-600 dark:o-text-zinc-400">
+          La création demande ce que le projet embarque. Les bibliothèques, le routeur et
+          les icônes sont cochés ; le moteur et le registre s'ajoutent à la demande. Tout
+          peut être décoché : le projet part alors en React nu, avec du CSS ordinaire et
+          sans classes <code className="o-font-mono o-text-xs">o-*</code>.
+        </p>
+        <CodeBlock
+          lang="sh"
+          code={`# sans rien demander, en precisant ce qu'on veut
+pnpm create odoro mon-app --yes --modules=libs,router,icons
+
+# une base React nue, sans style Odoro
+pnpm create odoro mon-app --yes --modules=aucun`}
+        />
+        <Callout>
+          Le routeur n'est pas un paquet : il vit dans{' '}
+          <code className="o-font-mono o-text-sm">@odoro-cli/libs/router</code>. Le cocher
+          câble les pages dans l'application générée ; le décocher rend une page unique,
+          sans rien désinstaller. Le registre non plus n'est pas un paquet : ses entrées
+          sont copiées une à une par{' '}
+          <code className="o-font-mono o-text-sm">odoro add</code>.
+        </Callout>
         <Callout>
           L'engine <code className="o-font-mono o-text-sm">odoro</code> remplace Vite ou
           webpack : il sert les modules, transforme le TSX et gère le rechargement a

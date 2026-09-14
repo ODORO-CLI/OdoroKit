@@ -1,0 +1,138 @@
+/* Styles de l'application.
+
+   Les bibliotheques Odoro n'ont pas ete retenues a la creation : il n'y a donc
+   ni jetons ni classes utilitaires, et cette feuille porte tout. C'est du CSS
+   ordinaire, a remplacer par ce que vous voulez.
+
+   Pour passer aux jetons plus tard : `npm i @odoro-cli/libs`, puis importer
+   `@odoro-cli/libs/styles.css` dans `main.tsx` avant cette feuille. */
+
+:root {
+  --fond: #ffffff;
+  --encre: #18181b;
+  --doux: #71717a;
+  --filet: #e4e4e7;
+  --accent: #4f46e5;
+  color-scheme: light dark;
+}
+
+/* La preference du systeme, faute d'un selecteur de theme : c'est ce que les
+   jetons apporteraient, et l'absence de bibliotheque ne doit pas se payer d'un
+   fond blanc au milieu de la nuit. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #09090b;
+    --encre: #fafafa;
+    --doux: #a1a1aa;
+    --filet: #27272a;
+    --accent: #818cf8;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.nav,
+.pied {
+  padding: 1rem 1.5rem;
+}
+
+.nav {
+  border-bottom: 1px solid var(--filet);
+}
+
+.pied {
+  border-top: 1px solid var(--filet);
+  color: var(--doux);
+  font-size: 0.875rem;
+}
+
+.marque {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.contenu {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+h1 {
+  font-size: 2.25rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.chapeau {
+  color: var(--doux);
+  font-size: 1.125rem;
+  max-width: 60ch;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.grille {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  margin: 3rem 0;
+}
+
+.carte {
+  border: 1px solid var(--filet);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+}
+
+.carte h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.carte p {
+  color: var(--doux);
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0;
+}
+
+.ligne {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bouton {
+  background: var(--accent);
+  color: var(--fond);
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.compteur {
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}

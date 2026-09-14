@@ -5,6 +5,7 @@ import { join } from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
+import { type ModuleId } from './modules.js'
 import { scaffold } from './scaffold.js'
 import {
   availableTemplates,
@@ -296,5 +297,124 @@ describe('la version par defaut', () => {
     } finally {
       await rm(cible, { recursive: true, force: true })
     }
+  })
+})
+
+describe('les modules retenus changent le projet ecrit', () => {
+  /** Echafaude dans un dossier jetable et rend son contenu. */
+  async function creer(modules: readonly ModuleId[]): Promise<{
+    readonly dossier: string
+    readonly fichiers: readonly string[]
+    readonly deps: Record<string, string>
+    readonly app: string
+  }> {
+    const dossier = await mkdtemp(join(tmpdir(), 'odoro-modules-'))
+    const { files } = await scaffold({
+      target: dossier,
+      template: 'react-ts',
+      packageName: 'essai',
+      modules,
+      version: '9.9.9',
+    })
+    const manifest = JSON.parse(
+      await readFile(join(dossier, 'package.json'), 'utf8'),
+    ) as { dependencies: Record<string, string> }
+    return {
+      dossier,
+      fichiers: files,
+      deps: manifest.dependencies,
+      app: await readFile(join(dossier, 'src/App.tsx'), 'utf8'),
+    }
+  }
+
+  it('ne livre jamais le dossier des variantes', async () => {
+    // Le copier poserait les trois versions de App.tsx dans le projet.
+    const { fichiers, dossier } = await creer(['libs', 'router', 'icons'])
+    expect(fichiers.some((f) => f.startsWith('_variantes'))).toBe(false)
+    expect(fichiers.some((f) => f.startsWith('.variantes'))).toBe(false)
+    expect(existsSync(join(dossier, '_variantes'))).toBe(false)
+    expect(existsSync(join(dossier, '.variantes'))).toBe(false)
+  })
+
+  it('ecrit les icones dans les dependances quand elles sont cochees', async () => {
+    const { deps } = await creer(['libs', 'router', 'icons'])
+    expect(deps['@odoro-cli/icons']).toBe('^9.9.9')
+    expect(deps['@odoro-cli/libs']).toBe('^9.9.9')
+  })
+
+  it('retire des dependances ce qui n a pas ete coche', async () => {
+    const { deps } = await creer(['libs', 'router'])
+    expect(deps['@odoro-cli/icons']).toBeUndefined()
+    expect(deps['@odoro-cli/engine']).toBeUndefined()
+    // React reste : il ne vient pas d'une case a cocher.
+    expect(deps['react']).toBeDefined()
+  })
+
+  it('ajoute le moteur, que le gabarit ne declare pas', async () => {
+    const { deps } = await creer(['libs', 'router', 'engine'])
+    expect(deps['@odoro-cli/engine']).toBe('^9.9.9')
+  })
+
+  it('n ajoute aucune dependance pour le registre', async () => {
+    const { deps } = await creer(['libs', 'router', 'registre'])
+    expect(Object.keys(deps).some((n) => n.includes('bits'))).toBe(false)
+    expect(Object.keys(deps).some((n) => n.includes('registre'))).toBe(false)
+  })
+
+  it('sans routeur, supprime les routes et pose une page unique', async () => {
+    const { dossier, app, fichiers } = await creer(['libs', 'icons'])
+    expect(existsSync(join(dossier, 'src/routes'))).toBe(false)
+    expect(fichiers.some((f) => f.startsWith('src/routes/'))).toBe(false)
+    // Sur l'import, et non sur la chaine : le fichier explique en commentaire
+    // comment rajouter un routeur plus tard, ce qui est voulu.
+    expect(app).not.toContain("from '@odoro-cli/libs/router'")
+    // Les classes et les composants des bibliotheques restent : seul le
+    // routeur a ete retire.
+    expect(app).toContain('@odoro-cli/libs/motion')
+    expect(app).toContain('o-flex')
+  })
+
+  it('sans bibliotheques, pose une application nue et retire leur feuille', async () => {
+    const { dossier, app, deps } = await creer([])
+    expect(deps['@odoro-cli/libs']).toBeUndefined()
+    expect(app).not.toContain("from '@odoro-cli/libs")
+    expect(app).not.toContain('o-flex')
+
+    const main = await readFile(join(dossier, 'src/main.tsx'), 'utf8')
+    expect(main).not.toContain('@odoro-cli/libs/styles.css')
+
+    // La feuille du projet doit alors porter les styles elle-meme : sans
+    // jetons ni utilitaires, une feuille vide rendrait une page nue.
+    const css = await readFile(join(dossier, 'src/styles.css'), 'utf8')
+    expect(css).toContain('.app-shell')
+    expect(css).toContain('prefers-color-scheme')
+  })
+
+  it('sans bibliotheques, aucun fichier ne mentionne un import qui n existe plus', async () => {
+    const { dossier } = await creer([])
+    for (const relatif of ['src/App.tsx', 'src/main.tsx', 'src/styles.css']) {
+      const contenu = await readFile(join(dossier, relatif), 'utf8')
+      expect(contenu, relatif).not.toContain("from '@odoro-cli/libs")
+      expect(contenu, relatif).not.toContain("import '@odoro-cli/libs")
+    }
+  })
+
+  it('rend le meme manifeste pour deux selections identiques', async () => {
+    const a = await creer(['icons', 'libs', 'router'])
+    const b = await creer(['libs', 'router', 'icons'])
+    expect(Object.keys(a.deps)).toEqual(Object.keys(b.deps))
+  })
+
+  it('garde le gabarit complet quand rien n est precise', async () => {
+    const dossier = await mkdtemp(join(tmpdir(), 'odoro-defaut-'))
+    await scaffold({
+      target: dossier,
+      template: 'react-ts',
+      packageName: 'essai',
+      version: '9.9.9',
+    })
+    const app = await readFile(join(dossier, 'src/App.tsx'), 'utf8')
+    expect(app).toContain('@odoro-cli/libs/router')
+    expect(existsSync(join(dossier, 'src/routes'))).toBe(true)
   })
 })

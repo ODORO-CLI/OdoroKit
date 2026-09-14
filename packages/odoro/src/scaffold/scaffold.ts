@@ -8,7 +8,30 @@ import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readFile, readdir, rm, writeFile, copyFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
+import {
+  MODULES_PAR_DEFAUT,
+  gardeLesRoutes,
+  paquetsDe,
+  varianteDe,
+  type ModuleId,
+} from './modules.js'
 import { targetFileName, templatesRoot } from './utils.js'
+
+/**
+ * Le dossier des variantes, a la racine d'un gabarit.
+ *
+ * Il n'est jamais copie : ses fichiers sont poses **par-dessus** le projet une
+ * fois le gabarit ecrit, et seulement ceux de la variante retenue. Le copier
+ * livrerait les trois versions de `App.tsx` dans le projet genere.
+ *
+ * Le nom commence par un tiret bas comme les autres fichiers pointes du
+ * gabarit, mais pour une raison differente : ici il signale au copieur qu'il
+ * faut passer son chemin.
+ */
+const DOSSIER_VARIANTES = '_variantes'
+
+/** Les paquets de la famille que le createur sait poser ou retirer. */
+const PAQUETS_OPTIONNELS = ['@odoro-cli/libs', '@odoro-cli/icons', '@odoro-cli/engine']
 
 /**
  * La version de la CLI qui tourne.
@@ -64,6 +87,16 @@ export interface ScaffoldOptions {
    * projet genere demande exactement ce qui vient d'etre publie.
    */
   version?: string
+  /**
+   * Les modules retenus a la creation.
+   *
+   * La selection doit avoir ete passee par `resoudre` : l'echafaudeur applique
+   * ce qu'on lui donne et ne corrige rien, pour qu'un refus soit explique la ou
+   * il est decide plutot qu'ici, en silence.
+   *
+   * Par defaut, ceux que le catalogue coche.
+   */
+  modules?: readonly ModuleId[]
 }
 
 /** Resultat d'un echafaudage. */
@@ -82,6 +115,10 @@ async function copyDirectory(
   await mkdir(to, { recursive: true })
 
   for (const entry of await readdir(from, { withFileTypes: true })) {
+    // A la racine du gabarit seulement : un projet a parfaitement le droit
+    // d'avoir un dossier de ce nom plus bas dans son arborescence.
+    if (prefix === '' && entry.name === DOSSIER_VARIANTES) continue
+
     const source = join(from, entry.name)
     const name = targetFileName(entry.name)
     const destination = join(to, name)
@@ -140,6 +177,64 @@ function alignOdoroVersions(
 }
 
 /**
+ * Ajuste les dependances du manifeste sur les modules retenus.
+ *
+ * Les gabarits declarent le cas complet ; ce qui n'a pas ete coche en est
+ * **retire**, et ce qui l'a ete y est **ajoute** s'il manquait. Les deux sens
+ * comptent : un gabarit ne peut pas porter d'avance toutes les combinaisons, et
+ * n'en porter aucune obligerait a reecrire la liste entiere ici.
+ *
+ * `@odoro-cli/server` n'est jamais touche : il ne vient pas d'une case a
+ * cocher mais du gabarit choisi, et le retirer laisserait un serveur sans son
+ * socle.
+ */
+function ajusterModules(
+  manifest: Record<string, unknown>,
+  modules: readonly ModuleId[],
+): Record<string, unknown> {
+  const voulus = new Set(paquetsDe(modules))
+  const deps = { ...((manifest['dependencies'] ?? {}) as Record<string, string>) }
+
+  for (const paquet of PAQUETS_OPTIONNELS) {
+    if (voulus.has(paquet)) deps[paquet] ??= 'latest'
+    else delete deps[paquet]
+  }
+
+  // Les cles sont triees : sans cela l'ajout d'un paquet le poserait en fin de
+  // liste, et deux projets aux memes modules auraient des manifestes differents.
+  return {
+    ...manifest,
+    dependencies: Object.fromEntries(
+      Object.entries(deps).sort(([a], [b]) => a.localeCompare(b)),
+    ),
+  }
+}
+
+/**
+ * Pose les fichiers d'une variante par-dessus le projet.
+ *
+ * Ils portent deja le chemin ou ils doivent atterrir — `src/App.tsx` pour le
+ * gabarit simple, `client/src/App.tsx` pour celui du serveur — si bien qu'il
+ * n'y a rien a traduire : on copie a l'identique.
+ *
+ * @throws {Error} Si la variante demandee n'existe pas dans le gabarit.
+ */
+async function poserVariante(
+  source: string,
+  target: string,
+  nom: string,
+): Promise<readonly string[]> {
+  const racine = join(source, DOSSIER_VARIANTES, nom)
+  if (!existsSync(racine)) {
+    throw new Error(`[odoro] Variante de gabarit introuvable : "${nom}".`)
+  }
+
+  const poses: string[] = []
+  await copyDirectory(racine, target, poses)
+  return poses
+}
+
+/**
  * Reecrit le manifeste genere : le nom du projet, et les versions Odoro.
  *
  * La mise en forme du reste du fichier est preservee — les cles existent deja
@@ -149,12 +244,17 @@ async function renamePackage(
   target: string,
   packageName: string,
   version: string,
+  modules: readonly ModuleId[],
 ): Promise<void> {
   const file = join(target, 'package.json')
   if (!existsSync(file)) return
 
   const manifest = JSON.parse(await readFile(file, 'utf8')) as Record<string, unknown>
-  const renamed = alignOdoroVersions({ ...manifest, name: packageName }, version)
+  // Les modules d'abord, les versions ensuite : un paquet qu'on vient
+  // d'ajouter doit recevoir la version de la CLI comme les autres, plutot que
+  // de rester sur le `latest` qui lui sert de valeur de depart.
+  const ajuste = ajusterModules({ ...manifest, name: packageName }, modules)
+  const renamed = alignOdoroVersions(ajuste, version)
   await writeFile(file, `${JSON.stringify(renamed, null, 2)}\n`, 'utf8')
 }
 
@@ -187,13 +287,39 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
     }
   }
 
+  const modules = options.modules ?? MODULES_PAR_DEFAUT
+
   const files: string[] = []
   await copyDirectory(source, options.target, files)
+
+  // Le decoupage par route n'a plus de sens sans routeur : les fichiers de
+  // `routes/` ne seraient importes par rien, et leurs propres imports ne
+  // resoudraient meme pas.
+  if (!gardeLesRoutes(modules)) {
+    for (const dossier of ['src/routes', 'client/src/routes']) {
+      await rm(join(options.target, dossier), { recursive: true, force: true })
+    }
+  }
+
+  const variante = varianteDe(modules)
+  const poses =
+    variante === undefined ? [] : await poserVariante(source, options.target, variante)
+
   await renamePackage(
     options.target,
     options.packageName,
     options.version ?? cliVersion(),
+    modules,
   )
 
-  return { files }
+  // Ce que la variante a pose remplace un fichier deja compte : l'annoncer
+  // deux fois gonflerait le nombre affiche a la fin de la creation.
+  const listes = new Set([
+    ...files.filter(
+      (f) => !f.startsWith('src/routes/') && !f.startsWith('client/src/routes/'),
+    ),
+    ...poses,
+  ])
+
+  return { files: [...listes].sort() }
 }
