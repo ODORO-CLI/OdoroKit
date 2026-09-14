@@ -2,8 +2,8 @@
 
    Les bibliotheques Odoro n'ont pas ete retenues a la creation : il n'y a donc
    ni jetons ni classes utilitaires, et cette feuille porte tout. Le dessin est
-   celui de la version complete — meme typographie, memes cartes, meme teinte
-   de marque — en CSS ordinaire.
+   celui de la version complete — meme barre en gelules, meme typographie,
+   memes cartes, meme teinte de marque — en CSS ordinaire.
 
    Une seule variable commande la couleur : `--marque`. La changer repeint le
    signe, les accents et les boutons d'un seul coup.
@@ -12,7 +12,7 @@
    `@odoro-cli/libs/styles.css` dans `main.tsx` avant cette feuille. */
 
 :root {
-  --marque: #f97316;
+  --marque: #3b82f6;
   --fond: #ffffff;
   --encre: #18181b;
   --doux: #71717a;
@@ -57,14 +57,58 @@ pre {
   grid-template-rows: auto 1fr auto;
 }
 
+/* ----- Barre en gelules --------------------------------------------------- */
+
+/* La barre ne peint pas de bandeau : ce sont les gelules qui portent la
+   surface, posees sur ce qu'il y a derriere. Le fond decoratif continue donc
+   de passer dessous, au lieu d'etre coupe par une bande opaque. */
+
+.barre {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0 1.25rem;
+}
+
+.barre-contenu {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 5rem;
+  width: 100%;
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.gelule {
+  display: inline-flex;
+  align-items: center;
+  height: 3.5rem;
+  flex-shrink: 0;
+  padding: 0 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--encre) 12%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--fond) 72%, transparent);
+  backdrop-filter: blur(16px);
+  text-decoration: none;
+}
+
+.gelule-lien {
+  margin-left: auto;
+  color: var(--doux);
+  font-size: 0.875rem;
+}
+
+.gelule-lien:hover {
+  color: var(--encre);
+}
+
 /* ----- Marque ------------------------------------------------------------- */
 
 .marque {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  gap: 0.625rem;
 }
 
 .marque-signe {
@@ -72,38 +116,14 @@ pre {
   display: inline-flex;
 }
 
-.signe {
-  width: 1.15em;
-  height: 1.15em;
+.marque-mot {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: var(--encre);
 }
 
 /* ----- Coquille ----------------------------------------------------------- */
-
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--filet);
-  background: color-mix(in oklab, var(--fond) 75%, transparent);
-  backdrop-filter: blur(10px);
-}
-
-.nav-lien,
-.lien-discret {
-  margin-left: auto;
-  color: var(--doux);
-  font-size: 0.875rem;
-  text-decoration: none;
-}
-
-.nav-lien:hover,
-.lien-discret:hover {
-  color: var(--marque);
-}
 
 .principal {
   position: relative;
@@ -118,6 +138,11 @@ pre {
   border-top: 1px solid var(--filet);
   color: var(--doux);
   font-size: 0.875rem;
+}
+
+.pied .marque-mot {
+  font-size: 0.875rem;
+  color: inherit;
 }
 
 /* ----- Fond decoratif ----------------------------------------------------- */
@@ -175,7 +200,7 @@ pre {
 }
 
 .hero {
-  padding: 6rem 1.5rem 5rem;
+  padding: 4rem 1.5rem 5rem;
 }
 
 .section {
@@ -193,6 +218,7 @@ pre {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   border: 1px solid color-mix(in oklab, var(--marque) 30%, transparent);
@@ -373,6 +399,13 @@ pre {
 .lien-discret {
   display: inline-block;
   margin: 1.5rem auto 0;
+  color: var(--doux);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.lien-discret:hover {
+  color: var(--marque);
 }
 
 /* ----- Boutons ------------------------------------------------------------ */

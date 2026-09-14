@@ -292,12 +292,12 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
   const files: string[] = []
   await copyDirectory(source, options.target, files)
 
-  // Le decoupage par route n'a plus de sens sans routeur : les fichiers de
-  // `routes/` ne seraient importes par rien, et leurs propres imports ne
-  // resoudraient meme pas.
+  // `router.tsx` est le seul fichier qui nomme la dependance de routage.
+  // Sans routeur il n'est importe par rien, et son propre import ne
+  // resoudrait pas : il part avec.
   if (!gardeLesRoutes(modules)) {
-    for (const dossier of ['src/routes', 'client/src/routes']) {
-      await rm(join(options.target, dossier), { recursive: true, force: true })
+    for (const fichier of ['src/router.tsx', 'client/src/router.tsx']) {
+      await rm(join(options.target, fichier), { force: true })
     }
   }
 
@@ -317,10 +317,9 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
 
   // Ce que la variante a pose remplace un fichier deja compte : l'annoncer
   // deux fois gonflerait le nombre affiche a la fin de la creation.
+  const retires = new Set(['src/router.tsx', 'client/src/router.tsx'])
   const listes = new Set([
-    ...files.filter(
-      (f) => !f.startsWith('src/routes/') && !f.startsWith('client/src/routes/'),
-    ),
+    ...files.filter((f) => gardeLesRoutes(modules) || !retires.has(f)),
     ...poses,
   ])
 

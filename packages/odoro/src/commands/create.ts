@@ -4,9 +4,9 @@
  * @module
  */
 
-import { execSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
-import { basename, resolve } from 'node:path'
+import { execSync, spawn } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
+import { basename, dirname, join, resolve } from 'node:path'
 
 import * as prompts from '@clack/prompts'
 import colors from 'picocolors'
@@ -65,11 +65,22 @@ import {
   type DatabaseOutcome,
 } from './database.js'
 
+/**
+ * Combien de lignes de sortie garder pour expliquer un echec.
+ *
+ * Assez pour que la cause y figure — un gestionnaire de paquets la dit dans ses
+ * dernieres lignes — et pas au point de noyer le terminal.
+ */
+const DERNIERES_LIGNES = 8
+
+/** Au-dela, une ligne de sortie est coupee pour ne pas faire defiler la barre. */
+const LARGEUR_LIGNE = 64
+
 /** Descriptions affichees dans le selecteur de template. */
 const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
-  'react-ts': 'Application monopage — React, TypeScript, routeur et animations Odoro',
+  'react-ts': 'Single-page app — React, TypeScript, Odoro router and motion',
   'react-ts-server':
-    'Client et serveur — la meme application, plus un socle @odoro-cli/server modulaire et un Dockerfile',
+    'Client and server — the same app, plus a modular @odoro-cli/server base and a Dockerfile',
 }
 
 /**
@@ -83,20 +94,20 @@ const TEMPLATE_LABELS: Readonly<Record<string, string>> = {
 async function askDatabase(): Promise<DatabaseOutcome> {
   const choice = ensure(
     await prompts.select<DatabaseChoice>({
-      message: 'Base de donnees',
+      message: 'Database',
       initialValue: 'url',
       options: [
         {
           value: 'provider',
-          label: 'Fournisseur Odoro',
-          hint: 'provisionnement automatique — bientot',
+          label: 'Odoro provider',
+          hint: 'automatic provisioning — coming soon',
         },
         {
           value: 'url',
-          label: 'URL PostgreSQL existante',
-          hint: 'Neon, Supabase, RDS, la votre',
+          label: 'Existing PostgreSQL URL',
+          hint: 'Neon, Supabase, RDS, your own',
         },
-        { value: 'later', label: 'Configurer plus tard', hint: '.env.example seul' },
+        { value: 'later', label: 'Set up later', hint: '.env.example only' },
       ],
     }),
   )
@@ -115,7 +126,7 @@ async function askDatabase(): Promise<DatabaseOutcome> {
 
   const url = ensure(
     await prompts.text({
-      message: 'URL PostgreSQL',
+      message: 'PostgreSQL URL',
       placeholder: 'postgres://utilisateur:motdepasse@hote:5432/base?sslmode=require',
       validate: (value) => checkDatabaseUrl(value ?? ''),
     }),
@@ -166,7 +177,7 @@ async function askModules(
 
   const choisis = ensure(
     await prompts.multiselect<ModuleId>({
-      message: 'Que met-on dans le projet ?',
+      message: 'What goes in the project?',
       initialValues: [...MODULES_PAR_DEFAUT],
       required: false,
       options: MODULES.map((m) => ({ value: m.id, label: m.label, hint: m.hint })),
@@ -182,10 +193,107 @@ function annoncer(resolution: ReturnType<typeof resoudre>): readonly ModuleId[] 
   return resolution.modules
 }
 
+/**
+ * Installe les dependances en montrant ou en est le gestionnaire.
+ *
+ * ## Pourquoi ce n'est plus un \`execSync\` muet
+ *
+ * L'installation est de loin l'etape la plus longue — dix a soixante
+ * secondes selon le reseau. Une ligne figee pendant ce temps ne dit pas si
+ * quelque chose avance, si le reseau est tombe, ou si le terminal attend une
+ * reponse. On finit par appuyer sur une touche pour voir.
+ *
+ * Le processus est donc lance en flux : chaque ligne qu'il ecrit remonte, et
+ * la derniere est affichee a cote du minuteur. On voit le gestionnaire
+ * resoudre, telecharger, lier — et l'on sait, a tout instant, que ce n'est
+ * pas bloque.
+ *
+ * ## En cas d'echec, on montre la fin
+ *
+ * \`stdio: 'ignore'\` jetait la sortie : un echec laissait un « relancez a la
+ * main » sans dire pourquoi. Les dernieres lignes sont gardees, et
+ * reaffichees — c'est la ou le gestionnaire explique ce qui l'a arrete.
+ *
+ * @returns \`true\` si l'installation a abouti.
+ */
+async function installerDependances(
+  target: string,
+  manager: PackageManager,
+): Promise<boolean> {
+  const [commande, ...args] = installCommand(manager).split(' ')
+  if (commande === undefined) return false
+
+  const barre = prompts.spinner({ indicator: 'timer' })
+  barre.start(`Installing dependencies with ${manager}`)
+
+  // Les dernieres lignes, et elles seules : une installation bavarde en ecrit
+  // des milliers, et n'en garder que la fin suffit a expliquer un echec.
+  const fin: string[] = []
+  const garder = (bloc: string): void => {
+    for (const ligne of bloc.split('\n')) {
+      const propre = ligne.trim()
+      // Les lignes sans contenu sont sautees : un gestionnaire met en forme
+      // ses avertissements sur plusieurs lignes, et afficher une accolade
+      // seule a cote du minuteur ne dit rien de ce qui avance.
+      if (propre === '' || !/[a-z0-9]/i.test(propre)) continue
+      fin.push(propre)
+      if (fin.length > DERNIERES_LIGNES) fin.shift()
+      // Tronquee : une ligne plus large que le terminal le ferait defiler, et
+      // la barre sauterait a chaque mise a jour.
+      barre.message(`${manager} · ${propre.slice(0, LARGEUR_LIGNE)}`)
+    }
+  }
+
+  const code = await new Promise<number>((resolve_) => {
+    // \`shell\` sur Windows : \`npm\` y est un script, et \`spawn\` sans shell ne
+    // sait pas l'executer.
+    const processus = spawn(commande, args, {
+      cwd: target,
+      shell: process.platform === 'win32',
+    })
+    processus.stdout?.setEncoding('utf8').on('data', garder)
+    processus.stderr?.setEncoding('utf8').on('data', garder)
+    processus.on('error', () => {
+      resolve_(-1)
+    })
+    processus.on('close', (sortie) => {
+      resolve_(sortie ?? -1)
+    })
+  })
+
+  if (code === 0) {
+    barre.stop(`Dependencies installed with ${manager}`)
+    return true
+  }
+
+  // Le second argument marque la ligne comme un echec : elle sort en rouge,
+  // au lieu de ressembler a une etape reussie de plus.
+  barre.stop(`${manager} install failed`, 1)
+  for (const ligne of fin) prompts.log.error(colors.dim(ligne))
+  return false
+}
+/**
+ * La version de la CLI qui tourne, lue dans son propre manifeste.
+ *
+ * Figee dans une constante, elle serait juste le jour ou on l'ecrit et fausse a
+ * la publication suivante.
+ */
+function versionCli(): string {
+  try {
+    const manifeste = join(dirname(templatesRoot()), 'package.json')
+    const { version } = JSON.parse(readFileSync(manifeste, 'utf8')) as { version: string }
+    return version
+  } catch {
+    // Une creation doit aboutir meme si le manifeste est illisible : on
+    // n'affiche alors pas de numero plutot que d'en inventer un.
+    return '?'
+  }
+}
+
 /** Interrompt proprement si l'utilisateur annule une question. */
 function ensure<T>(value: T | symbol): T {
   if (prompts.isCancel(value)) {
-    prompts.cancel('Creation annulee.')
+    prompts.cancel('Cancelled.')
     process.exit(0)
   }
   return value as T
@@ -204,7 +312,12 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   const templates = availableTemplates(root)
   const defaultTemplate = templates[0] ?? 'react-ts'
 
-  prompts.intro(colors.bold(colors.magenta(' odoro ')))
+  // Bleu et non magenta : c'est la teinte de la marque, celle du signe et du
+  // site. Le numero de version est affiche parce que c'est la premiere chose
+  // qu'on demande quand quelque chose se passe mal.
+  prompts.intro(
+    `${colors.bgBlue(colors.black(' ODORO '))} ${colors.dim(`v${versionCli()}`)}`,
+  )
 
   const rawName =
     options.name ??
@@ -212,7 +325,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       ? 'odoro-app'
       : ensure(
           await prompts.text({
-            message: 'Nom du projet',
+            message: 'Project name',
             placeholder: 'mon-site',
             defaultValue: 'odoro-app',
             validate: (value) =>
@@ -236,18 +349,18 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   if (state === 'occupe' && overwrite === undefined) {
     if (options.yes === true) {
       prompts.cancel(
-        `Le dossier "${basename(target)}" n'est pas vide. Precisez --overwrite ou --merge.`,
+        `Folder "${basename(target)}" is not empty. Pass --overwrite or --merge.`,
       )
       return 1
     }
 
     const choice = ensure(
       await prompts.select({
-        message: `Le dossier "${basename(target)}" n'est pas vide.`,
+        message: `Folder "${basename(target)}" is not empty.`,
         options: [
-          { value: 'annuler', label: 'Annuler' },
-          { value: 'fusionner', label: 'Fusionner — ecrase les fichiers de meme nom' },
-          { value: 'ecraser', label: 'Vider le dossier puis creer le projet' },
+          { value: 'annuler', label: 'Cancel' },
+          { value: 'fusionner', label: 'Merge — overwrites files of the same name' },
+          { value: 'ecraser', label: 'Empty the folder, then create the project' },
         ],
       }),
     )
@@ -277,7 +390,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
 
   if (!templates.includes(template)) {
     prompts.cancel(
-      `Template inconnu : "${template}". Disponibles : ${templates.join(', ')}.`,
+      `Unknown template: "${template}". Available: ${templates.join(', ')}.`,
     )
     return 1
   }
@@ -291,18 +404,18 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       ? detected
       : ensure(
           await prompts.select({
-            message: 'Gestionnaire de paquets',
+            message: 'Package manager',
             initialValue: detected,
             options: PACKAGE_MANAGERS.map((name) => ({
               value: name,
               label: name,
-              hint: name === detected ? 'detecte' : undefined,
+              hint: name === detected ? 'detected' : undefined,
             })),
           }),
         ))) as PackageManager
 
   if (!PACKAGE_MANAGERS.includes(manager)) {
-    prompts.cancel(`Gestionnaire inconnu : "${manager}".`)
+    prompts.cancel(`Unknown package manager: "${manager}".`)
     return 1
   }
 
@@ -316,7 +429,7 @@ export async function createCommand(options: CreateOptions): Promise<number> {
     options.git ??
     (options.yes === true
       ? true
-      : ensure(await prompts.confirm({ message: 'Initialiser un depot git ?' })))
+      : ensure(await prompts.confirm({ message: 'Initialize a git repository?' })))
 
   const withInstall =
     options.install ??
@@ -324,12 +437,12 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       ? true
       : ensure(
           await prompts.confirm({
-            message: `Installer les dependances avec ${manager} ?`,
+            message: `Install dependencies with ${manager}?`,
           }),
         ))
 
   const spinner = prompts.spinner()
-  spinner.start('Creation du projet')
+  spinner.start('Writing files')
 
   const scaffoldOptions: Parameters<typeof scaffold>[0] = {
     target,
@@ -341,20 +454,20 @@ export async function createCommand(options: CreateOptions): Promise<number> {
   scaffoldOptions.modules = modules
 
   const { files } = await scaffold(scaffoldOptions)
-  spinner.stop(`${files.length} fichiers ecrits dans ${colors.cyan(basename(target))}`)
+  spinner.stop(`${String(files.length)} files written to ${colors.cyan(basename(target))}`)
 
   if (withGit && !existsSync(resolve(target, '.git'))) {
     try {
       execSync('git init -q', { cwd: target, stdio: 'ignore' })
-      prompts.log.success('Depot git initialise.')
+      prompts.log.success('Git repository initialized.')
     } catch {
-      prompts.log.warn('git est introuvable : depot non initialise.')
+      prompts.log.warn('git was not found — repository not initialized.')
     }
   }
 
   if (database?.url !== undefined) {
     await writeDatabaseUrl(target, database.url)
-    prompts.log.success('URL de base ecrite dans .env')
+    prompts.log.success('Database URL written to .env')
 
     const risque = await assertEnvIgnored(target)
     if (risque !== undefined) prompts.log.warn(risque)
@@ -377,33 +490,26 @@ export async function createCommand(options: CreateOptions): Promise<number> {
       // Un registre non configure ne compromet pas le projet : tout le reste
       // est ecrit, et la commande se relance a la main.
       prompts.log.warn(
-        'Le registre n a pas pu etre configure. Relancez `odoro init` dans le projet.',
+        'The registry could not be configured. Run `odoro init` in the project.',
       )
     }
   }
 
-  if (withInstall) {
-    const install = prompts.spinner()
-    install.start(`Installation avec ${manager}`)
-    try {
-      execSync(installCommand(manager), { cwd: target, stdio: 'ignore' })
-      install.stop('Dependances installees.')
-    } catch {
-      install.stop('Installation echouee — a relancer a la main.')
-    }
-  }
+  const installe = withInstall ? await installerDependances(target, manager) : false
 
   const steps = [
     `cd ${basename(target)}`,
-    ...(withInstall ? [] : [installCommand(manager)]),
+    // Si l'installation a echoue, la commande revient dans les etapes : le
+    // projet est ecrit, il ne lui manque que ses dependances.
+    ...(installe ? [] : [installCommand(manager)]),
     // `odoro.json` vient d'etre ecrit : ce qui reste a montrer, c'est la
     // commande qui s'en sert.
     ...(modules.includes('registre') ? ['odoro add text/count-up'] : []),
     runCommand(manager, 'dev'),
   ]
 
-  prompts.note(steps.join('\n'), 'Prochaines etapes')
-  prompts.outro(colors.green('Bon developpement.'))
+  prompts.note(steps.join('\n'), 'Next steps')
+  prompts.outro(colors.green('Happy building.'))
 
   return 0
 }

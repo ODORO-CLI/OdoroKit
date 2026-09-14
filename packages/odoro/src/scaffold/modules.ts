@@ -19,6 +19,13 @@
  * Chaque entree porte donc ce qu'elle fait vraiment, et le createur s'en sert
  * plutot que de deviner.
  *
+ * ## Pourquoi les libelles sont en anglais
+ *
+ * Le code et les commentaires de ce depot sont en francais ; ce que voit la
+ * personne qui cree un projet ne l'est pas. `npm create odoro` s'execute chez
+ * n'importe qui, et l'anglais est la langue par defaut d'un outil de ligne de
+ * commande publie sur npm.
+ *
  * ## Une case qui ne peut pas etre decochee est une case qui ment
  *
  * Les bibliotheques sont cochees par defaut, et on peut les decocher pour de
@@ -41,9 +48,9 @@ export type ModuleId = 'libs' | 'router' | 'icons' | 'engine' | 'registre'
 /** Ce qu'on sait d'un module. */
 export interface Module {
   readonly id: ModuleId
-  /** Libelle affiche dans la liste. */
+/** Libelle affiche dans la liste. En anglais : voir l'en-tete du module. */
   readonly label: string
-  /** Precision affichee en gris, a droite du libelle. */
+  /** Precision affichee en gris, a droite du libelle. En anglais de meme. */
   readonly hint: string
   /** Coche a l'ouverture de la liste. */
   readonly defaut: boolean
@@ -64,35 +71,35 @@ export interface Module {
 export const MODULES: readonly Module[] = [
   {
     id: 'libs',
-    label: 'Bibliotheques',
-    hint: 'style, jetons, interface et animations',
+    label: 'Libraries',
+    hint: 'styles, tokens, UI and motion',
     defaut: true,
     paquet: '@odoro-cli/libs',
   },
   {
     id: 'router',
-    label: 'Routeur',
-    hint: 'vient avec les bibliotheques — cable les pages',
+    label: 'Router',
+    hint: 'ships with the libraries — wires up the pages',
     defaut: true,
   },
   {
     id: 'icons',
-    label: 'Icones',
-    hint: 'cinq familles, importables une a une',
+    label: 'Icons',
+    hint: 'five families, imported one by one',
     defaut: true,
     paquet: '@odoro-cli/icons',
   },
   {
     id: 'engine',
-    label: 'Moteur',
-    hint: 'WebGL, surfaces et politique de mouvement',
+    label: 'Engine',
+    hint: 'WebGL, surfaces and motion policy',
     defaut: false,
     paquet: '@odoro-cli/engine',
   },
   {
     id: 'registre',
-    label: 'Registre de composants',
-    hint: 'copies par `odoro add` — entraine le moteur',
+    label: 'Component registry',
+    hint: 'copied by `odoro add` — pulls in the engine',
     defaut: false,
   },
 ]
@@ -136,7 +143,7 @@ export function resoudre(selection: readonly ModuleId[]): Resolution {
   if (choisis.has('router') && !choisis.has('libs')) {
     choisis.delete('router')
     avertissements.push(
-      'Le routeur vient des bibliotheques (@odoro-cli/libs/router) : sans elles, il est retire.',
+      'The router lives in the libraries (@odoro-cli/libs/router) — without them it is dropped.',
     )
   }
 
@@ -147,7 +154,7 @@ export function resoudre(selection: readonly ModuleId[]): Resolution {
   if (choisis.has('registre') && !choisis.has('engine')) {
     choisis.add('engine')
     avertissements.push(
-      'Presque toutes les entrees du registre importent @odoro-cli/engine : le moteur est ajoute.',
+      'Almost every registry entry imports @odoro-cli/engine, so the engine was added.',
     )
   }
 
@@ -229,7 +236,7 @@ export function gardeLesRoutes(modules: readonly ModuleId[]): boolean {
  *
  * @example
  * lireModules('libs,router') // { modules: ['libs', 'router'] }
- * lireModules('aucun')       // { erreur: 'Module inconnu : "aucun". ...' }
+ * lireModules('none')        // { modules: [] }
  * lireModules('')            // { modules: [] }
  */
 export function lireModules(
@@ -240,14 +247,18 @@ export function lireModules(
     .map((part) => part.trim())
     .filter((part) => part !== '')
 
-  // `--modules=` sans rien, ou `--modules=aucun` : une application nue, ce qui
-  // est un choix valide et non une saisie vide a corriger.
-  if (brut.length === 1 && brut[0] === 'aucun') return { modules: [] }
+  // `--modules=` sans rien, ou `--modules=none` : une application nue, ce qui
+  // est un choix valide et non une saisie vide a corriger. `aucun` reste
+  // accepte : il a ete documente, et le retirer casserait les scripts ecrits
+  // depuis.
+  if (brut.length === 1 && (brut[0] === 'none' || brut[0] === 'aucun')) {
+    return { modules: [] }
+  }
 
   const inconnu = brut.find((part) => !MODULE_IDS.includes(part as ModuleId))
   if (inconnu !== undefined) {
     return {
-      erreur: `Module inconnu : "${inconnu}". Disponibles : ${MODULE_IDS.join(', ')}, ou "aucun".`,
+      erreur: `Unknown module: "${inconnu}". Available: ${MODULE_IDS.join(', ')}, or "none".`,
     }
   }
 

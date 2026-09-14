@@ -1,22 +1,22 @@
 /**
  * Le fond decoratif de la page.
  *
- * ## Ce qu'il est, et ce qu'il remplace
+ * ## Pourquoi ce n'est pas dans `App.tsx`
  *
- * Deux nappes de couleur de marque, tres diluees, posees en haut de page. Rien
- * ne bouge : c'est un degrade, pas une animation — il ne coute aucune image par
- * seconde et se dessine avant le premier octet de JavaScript.
+ * C'est le seul morceau de la page qui depend de ce qui a ete coche a la
+ * creation : avec le moteur, ce fichier est remplace par une version qui ouvre
+ * une surface WebGL animee ; sans lui, c'est le degrade ci-dessous.
  *
- * Si le moteur a ete retenu a la creation, ce fichier est remplace par une
- * version qui ouvre une surface WebGL animee. Le reste de la page ne sait pas
- * d'ou vient son fond : elle place `<Fond />` et n'en demande pas plus.
+ * Le garder a part evite d'avoir deux `App.tsx` a tenir — un par cas — qui
+ * divergeraient au premier changement de texte. `App.tsx` place `<Fond />` et
+ * n'en demande pas plus.
  *
  * @module
  */
 
 import type { ReactElement } from 'react'
 
-/** Deux nappes de marque, diluees, derriere le contenu. */
+/** Deux nappes de marque, diluees, derriere le haut de la page. */
 export function Fond(): ReactElement {
   return (
     <div
@@ -31,7 +31,7 @@ export function Fond(): ReactElement {
         }}
       />
       <div
-        className="o-absolute o-right-[-10rem] o-top-[6rem] o-size-[30rem] o-rounded-full o-blur-3xl o-opacity-20 dark:o-opacity-20"
+        className="o-absolute o-right-[-10rem] o-top-[6rem] o-size-[30rem] o-rounded-full o-blur-3xl o-opacity-20"
         style={{
           background:
             'radial-gradient(closest-side, var(--o-palette-brand-400), transparent)',

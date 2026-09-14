@@ -5,7 +5,7 @@
  * degrade, pas une animation.
  *
  * Si le moteur a ete retenu, ce fichier est remplace par une version qui ouvre
- * une surface WebGL animee.
+ * une surface WebGL animee. `App.tsx` place `<Fond />` et n'en demande pas plus.
  *
  * @module
  */

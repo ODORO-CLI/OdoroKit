@@ -361,19 +361,22 @@ describe('les modules retenus changent le projet ecrit', () => {
     expect(Object.keys(deps).some((n) => n.includes('registre'))).toBe(false)
   })
 
-  it('sans routeur, supprime les routes et pose une page unique', async () => {
+  it('sans routeur, retire router.tsx et pose une page unique', async () => {
     const { dossier, app, fichiers } = await creer(['libs', 'icons'])
-    expect(existsSync(join(dossier, 'src/routes'))).toBe(false)
-    expect(fichiers.some((f) => f.startsWith('src/routes/'))).toBe(false)
-    // Sur l'import, et non sur la chaine : le fichier explique en commentaire
-    // comment rajouter un routeur plus tard, ce qui est voulu.
-    expect(app).not.toContain("from '@odoro-cli/libs/router'")
+
+    // `router.tsx` est le seul fichier qui nomme la dependance de routage :
+    // sans routeur, il n'est importe par rien.
+    expect(existsSync(join(dossier, 'src/router.tsx'))).toBe(false)
+    expect(fichiers).not.toContain('src/router.tsx')
+    expect(app).not.toContain("from '@/router'")
+
     // Les classes des bibliotheques restent : seul le routeur a ete retire.
     expect(app).toContain('o-flex')
-    // La page unique compose les memes sections que la version routee — c'est
-    // ce qui fait que les deux se ressemblent au lieu d'etre deux pages.
-    for (const section of ['Hero', 'Piliers', 'Cloture', 'Fond']) {
-      expect(app, section).toContain(`@/sections/${section}`)
+
+    // La page unique porte les memes sections que la version routee — c'est ce
+    // qui fait que les deux se ressemblent au lieu d'etre deux pages.
+    for (const section of ['function Hero', 'function Piliers', 'function Cloture']) {
+      expect(app, section).toContain(section)
     }
   })
 
@@ -417,8 +420,9 @@ describe('les modules retenus changent le projet ecrit', () => {
       version: '9.9.9',
     })
     const app = await readFile(join(dossier, 'src/App.tsx'), 'utf8')
-    expect(app).toContain('@odoro-cli/libs/router')
-    expect(existsSync(join(dossier, 'src/routes'))).toBe(true)
+    // Le routeur est importe en une ligne, depuis le fichier qui le porte.
+    expect(app).toContain("from '@/router'")
+    expect(existsSync(join(dossier, 'src/router.tsx'))).toBe(true)
   })
 })
 
@@ -463,13 +467,13 @@ describe('la page d accueil suit le dessin de la landing', () => {
   }
 
   it('pose un fond statique quand le moteur n est pas retenu', async () => {
-    const fond = await lire(['libs', 'router', 'icons'], 'src/sections/Fond.tsx')
+    const fond = await lire(['libs', 'router', 'icons'], 'src/fond.tsx')
     expect(fond).not.toContain('useShaderSurface')
     expect(fond).toContain('radial-gradient')
   })
 
   it('pose un fond en surface WebGL quand le moteur est retenu', async () => {
-    const fond = await lire(['libs', 'router', 'engine'], 'src/sections/Fond.tsx')
+    const fond = await lire(['libs', 'router', 'engine'], 'src/fond.tsx')
     expect(fond).toContain('useShaderSurface')
     // Le repli reste : une surface refusee ne doit pas laisser un trou.
     expect(fond).toContain('radial-gradient')
@@ -478,35 +482,60 @@ describe('la page d accueil suit le dessin de la landing', () => {
   it('le fond du moteur ne depend d aucune classe utilitaire', async () => {
     // Il est pose meme sans les bibliotheques, ou les classes `o-*` n'existent
     // pas : une classe absente ne peint rien, et le fond serait invisible.
-    const fond = await lire(['engine'], 'src/sections/Fond.tsx')
+    const fond = await lire(['engine'], 'src/fond.tsx')
     expect(fond).toContain('useShaderSurface')
     expect(fond).not.toMatch(/className="[^"]*\bo-/)
   })
 
   it('donne le signe de la marque une taille, et non une classe arbitraire', async () => {
-    // `o-size-[1.15em]` n'est emis que si le compilateur l'a vue : absente,
-    // elle laisserait un SVG sans dimensions, donc invisible.
-    const marque = await lire(['libs', 'router'], 'src/composants/Marque.tsx')
-    expect(marque).toContain("width: '1.15em'")
-    expect(marque).not.toContain('o-size-[')
+    // Une classe utilitaire a valeur arbitraire n'est emise que si le
+    // compilateur l'a vue passer : absente, elle laisserait un SVG sans
+    // dimensions, donc invisible.
+    const app = await lire(['libs', 'router'], 'src/App.tsx')
+    expect(app).toContain('width: taille')
+    expect(app).not.toContain('o-size-[')
   })
 
   it('n ecrit aucun lien souligne parmi les boutons', async () => {
-    const hero = await lire(['libs', 'router'], 'src/sections/Hero.tsx')
-    for (const appel of hero.match(/buttonClasses\([^)]*\)/g) ?? []) {
-      expect(hero, appel).toContain('o-no-underline')
+    const app = await lire(['libs', 'router'], 'src/App.tsx')
+    for (const appel of app.match(/<a[^>]*buttonClasses\([^)]*\)[^>]*>/g) ?? []) {
+      expect(app, appel).toContain('o-no-underline')
     }
+  })
+
+  it('importe le routeur en une seule ligne', async () => {
+    // C'est la forme demandee : `App.tsx` porte la page, `router.tsx` porte le
+    // routage, et le lien entre les deux tient sur une ligne.
+    const app = await lire(['libs', 'router'], 'src/App.tsx')
+    const lignes = app.split('\n').filter((l) => l.includes("from '@/router'"))
+    expect(lignes).toHaveLength(1)
+  })
+
+  it('ne laisse aucun dossier de sections', async () => {
+    // Tout s'ecrit dans `App.tsx` : un dossier `sections/` serait la structure
+    // que cette forme remplace.
+    const dossier = await mkdtemp(join(tmpdir(), 'odoro-plat-'))
+    await scaffold({
+      target: dossier,
+      template: 'react-ts',
+      packageName: 'essai',
+      modules: ['libs', 'router', 'engine'],
+      version: '9.9.9',
+    })
+    expect(existsSync(join(dossier, 'src/sections'))).toBe(false)
+    expect(existsSync(join(dossier, 'src/composants'))).toBe(false)
+    expect(existsSync(join(dossier, 'src/routes'))).toBe(false)
   })
 
   it('garde le meme dessin sans les bibliotheques', async () => {
     // Meme structure, meme marque, meme teinte — en CSS ordinaire.
     const css = await lire([], 'src/styles.css')
-    expect(css).toContain('--marque: #f97316')
+    expect(css).toContain('--marque: #3b82f6')
     expect(css).toContain('.fenetre')
     expect(css).toContain('.carte')
     // Sur l'import : le fichier dit en commentaire ce que les bibliotheques
     // auraient apporte, et cette phrase a sa place.
-    const hero = await lire([], 'src/sections/Hero.tsx')
-    expect(hero).not.toContain("from '@odoro-cli/libs")
+    const app = await lire([], 'src/App.tsx')
+    expect(app).not.toContain("from '@odoro-cli/libs")
   })
 })

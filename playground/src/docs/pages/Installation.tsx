@@ -42,7 +42,7 @@ pnpm preview   # apercu du build`}
 pnpm create odoro mon-app --yes --modules=libs,router,icons
 
 # une base React nue, sans style Odoro
-pnpm create odoro mon-app --yes --modules=aucun`}
+pnpm create odoro mon-app --yes --modules=none`}
         />
         <Callout>
           Le routeur n'est pas un paquet : il vit dans{' '}

@@ -76,22 +76,31 @@ import {
 } from './generated/baseTokens.js'
 
 /**
- * Teinte de marque d'Odoro : l'orange du logo (`#f97316`, `brand-500`),
+ * Teinte de marque d'Odoro : le bleu du logo (`#3b82f6`, `brand-500`),
  * decline sur les memes 11 nuances que le reste de la palette pour rester
  * interchangeable avec n'importe quelle autre teinte.
+ *
+ * ## Pourquoi la marque est une echelle a part, et non un alias
+ *
+ * Les valeurs sont recopiees depuis l'echelle bleue de la palette de base
+ * plutot que referencees. Un alias lierait la marque a une famille : la
+ * reteinter demanderait alors de changer de famille partout ou `brand` est
+ * employe — c'est-a-dire dans la documentation, les vitrines et les gabarits.
+ *
+ * Ici, une seule table change, et tout ce qui lit `--o-palette-brand-*` suit.
  */
 export const brand = {
-  'brand-50': 'oklch(98.0% 0.016 73.684)',
-  'brand-100': 'oklch(95.4% 0.038 75.164)',
-  'brand-200': 'oklch(90.1% 0.076 70.697)',
-  'brand-300': 'oklch(83.7% 0.128 66.290)',
-  'brand-400': 'oklch(75.0% 0.183 55.934)',
-  'brand-500': 'oklch(70.5% 0.213 47.604)',
-  'brand-600': 'oklch(64.6% 0.222 41.116)',
-  'brand-700': 'oklch(55.3% 0.195 38.402)',
-  'brand-800': 'oklch(47.0% 0.157 37.304)',
-  'brand-900': 'oklch(40.8% 0.123 38.172)',
-  'brand-950': 'oklch(26.6% 0.079 36.259)',
+  'brand-50': 'oklch(97.0% 0.014 254.604)',
+  'brand-100': 'oklch(93.2% 0.032 255.585)',
+  'brand-200': 'oklch(88.2% 0.059 254.128)',
+  'brand-300': 'oklch(80.9% 0.105 251.813)',
+  'brand-400': 'oklch(70.7% 0.165 254.624)',
+  'brand-500': 'oklch(62.3% 0.214 259.815)',
+  'brand-600': 'oklch(54.6% 0.245 262.881)',
+  'brand-700': 'oklch(48.8% 0.243 264.376)',
+  'brand-800': 'oklch(42.4% 0.199 265.638)',
+  'brand-900': 'oklch(37.9% 0.146 265.522)',
+  'brand-950': 'oklch(28.2% 0.091 267.935)',
 } as const
 
 /**
