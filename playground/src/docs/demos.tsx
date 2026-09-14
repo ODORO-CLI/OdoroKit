@@ -16,6 +16,7 @@
  * @module
  */
 
+import type { DemoVariant } from './components/DemoContent.jsx'
 import {
   useEffect,
   useRef,
@@ -507,7 +508,7 @@ export interface DemoSpec {
   /** Affiche le contenu de demonstration par defaut. */
   readonly demoByDefault?: boolean
   /** Maquette de contenu de depart (hero, cartes, formulaire, stats, article). */
-  readonly demoVariant?: import('./components/DemoContent.jsx').DemoVariant
+  readonly demoVariant?: DemoVariant
   /** Reglages, si ceux deduits du meta ne conviennent pas. */
   readonly controls?: readonly AtelierControl[]
   /** Rend la preview derriere un interrupteur. */

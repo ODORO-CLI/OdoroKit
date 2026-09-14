@@ -2,19 +2,15 @@
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [
-    [
-      "@odoro-cli/engine",
-      "@odoro-cli/icons",
-      "@odoro-cli/libs",
-      "@odoro-cli/server",
-      "create-odoro",
-      "odoro"
-    ]
-  ],
+  "fixed": [],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["odoro-playground"]
+  "ignore": [
+    "odoro-playground"
+  ],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
 }

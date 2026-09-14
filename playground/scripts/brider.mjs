@@ -145,14 +145,14 @@ function couche() {
     for (let degre = 5; degre <= 95; degre += 5) {
       const melange = `color-mix(in srgb, var(${jeton}) ${String(degre)}%, transparent)`
       const d = String(degre)
-      lignes.push(`.bg-${nom}\/${d}{background-color:${melange}}`)
-      lignes.push(`.text-${nom}\/${d}{color:${melange}}`)
-      lignes.push(`.border-${nom}\/${d}{border-color:${melange}}`)
+      lignes.push(`.bg-${nom}/${d}{background-color:${melange}}`)
+      lignes.push(`.text-${nom}/${d}{color:${melange}}`)
+      lignes.push(`.border-${nom}/${d}{border-color:${melange}}`)
       // Les arrets de degrade ne servent que sur le fond et l encre.
       if (nom === 'bg' || nom === 'ink') {
-        lignes.push(`.from-${nom}\/${d}{--od-from:${melange}}`)
-        lignes.push(`.via-${nom}\/${d}{--od-via:${melange}}`)
-        lignes.push(`.to-${nom}\/${d}{--od-to:${melange}}`)
+        lignes.push(`.from-${nom}/${d}{--od-from:${melange}}`)
+        lignes.push(`.via-${nom}/${d}{--od-via:${melange}}`)
+        lignes.push(`.to-${nom}/${d}{--od-to:${melange}}`)
       }
     }
   }

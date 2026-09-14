@@ -41,6 +41,7 @@ import {
   type Customisable,
 } from '@odoro-cli/engine'
 import {
+  useCallback,
   useEffect,
   useState,
   type CSSProperties,
@@ -175,8 +176,15 @@ export function LineSidebar({
   const pointer = usePointerDamped({ host, speed, name: 'traits : pointeur' })
   ensureLineRules()
 
-  const links = (): HTMLElement[] =>
-    Array.from(host?.querySelectorAll<HTMLElement>('[data-o-lines-item]') ?? [])
+  // Memoisee sur `host` : la fonction ne lit rien d'autre, et sans cela elle
+  // serait recreee a chaque rendu. L'effet qui l'emploie se reabonnerait alors
+  // a l'horloge et reposerait ses ecouteurs a chaque image — le contraire de ce
+  // qu'un tableau de dependances est cense empecher.
+  const links = useCallback(
+    (): HTMLElement[] =>
+      Array.from(host?.querySelectorAll<HTMLElement>('[data-o-lines-item]') ?? []),
+    [host],
+  )
 
   useEffect(() => {
     if (host === null || reduced) return
@@ -235,7 +243,7 @@ export function LineSidebar({
       subscription.unsubscribe()
       rest_()
     }
-  }, [host, reduced, pointer, extend, reach])
+  }, [host, reduced, pointer, extend, reach, links])
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     const all = links()

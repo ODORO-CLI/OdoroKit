@@ -237,7 +237,15 @@ export function StaggeredMenu({
     return () => {
       window.clearTimeout(timer)
       if (!contained) root.style.overflow = previous
+
+      // Les refs sont lues **a la fermeture**, et c'est voulu : on veut savoir
+      // ou le focus se trouve maintenant, et le rendre au declencheur tel qu'il
+      // est maintenant. Les copier a l'ouverture de l'effet, comme la regle le
+      // suggere, rendrait le focus a un noeud qui n'est peut-etre plus dans le
+      // document.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       const host = hostRef.current
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       if (host !== null && host.contains(document.activeElement)) triggerRef.current?.focus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

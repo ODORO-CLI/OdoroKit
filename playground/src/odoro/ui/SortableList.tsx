@@ -172,6 +172,14 @@ export function SortableList({
     ...items.filter((item) => !order.includes(item.id)).map((item) => item.id),
   ]
 
+  /**
+   * L'ordre des lignes, en une chaine.
+   *
+   * C'est ce que l'animation compare : deux rendus dont les lignes sont dans le
+   * meme ordre ne doivent rien rejouer, meme si le tableau est neuf.
+   */
+  const ordre = rows.join(',')
+
   /** Positions d'avant, pour l'animation FLIP ; nulles pendant un glisser. */
   const before = useRef<Map<string, number> | null>(null)
   /**
@@ -225,7 +233,11 @@ export function SortableList({
         { duration: 220, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
       )
     }
-  }, [rows.join(','), reduced])
+    // Nommee plutot qu'ecrite dans le tableau : une expression y est opaque
+    // au verificateur, qui ne peut alors plus dire si la liste est juste. La
+    // comparaison porte bien sur le contenu des lignes, pas sur l'identite du
+    // tableau — c'est ce qu'on veut, et c'est maintenant verifiable.
+  }, [ordre, reduced])
 
   /** Releve les positions courantes, pour que le prochain rendu les rejoue. */
   const snapshot = (): void => {

@@ -29,6 +29,15 @@ export default tseslint.config(
       // de ce depot ne dit rien d'utile sur du code qu'on ne maintient pas.
       'templates/**',
       'packages/odoro-libs/src/styles/generated/**',
+      // Le pack de design : une source de verite qu'on republie en lecture et
+      // qu'on ne modifie jamais. Le linter n'y a donc rien a faire — ses
+      // remarques porteraient sur du code qu'on n'a pas le droit de corriger,
+      // et elles etaient 66 sur les 73 du depot.
+      'ODORO-Design-Pack/**',
+      // La copie publiee du pack, produite par `playground/scripts/instructive.mjs`.
+      // Ignoree de git pour la meme raison ; elle l'est ici aussi, sans quoi
+      // chaque avertissement du pack compterait deux fois.
+      'playground/public/instructive/**',
     ],
   },
   js.configs.recommended,

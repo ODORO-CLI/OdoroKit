@@ -33,7 +33,7 @@
     "test": "pnpm -r run test",
     "try:create": "node scripts/try-create.mjs",
     "typecheck": "pnpm -r run typecheck",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && pnpm install --lockfile-only",
     "deployer": "node scripts/deployer.mjs"
   },
   "devDependencies": {

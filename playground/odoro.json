@@ -2369,7 +2369,7 @@
       ]
     },
     "hooks/use-pointer-damped": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
+      "installedAt": "2026-09-14T15:51:05.031Z",
       "files": [
         {
           "path": "src/odoro/hooks/usePointerDamped.ts",
@@ -4344,11 +4344,11 @@
       ]
     },
     "ui/line-sidebar": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
+      "installedAt": "2026-09-14T15:51:05.031Z",
       "files": [
         {
           "path": "src/odoro/ui/LineSidebar.tsx",
-          "hash": "76eae47e6efcc12d"
+          "hash": "05b6558fa3728ed2"
         }
       ]
     },
@@ -4497,11 +4497,11 @@
       ]
     },
     "ui/sortable-list": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
+      "installedAt": "2026-09-14T15:51:05.031Z",
       "files": [
         {
           "path": "src/odoro/ui/SortableList.tsx",
-          "hash": "996790332e7e61b6"
+          "hash": "2f80b2db2800be85"
         }
       ]
     },
@@ -4533,11 +4533,11 @@
       ]
     },
     "ui/staggered-menu": {
-      "installedAt": "2026-09-09T01:39:44.953Z",
+      "installedAt": "2026-09-14T15:51:05.031Z",
       "files": [
         {
           "path": "src/odoro/ui/StaggeredMenu.tsx",
-          "hash": "8a20174b7a0e96a1"
+          "hash": "8c6b493c9d09e3e4"
         }
       ]
     },
