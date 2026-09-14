@@ -35,7 +35,7 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { transformAsync } from '@babel/core'
+import { transformAsync, type TransformOptions } from '@babel/core'
 import { build } from 'esbuild'
 // La transformation de reference est distribuee en CommonJS et sans types.
 import reactRefreshPlugin from 'react-refresh/babel'
@@ -82,7 +82,12 @@ export async function applyReactRefresh(code: string, file: string): Promise<str
     // La carte de source produite par la compilation precedente est reprise et
     // fusionnee : sans cela, les numeros de ligne du debogueur designeraient le
     // code instrumente plutot que la source.
-    inputSourceMap: true,
+    //
+    // `true` demande a Babel de lire la carte inline du code recu. Il l'accepte
+    // — verifie : la source reprise est bien le fichier d'origine — mais les
+    // types de la 7.x ne decrivent que la forme objet. L'annotation est
+    // incomplete, pas la valeur.
+    inputSourceMap: true as unknown as TransformOptions['inputSourceMap'],
     sourceMaps: 'inline',
     // `skipEnvCheck` leve un garde-fou destine aux configurations globales,
     // qui refuse la transformation hors de NODE_ENV=development. Ici c'est le

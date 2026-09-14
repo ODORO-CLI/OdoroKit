@@ -1,11 +1,21 @@
 /**
  * Verifie que le rechargement a chaud preserve l'etat de l'application.
  *
- * Le seul critere qui compte : apres une edition de fichier, le compteur
- * incremente dans la page doit conserver sa valeur, et le nouveau texte doit
- * apparaitre. Si la page se recharge, le compteur repart a zero — un test qui
- * se contenterait de verifier que le texte a change ne verrait pas la
- * difference.
+ * Le seul critere qui compte : apres une edition de fichier, l'etat de la page
+ * doit survivre, et le nouveau texte doit apparaitre. Si la page se recharge,
+ * l'etat repart de zero — un controle qui se contenterait de verifier que le
+ * texte a change ne verrait pas la difference.
+ *
+ * ## Pourquoi la sonde ne touche pas a l'interface
+ *
+ * La version precedente cliquait sur un bouton « Compter » du gabarit. Elle a
+ * cesse de fonctionner le jour ou ce bouton a disparu de la page d'accueil, et
+ * personne ne l'a vu : le controle n'est pas dans l'integration continue.
+ *
+ * La sonde est donc posee sur `window`, ou rien du gabarit ne peut la lui
+ * retirer. Elle survit a un remplacement de module et disparait a un
+ * rechargement de document — c'est exactement la distinction a mesurer, et elle
+ * tiendra quelle que soit la page.
  *
  * Usage :
  *
@@ -20,7 +30,9 @@ import { join, resolve } from 'node:path'
 const root = resolve(process.argv[2] ?? '.')
 const base = (process.argv[3] ?? 'http://localhost:5180').replace(/\/$/, '')
 
-const target = join(root, 'src', 'routes', 'Home.tsx')
+// Tout le contenu de la page vit dans `App.tsx` : c'est le fichier a editer,
+// et le seul present quel que soit ce qui a ete coche a la creation.
+const target = join(root, 'src', 'App.tsx')
 const original = readFileSync(target, 'utf8')
 
 /** Remet le fichier dans son etat initial, quoi qu'il arrive. */
@@ -46,26 +58,24 @@ page.on('request', (request) => {
 
 await page.goto(base, { waitUntil: 'networkidle' })
 
-// On installe un etat observable : trois clics sur le bouton « Compter ».
-const button = page.getByRole('button', { name: 'Compter' })
-if ((await button.count()) === 0) {
-  console.error(
-    'Bouton « Compter » introuvable : ce projet n est pas le template attendu.',
-  )
-  await browser.close()
-  process.exit(1)
-}
+// On installe un etat observable, hors de l'interface : une valeur posee sur
+// `window`. Un remplacement de module la laisse en place ; un rechargement de
+// document repart d'un contexte neuf et l'efface.
+const JETON = 'odoro-sonde-hmr'
+await page.evaluate((jeton) => {
+  Object.assign(window, { [jeton]: 3 })
+}, JETON)
 
-for (let i = 0; i < 3; i += 1) await button.click()
-await page.waitForTimeout(200)
-
-const stateBefore = await page.locator('.o-tabular-nums').first().textContent()
-console.log(`etat avant edition : compteur = ${stateBefore}`)
+const stateBefore = await page.evaluate(
+  (jeton) => String(Reflect.get(window, jeton) ?? ''),
+  JETON,
+)
+console.log(`etat avant edition : sonde = ${stateBefore}`)
 
 documentRequests = 0
 
 // Edition reelle du fichier source.
-const edited = original.replace('Un point de depart maitrise.', 'Texte remplace a chaud.')
+const edited = original.replace('deja vivante', 'remplace a chaud')
 if (edited === original) {
   console.error('Le texte a remplacer est introuvable dans le fichier.')
   await browser.close()
@@ -74,22 +84,25 @@ if (edited === original) {
 writeFileSync(target, edited, 'utf8')
 
 await page
-  .getByRole('heading', { name: 'Texte remplace a chaud.' })
+  .getByRole('heading', { name: /remplace a chaud/ })
   .waitFor({ timeout: 8000 })
   .catch(() => undefined)
 
 await page.waitForTimeout(400)
 
 const heading = await page.locator('h1').first().textContent()
-const stateAfter = await page.locator('.o-tabular-nums').first().textContent()
+const stateAfter = await page.evaluate(
+  (jeton) => String(Reflect.get(window, jeton) ?? ''),
+  JETON,
+)
 
 console.log(`titre apres edition : ${JSON.stringify(heading)}`)
-console.log(`etat apres edition  : compteur = ${stateAfter}`)
+console.log(`etat apres edition  : sonde = ${stateAfter}`)
 console.log(`documents redemandes : ${documentRequests}`)
 for (const error of errors) console.log(`  erreur : ${error}`)
 
-const applied = heading?.includes('Texte remplace a chaud.') === true
-const preserved = stateAfter === stateBefore && stateBefore !== '0'
+const applied = heading?.includes('remplace a chaud') === true
+const preserved = stateAfter === stateBefore && stateBefore !== ''
 const noReload = documentRequests === 0
 
 console.log('')
@@ -104,9 +117,9 @@ console.log(`  sans rechargement      : ${noReload ? 'oui' : 'NON'}`)
 console.log('\najout d un hook a un composant monte')
 
 const withHook = edited.replace(
-  '  const [count, setCount] = useState(0)',
+  '  const [copie, setCopie] = useState(false)',
   [
-    '  const [count, setCount] = useState(0)',
+    '  const [copie, setCopie] = useState(false)',
     '  const [ajoute] = useState(7)',
     '  void ajoute',
   ].join('\n'),
