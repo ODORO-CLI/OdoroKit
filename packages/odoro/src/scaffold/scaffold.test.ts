@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { type ModuleId } from './modules.js'
 import { scaffold } from './scaffold.js'
+import { VERSIONS_FAMILLE } from './versions-famille.generated.js'
 import {
   availableTemplates,
   detectPackageManager,
@@ -241,8 +242,38 @@ describe('inspectTarget', () => {
   })
 })
 
+describe('aucune version inventee ne sort de l echafaudeur', () => {
+  it('ne demande que des versions relevees, quelle que soit celle de la CLI', async () => {
+    // Le defaut qui a motive ce releve : `odoro` en 1.0.3 demandait
+    // `@odoro-cli/libs@^1.0.3`, restee en 1.0.2. La version n'existait pas et
+    // `npm install` echouait a la premiere commande d'un projet neuf.
+    const cible = await mkdtemp(join(tmpdir(), 'odoro-inventee-'))
+    await scaffold({
+      target: cible,
+      template: 'react-ts',
+      packageName: 'essai',
+      modules: ['libs', 'router', 'icons', 'engine'],
+      version: '42.0.0',
+    })
+
+    const manifeste = JSON.parse(await readFile(join(cible, 'package.json'), 'utf8')) as {
+      dependencies: Record<string, string>
+      devDependencies: Record<string, string>
+    }
+
+    for (const [nom, plage] of Object.entries({
+      ...manifeste.dependencies,
+      ...manifeste.devDependencies,
+    })) {
+      if (nom === 'odoro' || !nom.startsWith('@odoro-cli/')) continue
+      expect(plage, nom).toBe(`^${VERSIONS_FAMILLE[nom] ?? ''}`)
+      expect(plage, nom).not.toContain('42.0.0')
+    }
+  })
+})
+
 describe('les versions Odoro du manifeste', () => {
-  it('suivent la version de la CLI, et non celle du gabarit', async () => {
+  it('posent la version de la CLI sur odoro, et la version publiee sur les voisins', async () => {
     // Les gabarits portaient `^0.0.0`, la version d'avant la premiere
     // publication. Un caret sur `0.0.x` est le plus etroit de tous : `^0.0.0`
     // ne correspond qu'a `0.0.0`. Chaque projet echafaude echouait donc a
@@ -265,8 +296,16 @@ describe('les versions Odoro du manifeste', () => {
         devDependencies: Record<string, string>
       }
 
-      expect(manifeste.dependencies['@odoro-cli/libs']).toBe('^1.2.3')
+      // `odoro` est le seul paquet dont la CLI connait la version : la sienne.
       expect(manifeste.devDependencies['odoro']).toBe('^1.2.3')
+
+      // Les voisins prennent la version relevee a la compilation, et non celle
+      // de la CLI. Depuis la sortie du groupe `fixed`, les paquets avancent
+      // chacun a leur rythme : poser le numero de la CLI sur tous demandait une
+      // version qui n'existe pas, et l'installation echouait des la creation.
+      const libs = manifeste.dependencies['@odoro-cli/libs']
+      expect(libs).toBe(`^${VERSIONS_FAMILLE['@odoro-cli/libs'] ?? ''}`)
+      expect(libs).not.toBe('^1.2.3')
 
       // Ce qui n'est pas de la famille ne bouge pas.
       expect(manifeste.dependencies['react']).not.toContain('1.2.3')
@@ -338,8 +377,10 @@ describe('les modules retenus changent le projet ecrit', () => {
 
   it('ecrit les icones dans les dependances quand elles sont cochees', async () => {
     const { deps } = await creer(['libs', 'router', 'icons'])
-    expect(deps['@odoro-cli/icons']).toBe('^9.9.9')
-    expect(deps['@odoro-cli/libs']).toBe('^9.9.9')
+    expect(deps['@odoro-cli/icons']).toBe(
+      `^${VERSIONS_FAMILLE['@odoro-cli/icons'] ?? ''}`,
+    )
+    expect(deps['@odoro-cli/libs']).toBe(`^${VERSIONS_FAMILLE['@odoro-cli/libs'] ?? ''}`)
   })
 
   it('retire des dependances ce qui n a pas ete coche', async () => {
@@ -352,7 +393,9 @@ describe('les modules retenus changent le projet ecrit', () => {
 
   it('ajoute le moteur, que le gabarit ne declare pas', async () => {
     const { deps } = await creer(['libs', 'router', 'engine'])
-    expect(deps['@odoro-cli/engine']).toBe('^9.9.9')
+    expect(deps['@odoro-cli/engine']).toBe(
+      `^${VERSIONS_FAMILLE['@odoro-cli/engine'] ?? ''}`,
+    )
   })
 
   it('n ajoute aucune dependance pour le registre', async () => {

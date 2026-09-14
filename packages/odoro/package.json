@@ -35,11 +35,12 @@
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "node scripts/versions-famille.mjs && tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
+    "typecheck": "node scripts/versions-famille.mjs && tsc --noEmit",
+    "prepublishOnly": "pnpm run build",
+    "versions:famille": "node scripts/versions-famille.mjs"
   },
   "dependencies": {
     "@babel/core": "^7.29.7",

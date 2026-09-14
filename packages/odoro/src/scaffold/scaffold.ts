@@ -16,6 +16,7 @@ import {
   type ModuleId,
 } from './modules.js'
 import { targetFileName, templatesRoot } from './utils.js'
+import { VERSIONS_FAMILLE } from './versions-famille.generated.js'
 
 /**
  * Le dossier des variantes, a la racine d'un gabarit.
@@ -134,9 +135,39 @@ async function copyDirectory(
   }
 }
 
-/** Les paquets de la famille, dont la version suit celle de la CLI. */
+/** Les paquets de la famille. */
 function isOdoroPackage(name: string): boolean {
   return name === 'odoro' || name.startsWith('@odoro-cli/')
+}
+
+/**
+ * La version a demander pour un paquet de la famille.
+ *
+ * ## Pourquoi ce n'est plus celle de la CLI pour tous
+ *
+ * Elle l'etait, et c'etait juste tant que la configuration tenait les six
+ * paquets en groupe `fixed` : ils avancaient ensemble, donc le numero de l'un
+ * valait pour tous.
+ *
+ * Ce groupe a ete retire — un mineur sur les bibliotheques emmenait le moteur
+ * en majeur. `odoro` en 1.0.3 s'est alors mis a demander
+ * `@odoro-cli/libs@^1.0.3`, restee en 1.0.2 : une version qui n'existe pas, et
+ * un `npm install` qui echoue des la creation du projet.
+ *
+ * Les numeros des voisins sont donc releves a la compilation, la ou les six
+ * manifestes sont cote a cote — voir `scripts/versions-famille.mjs`. Celui de
+ * la CLI reste lu dans son propre manifeste : il est le seul a etre connu a
+ * l'execution, et le seul a pouvoir servir de repli.
+ */
+function versionDemandee(nom: string, versionCli: string): string {
+  if (versionCli === 'latest') return 'latest'
+  if (nom === 'odoro') return `^${versionCli}`
+
+  const relevee = VERSIONS_FAMILLE[nom]
+  // Un paquet absent du releve n'est pas des notres, ou vient d'etre ajoute
+  // sans recompiler. `latest` resout ce qui existe, la ou une version inventee
+  // ne resoudrait rien.
+  return relevee === undefined ? 'latest' : `^${relevee}`
 }
 
 /**
@@ -164,11 +195,7 @@ function alignOdoroVersions(
 
     const next: Record<string, string> = {}
     for (const [name, range] of Object.entries(deps as Record<string, string>)) {
-      next[name] = isOdoroPackage(name)
-        ? version === 'latest'
-          ? 'latest'
-          : `^${version}`
-        : range
+      next[name] = isOdoroPackage(name) ? versionDemandee(name, version) : range
     }
     aligned[field] = next
   }
