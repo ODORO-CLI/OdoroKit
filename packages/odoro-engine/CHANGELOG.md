@@ -1,5 +1,11 @@
 # @odoro-cli/engine
 
+## 0.3.4
+
+### Patch Changes
+
+- @odoro-cli/libs@0.3.4
+
 ## 0.3.3
 
 ### Patch Changes
