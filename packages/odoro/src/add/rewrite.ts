@@ -28,21 +28,114 @@
 export const REGISTRY_TOKEN = '@registre'
 
 /**
+ * Le prefixe configure est-il un alias, ou un simple chemin ?
+ *
+ * ## Pourquoi la question se pose
+ *
+ * `odoro init` lit l'alias du `tsconfig.json` — `@/odoro`, `~/composants/odoro`.
+ * Quand le projet n'en a aucun, il retombait sur le chemin lui-meme,
+ * `src/odoro`, et les imports s'ecrivaient `from 'src/odoro/hooks/useInView'`.
+ *
+ * Un tel chemin n'est pas un specificateur valide : il ne commence ni par un
+ * point ni par une barre, donc il est cherche parmi les paquets, ou il n'existe
+ * pas. Le projet ne compilait pas, avec une erreur de module introuvable que
+ * rien ne rattachait au registre.
+ *
+ * Il ne fonctionnait que par accident, dans les projets portant un `baseUrl`
+ * au `tsconfig.json` — lequel a ses propres ennuis, puisqu'il fait resoudre
+ * les imports nus depuis la racine du projet.
+ *
+ * ## La regle
+ *
+ * Les alias commencent par `@`, `~` ou `#` — les trois conventions employees
+ * par TypeScript, les gestionnaires de paquets et les imports internes de Node.
+ * Tout le reste est un chemin, et un chemin s'ecrit en relatif.
+ *
+ * Le relatif n'est jamais faux : il resout sans configuration, quel que soit le
+ * `tsconfig.json`. Un projet qui a un alias garde le sien, plus lisible ; les
+ * autres obtiennent quelque chose qui marche.
+ *
+ * @example
+ * estUnAlias('@/odoro')   // true
+ * estUnAlias('src/odoro') // false
+ */
+export function estUnAlias(prefix: string): boolean {
+  return /^[@~#]/.test(prefix)
+}
+
+/**
+ * Chemin relatif d'un fichier copie vers un autre, tous deux dans le dossier
+ * de destination.
+ *
+ * Les deux chemins sont donnes par rapport a ce dossier, si bien que la racine
+ * du projet n'entre pas dans le calcul : `text/CountUp.tsx` qui vise
+ * `hooks/useInView` obtient `../hooks/useInView`.
+ *
+ * @example
+ * cheminRelatif('text/CountUp.tsx', 'hooks/useInView') // '../hooks/useInView'
+ * cheminRelatif('text/CountUp.tsx', 'text/Autre')      // './Autre'
+ */
+export function cheminRelatif(depuis: string, vers: string): string {
+  const segmentsDepuis = depuis.split('/').slice(0, -1)
+  const segmentsVers = vers.split('/')
+
+  let commun = 0
+  while (
+    commun < segmentsDepuis.length &&
+    commun < segmentsVers.length - 1 &&
+    segmentsDepuis[commun] === segmentsVers[commun]
+  ) {
+    commun += 1
+  }
+
+  const montees = segmentsDepuis.length - commun
+  const descente = segmentsVers.slice(commun).join('/')
+
+  // Un chemin relatif doit s'annoncer comme tel : sans `./`, un voisin dans le
+  // meme dossier redeviendrait un specificateur nu.
+  return montees === 0 ? `./${descente}` : `${'../'.repeat(montees)}${descente}`
+}
+
+/**
  * Remplace le jeton de registre par le prefixe d'import du projet.
  *
  * La substitution porte sur le jeton suivi d'une barre oblique, pas sur le
  * jeton seul : sans cela, un paquet nomme `@registre-truc` serait touche.
  *
+ * Quand le prefixe n'est pas un alias — voir `estUnAlias` — les imports sont
+ * ecrits en relatif depuis `target`. C'est le seul cas ou la destination du
+ * fichier compte, et c'est aussi le seul ou le prefixe ne resoudrait pas.
+ *
  * @param source Code source tel qu'il vient du registre.
  * @param importPrefix Prefixe du projet, sans barre finale.
+ * @param target Destination du fichier, relative au dossier des composants.
+ * Sans elle, la substitution par prefixe s'applique quoi qu'il arrive.
  *
  * @example
- * rewriteImports("import { usePoster } from '@registre/hooks/usePoster'", '@/odoro')
- * // "import { usePoster } from '@/odoro/hooks/usePoster'"
+ * rewriteImports("from '@registre/hooks/usePoster'", '@/odoro')
+ * // "from '@/odoro/hooks/usePoster'"
+ *
+ * @example
+ * rewriteImports("from '@registre/hooks/usePoster'", 'src/odoro', 'text/CountUp.tsx')
+ * // "from '../hooks/usePoster'"
  */
-export function rewriteImports(source: string, importPrefix: string): string {
+export function rewriteImports(
+  source: string,
+  importPrefix: string,
+  target?: string,
+): string {
   const prefix = importPrefix.replace(/\/$/, '')
-  return source.split(`${REGISTRY_TOKEN}/`).join(`${prefix}/`)
+
+  if (estUnAlias(prefix) || target === undefined) {
+    return source.split(`${REGISTRY_TOKEN}/`).join(`${prefix}/`)
+  }
+
+  // Le jeton va jusqu'au guillemet fermant : c'est la fin du specificateur, et
+  // rien d'autre dans la ligne ne doit etre touche.
+  return source.replaceAll(
+    new RegExp(`${REGISTRY_TOKEN}/([^'"\\s]+)`, 'g'),
+    (_tout, chemin: string) => cheminRelatif(target, chemin),
+  )
 }
 
 /**

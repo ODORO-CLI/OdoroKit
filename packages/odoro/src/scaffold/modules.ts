@@ -170,31 +170,42 @@ export function paquetsDe(modules: readonly ModuleId[]): readonly string[] {
 }
 
 /**
- * La variante de gabarit a poser par-dessus le template, s'il en faut une.
+ * Les variantes a poser par-dessus le gabarit, dans l'ordre.
  *
- * Les fichiers de l'application dependent de deux choix seulement — les
- * bibliotheques et le routeur — et les autres modules ne changent que le
- * manifeste. Trois cas, donc, et non une combinatoire :
+ * ## Trois axes, et non une combinatoire
  *
- * - avec les deux : le gabarit tel quel ;
- * - sans routeur : une application d'une seule page, qui garde les classes et
- *   les composants des bibliotheques ;
- * - sans bibliotheques : une application nue, en CSS ordinaire. Le routeur y
- *   est deja absent, puisque `resoudre` l'a retire.
+ * La page d'accueil est la meme quoi qu'on coche : meme dessin, meme
+ * typographie, memes sections. Ce qui change tient en trois endroits, et chacun
+ * a sa variante :
  *
- * @returns Le nom du dossier sous `_variantes/`, ou `undefined` si le gabarit
- * convient tel quel.
+ * - **sans bibliotheques**, tout est rendu en CSS ordinaire — le dessin tient,
+ *   les classes `o-*` disparaissent. Le routeur y est deja absent, `resoudre`
+ *   l'ayant retire ;
+ * - **sans routeur**, l'application n'a qu'une page et compose les sections
+ *   elle-meme ;
+ * - **avec le moteur**, le fond decoratif devient une surface WebGL animee au
+ *   lieu d'un degrade. Il ne remplace qu'un fichier, `sections/Fond.tsx` : le
+ *   reste de la page ne sait pas d'ou vient son fond.
+ *
+ * L'ordre compte : le fond du moteur est pose en dernier, donc il gagne sur
+ * celui qu'une variante precedente aurait ecrit.
  *
  * @example
- * varianteDe(['libs', 'icons']) // 'sans-routeur'
- * varianteDe(['icons'])         // 'sans-libs'
- * varianteDe(['libs', 'router'])// undefined
+ * variantesDe(['libs', 'router'])                    // []
+ * variantesDe(['libs', 'router', 'engine'])          // ['avec-moteur']
+ * variantesDe(['libs', 'icons'])                     // ['sans-routeur']
+ * variantesDe(['icons', 'engine'])                   // ['sans-libs', 'avec-moteur']
  */
-export function varianteDe(modules: readonly ModuleId[]): string | undefined {
+export function variantesDe(modules: readonly ModuleId[]): readonly string[] {
   const choisis = new Set(modules)
-  if (!choisis.has('libs')) return 'sans-libs'
-  if (!choisis.has('router')) return 'sans-routeur'
-  return undefined
+  const variantes: string[] = []
+
+  if (!choisis.has('libs')) variantes.push('sans-libs')
+  else if (!choisis.has('router')) variantes.push('sans-routeur')
+
+  if (choisis.has('engine')) variantes.push('avec-moteur')
+
+  return variantes
 }
 
 /**

@@ -1,71 +1,42 @@
-import { useState } from 'react'
+import type { ReactElement } from 'react'
 
-/** Trois arguments mis en avant. */
-const FEATURES = [
-  {
-    title: 'Compilation',
-    body: 'Un serveur de developpement a rechargement a chaud, et une compilation de production.',
-  },
-  {
-    title: 'TypeScript',
-    body: 'Types stricts, alias de chemins, et verification sans emission.',
-  },
-  {
-    title: 'A vous de jouer',
-    body: 'Aucun systeme de style impose : le votre prend toute la place.',
-  },
-]
+import { Marque } from '@/composants/Marque'
+import { Cloture } from '@/sections/Cloture'
+import { Fond } from '@/sections/Fond'
+import { Hero } from '@/sections/Hero'
+import { Piliers } from '@/sections/Piliers'
 
 /**
  * Racine de l'application.
  *
  * Les bibliotheques Odoro n'ont pas ete retenues a la creation : pas de
- * classes `o-*`, pas de jetons, pas de routeur. Les styles de cette page sont
- * dans `styles.css`, en CSS ordinaire.
+ * classes `o-*`, pas de jetons, pas de routeur. Le dessin est celui de la
+ * version complete, porte par `styles.css` en CSS ordinaire.
  *
  * Pour les ajouter plus tard : `npm i @odoro-cli/libs`, puis importer
  * `@odoro-cli/libs/styles.css` dans `main.tsx`.
  */
-export function App() {
-  const [count, setCount] = useState(0)
-
+export function App(): ReactElement {
   return (
     <div className="app-shell">
       <nav className="nav">
-        <span className="marque">Odoro</span>
+        <Marque />
+        <a href="https://odoro.dev" target="_blank" rel="noreferrer" className="nav-lien">
+          odoro.dev
+        </a>
       </nav>
 
-      <main className="contenu">
-        <h1>Un point de depart maitrise.</h1>
-        <p className="chapeau">
-          Ce projet a ete genere par <code>odoro create</code>. Le moteur de
-          developpement et la compilation viennent de <code>odoro</code>.
-        </p>
-
-        <div className="grille">
-          {FEATURES.map((feature) => (
-            <article key={feature.title} className="carte">
-              <h2>{feature.title}</h2>
-              <p>{feature.body}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="ligne">
-          <button
-            type="button"
-            className="bouton"
-            onClick={() => {
-              setCount((value) => value + 1)
-            }}
-          >
-            Compter
-          </button>
-          <span className="compteur">{count}</span>
-        </div>
+      <main className="principal">
+        <Fond />
+        <Hero />
+        <Piliers />
+        <Cloture />
       </main>
 
-      <footer className="pied">Construit avec Odoro.</footer>
+      <footer className="pied">
+        <Marque />
+        <span>Construit avec Odoro.</span>
+      </footer>
     </div>
   )
 }

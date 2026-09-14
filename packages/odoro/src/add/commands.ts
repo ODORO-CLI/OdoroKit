@@ -106,7 +106,7 @@ export async function initCommand(options: RegistryOptions): Promise<number> {
 
   if (guess === null) {
     log.warn(
-      `Aucun alias trouve dans tsconfig.json : les imports seront ecrits en ${colors.cyan(suggested.import)}.`,
+      `Aucun alias trouve dans tsconfig.json : les composants iront dans ${colors.cyan(suggested.directory)}/ et s importeront entre eux en relatif.`,
     )
   } else {
     log.info(

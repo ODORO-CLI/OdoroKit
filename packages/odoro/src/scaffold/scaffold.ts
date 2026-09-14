@@ -12,7 +12,7 @@ import {
   MODULES_PAR_DEFAUT,
   gardeLesRoutes,
   paquetsDe,
-  varianteDe,
+  variantesDe,
   type ModuleId,
 } from './modules.js'
 import { targetFileName, templatesRoot } from './utils.js'
@@ -301,9 +301,12 @@ export async function scaffold(options: ScaffoldOptions): Promise<ScaffoldResult
     }
   }
 
-  const variante = varianteDe(modules)
-  const poses =
-    variante === undefined ? [] : await poserVariante(source, options.target, variante)
+  // Dans l'ordre rendu : une variante posee plus tard ecrase ce qu'une
+  // precedente aurait ecrit au meme chemin.
+  const poses: string[] = []
+  for (const variante of variantesDe(modules)) {
+    poses.push(...(await poserVariante(source, options.target, variante)))
+  }
 
   await renamePackage(
     options.target,

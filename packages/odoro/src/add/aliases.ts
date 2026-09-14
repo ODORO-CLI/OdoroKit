@@ -192,8 +192,10 @@ export function defaultAliases(guess: AliasGuess | null): {
   directory: string
 } {
   if (guess === null) {
-    // Sans alias, le prefixe d'import est le chemin lui-meme : cela fonctionne
-    // depuis la racine des sources, et `odoro init` le signale.
+    // Sans alias, le prefixe reste le chemin lui-meme — il nomme la
+    // destination — mais les imports entre composants seront ecrits en
+    // relatif : un chemin nu ne resout pas. Voir `estUnAlias` dans
+    // `rewrite.ts`.
     return { import: 'src/odoro', directory: 'src/odoro' }
   }
   return {

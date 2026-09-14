@@ -368,10 +368,13 @@ describe('les modules retenus changent le projet ecrit', () => {
     // Sur l'import, et non sur la chaine : le fichier explique en commentaire
     // comment rajouter un routeur plus tard, ce qui est voulu.
     expect(app).not.toContain("from '@odoro-cli/libs/router'")
-    // Les classes et les composants des bibliotheques restent : seul le
-    // routeur a ete retire.
-    expect(app).toContain('@odoro-cli/libs/motion')
+    // Les classes des bibliotheques restent : seul le routeur a ete retire.
     expect(app).toContain('o-flex')
+    // La page unique compose les memes sections que la version routee — c'est
+    // ce qui fait que les deux se ressemblent au lieu d'etre deux pages.
+    for (const section of ['Hero', 'Piliers', 'Cloture', 'Fond']) {
+      expect(app, section).toContain(`@/sections/${section}`)
+    }
   })
 
   it('sans bibliotheques, pose une application nue et retire leur feuille', async () => {
@@ -443,4 +446,67 @@ describe('le tsconfig genere ne masque pas les paquets', () => {
       expect(brut).toContain('"@/*"')
     },
   )
+})
+
+describe('la page d accueil suit le dessin de la landing', () => {
+  /** Echafaude et rend le contenu d'un fichier du projet. */
+  async function lire(modules: readonly ModuleId[], relatif: string): Promise<string> {
+    const dossier = await mkdtemp(join(tmpdir(), 'odoro-page-'))
+    await scaffold({
+      target: dossier,
+      template: 'react-ts',
+      packageName: 'essai',
+      modules,
+      version: '9.9.9',
+    })
+    return readFile(join(dossier, relatif), 'utf8')
+  }
+
+  it('pose un fond statique quand le moteur n est pas retenu', async () => {
+    const fond = await lire(['libs', 'router', 'icons'], 'src/sections/Fond.tsx')
+    expect(fond).not.toContain('useShaderSurface')
+    expect(fond).toContain('radial-gradient')
+  })
+
+  it('pose un fond en surface WebGL quand le moteur est retenu', async () => {
+    const fond = await lire(['libs', 'router', 'engine'], 'src/sections/Fond.tsx')
+    expect(fond).toContain('useShaderSurface')
+    // Le repli reste : une surface refusee ne doit pas laisser un trou.
+    expect(fond).toContain('radial-gradient')
+  })
+
+  it('le fond du moteur ne depend d aucune classe utilitaire', async () => {
+    // Il est pose meme sans les bibliotheques, ou les classes `o-*` n'existent
+    // pas : une classe absente ne peint rien, et le fond serait invisible.
+    const fond = await lire(['engine'], 'src/sections/Fond.tsx')
+    expect(fond).toContain('useShaderSurface')
+    expect(fond).not.toMatch(/className="[^"]*\bo-/)
+  })
+
+  it('donne le signe de la marque une taille, et non une classe arbitraire', async () => {
+    // `o-size-[1.15em]` n'est emis que si le compilateur l'a vue : absente,
+    // elle laisserait un SVG sans dimensions, donc invisible.
+    const marque = await lire(['libs', 'router'], 'src/composants/Marque.tsx')
+    expect(marque).toContain("width: '1.15em'")
+    expect(marque).not.toContain('o-size-[')
+  })
+
+  it('n ecrit aucun lien souligne parmi les boutons', async () => {
+    const hero = await lire(['libs', 'router'], 'src/sections/Hero.tsx')
+    for (const appel of hero.match(/buttonClasses\([^)]*\)/g) ?? []) {
+      expect(hero, appel).toContain('o-no-underline')
+    }
+  })
+
+  it('garde le meme dessin sans les bibliotheques', async () => {
+    // Meme structure, meme marque, meme teinte — en CSS ordinaire.
+    const css = await lire([], 'src/styles.css')
+    expect(css).toContain('--marque: #f97316')
+    expect(css).toContain('.fenetre')
+    expect(css).toContain('.carte')
+    // Sur l'import : le fichier dit en commentaire ce que les bibliotheques
+    // auraient apporte, et cette phrase a sa place.
+    const hero = await lire([], 'src/sections/Hero.tsx')
+    expect(hero).not.toContain("from '@odoro-cli/libs")
+  })
 })

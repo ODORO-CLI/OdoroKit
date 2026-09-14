@@ -163,7 +163,7 @@ export async function planInstall(
         await planWrite(
           root,
           targetPath(config, file.target),
-          rewriteImports(source, config.aliases.import),
+          rewriteImports(source, config.aliases.import, file.target),
           entry.id,
         ),
       )

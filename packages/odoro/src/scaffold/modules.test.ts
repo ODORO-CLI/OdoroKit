@@ -8,7 +8,7 @@ import {
   lireModules,
   paquetsDe,
   resoudre,
-  varianteDe,
+  variantesDe,
 } from './modules.js'
 
 describe('le catalogue dit ce que chaque case fait', () => {
@@ -75,18 +75,29 @@ describe('les paquets suivent la selection', () => {
   })
 })
 
-describe('la variante decoule des deux seuls choix qui touchent les fichiers', () => {
+describe('les variantes decoulent des trois choix qui touchent les fichiers', () => {
   it('garde le gabarit tel quel avec bibliotheques et routeur', () => {
-    expect(varianteDe(['libs', 'router', 'icons'])).toBeUndefined()
+    expect(variantesDe(['libs', 'router', 'icons'])).toEqual([])
   })
 
   it('pose la variante sans routeur', () => {
-    expect(varianteDe(['libs', 'icons'])).toBe('sans-routeur')
+    expect(variantesDe(['libs', 'icons'])).toEqual(['sans-routeur'])
   })
 
   it('pose la variante sans bibliotheques, routeur ou non', () => {
-    expect(varianteDe(['icons'])).toBe('sans-libs')
-    expect(varianteDe([])).toBe('sans-libs')
+    expect(variantesDe(['icons'])).toEqual(['sans-libs'])
+    expect(variantesDe([])).toEqual(['sans-libs'])
+  })
+
+  it('ajoute le fond du moteur quand il est retenu', () => {
+    expect(variantesDe(['libs', 'router', 'engine'])).toEqual(['avec-moteur'])
+  })
+
+  it('pose le fond du moteur en dernier, pour qu il gagne', () => {
+    // Une variante posee plus tard ecrase ce qu une precedente a ecrit au
+    // meme chemin : le fond du moteur doit donc venir apres.
+    expect(variantesDe(['libs', 'engine'])).toEqual(['sans-routeur', 'avec-moteur'])
+    expect(variantesDe(['engine'])).toEqual(['sans-libs', 'avec-moteur'])
   })
 
   it('ne garde les routes que si le routeur est la', () => {

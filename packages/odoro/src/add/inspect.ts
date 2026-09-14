@@ -124,7 +124,7 @@ export async function inspectEntry(
       if (source !== undefined) {
         served.set(
           join(config.aliases.directory, file.target).replaceAll('\\', '/'),
-          rewriteImports(source, config.aliases.import),
+          rewriteImports(source, config.aliases.import, file.target),
         )
       }
     }

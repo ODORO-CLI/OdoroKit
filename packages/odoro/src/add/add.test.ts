@@ -9,7 +9,7 @@ import { defaultAliases, guessAlias, stripJsonComments } from './aliases.js'
 import { inspectEntry, previewChanges } from './inspect.js'
 import { planInstall, prepareInstall, recordInstall, suggest } from './install.js'
 import { fingerprint, loadProject, saveProject, type ProjectConfig } from './project.js'
-import { rewriteImports, usedTokens } from './rewrite.js'
+import { cheminRelatif, estUnAlias, rewriteImports, usedTokens } from './rewrite.js'
 import { openRegistry } from './source.js'
 import { requiredPackages, weighEntries } from './weight.js'
 import { applyPlan, planWrite } from './writer.js'
@@ -540,5 +540,70 @@ describe.skipIf(process.platform === 'win32')('permissions', () => {
     await expect(applyPlan(root, plan)).rejects.toThrow()
 
     await chmod(join(root, 'verrou'), 0o700)
+  })
+})
+
+describe('les imports relatifs, quand le projet n a pas d alias', () => {
+  it('reconnait un alias a son premier caractere', () => {
+    expect(estUnAlias('@/odoro')).toBe(true)
+    expect(estUnAlias('~/composants/odoro')).toBe(true)
+    expect(estUnAlias('#odoro')).toBe(true)
+    expect(estUnAlias('src/odoro')).toBe(false)
+    expect(estUnAlias('odoro')).toBe(false)
+  })
+
+  it('remonte au dossier commun', () => {
+    expect(cheminRelatif('text/CountUp.tsx', 'hooks/useInView')).toBe(
+      '../hooks/useInView',
+    )
+  })
+
+  it('prefixe un voisin du meme dossier, pour qu il reste relatif', () => {
+    // Sans `./`, `Autre` redeviendrait un specificateur nu, cherche parmi les
+    // paquets — ce que toute cette correction vise a eviter.
+    expect(cheminRelatif('text/CountUp.tsx', 'text/Autre')).toBe('./Autre')
+  })
+
+  it('descend depuis la racine du dossier des composants', () => {
+    expect(cheminRelatif('CountUp.tsx', 'hooks/useInView')).toBe('./hooks/useInView')
+  })
+
+  it('remonte de deux niveaux quand il le faut', () => {
+    expect(cheminRelatif('a/b/C.tsx', 'hooks/useInView')).toBe('../../hooks/useInView')
+  })
+
+  it('garde l alias quand le projet en a un', () => {
+    expect(
+      rewriteImports("from '@registre/hooks/useInView'", '@/odoro', 'text/CountUp.tsx'),
+    ).toBe("from '@/odoro/hooks/useInView'")
+  })
+
+  it('ecrit du relatif quand le prefixe est un chemin', () => {
+    expect(
+      rewriteImports("from '@registre/hooks/useInView'", 'src/odoro', 'text/CountUp.tsx'),
+    ).toBe("from '../hooks/useInView'")
+  })
+
+  it('laisse les vrais paquets intacts', () => {
+    const source = "import { useMotionState } from '@odoro-cli/engine'\nimport React from 'react'"
+    expect(rewriteImports(source, 'src/odoro', 'text/CountUp.tsx')).toBe(source)
+  })
+
+  it('reecrit plusieurs imports dans le meme fichier', () => {
+    const source = [
+      "import { a } from '@registre/hooks/useA'",
+      "import { b } from '@registre/text/B'",
+    ].join('\n')
+    expect(rewriteImports(source, 'src/odoro', 'text/C.tsx')).toBe(
+      ["import { a } from '../hooks/useA'", "import { b } from './B'"].join('\n'),
+    )
+  })
+
+  it('retombe sur le prefixe quand la destination est inconnue', () => {
+    // `diff` et `doctor` comparent des sources sans toujours connaitre la
+    // destination : mieux vaut le comportement d avant que rien du tout.
+    expect(rewriteImports("from '@registre/hooks/useA'", 'src/odoro')).toBe(
+      "from 'src/odoro/hooks/useA'",
+    )
   })
 })
