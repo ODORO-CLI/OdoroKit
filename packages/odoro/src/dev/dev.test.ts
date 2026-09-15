@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../config.js'
 import { ModuleGraph, detectSelfAccepting } from './graph.js'
 import { extractEntries, injectClient } from './server.js'
 import {
+  estUneRessource,
   feuilleDemandee,
   applyAlias,
   depFileName,
@@ -279,5 +280,36 @@ describe('feuilleDemandee', () => {
 
   it('rend le module par defaut', () => {
     expect(feuilleDemandee({}, '/a.css')).toBe(false)
+  })
+})
+
+describe('estUneRessource', () => {
+  it('reconnait un module', () => {
+    // Le cas signale : un `<script type="module">` qui recevait le document de
+    // l application, et echouait sur « Failed to load module script ».
+    expect(estUneRessource({ 'sec-fetch-dest': 'script' })).toBe(true)
+  })
+
+  it('reconnait les autres ressources', () => {
+    for (const dest of ['style', 'image', 'font', 'worker', 'manifest']) {
+      expect(estUneRessource({ 'sec-fetch-dest': dest }), dest).toBe(true)
+    }
+  })
+
+  it('laisse passer une navigation', () => {
+    // C'est elle qui doit recevoir le document : sans quoi le routeur client
+    // n aurait jamais la main sur une route profonde.
+    expect(estUneRessource({ 'sec-fetch-dest': 'document' })).toBe(false)
+  })
+
+  it('ne tranche pas sans l en-tete', () => {
+    // Un `curl`, une adresse tapee a la main : le repli reste le comportement
+    // attendu, et refuser serait pire que servir.
+    expect(estUneRessource({})).toBe(false)
+  })
+
+  it('ignore un en-tete repete', () => {
+    // Node rend un tableau quand un en-tete arrive deux fois.
+    expect(estUneRessource({ 'sec-fetch-dest': ['script', 'document'] })).toBe(false)
   })
 })

@@ -13,6 +13,7 @@ import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 
 import type { ResolvedConfig } from '../config.js'
+import { estUneRessource } from '../dev/transform.js'
 import * as log from '../shared/logger.js'
 
 /** Types MIME servis. */
@@ -79,7 +80,10 @@ export async function startPreviewServer(
     const existant =
       existsSync(candidate) && statSync(candidate).isFile() ? candidate : dansLeDossier
 
-    // Un chemin portant une extension designe un fichier, pas une route.
+    // Une ressource annoncee comme telle n'est jamais une route : lui rendre
+    // le document produit un « strict MIME » muet.
+    //
+    // Un chemin portant une extension designe de meme un fichier, pas une route.
     //
     // Sans cette distinction, tout ce qui manquait tombait sur le repli
     // monopage : une feuille de style absente — ou simplement mal nommee —
@@ -88,7 +92,10 @@ export async function startPreviewServer(
     //
     // C'est ce que fait deja le serveur de developpement ; l'apercu doit s'y
     // tenir, puisqu'il est cense montrer ce qu'un hebergeur statique rendra.
-    if (existant === undefined && extname(relativePath) !== '') {
+    if (
+      existant === undefined &&
+      (extname(relativePath) !== '' || estUneRessource(incoming.headers))
+    ) {
       response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
       response.end(`Introuvable : /${relativePath}`)
       return

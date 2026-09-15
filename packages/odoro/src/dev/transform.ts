@@ -251,6 +251,64 @@ export async function transformModule(
  * const module = wrapStyle('/src/App.css', 'body { margin: 0 }')
  */
 /**
+ * Ce que le navigateur annonce quand il va faire de la ressource autre chose
+ * qu'une page.
+ *
+ * Une navigation porte `document`. Tout le reste ci-dessous est une ressource
+ * que le document reclame, et a laquelle rendre du HTML n'a aucun sens.
+ */
+const DESTINATIONS_RESSOURCE = new Set([
+  'script',
+  'style',
+  'image',
+  'font',
+  'audio',
+  'video',
+  'track',
+  'manifest',
+  'worker',
+  'sharedworker',
+  'serviceworker',
+])
+
+/**
+ * La requete vise-t-elle une ressource, et non une page ?
+ *
+ * ## Pourquoi la question se pose
+ *
+ * Le repli d'application monopage rend le document pour toute route inconnue :
+ * c'est ce qui permet au routeur client de decider de la suite. Il le faisait
+ * des que le chemin n'avait pas d'extension — ce qui est le cas d'une route,
+ * mais aussi d'un module importe par un chemin qui n'en porte pas.
+ *
+ * Un `<script type="module">` qui recoit du HTML echoue sur :
+ *
+ *     Failed to load module script: Expected a JavaScript module script but
+ *     the server responded with a MIME type of "text/html".
+ *
+ * Le message ne nomme ni le fichier ni la raison. Un 404 les nomme tous les
+ * deux.
+ *
+ * ## Ce qui les distingue
+ *
+ * Le navigateur le dit : `Sec-Fetch-Dest` vaut `document` pour une navigation
+ * et `script`, `style`, `image`… pour une ressource. Absent — un `curl`, un
+ * client ancien —, on ne tranche pas : le repli reste, puisque c'est le
+ * comportement qu'attend une adresse tapee a la main.
+ *
+ * @example
+ * estUneRessource({ 'sec-fetch-dest': 'script' })   // true
+ * estUneRessource({ 'sec-fetch-dest': 'document' }) // false
+ * estUneRessource({})                               // false
+ */
+export function estUneRessource(
+  entetes: Readonly<Record<string, string | string[] | undefined>>,
+): boolean {
+  const destination = entetes['sec-fetch-dest']
+  return typeof destination === 'string' && DESTINATIONS_RESSOURCE.has(destination)
+}
+
+/**
  * La requete demande-t-elle la feuille pour elle-meme ?
  *
  * ## Deux usages, une seule adresse

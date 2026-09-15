@@ -53,6 +53,7 @@ import {
   transformModule,
   urlToFile,
   wrapAsset,
+  estUneRessource,
   feuilleDemandee,
   wrapStyle,
 } from './transform.js'
@@ -469,7 +470,11 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
 
         // Repli d'application monopage : toute route inconnue rend le document,
         // c'est le routeur client qui decide de la suite.
-        if (!extname(path)) {
+        //
+        // Sauf si le navigateur annonce une ressource : un module, une feuille,
+        // une image. Leur rendre le document produit un « strict MIME » qui ne
+        // nomme ni le fichier ni la cause, la ou un 404 nomme les deux.
+        if (!extname(path) && !estUneRessource(incoming.headers)) {
           await serveHtml(response)
           return
         }
