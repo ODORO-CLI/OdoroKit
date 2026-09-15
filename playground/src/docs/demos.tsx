@@ -3289,7 +3289,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/pricing-tiers': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'Basculez la période : les prix se recalculent au lieu d’être remplaces, et l œil suit le sens du changement.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-overflow-auto o-p-8">
@@ -9934,7 +9934,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/testimonials-columns': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'Deux sens opposes retirent au mur son sens de lecture ; le survol et le focus arrêtent la colonne qu’on lit.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-p-6">
@@ -9950,7 +9950,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/bento-grid': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'Des tuiles inegales retablissent une hiérarchie ; la largeur est bornee par la grille, jamais laissee deborder.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
@@ -10002,7 +10002,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/feature-tabs': {
-    height: 'o-h-[30rem]',
+    height: 'o-h-96',
     lead: 'Un seul arrêt de tabulation pour toute la liste, les fleches bouclent, et le panneau inactif n’est pas dans le document.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
@@ -10138,7 +10138,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/coming-soon': {
-    height: 'o-h-[32rem]',
+    height: 'o-h-96',
     lead: 'Les chiffres sont masques aux technologies d’assistance : c’est la date, juste dessous, qui porte l’information.',
     render: () => (
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark">
@@ -10153,7 +10153,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/team-grid': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'Le portrait est decoratif, le nom est écrit dessous, et les liens restent dans le document même au repos.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
@@ -10230,7 +10230,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/changelog': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'Une liste de définitions : la version est le terme, ses changements la description. Le filtre retire des lignes, jamais une version.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-overflow-y-auto o-scrollbar dark:o-scrollbar-dark o-p-6">
@@ -10304,7 +10304,7 @@ export const DEMOS: Readonly<Record<string, DemoSpec>> = {
     ),
   },
   'section/comparison-table': {
-    height: 'o-h-[34rem]',
+    height: 'o-h-96',
     lead: 'La zone qui défile reçoit le focus : sans cela, les colonnes de droite sont hors d’atteinte au clavier.',
     render: (v) => (
       <div className="o-absolute o-inset-0 o-p-6">

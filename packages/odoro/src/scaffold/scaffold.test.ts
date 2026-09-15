@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { readdir, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -586,4 +586,60 @@ describe('la page d accueil suit le dessin de la landing', () => {
     const app = await lire([], 'src/App.tsx')
     expect(app).not.toContain("from '@odoro-cli/libs")
   })
+})
+
+describe('les gabarits n emploient que des classes qui existent', () => {
+  /**
+   * Le systeme de style n emet pas de classe a valeur arbitraire.
+   *
+   * `o-h-[42rem]` ne produit aucune regle, et une classe absente ne peint rien.
+   * Le fond decoratif du gabarit en portait six : son conteneur mesurait zero
+   * pixel de haut, ses deux nappes aussi, et il ne se voyait pas — sans que
+   * rien ne le signale, ni a la compilation ni a l execution.
+   *
+   * Ce qui sort de l echelle s ecrit en style, ou il est sur.
+   */
+  it.each(['react-ts', 'react-ts-server'])(
+    'le gabarit %s n invente aucune classe',
+    async (template) => {
+      const dossier = await mkdtemp(join(tmpdir(), 'odoro-classes-'))
+      await scaffold({
+        target: dossier,
+        template,
+        packageName: 'essai',
+        modules: ['libs', 'router', 'icons', 'engine'],
+        version: '9.9.9',
+      })
+
+      const trouvees: string[] = []
+      const parcourir = async (racine: string): Promise<void> => {
+        for (const entree of await readdir(racine, { withFileTypes: true })) {
+          const chemin = join(racine, entree.name)
+          if (entree.isDirectory()) {
+            if (entree.name === 'node_modules') continue
+            await parcourir(chemin)
+            continue
+          }
+          if (!/\.tsx?$/.test(entree.name)) continue
+
+          // Les commentaires sont retires avant la recherche : plusieurs citent
+          // la forme interdite pour expliquer pourquoi elle l'est, et les
+          // signaler ferait echouer le test sur la documentation de sa regle.
+          const source = (await readFile(chemin, 'utf8')).replace(
+            /\/\*[\s\S]*?\*\/|\/\/.*/g,
+            '',
+          )
+
+          for (const classe of source.match(/o-[a-z0-9-]+\[[^\]"' ]+\]/g) ?? []) {
+            trouvees.push(`${entree.name} : ${classe}`)
+          }
+        }
+      }
+      // Toute l'arborescence : le gabarit serveur range son application sous
+      // `client/`, et ne scruter que `src/` l'aurait laissee de cote.
+      await parcourir(dossier)
+
+      expect(trouvees).toEqual([])
+    },
+  )
 })
