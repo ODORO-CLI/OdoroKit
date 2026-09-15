@@ -143,6 +143,47 @@ export async function optimizeDeps(
   specifiers: readonly string[],
   force = false,
 ): Promise<OptimizedDeps> {
+  try {
+    return await compilerDeps(config, specifiers, force)
+  } catch (cause) {
+    // Deux serveurs lances sur le meme projet compilent le meme cache : l'un
+    // efface le dossier pendant que l'autre y ecrit, et la lecture echoue sur
+    // un fichier qui existait une milliseconde plus tot.
+    //
+    // Le cas est devenu courant depuis que le serveur glisse vers un port
+    // libre au lieu de s'arreter : `npm run dev` deux fois de suite demarre
+    // maintenant deux serveurs.
+    //
+    // Une seconde tentative suffit : celui qui a gagne la course a fini, son
+    // manifeste est ecrit, et la voie rapide le reprend sans rien recompiler.
+    if (!estUneCourse(cause)) throw cause
+
+    await new Promise((suite) => setTimeout(suite, DELAI_COURSE))
+    return compilerDeps(config, specifiers, force)
+  }
+}
+
+/** Le temps laisse a l'autre processus pour finir ce qu'il a commence. */
+const DELAI_COURSE = 400
+
+/**
+ * L'echec vient-il d'un autre processus qui travaille au meme endroit ?
+ *
+ * Ces codes disent qu'un fichier a disparu ou qu'il est tenu ailleurs. Tout le
+ * reste — un paquet introuvable, une erreur de compilation — est une vraie
+ * erreur du projet : la retenter ne ferait que la repeter plus tard.
+ */
+function estUneCourse(cause: unknown): boolean {
+  const code = (cause as NodeJS.ErrnoException | null)?.code
+  return code === 'ENOENT' || code === 'EPERM' || code === 'EBUSY'
+}
+
+/** Compile le cache des dependances. Voir `optimizeDeps` pour la reprise. */
+async function compilerDeps(
+  config: ResolvedConfig,
+  specifiers: readonly string[],
+  force: boolean,
+): Promise<OptimizedDeps> {
   const directory = join(config.root, 'node_modules', '.odoro', 'deps')
   const sorted = [...specifiers].sort()
 

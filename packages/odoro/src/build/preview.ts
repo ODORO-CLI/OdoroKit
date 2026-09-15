@@ -14,6 +14,7 @@ import { extname, join, normalize } from 'node:path'
 
 import type { ResolvedConfig } from '../config.js'
 import { estUneRessource } from '../dev/transform.js'
+import { ecouter } from '../shared/ecouter.js'
 import * as log from '../shared/logger.js'
 
 /** Types MIME servis. */
@@ -118,12 +119,13 @@ export async function startPreviewServer(
     createReadStream(file).pipe(response)
   })
 
-  await new Promise<void>((done, fail) => {
-    server.once('error', fail)
-    server.listen(port, config.server.host, done)
-  })
+  const { port: obtenu, demande } = await ecouter(server, port, config.server.host)
 
-  const url = `http://${config.server.host}:${port}${config.base}`
+  if (demande !== undefined) {
+    log.warn(`port ${String(demande)} occupe — l apercu ecoute sur ${String(obtenu)}`)
+  }
+
+  const url = `http://${config.server.host}:${String(obtenu)}${config.base}`
   log.success('previsualisation du build de production')
   log.info(`  ${log.colors.cyan(url)}`)
 

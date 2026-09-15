@@ -21,6 +21,7 @@ import { extname, join, resolve } from 'node:path'
 
 import { fournisseurDe } from '../build/fournisseur-css.js'
 import type { ResolvedConfig } from '../config.js'
+import { ecouter } from '../shared/ecouter.js'
 import * as log from '../shared/logger.js'
 import {
   HMR_CLIENT_PATH,
@@ -567,12 +568,15 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
     }, 40)
   })
 
-  await new Promise<void>((resolveListen, rejectListen) => {
-    server.once('error', rejectListen)
-    server.listen(config.server.port, config.server.host, resolveListen)
-  })
+  const { port, demande } = await ecouter(server, config.server.port, config.server.host)
 
-  const url = `http://${config.server.host}:${config.server.port}${config.base}`
+  // Le dire, et non le taire : un serveur ouvert ailleurs que la ou on
+  // l'attend fait recharger une page qui ne bougera pas.
+  if (demande !== undefined) {
+    log.warn(`port ${String(demande)} occupe — le serveur ecoute sur ${String(port)}`)
+  }
+
+  const url = `http://${config.server.host}:${String(port)}${config.base}`
   log.success(`pret en ${log.duration(Date.now() - started)}`)
   log.info(`  ${log.colors.cyan(url)}`)
 
