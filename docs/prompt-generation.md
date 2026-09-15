@@ -22,19 +22,19 @@ d'alternative.
 
 ## La substitution
 
-| Ce que tu écrivais | Ce que tu écris désormais |
-| --- | --- |
-| `npm create vite@latest` | `npm create odoro@latest` |
-| `vite.config.ts` | `odoro.config.ts` |
-| `vite` / `vite build` / `vite preview` | `odoro dev` / `odoro build` / `odoro preview` |
+| Ce que tu écrivais                        | Ce que tu écris désormais                         |
+| ----------------------------------------- | ------------------------------------------------- |
+| `npm create vite@latest`                  | `npm create odoro@latest`                         |
+| `vite.config.ts`                          | `odoro.config.ts`                                 |
+| `vite` / `vite build` / `vite preview`    | `odoro dev` / `odoro build` / `odoro preview`     |
 | `tailwind.config.js`, `postcss.config.js` | **rien** — il n'y a pas de configuration de style |
-| `@tailwind base;` etc. | `import '@odoro-cli/libs/styles.css'` |
-| `class="flex items-center"` | `className="o-flex o-items-center"` |
-| `react-router-dom` | `@odoro-cli/libs/router` |
-| `framer-motion` | `@odoro-cli/libs/motion` |
-| `lucide-react`, `react-icons` | `@odoro-cli/icons` |
-| shadcn/ui, Radix, MUI | `@odoro-cli/libs/ui` |
-| `three`, `@react-three/fiber` en direct | `@odoro-cli/engine` |
+| `@tailwind base;` etc.                    | `import '@odoro-cli/libs/styles.css'`             |
+| `class="flex items-center"`               | `className="o-flex o-items-center"`               |
+| `react-router-dom`                        | `@odoro-cli/libs/router`                          |
+| `framer-motion`                           | `@odoro-cli/libs/motion`                          |
+| `lucide-react`, `react-icons`             | `@odoro-cli/icons`                                |
+| shadcn/ui, Radix, MUI                     | `@odoro-cli/libs/ui`                              |
+| `three`, `@react-three/fiber` en direct   | `@odoro-cli/engine`                               |
 
 **N'émets jamais** : `vite.config.*`, `tailwind.config.*`, `postcss.config.*`,
 une directive `@tailwind`, un nom de classe sans préfixe `o-`, ni une
@@ -138,7 +138,13 @@ visiteur en thème forcé voit un éclair de l'autre thème.
 ```ts
 import { Button, Card, Dialog, Input, Table, Tabs } from '@odoro-cli/libs/ui'
 import { Link, Outlet, Route, Router, Routes, useLocation } from '@odoro-cli/libs/router'
-import { Reveal, Stagger, TextReveal, useAnimate, useInView } from '@odoro-cli/libs/motion'
+import {
+  Reveal,
+  Stagger,
+  TextReveal,
+  useAnimate,
+  useInView,
+} from '@odoro-cli/libs/motion'
 import { palette, theme } from '@odoro-cli/libs/tokens'
 import { Icon } from '@odoro-cli/icons'
 import { ArrowRight } from '@odoro-cli/icons/filaire'
@@ -177,17 +183,17 @@ repli.
 
 **459 entrées**, servies par `https://register.odoro.dev`.
 
-| Catégorie | Nombre | |
-| --- | ---: | --- |
-| `background` | 160 | fonds animés, WebGL ou CSS |
-| `loader` | 105 | rideaux d'ouverture, chargements |
-| `ui` | 59 | pièces d'interface |
-| `effect` | 41 | curseurs, aimants, parallaxes |
-| `text` | 40 | traitements typographiques |
-| `section` | 23 | sections complètes |
-| `image` | 19 | galeries, comparateurs |
-| `hooks` | 9 | crochets réutilisables |
-| `hero` | 3 | héros |
+| Catégorie    | Nombre |                                  |
+| ------------ | -----: | -------------------------------- |
+| `background` |    160 | fonds animés, WebGL ou CSS       |
+| `loader`     |    105 | rideaux d'ouverture, chargements |
+| `ui`         |     59 | pièces d'interface               |
+| `effect`     |     41 | curseurs, aimants, parallaxes    |
+| `text`       |     40 | traitements typographiques       |
+| `section`    |     23 | sections complètes               |
+| `image`      |     19 | galeries, comparateurs           |
+| `hooks`      |      9 | crochets réutilisables           |
+| `hero`       |      3 | héros                            |
 
 ```sh
 odoro list                 # le catalogue
@@ -212,27 +218,27 @@ compositions, les palettes et les règles de chorégraphie.
 
 **Point d'entrée : <https://odoro.dev/instructive/llm.md>**
 
-| Document | Adresse |
-| --- | --- |
-| Passation, vue d'ensemble | `/instructive/llm/README.md` |
-| **Doctrine de conception** | `/instructive/llm/prompts/00-system-core.md` |
-| Plan du site | `/instructive/llm/prompts/10-planner.md` |
-| Construction d'une section | `/instructive/llm/prompts/20-section-builder.md` |
-| Relecture | `/instructive/llm/prompts/30-reviewer.md` |
-| Guide de construction | `/instructive/llm/reference/build-guide.md` |
-| Règles de combinaison | `/instructive/llm/reference/combination-rules.md` |
-| Chorégraphie des révélations | `/instructive/llm/reference/reveal-choreography.md` |
-| Catalogue des sections | `/instructive/llm/reference/sections.catalogue.json` |
-| Catalogue des gabarits | `/instructive/llm/reference/templates.catalogue.json` |
-| Palettes | `/instructive/llm/data/palettes.json` |
-| Jetons | `/instructive/llm/data/tokens.json` |
-| Polices | `/instructive/llm/data/fonts.json` |
-| Styles | `/instructive/llm/data/styles.json` |
-| Index des compositions | `/instructive/llm/data/compositions.index.json` |
-| Schéma du plan de site | `/instructive/llm/schemas/site-plan.schema.json` |
-| Schéma d'une section | `/instructive/llm/schemas/section-output.schema.json` |
-| Schéma d'une relecture | `/instructive/llm/schemas/review-output.schema.json` |
-| Exemple complet | `/instructive/llm/examples/odoro-architecture.html` |
+| Document                     | Adresse                                               |
+| ---------------------------- | ----------------------------------------------------- |
+| Passation, vue d'ensemble    | `/instructive/llm/README.md`                          |
+| **Doctrine de conception**   | `/instructive/llm/prompts/00-system-core.md`          |
+| Plan du site                 | `/instructive/llm/prompts/10-planner.md`              |
+| Construction d'une section   | `/instructive/llm/prompts/20-section-builder.md`      |
+| Relecture                    | `/instructive/llm/prompts/30-reviewer.md`             |
+| Guide de construction        | `/instructive/llm/reference/build-guide.md`           |
+| Règles de combinaison        | `/instructive/llm/reference/combination-rules.md`     |
+| Chorégraphie des révélations | `/instructive/llm/reference/reveal-choreography.md`   |
+| Catalogue des sections       | `/instructive/llm/reference/sections.catalogue.json`  |
+| Catalogue des gabarits       | `/instructive/llm/reference/templates.catalogue.json` |
+| Palettes                     | `/instructive/llm/data/palettes.json`                 |
+| Jetons                       | `/instructive/llm/data/tokens.json`                   |
+| Polices                      | `/instructive/llm/data/fonts.json`                    |
+| Styles                       | `/instructive/llm/data/styles.json`                   |
+| Index des compositions       | `/instructive/llm/data/compositions.index.json`       |
+| Schéma du plan de site       | `/instructive/llm/schemas/site-plan.schema.json`      |
+| Schéma d'une section         | `/instructive/llm/schemas/section-output.schema.json` |
+| Schéma d'une relecture       | `/instructive/llm/schemas/review-output.schema.json`  |
+| Exemple complet              | `/instructive/llm/examples/odoro-architecture.html`   |
 
 **Deux fichiers ne s'ouvrent jamais en entier** — ils dépassent une fenêtre de
 contexte. Cherche dedans, ne les charge pas :
