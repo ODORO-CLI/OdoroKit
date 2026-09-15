@@ -33,6 +33,7 @@ import {
 } from '@odoro-cli/server'
 import express from 'express'
 
+import { createAuthModule } from './modules/auth/index.js'
 import { createHealthModule } from './modules/health/index.js'
 
 /** Root of the compiled module, to find the client next to it. */
@@ -60,12 +61,18 @@ export function buildServer() {
     .register('config', () => config)
     .register('logger', () => logger)
 
+  // The store comes back out: the guard reads it on every request, and the
+  // shutdown has to close its connections.
+  const auth = createAuthModule(config)
+
   const app = createApp({
     config,
     logger,
     container: container as never,
+    authenticate: auth.authenticate,
     modules: [
       createHealthModule(config),
+      auth.module,
       // The foundation modules are added here, in any order: the kernel sorts
       // them according to their dependencies.
       //
@@ -79,7 +86,7 @@ export function buildServer() {
   const client = resolve(HERE, '..', 'client')
   const servesTheClient = config.NODE_ENV === 'production' && existsSync(client)
 
-  if (!servesTheClient) return { app, express: app.express, config, logger }
+  if (!servesTheClient) return { app, express: app.express, config, logger, auth }
 
   // ## Why one application wrapping another
   //
@@ -145,7 +152,7 @@ export function buildServer() {
 
   wrapper.use(app.express)
 
-  return { app, express: wrapper, config, logger }
+  return { app, express: wrapper, config, logger, auth }
 }
 
 /** Starts the server. */
@@ -165,7 +172,7 @@ function main(): void {
 
   // `express` and not `app.express`: it is the wrapper that serves the client
   // before handing over to the API. In development the two are the same thing.
-  const { express: application, config, logger } = server
+  const { express: application, config, logger, auth } = server
 
   const listener = application.listen(config.PORT, () => {
     logger.info({ port: config.PORT, environment: config.NODE_ENV }, 'server listening')
@@ -182,8 +189,12 @@ function main(): void {
     deadline.unref()
 
     listener.close(() => {
-      clearTimeout(deadline)
-      process.exit(0)
+      // The database connections go with the server. Left open, a hosted
+      // database counts them against the limit long after the process is gone.
+      void auth.store.dispose().finally(() => {
+        clearTimeout(deadline)
+        process.exit(0)
+      })
     })
   }
 

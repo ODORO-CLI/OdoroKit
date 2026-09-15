@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 
 import { App } from '@/App'
+import { SessionProvider } from '@/auth'
 
 import '@odoro-cli/libs/styles.css'
 import '@/styles.css'
@@ -13,7 +14,9 @@ if (container === null) {
 
 const tree = (
   <StrictMode>
-    <App />
+    <SessionProvider>
+      <App />
+    </SessionProvider>
   </StrictMode>
 )
 

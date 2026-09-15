@@ -69,6 +69,8 @@ export {
   findOpenMutations,
   route,
   type AuthRequirement,
+  type Cookies,
+  type CookieOptions,
   type HandlerContext,
   type Identity,
   type Method,

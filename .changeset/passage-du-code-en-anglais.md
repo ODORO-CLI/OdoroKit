@@ -107,6 +107,14 @@ attributs doit suivre.**
 
 ## Les gabarits
 
+Le gabarit `react-ts-server` arrive avec une demonstration d'authentification :
+inscription, connexion, deconnexion, profil. Mot de passe hache en `scrypt`,
+session dans un cookie `httpOnly` dont la table ne garde que l'empreinte, et la
+meme reponse pour une adresse inconnue que pour un mauvais mot de passe. Elle
+demande `DATABASE_URL` ; sans elle, les quatre routes repondent 503 en disant ce
+qui manque, et l'interface demarre quand meme. Le gabarit gagne `pg` en
+dependance.
+
 Un projet cree par `npm create odoro` est desormais entierement en anglais,
 texte affiche compris. `src/fond.tsx` devient `src/background.tsx` et la route
 `/a-propos` devient `/about`.

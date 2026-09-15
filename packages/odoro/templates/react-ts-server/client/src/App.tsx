@@ -38,6 +38,7 @@ import {
 // and the manifest is at the root of the project, alongside the server's.
 import { dependencies, devDependencies } from '../../package.json'
 
+import { ProfilePage, Register, SignIn } from '@/account'
 import { Background } from '@/background'
 import { Link, Router, useLocation } from '@/router'
 
@@ -95,6 +96,7 @@ const PILL: CSSProperties = {
 const LINKS = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
+  { to: '/profile', label: 'Account' },
 ]
 
 /** A link in the navigation pill, active on the current route. */
@@ -627,6 +629,9 @@ export function App({ url }: AppProps = {}): ReactElement {
       shell={Shell}
       home={<Home />}
       about={<About />}
+      signIn={<SignIn />}
+      register={<Register />}
+      profile={<ProfilePage />}
       notFound={<NotFound />}
       url={url}
     />

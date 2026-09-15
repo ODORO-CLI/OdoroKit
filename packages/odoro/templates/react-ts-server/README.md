@@ -22,6 +22,34 @@ The client listens on <http://localhost:5180> and forwards every call starting
 with `/api` to the server. The browser therefore only ever sees one origin, and
 no CORS question arises in development.
 
+## Authentication, as a demonstration
+
+The template ships a working account system: register, sign in, sign out,
+profile. Four routes under `/api/auth/`, three pages at `/sign-in`, `/register`
+and `/profile`.
+
+What it does, and how:
+
+- the password is hashed with **scrypt**, from the Node standard library — no
+  native module to compile. The cost parameters travel with the hash, so the
+  passwords already stored still verify the day the cost is raised;
+- the session lives in an **`httpOnly`** cookie: the browser sends it, no
+  script reads it. The table keeps only its fingerprint, never the identifier;
+- an unknown address and a wrong password give **the same answer**, after the
+  same delay. Telling them apart would turn the sign-in form into a way to ask
+  whether an address has an account here.
+
+What it does not do, and what you will have to add: email confirmation,
+password reset, a rate limit on sign-in attempts, a second factor. Naming them
+beats implying they are handled.
+
+It all lives in `server/src/modules/auth/` and `client/src/account.tsx`. If the
+project needs no accounts, delete those two and the `auth.module` line of
+`server/src/main.ts`.
+
+**A database is required.** Without `DATABASE_URL`, the four routes answer
+`503` saying what is missing — the interface still starts.
+
 ## The database
 
 **PostgreSQL, hosted, and nothing else.** There is no local database: the URL

@@ -38,7 +38,7 @@ import {
   type ProblemDocument,
 } from './http/errors.js'
 import { validateInput, validateOutput } from './http/validate.js'
-import type { Identity, RouteDefinition } from './http/route.js'
+import type { CookieOptions, Identity, RouteDefinition } from './http/route.js'
 import { createRequestContext, type Logger } from './logger.js'
 import { assertCapabilities, orderModules, type ModuleDefinition } from './module.js'
 
@@ -116,7 +116,12 @@ export function createApp(options: AppOptions): OdoroApp {
   for (const module of ordered) {
     for (const definition of module.routes ?? []) {
       routes.push(definition)
-      mount(app, definition, { container, authenticate, strictOutput })
+      mount(app, definition, {
+        container,
+        authenticate,
+        strictOutput,
+        production: config.NODE_ENV === 'production',
+      })
     }
   }
 
@@ -143,6 +148,14 @@ interface MountContext {
   readonly container: Container<never>
   readonly authenticate: AppOptions['authenticate']
   readonly strictOutput: boolean
+  /**
+   * Whether we are in production.
+   *
+   * Only the cookies read it, to decide `secure`. In development there is no
+   * certificate: a `secure` cookie would never come back, and the session would
+   * look broken for a reason nothing names.
+   */
+  readonly production: boolean
 }
 
 /** Mounts a route on Express. */
@@ -166,6 +179,20 @@ function mount(app: Express, definition: RouteDefinition, context: MountContext)
       )({
         input,
         user,
+        cookies: {
+          set: (name: string, value: string, options: CookieOptions = {}) => {
+            response.cookie(name, value, {
+              httpOnly: options.httpOnly ?? true,
+              secure: options.secure ?? context.production,
+              sameSite: options.sameSite ?? 'lax',
+              path: options.path ?? '/',
+              ...(options.maxAge === undefined ? {} : { maxAge: options.maxAge * 1000 }),
+            })
+          },
+          clear: (name: string, options: Pick<CookieOptions, 'path'> = {}) => {
+            response.clearCookie(name, { path: options.path ?? '/' })
+          },
+        },
         c: scoped,
         // The signal of the client: a long handler can watch it and give up
         // when nobody is waiting for the response any more.

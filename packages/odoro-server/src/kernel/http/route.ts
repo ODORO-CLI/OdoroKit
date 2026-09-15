@@ -70,10 +70,56 @@ export interface Identity {
   readonly organizationId: string | undefined
 }
 
+/** How a cookie is written. */
+export interface CookieOptions {
+  /**
+   * Keeps the cookie out of reach of scripts.
+   *
+   * @defaultValue true — a session cookie readable by a script is a session
+   *   stolen by the first cross-site injection.
+   */
+  readonly httpOnly?: boolean
+  /**
+   * Sends it over HTTPS only.
+   *
+   * @defaultValue true outside development, where there is no certificate.
+   */
+  readonly secure?: boolean
+  /** @defaultValue 'lax' */
+  readonly sameSite?: 'strict' | 'lax' | 'none'
+  /** @defaultValue '/' */
+  readonly path?: string
+  /** Lifetime in seconds. Absent, the cookie dies with the browser session. */
+  readonly maxAge?: number
+}
+
+/**
+ * Writing the cookies of a response.
+ *
+ * ## Why the handler does not touch the response
+ *
+ * Everything else a handler produces is its return value, validated against a
+ * schema. A cookie cannot be: it is a header, and it has to be written before
+ * the body. Handing over the whole response object to set one would open the
+ * door to a handler writing its own status, its own body, and escaping the
+ * output contract entirely.
+ *
+ * So the cookies are collected, and the mounting writes them. A handler states
+ * an intent; it does not drive the transport.
+ */
+export interface Cookies {
+  /** Writes a cookie. */
+  set(name: string, value: string, options?: CookieOptions): void
+  /** Deletes a cookie, by expiring it. */
+  clear(name: string, options?: Pick<CookieOptions, 'path'>): void
+}
+
 /** What a handler receives. */
 export interface HandlerContext<Input, Services> {
   /** Validated input: body, URL parameters and query string merged. */
   readonly input: Input
+  /** The cookies of the response. */
+  readonly cookies: Cookies
   /**
    * The identity.
    *

@@ -41,6 +41,12 @@ export interface RouterProps {
   readonly home: ReactElement
   /** The "About" page. */
   readonly about: ReactElement
+  /** The sign-in form. */
+  readonly signIn: ReactElement
+  /** The registration form. */
+  readonly register: ReactElement
+  /** The profile of the signed-in account. */
+  readonly profile: ReactElement
   /** What shows when no route matches. */
   readonly notFound: ReactElement
   /**
@@ -70,6 +76,9 @@ export function Router({
   shell,
   home,
   about,
+  signIn,
+  register,
+  profile,
   notFound,
   url,
 }: RouterProps): ReactElement {
@@ -84,6 +93,9 @@ export function Router({
         <Route path="/" element={shell(<Outlet />)}>
           <Route index element={home} />
           <Route path="about" element={about} />
+          <Route path="sign-in" element={signIn} />
+          <Route path="register" element={register} />
+          <Route path="profile" element={profile} />
           <Route path="*" element={notFound} />
         </Route>
       </Routes>

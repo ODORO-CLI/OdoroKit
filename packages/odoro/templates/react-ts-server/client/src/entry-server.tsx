@@ -30,6 +30,7 @@ import { StrictMode } from 'react'
 import { renderToString } from 'react-dom/server'
 
 import { App } from '@/App'
+import { SessionProvider } from '@/auth'
 
 /** The routes rendered at build time. */
 export const routes = ['/', '/about']
@@ -77,7 +78,13 @@ export function render(url: string): { html: string; head: string } {
     // hydration then reports a difference that is not one.
     html: renderToString(
       <StrictMode>
-        <App url={url} />
+        {/* The same tree as in the browser. The provider asks the server
+            nothing here — its request lives in an effect, and effects do not
+            run while prerendering — but a page that reads the session must
+            find it, or the whole prerender fails on that one page. */}
+        <SessionProvider>
+          <App url={url} />
+        </SessionProvider>
       </StrictMode>,
     ),
     head,
