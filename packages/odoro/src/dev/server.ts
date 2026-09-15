@@ -55,6 +55,7 @@ import {
   wrapAsset,
   estUneRessource,
   feuilleDemandee,
+  wrapJson,
   wrapStyle,
 } from './transform.js'
 
@@ -443,6 +444,19 @@ export async function startDevServer(config: ResolvedConfig): Promise<DevServer>
           }
           if (hasExtension(path, SCRIPT_EXTENSIONS)) {
             await serveScript(response, file)
+            return
+          }
+          // Un JSON importe par un module doit arriver **en module** : le
+          // servir tel quel donne `application/json` la ou le navigateur
+          // attend du JavaScript, et il refuse. Une requete ordinaire — un
+          // `fetch`, une adresse tapee — recoit le fichier.
+          if (hasExtension(path, ['.json'])) {
+            if (estUneRessource(incoming.headers) || url.includes('?import')) {
+              const json = await readFile(file, 'utf8')
+              send(response, wrapJson(json), MIME['.js'] ?? 'text/javascript')
+            } else {
+              serveFile(response, file)
+            }
             return
           }
           serveFile(response, file)

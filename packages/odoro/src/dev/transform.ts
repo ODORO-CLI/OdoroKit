@@ -250,6 +250,119 @@ export async function transformModule(
  * @example
  * const module = wrapStyle('/src/App.css', 'body { margin: 0 }')
  */
+/** Un identifiant que l'on peut exporter par son nom. */
+const IDENTIFIANT = /^[A-Za-z_$][A-Za-z0-9_$]*$/
+
+/**
+ * Les mots que le langage se reserve : ils ne peuvent pas nommer un export.
+ *
+ * La liste est complete, mode strict compris — un module l'est toujours. Elle
+ * l'est parce qu'une omission ne se voit pas a la lecture : un `package.json`
+ * porte une cle `private`, et `export const private` est une erreur de
+ * syntaxe qui casse le module entier, donc la page.
+ */
+const RESERVES = new Set([
+  'arguments',
+  'await',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'eval',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'implements',
+  'import',
+  'in',
+  'instanceof',
+  'interface',
+  'let',
+  'new',
+  'null',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'static',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'yield',
+])
+
+/**
+ * Rend un fichier JSON sous forme de module.
+ *
+ * ## Pourquoi il faut l'envelopper
+ *
+ * `import { dependencies } from './package.json'` est une forme courante, que
+ * la compilation resout : esbuild integre le JSON et en tire des exports
+ * nommes.
+ *
+ * Le serveur de developpement, lui, servait le fichier tel quel. Un module ne
+ * peut pas charger du JSON sans attribut d'import, et le navigateur echoue sur
+ *
+ *     Failed to load module script: Expected a JavaScript-or-Wasm module script
+ *     but the server responded with a MIME type of "application/json".
+ *
+ * La page reste blanche, et le message ne dit pas quel import est en cause.
+ *
+ * ## Les exports nommes, et pourquoi tous n'y sont pas
+ *
+ * Une cle qui n'est pas un identifiant — `lint:fix`, `@odoro-cli/libs` — ne
+ * peut pas nommer un export. Elle reste joignable par l'export par defaut, qui
+ * porte l'objet entier : c'est exactement ce que fait la compilation.
+ *
+ * @example
+ * wrapJson('{"a":1,"b-c":2}')
+ * // export default {"a":1,"b-c":2}
+ * // export const a = 1
+ */
+export function wrapJson(json: string): string {
+  let valeur: unknown
+  try {
+    valeur = JSON.parse(json)
+  } catch {
+    // Un JSON illisible reste une erreur du projet : on la laisse remonter au
+    // navigateur sous une forme qu'il sait afficher, plutot que de servir un
+    // module qui echouerait plus loin, sans rapport apparent.
+    return 'throw new SyntaxError("JSON illisible")'
+  }
+
+  const lignes = ['export default ' + json.trim()]
+
+  if (typeof valeur === 'object' && valeur !== null && !Array.isArray(valeur)) {
+    for (const [cle, contenu] of Object.entries(valeur)) {
+      if (!IDENTIFIANT.test(cle) || RESERVES.has(cle)) continue
+      lignes.push('export const ' + cle + ' = ' + JSON.stringify(contenu))
+    }
+  }
+
+  return lignes.join('\n')
+}
+
 /**
  * Ce que le navigateur annonce quand il va faire de la ressource autre chose
  * qu'une page.

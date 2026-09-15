@@ -6,6 +6,7 @@ import type { ResolvedConfig } from '../config.js'
 import { ModuleGraph, detectSelfAccepting } from './graph.js'
 import { extractEntries, injectClient } from './server.js'
 import {
+  wrapJson,
   estUneRessource,
   feuilleDemandee,
   applyAlias,
@@ -311,5 +312,46 @@ describe('estUneRessource', () => {
   it('ignore un en-tete repete', () => {
     // Node rend un tableau quand un en-tete arrive deux fois.
     expect(estUneRessource({ 'sec-fetch-dest': ['script', 'document'] })).toBe(false)
+  })
+})
+
+describe('wrapJson', () => {
+  it('rend l objet entier par defaut', () => {
+    expect(wrapJson('{"a":1}')).toContain('export default {"a":1}')
+  })
+
+  it('tire un export nomme de chaque cle qui peut en porter un', () => {
+    const module = wrapJson('{"name":"x","version":"1.0.0"}')
+    expect(module).toContain('export const name = "x"')
+    expect(module).toContain('export const version = "1.0.0"')
+  })
+
+  it('saute une cle qui ne peut pas nommer un export', () => {
+    // `lint:fix` et `@odoro-cli/libs` se rencontrent dans un package.json.
+    const module = wrapJson('{"lint:fix":1,"@odoro-cli/libs":"2","ok":3}')
+    expect(module).toContain('export const ok = 3')
+    expect(module).not.toContain('lint:fix =')
+    expect(module).not.toContain('@odoro-cli/libs =')
+  })
+
+  it('saute un mot reserve, meme en mode strict', () => {
+    // `private` est la cle d un package.json et un mot reserve : l exporter
+    // serait une erreur de syntaxe, qui casserait le module entier donc la page.
+    const module = wrapJson('{"private":true,"name":"x"}')
+    expect(module).not.toContain('export const private')
+    expect(module).toContain('export const name = "x"')
+    // Il reste joignable par l export par defaut.
+    expect(module).toContain('"private":true')
+  })
+
+  it('ne tire aucun export nomme d un tableau', () => {
+    const module = wrapJson('[1,2,3]')
+    expect(module).toContain('export default [1,2,3]')
+    expect(module).not.toContain('export const')
+  })
+
+  it('rend une erreur lisible sur un JSON illisible', () => {
+    // Servir un module qui echouerait plus loin masquerait la cause.
+    expect(wrapJson('{ casse')).toContain('SyntaxError')
   })
 })
